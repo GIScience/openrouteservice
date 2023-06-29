@@ -73,17 +73,17 @@ class JSONMatrixResponseTest {
         matrixResultDuration.setTable(MatrixMetricsType.DURATION, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
 
-        MatrixRequest apiRequestDuration = new MatrixRequest(bareCoordinates);
+        MatrixRequest apiRequestDuration = new MatrixRequest(bareCoordinates, endpointsProperties);
         apiRequestDuration.setProfile(APIEnums.Profile.DRIVING_CAR);
         apiRequestDuration.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DURATION});
         apiRequestDuration.setResolveLocations(true);
 
-        MatrixRequest apiRequestDistance = new MatrixRequest(bareCoordinates);
+        MatrixRequest apiRequestDistance = new MatrixRequest(bareCoordinates, endpointsProperties);
         apiRequestDistance.setProfile(APIEnums.Profile.DRIVING_CAR);
         apiRequestDistance.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE});
         apiRequestDistance.setResolveLocations(false);
 
-        MatrixRequest apiRequestCombined = new MatrixRequest(bareCoordinates);
+        MatrixRequest apiRequestCombined = new MatrixRequest(bareCoordinates, endpointsProperties);
         apiRequestCombined.setProfile(APIEnums.Profile.DRIVING_CAR);
         apiRequestCombined.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE, MatrixRequestEnums.Metrics.DURATION});
         apiRequestCombined.setResolveLocations(true);

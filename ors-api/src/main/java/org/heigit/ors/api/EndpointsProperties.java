@@ -3,6 +3,8 @@ package org.heigit.ors.api;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
+
 @Configuration
 @ConfigurationProperties(prefix = "endpoints")
 public class EndpointsProperties {
@@ -58,7 +60,7 @@ public class EndpointsProperties {
     public static class EndpointRoutingProperties {
         private boolean enabled;
         private String attribution;
-        private  String routingName;
+        private String routingName;
 
         public boolean isEnabled() {
             return enabled;
@@ -90,12 +92,13 @@ public class EndpointsProperties {
     public static class EndpointMatrixProperties {
         private boolean enabled;
         private String attribution;
-        private int maximumRoutes;
-        private int maximumRoutesFlexible;
-       	private int maximumVisitedNodes;
-        private double maximumSearchRadius;
-        private int uTurnCosts; // TODO: this parameter is only used in a binary check for infinity (==-1);
-                                //       Can't we reduce it to a boolean "forbid_u_turns"?
+        private int maximumRoutes = 2500;
+        private int maximumRoutesFlexible = 25;
+        private int maximumVisitedNodes = 100000;
+        private double maximumSearchRadius = 2000;
+        // TODO: this parameter is only used in a binary check for infinity (==-1);
+        //       Can't we reduce it to a boolean "forbid_u_turns"?
+        private double uTurnCost = INFINITE_U_TURN_COSTS;
 
 
         public boolean isEnabled() {
@@ -114,9 +117,9 @@ public class EndpointsProperties {
             this.attribution = attribution;
         }
 
-    	public int getMaximumRoutes(boolean flexible) {
-		    return (flexible? maximumRoutesFlexible : maximumRoutes);
-	    }
+        public int getMaximumRoutes(boolean flexible) {
+            return (flexible ? maximumRoutesFlexible : maximumRoutes);
+        }
 
         public void setMaximumRoutes(int maximumRoutes) {
             this.maximumRoutes = maximumRoutes;
@@ -134,20 +137,20 @@ public class EndpointsProperties {
             this.maximumVisitedNodes = maximumVisitedNodes;
         }
 
-    	public double getMaximumSearchRadius() {
-	    	return maximumSearchRadius;
-    	}
+        public double getMaximumSearchRadius() {
+            return maximumSearchRadius;
+        }
 
         public void setMaximumSearchRadius(double maximumSearchRadius) {
             this.maximumSearchRadius = maximumSearchRadius;
         }
 
-        public int getUTurnCosts() {
-            return uTurnCosts;
+        public double getUTurnCost() {
+            return uTurnCost;
         }
 
-        public void setUTurnCosts(int uTurnCosts) {
-            this.uTurnCosts = uTurnCosts;
+        public void setUTurnCost(double uTurnCosts) {
+            this.uTurnCost = uTurnCosts;
         }
     }
 

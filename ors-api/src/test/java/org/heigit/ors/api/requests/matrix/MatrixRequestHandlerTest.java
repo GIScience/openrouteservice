@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("unittest")
 class MatrixRequestHandlerTest {
-    private final MatrixRequest bareMatrixRequest = new MatrixRequest();
-    private final MatrixRequest matrixRequest = new MatrixRequest();
+    private MatrixRequest bareMatrixRequest;
+    private MatrixRequest matrixRequest;
     private final Coordinate[] coordinates = new Coordinate[3];
     private final Double[][] bareCoordinates = new Double[3][];
     private final Double[] bareCoordinate1 = new Double[2];
@@ -80,12 +80,22 @@ class MatrixRequestHandlerTest {
         coordinates[0] = coordinate1;
         coordinates[1] = coordinate2;
         coordinates[2] = coordinate3;
+
+        matrixRequest = new MatrixRequest(
+                endpointsProperties.getMatrix().getMaximumSearchRadius(),
+                endpointsProperties.getMatrix().getMaximumVisitedNodes(),
+                endpointsProperties.getMatrix().getUTurnCost());
         matrixRequest.setResolveLocations(true);
         matrixRequest.setMetrics(MatrixMetricsType.DURATION);
         matrixRequest.setSources(coordinates);
         matrixRequest.setDestinations(coordinates);
         matrixRequest.setProfileType(RoutingProfileType.CYCLING_REGULAR);
         matrixRequest.setUnits(DistanceUnit.METERS);
+
+        bareMatrixRequest = new MatrixRequest(
+                endpointsProperties.getMatrix().getMaximumSearchRadius(),
+                endpointsProperties.getMatrix().getMaximumVisitedNodes(),
+                endpointsProperties.getMatrix().getUTurnCost());
         bareMatrixRequest.setSources(coordinates);
         bareMatrixRequest.setDestinations(coordinates);
 
@@ -97,7 +107,7 @@ class MatrixRequestHandlerTest {
 
     @Test
     void convertMatrixRequestTest() throws StatusCodeException {
-        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
+        org.heigit.ors.api.requests.matrix.MatrixRequest springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates, endpointsProperties);
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"all"});
@@ -112,7 +122,7 @@ class MatrixRequestHandlerTest {
         assertFalse(matrixRequest.getFlexibleMode());
         assertNull(matrixRequest.getId());
 
-        springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates);
+        springMatrixRequest = new org.heigit.ors.api.requests.matrix.MatrixRequest(bareCoordinates, endpointsProperties);
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"all"});

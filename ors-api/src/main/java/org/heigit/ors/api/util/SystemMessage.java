@@ -18,7 +18,8 @@ public class SystemMessage {
     private static final Logger LOGGER = Logger.getLogger(SystemMessage.class.getName());
     private static List<Message> messages;
 
-    private SystemMessage() {}
+    private SystemMessage() {
+    }
 
     public static String getSystemMessage(Object requestObj, SystemMessageProperties messageProperties) {
         if (messages == null) {
@@ -33,23 +34,19 @@ public class SystemMessage {
         RequestParams params = new RequestParams();
         // V1
         if (requestObj.getClass() == RoutingRequest.class) {
-            extractParams((RoutingRequest)requestObj, params);
-        }
-        else if (requestObj.getClass() == org.heigit.ors.matrix.MatrixRequest.class) {
-            extractParams((org.heigit.ors.matrix.MatrixRequest)requestObj, params);
-        }
-        else if (requestObj.getClass() == org.heigit.ors.isochrones.IsochroneRequest.class) {
-            extractParams((org.heigit.ors.isochrones.IsochroneRequest)requestObj, params);
+            extractParams((RoutingRequest) requestObj, params);
+        } else if (requestObj.getClass() == org.heigit.ors.matrix.MatrixRequest.class) {
+            extractParams((org.heigit.ors.matrix.MatrixRequest) requestObj, params);
+        } else if (requestObj.getClass() == org.heigit.ors.isochrones.IsochroneRequest.class) {
+            extractParams((org.heigit.ors.isochrones.IsochroneRequest) requestObj, params);
         }
         // V2
         else if (requestObj.getClass() == RouteRequest.class) {
-            extractParams((RouteRequest)requestObj, params);
-        }
-        else if (requestObj.getClass() == MatrixRequest.class) {
-            extractParams((MatrixRequest)requestObj, params);
-        }
-        else if (requestObj.getClass() == IsochronesRequest.class) {
-            extractParams((IsochronesRequest)requestObj, params);
+            extractParams((RouteRequest) requestObj, params);
+        } else if (requestObj.getClass() == MatrixRequest.class) {
+            extractParams((MatrixRequest) requestObj, params);
+        } else if (requestObj.getClass() == IsochronesRequest.class) {
+            extractParams((IsochronesRequest) requestObj, params);
         }
         return selectMessage(params);
     }
@@ -121,20 +118,20 @@ public class SystemMessage {
                     loadConditionsForMessage(message, conditions);
                     messages.add(new SystemMessage.Message(message.getText(), conditions));
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // ignore otherwise incomplete messages entirely
                 LOGGER.warn(String.format("Invalid SystemMessage object in ors config %s.", message.toString().substring(18)));
             }
         }
         AppConfigMigration.loadSystemMessagesfromAppConfig(messages);
-        LOGGER.info(String.format("SystemMessage loaded %s messages.", messages.size()));
+        if (!messages.isEmpty())
+            LOGGER.info(String.format("SystemMessage loaded %s messages.", messages.size()));
     }
 
     private static void loadConditionsForMessage(SystemMessageProperties.MessageObject message, List<Condition> conditions) {
         try {
             for (Map<String, String> conditionMap : message.getCondition()) {
-                for (Map.Entry<String, String> condition: conditionMap.entrySet()) {
+                for (Map.Entry<String, String> condition : conditionMap.entrySet()) {
                     conditions.add(new Condition(condition.getKey(), condition.getValue()));
                 }
             }
@@ -177,23 +174,30 @@ public class SystemMessage {
         }
 
         public boolean fulfilledBy(RequestParams params) {
-            switch(type) {
-                case "time_before":
+            switch (type) {
+                case "time_before" -> {
                     return new Timestamp(System.currentTimeMillis()).getTime() < Date.from(Instant.parse(this.values[0])).getTime();
-                case "time_after":
+                }
+                case "time_after" -> {
                     return new Timestamp(System.currentTimeMillis()).getTime() > Date.from(Instant.parse(this.values[0])).getTime();
-                case "api_version":
+                }
+                case "api_version" -> {
                     return matchApiVersion(params);
-                case "api_format":
+                }
+                case "api_format" -> {
                     return matchApiFormat(params);
-                case "request_service":
+                }
+                case "request_service" -> {
                     return matchRequestService(params);
-                case "request_profile":
+                }
+                case "request_profile" -> {
                     return matchRequestProfiles(params);
-                case "request_preference":
+                }
+                case "request_preference" -> {
                     return matchRequestPreferences(params);
-                default: // unknown rule
-                    LOGGER.warn("Invalid condition set in system_message.");
+                }
+                default -> // unknown rule
+                        LOGGER.warn("Invalid condition set in system_message.");
             }
             return false;
         }

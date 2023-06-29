@@ -1,21 +1,27 @@
 package org.heigit.ors.api.responses.matrix.json;
 
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.ResolvedLocation;
+import org.heigit.ors.routing.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
+@ActiveProfiles("unittest")
 class JSONIndividualMatrixResponseTest {
     private final Double[][] bareCoordinates = new Double[3][];
     private final Double[] bareCoordinate1 = new Double[2];
@@ -24,6 +30,8 @@ class JSONIndividualMatrixResponseTest {
     private JSONIndividualMatrixResponse durationsMatrixResponse;
     private JSONIndividualMatrixResponse distancesMatrixResponse;
     private JSONIndividualMatrixResponse combinedMatrixResponse;
+    @Autowired
+    private EndpointsProperties endpointsProperties = new EndpointsProperties();
 
     @BeforeEach
     void setUp() throws StatusCodeException {
@@ -64,17 +72,17 @@ class JSONIndividualMatrixResponseTest {
         matrixResultDuration.setTable(MatrixMetricsType.DURATION, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
 
-        MatrixRequest apiRequestDuration = new MatrixRequest(bareCoordinates);
+        MatrixRequest apiRequestDuration = new MatrixRequest(bareCoordinates, endpointsProperties);
         apiRequestDuration.setProfile(APIEnums.Profile.DRIVING_CAR);
         apiRequestDuration.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DURATION});
         apiRequestDuration.setResolveLocations(true);
 
-        MatrixRequest apiRequestDistance = new MatrixRequest(bareCoordinates);
+        MatrixRequest apiRequestDistance = new MatrixRequest(bareCoordinates, endpointsProperties);
         apiRequestDistance.setProfile(APIEnums.Profile.DRIVING_CAR);
         apiRequestDistance.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE});
         apiRequestDistance.setResolveLocations(true);
 
-        MatrixRequest apiRequestCombined = new MatrixRequest(bareCoordinates);
+        MatrixRequest apiRequestCombined = new MatrixRequest(bareCoordinates, endpointsProperties);
         apiRequestCombined.setProfile(APIEnums.Profile.DRIVING_CAR);
         apiRequestCombined.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE, MatrixRequestEnums.Metrics.DURATION});
         apiRequestCombined.setResolveLocations(true);
@@ -90,12 +98,12 @@ class JSONIndividualMatrixResponseTest {
         assertNull(durationsMatrixResponse.getDistances());
         assertArrayEquals(new Double[]{0.0, 1.0, 2.0}, distancesMatrixResponse.getDistances()[0]);
 
-        assertArrayEquals(new Double[]{3.0,4.0,5.0}, combinedMatrixResponse.getDistances()[1]);
+        assertArrayEquals(new Double[]{3.0, 4.0, 5.0}, combinedMatrixResponse.getDistances()[1]);
     }
 
     @Test
     void setDistances() {
-        distancesMatrixResponse.setDistances(new Double[][]{{1.0, 2.0, 3.0},{1.0, 2.0, 3.0},{1.0, 2.0, 3.0}});
+        distancesMatrixResponse.setDistances(new Double[][]{{1.0, 2.0, 3.0}, {1.0, 2.0, 3.0}, {1.0, 2.0, 3.0}});
         assertEquals(3, distancesMatrixResponse.getDistances().length);
         assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, distancesMatrixResponse.getDistances()[0]);
         assertNull(durationsMatrixResponse.getDistances());
@@ -107,12 +115,12 @@ class JSONIndividualMatrixResponseTest {
         assertArrayEquals(new Double[]{0.0, 1.0, 2.0}, durationsMatrixResponse.getDurations()[0]);
         assertNull(distancesMatrixResponse.getDurations());
 
-        assertArrayEquals(new Double[]{3.0,4.0,5.0}, combinedMatrixResponse.getDurations()[1]);
+        assertArrayEquals(new Double[]{3.0, 4.0, 5.0}, combinedMatrixResponse.getDurations()[1]);
     }
 
     @Test
     void setDurations() {
-        durationsMatrixResponse.setDurations(new Double[][]{{1.0, 2.0, 3.0},{1.0, 2.0, 3.0},{1.0, 2.0, 3.0}});
+        durationsMatrixResponse.setDurations(new Double[][]{{1.0, 2.0, 3.0}, {1.0, 2.0, 3.0}, {1.0, 2.0, 3.0}});
         assertEquals(3, durationsMatrixResponse.getDurations().length);
         assertArrayEquals(new Double[]{1.0, 2.0, 3.0}, durationsMatrixResponse.getDurations()[0]);
         assertNull(distancesMatrixResponse.getDurations());

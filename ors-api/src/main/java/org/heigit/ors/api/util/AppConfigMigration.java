@@ -14,6 +14,7 @@ import java.util.List;
 public class AppConfigMigration {
     private static final Logger LOGGER = Logger.getLogger(AppConfigMigration.class.getName());
     public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
+    public static final String SERVICE_NAME_MATRIX = "matrix";
 
     private AppConfigMigration() {
     }
@@ -91,6 +92,30 @@ public class AppConfigMigration {
         String maximumLocationsIsochrones = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
         if (!StringUtility.isNullOrEmpty(maximumLocationsIsochrones))
             endpoints.getIsochrone().setMaximumLocations(Integer.parseInt(maximumLocationsIsochrones));
+
+        EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();
+        String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "enabled");
+        if (value != null)
+            matrix.setEnabled(Boolean.parseBoolean(value));
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "attribution");
+        if (value != null)
+            matrix.setAttribution(value);
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "maximum_search_radius");
+        if (value != null)
+            matrix.setMaximumSearchRadius(Math.max(1, Double.parseDouble(value)));
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "maximum_visited_nodes");
+        if (value != null)
+            matrix.setMaximumVisitedNodes(Math.max(1, Integer.parseInt(value)));
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "u_turn_cost");
+        if (value != null && Double.parseDouble(value) != -1.0)
+            matrix.setUTurnCost(Double.parseDouble(value));
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "maximum_routes");
+        if (value != null)
+            matrix.setMaximumRoutes(Math.max(1, Integer.parseInt(value)));
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_MATRIX, "maximum_routes_flexible");
+        if (value != null)
+            matrix.setMaximumRoutesFlexible(Math.max(1, Integer.parseInt(value)));
+
 
         return endpoints;
     }

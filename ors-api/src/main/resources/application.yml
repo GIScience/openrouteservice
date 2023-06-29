@@ -39,8 +39,6 @@ messages:
 
 ##### ORS endpoints settings #####
 endpoints:
-  default:
-    attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
   routing:
     enabled: true
     attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
