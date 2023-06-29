@@ -17,7 +17,6 @@ import com.graphhopper.util.Helper;
 import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.concaveballs.ConcaveBallsIsochroneMapBuilder;
 import org.heigit.ors.isochrones.builders.fast.FastIsochroneMapBuilder;
-import org.heigit.ors.isochrones.builders.grid.GridBasedIsochroneMapBuilder;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 
@@ -35,8 +34,8 @@ public class IsochroneMapBuilderFactory {
         isochroneBuilder.initialize(searchContext);
         return isochroneBuilder.compute(parameters);
     }
-    
-    private IsochroneMapBuilder createIsochroneMapBuilder(IsochroneSearchParameters parameters) throws IllegalArgumentException{
+
+    private IsochroneMapBuilder createIsochroneMapBuilder(IsochroneSearchParameters parameters) throws IllegalArgumentException {
         IsochroneMapBuilder isochroneBuilder;
         String method = parameters.getCalcMethod();
         boolean canUseFastIsochrones = !(parameters.getRouteParameters().requiresDynamicPreprocessedWeights() || parameters.getRouteParameters().requiresFullyDynamicWeights() || parameters.getReverseDirection());
@@ -48,8 +47,6 @@ public class IsochroneMapBuilderFactory {
                 isochroneBuilder = new ConcaveBallsIsochroneMapBuilder();
         } else if ("ConcaveBalls".equalsIgnoreCase(method)) {
             isochroneBuilder = new ConcaveBallsIsochroneMapBuilder();
-        } else if ("grid".equalsIgnoreCase(method)) {
-            isochroneBuilder = new GridBasedIsochroneMapBuilder();
         } else {
             throw new IllegalArgumentException("Unknown method.");
         }
