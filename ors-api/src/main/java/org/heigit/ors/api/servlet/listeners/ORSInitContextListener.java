@@ -42,13 +42,13 @@ public class ORSInitContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
+        final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
+                .setInitializationThreads(engineProperties.getInitThreads())
+                .setPreparationMode(engineProperties.isPreparationMode())
+                .setElevationPreprocessed(engineProperties.isElevationPreprocessed())
+                .buildWithAppConfigOverride();
         Runnable runnable = () -> {
             try {
-                EngineConfig config = EngineConfig.EngineConfigBuilder.init()
-                        .setInitializationThreads(engineProperties.getInitThreads())
-                        .setPreparationMode(engineProperties.isPreparationMode())
-                        .setElevationPreprocessed(engineProperties.isElevationPreprocessed())
-                        .buildWithAppConfigOverride();
                 new RoutingProfileManager(config);
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS." + e);
