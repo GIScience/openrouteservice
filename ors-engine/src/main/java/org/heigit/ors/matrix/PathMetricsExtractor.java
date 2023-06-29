@@ -13,8 +13,8 @@
  */
 package org.heigit.ors.matrix;
 
+import com.graphhopper.coll.GHLongObjectHashMap;
 import com.graphhopper.routing.SPTEntry;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeIterator;
@@ -27,16 +27,19 @@ public class PathMetricsExtractor {
 	private final int metrics;
 	private final Graph graph;
 	private final Weighting weighting;
-	private double edgeDistance;
-	private double edgeWeight;
-	private double edgeTime;
 	private final DistanceUnit distUnits;
+	private final GHLongObjectHashMap<MetricsItem> edgeMetrics = new GHLongObjectHashMap<>();
+	private class MetricsItem {
+		protected double distance;
+		protected double time;
+		protected double weight;
+	}
 
-	public PathMetricsExtractor(int metrics, Graph graph, FlagEncoder encoder, Weighting weighting, DistanceUnit units) {
+	public PathMetricsExtractor(int metrics, Graph graph, Weighting weighting, DistanceUnit units) {
 		this.metrics = metrics;
 		this.graph = graph;
 		this.weighting = weighting;
-		distUnits = units;
+		this.distUnits = units;
 	}
 
 	public void setEmptyValues(int sourceIndex, MatrixLocations dstData, float[] times, float[] distances, float[] weights) {
@@ -53,7 +56,7 @@ public class PathMetricsExtractor {
 
 	public void calcValues(int sourceIndex, SPTEntry[] targets, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws IllegalStateException, StatusCodeException {
 		if (targets == null)
-			throw new IllegalStateException("Target destinations not set"); 
+			throw new IllegalStateException("Target destinations not set");
 
 		int index = sourceIndex * dstData.size();
 		double pathTime;
@@ -68,21 +71,28 @@ public class PathMetricsExtractor {
 
 			if (goalEdge != null) {
 				pathTime = 0.0;
-				pathDistance = 0.0; 
+				pathDistance = 0.0;
 				pathWeight = 0.0;
 
 				while (EdgeIterator.Edge.isValid(goalEdge.edge)) {
 					EdgeIteratorState iter = graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
-					if (calcDistance)
-						edgeDistance = (distUnits == DistanceUnit.METERS) ? iter.getDistance(): DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.METERS, distUnits);
-					if (calcTime)
-						edgeTime = weighting.calcEdgeMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
-					if (calcWeight)
-						edgeWeight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
+					long edgeKey = iter.getEdgeKey();
+					MetricsItem edgeMetricsItem = edgeMetrics.get(edgeKey);
 
-					pathDistance += edgeDistance;
-					pathTime += edgeTime;
-					pathWeight += edgeWeight;
+					if (edgeMetricsItem == null) {
+						edgeMetricsItem = new MetricsItem();
+						if (calcDistance)
+							edgeMetricsItem.distance = (distUnits == DistanceUnit.METERS) ? iter.getDistance() : DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.METERS, distUnits);
+						if (calcTime)
+							edgeMetricsItem.time = weighting.calcEdgeMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
+						if (calcWeight)
+							edgeMetricsItem.weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
+						edgeMetrics.put(edgeKey, edgeMetricsItem);
+					}
+
+					pathDistance += edgeMetricsItem.distance;
+					pathTime += edgeMetricsItem.time;
+					pathWeight += edgeMetricsItem.weight;
 
 					goalEdge = goalEdge.parent;
 
