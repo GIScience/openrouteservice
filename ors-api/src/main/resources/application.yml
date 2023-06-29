@@ -53,6 +53,7 @@ endpoints:
     u_turn_costs: -1
   isochrone:
     enabled: true
+    attribution: openrouteservice.org, OpenStreetMap contributors
     maximum_locations: 2
     maximum_intervals: 1
     allow_compute_area: true

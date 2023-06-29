@@ -134,7 +134,7 @@ public class IsochronesAPI {
 
         request.generateIsochronesFromRequest(endpointsProperties);
         IsochroneMapCollection isoMaps = request.getIsoMaps();
-        return new GeoJSONIsochronesResponse(request, isoMaps, systemMessageProperties);
+        return new GeoJSONIsochronesResponse(request, isoMaps, systemMessageProperties, endpointsProperties);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

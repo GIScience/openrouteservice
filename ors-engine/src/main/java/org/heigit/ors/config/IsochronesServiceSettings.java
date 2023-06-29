@@ -28,7 +28,6 @@ public class IsochronesServiceSettings {
     public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
     public static final String SERVICE_NAME_FASTISOCHRONES = "fastisochrones.";
     public static final String PARAM_STATISTICS_PROVIDERS = "statistics_providers.";
-    public static final String KEY_ATTRIBUTION = "attribution";
     private static boolean enabled = true;
     private static int maximumRangeDistance = 100000; //  in meters
     private static Map<Integer, Integer> profileMaxRangeDistances;
@@ -40,7 +39,6 @@ public class IsochronesServiceSettings {
     private static Map<Integer, Integer> fastIsochronesProfileMaxRangeTimes;
     private static Set<Integer> fastIsochroneProfiles = new HashSet<>();
     private static Map<String, StatisticsProviderConfiguration> statsProviders;
-    private static String attribution = "";
     private static String weightings = "";
     private static AppConfig config;
 
@@ -116,8 +114,8 @@ public class IsochronesServiceSettings {
 
                     if (propMapping.size() > 0) {
                         String attribution = null;
-                        if (provider.containsKey(KEY_ATTRIBUTION))
-                            attribution = provider.get(KEY_ATTRIBUTION).toString();
+                        if (provider.containsKey("attribution"))
+                            attribution = provider.get("attribution").toString();
 
                         id++;
                         StatisticsProviderConfiguration provConfig = new StatisticsProviderConfiguration(id, provName, providerParams, propMapping, attribution);
@@ -128,9 +126,6 @@ public class IsochronesServiceSettings {
             }
         }
 
-        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, KEY_ATTRIBUTION);
-        if (value != null)
-            attribution = value;
     }
 
     private IsochronesServiceSettings() {
@@ -216,10 +211,6 @@ public class IsochronesServiceSettings {
             return false;
 
         return statsProviders.containsKey(attrName.toLowerCase());
-    }
-
-    public static String getAttribution() {
-        return attribution;
     }
 
     public static String getParameter(String paramName) {

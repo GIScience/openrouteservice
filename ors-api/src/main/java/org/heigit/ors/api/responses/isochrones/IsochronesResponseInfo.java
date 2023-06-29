@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.util.SystemMessage;
@@ -59,15 +60,15 @@ public class IsochronesResponseInfo {
     @JsonProperty("system_message")
     private final String systemMessage;
 
-    public IsochronesResponseInfo(IsochronesRequest request, SystemMessageProperties systemMessageProperties) {
+    public IsochronesResponseInfo(IsochronesRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) {
         service = "isochrones";
         timeStamp = System.currentTimeMillis();
 
         if (AppConfig.hasValidMD5Hash())
             osmFileMD5Hash = AppConfig.getMD5Hash();
 
-        if (!Helper.isEmpty(IsochronesServiceSettings.getAttribution()))
-            attribution = IsochronesServiceSettings.getAttribution();
+        if (!Helper.isEmpty(endpointsProperties.getIsochrone().getAttribution()))
+            attribution = endpointsProperties.getIsochrone().getAttribution();
 
         if (request.hasId())
             id = request.getId();

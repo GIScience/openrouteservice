@@ -16,6 +16,7 @@
 package org.heigit.ors.api.responses.isochrones;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
@@ -33,8 +34,8 @@ public class IsochronesResponse {
     @JsonIgnore
     protected List<GeoJSONIsochroneBase> isochroneResults;
 
-    public IsochronesResponse(IsochronesRequest request, SystemMessageProperties systemMessageProperties) {
-        responseInformation = new IsochronesResponseInfo(request, systemMessageProperties);
+    public IsochronesResponse(IsochronesRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) {
+        responseInformation = new IsochronesResponseInfo(request, systemMessageProperties, endpointsProperties);
     }
 
     public IsochronesResponseInfo getResponseInformation() {
