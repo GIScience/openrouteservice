@@ -28,7 +28,6 @@ public class IsochronesServiceSettings {
     public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
     public static final String SERVICE_NAME_FASTISOCHRONES = "fastisochrones.";
     public static final String PARAM_STATISTICS_PROVIDERS = "statistics_providers.";
-    private static boolean enabled = true;
     private static int maximumRangeDistance = 100000; //  in meters
     private static Map<Integer, Integer> profileMaxRangeDistances;
     private static int maximumRangeTime = 3600; // in seconds
@@ -43,11 +42,8 @@ public class IsochronesServiceSettings {
 
     static {
         config = AppConfig.getGlobal();
-        String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "enabled");
-        if (value != null)
-            enabled = Boolean.parseBoolean(value);
 
-        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_range_distance");
+        String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_range_distance");
         if (value != null)
             maximumRangeDistance = Integer.parseInt(value);
         else {
@@ -147,10 +143,6 @@ public class IsochronesServiceSettings {
         }
 
         return result;
-    }
-
-    public static boolean getEnabled() {
-        return enabled;
     }
 
     public static void setFastIsochronesActive(String profile) {

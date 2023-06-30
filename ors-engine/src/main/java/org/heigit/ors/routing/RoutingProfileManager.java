@@ -137,7 +137,7 @@ public class RoutingProfileManager {
         long startTime = System.currentTimeMillis();
         this.config = config;
         try {
-            if (RoutingServiceSettings.getEnabled()) {
+            if (config.isEnabled()) {
                 RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 
                 int initializationThreads = config.getInitializationThreads();

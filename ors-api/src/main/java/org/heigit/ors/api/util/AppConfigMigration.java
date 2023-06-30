@@ -15,6 +15,7 @@ public class AppConfigMigration {
     private static final Logger LOGGER = Logger.getLogger(AppConfigMigration.class.getName());
     public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
     public static final String SERVICE_NAME_MATRIX = "matrix";
+    public static final String SERVICE_NAME_ROUTING = "routing";
 
     private AppConfigMigration() {
     }
@@ -89,7 +90,10 @@ public class AppConfigMigration {
 
     public static EndpointsProperties overrideEndpointsProperties(EndpointsProperties endpoints) {
         EndpointsProperties.EndpointIsochroneProperties isochrones = endpoints.getIsochrone();
-        String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
+        String value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "enabled");
+        if (value != null)
+            isochrones.setEnabled(Boolean.parseBoolean(value));
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
         if (!StringUtility.isNullOrEmpty(value))
             isochrones.setMaximumLocations(Integer.parseInt(value));
         value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ISOCHRONES, "allow_compute_area");
@@ -125,6 +129,13 @@ public class AppConfigMigration {
         if (value != null)
             matrix.setMaximumRoutesFlexible(Math.max(1, Integer.parseInt(value)));
 
+        EndpointsProperties.EndpointRoutingProperties routing = endpoints.getRouting();
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ROUTING, "enabled");
+        if (value != null)
+            routing.setEnabled(Boolean.parseBoolean(value));
+        value = AppConfig.getGlobal().getServiceParameter(SERVICE_NAME_ROUTING, "attribution");
+        if (value != null)
+            routing.setAttribution(value);
 
         return endpoints;
     }

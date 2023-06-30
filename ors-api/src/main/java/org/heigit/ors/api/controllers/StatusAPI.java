@@ -67,7 +67,7 @@ public class StatusAPI {
                 List<String> list = new ArrayList<>(4);
                 if (endpointsProperties.getRouting().isEnabled())
                     list.add("routing");
-                if (IsochronesServiceSettings.getEnabled())
+                if (endpointsProperties.getIsochrone().isEnabled())
                     list.add("isochrones");
                 if (endpointsProperties.getMatrix().isEnabled())
                     list.add("matrix");

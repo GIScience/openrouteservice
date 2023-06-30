@@ -7,6 +7,7 @@ public class EngineConfig {
     private final boolean preparationMode;
     private final String sourceFile;
     private final boolean elevationPreprocessed;
+    private final boolean enabled;
 
     public int getInitializationThreads() {
         return initializationThreads;
@@ -24,11 +25,16 @@ public class EngineConfig {
         return elevationPreprocessed;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     public EngineConfig(EngineConfigBuilder builder) {
         this.initializationThreads = builder.initializationThreads;
         this.preparationMode = builder.preparationMode;
         this.sourceFile = builder.sourceFile;
         this.elevationPreprocessed = builder.elevationPreprocessed;
+        this.enabled = builder.enabled;
     }
 
     public static class EngineConfigBuilder {
@@ -37,6 +43,7 @@ public class EngineConfig {
         private boolean preparationMode;
         private String sourceFile;
         private boolean elevationPreprocessed;
+        private boolean enabled;
 
         public static EngineConfigBuilder init() {
             return new EngineConfigBuilder();
@@ -63,6 +70,11 @@ public class EngineConfig {
             return this;
         }
 
+        public EngineConfigBuilder setEnabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
         public EngineConfig build() {
             return new EngineConfig(this);
         }
@@ -85,6 +97,10 @@ public class EngineConfig {
             value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "elevation_preprocessed");
             if (value != null)
                 elevationPreprocessed = "true".equalsIgnoreCase(value);
+
+            value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "enabled");
+            if (value != null)
+                enabled = "true".equalsIgnoreCase(value);
 
             return new EngineConfig(this);
         }

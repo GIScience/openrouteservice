@@ -20,11 +20,9 @@ import java.util.Map;
 
 public class RoutingServiceSettings {
     private static final String SERVICE_NAME_ROUTING = "routing";
-    private static boolean enabled = true;
     private static String sourceFile = "";
     private static boolean distanceApproximation = false;
     private static String storageFormat = "Native";
-    private static String attribution = "";
     private static String routingName = "openrouteservice directions";
     private static AppConfig config;
 
@@ -42,13 +40,9 @@ public class RoutingServiceSettings {
     }
 
     private static void init(AppConfig config) {
-        String value = config.getServiceParameter(SERVICE_NAME_ROUTING, "enabled");
-        if (value != null)
-            enabled = Boolean.parseBoolean(value);
-
         sourceFile = RoutingServiceSettings.config.getServiceParametersList(SERVICE_NAME_ROUTING, "sources").get(0);
 
-        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "distance_approximation");
+        String value = config.getServiceParameter(SERVICE_NAME_ROUTING, "distance_approximation");
         if (value != null)
             distanceApproximation = Boolean.parseBoolean(value);
 
@@ -56,17 +50,9 @@ public class RoutingServiceSettings {
         if (value != null)
             storageFormat = value;
 
-        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "attribution");
-        if (value != null)
-            attribution = value;
-
         value = config.getServiceParameter(SERVICE_NAME_ROUTING, "routing_name");
         if (value != null)
             routingName = value;
-    }
-
-    public static boolean getEnabled() {
-        return enabled;
     }
 
     public static String getSourceFile() {
@@ -105,9 +91,6 @@ public class RoutingServiceSettings {
         return config.getServiceParametersMap(SERVICE_NAME_ROUTING, paramName, quotedStrings);
     }
 
-    public static String getAttribution() {
-        return attribution;
-    }
 
     public static String getRoutingName() {
         return routingName;
