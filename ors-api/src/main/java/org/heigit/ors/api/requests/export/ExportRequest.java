@@ -39,7 +39,7 @@ public class ExportRequest extends APIRequest {
     private APIEnums.Profile profile;
 
     @Schema(name= PARAM_BBOX, description = "The bounding box to use for the request as an array of `longitude/latitude` pairs",
-            example = "[8.681495,49.41461,8.686507,49.41943]",
+            example = "[[8.681495,49.41461],[8.686507,49.41943]]",
             requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_BBOX)
     private List<List<Double>> bbox; //apparently, this has to be a non-primitive type…
