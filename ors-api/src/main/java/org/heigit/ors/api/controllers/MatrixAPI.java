@@ -98,7 +98,7 @@ public class MatrixAPI {
             description = "Standard response for successfully processed requests. Returns JSON.",
             content = {@Content(
                     mediaType = "application/json;charset=UTF-8",
-                    array = @ArraySchema(schema = @Schema(implementation = JSONMatrixResponse.class))
+                    schema = @Schema(implementation = JSONMatrixResponse.class)
             )
             })
     public JSONMatrixResponse getDefault(@Parameter(name = "profile", description = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,

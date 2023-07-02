@@ -86,7 +86,7 @@ public class ExportAPI {
             description = "Standard response for successfully processed requests. Returns JSON.",
             content = {@Content(
                     mediaType = "application/geo+json",
-                    array = @ArraySchema(schema = @Schema(implementation = JsonExportResponse.class))
+                    schema = @Schema(implementation = JsonExportResponse.class)
             )
             })
     public JsonExportResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
@@ -104,7 +104,7 @@ public class ExportAPI {
             description = "JSON Response.",
             content = {@Content(
                     mediaType = "application/geo+json",
-                    array = @ArraySchema(schema = @Schema(implementation = JsonExportResponse.class))
+                    schema = @Schema(implementation = JsonExportResponse.class)
             )
             })
     public JsonExportResponse getJsonExport(

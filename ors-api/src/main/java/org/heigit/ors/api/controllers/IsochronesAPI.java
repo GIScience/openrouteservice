@@ -101,7 +101,7 @@ public class IsochronesAPI {
             description = "Standard response for successfully processed requests. Returns GeoJSON.",
             content = {@Content(
                     mediaType = "application/geo+json",
-                    array = @ArraySchema(schema = @Schema(implementation = GeoJSONIsochronesResponse.class))
+                    schema = @Schema(implementation = GeoJSONIsochronesResponse.class)
             )
             })
     public GeoJSONIsochronesResponse getDefaultIsochrones(
@@ -125,7 +125,7 @@ public class IsochronesAPI {
             description = "Standard response for successfully processed requests. Returns GeoJSON.",
             content = {@Content(
                     mediaType = "application/geo+json",
-                    array = @ArraySchema(schema = @Schema(implementation = GeoJSONIsochronesResponse.class))
+                    schema = @Schema(implementation = GeoJSONIsochronesResponse.class)
             )
             })
     public GeoJSONIsochronesResponse getGeoJsonIsochrones(

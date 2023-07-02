@@ -101,7 +101,7 @@ public class RoutingAPI {
             description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
             content = {@Content(
                     mediaType = "application/geo+json",
-                    array = @ArraySchema(schema = @Schema(implementation = GeoJSONRouteResponse.class))
+                    schema = @Schema(implementation = GeoJSONRouteResponse.class)
             )
             })
     public GeoJSONRouteResponse getSimpleGeoJsonRoute(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
@@ -125,7 +125,7 @@ public class RoutingAPI {
             description = "Standard response for successfully processed requests. Returns JSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
             content = {@Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = JSONRouteResponse.class))
+                    schema = @Schema(implementation = JSONRouteResponse.class)
             )
             })
     public JSONRouteResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
@@ -142,7 +142,7 @@ public class RoutingAPI {
             description = "JSON Response",
             content = {@Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = JSONRouteResponse.class))
+                    schema = @Schema(implementation = JSONRouteResponse.class)
             )
             })
     public JSONRouteResponse getJsonRoute(
@@ -166,7 +166,7 @@ public class RoutingAPI {
             description = "Standard response for successfully processed requests. Returns GPX.",
             content = {@Content(
                     mediaType = "application/gpx+xml",
-                    array = @ArraySchema(schema = @Schema(implementation = GPXRouteResponse.class))
+                    schema = @Schema(implementation = GPXRouteResponse.class)
             )
             })
     public GPXRouteResponse getGPXRoute(
@@ -191,7 +191,7 @@ public class RoutingAPI {
             description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
             content = {@Content(
                     mediaType = "application/geo+json",
-                    array = @ArraySchema(schema = @Schema(implementation = GeoJSONRouteResponse.class))
+                    schema = @Schema(implementation = GeoJSONRouteResponse.class)
             )
             })
     public GeoJSONRouteResponse getGeoJsonRoute(
