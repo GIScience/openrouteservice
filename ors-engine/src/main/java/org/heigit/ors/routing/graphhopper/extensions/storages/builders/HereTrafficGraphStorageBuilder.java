@@ -25,6 +25,8 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
+import me.tongfei.progressbar.DelegatingProgressBarConsumer;
+import me.tongfei.progressbar.ProgressBarBuilder;
 import org.heigit.ors.mapmatching.GhMapMatcher;
 import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
@@ -314,7 +316,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     private void processTrafficPatterns(IntObjectHashMap<TrafficPattern> patterns) {
-        try (ProgressBar pb = new ProgressBar("Processing traffic patterns", patterns.values().size())) {
+        try (ProgressBar pb = new ProgressBarBuilder().setTaskName("Processing traffic patterns").setInitialMax(patterns.values().size()).setConsumer(new DelegatingProgressBarConsumer(LOGGER::debug)).build()) {
             for (ObjectCursor<TrafficPattern> pattern : patterns.values()) {
                 storage.setTrafficPatterns(pattern.value.getPatternId(), pattern.value.getValues());
                 pb.step();
@@ -325,7 +327,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     private void processLinks(ORSGraphHopper graphHopper, IntObjectHashMap<TrafficLink> links) {
-        try (ProgressBar pb = new ProgressBar("Matching Here Links", links.values().size())) {
+        try (ProgressBar pb = new ProgressBarBuilder().setTaskName("Matching Here Links").setInitialMax(links.values().size()).setConsumer(new DelegatingProgressBarConsumer(LOGGER::debug)).build()) {
             int counter = 0;
             for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
                 processLink(graphHopper, trafficLink.value);
@@ -476,4 +478,8 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             return routeSegmentInfo;
     }
 
+    private class setTaskName {
+        public setTaskName(String matchingHereLinks) {
+        }
+    }
 }

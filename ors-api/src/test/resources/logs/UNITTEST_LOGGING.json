@@ -7,7 +7,7 @@
       "Console": {
         "name": "stdout",
         "PatternLayout": {
-          "pattern": "%d{dd MMM HH:mm:ss} %highlight{%p} %style{%25t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
+          "pattern": "%d{dd MMM HH:mm:ss} %highlight{%-7p} %style{%25t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
         }
       }
     },

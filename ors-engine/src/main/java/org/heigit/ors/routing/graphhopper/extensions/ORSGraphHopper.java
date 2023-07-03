@@ -140,8 +140,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 			int prevNodeCount = ghs.getNodes();
 			int ex = ghs.getAllEdges().length();
 			List<FlagEncoder> list = getEncodingManager().fetchEdgeEncoders();
-			if (LOGGER.isInfoEnabled())
-				LOGGER.info(String.format("will create PrepareRoutingSubnetworks with:%n\tNodeCountBefore: '%d'%n\tgetAllEdges().getMaxId(): '%d'%n\tList<FlagEncoder>: '%s'%n\tminNetworkSize: '%d'%n\tminOneWayNetworkSize: '%d'", prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
+			if (LOGGER.isDebugEnabled())
+				LOGGER.debug(String.format("will create PrepareRoutingSubnetworks with: NodeCountBefore: '%d' getAllEdges().getMaxId(): '%d' List<FlagEncoder>: '%s' minNetworkSize: '%d' minOneWayNetworkSize: '%d'", prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
 			);
 			ghs.getProperties().put("elevation", hasElevation());
 		} else {

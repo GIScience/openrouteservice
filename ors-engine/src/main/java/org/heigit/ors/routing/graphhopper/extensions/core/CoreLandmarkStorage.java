@@ -96,7 +96,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         DataAccess landmarkWeightDA = getLandmarkWeightDA();
         List<int[]> landmarkIDs = getLandmarkIDs();
         AreaIndex<SplitArea> areaIndex = getAreaIndex();
-        boolean logDetails = true;//isLogDetails();
+        boolean logDetails = LOGGER.isDebugEnabled();
         SubnetworkStorage subnetworkStorage = getSubnetworkStorage();
         int coreNodes = getBaseNodes();
 
@@ -133,7 +133,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             StopWatch sw = new StopWatch().start();
             blockedEdges = findBorderEdgeIds(areaIndex);
             if (logDetails)
-                logger.info(configName() + "Made " + blockedEdges.size() + " edges inaccessible. Calculated country cut in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
+                logger.debug(configName() + "Made " + blockedEdges.size() + " edges inaccessible. Calculated country cut in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
         } else {
             blockedEdges = new IntHashSet();
         }
@@ -145,7 +145,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         TarjansCoreSCCAlgorithm tarjanAlgo = new TarjansCoreSCCAlgorithm(graph, core, accessFilter, false);
         List<IntArrayList> graphComponents = tarjanAlgo.findComponents();
         if (logDetails)
-            logger.info(configName() + "Calculated " + graphComponents.size() + " subnetworks via tarjan in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
+            logger.debug(configName() + "Calculated " + graphComponents.size() + " subnetworks via tarjan in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
 
         String additionalInfo = "";
         // guess the factor
@@ -162,7 +162,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         double factor = getFactor();
 
         if (logDetails)
-            logger.info(configName() + "init landmarks for subnetworks with node count greater than " + minimumNodes + " with factor:" + factor + additionalInfo);
+            logger.debug(configName() + "init landmarks for subnetworks with node count greater than " + minimumNodes + " with factor:" + factor + additionalInfo);
 
         int nodes = 0;
         for (IntArrayList subnetworkIds : graphComponents) {
@@ -180,7 +180,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                 if (subnetworks[getIndex(nextStartNode)] == UNSET_SUBNETWORK) {
                     if (logDetails) {
                         GHPoint p = createPoint(graph, nextStartNode);
-                        logger.info(configName() + "start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
+                        logger.debug(configName() + "start node: " + nextStartNode + " (" + p + ") subnetwork " + index + ", subnetwork size: " + subnetworkIds.size()
                                 + ", " + Helper.getMemInfo() + ((areaIndex == null) ? "" : " area:" + areaIndex.query(p.lat, p.lon)));
                     }
                     if (createLandmarksForSubnetwork(nextStartNode, subnetworks, accessFilter))
@@ -218,7 +218,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         }
 
         if (logDetails)
-            logger.info(configName() + "Finished landmark creation. Subnetwork node count sum " + nodes + " vs. nodes " + coreNodes);
+            logger.debug(configName() + "Finished landmark creation. Subnetwork node count sum " + nodes + " vs. nodes " + coreNodes);
         setInitialized(true);
     }
 
