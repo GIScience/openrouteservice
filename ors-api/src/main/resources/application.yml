@@ -27,22 +27,21 @@ cors:
   allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
   preflight_max_age: 600
 
-info:
-  base_url: https://openrouteservice.org/
-  swagger_documentation_url: https://api.openrouteservice.org/
-  support_mail: support@openrouteservice.org
-  author_tag: openrouteservice
-  content_licence: LGPL 3.0
-
 messages:
 
 
 ##### ORS endpoints settings #####
 endpoints:
+  swagger_documentation_url: https://api.openrouteservice.org/
   routing:
     enabled: true
     attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
-    routing_name: ORSRouting
+    gpx_name: ORSRouting
+    gpx_description: This is a directions instructions file as GPX, generated from openrouteservice
+    gpx_base_url: https://openrouteservice.org/
+    gpx_support_mail: support@openrouteservice.org
+    gpx_author: openrouteservice
+    gpx_content_licence: LGPL 3.0
   matrix:
     enabled: true
     attribution: openrouteservice.org, OpenStreetMap contributors
@@ -64,6 +63,7 @@ engine:
   init_threads: 2
   preparation_mode: false
   elevation_preprocessed: false
+  sourceFile: ./src/test/files/heidelberg.osm.gz
 
 
 ##### Logging settings #####

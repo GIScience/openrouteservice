@@ -9,6 +9,7 @@ public class EngineProperties {
     private int initThreads;
     private boolean preparationMode;
     private boolean elevationPreprocessed;
+    private String sourceFile;
     public int getInitThreads() {
         return initThreads;
     }
@@ -30,5 +31,13 @@ public class EngineProperties {
 
     public void setElevationPreprocessed(boolean elevationPreprocessed) {
         this.elevationPreprocessed = elevationPreprocessed;
+    }
+
+    public String getSourceFile() {
+        return sourceFile;
+    }
+
+    public void setSourceFile(String sourceFile) {
+        this.sourceFile = sourceFile;
     }
 }

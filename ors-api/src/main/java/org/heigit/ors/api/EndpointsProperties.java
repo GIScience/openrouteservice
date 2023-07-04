@@ -13,6 +13,16 @@ public class EndpointsProperties {
     private EndpointMatrixProperties matrix;
     private EndpointIsochroneProperties isochrone;
 
+    private String swaggerDocumentationUrl;
+
+    public void setSwaggerDocumentationUrl(String swaggerDocumentationUrl) {
+        this.swaggerDocumentationUrl = swaggerDocumentationUrl;
+    }
+
+    public String getSwaggerDocumentationUrl() {
+        return swaggerDocumentationUrl;
+    }
+
     public EndpointDefaultProperties getDefaults() {
         return defaults;
     }
@@ -60,7 +70,12 @@ public class EndpointsProperties {
     public static class EndpointRoutingProperties {
         private boolean enabled;
         private String attribution;
-        private String routingName;
+        private String gpxName;
+        private String gpxDescription;
+        private String gpxBaseUrl;
+        private String gpxSupportMail;
+        private String gpxAuthor;
+        private String gpxContentLicence;
 
         public boolean isEnabled() {
             return enabled;
@@ -78,15 +93,53 @@ public class EndpointsProperties {
             this.attribution = attribution;
         }
 
-        public String getRoutingName() {
-            return routingName;
+        public String getGpxName() {
+            return gpxName;
         }
 
-        public void setRoutingName(String routingName) {
-            this.routingName = routingName;
+        public void setGpxName(String gpxName) {
+            this.gpxName = gpxName;
         }
 
+        public String getGpxDescription() {
+            return gpxDescription;
+        }
 
+        public void setGpxDescription(String gpxDescription) {
+            this.gpxDescription = gpxDescription;
+        }
+
+        public String getGpxBaseUrl() {
+            return gpxBaseUrl;
+        }
+
+        public void setGpxBaseUrl(String gpxBaseUrl) {
+            this.gpxBaseUrl = gpxBaseUrl;
+        }
+
+        public String getGpxSupportMail() {
+            return gpxSupportMail;
+        }
+
+        public void setGpxSupportMail(String gpxSupportMail) {
+            this.gpxSupportMail = gpxSupportMail;
+        }
+
+        public String getGpxAuthor() {
+            return gpxAuthor;
+        }
+
+        public void setGpxAuthor(String gpxAuthor) {
+            this.gpxAuthor = gpxAuthor;
+        }
+
+        public String getGpxContentLicence() {
+            return gpxContentLicence;
+        }
+
+        public void setGpxContentLicence(String gpxContentLicence) {
+            this.gpxContentLicence = gpxContentLicence;
+        }
     }
 
     public static class EndpointMatrixProperties {

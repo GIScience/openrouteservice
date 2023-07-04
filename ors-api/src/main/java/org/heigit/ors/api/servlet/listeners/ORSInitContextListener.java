@@ -46,6 +46,7 @@ public class ORSInitContextListener implements ServletContextListener {
                 .setInitializationThreads(engineProperties.getInitThreads())
                 .setPreparationMode(engineProperties.isPreparationMode())
                 .setElevationPreprocessed(engineProperties.isElevationPreprocessed())
+                .setSourceFile(engineProperties.getSourceFile())
                 .buildWithAppConfigOverride();
         Runnable runnable = () -> {
             try {

@@ -22,7 +22,6 @@ import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
-import org.heigit.ors.config.RoutingServiceSettings;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportRequest;
@@ -137,67 +136,65 @@ public class RoutingProfileManager {
         long startTime = System.currentTimeMillis();
         this.config = config;
         try {
-            if (config.isEnabled()) {
-                RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
+            RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 
-                int initializationThreads = config.getInitializationThreads();
-                LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
-                        config.getSourceFile(), initializationThreads));
+            int initializationThreads = config.getInitializationThreads();
+            LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
+                    config.getSourceFile(), initializationThreads));
 
-                if (config.isPreparationMode()) {
-                    prepareGraphs(graphProps, config);
-                } else {
-                    routeProfiles = new RoutingProfilesCollection();
-                    int nRouteInstances = rmc.getProfiles().length;
+            if (config.isPreparationMode()) {
+                prepareGraphs(graphProps, config);
+            } else {
+                routeProfiles = new RoutingProfilesCollection();
+                int nRouteInstances = rmc.getProfiles().length;
 
-                    RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
-                    ExecutorService executor = Executors.newFixedThreadPool(initializationThreads);
-                    ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<>(executor);
+                RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
+                ExecutorService executor = Executors.newFixedThreadPool(initializationThreads);
+                ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<>(executor);
 
-                    int nTotalTasks = 0;
+                int nTotalTasks = 0;
 
-                    for (int i = 0; i < nRouteInstances; i++) {
-                        RouteProfileConfiguration rpc = rmc.getProfiles()[i];
-                        if (!rpc.getEnabled())
-                            continue;
+                for (int i = 0; i < nRouteInstances; i++) {
+                    RouteProfileConfiguration rpc = rmc.getProfiles()[i];
+                    if (!rpc.getEnabled())
+                        continue;
 
-                        if (rpc.getProfilesTypes() != null) {
-                            Callable<RoutingProfile> task = new RoutingProfileLoader(config, rpc, loadCntx);
-                            compService.submit(task);
-                            nTotalTasks++;
-                        }
+                    if (rpc.getProfilesTypes() != null) {
+                        Callable<RoutingProfile> task = new RoutingProfileLoader(config, rpc, loadCntx);
+                        compService.submit(task);
+                        nTotalTasks++;
                     }
-
-                    LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
-
-                    int nCompletedTasks = 0;
-                    while (nCompletedTasks < nTotalTasks) {
-                        Future<RoutingProfile> future = compService.take();
-
-                        try {
-                            RoutingProfile rp = future.get();
-                            nCompletedTasks++;
-                            if (!routeProfiles.add(rp))
-                                LOGGER.warn("Routing profile has already been added.");
-                        } catch (ExecutionException e) {
-                            LOGGER.error(e);
-                            throw e;
-                        } catch (InterruptedException e) {
-                            LOGGER.error(e);
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-
-                    executor.shutdown();
-                    loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
-
-                    LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
-                    LOGGER.info("========================================================================");
-                    initCompleted();
                 }
 
-                RoutingProfileManagerStatus.setReady(true);
+                LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
+
+                int nCompletedTasks = 0;
+                while (nCompletedTasks < nTotalTasks) {
+                    Future<RoutingProfile> future = compService.take();
+
+                    try {
+                        RoutingProfile rp = future.get();
+                        nCompletedTasks++;
+                        if (!routeProfiles.add(rp))
+                            LOGGER.warn("Routing profile has already been added.");
+                    } catch (ExecutionException e) {
+                        LOGGER.error(e);
+                        throw e;
+                    } catch (InterruptedException e) {
+                        LOGGER.error(e);
+                        Thread.currentThread().interrupt();
+                    }
+                }
+
+                executor.shutdown();
+                loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
+
+                LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
+                LOGGER.info("========================================================================");
+                initCompleted();
             }
+
+            RoutingProfileManagerStatus.setReady(true);
         } catch (Exception ex) {
             LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
             Thread.currentThread().interrupt();

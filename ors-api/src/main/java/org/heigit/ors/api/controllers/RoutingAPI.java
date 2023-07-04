@@ -27,7 +27,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.InfoProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.routing.RouteRequest;
@@ -63,13 +62,11 @@ import javax.servlet.http.HttpServletResponse;
 public class RoutingAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(RoutingErrorCodes.BASE);
 
-    private final InfoProperties infoProperties;
     private final EndpointsProperties endpointsProperties;
     private final SystemMessageProperties systemMessageProperties;
 
-    public RoutingAPI(EndpointsProperties endpointsProperties, InfoProperties infoProperties, SystemMessageProperties systemMessageProperties) {
+    public RoutingAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties) {
         this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
-        this.infoProperties = AppConfigMigration.overrideInfoProperties(infoProperties);
         this.systemMessageProperties = systemMessageProperties;
     }
 
@@ -180,7 +177,7 @@ public class RoutingAPI {
 
         RouteResult[] result = request.generateRouteFromRequest();
 
-        return new GPXRouteResponse(result, request, infoProperties, systemMessageProperties, endpointsProperties);
+        return new GPXRouteResponse(result, request, systemMessageProperties, endpointsProperties);
 
     }
 

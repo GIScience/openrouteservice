@@ -20,10 +20,7 @@ import java.util.Map;
 
 public class RoutingServiceSettings {
     private static final String SERVICE_NAME_ROUTING = "routing";
-    private static String sourceFile = "";
     private static boolean distanceApproximation = false;
-    private static String storageFormat = "Native";
-    private static String routingName = "openrouteservice directions";
     private static AppConfig config;
 
     static {
@@ -40,31 +37,14 @@ public class RoutingServiceSettings {
     }
 
     private static void init(AppConfig config) {
-        sourceFile = RoutingServiceSettings.config.getServiceParametersList(SERVICE_NAME_ROUTING, "sources").get(0);
-
         String value = config.getServiceParameter(SERVICE_NAME_ROUTING, "distance_approximation");
         if (value != null)
             distanceApproximation = Boolean.parseBoolean(value);
 
-        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "storage_format");
-        if (value != null)
-            storageFormat = value;
-
-        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "routing_name");
-        if (value != null)
-            routingName = value;
-    }
-
-    public static String getSourceFile() {
-        return sourceFile;
     }
 
     public static boolean getDistanceApproximation() {
         return distanceApproximation;
-    }
-
-    public static String getStorageFormat() {
-        return storageFormat;
     }
 
     public static String getParameter(String paramName) {
@@ -83,16 +63,8 @@ public class RoutingServiceSettings {
         return config.getServiceParametersList(SERVICE_NAME_ROUTING, paramName);
     }
 
-    public static List<Double> getDoubleList(String paramName) {
-        return config.getDoubleList(SERVICE_NAME_ROUTING, paramName);
-    }
-
     public static Map<String, Object> getParametersMap(String paramName, boolean quotedStrings) {
         return config.getServiceParametersMap(SERVICE_NAME_ROUTING, paramName, quotedStrings);
     }
 
-
-    public static String getRoutingName() {
-        return routingName;
-    }
 }
