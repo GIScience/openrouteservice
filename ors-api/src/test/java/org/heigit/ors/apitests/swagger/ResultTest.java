@@ -20,17 +20,17 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.springdoc.core.SpringDocConfigProperties.ApiDocs.OpenApiVersion.OPENAPI_3_1;
+import static org.springdoc.core.SpringDocConfigProperties.ApiDocs.OpenApiVersion.OPENAPI_3_0;
 
 
 @EndPointAnnotation(name = "api-docs")
 @VersionAnnotation(version = "v2")
 class ResultTest extends ServiceTest {
 
-    //    The outcommented parts should be introduced once the swagger-parser package uses the latest snakeyaml version.
+    //    The commented parts should be introduced once the swagger-parser package uses the latest snakeyaml version.
 //    SwaggerParseResult result;
 //    OpenAPI openAPI;
-    String openAPIVersion = String.valueOf(OPENAPI_3_1.getVersion());
+    String openAPIVersion = String.valueOf(OPENAPI_3_0.getVersion());
 
 //    @BeforeEach
 //    void setUp() {
