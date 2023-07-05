@@ -45,7 +45,7 @@ public class ORSInitContextListener implements ServletContextListener {
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
                 .setInitializationThreads(engineProperties.getInitThreads())
                 .setPreparationMode(engineProperties.isPreparationMode())
-                .setElevationPreprocessed(engineProperties.isElevationPreprocessed())
+                .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
                 .setSourceFile(engineProperties.getSourceFile())
                 .buildWithAppConfigOverride();
         Runnable runnable = () -> {

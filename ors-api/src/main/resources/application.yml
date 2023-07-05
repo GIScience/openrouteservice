@@ -62,8 +62,80 @@ endpoints:
 engine:
   init_threads: 2
   preparation_mode: false
-  elevation_preprocessed: false
-  sourceFile: ./src/test/files/heidelberg.osm.gz
+  source_file: ./src/test/files/heidelberg.osm.gz
+  graphs_root_path: graphs-apitests
+  elevation:
+    preprocessed: false
+    cache_clear: false
+    smoothing: false
+    provider: multi
+    cache_path: ./src/test/files/elevation
+  profile_default:
+    elevation: false
+  profiles:
+    -
+      type: driving-car
+      elevation: true
+      traffic: false
+      encoder_options:
+        turn_costs: true
+        block_fords: false
+        maximum_grade_level: 1
+        use_acceleration: true
+        conditional_access: true
+        conditional_speed: true
+      preparation:
+        min_network_size: 200
+        min_one_way_network_size: 200
+        methods:
+          ch:
+            enabled: true
+            threads: 1
+            weightings: fastest
+          lm:
+            enabled: true
+            threads: 1
+            weightings: fastest
+            landmarks: 16
+          core:
+            enabled: true
+            threads: 1
+            weightings: fastest, shortest
+            landmarks: 32
+      execution:
+        methods:
+          lm:
+            active_landmarks: 8
+          core:
+            disabling_allowed: true
+            active_landmarks: 6
+      ext_storages:
+        WayCategory:
+          -
+        HeavyVehicle:
+          restrictions: true
+        WaySurfaceType:
+          -
+        Tollways:
+          -
+        Borders:
+          boundaries: ./src/test/files/borders/borders.geojson
+          ids: ./src/test/files/borders/ids.csv
+          openborders: ./src/test/files/borders/openborders.csv
+        RoadAccessRestrictions:
+          use_for_warnings: true
+        HereTraffic:
+          enabled: true
+          streets: ./src/test/files/traffic_data/here/Streets.shp
+          ref_pattern: ./src/test/files/traffic_data/here/ref_pattern.csv
+          pattern_15min: ./src/test/files/traffic_data/here/pattern_kph_15min.csv
+          radius: 150
+          output_log: false
+          log_location: ors/traffic_log
+    -
+      type: driving-hgv
+      elevation: false
+
 
 
 ##### Logging settings #####
