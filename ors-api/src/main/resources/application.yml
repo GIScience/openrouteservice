@@ -73,8 +73,8 @@ engine:
   profile_default:
     elevation: false
   profiles:
-    -
-      type: driving-car
+    driving-car:
+      type:
       elevation: true
       traffic: false
       encoder_options:
@@ -102,6 +102,11 @@ engine:
             threads: 1
             weightings: fastest, shortest
             landmarks: 32
+          fastisochrones:
+            enabled: false
+            threads: 12
+            weightings: recommended
+            maxcellnodes: 5000
       execution:
         methods:
           lm:
@@ -132,8 +137,7 @@ engine:
           radius: 150
           output_log: false
           log_location: ors/traffic_log
-    -
-      type: driving-hgv
+    driving-hgv:
       elevation: false
 
 

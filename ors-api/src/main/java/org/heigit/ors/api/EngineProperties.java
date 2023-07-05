@@ -3,7 +3,7 @@ package org.heigit.ors.api;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
@@ -15,7 +15,7 @@ public class EngineProperties {
     private String graphsRootPath;
     private ElevationProperties elevation;
     private ProfileProperties profileDefault;
-    private List<ProfileProperties> profiles;
+    private HashMap<String, ProfileProperties> profiles;
 
     public int getInitThreads() {
         return initThreads;
@@ -65,11 +65,11 @@ public class EngineProperties {
         this.profileDefault = profileDefault;
     }
 
-    public List<ProfileProperties> getProfiles() {
+    public HashMap<String, ProfileProperties> getProfiles() {
         return profiles;
     }
 
-    public void setProfiles(List<ProfileProperties> profiles) {
+    public void setProfiles(HashMap<String, ProfileProperties> profiles) {
         this.profiles = profiles;
     }
 
@@ -122,21 +122,12 @@ public class EngineProperties {
     }
 
     public static class ProfileProperties {
-        private String type;
         private boolean elevation;
         private boolean traffic;
         private Map<String, String> encoderOptions;
         private PreparationProperties preparation;
         private ExecutionProperties execution;
         private Map<String, Map<String, String>> extStorages;
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
 
         public boolean isElevation() {
             return elevation;
@@ -189,7 +180,17 @@ public class EngineProperties {
         public static class PreparationProperties {
             private int minNetworkSize;
             private int minOneWayNetworkSize;
-            private Map<String, Map<String, String>> methods;
+
+            public MethodsProperties getMethods() {
+                return methods;
+            }
+
+            public PreparationProperties setMethods(MethodsProperties methods) {
+                this.methods = methods;
+                return this;
+            }
+
+            private MethodsProperties methods;
 
             public int getMinNetworkSize() {
                 return minNetworkSize;
@@ -207,12 +208,96 @@ public class EngineProperties {
                 this.minOneWayNetworkSize = minOneWayNetworkSize;
             }
 
-            public Map<String, Map<String, String>> getMethods() {
-                return methods;
+        }
+
+        public static class MethodsProperties {
+            private CHProperties ch;
+            private LMProperties lm;
+            private CoreProperties core;
+            private FastIsochroneProperties fastisochrones;
+
+            public CHProperties getCh() {
+                return ch;
             }
 
-            public void setMethods(Map<String, Map<String, String>> methods) {
-                this.methods = methods;
+            public void setCh(CHProperties ch) {
+                this.ch = ch;
+            }
+
+            public LMProperties getLm() {
+                return lm;
+            }
+
+            public void setLm(LMProperties lm) {
+                this.lm = lm;
+            }
+
+            public CoreProperties getCore() {
+                return core;
+            }
+
+            public void setCore(CoreProperties core) {
+                this.core = core;
+            }
+
+            public FastIsochroneProperties getFastisochrones() {
+                return fastisochrones;
+            }
+
+            public void setFastisochrones(FastIsochroneProperties fastisochrones) {
+                this.fastisochrones = fastisochrones;
+            }
+
+        }
+
+        public static class CHProperties {
+            //TBD
+        }
+
+        public static class LMProperties {
+            //TBD
+        }
+
+        public static class CoreProperties {
+            //TBD
+        }
+
+        public static class FastIsochroneProperties {
+            private boolean enabled;
+            private int threads;
+            private String weightings;
+            private int maxcellnodes;
+
+            public boolean isEnabled() {
+                return enabled;
+            }
+
+            public void setEnabled(boolean enabled) {
+                this.enabled = enabled;
+            }
+
+            public int getThreads() {
+                return threads;
+            }
+
+            public void setThreads(int threads) {
+                this.threads = threads;
+            }
+
+            public String getWeightings() {
+                return weightings;
+            }
+
+            public void setWeightings(String weightings) {
+                this.weightings = weightings;
+            }
+
+            public int getMaxcellnodes() {
+                return maxcellnodes;
+            }
+
+            public void setMaxcellnodes(int maxcellnodes) {
+                this.maxcellnodes = maxcellnodes;
             }
         }
 
