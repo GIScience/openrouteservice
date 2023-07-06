@@ -128,6 +128,12 @@ public class EngineProperties {
         private PreparationProperties preparation;
         private ExecutionProperties execution;
         private Map<String, Map<String, String>> extStorages;
+        private double maximumDistance;
+        private double maximumDistanceAvoidAreas;
+        private double maximumDistanceAlternativeRoutes;
+        private double maximumDistanceRoundTripRoutes;
+        private int maximumWayPoints;
+        private int maximumSnappingRadius;
 
         public boolean isElevation() {
             return elevation;
@@ -175,6 +181,54 @@ public class EngineProperties {
 
         public void setExtStorages(Map<String, Map<String, String>> extStorages) {
             this.extStorages = extStorages;
+        }
+
+        public double getMaximumDistance() {
+            return maximumDistance;
+        }
+
+        public void setMaximumDistance(double maximumDistance) {
+            this.maximumDistance = maximumDistance;
+        }
+
+        public double getMaximumDistanceAvoidAreas() {
+            return maximumDistanceAvoidAreas;
+        }
+
+        public void setMaximumDistanceAvoidAreas(double maximumDistanceAvoidAreas) {
+            this.maximumDistanceAvoidAreas = maximumDistanceAvoidAreas;
+        }
+
+        public double getMaximumDistanceAlternativeRoutes() {
+            return maximumDistanceAlternativeRoutes;
+        }
+
+        public void setMaximumDistanceAlternativeRoutes(double maximumDistanceAlternativeRoutes) {
+            this.maximumDistanceAlternativeRoutes = maximumDistanceAlternativeRoutes;
+        }
+
+        public double getMaximumDistanceRoundTripRoutes() {
+            return maximumDistanceRoundTripRoutes;
+        }
+
+        public void setMaximumDistanceRoundTripRoutes(double maximumDistanceRoundTripRoutes) {
+            this.maximumDistanceRoundTripRoutes = maximumDistanceRoundTripRoutes;
+        }
+
+        public int getMaximumWayPoints() {
+            return maximumWayPoints;
+        }
+
+        public void setMaximumWayPoints(int maximumWayPoints) {
+            this.maximumWayPoints = maximumWayPoints;
+        }
+
+        public int getMaximumSnappingRadius() {
+            return maximumSnappingRadius;
+        }
+
+        public void setMaximumSnappingRadius(int maximumSnappingRadius) {
+            this.maximumSnappingRadius = maximumSnappingRadius;
         }
 
         public static class PreparationProperties {
