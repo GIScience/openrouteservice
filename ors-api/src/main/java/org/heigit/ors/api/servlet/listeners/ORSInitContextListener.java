@@ -22,6 +22,8 @@ package org.heigit.ors.api.servlet.listeners;
 
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.EngineProperties;
+import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
@@ -32,17 +34,27 @@ import javax.servlet.ServletContextListener;
 
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
+    private final EngineProperties engineProperties;
+
+    public ORSInitContextListener(EngineProperties engineProperties) {
+        this.engineProperties = engineProperties;
+    }
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
+        final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
+                .setInitializationThreads(engineProperties.getInitThreads())
+                .setPreparationMode(engineProperties.isPreparationMode())
+                .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
+                .setSourceFile(engineProperties.getSourceFile())
+                .buildWithAppConfigOverride();
         Runnable runnable = () -> {
             try {
-                RoutingProfileManager.getInstance();
+                new RoutingProfileManager(config);
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS." + e);
             }
         };
-
         Thread thread = new Thread(runnable);
         thread.setName("ORS-Init");
         thread.start();

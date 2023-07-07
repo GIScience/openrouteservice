@@ -17,7 +17,6 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
-import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 
 public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRoutingAlgorithm {
@@ -30,6 +29,7 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
     protected RoutingCHEdgeExplorer outEdgeExplorer;
     protected int maxVisitedNodes = Integer.MAX_VALUE;
     private CHEdgeFilter additionalEdgeFilter;
+    private boolean hasInfiniteUTurnCost;
 
     /**
      * @param graph         specifies the graph where this algorithm will run on
@@ -42,8 +42,8 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
         this.traversalMode = traversalMode;
         this.graph = graph;
         nodeAccess = graph.getBaseGraph().getNodeAccess();
-        outEdgeExplorer = graph.createOutEdgeExplorer();//graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
-        inEdgeExplorer = graph.createInEdgeExplorer();//graph.createEdgeExplorer(AccessFilter.inEdges(flagEncoder.getAccessEnc()));
+        outEdgeExplorer = graph.createOutEdgeExplorer();
+        inEdgeExplorer = graph.createInEdgeExplorer();
     }
 
     @Override
@@ -57,7 +57,7 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
     }
     
     protected boolean accept(RoutingCHEdgeIterator iter, int prevOrNextEdgeId, boolean reverse) {
-        if (MatrixServiceSettings.getUTurnCost() == Weighting.INFINITE_U_TURN_COSTS) {
+        if (hasInfiniteUTurnCost) {
             if (iter.getEdge() == prevOrNextEdgeId)
                 return false;
             if (iter.isShortcut())
@@ -95,5 +95,9 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
         if (getVisitedNodes() > maxVisitedNodes)
             throw new MaxVisitedNodesExceededException();
         return false;
+    }
+
+    public void setInfiniteUTurnCost(boolean hasInfiniteUTurnCost) {
+        this.hasInfiniteUTurnCost = hasInfiniteUTurnCost;
     }
 }

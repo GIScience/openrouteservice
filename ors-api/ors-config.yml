@@ -1,0 +1,17 @@
+##### openrouteservice settings file #####
+# This file contains parameters for openrouteservice.
+# For a full list of possible parameters see documentation, below are some examples.
+
+# info:
+#  author_tag: Use this to change the author tag in the API output
+
+# cors:
+#  allowed_origins: "*"
+#  allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
+#  preflight_max_age: 600
+
+### uncomment the following lines to turn on debug output
+#logging:
+#  log4j2:
+#    config:
+#      override: classpath:logs/DEBUG_LOGGING.json

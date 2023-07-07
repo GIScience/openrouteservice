@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.config.EngineConfig;
 import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.APIEnums;
@@ -370,8 +372,8 @@ public class IsochronesRequest extends APIRequest {
         return hasTime;
     }
 
-    public void generateIsochronesFromRequest() throws Exception {
-        this.isochroneRequest = this.convertIsochroneRequest();
+    public void generateIsochronesFromRequest(EndpointsProperties endpointsProperties) throws Exception {
+        this.isochroneRequest = this.convertIsochroneRequest(endpointsProperties);
         // request object is built, now check if ors config allows all settings
         List<TravellerInfo> travellers = this.isochroneRequest.getTravellers();
 
@@ -476,9 +478,12 @@ public class IsochronesRequest extends APIRequest {
         return realCoordinate;
     }
 
-    IsochroneRequest convertIsochroneRequest() throws Exception {
+    IsochroneRequest convertIsochroneRequest(EndpointsProperties endpointsProperties) throws Exception {
         IsochroneRequest convertedIsochroneRequest = new IsochroneRequest();
-
+        EndpointsProperties.EndpointIsochroneProperties isochroneProperties = endpointsProperties.getIsochrone();
+        convertedIsochroneRequest.setMaximumLocations(isochroneProperties.getMaximumLocations());
+        convertedIsochroneRequest.setAllowComputeArea(isochroneProperties.isAllowComputeArea());
+        convertedIsochroneRequest.setMaximumIntervals(isochroneProperties.getMaximumIntervals());
 
         for (int i = 0; i < locations.length; i++) {
             Double[] location = locations[i];
@@ -564,12 +569,11 @@ public class IsochronesRequest extends APIRequest {
     }
 
     void validateAgainstConfig(IsochroneRequest isochroneRequest, List<TravellerInfo> travellers) throws StatusCodeException {
-
-        if (!IsochronesServiceSettings.getAllowComputeArea() && isochroneRequest.hasAttribute("area"))
+        if (!isochroneRequest.isAllowComputeArea() && isochroneRequest.hasAttribute("area"))
             throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 
-        if (travellers.size() > IsochronesServiceSettings.getMaximumLocations())
-            throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_LOCATIONS, Integer.toString(travellers.size()), Integer.toString(IsochronesServiceSettings.getMaximumLocations()));
+        if (travellers.size() > isochroneRequest.getMaximumLocations())
+            throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_LOCATIONS, Integer.toString(travellers.size()), Integer.toString(isochroneRequest.getMaximumLocations()));
 
         for (TravellerInfo traveller : travellers) {
             int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), isochroneRequest.getCalcMethod(), traveller.getRangeType());
@@ -577,7 +581,7 @@ public class IsochronesRequest extends APIRequest {
             if (maxRange > maxAllowedRange)
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_RANGE, Double.toString(maxRange), Integer.toString(maxAllowedRange));
 
-            int maxIntervals = IsochronesServiceSettings.getMaximumIntervals();
+            int maxIntervals = isochroneRequest.getMaximumIntervals();
             if (maxIntervals > 0 && maxIntervals < traveller.getRanges().length) {
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MINIMUM, IsochronesRequest.PARAM_INTERVAL, "Resulting number of " + traveller.getRanges().length + " isochrones exceeds maximum value of " + maxIntervals + ".");
             }

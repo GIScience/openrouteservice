@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.apitests.swagger;
 
-import org.heigit.ors.api.InfoProperties;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
@@ -30,7 +30,7 @@ import static org.springdoc.core.SpringDocConfigProperties.ApiDocs.OpenApiVersio
 class ResultTest extends ServiceTest {
 
     @Autowired
-    InfoProperties infoProperties;
+    EndpointsProperties endpointsProperties;
 
     //    The outcommented parts should be introduced once the swagger-parser package uses the latest snakeyaml version.
 //    SwaggerParseResult result;
@@ -61,7 +61,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'paths' }", is(true))
                 .body("any { it.key == 'components' }", is(true))
                 .body("servers", hasSize(1))
-                .body("servers[0].url", hasToString(infoProperties.getSwaggerDocumentationUrl()))
+                .body("servers[0].url", hasToString(endpointsProperties.getSwaggerDocumentationUrl()))
                 .statusCode(200);
     }
 

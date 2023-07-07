@@ -1,0 +1,173 @@
+##### openrouteservice default settings #####
+# This file contains the default parameters for openrouteservice.
+# To change values for your instance, you can add a file named "ors-config.yml" to the JVM's working directory.
+# The parameters in said file will override any value set here.
+
+##### General ORS server settings #####
+server:
+  port: 8082
+  error:
+    whitelabel:
+      enabled: false
+  # Workaround for failing springfox-swagger2.
+  # springfox-swagger2 should be replaced by the maintained springdoc-openapi
+  # spring.mvc.pathmatch.matching-strategy=ANT_PATH_MATCHER
+  # Keep the context-path at / else the war file run with tomcat will have the context-path of /ors/v2 as well.
+  servlet:
+    context-path: /ors
+spring:
+  profiles:
+    active: default
+  mvc:
+    servlet:
+      path: /
+
+cors:
+  allowed_origins: "*"
+  allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
+  preflight_max_age: 600
+
+messages:
+
+
+##### ORS endpoints settings #####
+endpoints:
+  swagger_documentation_url: https://api.openrouteservice.org/
+  routing:
+    enabled: true
+    attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
+    gpx_name: ORSRouting
+    gpx_description: This is a directions instructions file as GPX, generated from openrouteservice
+    gpx_base_url: https://openrouteservice.org/
+    gpx_support_mail: support@openrouteservice.org
+    gpx_author: openrouteservice
+    gpx_content_licence: LGPL 3.0
+  matrix:
+    enabled: true
+    attribution: openrouteservice.org, OpenStreetMap contributors
+    maximum_routes: 2500
+    maximum_routes_flexible: 25
+    maximum_visited_nodes: 100000
+    maximum_search_radius: 2000
+    u_turn_costs: -1
+  isochrone:
+    enabled: true
+    attribution: openrouteservice.org, OpenStreetMap contributors
+    maximum_locations: 2
+    maximum_intervals: 1
+    allow_compute_area: true
+
+
+##### ORS engine settings #####
+engine:
+  init_threads: 2
+  preparation_mode: false
+  source_file: ./src/test/files/heidelberg.osm.gz
+  graphs_root_path: graphs-apitests
+  elevation:
+    preprocessed: false
+    cache_clear: false
+    smoothing: false
+    provider: multi
+    cache_path: ./src/test/files/elevation
+  profile_default:
+    elevation: false
+    preparation:
+      methods:
+        fastisochrones:
+          enabled: false
+          threads: 12
+          weightings: recommended
+          maxcellnodes: 5000
+  profiles:
+    driving-car:
+      elevation: true
+      traffic: false
+      encoder_options:
+        turn_costs: true
+        block_fords: false
+        maximum_grade_level: 1
+        use_acceleration: true
+        conditional_access: true
+        conditional_speed: true
+      preparation:
+        min_network_size: 200
+        min_one_way_network_size: 200
+        methods:
+          ch:
+            enabled: true
+            threads: 1
+            weightings: fastest
+          lm:
+            enabled: true
+            threads: 1
+            weightings: fastest
+            landmarks: 16
+          core:
+            enabled: true
+            threads: 1
+            weightings: fastest, shortest
+            landmarks: 32
+          fastisochrones:
+            enabled: false
+            threads: 12
+            weightings: recommended
+            maxcellnodes: 5000
+      execution:
+        methods:
+          lm:
+            active_landmarks: 8
+          core:
+            disabling_allowed: true
+            active_landmarks: 6
+      ext_storages:
+        WayCategory:
+          -
+        HeavyVehicle:
+          restrictions: true
+        WaySurfaceType:
+          -
+        Tollways:
+          -
+        Borders:
+          boundaries: ./src/test/files/borders/borders.geojson
+          ids: ./src/test/files/borders/ids.csv
+          openborders: ./src/test/files/borders/openborders.csv
+        RoadAccessRestrictions:
+          use_for_warnings: true
+        HereTraffic:
+          enabled: true
+          streets: ./src/test/files/traffic_data/here/Streets.shp
+          ref_pattern: ./src/test/files/traffic_data/here/ref_pattern.csv
+          pattern_15min: ./src/test/files/traffic_data/here/pattern_kph_15min.csv
+          radius: 150
+          output_log: false
+          log_location: ors/traffic_log
+    driving-hgv:
+      elevation: false
+
+
+
+##### Logging settings #####
+logging:
+  config: classpath:log4j.properties
+  log4j2:
+    config:
+      override: classpath:logs/DEFAULT_LOGGING.json
+
+
+##### Settings related to springdoc #####
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tryItOutEnabled: true
+    filter: false
+    syntaxHighlight:
+      activated: true
+    showExtensions: true
+  #  packagesToScan: package1,package2
+  #  pathsToMatch: /ors/v2,/v2
+  api-docs:
+    path: /v2/api-docs
+    version: OPENAPI_3_1

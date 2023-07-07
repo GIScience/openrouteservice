@@ -1,15 +1,6 @@
 {
   "ors": {
     "services": {
-      "matrix": {
-        "enabled": true,
-        "maximum_routes": 100,
-        "maximum_routes_flexible": 25,
-        "maximum_search_radius": 5000,
-        "maximum_visited_nodes": 100000,
-        "allow_resolve_locations": true,
-        "attribution": "openrouteservice.org, OpenStreetMap contributors"
-      },
       "isochrones": {
         "enabled": true,
         "maximum_range_distance": [
@@ -341,43 +332,6 @@
           }
         }
       }
-    },
-    "logging": {
-      "enabled": true,
-      "level_file": "DEBUG_LOGGING.json",
-      "location": "./logs",
-      "stdout": true
-    },
-    "system_message": [
-      {
-        "active": false,
-        "text": "This message would be sent with every routing bike fastest request",
-        "condition": {
-          "request_service": "routing",
-          "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
-          "request_preference": "fastest"
-        }
-      },
-      {
-        "active": false,
-        "text": "This message would be sent with every request for geojson response",
-        "condition": {
-          "api_format": "geojson"
-        }
-      },
-      {
-        "active": false,
-        "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
-        "condition": {
-          "api_version": 1,
-          "time_after": "2020-01-01T00:00:00Z",
-          "time_before": "2050-06-01T00:00:00Z"
-        }
-      },
-      {
-        "active": false,
-        "text": "This message would be sent with every request"
-      }
-    ]
+    }
   }
 }

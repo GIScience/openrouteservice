@@ -20,7 +20,6 @@ import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.plugins.PluginManager;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;

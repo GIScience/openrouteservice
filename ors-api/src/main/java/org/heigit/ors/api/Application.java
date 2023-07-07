@@ -1,6 +1,5 @@
 package org.heigit.ors.api;
 
-import org.heigit.ors.api.servlet.listeners.LoggingStartupContextListener;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
@@ -16,7 +15,6 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
@@ -28,6 +26,11 @@ import java.util.List;
 @ServletComponentScan("org.heigit.ors.api.servlet.listeners")
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
+
+    static {
+        System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -57,18 +60,10 @@ public class Application extends SpringBootServletInitializer {
         return webEndpointProperties.getDiscovery().isEnabled() && (StringUtils.hasText(basePath) || ManagementPortType.get(environment).equals(ManagementPortType.DIFFERENT));
     }
 
-    @Bean("LoggingStartupContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createLoggingStartupContextListenerBean() {
-        ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new LoggingStartupContextListener());
-        return bean;
-    }
-
     @Bean("ORSInitContextListenerBean")
-    @DependsOn("LoggingStartupContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean() {
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener());
+        bean.setListener(new ORSInitContextListener(engineProperties));
         return bean;
     }
 }

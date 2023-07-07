@@ -21,7 +21,7 @@ import com.graphhopper.util.PointList;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.RoutingServiceSettings;
+import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportRequest;
@@ -53,16 +53,23 @@ public class RoutingProfileManager {
     private RoutingProfilesCollection routeProfiles;
     private static RoutingProfileManager instance;
     private boolean initComplete = false;
+    private EngineConfig config;
+
+    public RoutingProfileManager(EngineConfig config) {
+        if (instance == null) {
+            initialize(null, config);
+            instance = this;
+        }
+    }
 
     public static synchronized RoutingProfileManager getInstance() {
         if (instance == null) {
-            instance = new RoutingProfileManager();
-            instance.initialize(null);
+            throw new UnsupportedOperationException("RoutingProfileManager has not been initialized!");
         }
         return instance;
     }
 
-    public void prepareGraphs(String graphProps) {
+    public void prepareGraphs(String graphProps, EngineConfig config) {
         long startTime = System.currentTimeMillis();
 
         try {
@@ -72,7 +79,7 @@ public class RoutingProfileManager {
             int nRouteInstances = rmc.getProfiles().length;
 
             RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
-            ExecutorService executor = Executors.newFixedThreadPool(RoutingServiceSettings.getInitializationThreads());
+            ExecutorService executor = Executors.newFixedThreadPool(config.getInitializationThreads());
             ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<>(executor);
 
             int nTotalTasks = 0;
@@ -85,7 +92,7 @@ public class RoutingProfileManager {
                 Integer[] profilesTypes = rpc.getProfilesTypes();
 
                 if (profilesTypes != null) {
-                    Callable<RoutingProfile> task = new RoutingProfileLoader(RoutingServiceSettings.getSourceFile(), rpc, loadCntx);
+                    Callable<RoutingProfile> task = new RoutingProfileLoader(config, rpc, loadCntx);
                     compService.submit(task);
                     nTotalTasks++;
                 }
@@ -121,74 +128,73 @@ public class RoutingProfileManager {
         RuntimeUtility.clearMemory(LOGGER);
     }
 
-    public void initialize(String graphProps) {
+    public void initialize(String graphProps, EngineConfig config) {
         RuntimeUtility.printRAMInfo("", LOGGER);
 
         LOGGER.info("      ");
 
         long startTime = System.currentTimeMillis();
-
+        this.config = config;
         try {
-            if (RoutingServiceSettings.getEnabled()) {
-                RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
+            RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(graphProps);
 
-                LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
-                        RoutingServiceSettings.getSourceFile(), RoutingServiceSettings.getInitializationThreads()));
+            int initializationThreads = config.getInitializationThreads();
+            LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
+                    config.getSourceFile(), initializationThreads));
 
-                if ("preparation".equalsIgnoreCase(RoutingServiceSettings.getWorkingMode())) {
-                    prepareGraphs(graphProps);
-                } else {
-                    routeProfiles = new RoutingProfilesCollection();
-                    int nRouteInstances = rmc.getProfiles().length;
+            if (config.isPreparationMode()) {
+                prepareGraphs(graphProps, config);
+            } else {
+                routeProfiles = new RoutingProfilesCollection();
+                int nRouteInstances = rmc.getProfiles().length;
 
-                    RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
-                    ExecutorService executor = Executors.newFixedThreadPool(RoutingServiceSettings.getInitializationThreads());
-                    ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<>(executor);
+                RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
+                ExecutorService executor = Executors.newFixedThreadPool(initializationThreads);
+                ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<>(executor);
 
-                    int nTotalTasks = 0;
+                int nTotalTasks = 0;
 
-                    for (int i = 0; i < nRouteInstances; i++) {
-                        RouteProfileConfiguration rpc = rmc.getProfiles()[i];
-                        if (!rpc.getEnabled())
-                            continue;
+                for (int i = 0; i < nRouteInstances; i++) {
+                    RouteProfileConfiguration rpc = rmc.getProfiles()[i];
+                    if (!rpc.getEnabled())
+                        continue;
 
-                        if (rpc.getProfilesTypes() != null) {
-                            Callable<RoutingProfile> task = new RoutingProfileLoader(RoutingServiceSettings.getSourceFile(), rpc, loadCntx);
-                            compService.submit(task);
-                            nTotalTasks++;
-                        }
+                    if (rpc.getProfilesTypes() != null) {
+                        Callable<RoutingProfile> task = new RoutingProfileLoader(config, rpc, loadCntx);
+                        compService.submit(task);
+                        nTotalTasks++;
                     }
-
-                    LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
-
-                    int nCompletedTasks = 0;
-                    while (nCompletedTasks < nTotalTasks) {
-                        Future<RoutingProfile> future = compService.take();
-
-                        try {
-                            RoutingProfile rp = future.get();
-                            nCompletedTasks++;
-                            if (!routeProfiles.add(rp))
-                                LOGGER.warn("Routing profile has already been added.");
-                        } catch (ExecutionException e) {
-                            LOGGER.error(e);
-                            throw e;
-                        } catch (InterruptedException e) {
-                            LOGGER.error(e);
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-
-                    executor.shutdown();
-                    loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
-
-                    LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
-                    LOGGER.info("========================================================================");
-                    initCompleted();
                 }
 
-                RoutingProfileManagerStatus.setReady(true);
+                LOGGER.info(String.format("%d tasks submitted.", nTotalTasks));
+
+                int nCompletedTasks = 0;
+                while (nCompletedTasks < nTotalTasks) {
+                    Future<RoutingProfile> future = compService.take();
+
+                    try {
+                        RoutingProfile rp = future.get();
+                        nCompletedTasks++;
+                        if (!routeProfiles.add(rp))
+                            LOGGER.warn("Routing profile has already been added.");
+                    } catch (ExecutionException e) {
+                        LOGGER.error(e);
+                        throw e;
+                    } catch (InterruptedException e) {
+                        LOGGER.error(e);
+                        Thread.currentThread().interrupt();
+                    }
+                }
+
+                executor.shutdown();
+                loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
+
+                LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
+                LOGGER.info("========================================================================");
+                initCompleted();
             }
+
+            RoutingProfileManagerStatus.setReady(true);
         } catch (Exception ex) {
             LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
             Thread.currentThread().interrupt();
@@ -371,36 +377,36 @@ public class RoutingProfileManager {
                                 code = RoutingErrorCodes.PT_ROUTE_NOT_FOUND;
                             }
                             throw new RouteNotFoundException(
-                                code,
-                                String.format("Unable to find a route between points %d (%s) and %d (%s). %s",
-                                    i,
-                                    FormatUtility.formatCoordinate(c0),
-                                    i + 1,
-                                    FormatUtility.formatCoordinate(c1),
-                                    details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
-                                )
+                                    code,
+                                    String.format("Unable to find a route between points %d (%s) and %d (%s). %s",
+                                            i,
+                                            FormatUtility.formatCoordinate(c0),
+                                            i + 1,
+                                            FormatUtility.formatCoordinate(c1),
+                                            details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
+                                    )
                             );
                         }
                         throw new RouteNotFoundException(
-                            RoutingErrorCodes.ROUTE_NOT_FOUND,
-                            String.format("Unable to find a route between points %d (%s) and %d (%s).",
-                                i,
-                                FormatUtility.formatCoordinate(c0),
-                                i + 1,
-                                FormatUtility.formatCoordinate(c1)
-                            )
+                                RoutingErrorCodes.ROUTE_NOT_FOUND,
+                                String.format("Unable to find a route between points %d (%s) and %d (%s).",
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1)
+                                )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException) {
                         Map<String, Object> details = ((MaximumNodesExceededException) gr.getErrors().get(0)).getDetails();
                         throw new RouteNotFoundException(
-                            RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
-                            String.format("Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s",
-                                i,
-                                FormatUtility.formatCoordinate(c0),
-                                i + 1,
-                                FormatUtility.formatCoordinate(c1),
-                                details.get(MaximumNodesExceededException.NODES_KEY).toString()
-                            )
+                                RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
+                                String.format("Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s",
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1),
+                                        details.get(MaximumNodesExceededException.NODES_KEY).toString()
+                                )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();

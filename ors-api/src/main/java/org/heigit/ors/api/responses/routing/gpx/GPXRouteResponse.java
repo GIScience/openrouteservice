@@ -15,8 +15,9 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
-import org.heigit.ors.api.InfoProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.RouteResponse;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -52,22 +53,22 @@ public class GPXRouteResponse extends RouteResponse {
     private GPXExtensions extensions;
 
     public GPXRouteResponse() throws StatusCodeException {
-        super(null);
-        init(null, null, new InfoProperties());
+        super(null, new SystemMessageProperties(), new EndpointsProperties());
+        init(null, null, new SystemMessageProperties(), new EndpointsProperties());
     }
 
-    public GPXRouteResponse(RouteResult[] routeResult, RouteRequest request, InfoProperties info) throws StatusCodeException {
-        super(request);
-        init(routeResult, request, info);
+    public GPXRouteResponse(RouteResult[] routeResult, RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) throws StatusCodeException {
+        super(request, systemMessageProperties, endpointsProperties);
+        init(routeResult, request, systemMessageProperties, endpointsProperties);
         for (RouteResult result : routeResult) {
             routes.add(new GPXRouteElement(result));
         }
     }
 
-    private void init(RouteResult[] result, RouteRequest request, InfoProperties info) throws StatusCodeException {
-        metadata = new GPXMetadata(result, request, info);
+    private void init(RouteResult[] result, RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) throws StatusCodeException {
+        metadata = new GPXMetadata(result, request, systemMessageProperties, endpointsProperties);
         routes = new ArrayList<>();
-        extensions = new GPXExtensions(request);
+        extensions = new GPXExtensions(request, endpointsProperties.getRouting().getAttribution());
     }
 
     public List<GPXRouteElement> getGpxRouteElements() {

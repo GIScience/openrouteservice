@@ -18,6 +18,8 @@ package org.heigit.ors.api.responses.isochrones.geojson;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.shapes.BBox;
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.locationtech.jts.geom.Envelope;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
@@ -46,8 +48,8 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
         return bbox.getAsArray();
     }
 
-    public GeoJSONIsochronesResponse(IsochronesRequest request, IsochroneMapCollection isoMaps) throws ParameterValueException, InternalServerException {
-        super(request);
+    public GeoJSONIsochronesResponse(IsochronesRequest request, IsochroneMapCollection isoMaps, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) throws ParameterValueException, InternalServerException {
+        super(request, systemMessageProperties, endpointsProperties);
         this.isochroneResults = new ArrayList<>();
         for (IsochroneMap isoMap : isoMaps.getIsochroneMaps()) {
             this.isochroneResults.addAll(new GeoJSONIsochronesMap(isoMap).buildGeoJSONIsochrones());

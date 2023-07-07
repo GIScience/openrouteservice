@@ -1,11 +1,10 @@
 package org.heigit.ors.api.util;
 
-import com.typesafe.config.ConfigObject;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.RoutingRequest;
@@ -19,11 +18,12 @@ public class SystemMessage {
     private static final Logger LOGGER = Logger.getLogger(SystemMessage.class.getName());
     private static List<Message> messages;
 
-    private SystemMessage() {}
+    private SystemMessage() {
+    }
 
-    public static String getSystemMessage(Object requestObj) {
+    public static String getSystemMessage(Object requestObj, SystemMessageProperties messageProperties) {
         if (messages == null) {
-            loadMessages();
+            loadMessages(messageProperties);
         }
         if (messages.isEmpty()) {
             return "";
@@ -34,23 +34,19 @@ public class SystemMessage {
         RequestParams params = new RequestParams();
         // V1
         if (requestObj.getClass() == RoutingRequest.class) {
-            extractParams((RoutingRequest)requestObj, params);
-        }
-        else if (requestObj.getClass() == org.heigit.ors.matrix.MatrixRequest.class) {
-            extractParams((org.heigit.ors.matrix.MatrixRequest)requestObj, params);
-        }
-        else if (requestObj.getClass() == org.heigit.ors.isochrones.IsochroneRequest.class) {
-            extractParams((org.heigit.ors.isochrones.IsochroneRequest)requestObj, params);
+            extractParams((RoutingRequest) requestObj, params);
+        } else if (requestObj.getClass() == org.heigit.ors.matrix.MatrixRequest.class) {
+            extractParams((org.heigit.ors.matrix.MatrixRequest) requestObj, params);
+        } else if (requestObj.getClass() == org.heigit.ors.isochrones.IsochroneRequest.class) {
+            extractParams((org.heigit.ors.isochrones.IsochroneRequest) requestObj, params);
         }
         // V2
         else if (requestObj.getClass() == RouteRequest.class) {
-            extractParams((RouteRequest)requestObj, params);
-        }
-        else if (requestObj.getClass() == MatrixRequest.class) {
-            extractParams((MatrixRequest)requestObj, params);
-        }
-        else if (requestObj.getClass() == IsochronesRequest.class) {
-            extractParams((IsochronesRequest)requestObj, params);
+            extractParams((RouteRequest) requestObj, params);
+        } else if (requestObj.getClass() == MatrixRequest.class) {
+            extractParams((MatrixRequest) requestObj, params);
+        } else if (requestObj.getClass() == IsochronesRequest.class) {
+            extractParams((IsochronesRequest) requestObj, params);
         }
         return selectMessage(params);
     }
@@ -112,29 +108,32 @@ public class SystemMessage {
         return "";
     }
 
-    private static void loadMessages() {
+    private static void loadMessages(SystemMessageProperties messageProperties) {
         messages = new ArrayList<>();
-        for (ConfigObject message : AppConfig.getGlobal().getObjectList("system_message")) {
+
+        for (SystemMessageProperties.MessageObject message : messageProperties.getMessages()) {
             try {
-                if (message.toConfig().getBoolean("active")) {
-                    List<Condition> conditions = new ArrayList<>();
+                if (message.isActive()) {
+                    List<SystemMessage.Condition> conditions = new ArrayList<>();
                     loadConditionsForMessage(message, conditions);
-                    messages.add(new Message(message.toConfig().getString("text"), conditions));
+                    messages.add(new SystemMessage.Message(message.getText(), conditions));
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // ignore otherwise incomplete messages entirely
                 LOGGER.warn(String.format("Invalid SystemMessage object in ors config %s.", message.toString().substring(18)));
             }
         }
-        LOGGER.info(String.format("SystemMessage loaded %s messages.", messages.size()));
+        AppConfigMigration.loadSystemMessagesfromAppConfig(messages);
+        if (!messages.isEmpty())
+            LOGGER.info(String.format("SystemMessage loaded %s messages.", messages.size()));
     }
 
-    private static void loadConditionsForMessage(ConfigObject message, List<Condition> conditions) {
+    private static void loadConditionsForMessage(SystemMessageProperties.MessageObject message, List<Condition> conditions) {
         try {
-            ConfigObject condition = message.toConfig().getObject("condition");
-            for (String key : condition.keySet()) {
-                conditions.add(new Condition(key, condition.toConfig().getString(key)));
+            for (Map<String, String> conditionMap : message.getCondition()) {
+                for (Map.Entry<String, String> condition : conditionMap.entrySet()) {
+                    conditions.add(new Condition(condition.getKey(), condition.getValue()));
+                }
             }
         } catch (Exception e) {
             // ignore missing condition block and keep message
@@ -142,7 +141,7 @@ public class SystemMessage {
         }
     }
 
-    private static class Message {
+    static class Message {
         private final String text;
         private final List<Condition> conditions;
 
@@ -165,7 +164,7 @@ public class SystemMessage {
         }
     }
 
-    private static class Condition {
+    static class Condition {
         private final String type;
         private final String[] values;
 
@@ -175,23 +174,30 @@ public class SystemMessage {
         }
 
         public boolean fulfilledBy(RequestParams params) {
-            switch(type) {
-                case "time_before":
+            switch (type) {
+                case "time_before" -> {
                     return new Timestamp(System.currentTimeMillis()).getTime() < Date.from(Instant.parse(this.values[0])).getTime();
-                case "time_after":
+                }
+                case "time_after" -> {
                     return new Timestamp(System.currentTimeMillis()).getTime() > Date.from(Instant.parse(this.values[0])).getTime();
-                case "api_version":
+                }
+                case "api_version" -> {
                     return matchApiVersion(params);
-                case "api_format":
+                }
+                case "api_format" -> {
                     return matchApiFormat(params);
-                case "request_service":
+                }
+                case "request_service" -> {
                     return matchRequestService(params);
-                case "request_profile":
+                }
+                case "request_profile" -> {
                     return matchRequestProfiles(params);
-                case "request_preference":
+                }
+                case "request_preference" -> {
                     return matchRequestPreferences(params);
-                default: // unknown rule
-                    LOGGER.warn("Invalid condition set in system_message.");
+                }
+                default -> // unknown rule
+                        LOGGER.warn("Invalid condition set in system_message.");
             }
             return false;
         }

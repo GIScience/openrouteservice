@@ -25,6 +25,7 @@ import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CoreMatrixTest {
@@ -34,6 +35,7 @@ class CoreMatrixTest {
     private final CHConfig chConfig = new CHConfig("c", weighting, true, CHConfig.TYPE_CORE);
     private GraphHopperStorage g;
     private RoutingCHGraph routingCHGraph;
+    private MatrixRequest matrixRequest;
 
     private void addRestrictedTurn(GraphHopperStorage g, int from, int via, int to) {
         setTurnCost(g, Double.POSITIVE_INFINITY, from, via, to);
@@ -52,6 +54,7 @@ class CoreMatrixTest {
     void setUp() {
         g = new GraphBuilder(encodingManager).setCHConfigs(chConfig).withTurnCosts(true).create();
         routingCHGraph = g.getRoutingCHGraph();
+        matrixRequest = new MatrixRequest(2000, 50000, INFINITE_U_TURN_COSTS);
     }
 
     /**
@@ -121,7 +124,6 @@ class CoreMatrixTest {
         destinations.setData(0, 4, null);
         destinations.setData(1, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -131,6 +133,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
@@ -162,9 +165,7 @@ class CoreMatrixTest {
         destinations.setData(0, 4, null);
         destinations.setData(1, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -173,6 +174,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -201,9 +203,7 @@ class CoreMatrixTest {
         destinations.setData(0, 4, null);
         destinations.setData(1, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -212,6 +212,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
@@ -239,9 +240,7 @@ class CoreMatrixTest {
         destinations.setData(0, 4, null);
         destinations.setData(1, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -250,6 +249,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -278,9 +278,7 @@ class CoreMatrixTest {
         destinations.setData(0, 4, null);
         destinations.setData(1, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -289,6 +287,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
@@ -315,9 +314,7 @@ class CoreMatrixTest {
         destinations.setData(0, 4, null);
         destinations.setData(1, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -326,6 +323,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -354,9 +352,7 @@ class CoreMatrixTest {
         destinations.setData(0, 3, null);
         destinations.setData(1, 2, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -365,6 +361,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -389,9 +386,7 @@ class CoreMatrixTest {
         destinations.setData(0, 3, null);
         destinations.setData(1, 2, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -400,6 +395,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -424,9 +420,7 @@ class CoreMatrixTest {
         destinations.setData(0, 3, null);
         destinations.setData(1, 2, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -435,6 +429,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
@@ -457,9 +452,7 @@ class CoreMatrixTest {
         destinations.setData(0, 3, null);
         destinations.setData(1, 2, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -468,6 +461,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
@@ -491,9 +485,7 @@ class CoreMatrixTest {
         destinations.setData(0, 3, null);
         destinations.setData(1, 0, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -502,6 +494,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(3.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(4.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -544,9 +537,7 @@ class CoreMatrixTest {
         destinations.setData(7, 7, null);
         destinations.setData(8, 8, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -567,6 +558,7 @@ class CoreMatrixTest {
                 4.0f, 5.0f, 5.0f, 4.0f, 2.0f, 1.0f, 2.0f, 0.0f, 3.0f,
                 1.0f, 2.0f, 2.0f, 4.0f, 5.0f, 4.0f, 5.0f, 3.0f, 0.0f
         };
+        assertNotNull(result);
         assertArrayEquals(expected, result.getTable(MatrixMetricsType.DISTANCE), 0);
     }
 
@@ -587,9 +579,7 @@ class CoreMatrixTest {
         MatrixLocations destinations = new MatrixLocations(1);
         destinations.setData(0, 1, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -598,6 +588,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
     }
 
@@ -620,9 +611,7 @@ class CoreMatrixTest {
         destinations.setData(0, 1, null);
         destinations.setData(0, 2, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -631,6 +620,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -654,9 +644,7 @@ class CoreMatrixTest {
         MatrixLocations destinations = new MatrixLocations(1);
         destinations.setData(0, 1, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -665,6 +653,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
     }
 
@@ -684,9 +673,7 @@ class CoreMatrixTest {
         destinations.setData(0, 1, null);
         destinations.setData(0, 2, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -695,6 +682,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -717,9 +705,7 @@ class CoreMatrixTest {
         destinations.setData(0, 1, null);
         destinations.setData(0, 2, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -728,6 +714,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -757,9 +744,7 @@ class CoreMatrixTest {
         MatrixLocations destinations = new MatrixLocations(1);
         destinations.setData(0, 4, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
-
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
         MatrixResult result = null;
@@ -768,6 +753,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(2.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(4.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
@@ -792,7 +778,6 @@ class CoreMatrixTest {
         MatrixLocations destinations = new MatrixLocations(1);
         destinations.setData(0, 3, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         weighting = new ShortestWeighting(carEncoder, new DefaultTurnCostProvider(carEncoder, g.getTurnCostStorage()));
@@ -803,6 +788,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(4.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
     }
 
@@ -826,7 +812,6 @@ class CoreMatrixTest {
         MatrixLocations destinations = new MatrixLocations(1);
         destinations.setData(0, 3, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -836,6 +821,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(4.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
@@ -861,7 +847,6 @@ class CoreMatrixTest {
         destinations.setData(0, 3, null);
         destinations.setData(1, 4, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -871,6 +856,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(4.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -900,7 +886,6 @@ class CoreMatrixTest {
         destinations.setData(0, 3, null);
         destinations.setData(1, 4, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -910,6 +895,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(5.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(7.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -936,7 +922,6 @@ class CoreMatrixTest {
         destinations.setData(1, 4, null);
         destinations.setData(2, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, restrictedEdges);
@@ -946,6 +931,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(8.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(9.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -974,7 +960,6 @@ class CoreMatrixTest {
         destinations.setData(1, 4, null);
         destinations.setData(2, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, restrictedEdges);
@@ -984,6 +969,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(8.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
         assertEquals(9.0, result.getTable(MatrixMetricsType.DISTANCE)[2], 0);
@@ -1009,7 +995,6 @@ class CoreMatrixTest {
         MatrixLocations destinations = new MatrixLocations(1);
         destinations.setData(0, 7, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -1019,6 +1004,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(6.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
 
     }
@@ -1043,7 +1029,6 @@ class CoreMatrixTest {
         destinations.setData(0, 5, null);
         destinations.setData(1, 7, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -1053,6 +1038,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         // TODO Future improvement of algo: this would be the correct result, but the algorithm cannot provide this currently.
 //        assertEquals(13.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
 //        assertEquals(0.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
@@ -1072,7 +1058,6 @@ class CoreMatrixTest {
         MatrixLocations destinations = new MatrixLocations(1);
         destinations.setData(0, 1, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -1082,6 +1067,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(2.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
     }
 
@@ -1099,7 +1085,6 @@ class CoreMatrixTest {
         MatrixLocations destinations = new MatrixLocations(1);
         destinations.setData(0, 1, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -1109,6 +1094,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(2.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
@@ -1132,7 +1118,6 @@ class CoreMatrixTest {
         MatrixLocations destinations = new MatrixLocations(1);
         destinations.setData(0, 1, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -1142,6 +1127,7 @@ class CoreMatrixTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        assertNotNull(result);
         assertEquals(1.0, result.getTable(MatrixMetricsType.DISTANCE)[0], 0);
         assertEquals(2.0, result.getTable(MatrixMetricsType.DISTANCE)[1], 0);
     }
@@ -1165,7 +1151,6 @@ class CoreMatrixTest {
         destinations.setData(0, 4, null);
         destinations.setData(1, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
@@ -1192,7 +1177,6 @@ class CoreMatrixTest {
         destinations.setData(0, 4, null);
         destinations.setData(1, 5, null);
 
-        MatrixRequest matrixRequest = new MatrixRequest();
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());

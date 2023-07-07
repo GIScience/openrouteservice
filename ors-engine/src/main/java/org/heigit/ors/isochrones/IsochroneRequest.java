@@ -13,12 +13,12 @@
  */
 package org.heigit.ors.isochrones;
 
-import org.locationtech.jts.geom.Coordinate;
+import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
-import org.heigit.ors.common.ServiceRequest;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,6 +33,9 @@ public class IsochroneRequest extends ServiceRequest {
     private boolean includeIntersections = false;
     private String[] attributes;
     private float smoothingFactor = -1.0f;
+    private int maximumLocations;
+    private boolean allowComputeArea;
+    private int maximumIntervals;
 
     public IsochroneRequest() {
         travellers = new ArrayList<>();
@@ -165,5 +168,29 @@ public class IsochroneRequest extends ServiceRequest {
         for (TravellerInfo traveller : travellers)
             ret.add(WeightingMethod.getName(traveller.getRouteSearchParameters().getWeightingMethod()));
         return ret;
+    }
+
+    public void setMaximumLocations(int maximumLocations) {
+        this.maximumLocations = maximumLocations;
+    }
+
+    public int getMaximumLocations() {
+        return maximumLocations;
+    }
+
+    public boolean isAllowComputeArea() {
+        return allowComputeArea;
+    }
+
+    public void setAllowComputeArea(boolean allowComputeArea) {
+        this.allowComputeArea = allowComputeArea;
+    }
+
+    public int getMaximumIntervals() {
+        return maximumIntervals;
+    }
+
+    public void setMaximumIntervals(int maximumIntervals) {
+        this.maximumIntervals = maximumIntervals;
     }
 }

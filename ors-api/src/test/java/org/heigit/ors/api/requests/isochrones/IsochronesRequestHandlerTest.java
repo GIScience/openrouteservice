@@ -1,5 +1,6 @@
 package org.heigit.ors.api.requests.isochrones;
 
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
@@ -18,6 +19,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Polygon;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +30,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
+@ActiveProfiles("unittest")
 class IsochronesRequestHandlerTest {
     IsochronesRequest request;
 
@@ -35,6 +41,8 @@ class IsochronesRequestHandlerTest {
     private RequestProfileParamsRestrictions wheelchairParams;
     private JSONObject geoJsonPolygon;
 
+    @Autowired
+    private EndpointsProperties endpointsProperties = new EndpointsProperties();
 
     private JSONObject constructGeoJson() {
         JSONObject geoJsonPolygon = new JSONObject();
@@ -233,7 +241,7 @@ class IsochronesRequestHandlerTest {
         range.add(300.0);
         range.add(600.0);
         request.setRange(range);
-        IsochroneRequest isochroneRequest = request.convertIsochroneRequest();
+        IsochroneRequest isochroneRequest = request.convertIsochroneRequest(endpointsProperties);
         assertNotNull(isochroneRequest);
         assertFalse(isochroneRequest.getIncludeIntersections());
         assertNull(request.getAttributes());

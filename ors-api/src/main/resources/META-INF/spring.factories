@@ -1,0 +1,1 @@
+org.springframework.boot.env.EnvironmentPostProcessor=org.heigit.ors.api.ORSEnvironmentPostProcessor

@@ -1,18 +1,22 @@
 package org.heigit.ors.api.requests.matrix;
 
-import org.heigit.ors.routing.APIEnums;
-import org.heigit.ors.config.MatrixServiceSettings;
-import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.util.HelperFunctions;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
+@SpringBootTest
+@ActiveProfiles("unittest")
 class MatrixRequestTest {
     private MatrixRequest matrixLocationsRequest;
     private MatrixRequest matrixLocationsListRequest;
@@ -23,6 +27,9 @@ class MatrixRequestTest {
     private final Double[] bareCoordinate3 = new Double[2];
     private Double[][] maximumLocationsArray;
     private Double[][] minimalLocationsArray;
+
+    @Autowired
+    private EndpointsProperties endpointsProperties = new EndpointsProperties();
 
     @BeforeEach
     void setUp() {
@@ -50,16 +57,14 @@ class MatrixRequestTest {
         bareCoordinates[1] = bareCoordinate2;
         bareCoordinates[2] = bareCoordinate3;
 
-        maximumLocationsArray = HelperFunctions.fakeArrayLocations(MatrixServiceSettings.getMaximumRoutes(false) + 1, 2);
+        maximumLocationsArray = HelperFunctions.fakeArrayLocations(endpointsProperties.getMatrix().getMaximumRoutes(false) + 1, 2);
         minimalLocationsArray = HelperFunctions.fakeArrayLocations(1, 2);
-
-
     }
 
     @Test
     void tooMuchLocationsErrorTest() {
         assertThrows(ParameterValueException.class, () -> {
-            matrixLocationsListRequest = new MatrixRequest(maximumLocationsArray);
+            matrixLocationsListRequest = new MatrixRequest(maximumLocationsArray, endpointsProperties);
 
         });
 
@@ -68,7 +73,7 @@ class MatrixRequestTest {
     @Test
     void tooLittleLocationsErrorTest() {
         assertThrows(ParameterValueException.class, () -> {
-            matrixLocationsRequest = new MatrixRequest(minimalLocationsArray);
+            matrixLocationsRequest = new MatrixRequest(minimalLocationsArray, endpointsProperties);
         });
     }
 
@@ -76,14 +81,14 @@ class MatrixRequestTest {
     void invalidLocationsErrorTest() {
         assertThrows(ParameterValueException.class, () -> {
             Double[][] listOfFaultyBareCoordinatesList = HelperFunctions.fakeArrayLocations(3, 1);
-            matrixLocationsRequest = new MatrixRequest(listOfFaultyBareCoordinatesList);
+            matrixLocationsRequest = new MatrixRequest(listOfFaultyBareCoordinatesList, endpointsProperties);
         });
     }
 
 
     @Test
     void getIdTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         assertNull(matrixLocationsRequest.getId());
         assertNull(matrixLocationsListRequest.getId());
@@ -91,7 +96,7 @@ class MatrixRequestTest {
 
     @Test
     void setIdTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setId("foo1");
         matrixLocationsListRequest.setId("foo2");
@@ -102,7 +107,7 @@ class MatrixRequestTest {
 
     @Test
     void hasIdTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         assertFalse(matrixLocationsRequest.hasId());
         assertFalse(matrixLocationsListRequest.hasId());
@@ -114,7 +119,7 @@ class MatrixRequestTest {
 
     @Test
     void getProfileTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         assertNull(matrixLocationsRequest.getProfile());
         assertNull(matrixLocationsListRequest.getProfile());
@@ -122,7 +127,7 @@ class MatrixRequestTest {
 
     @Test
     void setProfileTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         assertEquals(APIEnums.Profile.DRIVING_CAR, matrixLocationsRequest.getProfile());
@@ -132,7 +137,7 @@ class MatrixRequestTest {
 
     @Test
     void getLocationsTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         assertEquals(listOfBareCoordinatesList, matrixLocationsRequest.getLocations());
         assertEquals(listOfBareCoordinatesList, matrixLocationsListRequest.getLocations());
@@ -140,7 +145,7 @@ class MatrixRequestTest {
 
     @Test
     void setLocationsTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setLocations(listOfBareCoordinatesList);
         matrixLocationsListRequest.setLocations(listOfBareCoordinatesList);
@@ -150,7 +155,7 @@ class MatrixRequestTest {
 
     @Test
     void setSourcesTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setSources(new String[]{"foo"});
         matrixLocationsListRequest.setSources(new String[]{"foo"});
@@ -160,7 +165,7 @@ class MatrixRequestTest {
 
     @Test
     void setAndGetDestinationsTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setDestinations(new String[]{"all"});
         matrixLocationsListRequest.setDestinations(new String[]{"1","2"});
@@ -170,7 +175,7 @@ class MatrixRequestTest {
 
     @Test
     void setAndGetMetricsTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DURATION});
         matrixLocationsListRequest.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE});
@@ -180,7 +185,7 @@ class MatrixRequestTest {
 
     @Test
     void setAndGetResolveLocationsTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setResolveLocations(true);
         matrixLocationsListRequest.setResolveLocations(false);
@@ -197,7 +202,7 @@ class MatrixRequestTest {
 
     @Test
     void setAndGetOptimizedTest() throws ParameterValueException {
-        matrixLocationsRequest = new MatrixRequest(bareCoordinates);
+        matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setOptimized(true);
         matrixLocationsListRequest.setOptimized(false);

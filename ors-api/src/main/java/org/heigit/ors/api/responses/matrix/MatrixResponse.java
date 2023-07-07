@@ -16,6 +16,8 @@
 package org.heigit.ors.api.responses.matrix;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 
@@ -27,10 +29,10 @@ public class MatrixResponse {
     @JsonIgnore
     protected MatrixRequest matrixRequest;
 
-    public MatrixResponse(MatrixResult result, MatrixRequest request) {
+    public MatrixResponse(MatrixResult result, MatrixRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) {
         this.matrixResult = result;
         this.matrixRequest = request;
-        responseInformation = new MatrixResponseInfo(request);
+        responseInformation = new MatrixResponseInfo(request, systemMessageProperties, endpointsProperties);
     }
 
     public MatrixResponseInfo getResponseInformation() {

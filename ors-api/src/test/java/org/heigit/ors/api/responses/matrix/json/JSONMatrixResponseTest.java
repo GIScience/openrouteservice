@@ -1,6 +1,7 @@
 package org.heigit.ors.api.responses.matrix.json;
 
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.api.responses.matrix.MatrixResponseInfo;
@@ -8,12 +9,18 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.ResolvedLocation;
+import org.heigit.ors.routing.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
+@ActiveProfiles("unittest")
 class JSONMatrixResponseTest {
     private final Double[][] bareCoordinates = new Double[3][];
     private final Double[] bareCoordinate1 = new Double[2];
@@ -22,6 +29,10 @@ class JSONMatrixResponseTest {
     private JSONMatrixResponse jsonMatrixDurationsResponse;
     private JSONMatrixResponse jsonMatrixDistancesResponse;
     private JSONMatrixResponse jsonMatrixCombinedResponse;
+    @Autowired
+    private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
+    @Autowired
+    private final EndpointsProperties endpointsProperties = new EndpointsProperties();
 
     @BeforeEach
     void setUp() throws StatusCodeException {
@@ -62,26 +73,26 @@ class JSONMatrixResponseTest {
         matrixResultDuration.setTable(MatrixMetricsType.DURATION, new float[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
 
 
-        MatrixRequest apiRequestDuration = new MatrixRequest(bareCoordinates);
+        MatrixRequest apiRequestDuration = new MatrixRequest(bareCoordinates, endpointsProperties);
         apiRequestDuration.setProfile(APIEnums.Profile.DRIVING_CAR);
         apiRequestDuration.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DURATION});
         apiRequestDuration.setResolveLocations(true);
 
-        MatrixRequest apiRequestDistance = new MatrixRequest(bareCoordinates);
+        MatrixRequest apiRequestDistance = new MatrixRequest(bareCoordinates, endpointsProperties);
         apiRequestDistance.setProfile(APIEnums.Profile.DRIVING_CAR);
         apiRequestDistance.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE});
         apiRequestDistance.setResolveLocations(false);
 
-        MatrixRequest apiRequestCombined = new MatrixRequest(bareCoordinates);
+        MatrixRequest apiRequestCombined = new MatrixRequest(bareCoordinates, endpointsProperties);
         apiRequestCombined.setProfile(APIEnums.Profile.DRIVING_CAR);
         apiRequestCombined.setMetrics(new MatrixRequestEnums.Metrics[]{MatrixRequestEnums.Metrics.DISTANCE, MatrixRequestEnums.Metrics.DURATION});
         apiRequestCombined.setResolveLocations(true);
 
-        jsonMatrixDurationsResponse = new JSONMatrixResponse(matrixResultDuration, apiRequestDuration);
+        jsonMatrixDurationsResponse = new JSONMatrixResponse(matrixResultDuration, apiRequestDuration, systemMessageProperties, endpointsProperties);
 
-        jsonMatrixDistancesResponse = new JSONMatrixResponse(matrixResultDistance, apiRequestDistance);
+        jsonMatrixDistancesResponse = new JSONMatrixResponse(matrixResultDistance, apiRequestDistance, systemMessageProperties, endpointsProperties);
 
-        jsonMatrixCombinedResponse = new JSONMatrixResponse(matrixResultCombined, apiRequestCombined);
+        jsonMatrixCombinedResponse = new JSONMatrixResponse(matrixResultCombined, apiRequestCombined, systemMessageProperties, endpointsProperties);
     }
 
     @Test

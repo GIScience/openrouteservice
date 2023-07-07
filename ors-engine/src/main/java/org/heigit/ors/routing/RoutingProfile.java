@@ -31,13 +31,12 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
+import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.exceptions.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.Pair;
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.config.IsochronesServiceSettings;
-import org.heigit.ors.config.MatrixServiceSettings;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.export.ExportWarning;
@@ -122,11 +121,11 @@ public class RoutingProfile {
     private String astarApproximation;
     private Double astarEpsilon;
 
-    public RoutingProfile(String osmFile, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) throws Exception {
+    public RoutingProfile(EngineConfig engineConfig, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) throws Exception {
         mRoutePrefs = rpc.getProfilesTypes();
         mUseCounter = 0;
 
-        mGraphHopper = initGraphHopper(osmFile, rpc, loadCntx);
+        mGraphHopper = initGraphHopper(engineConfig, rpc, loadCntx);
 
         config = rpc;
 
@@ -139,7 +138,8 @@ public class RoutingProfile {
         }
     }
 
-    public static ORSGraphHopper initGraphHopper(String osmFile, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
+    public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
+        String osmFile = engineConfig.getSourceFile();
         ORSGraphHopperConfig args = createGHSettings(osmFile, config);
 
         int profileId;
@@ -155,7 +155,7 @@ public class RoutingProfile {
         }
 
         GraphProcessContext gpc = new GraphProcessContext(config);
-        gpc.setGetElevationFromPreprocessedData("true".equalsIgnoreCase(AppConfig.getGlobal().getParameter("services.routing", "elevation_preprocessed")));
+        gpc.setGetElevationFromPreprocessedData(engineConfig.isElevationPreprocessed());
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc);
 
@@ -663,7 +663,7 @@ public class RoutingProfile {
     private MatrixResult computeRPHASTMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, String profileName) throws Exception {
         RoutingCHGraph routingCHGraph = gh.getGraphHopperStorage().getRoutingCHGraph(profileName);
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
-        MatrixSearchContext mtxSearchCntx = builder.create(routingCHGraph.getBaseGraph(), routingCHGraph, routingCHGraph.getWeighting(), profileName, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+        MatrixSearchContext mtxSearchCntx = builder.create(routingCHGraph.getBaseGraph(), routingCHGraph, routingCHGraph.getWeighting(), profileName, req.getSources(), req.getDestinations(), req.getMaximumSearchRadius());
 
         RPHASTMatrixAlgorithm algorithm = new RPHASTMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, routingCHGraph.getWeighting());
@@ -684,7 +684,7 @@ public class RoutingProfile {
         EdgeFilter edgeFilter = new ORSEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, gh.getGraphHopperStorage());
 
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
-        MatrixSearchContext mtxSearchCntx = builder.create(graph.getBaseGraph(), graph, weighting, profileName, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+        MatrixSearchContext mtxSearchCntx = builder.create(graph.getBaseGraph(), graph, weighting, profileName, req.getSources(), req.getDestinations(), req.getMaximumSearchRadius());
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, weighting, edgeFilter);
@@ -707,7 +707,7 @@ public class RoutingProfile {
         Graph graph = gh.getGraphHopperStorage().getBaseGraph();
         Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
-        MatrixSearchContext mtxSearchCntx = builder.create(graph, null, weighting, profileName, req.getSources(), req.getDestinations(), MatrixServiceSettings.getMaximumSearchRadius());
+        MatrixSearchContext mtxSearchCntx = builder.create(graph, null, weighting, profileName, req.getSources(), req.getDestinations(), req.getMaximumSearchRadius());
 
         DijkstraMatrixAlgorithm algorithm = new DijkstraMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
@@ -752,7 +752,7 @@ public class RoutingProfile {
             }
         });
 
-        LOGGER.info(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
+        LOGGER.debug(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
 
         if (nodesInBBox.isEmpty()) {
             // without nodes, no export can be calculated
