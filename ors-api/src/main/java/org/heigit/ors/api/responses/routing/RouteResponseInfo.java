@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api.responses.routing;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
@@ -79,6 +80,7 @@ public class RouteResponseInfo {
         this.systemMessage = SystemMessage.getSystemMessage(request, systemMessageProperties);
     }
 
+    @JsonIgnore
     public void setGraphDate(String graphDate) {
         engineInfo.setGraphDate(graphDate);
     }

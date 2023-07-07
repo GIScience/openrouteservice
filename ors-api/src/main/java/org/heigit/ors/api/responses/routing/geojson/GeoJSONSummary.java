@@ -45,16 +45,14 @@ public class GeoJSONSummary extends JSONSummary {
     @JsonProperty("legs")
     private final List<JSONLeg> legs;
     private final List<RouteWarning> warnings;
-    @Schema(description = "Departure date and time" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','value':true}}",
+    @Schema(description = "Departure date and time",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "departure"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "2020-01-31T12:45:00+01:00")
     @JsonProperty(value = "departure")
     protected ZonedDateTime departure;
-    @Schema(description = "Arrival date and time" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','value':true}}",
+    @Schema(description = "Arrival date and time",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "arrival"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}

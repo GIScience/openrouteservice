@@ -38,13 +38,13 @@ public class APIRequest {
     public static final String PARAM_PROFILE = "profile";
 
     @Schema(name = PARAM_ID, description = "Arbitrary identification string of the request reflected in the meta information.",
-            example = "export_request")
+            example = "my_request")
     @JsonProperty(PARAM_ID)
     protected String id;
     @JsonIgnore
     private boolean hasId = false;
 
-    @Schema(name = PARAM_PROFILE, accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(name = PARAM_PROFILE, hidden = true)
     protected APIEnums.Profile profile;
 
     public boolean hasId() {

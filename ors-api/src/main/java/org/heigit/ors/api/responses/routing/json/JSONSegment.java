@@ -44,35 +44,36 @@ public class JSONSegment {
     @JsonProperty("steps")
     @JsonInclude()
     private final List<JSONStep> steps;
-    @Schema(description = "Contains the deviation compared to a straight line that would have the factor `1`. Double the Distance would be a `2`. CUSTOM_KEYS:{'validWhen':{'ref':'attributes','valueContains':'detourfactor'}}",
+    @Schema(description = "Contains the deviation compared to a straight line that would have the factor `1`. Double the Distance would be a `2`.",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "valueContains", value = "detourfactor")}
             )}, example = "0.5")
     @JsonProperty("detourfactor")
     private Double detourFactor;
-    @Schema(description = "Contains the proportion of the route in percent. CUSTOM_KEYS:{'validWhen':{'ref':'attributes','valueContains':'percentage'}}",
+    @Schema(description = "Contains the proportion of the route in percent.",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "valueContains", value = "percentage")}
             )}, example = "43.2")
     @JsonProperty("percentage")
     private Double percentage;
-    @Schema(description = "Contains the average speed of this segment in km/h. CUSTOM_KEYS:{'validWhen':{'ref':'attributes','valueContains':'avgspeed'}}",
+    @Schema(description = "Contains the average speed of this segment in km/h.",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "valueContains", value = "avgspeed")}
             )}, example = "56.3")
     @JsonProperty("avgspeed")
     private Double averageSpeed;
-    @Schema(description = " Contains ascent of this segment in metres. CUSTOM_KEYS:{'validWhen':{'ref':'elevation',value:true}}",
+    @Schema(description = " Contains ascent of this segment in metres.",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "elevation"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "56.3")
     @JsonProperty("ascent")
     private Double ascent;
-    @Schema(description = "Contains descent of this segment in metres. CUSTOM_KEYS:{'validWhen':{'ref':'elevation',value:true}}", example = "45.2")
+    @Schema(description = "Contains descent of this segment in metres.",
+            example = "45.2")
     @JsonProperty("descent")
     private Double descent;
 

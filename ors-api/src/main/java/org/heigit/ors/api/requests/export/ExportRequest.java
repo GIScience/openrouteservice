@@ -35,20 +35,20 @@ public class ExportRequest extends APIRequest {
     @JsonIgnore
     private boolean hasId = false;
 
-    @Schema(name= PARAM_PROFILE, accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(name= PARAM_PROFILE, hidden = true)
     private APIEnums.Profile profile;
 
     @Schema(name= PARAM_BBOX, description = "The bounding box to use for the request as an array of `longitude/latitude` pairs",
-            example = "[8.681495,49.41461,8.686507,49.41943]",
+            example = "[[8.681495,49.41461],[8.686507,49.41943]]",
             requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_BBOX)
     private List<List<Double>> bbox; //apparently, this has to be a non-primitive type…
 
-    @Schema(name= PARAM_FORMAT, accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(name= PARAM_FORMAT,hidden = true)
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.ExportResponseType responseType = APIEnums.ExportResponseType.JSON;
 
-    @Schema(name= PARAM_DEBUG, accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(name= PARAM_DEBUG,hidden = true)
     @JsonProperty(PARAM_DEBUG)
     private boolean debug;
 

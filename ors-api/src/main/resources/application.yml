@@ -9,9 +9,6 @@ server:
   error:
     whitelabel:
       enabled: false
-  # Workaround for failing springfox-swagger2.
-  # springfox-swagger2 should be replaced by the maintained springdoc-openapi
-  # spring.mvc.pathmatch.matching-strategy=ANT_PATH_MATCHER
   # Keep the context-path at / else the war file run with tomcat will have the context-path of /ors/v2 as well.
   servlet:
     context-path: /ors
@@ -32,7 +29,6 @@ messages:
 
 ##### ORS endpoints settings #####
 endpoints:
-  swagger_documentation_url: https://api.openrouteservice.org/
   routing:
     enabled: true
     attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
@@ -160,14 +156,12 @@ logging:
 springdoc:
   swagger-ui:
     enabled: true
-    path: /swagger-ui.html
+    path: /swagger-ui
     tryItOutEnabled: true
     filter: false
     syntaxHighlight:
       activated: true
     showExtensions: true
-  #  packagesToScan: package1,package2
-  #  pathsToMatch: /ors/v2,/v2
   api-docs:
     path: /v2/api-docs
-    version: OPENAPI_3_1
+    version: OPENAPI_3_0

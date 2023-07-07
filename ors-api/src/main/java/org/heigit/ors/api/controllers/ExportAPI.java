@@ -33,7 +33,6 @@ import org.heigit.ors.api.responses.export.json.JsonExportResponse;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportResult;
-import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -77,16 +76,17 @@ public class ExportAPI {
 
     // Functional request methods
     @PostMapping(value = "/{profile}")
-    @RouterOperation(operation = @Operation(description = "Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. " +
-            "This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.", summary = "Directions Service (GET)"),
-            method = RequestMethod.POST,
-            consumes = "application/json",
-            produces = "application/json")
-    @ApiResponse(responseCode = "200",
+    @Operation(
+            description = "Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. " +
+            "This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.",
+            summary = "Export Service"
+    )
+    @ApiResponse(
+            responseCode = "200",
             description = "Standard response for successfully processed requests. Returns JSON.",
             content = {@Content(
                     mediaType = "application/geo+json",
-                    array = @ArraySchema(schema = @Schema(implementation = JsonExportResponse.class))
+                    schema = @Schema(implementation = JsonExportResponse.class)
             )
             })
     public JsonExportResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
@@ -95,15 +95,16 @@ public class ExportAPI {
     }
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
-    @RouterOperation(operation = @Operation(description = "Returns a list of points, edges and weights within a given bounding box for a selected profile JSON.", summary = "Export Service JSON (POST)"),
-            method = RequestMethod.POST,
-            consumes = "application/json",
-            produces = "application/json")
-    @ApiResponse(responseCode = "200",
+    @Operation(
+            description = "Returns a list of points, edges and weights within a given bounding box for a selected profile JSON.",
+            summary = "Export Service JSON"
+    )
+    @ApiResponse(
+            responseCode = "200",
             description = "JSON Response.",
             content = {@Content(
                     mediaType = "application/geo+json",
-                    array = @ArraySchema(schema = @Schema(implementation = JsonExportResponse.class))
+                    schema = @Schema(implementation = JsonExportResponse.class)
             )
             })
     public JsonExportResponse getJsonExport(

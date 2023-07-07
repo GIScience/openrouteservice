@@ -24,7 +24,7 @@ public class GeoJSONIsochroneProperties {
     @JsonProperty("center")
     private final Double[] center;
 
-    @Schema(description = "Area of the polygon in square meters (for attributes=area). CUSTOM_KEYS:{'validWhen':{'ref':'attributes','containsValue':'area'}}",
+    @Schema(description = "Area of the polygon in square meters (for attributes=area).",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "containsValue", value = "area")}
@@ -40,7 +40,7 @@ public class GeoJSONIsochroneProperties {
     @JsonProperty("reachfactor")
     private Double reachfactor;
 
-    @Schema(description = "Total population of the polygon (for attributes=total_pop). CUSTOM_KEYS:{'validWhen':{'ref':'attributes','containsValue':'total_pop'}}",
+    @Schema(description = "Total population of the polygon (for attributes=total_pop).",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "containsValue", value = "total_pop")}

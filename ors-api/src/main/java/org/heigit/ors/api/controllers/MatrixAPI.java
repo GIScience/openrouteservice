@@ -36,7 +36,6 @@ import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.routing.APIEnums;
-import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -89,17 +88,17 @@ public class MatrixAPI {
     // Functional request methods
 
     @PostMapping(value = "/{profile}", produces = {"application/json;charset=UTF-8"})
-    @RouterOperation(operation = @Operation(description = "Returns duration or distance matrix for multiple source and destination points.\n" +
+    @Operation(
+            description = "Returns duration or distance matrix for multiple source and destination points.\n" +
             "By default a square duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.",
-            summary = "Matrix Service"),
-            method = RequestMethod.POST,
-            consumes = "application/json",
-            produces = "application/json;charset=UTF-8")
-    @ApiResponse(responseCode = "200",
+            summary = "Matrix Service"
+    )
+    @ApiResponse(
+            responseCode = "200",
             description = "Standard response for successfully processed requests. Returns JSON.",
             content = {@Content(
                     mediaType = "application/json;charset=UTF-8",
-                    array = @ArraySchema(schema = @Schema(implementation = JSONMatrixResponse.class))
+                    schema = @Schema(implementation = JSONMatrixResponse.class)
             )
             })
     public JSONMatrixResponse getDefault(@Parameter(name = "profile", description = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
@@ -108,12 +107,12 @@ public class MatrixAPI {
     }
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
-    @RouterOperation(operation = @Operation(
-            summary = "Get a matrix calculation from the specified profile", hidden = true),
-            method = RequestMethod.POST,
-            consumes = "application/json",
-            produces = "application/json;charset=UTF-8")
-    @ApiResponse(responseCode = "200",
+    @Operation(
+            summary = "Get a matrix calculation from the specified profile",
+            hidden = true
+    )
+    @ApiResponse(
+            responseCode = "200",
             description = "Standard response for successfully processed requests. Returns JSON.",
             content = {@Content(
                     mediaType = "application/json;charset=UTF-8",

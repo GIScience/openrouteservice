@@ -61,15 +61,15 @@ public class MatrixRequest extends APIRequest {
     @JsonProperty(PARAM_LOCATIONS)
     private List<List<Double>> locations;
 
-    @Schema(name = PARAM_SOURCES, description = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). example `[0,3]` for the first and fourth locations " +
-            "CUSTOM_KEYS:{'apiDefault':['all']}", defaultValue = "[\"all\"]")
+    @Schema(name = PARAM_SOURCES, description = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). example `[0,3]` for the first and fourth locations ",
+            defaultValue = "[\"all\"]")
     @JsonProperty(value = PARAM_SOURCES)
     private String[] sources;
     @JsonIgnore
     private boolean hasSources = false;
 
-    @Schema(name = PARAM_DESTINATIONS, description = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). `[0,3]` for the first and fourth locations " +
-            "CUSTOM_KEYS:{'apiDefault':['all']}", defaultValue = "[\"all\"]")
+    @Schema(name = PARAM_DESTINATIONS, description = "A list of indices that refers to the list of locations (starting with `0`). `{index_1},{index_2}[,{index_N} ...]` or `all` (default). `[0,3]` for the first and fourth locations ",
+            defaultValue = "[\"all\"]")
     @JsonProperty(value = PARAM_DESTINATIONS)
     private String[] destinations;
     @JsonIgnore
@@ -79,26 +79,28 @@ public class MatrixRequest extends APIRequest {
             Specifies a list of returned metrics.
             "* `distance` - Returns distance matrix for specified points in defined `units`.
             * `duration` - Returns duration matrix for specified points in **seconds**.
-            "CUSTOM_KEYS:{'apiDefault':'duration'}""", defaultValue = "duration")
+            """,
+            defaultValue = "duration")
     @JsonProperty(value = PARAM_METRICS)
     private MatrixRequestEnums.Metrics[] metrics;
     @JsonIgnore
     private boolean hasMetrics = false;
 
     @Schema(name = PARAM_RESOLVE_LOCATIONS, description = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in " +
-            "`destinations` and `sources` will contain a `name` element that identifies the name of the closest street. Default is `false`. " +
-            "CUSTOM_KEYS:{'apiDefault':false}", defaultValue = "false")
+            "`destinations` and `sources` will contain a `name` element that identifies the name of the closest street. Default is `false`. ",
+            defaultValue = "false")
     @JsonProperty(value = PARAM_RESOLVE_LOCATIONS)
     private boolean resolveLocations;
     @JsonIgnore
     private boolean hasResolveLocations = false;
 
     @Schema(name = PARAM_UNITS, description = "Specifies the distance unit.\n" +
-            "Default: m. CUSTOM_KEYS:{'apiDefault':'m','validWhen':{'ref':'metrics','value':'distance'}`}",
-            extensions = {@Extension(name = "validWhen", properties = {
+            "Default: m.",
+            extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "metrics"),
                     @ExtensionProperty(name = "value", value = "distance")}
-            )})
+            )},
+            defaultValue = "m")
     @JsonProperty(value = PARAM_UNITS)
     private APIEnums.Units units;
     @JsonIgnore

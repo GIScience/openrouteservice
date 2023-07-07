@@ -70,13 +70,13 @@ public class IsochronesRequest extends APIRequest {
 
     @Schema(name= PARAM_LOCATIONS, description = "The locations to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[[8.681495,49.41461],[8.686507,49.41943]]",
-            accessMode = Schema.AccessMode.READ_ONLY)
+            requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_LOCATIONS)
     private Double[][] locations = new Double[][]{};
     @JsonIgnore
     private boolean hasLocations = false;
 
-    @Schema(name= PARAM_LOCATION_TYPE, description = "`start` treats the location(s) as starting point, `destination` as goal. CUSTOM_KEYS:{'apiDefault':'start'}",
+    @Schema(name= PARAM_LOCATION_TYPE, description = "`start` treats the location(s) as starting point, `destination` as goal.",
             defaultValue = "start")
     @JsonProperty(value = PARAM_LOCATION_TYPE)
     private IsochronesRequestEnums.LocationType locationType;
@@ -86,14 +86,14 @@ public class IsochronesRequest extends APIRequest {
     @Schema(name= PARAM_RANGE, description = "Maximum range value of the analysis in **seconds** for time and **metres** for distance." +
             "Alternatively a comma separated list of specific range values. Ranges will be the same for all locations.",
             example = "[ 300, 200 ]",
-            accessMode = Schema.AccessMode.READ_ONLY)
+            requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_RANGE)
     private List<Double> range;
     @JsonIgnore
     private boolean hasRange = false;
 
     @Schema(name= PARAM_RANGE_TYPE,
-            description = "Specifies the isochrones reachability type. CUSTOM_KEYS:{'apiDefault':'time'}", defaultValue = "time")
+            description = "Specifies the isochrones reachability type.", defaultValue = "time")
     @JsonProperty(value = PARAM_RANGE_TYPE, defaultValue = "time")
     private IsochronesRequestEnums.RangeType rangeType;
     @JsonIgnore
@@ -102,13 +102,12 @@ public class IsochronesRequest extends APIRequest {
     // unit only valid for range_type distance, will be ignored for range_time time
     @Schema(name= PARAM_RANGE_UNITS,
             description = "Specifies the distance units only if `range_type` is set to distance.\n" +
-                    "Default: m. " +
-                    "CUSTOM_KEYS:{'apiDefault':'m','validWhen':{'ref':'range_type','value':'distance'}}",
+                    "Default: m. ",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "range_type"),
                     @ExtensionProperty(name = "value", value = "distance")}
             )},
-            example = "m")
+            defaultValue = "m")
     @JsonProperty(value = PARAM_RANGE_UNITS)
     private APIEnums.Units rangeUnit;
     @JsonIgnore
@@ -122,25 +121,24 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasOptions = false;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(hidden = true)
     private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.GEOJSON;
 
     @Schema(name= PARAM_AREA_UNITS,
             description = "Specifies the area unit.\n" +
-                    "Default: m. " +
-                    "CUSTOM_KEYS:{'apiDefault':'m','validWhen':{'ref':'attributes','value':'area'}}",
+                    "Default: m. ",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "value", value = "area")}
-            )})
+            )},
+            defaultValue = "m")
     @JsonProperty(value = PARAM_AREA_UNITS)
     private APIEnums.Units areaUnit;
     @JsonIgnore
     private boolean hasAreaUnits = false;
 
     @Schema(name= PARAM_INTERSECTIONS,
-            description = "Specifies whether to return intersecting polygons. " +
-                    "CUSTOM_KEYS:{'apiDefault':false}", defaultValue = "false")
+            description = "Specifies whether to return intersecting polygons. ", defaultValue = "false")
     @JsonProperty(value = PARAM_INTERSECTIONS)
     private boolean intersections;
     @JsonIgnore
@@ -177,7 +175,7 @@ public class IsochronesRequest extends APIRequest {
     private boolean hasSmoothing = false;
 
     @Schema(name= PARAM_TIME, description = "Departure date and time provided in local time zone",
-            example = "2020-01-31T12:45:00", accessMode = Schema.AccessMode.READ_ONLY)
+            example = "2020-01-31T12:45:00", hidden = true)
     @JsonProperty(PARAM_TIME)
     private LocalDateTime time;
     @JsonIgnore

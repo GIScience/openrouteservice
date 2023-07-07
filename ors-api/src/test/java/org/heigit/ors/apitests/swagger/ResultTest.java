@@ -13,29 +13,24 @@
  */
 package org.heigit.ors.apitests.swagger;
 
-import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.springdoc.core.SpringDocConfigProperties.ApiDocs.OpenApiVersion.OPENAPI_3_1;
+import static org.springdoc.core.SpringDocConfigProperties.ApiDocs.OpenApiVersion.OPENAPI_3_0;
 
 
 @EndPointAnnotation(name = "api-docs")
 @VersionAnnotation(version = "v2")
 class ResultTest extends ServiceTest {
 
-    @Autowired
-    EndpointsProperties endpointsProperties;
-
-    //    The outcommented parts should be introduced once the swagger-parser package uses the latest snakeyaml version.
+    //    The commented parts should be introduced once the swagger-parser package uses the latest snakeyaml version.
 //    SwaggerParseResult result;
 //    OpenAPI openAPI;
-    String openAPIVersion = String.valueOf(OPENAPI_3_1.getVersion());
+    String openAPIVersion = String.valueOf(OPENAPI_3_0.getVersion());
 
 //    @BeforeEach
 //    void setUp() {
@@ -60,8 +55,12 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'tags' }", is(true))
                 .body("any { it.key == 'paths' }", is(true))
                 .body("any { it.key == 'components' }", is(true))
-                .body("servers", hasSize(1))
-                .body("servers[0].url", hasToString(endpointsProperties.getSwaggerDocumentationUrl()))
+                .body("servers", hasSize(2))
+                .body("servers[0].url", hasToString("https://api.openrouteservice.org"))
+                .body("servers[1].url", hasToString("http://localhost:{port}{basePath}"))
+                .body("servers[1].variables.port", hasKey("description"))
+                .body("servers[1].variables.port", hasKey("default"))
+                .body("servers[1].variables.basePath.default", hasToString("/ors"))
                 .statusCode(200);
     }
 

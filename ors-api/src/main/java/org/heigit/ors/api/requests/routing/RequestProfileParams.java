@@ -40,8 +40,7 @@ public class RequestProfileParams {
     @JsonIgnore
     private boolean hasRestrictions = false;
 
-    @Schema(name= PARAM_SURFACE_QUALITY_KNOWN, description = "Specifies whether to enforce that only ways with known information on surface quality be taken into account - default false" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+    @Schema(name= PARAM_SURFACE_QUALITY_KNOWN, description = "Specifies whether to enforce that only ways with known information on surface quality be taken into account - default false",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "wheelchair")}
@@ -52,8 +51,7 @@ public class RequestProfileParams {
     @JsonIgnore
     private boolean hasSurfaceQualityKnown = false;
 
-    @Schema(name= PARAM_ALLOW_UNSUITABLE, description = "Specifies if ways that might not be suitable (e.g. unknown pedestrian usage) should be included in finding routes - default false" +
-            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['wheelchair']}}",
+    @Schema(name= PARAM_ALLOW_UNSUITABLE, description = "Specifies if ways that might not be suitable (e.g. unknown pedestrian usage) should be included in finding routes - default false",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "wheelchair")}
