@@ -72,9 +72,15 @@ engine:
     cache_path: ./src/test/files/elevation
   profile_default:
     elevation: false
+    preparation:
+      methods:
+        fastisochrones:
+          enabled: false
+          threads: 12
+          weightings: recommended
+          maxcellnodes: 5000
   profiles:
     driving-car:
-      type:
       elevation: true
       traffic: false
       encoder_options:
