@@ -12,13 +12,10 @@ public class ExportWarning {
      */
     public ExportWarning(int warning) {
         warningCode = warning;
-        switch(warning) {
-            case EMPTY_BBOX:
-                warningMessage = "The specified bbox doesn't contain any nodes.";
-                break;
-            default:
-                warningMessage = "Unknown error";
-                break;
+        if (warning == EMPTY_BBOX) {
+            warningMessage = "The specified bbox doesn't contain any nodes.";
+        } else {
+            warningMessage = "Unknown error";
         }
     }
 
