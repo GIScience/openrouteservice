@@ -750,7 +750,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         String trackType = way.getTag("tracktype");
 
         // Populate unpavedBit
-        if (KEY_TRACK.equals(highway) && (trackType == null || !"grade1".equals(trackType))
+        if (KEY_TRACK.equals(highway) && (!"grade1".equals(trackType))
                 || "path".equals(highway) && surfaceTag == null
                 || unpavedSurfaceTags.contains(surfaceTag)) {
             unpavedEncoder.setBool(false, edgeFlags, true);
