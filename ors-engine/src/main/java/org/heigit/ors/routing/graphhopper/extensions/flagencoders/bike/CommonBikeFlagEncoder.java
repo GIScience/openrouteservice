@@ -403,7 +403,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         }
 
         Integer priorityFromRelationInt = routeMap.get(bikeRouteEnc.getEnum(false, edgeFlags));
-        int priorityFromRelation = priorityFromRelationInt == null ? 0 : priorityFromRelationInt.intValue();
+        int priorityFromRelation = priorityFromRelationInt == null ? 0 : priorityFromRelationInt;
 
         double wayTypeSpeed = getSpeed(way);
         if (!access.isFerry()) {
