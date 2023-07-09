@@ -449,8 +449,7 @@ public final class JTS {
             return removeCollinearVertices((LineString) g);
         } else if (g instanceof Polygon) {
             return removeCollinearVertices((Polygon) g);
-        } else if (g instanceof MultiPolygon) {
-            MultiPolygon mp = (MultiPolygon) g;
+        } else if (g instanceof MultiPolygon mp) {
             Polygon[] parts = new Polygon[mp.getNumGeometries()];
             for (int i = 0; i < mp.getNumGeometries(); i++) {
                 Polygon part = (Polygon) mp.getGeometryN(i);
@@ -487,8 +486,7 @@ public final class JTS {
             return removeCollinearVertices((LineString) geometry);
         } else if (geometry instanceof Polygon) {
             return removeCollinearVertices((Polygon) geometry);
-        } else if (geometry instanceof MultiPolygon) {
-            MultiPolygon mp = (MultiPolygon) geometry;
+        } else if (geometry instanceof MultiPolygon mp) {
             Polygon[] parts = new Polygon[mp.getNumGeometries()];
             for (int i = 0; i < mp.getNumGeometries(); i++) {
                 Polygon part = (Polygon) mp.getGeometryN(i);

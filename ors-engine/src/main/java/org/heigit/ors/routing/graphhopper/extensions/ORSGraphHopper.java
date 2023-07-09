@@ -116,8 +116,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 	public GraphHopper init(GraphHopperConfig ghConfig) {
 		GraphHopper ret = super.init(ghConfig);
 
-		if (ghConfig instanceof ORSGraphHopperConfig) {
-			ORSGraphHopperConfig orsConfig = (ORSGraphHopperConfig) ghConfig;
+		if (ghConfig instanceof ORSGraphHopperConfig orsConfig) {
 			corePreparationHandler.init(orsConfig);
 			coreLMPreparationHandler.init(orsConfig);
 		}

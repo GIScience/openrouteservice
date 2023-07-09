@@ -433,8 +433,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             Geometry geom = ch.getConcaveHull();
 
-            if (geom instanceof GeometryCollection) {
-                GeometryCollection geomColl = (GeometryCollection) geom;
+            if (geom instanceof GeometryCollection geomColl) {
                 if (geomColl.isEmpty())
                     return;
             }

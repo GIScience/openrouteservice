@@ -275,8 +275,7 @@ public class RouteResultBuilder
                 }
                 instrText = instrTranslator.getDepart(calcDirection(currentStepPoints.getLat(0), currentStepPoints.getLon(0), lat, lon), roadName);
             } else {
-                if (instr instanceof RoundaboutInstruction) {
-                    RoundaboutInstruction raInstr = (RoundaboutInstruction) instr;
+                if (instr instanceof RoundaboutInstruction raInstr) {
                     step.setExitNumber(raInstr.getExitNumber());
                     instrText = instrTranslator.getRoundabout(raInstr.getExitNumber(), roadName);
                 } else {
