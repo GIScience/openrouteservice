@@ -428,7 +428,7 @@ public final class JTS {
             }
         }
 
-        return gf.createPolygon((LinearRing) shell, holes.toArray(new LinearRing[holes.size()]));
+        return gf.createPolygon((LinearRing) shell, holes.toArray(new LinearRing[0]));
     }
 
     /**

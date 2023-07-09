@@ -60,7 +60,7 @@ public class GeoJSONRouteResponse extends RouteResponse {
             bboxes.add(result.getSummary().getBBox());
         }
 
-        BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[bboxes.size()]));
+        BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[0]));
 
         bbox = BoundingBoxFactory.constructBoundingBox(bounding, request);
     }

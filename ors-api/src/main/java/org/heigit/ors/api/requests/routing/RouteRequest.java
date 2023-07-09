@@ -992,7 +992,7 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
             coords.add(convertSingleCoordinate(coord));
         }
 
-        return coords.toArray(new Coordinate[coords.size()]);
+        return coords.toArray(new Coordinate[0]);
     }
 
     private Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {

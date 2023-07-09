@@ -97,7 +97,7 @@ public class CoordinateListWrapper {
         coordinates.addAll(via);
         coordinates.add(end);
 
-        return coordinates.toArray(new Coordinate[coordinates.size()]);
+        return coordinates.toArray(new Coordinate[0]);
     }
 
     public List<List<Double>> getCoordinatesList() {
