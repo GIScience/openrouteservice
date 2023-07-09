@@ -1,7 +1,7 @@
 /*
  *    GeoTools - The Open Source Java GIS Toolkit
  *    http://geotools.org
- * 
+ *
  *    (C) 2005-2008, Open Source Geospatial Foundation (OSGeo)
  *
  *    This library is free software; you can redistribute it and/or
@@ -26,10 +26,10 @@ import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.metadata.i18n.ErrorKeys;
 import org.geotools.metadata.i18n.Errors;
+import org.locationtech.jts.algorithm.Orientation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import org.locationtech.jts.algorithm.CGAlgorithms;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -50,7 +50,7 @@ import org.locationtech.jts.geom.Polygon;
  * <li>coordinate sequence editing</li>
  * <li>common coordinate sequence implementations for specific uses</li>
  * </ul>
- * 
+ *
  * @since 2.2
  *
  *
@@ -72,14 +72,14 @@ public final class JTS {
         for (int i = 0; i < POSITIONS.length; i++) {
             POSITIONS[i] = new GeneralDirectPosition(i);
         }
-        
+
         factory = new GeometryFactory();
     }
 
     /**
      * Geodetic calculators already created for a given coordinate reference system. For use in
      * {@link #orthodromicDistance}.
-     * 
+     *
      * Note: We would like to use {@link org.geotools.util.CanonicalSet}, but we can't because
      * {@link GeodeticCalculator} keep a reference to the CRS which is used as the key.
      */
@@ -93,7 +93,7 @@ public final class JTS {
 
     /**
      * Makes sure that an argument is non-null.
-     * 
+     *
      * @param name
      *            Argument name.
      * @param object
@@ -107,7 +107,7 @@ public final class JTS {
         }
     }
 
-  
+
 
     /**
      * Computes the orthodromic distance between two points. This method:
@@ -123,7 +123,7 @@ public final class JTS {
      * in order to avoid repetitive object creation. If a large amount of orthodromic distances need
      * to be computed, direct use of {@link GeodeticCalculator} provides better performance than
      * this convenience method.
-     * 
+     *
      * @param p1
      *            First point
      * @param p2
@@ -165,13 +165,13 @@ public final class JTS {
         return gc.getOrthodromicDistance();
     }
 
-  
+
     /**
      * Copies the ordinates values from the specified JTS coordinates to the specified array. The
      * destination array can have any length. Only the relevant field of the source coordinate will
      * be copied. If the array length is greater than 3, then all extra dimensions will be set to
      * {@link Double#NaN NaN}.
-     * 
+     *
      * @param point
      *            The source coordinate.
      * @param ordinates
@@ -199,9 +199,9 @@ public final class JTS {
         }
     }
 
-    
 
-   
+
+
 
     /**
      * Creates a smoothed copy of the input Geometry. This is only useful for polygonal and lineal
@@ -216,12 +216,12 @@ public final class JTS {
      * The input Geometry can be a simple type (e.g. LineString, Polygon), a multi-type (e.g.
      * MultiLineString, MultiPolygon) or a GeometryCollection. The returned object will be of the
      * same type.
-     * 
+     *
      * @param geom
      *            the input geometry
      * @param fit
      *            tightness of fit from 0 (loose) to 1 (tight)
-     * 
+     *
      * @return a new Geometry object of the same class as {@code geom}
      * @throws IllegalArgumentException
      *             if {@code geom} is {@code null}
@@ -243,14 +243,14 @@ public final class JTS {
      * The input Geometry can be a simple type (e.g. LineString, Polygon), a multi-type (e.g.
      * MultiLineString, MultiPolygon) or a GeometryCollection. The returned object will be of the
      * same type.
-     * 
+     *
      * @param geom
      *            the input geometry
      * @param fit
      *            tightness of fit from 0 (loose) to 1 (tight)
      * @param factory
      *            the GeometryFactory to use for creating smoothed objects
-     * 
+     *
      * @return a new Geometry object of the same class as {@code geom}
      * @throws IllegalArgumentException
      *             if either {@code geom} or {@code factory} is {@code null}
@@ -349,11 +349,11 @@ public final class JTS {
 
         return factory.createGeometryCollection(smoothed);
     }
-   
+
 
     /**
      * Removes collinear points from the provided linestring.
-     * 
+     *
      * @param ls the {@link LineString} to be simplified.
      * @return a new version of the provided {@link LineString} with collinear points removed.
      */
@@ -378,10 +378,9 @@ public final class JTS {
             midCoord = ls.getCoordinateN(i1);
             lastCoord = ls.getCoordinateN(i2);
 
-            final int orientation = CGAlgorithms
-                    .computeOrientation(firstCoord, midCoord, lastCoord);
-            // Colllinearity test
-            if (orientation != CGAlgorithms.COLLINEAR) {
+            final int orientation = Orientation.index(firstCoord, midCoord, lastCoord);
+            // Collinearity test
+            if (orientation != Orientation.COLLINEAR) {
                 // add midcoord and change head
                 retain.add(midCoord);
                 i0 = i1;
@@ -411,7 +410,7 @@ public final class JTS {
 
     /**
      * Removes collinear vertices from the provided {@link Polygon}.
-     * 
+     *
      * @param polygon the instance of a {@link Polygon} to remove collinear vertices from.
      * @return a new instance of the provided {@link Polygon} without collinear vertices.
      */
@@ -446,11 +445,11 @@ public final class JTS {
 
     /**
      * Removes collinear vertices from the provided {@link Geometry}.
-     * 
+     *
      * <p>
      * For the moment this implementation only accepts, {@link Polygon}, {@link LineString} and {@link MultiPolygon} It will throw an exception if the
      * geometry is not one of those types
-     * 
+     *
      * @param g the instance of a {@link Geometry} to remove collinear vertices from.
      * @return a new instance of the provided {@link Geometry} without collinear vertices.
      */
@@ -480,11 +479,11 @@ public final class JTS {
 
     /**
      * Removes collinear vertices from the provided {@link Geometry} if the number of point exceeds the requested minPoints.
-     * 
+     *
      * <p>
      * For the moment this implementation only accepts, {@link Polygon}, {@link LineString} and {@link MultiPolygon} It will throw an exception if the
      * geometry is not one of those types
-     * 
+     *
      * @param geometry the instance of a {@link Geometry} to remove collinear vertices from.
      * @param minPoints perform removal of collinear points if num of vertices exceeds minPoints.
      * @return a new instance of the provided {@link Geometry} without collinear vertices.
@@ -516,15 +515,15 @@ public final class JTS {
                 "This method can work on LineString, Polygon and Multipolygon: "
                         + geometry.getClass());
     }
-    
+
     public static Polygon toGeometry(final Envelope env)
     {
     	return toGeometry(env, factory);
     }
-    
+
     public static Polygon toGeometry(final Envelope env, GeometryFactory factory) {
         ensureNonNull("env", env);
-        
+
         return factory.createPolygon(factory.createLinearRing(new Coordinate[] {
             new Coordinate(env.getMinX(), env.getMinY()),
             new Coordinate(env.getMaxX(), env.getMinY()),
