@@ -40,9 +40,7 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
         boolean blockByDefault = node.hasTag("barrier", blockByDefaultBarriers);
         if (blockByDefault || node.hasTag("barrier", passByDefaultBarriers)) {
-            boolean locked = false;
-            if (node.hasTag("locked", "yes"))
-                locked = true;
+            boolean locked = node.hasTag("locked", "yes");
 
             for (String res : restrictions) {
                 if (!locked && node.hasTag(res, intendedValues))
