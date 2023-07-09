@@ -38,7 +38,7 @@ public class JSONRouteResponse extends RouteResponse {
     public JSONRouteResponse(RouteResult[] routeResults, RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) throws StatusCodeException {
         super(request, systemMessageProperties, endpointsProperties);
 
-        this.routeResults = new ArrayList<IndividualRouteResponse>();
+        this.routeResults = new ArrayList<>();
 
         List<BBox> bboxes = new ArrayList<>();
         for(RouteResult result : routeResults) {
