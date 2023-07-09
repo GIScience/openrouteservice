@@ -400,35 +400,23 @@ public class IsochronesRequest extends APIRequest {
     }
 
     String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
-        IsochronesRequestEnums.LocationType value;
-
-        switch (locationType) {
-            case DESTINATION:
-                value = IsochronesRequestEnums.LocationType.DESTINATION;
-                break;
-            case START:
-                value = IsochronesRequestEnums.LocationType.START;
-                break;
-            default:
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATION_TYPE, locationType.toString());
-        }
+        IsochronesRequestEnums.LocationType value = switch (locationType) {
+            case DESTINATION -> IsochronesRequestEnums.LocationType.DESTINATION;
+            case START -> IsochronesRequestEnums.LocationType.START;
+            default ->
+                    throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATION_TYPE, locationType.toString());
+        };
 
         return value.toString();
     }
 
     TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
-        TravelRangeType travelRangeType;
-
-        switch (rangeType) {
-            case DISTANCE:
-                travelRangeType = TravelRangeType.DISTANCE;
-                break;
-            case TIME:
-                travelRangeType = TravelRangeType.TIME;
-                break;
-            default:
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_TYPE, rangeType.toString());
-        }
+        TravelRangeType travelRangeType = switch (rangeType) {
+            case DISTANCE -> TravelRangeType.DISTANCE;
+            case TIME -> TravelRangeType.TIME;
+            default ->
+                    throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_TYPE, rangeType.toString());
+        };
 
         return travelRangeType;
 
@@ -620,16 +608,12 @@ public class IsochronesRequest extends APIRequest {
 
     String convertCalcMethod(IsochronesRequestEnums.CalculationMethod bareCalcMethod) throws ParameterValueException {
         try {
-            switch (bareCalcMethod) {
-                case CONCAVE_BALLS:
-                    return "concaveballs";
-                case GRID:
-                    return "grid";
-                case FASTISOCHRONE:
-                    return "fastisochrone";
-                default:
-                    return "none";
-            }
+            return switch (bareCalcMethod) {
+                case CONCAVE_BALLS -> "concaveballs";
+                case GRID -> "grid";
+                case FASTISOCHRONE -> "fastisochrone";
+                default -> "none";
+            };
         } catch (Exception ex) {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "calc_method");
         }

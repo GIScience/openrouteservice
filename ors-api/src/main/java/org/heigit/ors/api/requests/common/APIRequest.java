@@ -98,14 +98,11 @@ public class APIRequest {
 
     protected static BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
         if (avoidBorders != null) {
-            switch (avoidBorders) {
-                case ALL:
-                    return BordersExtractor.Avoid.ALL;
-                case CONTROLLED:
-                    return BordersExtractor.Avoid.CONTROLLED;
-                default:
-                    return BordersExtractor.Avoid.NONE;
-            }
+            return switch (avoidBorders) {
+                case ALL -> BordersExtractor.Avoid.ALL;
+                case CONTROLLED -> BordersExtractor.Avoid.CONTROLLED;
+                default -> BordersExtractor.Avoid.NONE;
+            };
         }
         return null;
     }

@@ -417,39 +417,24 @@ public class RouteResultBuilder
 			return InstructionType.DEPART;
 		}
 
-		switch (instr.getSign()){
-            case Instruction.TURN_LEFT:
-				return InstructionType.TURN_LEFT;
-			case Instruction.TURN_RIGHT:
-				return InstructionType.TURN_RIGHT;
-			case Instruction.TURN_SHARP_LEFT:
-				return InstructionType.TURN_SHARP_LEFT;
-			case Instruction.TURN_SHARP_RIGHT:
-				return InstructionType.TURN_SHARP_RIGHT;
-			case Instruction.TURN_SLIGHT_LEFT:
-				return InstructionType.TURN_SLIGHT_LEFT;
-			case Instruction.TURN_SLIGHT_RIGHT:
-				return InstructionType.TURN_SLIGHT_RIGHT;
-			case Instruction.USE_ROUNDABOUT:
-				return InstructionType.ENTER_ROUNDABOUT;
-			case Instruction.LEAVE_ROUNDABOUT:
-				return InstructionType.EXIT_ROUNDABOUT;
-			case Instruction.FINISH:
-				return InstructionType.FINISH;
-			case Instruction.KEEP_LEFT:
-				return InstructionType.KEEP_LEFT;
-			case Instruction.KEEP_RIGHT:
-				return InstructionType.KEEP_RIGHT;
-            case Instruction.PT_START_TRIP:
-                return InstructionType.PT_ENTER;
-            case Instruction.PT_TRANSFER:
-                return InstructionType.PT_TRANSFER;
-            case Instruction.PT_END_TRIP:
-                return InstructionType.PT_EXIT;
-            case Instruction.CONTINUE_ON_STREET:
-            default:
-				return InstructionType.CONTINUE;
-		}
+        return switch (instr.getSign()) {
+            case Instruction.TURN_LEFT -> InstructionType.TURN_LEFT;
+            case Instruction.TURN_RIGHT -> InstructionType.TURN_RIGHT;
+            case Instruction.TURN_SHARP_LEFT -> InstructionType.TURN_SHARP_LEFT;
+            case Instruction.TURN_SHARP_RIGHT -> InstructionType.TURN_SHARP_RIGHT;
+            case Instruction.TURN_SLIGHT_LEFT -> InstructionType.TURN_SLIGHT_LEFT;
+            case Instruction.TURN_SLIGHT_RIGHT -> InstructionType.TURN_SLIGHT_RIGHT;
+            case Instruction.USE_ROUNDABOUT -> InstructionType.ENTER_ROUNDABOUT;
+            case Instruction.LEAVE_ROUNDABOUT -> InstructionType.EXIT_ROUNDABOUT;
+            case Instruction.FINISH -> InstructionType.FINISH;
+            case Instruction.KEEP_LEFT -> InstructionType.KEEP_LEFT;
+            case Instruction.KEEP_RIGHT -> InstructionType.KEEP_RIGHT;
+            case Instruction.PT_START_TRIP -> InstructionType.PT_ENTER;
+            case Instruction.PT_TRANSFER -> InstructionType.PT_TRANSFER;
+            case Instruction.PT_END_TRIP -> InstructionType.PT_EXIT;
+            case Instruction.CONTINUE_ON_STREET -> InstructionType.CONTINUE;
+            default -> InstructionType.CONTINUE;
+        };
 	}
 
 	private CardinalDirection calcDirection(double lat1, double lon1, double lat2, double lon2 ) {

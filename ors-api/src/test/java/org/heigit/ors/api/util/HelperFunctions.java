@@ -22,18 +22,16 @@ public class HelperFunctions {
         for (int i = 0; i < maximumSize; i++) {
             List<Double> bareCoordinatesList = new ArrayList<>();
             switch (coordDimension) {
-                case 1:
-                    bareCoordinatesList.add(8.681495);
-                    break;
-                case 2:
+                case 1 -> bareCoordinatesList.add(8.681495);
+                case 2 -> {
                     bareCoordinatesList.add(8.681495);
                     bareCoordinatesList.add(49.41461);
-                    break;
-                case 3:
+                }
+                case 3 -> {
                     bareCoordinatesList.add(8.681495);
                     bareCoordinatesList.add(49.41461);
                     bareCoordinatesList.add(123.0);
-                    break;
+                }
             }
             listOfBareCoordinatesList.add(bareCoordinatesList);
         }
@@ -56,24 +54,24 @@ public class HelperFunctions {
         for (int i = 0; i < maximumSize; i++) {
             Double[] doubleLocationsArray;
             switch (coordDimension) {
-                case 1:
+                case 1 -> {
                     doubleLocationsArray = new Double[1];
                     doubleLocationsArray[0] = 8.681495;
                     arrayOfDoubleLocationsArray[i] = doubleLocationsArray;
-                    break;
-                case 2:
+                }
+                case 2 -> {
                     doubleLocationsArray = new Double[2];
                     doubleLocationsArray[0] = 8.681495;
                     doubleLocationsArray[1] = 49.41461;
                     arrayOfDoubleLocationsArray[i] = doubleLocationsArray;
-                    break;
-                case 3:
+                }
+                case 3 -> {
                     doubleLocationsArray = new Double[3];
                     doubleLocationsArray[0] = 8.681495;
                     doubleLocationsArray[1] = 49.41461;
                     doubleLocationsArray[2] = 123.0;
                     arrayOfDoubleLocationsArray[i] = doubleLocationsArray;
-                    break;
+                }
             }
         }
         return arrayOfDoubleLocationsArray;
@@ -95,24 +93,24 @@ public class HelperFunctions {
         for (int i = 0; i < maximumSize; i++) {
             JSONArray location;
             switch (coordDimension) {
-                case 1:
+                case 1 -> {
                     location = new JSONArray();
                     location.put(0.0);
                     overloadedLocations.put(location);
-                    break;
-                case 2:
+                }
+                case 2 -> {
                     location = new JSONArray();
                     location.put(0.0);
                     location.put(0.0);
                     overloadedLocations.put(location);
-                    break;
-                case 3:
+                }
+                case 3 -> {
                     location = new JSONArray();
                     location.put(0.0);
                     location.put(0.0);
                     location.put(0.0);
                     overloadedLocations.put(location);
-                    break;
+                }
             }
         }
         return overloadedLocations;

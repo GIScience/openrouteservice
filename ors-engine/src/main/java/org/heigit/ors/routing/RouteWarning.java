@@ -33,22 +33,13 @@ public class RouteWarning {
      */
     public RouteWarning(int warning, String additionalInfo) {
         warningCode = warning;
-        switch(warning) {
-            case ACCESS_RESTRICTION:
-                warningMessage = "There may be restrictions on some roads";
-                break;
-            case TOLLWAYS:
-                warningMessage = "There are tollways along the route";
-                break;
-            case SKIPPED_SEGMENTS:
-                warningMessage = "There are skipped segments along the route. Durations and accessibility may not be correct";
-                break;
-            case SKIPPED_EXTRAS:
-                warningMessage = "Extra info requested but not available: ".concat(additionalInfo);
-                break;
-            default:
-                warningMessage = "Unknown error";
-                break;
+        switch (warning) {
+            case ACCESS_RESTRICTION -> warningMessage = "There may be restrictions on some roads";
+            case TOLLWAYS -> warningMessage = "There are tollways along the route";
+            case SKIPPED_SEGMENTS ->
+                    warningMessage = "There are skipped segments along the route. Durations and accessibility may not be correct";
+            case SKIPPED_EXTRAS -> warningMessage = "Extra info requested but not available: ".concat(additionalInfo);
+            default -> warningMessage = "Unknown error";
         }
     }
 

@@ -538,14 +538,11 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
                 case DOWNGRADE_ONLY:
                 case BOTH:
                 default:
-                    switch (surface.type){
-                        case UPGRADE_ONLY:
-                            return highway.speed;
-                        case DOWNGRADE_ONLY:
-                        case BOTH:
-                        default:
-                            return surface.speed;
-                    }
+                    return switch (surface.type) {
+                        case UPGRADE_ONLY -> highway.speed;
+                        case DOWNGRADE_ONLY, BOTH -> surface.speed;
+                        default -> surface.speed;
+                    };
             }
         } else {
             // highway = 8 (cycleway)
@@ -556,14 +553,11 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
                 case UPGRADE_ONLY:
                 case BOTH:
                 default:
-                    switch (surface.type){
-                        case DOWNGRADE_ONLY:
-                            return highway.speed;
-                        case UPGRADE_ONLY:
-                        case BOTH:
-                        default:
-                            return surface.speed;
-                    }
+                    return switch (surface.type) {
+                        case DOWNGRADE_ONLY -> highway.speed;
+                        case UPGRADE_ONLY, BOTH -> surface.speed;
+                        default -> surface.speed;
+                    };
             }
         }
     }
@@ -573,22 +567,13 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         if (pavementType == 1)
             pavementName = tr.tr(KEY_UNPAVED);
 
-        String wayTypeName;
-        switch (wayType) {
-            default:
-            case 0:
-                wayTypeName = "";
-                break;
-            case 1:
-                wayTypeName = tr.tr("off_bike");
-                break;
-            case 2:
-                wayTypeName = tr.tr(KEY_CYCLEWAY);
-                break;
-            case 3:
-                wayTypeName = tr.tr("small_way");
-                break;
-        }
+        String wayTypeName = switch (wayType) {
+            case 0 -> "";
+            case 1 -> tr.tr("off_bike");
+            case 2 -> tr.tr(KEY_CYCLEWAY);
+            case 3 -> tr.tr("small_way");
+            default -> "";
+        };
 
         if (pavementName.isEmpty()) {
             if (wayType == 0 || wayType == 3)
@@ -629,24 +614,16 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             return UNCHANGED;
         }
 
-        switch (classvalue) {
-            case 3:
-                return BEST;
-            case 2:
-                return VERY_NICE;
-            case 1:
-                return PREFER;
-            case 0:
-                return UNCHANGED;
-            case -1:
-                return AVOID_IF_POSSIBLE;
-            case -2:
-                return REACH_DEST;
-            case -3:
-                return AVOID_AT_ALL_COSTS;
-            default:
-                return UNCHANGED;
-        }
+        return switch (classvalue) {
+            case 3 -> BEST;
+            case 2 -> VERY_NICE;
+            case 1 -> PREFER;
+            case 0 -> UNCHANGED;
+            case -1 -> AVOID_IF_POSSIBLE;
+            case -2 -> REACH_DEST;
+            case -3 -> AVOID_AT_ALL_COSTS;
+            default -> UNCHANGED;
+        };
     }
 
     /**
@@ -898,15 +875,11 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         }
 
         public String toString(){
-            switch (type){
-                default:
-                case BOTH:
-                    return speed +" [BOTH]";
-                case UPGRADE_ONLY:
-                    return speed +" [UP]";
-                case DOWNGRADE_ONLY:
-                    return speed +" [DOWN]";
-            }
+            return switch (type) {
+                case BOTH -> speed + " [BOTH]";
+                case UPGRADE_ONLY -> speed + " [UP]";
+                case DOWNGRADE_ONLY -> speed + " [DOWN]";
+            };
         }
     }
 

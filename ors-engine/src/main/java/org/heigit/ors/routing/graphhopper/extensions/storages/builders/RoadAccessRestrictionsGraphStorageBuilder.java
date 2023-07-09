@@ -212,25 +212,14 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         int res = encodedRestrictions;
         if (restrictionValue != null && !restrictionValue.isEmpty()) {
             switch (restrictionValue) {
-                case "no":
-                    res |= AccessRestrictionType.NO;
-                    break;
-                case "destination":
-                    res |= AccessRestrictionType.DESTINATION;
-                    break;
-                case "private":
-                    res |= AccessRestrictionType.PRIVATE;
-                    break;
-                case "permissive":
-                    res |= AccessRestrictionType.PERMISSIVE;
-                    break;
-                case "delivery":
-                    res |= AccessRestrictionType.DELIVERY;
-                    break;
-                case "customers":
-                    res |= AccessRestrictionType.CUSTOMERS;
-                    break;
-                default:
+                case "no" -> res |= AccessRestrictionType.NO;
+                case "destination" -> res |= AccessRestrictionType.DESTINATION;
+                case "private" -> res |= AccessRestrictionType.PRIVATE;
+                case "permissive" -> res |= AccessRestrictionType.PERMISSIVE;
+                case "delivery" -> res |= AccessRestrictionType.DELIVERY;
+                case "customers" -> res |= AccessRestrictionType.CUSTOMERS;
+                default -> {
+                }
             }
         }
 

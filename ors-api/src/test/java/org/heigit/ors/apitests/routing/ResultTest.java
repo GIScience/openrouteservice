@@ -261,7 +261,7 @@ class ResultTest extends ServiceTest {
         for (int i = 0; i < doc_length; i++) {
             String item = doc.getDocumentElement().getChildNodes().item(i).getNodeName();
             switch (item) {
-                case "metadata":
+                case "metadata" -> {
                     gpxMetadata = true;
                     NodeList metadataChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
                     int metadataSize = metadataChildren.getLength();
@@ -275,14 +275,12 @@ class ResultTest extends ServiceTest {
                     for (int j = 0; j < metadataSize; j++) {
                         Node metadataItem = metadataChildren.item(j);
                         switch (metadataItem.getNodeName()) {
-                            case "name":
+                            case "name" -> {
                                 metadataName = true;
                                 gpxMetadataNode = metadataItem;
-                                break;
-                            case "desc":
-                                metadataDescription = true;
-                                break;
-                            case "author":
+                            }
+                            case "desc" -> metadataDescription = true;
+                            case "author" -> {
                                 metadataAuthor = true;
                                 NodeList authorChildren = metadataChildren.item(j).getChildNodes();
                                 int authorLength = authorChildren.getLength();
@@ -292,13 +290,9 @@ class ResultTest extends ServiceTest {
                                 for (int k = 0; k < authorLength; k++) {
                                     Node authorItem = authorChildren.item(k);
                                     switch (authorItem.getNodeName()) {
-                                        case "name":
-                                            authorName = true;
-                                            break;
-                                        case "email":
-                                            authorEmail = true;
-                                            break;
-                                        case "link":
+                                        case "name" -> authorName = true;
+                                        case "email" -> authorEmail = true;
+                                        case "link" -> {
                                             authorLink = true;
                                             NodeList linkChildren = authorChildren.item(k).getChildNodes();
                                             int linkLength = linkChildren.getLength();
@@ -307,23 +301,20 @@ class ResultTest extends ServiceTest {
                                             for (int l = 0; l < linkLength; l++) {
                                                 Node linkItem = linkChildren.item(l);
                                                 switch (linkItem.getNodeName()) {
-                                                    case "text":
-                                                        linkText = true;
-                                                        break;
-                                                    case "type":
-                                                        linkType = true;
+                                                    case "text" -> linkText = true;
+                                                    case "type" -> linkType = true;
                                                 }
                                             }
                                             assertTrue(linkText);
                                             assertTrue(linkType);
-                                            break;
+                                        }
                                     }
                                 }
                                 assertTrue(authorName);
                                 assertTrue(authorEmail);
                                 assertTrue(authorLink);
-                                break;
-                            case "copyright":
+                            }
+                            case "copyright" -> {
                                 metadataCopyright = true;
                                 NodeList copyrightChildren = metadataChildren.item(j).getChildNodes();
                                 int copyrightLength = copyrightChildren.getLength();
@@ -332,21 +323,15 @@ class ResultTest extends ServiceTest {
                                 for (int k = 0; k < copyrightLength; k++) {
                                     Node copyrightItem = copyrightChildren.item(k);
                                     switch (copyrightItem.getNodeName()) {
-                                        case "year":
-                                            copyrightYear = true;
-                                            break;
-                                        case "license":
-                                            copyrightLicense = true;
-                                            break;
+                                        case "year" -> copyrightYear = true;
+                                        case "license" -> copyrightLicense = true;
                                     }
                                 }
                                 assertTrue(copyrightYear);
                                 assertTrue(copyrightLicense);
-                                break;
-                            case "time":
-                                metadataTime = true;
-                                break;
-                            case "extensions":
+                            }
+                            case "time" -> metadataTime = true;
+                            case "extensions" -> {
                                 metadataExtensions = true;
                                 int metadataExtensionsLength = metadataItem.getChildNodes().getLength();
                                 boolean metadataExtensionsSystemMessage = false;
@@ -357,10 +342,8 @@ class ResultTest extends ServiceTest {
                                     }
                                 }
                                 assertTrue(metadataExtensionsSystemMessage);
-                                break;
-                            case "bounds":
-                                metadataBounds = true;
-                                break;
+                            }
+                            case "bounds" -> metadataBounds = true;
                         }
                     }
                     assertTrue(metadataName);
@@ -371,8 +354,8 @@ class ResultTest extends ServiceTest {
                     assertTrue(metadataTime);
                     assertTrue(metadataBounds);
                     assertTrue(metadataExtensions);
-                    break;
-                case "rte":
+                }
+                case "rte" -> {
                     gpxRte = true;
                     NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
                     int rteSize = rteChildren.getLength();
@@ -381,7 +364,7 @@ class ResultTest extends ServiceTest {
                     for (int j = 0; j < rteSize; j++) {
                         Node rteElement = rteChildren.item(j);
                         switch (rteElement.getNodeName()) {
-                            case "rtept":
+                            case "rtept" -> {
                                 rtept = true;
                                 if (instructions) {
                                     int rteptLength = rteElement.getChildNodes().getLength();
@@ -391,13 +374,9 @@ class ResultTest extends ServiceTest {
                                     for (int k = 0; k < rteptLength; k++) {
                                         Node rteptElement = rteElement.getChildNodes().item(k);
                                         switch (rteptElement.getNodeName()) {
-                                            case "name":
-                                                rteptName = true;
-                                                break;
-                                            case "desc":
-                                                rteptDescription = true;
-                                                break;
-                                            case "extensions":
+                                            case "name" -> rteptName = true;
+                                            case "desc" -> rteptDescription = true;
+                                            case "extensions" -> {
                                                 rteptextensions = true;
                                                 int rteptExtensionLength = rteptElement.getChildNodes().getLength();
                                                 boolean distance = false;
@@ -407,32 +386,25 @@ class ResultTest extends ServiceTest {
                                                 for (int l = 0; l < rteptExtensionLength; l++) {
                                                     Node rteptExtensionElement = rteptElement.getChildNodes().item(l);
                                                     switch (rteptExtensionElement.getNodeName()) {
-                                                        case "distance":
-                                                            distance = true;
-                                                            break;
-                                                        case "duration":
-                                                            duration = true;
-                                                            break;
-                                                        case "type":
-                                                            type = true;
-                                                            break;
-                                                        case "step":
-                                                            step = true;
-                                                            break;
+                                                        case "distance" -> distance = true;
+                                                        case "duration" -> duration = true;
+                                                        case "type" -> type = true;
+                                                        case "step" -> step = true;
                                                     }
                                                 }
                                                 assertTrue(distance);
                                                 assertTrue(duration);
                                                 assertTrue(type);
                                                 assertTrue(step);
+                                            }
                                         }
                                     }
                                     assertTrue(rteptName);
                                     assertTrue(rteptDescription);
                                     assertTrue(rteptextensions);
                                 }
-                                break;
-                            case "extensions":
+                            }
+                            case "extensions" -> {
                                 routeExtension = true;
                                 int rteExtensionsLength = rteElement.getChildNodes().getLength();
                                 boolean rteExtensionsDistance = false;
@@ -444,24 +416,12 @@ class ResultTest extends ServiceTest {
                                 for (int k = 0; k < rteExtensionsLength; k++) {
                                     Node extensionsElement = rteElement.getChildNodes().item(k);
                                     switch (extensionsElement.getNodeName()) {
-                                        case "distance":
-                                            rteExtensionsDistance = true;
-                                            break;
-                                        case "duration":
-                                            rteExtensionsDuration = true;
-                                            break;
-                                        case "ascent":
-                                            rteExtensionsAscent = true;
-                                            break;
-                                        case "descent":
-                                            rteExtensionsDescent = true;
-                                            break;
-                                        case "avgspeed":
-                                            rteExtensionsAvgSpeed = true;
-                                            break;
-                                        case "bounds":
-                                            rteExtensionsBounds = true;
-                                            break;
+                                        case "distance" -> rteExtensionsDistance = true;
+                                        case "duration" -> rteExtensionsDuration = true;
+                                        case "ascent" -> rteExtensionsAscent = true;
+                                        case "descent" -> rteExtensionsDescent = true;
+                                        case "avgspeed" -> rteExtensionsAvgSpeed = true;
+                                        case "bounds" -> rteExtensionsBounds = true;
                                     }
                                 }
                                 assertTrue(rteExtensionsDistance);
@@ -470,13 +430,13 @@ class ResultTest extends ServiceTest {
                                 assertTrue(rteExtensionsDescent);
                                 assertTrue(rteExtensionsAvgSpeed);
                                 assertTrue(rteExtensionsBounds);
-                                break;
+                            }
                         }
                     }
                     assertTrue(rtept);
                     assertTrue(routeExtension);
-                    break;
-                case "extensions":
+                }
+                case "extensions" -> {
                     gpxExtensions = true;
                     NodeList gpxExtensionsChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
                     int gpxExtensionLength = gpxExtensionsChildren.getLength();
@@ -491,30 +451,14 @@ class ResultTest extends ServiceTest {
                     for (int j = 0; j < gpxExtensionLength; j++) {
                         Node gpxExtensionElement = gpxExtensionsChildren.item(j);
                         switch (gpxExtensionElement.getNodeName()) {
-                            case "attribution":
-                                gpxExtensionattribution = true;
-                                break;
-                            case "engine":
-                                gpxExtensionengine = true;
-                                break;
-                            case "build_date":
-                                gpxExtensionbuild_date = true;
-                                break;
-                            case "profile":
-                                gpxExtensionprofile = true;
-                                break;
-                            case "preference":
-                                gpxExtensionpreference = true;
-                                break;
-                            case "language":
-                                gpxExtensionlanguage = true;
-                                break;
-                            case "instructions":
-                                gpxExtensioninstructions = true;
-                                break;
-                            case "elevation":
-                                gpxExtensionelevation = true;
-                                break;
+                            case "attribution" -> gpxExtensionattribution = true;
+                            case "engine" -> gpxExtensionengine = true;
+                            case "build_date" -> gpxExtensionbuild_date = true;
+                            case "profile" -> gpxExtensionprofile = true;
+                            case "preference" -> gpxExtensionpreference = true;
+                            case "language" -> gpxExtensionlanguage = true;
+                            case "instructions" -> gpxExtensioninstructions = true;
+                            case "elevation" -> gpxExtensionelevation = true;
                         }
                     }
                     assertTrue(gpxExtensionattribution);
@@ -525,7 +469,7 @@ class ResultTest extends ServiceTest {
                     assertTrue(gpxExtensionlanguage);
                     assertTrue(gpxExtensioninstructions);
                     assertTrue(gpxExtensionelevation);
-                    break;
+                }
             }
         }
         assertTrue(gpxMetadata);

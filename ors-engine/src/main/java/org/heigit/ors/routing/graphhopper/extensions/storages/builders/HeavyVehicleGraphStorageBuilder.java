@@ -58,19 +58,19 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 		patternDimension = Pattern.compile("(?:\\s*(\\d+)\\s*(?:feet|ft\\.|ft|'))?(?:(\\d+)\\s*(?:inches|in\\.|in|''|\"))?");
 	}
-	
+
 	public GraphExtension init(GraphHopper graphhopper) throws Exception {
 		if (storage != null)
 			throw new Exception("GraphStorageBuilder has been already initialized.");
-		
+
 		if (parameters != null) {
 			String value = parameters.get("restrictions");
 			if (!Helper.isEmpty(value))
 				includeRestrictions = Boolean.parseBoolean(value);
 		}
-		
+
 		storage = new HeavyVehicleAttributesGraphStorage(includeRestrictions);
-		
+
 		return storage;
 	}
 
@@ -123,25 +123,14 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 
 				int valueIndex = -1;
 
-				switch(key) {
-					case "maxheight":
-						valueIndex = VehicleDimensionRestrictions.MAX_HEIGHT;
-						break;
-					case "maxweight":
-					case "maxweight:hgv":
-						valueIndex = VehicleDimensionRestrictions.MAX_WEIGHT;
-						break;
-					case "maxwidth":
-						valueIndex = VehicleDimensionRestrictions.MAX_WIDTH;
-						break;
-					case "maxlength":
-					case "maxlength:hgv":
-						valueIndex = VehicleDimensionRestrictions.MAX_LENGTH;
-						break;
-					case "maxaxleload":
-						valueIndex = VehicleDimensionRestrictions.MAX_AXLE_LOAD;
-						break;
-					default:
+				switch (key) {
+					case "maxheight" -> valueIndex = VehicleDimensionRestrictions.MAX_HEIGHT;
+					case "maxweight", "maxweight:hgv" -> valueIndex = VehicleDimensionRestrictions.MAX_WEIGHT;
+					case "maxwidth" -> valueIndex = VehicleDimensionRestrictions.MAX_WIDTH;
+					case "maxlength", "maxlength:hgv" -> valueIndex = VehicleDimensionRestrictions.MAX_LENGTH;
+					case "maxaxleload" -> valueIndex = VehicleDimensionRestrictions.MAX_AXLE_LOAD;
+					default -> {
+					}
 				}
 
 				// given tag is a weight/dimension restriction
@@ -229,7 +218,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
 		}
 		else if (key.equals(hv+":forward") || key.equals(hv+":backward"))
 			return value;
-		
+
 		return null;
 	}
 

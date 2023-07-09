@@ -149,12 +149,12 @@ public final class WheelchairTypesEncoder {
     }
 
     public static int getEncodedType(WheelchairAttributes.Attribute attribute, String value) throws Exception {
-        switch(attribute) {
-            case SMOOTHNESS: return getSmoothnessType(APIEnums.SmoothnessTypes.forValue(value));
-            case SURFACE: return getSurfaceType(value);
-            case TRACK: return getTrackType(value);
-            default: throw new Exception("Attribute is not a recognised encoded type");
-        }
+        return switch (attribute) {
+            case SMOOTHNESS -> getSmoothnessType(APIEnums.SmoothnessTypes.forValue(value));
+            case SURFACE -> getSurfaceType(value);
+            case TRACK -> getTrackType(value);
+            default -> throw new Exception("Attribute is not a recognised encoded type");
+        };
     }
 
     public static int getSmoothnessType(APIEnums.SmoothnessTypes smoothnessType) {

@@ -268,32 +268,20 @@ public final class JTS {
     private static Geometry smooth(final Geometry geom, final double fit,
             final GeometryFactory factory, GeometrySmoother smoother) {
 
-        switch (geom.getGeometryType().toUpperCase()) {
-        case "POINT":
-        case "MULTIPOINT":
-            // For points, just return the input geometry
-            return geom;
-
-        case "LINESTRING":
-            // This handles open and closed lines (LinearRings)
-            return smoothLineString(factory, smoother, geom, fit);
-
-        case "MULTILINESTRING":
-            return smoothMultiLineString(factory, smoother, geom, fit);
-
-        case "POLYGON":
-            return smoother.smooth((Polygon) geom, fit);
-
-        case "MULTIPOLYGON":
-            return smoothMultiPolygon(factory, smoother, geom, fit);
-
-        case "GEOMETRYCOLLECTION":
-            return smoothGeometryCollection(factory, smoother, geom, fit);
-
-        default:
-            throw new UnsupportedOperationException("No smoothing method available for "
+        return switch (geom.getGeometryType().toUpperCase()) {
+            case "POINT", "MULTIPOINT" ->
+                // For points, just return the input geometry
+                    geom;
+            case "LINESTRING" ->
+                // This handles open and closed lines (LinearRings)
+                    smoothLineString(factory, smoother, geom, fit);
+            case "MULTILINESTRING" -> smoothMultiLineString(factory, smoother, geom, fit);
+            case "POLYGON" -> smoother.smooth((Polygon) geom, fit);
+            case "MULTIPOLYGON" -> smoothMultiPolygon(factory, smoother, geom, fit);
+            case "GEOMETRYCOLLECTION" -> smoothGeometryCollection(factory, smoother, geom, fit);
+            default -> throw new UnsupportedOperationException("No smoothing method available for "
                     + geom.getGeometryType());
-        }
+        };
     }
 
     private static Geometry smoothLineString(GeometryFactory factory, GeometrySmoother smoother,

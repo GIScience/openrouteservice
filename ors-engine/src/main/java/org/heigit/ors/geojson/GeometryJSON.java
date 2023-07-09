@@ -98,22 +98,15 @@ public class GeometryJSON {
 
 		String type = json.getString("type");
 		JSONArray arrCoords = json.getJSONArray("coordinates");
-		switch(type) {
-			case "Point":
-				return readPoint(arrCoords);
-			case "MultiPoint":
-				return readMultiPoint(arrCoords);
-			case "LineString":
-				return readLineString(arrCoords);
-			case "MultiLineString":
-				return readMultiLineString(arrCoords);
-			case "Polygon":
-				return readPolygon(arrCoords);
-			case "MultiPolygon":
-				return readMultiPolygon(arrCoords);
-			default:
-				throw new Exception("invalid type: " + type);
-		}
+		return switch (type) {
+			case "Point" -> readPoint(arrCoords);
+			case "MultiPoint" -> readMultiPoint(arrCoords);
+			case "LineString" -> readLineString(arrCoords);
+			case "MultiLineString" -> readMultiLineString(arrCoords);
+			case "Polygon" -> readPolygon(arrCoords);
+			case "MultiPolygon" -> readMultiPolygon(arrCoords);
+			default -> throw new Exception("invalid type: " + type);
+		};
 	}
 
 	private static Point readPoint(JSONArray value) {

@@ -101,36 +101,22 @@ public class TrafficGraphStorage implements GraphExtension {
     }
 
     public static byte getWayTypeFromString(String highway) {
-        switch (highway.toLowerCase()) {
-            case "motorway":
-                return RoadTypes.MOTORWAY.value;
-            case "motorway_link":
-                return RoadTypes.MOTORWAY_LINK.value;
-            case "motorroad":
-                return RoadTypes.MOTORROAD.value;
-            case "trunk":
-                return RoadTypes.TRUNK.value;
-            case "trunk_link":
-                return RoadTypes.TRUNK_LINK.value;
-            case "primary":
-                return RoadTypes.PRIMARY.value;
-            case "primary_link":
-                return RoadTypes.PRIMARY_LINK.value;
-            case "secondary":
-                return RoadTypes.SECONDARY.value;
-            case "secondary_link":
-                return RoadTypes.SECONDARY_LINK.value;
-            case "tertiary":
-                return RoadTypes.TERTIARY.value;
-            case "tertiary_link":
-                return RoadTypes.TERTIARY_LINK.value;
-            case "residential":
-                return RoadTypes.RESIDENTIAL.value;
-            case "unclassified":
-                return RoadTypes.UNCLASSIFIED.value;
-            default:
-                return RoadTypes.IGNORE.value;
-        }
+        return switch (highway.toLowerCase()) {
+            case "motorway" -> RoadTypes.MOTORWAY.value;
+            case "motorway_link" -> RoadTypes.MOTORWAY_LINK.value;
+            case "motorroad" -> RoadTypes.MOTORROAD.value;
+            case "trunk" -> RoadTypes.TRUNK.value;
+            case "trunk_link" -> RoadTypes.TRUNK_LINK.value;
+            case "primary" -> RoadTypes.PRIMARY.value;
+            case "primary_link" -> RoadTypes.PRIMARY_LINK.value;
+            case "secondary" -> RoadTypes.SECONDARY.value;
+            case "secondary_link" -> RoadTypes.SECONDARY_LINK.value;
+            case "tertiary" -> RoadTypes.TERTIARY.value;
+            case "tertiary_link" -> RoadTypes.TERTIARY_LINK.value;
+            case "residential" -> RoadTypes.RESIDENTIAL.value;
+            case "unclassified" -> RoadTypes.UNCLASSIFIED.value;
+            default -> RoadTypes.IGNORE.value;
+        };
     }
 
     /**

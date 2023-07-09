@@ -112,17 +112,12 @@ public class OSMAttachedSidewalkProcessor {
 
         if(osmWay.hasTag("sidewalk")) {
             String side = osmWay.getTag("sidewalk");
-            switch(side) {
-                case VAL_LEFT:
-                    sidewalkOnLeftSide = true;
-                    break;
-                case VAL_RIGHT:
-                    sidewalkOnRightSide = true;
-                    break;
-                case "both":
-                    sidewalkOnBothSides = true;
-                    break;
-                default:
+            switch (side) {
+                case VAL_LEFT -> sidewalkOnLeftSide = true;
+                case VAL_RIGHT -> sidewalkOnRightSide = true;
+                case "both" -> sidewalkOnBothSides = true;
+                default -> {
+                }
             }
         }
 
