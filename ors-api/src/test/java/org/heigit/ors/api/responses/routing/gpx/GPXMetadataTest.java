@@ -9,7 +9,7 @@ public class GPXMetadataTest {
     public GPXMetadataTest() {
         try {
             routeResult = RouteResultMockup.create(RouteResultMockup.routeResultProfile.STANDARD_HEIDELBERG);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
     }

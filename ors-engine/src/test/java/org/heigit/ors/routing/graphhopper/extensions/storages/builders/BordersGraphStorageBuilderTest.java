@@ -80,7 +80,7 @@ class BordersGraphStorageBuilderTest {
 
             h2.add(new CountryBordersPolygon("cO1", gf.createPolygon(coordsO1)));
             h2.add(new CountryBordersPolygon("cO2", gf.createPolygon(coordsO2)));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
 
@@ -90,7 +90,7 @@ class BordersGraphStorageBuilderTest {
 
         try {
             _builder.init(null);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
     }
