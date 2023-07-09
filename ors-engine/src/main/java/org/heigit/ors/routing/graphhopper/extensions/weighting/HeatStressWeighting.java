@@ -49,6 +49,6 @@ public class HeatStressWeighting extends FastestWeighting {
 
     @Override
     public int hashCode() {
-        return ("HeatStressWeighting" + toString()).hashCode();
+        return ("HeatStressWeighting" + this).hashCode();
     }
 }
