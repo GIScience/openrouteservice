@@ -23,6 +23,7 @@ import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
 import com.graphhopper.routing.ch.CHPreparationHandler;
+import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LMPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
@@ -447,7 +448,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 	}
 
 	private boolean hasLMProfile(String profileName) {
-		List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map((lmConfig) -> lmConfig.getName()).collect(Collectors.toList());
+		List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map(LMConfig::getName).collect(Collectors.toList());
 		return contains(profiles, profileName);
 	}
 
