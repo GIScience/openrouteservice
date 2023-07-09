@@ -483,127 +483,129 @@ class ResultTest extends ServiceTest {
      */
     private void testGpxSchema(Response response) throws IOException, SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        String xsdSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" targetNamespace=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
-                "    <xs:element name=\"gpx\" type=\"ors:gpxType\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "    <xs:complexType name=\"extensionsType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"distance\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"duration\" minOccurs=\"0\"/>\n" +
-                "            <xs:element name=\"type\" minOccurs=\"0\">\n" +
-                "                <xs:simpleType>\n" +
-                "                    <xs:restriction base=\"xs:string\">\n" +
-                "                        <xs:enumeration value=\"0\"/>\n" +
-                "                        <xs:enumeration value=\"1\"/>\n" +
-                "                        <xs:enumeration value=\"2\"/>\n" +
-                "                        <xs:enumeration value=\"3\"/>\n" +
-                "                        <xs:enumeration value=\"4\"/>\n" +
-                "                        <xs:enumeration value=\"5\"/>\n" +
-                "                        <xs:enumeration value=\"6\"/>\n" +
-                "                        <xs:enumeration value=\"7\"/>\n" +
-                "                        <xs:enumeration value=\"8\"/>\n" +
-                "                        <xs:enumeration value=\"9\"/>\n" +
-                "                        <xs:enumeration value=\"10\"/>\n" +
-                "                        <xs:enumeration value=\"11\"/>\n" +
-                "                        <xs:enumeration value=\"12\"/>\n" +
-                "                        <xs:enumeration value=\"13\"/>\n" +
-                "                    </xs:restriction>\n" +
-                "                </xs:simpleType>\n" +
-                "            </xs:element>\n" +
-                "            <xs:element type=\"xs:string\" name=\"step\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"distanceActual\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"ascent\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"descent\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"avgspeed\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"attribution\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"engine\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"build_date\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"profile\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"preference\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"language\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"distance-units\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"instructions\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"elevation\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"system-message\" minOccurs=\"0\"/>\n" +
-                "        </xs:sequence>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"metadataType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"name\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"desc\"/>\n" +
-                "            <xs:element type=\"ors:authorType\" name=\"author\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:copyrightType\" name=\"copyright\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"time\"/>\n" +
-                "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"boundsType\">\n" +
-                "        <xs:simpleContent>\n" +
-                "            <xs:extension base=\"xs:string\">\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"minLat\"/>\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"minLon\"/>\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"maxLat\"/>\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"maxLon\"/>\n" +
-                "            </xs:extension>\n" +
-                "        </xs:simpleContent>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"linkType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"text\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"type\"/>\n" +
-                "        </xs:sequence>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"href\"/>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"gpxType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"ors:metadataType\" name=\"metadata\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:rteType\" name=\"rte\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"version\"/>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"creator\"/>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"emailType\">\n" +
-                "        <xs:simpleContent>\n" +
-                "            <xs:extension base=\"xs:string\">\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"id\"/>\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"domain\"/>\n" +
-                "            </xs:extension>\n" +
-                "        </xs:simpleContent>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"authorType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"name\"/>\n" +
-                "            <xs:element type=\"ors:emailType\" name=\"email\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:linkType\" name=\"link\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"copyrightType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"year\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"license\"/>\n" +
-                "        </xs:sequence>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"author\"/>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"rteptType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:decimal\" name=\"ele\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"name\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"desc\"/>\n" +
-                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"lat\" use=\"optional\"/>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"lon\" use=\"optional\"/>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"rteType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"ors:rteptType\" name=\"rtept\" maxOccurs=\"unbounded\" minOccurs=\"0\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "    </xs:complexType>\n" +
-                "</xs:schema>\n";
+        String xsdSchema = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                    <xs:element name="gpx" type="ors:gpxType" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                    <xs:complexType name="extensionsType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="distance" minOccurs="0"/>
+                            <xs:element type="xs:string" name="duration" minOccurs="0"/>
+                            <xs:element name="type" minOccurs="0">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="0"/>
+                                        <xs:enumeration value="1"/>
+                                        <xs:enumeration value="2"/>
+                                        <xs:enumeration value="3"/>
+                                        <xs:enumeration value="4"/>
+                                        <xs:enumeration value="5"/>
+                                        <xs:enumeration value="6"/>
+                                        <xs:enumeration value="7"/>
+                                        <xs:enumeration value="8"/>
+                                        <xs:enumeration value="9"/>
+                                        <xs:enumeration value="10"/>
+                                        <xs:enumeration value="11"/>
+                                        <xs:enumeration value="12"/>
+                                        <xs:enumeration value="13"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element type="xs:string" name="step" minOccurs="0"/>
+                            <xs:element type="xs:string" name="distanceActual" minOccurs="0"/>
+                            <xs:element type="xs:string" name="ascent" minOccurs="0"/>
+                            <xs:element type="xs:string" name="descent" minOccurs="0"/>
+                            <xs:element type="xs:string" name="avgspeed" minOccurs="0"/>
+                            <xs:element type="xs:string" name="attribution" minOccurs="0"/>
+                            <xs:element type="xs:string" name="engine" minOccurs="0"/>
+                            <xs:element type="xs:string" name="build_date" minOccurs="0"/>
+                            <xs:element type="xs:string" name="profile" minOccurs="0"/>
+                            <xs:element type="xs:string" name="preference" minOccurs="0"/>
+                            <xs:element type="xs:string" name="language" minOccurs="0"/>
+                            <xs:element type="xs:string" name="distance-units" minOccurs="0"/>
+                            <xs:element type="xs:string" name="instructions" minOccurs="0"/>
+                            <xs:element type="xs:string" name="elevation" minOccurs="0"/>
+                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd" minOccurs="0"/>
+                            <xs:element type="xs:string" name="system-message" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:complexType name="metadataType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="name"/>
+                            <xs:element type="xs:string" name="desc"/>
+                            <xs:element type="ors:authorType" name="author" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:copyrightType" name="copyright" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="xs:string" name="time"/>
+                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:complexType name="boundsType">
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute type="xs:string" name="minLat"/>
+                                <xs:attribute type="xs:string" name="minLon"/>
+                                <xs:attribute type="xs:string" name="maxLat"/>
+                                <xs:attribute type="xs:string" name="maxLon"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                    <xs:complexType name="linkType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="text"/>
+                            <xs:element type="xs:string" name="type"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="href"/>
+                    </xs:complexType>
+                    <xs:complexType name="gpxType">
+                        <xs:sequence>
+                            <xs:element type="ors:metadataType" name="metadata" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:rteType" name="rte" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="version"/>
+                        <xs:attribute type="xs:string" name="creator"/>
+                    </xs:complexType>
+                    <xs:complexType name="emailType">
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute type="xs:string" name="id"/>
+                                <xs:attribute type="xs:string" name="domain"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                    <xs:complexType name="authorType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="name"/>
+                            <xs:element type="ors:emailType" name="email" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:linkType" name="link" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:complexType name="copyrightType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="year"/>
+                            <xs:element type="xs:string" name="license"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="author"/>
+                    </xs:complexType>
+                    <xs:complexType name="rteptType">
+                        <xs:sequence>
+                            <xs:element type="xs:decimal" name="ele" minOccurs="0"/>
+                            <xs:element type="xs:string" name="name"/>
+                            <xs:element type="xs:string" name="desc"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="lat" use="optional"/>
+                        <xs:attribute type="xs:string" name="lon" use="optional"/>
+                    </xs:complexType>
+                    <xs:complexType name="rteType">
+                        <xs:sequence>
+                            <xs:element type="ors:rteptType" name="rtept" maxOccurs="unbounded" minOccurs="0" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:schema>
+                """;
         Schema schema = factory.newSchema(new StreamSource(new StringReader(xsdSchema)));
         Validator validator = schema.newValidator();
         Source xmlSource = new StreamSource(new StringReader(response.body().asString()));
