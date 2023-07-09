@@ -826,7 +826,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             }
             disconnectedCells.add(connectedCell);
         }
-        Collections.sort(disconnectedCells, (a1, a2) -> a2.size() - a1.size());
+        disconnectedCells.sort((a1, a2) -> a2.size() - a1.size());
         return disconnectedCells;
     }
 }
