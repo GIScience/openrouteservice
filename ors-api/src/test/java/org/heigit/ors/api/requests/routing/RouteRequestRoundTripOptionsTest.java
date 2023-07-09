@@ -32,8 +32,8 @@ class RouteRequestRoundTripOptionsTest {
     @Test
     void testSetSeed() {
         assertFalse(options.hasSeed());
-        options.setSeed(1234567890l);
+        options.setSeed(1234567890L);
         assertTrue(options.hasSeed());
-        assertEquals((Long) 1234567890l, options.getSeed());
+        assertEquals((Long) 1234567890L, options.getSeed());
     }
 }

@@ -84,8 +84,8 @@ class BordersGraphStorageBuilderTest {
 
         }
 
-        _cbr.addHierarchy(1l, h);
-        _cbr.addHierarchy(2l, h2);
+        _cbr.addHierarchy(1L, h);
+        _cbr.addHierarchy(2L, h2);
         _builder.setBordersBuilder(_cbr);
 
         try {
