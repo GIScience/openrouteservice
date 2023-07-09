@@ -331,8 +331,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         // The graph uses a turn cost based weighting, though, which is not allowed for LM distance calculation.
         @Override
         protected double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-            double edgeWeight = edgeState.getWeight(reverse);
-            return edgeWeight;
+            return edgeState.getWeight(reverse);
         }
 
         @Override
