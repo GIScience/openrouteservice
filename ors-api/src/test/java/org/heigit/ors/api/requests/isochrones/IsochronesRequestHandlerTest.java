@@ -119,16 +119,12 @@ class IsochronesRequestHandlerTest {
 
     @Test
     void convertSmoothingFailWhenTooHigh() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            request.convertSmoothing(105.0);
-        });
+        assertThrows(ParameterValueException.class, () -> request.convertSmoothing(105.0));
     }
 
     @Test
     void convertSmoothingFailWhenTooLow() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            request.convertSmoothing(-5.0);
-        });
+        assertThrows(ParameterValueException.class, () -> request.convertSmoothing(-5.0));
     }
 
     @Test
@@ -176,16 +172,12 @@ class IsochronesRequestHandlerTest {
 
     @Test
     void convertSingleCoordinateInvalidLengthShort() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            request.convertSingleCoordinate(new Double[]{123.4});
-        });
+        assertThrows(ParameterValueException.class, () -> request.convertSingleCoordinate(new Double[]{123.4}));
     }
 
     @Test
     void convertSingleCoordinateInvalidLengthLong() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            request.convertSingleCoordinate(new Double[]{123.4, 123.4, 123.4});
-        });
+        assertThrows(ParameterValueException.class, () -> request.convertSingleCoordinate(new Double[]{123.4, 123.4, 123.4}));
     }
 
     @Test

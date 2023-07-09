@@ -49,9 +49,7 @@ class APIRequestTest {
 
     @Test
     void convertVehicleTypeError() throws IncompatibleParameterException {
-        assertThrows(IncompatibleParameterException.class, () -> {
-            APIRequest.convertVehicleType(APIEnums.VehicleType.HGV, 1);
-        });
+        assertThrows(IncompatibleParameterException.class, () -> APIRequest.convertVehicleType(APIEnums.VehicleType.HGV, 1));
     }
 
     @Test
