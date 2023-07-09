@@ -65,9 +65,9 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve3 = generateEdge(3);
 
         BordersExtractor be = new BordersExtractor(_graphstorage, new int[0]);
-        assertEquals(true, be.isBorder(1));
-        assertEquals(true, be.isBorder(2));
-        assertEquals(false, be.isBorder(3));
+        assertTrue(be.isBorder(1));
+        assertTrue(be.isBorder(2));
+        assertFalse(be.isBorder(3));
     }
 
     @Test
@@ -77,9 +77,9 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve3 = generateEdge(3);
 
         BordersExtractor be = new BordersExtractor(_graphstorage, new int[0]);
-        assertEquals(true, be.isControlledBorder(1));
-        assertEquals(false, be.isControlledBorder(2));
-        assertEquals(false, be.isControlledBorder(3));
+        assertTrue(be.isControlledBorder(1));
+        assertFalse(be.isControlledBorder(2));
+        assertFalse(be.isControlledBorder(3));
     }
 
     @Test
@@ -89,9 +89,9 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve3 = generateEdge(3);
 
         BordersExtractor be = new BordersExtractor(_graphstorage, new int[0]);
-        assertEquals(false, be.isOpenBorder(1));
-        assertEquals(true, be.isOpenBorder(2));
-        assertEquals(false, be.isOpenBorder(3));
+        assertFalse(be.isOpenBorder(1));
+        assertTrue(be.isOpenBorder(2));
+        assertFalse(be.isOpenBorder(3));
     }
 
     @Test
@@ -101,9 +101,9 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve3 = generateEdge(3);
 
         BordersExtractor be = new BordersExtractor(_graphstorage, new int[] {2, 4});
-        assertEquals(true, be.restrictedCountry(1));
-        assertEquals(true, be.restrictedCountry(2));
-        assertEquals(false, be.restrictedCountry(3));
+        assertTrue(be.restrictedCountry(1));
+        assertTrue(be.restrictedCountry(2));
+        assertFalse(be.restrictedCountry(3));
     }
 
     @Test

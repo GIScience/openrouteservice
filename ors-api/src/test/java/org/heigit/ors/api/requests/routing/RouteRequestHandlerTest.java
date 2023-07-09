@@ -233,8 +233,8 @@ class RouteRequestHandlerTest {
         assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
         assertEquals(2.0f, params.getMinimumWidth(), 0);
         assertEquals(WheelchairTypesEncoder.getSurfaceType("asphalt"), params.getSurfaceType());
-        assertEquals(true, params.isRequireSurfaceQualityKnown());
-        assertEquals(true, params.allowUnsuitable());
+        assertTrue(params.isRequireSurfaceQualityKnown());
+        assertTrue(params.allowUnsuitable());
     }
 
     @Test
@@ -272,7 +272,7 @@ class RouteRequestHandlerTest {
         request.setMaximumSearchRadii(new Double[] { 50.0, 20.0, 100.0});
 
         RoutingRequest routingRequest = request.convertRouteRequest();
-        assertTrue(Arrays.equals(new double[] { 50.0, 20.0, 100.0 }, routingRequest.getSearchParameters().getMaximumRadiuses()));
+        assertArrayEquals(new double[]{50.0, 20.0, 100.0}, routingRequest.getSearchParameters().getMaximumRadiuses());
     }
 
     @Test
@@ -288,7 +288,7 @@ class RouteRequestHandlerTest {
         request.setMaximumSearchRadii(new Double[]{50d});
 
         RoutingRequest routingRequest = request.convertRouteRequest();
-        assertTrue(Arrays.equals(new double[] {50.0, 50.0, 50.0}, routingRequest.getSearchParameters().getMaximumRadiuses()));
+        assertArrayEquals(new double[]{50.0, 50.0, 50.0}, routingRequest.getSearchParameters().getMaximumRadiuses());
     }
 
     @Test

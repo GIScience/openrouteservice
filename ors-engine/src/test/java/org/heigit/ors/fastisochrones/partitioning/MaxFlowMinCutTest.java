@@ -10,6 +10,7 @@ import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class MaxFlowMinCutTest {
     private final CarFlagEncoder carEncoder = new CarFlagEncoder();
@@ -69,7 +70,7 @@ class MaxFlowMinCutTest {
         maxFlowMinCut.setNodeOrder();
         maxFlowMinCut.reset();
         for (boolean f : pData.flow)
-            assertEquals(false, f);
+            assertFalse(f);
 
         for (int v : pData.visited)
             assertEquals(0, v);
