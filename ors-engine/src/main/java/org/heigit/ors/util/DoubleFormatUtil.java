@@ -144,9 +144,7 @@ public final class DoubleFormatUtil {
                     // no rounding involved
                     target.append(intS);
                     target.append(decS);
-                    for (int i = -digits; i > 0; i--) {
-                        target.append('0');
-                    }
+                    target.append("0".repeat(-digits));
                 } else if (digits <= scale) {
                     // decimal part precision is lower than scale,
                     // no rounding involved
