@@ -164,7 +164,7 @@ public class MatrixSearchContextBuilder {
 		return mlRes;
 	}
 
-	class LocationEntry {
+	static class LocationEntry {
 		private int nodeId;
 		private ResolvedLocation location;
 		private Snap snap;

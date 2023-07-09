@@ -98,7 +98,7 @@ public class TargetGraphBuilder {
     }
 
 
-    public class TargetGraphResults {
+    public static class TargetGraphResults {
         SubGraph targetGraph;
         IntHashSet coreExitPoints;
 

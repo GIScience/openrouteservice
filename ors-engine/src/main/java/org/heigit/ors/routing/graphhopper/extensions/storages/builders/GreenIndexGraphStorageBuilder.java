@@ -109,7 +109,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         storage.setEdgeValue(edge.getEdge(), calcGreenIndex(way.getId()));
     }
 
-    private class SlotRange {
+    private static class SlotRange {
         double left = 0.0;
         double right = 0.0;
 

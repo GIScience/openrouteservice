@@ -115,7 +115,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
                 restrictedNodesCount++;
     }
 
-    private class RestrictedEdgesWeighting extends AbstractAdjustedWeighting {
+    private static class RestrictedEdgesWeighting extends AbstractAdjustedWeighting {
         private final EdgeFilter restrictionFilter;
 
         RestrictedEdgesWeighting(Weighting weighting, EdgeFilter restrictionFilter) {

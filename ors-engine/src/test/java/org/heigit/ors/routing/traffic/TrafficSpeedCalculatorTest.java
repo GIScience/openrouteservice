@@ -103,7 +103,7 @@ class TrafficSpeedCalculatorTest {
         assertEquals(65, trafficSpeedCalculator.getSpeed(edgeIteratorState, false, 1), 1e-8);
     }
 
-    private class MockTrafficStorage extends TrafficGraphStorage {
+    private static class MockTrafficStorage extends TrafficGraphStorage {
 
         @Override
         public int getSpeedValue(int edgeId, long unixMilliSeconds, int timeZoneOffset) {

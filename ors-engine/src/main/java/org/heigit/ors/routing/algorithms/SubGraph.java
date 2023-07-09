@@ -95,7 +95,7 @@ public class SubGraph {
         logger.info("SubGraph: nodes - " + node2EdgesMap.size() + "; edges - " + edgesCount);
     }
 
-    class EdgeIteratorLink {
+    static class EdgeIteratorLink {
         private RoutingCHEdgeIteratorState state;
         private EdgeIteratorLink next;
 
@@ -120,7 +120,7 @@ public class SubGraph {
         }
     }
 
-    class SubGraphEdgeExplorer implements RoutingCHEdgeExplorer {
+    static class SubGraphEdgeExplorer implements RoutingCHEdgeExplorer {
         private final SubGraph graph;
 
         public SubGraphEdgeExplorer(SubGraph graph) {

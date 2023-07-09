@@ -538,7 +538,7 @@ public class PrepareCoreTest {
         assertNotEquals(new Shortcut(1, 2, 3.0), new Shortcut(1, 2, 3.5));
     }
 
-    private class Shortcut {
+    private static class Shortcut {
         int first;
         int second;
         double weight;
