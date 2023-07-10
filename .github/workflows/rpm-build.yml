@@ -1,0 +1,53 @@
+name: Package Java WAR into RPM
+
+on:
+#  release:
+ #   types:
+  #    - created
+  workflow_dispatch:
+
+env:
+  ORS_VERSION: '7.1.0'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.2.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build Java WAR
+        run: mvn clean package -DskipTests
+
+      - name: Install RPM
+        run: |
+          ORS_VERSION = ${{ env.ORS_VERSION }}
+          sudo apt-get install rpm
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          cp ors-api/target/ors.war ~/rpmbuild/SOURCES/
+          rpmbuild -bb rpm-packaging/ors-war.spec
+          rpm -qlpv ~/rpmbuild/RPMS/noarch/openrouteservice-7.1.0-1.noarch.rpm
+
+#      - name: Attach RPM package to release
+#        uses: actions/upload-release-asset@v1
+#        with:
+#          upload_url: ${{ github.event.release.upload_url }}
+#          asset_path: ~/rpmbuild/RPMS/noarch/my-app-1.0.0-1.noarch.rpm
+#          asset_name: my-app-1.0.0-1.noarch.rpm
+#          asset_content_type: application/x-rpm
