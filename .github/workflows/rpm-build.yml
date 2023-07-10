@@ -39,7 +39,7 @@ jobs:
 
       - name: Install RPM
         run: |
-          ORS_VERSION = ${{ env.ORS_VERSION }}
+          export ORS_VERSION=${{ env.ORS_VERSION }}
           sudo apt-get install rpm
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
           cp ors-api/target/ors.war ~/rpmbuild/SOURCES/
