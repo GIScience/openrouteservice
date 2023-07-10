@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.config;
 
+import com.graphhopper.util.Helper;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
@@ -37,6 +38,7 @@ public class AppConfig {
     private static AppConfig global;
     private static String osmMd5Hash = null;
     private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
+    private static final String SERVICE_NAME_ROUTING = "routing";
 
     public AppConfig(String path) {
         File file = new File(path);
@@ -289,5 +291,25 @@ public class AppConfig {
         }
 
         return result;
+    }
+
+    public static String getRoutingParameter(String paramName) {
+        return getGlobal().getServiceParameter(SERVICE_NAME_ROUTING, paramName);
+    }
+
+    public static String getRoutingParameter(String paramName, boolean notNull) {
+        String value = getGlobal().getServiceParameter(SERVICE_NAME_ROUTING, paramName);
+        if (notNull && Helper.isEmpty(value))
+            throw new IllegalArgumentException("Parameter '" + paramName + "' must not be null or empty.");
+
+        return value;
+    }
+
+    public static List<String> getRoutingParametersList(String paramName) {
+        return getGlobal().getServiceParametersList(SERVICE_NAME_ROUTING, paramName);
+    }
+
+    public static Map<String, Object> getRoutingParametersMap(String paramName, boolean quotedStrings) {
+        return getGlobal().getServiceParametersMap(SERVICE_NAME_ROUTING, paramName, quotedStrings);
     }
 }

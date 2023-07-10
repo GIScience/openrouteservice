@@ -1,12 +1,17 @@
 package org.heigit.ors.config;
 
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.util.StringUtility;
+
 import java.util.List;
+import java.util.Map;
 
 public class EngineConfig {
-// Migration guide: 1. add field and getter, assign in constructor
+    // Migration guide: 1. add field and getter, assign in constructor
     private final int initializationThreads;
     private final boolean preparationMode;
     private final String sourceFile;
+    private final String graphsRootPath;
     private final boolean elevationPreprocessed;
 
     public int getInitializationThreads() {
@@ -21,6 +26,10 @@ public class EngineConfig {
         return sourceFile;
     }
 
+    public String getGraphsRootPath() {
+        return graphsRootPath;
+    }
+
     public boolean isElevationPreprocessed() {
         return elevationPreprocessed;
     }
@@ -30,6 +39,11 @@ public class EngineConfig {
         this.preparationMode = builder.preparationMode;
         this.sourceFile = builder.sourceFile;
         this.elevationPreprocessed = builder.elevationPreprocessed;
+        this.graphsRootPath = builder.graphsRootPath;
+    }
+
+    public RouteProfileConfiguration[] getProfiles() {
+        return new RouteProfileConfiguration[0];
     }
 
     public static class EngineConfigBuilder {
@@ -37,6 +51,7 @@ public class EngineConfig {
         private int initializationThreads = 1;
         private boolean preparationMode;
         private String sourceFile;
+        private String graphsRootPath;
         private boolean elevationPreprocessed;
 
         public static EngineConfigBuilder init() {
@@ -56,6 +71,11 @@ public class EngineConfig {
 
         public EngineConfigBuilder setSourceFile(String sourceFile) {
             this.sourceFile = sourceFile;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphsRootPath(String graphsRootPath) {
+            this.graphsRootPath = graphsRootPath;
             return this;
         }
 
@@ -88,6 +108,10 @@ public class EngineConfig {
             value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "elevation_preprocessed");
             if (value != null)
                 elevationPreprocessed = "true".equalsIgnoreCase(value);
+
+            Map<String, Object> defaultParams = deprecatedAppConfig.getServiceParametersMap(SERVICE_NAME_ROUTING, "profiles.default_params", true);
+            if (defaultParams != null && defaultParams.containsKey("graphs_root_path"))
+                graphsRootPath = StringUtility.trim(defaultParams.get("graphs_root_path").toString(), '"');
 
             return new EngineConfig(this);
         }
