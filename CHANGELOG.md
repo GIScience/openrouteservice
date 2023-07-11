@@ -42,6 +42,7 @@ RELEASING:
   - `GRAPHS_FOLDER`: value to overwrite the `ors.services.routing.profiles.default_params.graphs_root_path` with
   - `LOGS_FOLDER`: value to overwrite the `ors.logging.location` with
   - `PBF_FILE_PATH`: value to overwrite the `ors.services.routing.sources` with
+- add .editorconfig to streamline IDE code styling ([#1493](https://github.com/GIScience/openrouteservice/pull/1493))
 
 ### Changed
 - url_check.sh to support custom sleep and reporting intervals ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
