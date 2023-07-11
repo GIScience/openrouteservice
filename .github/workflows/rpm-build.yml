@@ -10,17 +10,13 @@ on:
 
 env:
   ORS_VERSION: '7.1.0'
+  HEALTH_WAIT_TIME: 200
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2.2.0
-        with:
-          fetch-depth: 0
-
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
@@ -34,17 +30,32 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Checkout
+        uses: actions/checkout@v2.2.0
+        with:
+          fetch-depth: 0
+
       - name: Build Java WAR
         run: mvn clean package -DskipTests
 
-      - name: Install RPM
+      - name: RPMBuild
         run: |
           export ORS_VERSION=${{ env.ORS_VERSION }}
           sudo apt-get install rpm
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SPECS,SRPMS}
           cp ors-api/target/ors.war ~/rpmbuild/BUILD/
           rpmbuild -bb rpm-packaging/ors-war.spec
-          rpm -qlpv ~/rpmbuild/RPMS/noarch/openrouteservice-$(ORS_VERSION)-1.noarch.rpm
+          mv ~/rpmbuild/RPMS/noarch/openrouteservice-${{ env.ORS_VERSION }}-1.noarch.rpm rpm-packaging/
+
+      - name: Test with Tomcat
+        run: |
+          cp ors-api/src/test/files/elevation/srtm_38_03.gh rpm-packaging/
+          cp ors-api/src/test/files/heidelberg.osm.gz rpm-packaging/
+          cd rpm-packaging
+          docker build . -t ors-rpm-tomcat
+          docker run -it -d -p 8080:8080 --name ors-tomcat ors-rpm-tomcat
+          ../.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
+
 
 #      - name: Attach RPM package to release
 #        uses: actions/upload-release-asset@v1

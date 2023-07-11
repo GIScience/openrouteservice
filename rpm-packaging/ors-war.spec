@@ -22,13 +22,10 @@ cp ors.war $RPM_BUILD_ROOT/opt/ors/
 if [ -n "$JBOSS_HOME" -a -d $JBOSS_HOME/standalone/deployments ]; then
     mv /opt/ors/ors.war $JBOSS_HOME/standalone/deployments/ors.war
     unzip -qq $JBOSS_HOME/standalone/deployments/ors.war -d $JBOSS_HOME/standalone/deployments/ors
-    cp -f $JBOSS_HOME/standalone/deployments/ors/WEB-INF/classes/ors-config-sample.json $JBOSS_HOME/standalone/deployments/ors/WEB-INF/classes/ors-config.json
     echo "deployed ors.war to JBoss deployment dir: $JBOSS_HOME/standalone/deployments"
 elif [ -n "$CATALINA_HOME" -a -d $CATALINA_HOME/webapps ]; then
     mv /opt/ors/ors.war $CATALINA_HOME/webapps/ors.war
     unzip -qq $CATALINA_HOME/webapps/ors.war -d $CATALINA_HOME/webapps/ors
-    cp -f $CATALINA_HOME/webapps/ors/WEB-INF/classes/ors-config-sample.json $CATALINA_HOME/webapps/ors/WEB-INF/classes/ors-config.json
-    ls -la $CATALINA_HOME/webapps/ors
     echo "deployed ors.war to Tomcat deployment dir: $CATALINA_HOME/webapps"
 else
     echo "deployed ors.war to default location: /opt/ors/ors.war"
