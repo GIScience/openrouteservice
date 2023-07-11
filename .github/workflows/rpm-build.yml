@@ -41,10 +41,10 @@ jobs:
         run: |
           export ORS_VERSION=${{ env.ORS_VERSION }}
           sudo apt-get install rpm
-          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          cp ors-api/target/ors.war ~/rpmbuild/SOURCES/
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SPECS,SRPMS}
+          cp ors-api/target/ors.war ~/rpmbuild/BUILD/
           rpmbuild -bb rpm-packaging/ors-war.spec
-          rpm -qlpv ~/rpmbuild/RPMS/noarch/openrouteservice-7.1.0-1.noarch.rpm
+          rpm -qlpv ~/rpmbuild/RPMS/noarch/openrouteservice-$(ORS_VERSION)-1.noarch.rpm
 
 #      - name: Attach RPM package to release
 #        uses: actions/upload-release-asset@v1
