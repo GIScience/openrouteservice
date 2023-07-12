@@ -9,7 +9,6 @@ on:
     branches: [ master ]
 
 env:
-  ORS_VERSION: '7.1.0'
   HEALTH_WAIT_TIME: 200
 
 jobs:
@@ -37,6 +36,11 @@ jobs:
 
       - name: Build Java WAR
         run: mvn clean package -DskipTests
+
+      - name: Get mvn project.version
+        run: |
+          projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "ORS_VERSION=$projectVersion" >> "$GITHUB_ENV"
 
       - name: RPMBuild
         run: |
