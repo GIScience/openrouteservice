@@ -4,7 +4,7 @@ Release: 1
 Summary: openrouteservice WAR deployment
 License: GPL 3
 BuildArch: noarch
-# Requires: tomcat >= 9
+Requires: tomcat >= 9
 
 %description
 The openrouteservice API provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from http://www.openstreetmap.org.
