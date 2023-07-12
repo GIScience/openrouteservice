@@ -5,14 +5,17 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.api.CorsProperties;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.util.StringUtility;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class AppConfigMigration {
     private static final Logger LOGGER = Logger.getLogger(AppConfigMigration.class.getName());
     public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
+    public static final String SERVICE_NAME_FASTISOCHRONES = "fastisochrones.";
     public static final String SERVICE_NAME_MATRIX = "matrix";
     public static final String SERVICE_NAME_ROUTING = "routing";
     private static AppConfig config = AppConfig.getGlobal();
@@ -86,6 +89,48 @@ public class AppConfigMigration {
         if (value != null)
             isochrones.setAttribution(value);
 
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_range_distance");
+        if (value != null)
+            isochrones.setMaximumRangeDistanceDefault(Integer.parseInt(value));
+        else {
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, "maximum_range_distance");
+            int def = parseProfileValues(params, isochrones.getProfileMaxRangeDistances());
+            if (def != -1)
+                isochrones.setMaximumRangeDistanceDefault(def);
+        }
+
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_range_time");
+        if (value != null)
+            isochrones.setMaximumRangeTimeDefault(Integer.parseInt(value));
+        else {
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, "maximum_range_time");
+            int def = parseProfileValues(params, isochrones.getProfileMaxRangeTimes());
+            if (def != -1)
+                isochrones.setMaximumRangeTimeDefault(def);
+        }
+
+        EndpointsProperties.MaximumRangeProperties fastisochrones = isochrones.getFastisochrones();
+
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
+        if (value != null)
+            fastisochrones.setMaximumRangeDistanceDefault(Integer.parseInt(value));
+        else {
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
+            int def = parseProfileValues(params, fastisochrones.getProfileMaxRangeDistances());
+            if (def != -1)
+                fastisochrones.setMaximumRangeDistanceDefault(def);
+        }
+
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_time");
+        if (value != null)
+            fastisochrones.setMaximumRangeTimeDefault(Integer.parseInt(value));
+        else {
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_time");
+            int def = parseProfileValues(params, fastisochrones.getProfileMaxRangeTimes());
+            if (def != -1)
+                fastisochrones.setMaximumRangeTimeDefault(def);
+        }
+
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();
         value = config.getServiceParameter(SERVICE_NAME_MATRIX, "enabled");
         if (value != null)
@@ -133,5 +178,27 @@ public class AppConfigMigration {
             routing.setGpxName(value);
 
         return endpoints;
+    }
+
+    private static int parseProfileValues(List<? extends ConfigObject> params, Map<Integer, Integer> map) {
+        int def = -1;
+        for (ConfigObject cfgObj : params) {
+            if (cfgObj.containsKey("profiles") && cfgObj.containsKey("value")) {
+                String[] profiles = cfgObj.toConfig().getString("profiles").split(",");
+                int value = cfgObj.toConfig().getInt("value");
+                for (String profileStr : profiles) {
+                    profileStr = profileStr.trim();
+                    if ("any".equalsIgnoreCase(profileStr)) {
+                        def = value;
+                    }
+                    else {
+                        Integer profile = RoutingProfileType.getFromString(profileStr);
+                        if (profile != RoutingProfileType.UNKNOWN)
+                            map.put(profile, value);
+                    }
+                }
+            }
+        }
+        return def;
     }
 }

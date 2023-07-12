@@ -20,10 +20,7 @@ import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.locationtech.jts.geom.Coordinate;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class IsochroneRequest extends ServiceRequest {
     private final List<TravellerInfo> travellers;
@@ -36,6 +33,15 @@ public class IsochroneRequest extends ServiceRequest {
     private int maximumLocations;
     private boolean allowComputeArea;
     private int maximumIntervals;
+    // TODO instead of copying the structure maybe keep a reference to EndpointProperties?
+    private int maximumRangeDistanceDefault;
+    private Map<Integer, Integer> profileMaxRangeDistances;
+    private int maximumRangeDistanceDefaultFastisochrones;
+    private Map<Integer, Integer> profileMaxRangeDistancesFastisochrones;
+    private int maximumRangeTimeDefault;
+    private Map<Integer, Integer> profileMaxRangeTimes;
+    private int maximumRangeTimeDefaultFastisochrones;
+    private Map<Integer, Integer> profileMaxRangeTimesFastisochrones;
 
     public IsochroneRequest() {
         travellers = new ArrayList<>();
@@ -192,5 +198,69 @@ public class IsochroneRequest extends ServiceRequest {
 
     public void setMaximumIntervals(int maximumIntervals) {
         this.maximumIntervals = maximumIntervals;
+    }
+
+    public int getMaximumRangeDistanceDefault() {
+        return maximumRangeDistanceDefault;
+    }
+
+    public void setMaximumRangeDistanceDefault(int maximumRangeDistanceDefault) {
+        this.maximumRangeDistanceDefault = maximumRangeDistanceDefault;
+    }
+
+    public Map<Integer, Integer> getProfileMaxRangeDistances() {
+        return profileMaxRangeDistances;
+    }
+
+    public void setProfileMaxRangeDistances(Map<Integer, Integer> profileMaxRangeDistances) {
+        this.profileMaxRangeDistances = profileMaxRangeDistances;
+    }
+
+    public int getMaximumRangeDistanceDefaultFastisochrones() {
+        return maximumRangeDistanceDefaultFastisochrones;
+    }
+
+    public void setMaximumRangeDistanceDefaultFastisochrones(int maximumRangeDistanceDefaultFastisochrones) {
+        this.maximumRangeDistanceDefaultFastisochrones = maximumRangeDistanceDefaultFastisochrones;
+    }
+
+    public Map<Integer, Integer> getProfileMaxRangeDistancesFastisochrones() {
+        return profileMaxRangeDistancesFastisochrones;
+    }
+
+    public void setProfileMaxRangeDistancesFastisochrones(Map<Integer, Integer> profileMaxRangeDistancesFastisochrones) {
+        this.profileMaxRangeDistancesFastisochrones = profileMaxRangeDistancesFastisochrones;
+    }
+
+    public int getMaximumRangeTimeDefault() {
+        return maximumRangeTimeDefault;
+    }
+
+    public void setMaximumRangeTimeDefault(int maximumRangeTimeDefault) {
+        this.maximumRangeTimeDefault = maximumRangeTimeDefault;
+    }
+
+    public Map<Integer, Integer> getProfileMaxRangeTimes() {
+        return profileMaxRangeTimes;
+    }
+
+    public void setProfileMaxRangeTimes(Map<Integer, Integer> profileMaxRangeTimes) {
+        this.profileMaxRangeTimes = profileMaxRangeTimes;
+    }
+
+    public int getMaximumRangeTimeDefaultFastisochrones() {
+        return maximumRangeTimeDefaultFastisochrones;
+    }
+
+    public void setMaximumRangeTimeDefaultFastisochrones(int maximumRangeTimeDefaultFastisochrones) {
+        this.maximumRangeTimeDefaultFastisochrones = maximumRangeTimeDefaultFastisochrones;
+    }
+
+    public Map<Integer, Integer> getProfileMaxRangeTimesFastisochrones() {
+        return profileMaxRangeTimesFastisochrones;
+    }
+
+    public void setProfileMaxRangeTimesFastisochrones(Map<Integer, Integer> profileMaxRangeTimesFastisochrones) {
+        this.profileMaxRangeTimesFastisochrones = profileMaxRangeTimesFastisochrones;
     }
 }

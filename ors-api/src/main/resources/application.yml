@@ -52,6 +52,23 @@ endpoints:
     maximum_locations: 2
     maximum_intervals: 1
     allow_compute_area: true
+    maximum_range_distance_default: 50000
+    maximum_range_distance:
+      - profiles: driving-car, driving-hgv
+        value: 100000
+    maximum_range_time_default: 18000
+    maximum_range_time:
+      - profiles: driving-car, driving-hgv
+        value: 3600
+    fastisochrones:
+      maximum_range_distance_default: 50000
+      maximum_range_distance:
+        - profiles: driving-car, driving-hgv
+          value: 500000
+      maximum_range_time_default: 18000
+      maximum_range_time:
+        - profiles: driving-car, driving-hgv
+          value: 10800
 
 
 ##### ORS engine settings #####

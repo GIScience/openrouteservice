@@ -106,7 +106,7 @@ public class RoutingProfilesCollection {
 		return result;
 	}
 
-	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled) throws Exception {
+	public RoutingProfile getRouteProfile(int routePref, boolean chEnabled) {
 		int routePrefKey = getRoutePreferenceKey(routePref, chEnabled);
 		//Fall back to non-CH version if CH routing profile does not exist
 		if (!routeProfiles.containsKey(routePrefKey)){
@@ -123,16 +123,16 @@ public class RoutingProfilesCollection {
 	 	 * @param routePref				The chosen routing profile
 	 	 */
 
-	public boolean isCHProfileAvailable(int routePref) throws Exception {
+	public boolean isCHProfileAvailable(int routePref) {
 		int routePrefKey = getRoutePreferenceKey(routePref, true);
 		return routeProfiles.containsKey(routePrefKey);
 	}
 	
-	public RoutingProfile getRouteProfile(int routePref) throws Exception {
+	public RoutingProfile getRouteProfile(int routePref) {
 		return getRouteProfileByKey(getRoutePreferenceKey(routePref, false));
 	}
 
-	private RoutingProfile getRouteProfileByKey(int routePrefKey) throws Exception {
+	private RoutingProfile getRouteProfileByKey(int routePrefKey) {
 		return routeProfiles.getOrDefault(routePrefKey, null);
 	}
 

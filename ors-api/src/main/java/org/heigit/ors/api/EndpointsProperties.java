@@ -1,7 +1,12 @@
 package org.heigit.ors.api;
 
+import org.heigit.ors.routing.RoutingProfileType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 
@@ -207,12 +212,91 @@ public class EndpointsProperties {
         }
     }
 
-    public static class EndpointIsochroneProperties {
+    public static class MaximumRangeProperties {
+        private int maximumRangeDistanceDefault;
+        private List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeDistance;
+        private int maximumRangeTimeDefault;
+        private List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeTime;
+
+        public int getMaximumRangeDistanceDefault() {
+            return maximumRangeDistanceDefault;
+        }
+
+        public void setMaximumRangeDistanceDefault(int maximumRangeDistanceDefault) {
+            this.maximumRangeDistanceDefault = maximumRangeDistanceDefault;
+        }
+
+        public List<MaximumRangeProperties.MaximumRangePropertiesEntry> getMaximumRangeDistance() {
+            return maximumRangeDistance;
+        }
+
+        public void setMaximumRangeDistance(List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeDistance) {
+            this.maximumRangeDistance = maximumRangeDistance;
+            for (MaximumRangeProperties.MaximumRangePropertiesEntry maximumRangePropertiesEntry : maximumRangeDistance)
+                for (String profile: maximumRangePropertiesEntry.getProfiles())
+                    profileMaxRangeDistances.put(RoutingProfileType.getFromString(profile), maximumRangePropertiesEntry.getValue());
+        }
+
+        public int getMaximumRangeTimeDefault() {
+            return maximumRangeTimeDefault;
+        }
+
+        public void setMaximumRangeTimeDefault(int maximumRangeTimeDefault) {
+            this.maximumRangeTimeDefault = maximumRangeTimeDefault;
+        }
+
+        public List<MaximumRangeProperties.MaximumRangePropertiesEntry> getMaximumRangeTime() {
+            return maximumRangeTime;
+        }
+
+        public void setMaximumRangeTime(List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeTime) {
+            this.maximumRangeTime = maximumRangeTime;
+            for (MaximumRangeProperties.MaximumRangePropertiesEntry maximumRangePropertiesEntry : maximumRangeTime)
+                for (String profile: maximumRangePropertiesEntry.getProfiles())
+                    profileMaxRangeTimes.put(RoutingProfileType.getFromString(profile), maximumRangePropertiesEntry.getValue());
+        }
+
+        private Map<Integer, Integer> profileMaxRangeDistances = new HashMap<>();
+
+        public Map<Integer, Integer> getProfileMaxRangeDistances() {
+            return profileMaxRangeDistances;
+        }
+
+        private Map<Integer, Integer> profileMaxRangeTimes = new HashMap<>();
+
+        public Map<Integer, Integer> getProfileMaxRangeTimes() {
+            return profileMaxRangeTimes;
+        }
+
+        public static class MaximumRangePropertiesEntry {
+            private List<String> profiles;
+            private int value;
+
+            public List<String> getProfiles() {
+                return profiles;
+            }
+
+            public void setProfiles(List<String> profiles) {
+                this.profiles = profiles;
+            }
+
+            public int getValue() {
+                return value;
+            }
+
+            public void setValue(int value) {
+                this.value = value;
+            }
+        }
+    }
+
+    public static class EndpointIsochroneProperties extends MaximumRangeProperties {
         private boolean enabled;
         private String attribution;
         private int maximumLocations;
         private boolean allowComputeArea = true;
         private int maximumIntervals = 1;
+        private MaximumRangeProperties fastisochrones;
 
         public boolean isEnabled() {
             return enabled;
@@ -252,6 +336,14 @@ public class EndpointsProperties {
 
         public void setMaximumIntervals(int maximumIntervals) {
             this.maximumIntervals = maximumIntervals;
+        }
+
+        public MaximumRangeProperties getFastisochrones() {
+            return fastisochrones;
+        }
+
+        public void setFastisochrones(MaximumRangeProperties fastisochrones) {
+            this.fastisochrones = fastisochrones;
         }
     }
 }

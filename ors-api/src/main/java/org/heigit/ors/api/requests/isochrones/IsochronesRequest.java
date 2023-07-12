@@ -22,25 +22,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
+import org.heigit.ors.routing.*;
 import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
-import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.isochrones.*;
-import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.RoutingProfileManager;
-import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.util.DistanceUnitUtil;
 
 import java.time.LocalDateTime;
@@ -49,6 +45,7 @@ import java.util.List;
 
 import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS;
 import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.FASTISOCHRONE;
+import static org.heigit.ors.common.TravelRangeType.DISTANCE;
 
 
 @Schema(name = "IsochronesRequest", description = "The JSON body request sent to the isochrones service which defines options and parameters regarding the isochrones to generate.")
@@ -482,6 +479,14 @@ public class IsochronesRequest extends APIRequest {
         convertedIsochroneRequest.setMaximumLocations(isochroneProperties.getMaximumLocations());
         convertedIsochroneRequest.setAllowComputeArea(isochroneProperties.isAllowComputeArea());
         convertedIsochroneRequest.setMaximumIntervals(isochroneProperties.getMaximumIntervals());
+        convertedIsochroneRequest.setMaximumRangeDistanceDefault(isochroneProperties.getMaximumRangeDistanceDefault());
+        convertedIsochroneRequest.setProfileMaxRangeDistances(isochroneProperties.getProfileMaxRangeDistances());
+        convertedIsochroneRequest.setMaximumRangeDistanceDefaultFastisochrones(isochroneProperties.getFastisochrones().getMaximumRangeDistanceDefault());
+        convertedIsochroneRequest.setProfileMaxRangeDistancesFastisochrones(isochroneProperties.getFastisochrones().getProfileMaxRangeDistances());
+        convertedIsochroneRequest.setMaximumRangeTimeDefault(isochroneProperties.getMaximumRangeTimeDefault());
+        convertedIsochroneRequest.setProfileMaxRangeTimes(isochroneProperties.getProfileMaxRangeTimes());
+        convertedIsochroneRequest.setMaximumRangeTimeDefaultFastisochrones(isochroneProperties.getFastisochrones().getMaximumRangeTimeDefault());
+        convertedIsochroneRequest.setProfileMaxRangeTimesFastisochrones(isochroneProperties.getFastisochrones().getProfileMaxRangeTimes());
 
         for (int i = 0; i < locations.length; i++) {
             Double[] location = locations[i];
@@ -574,7 +579,7 @@ public class IsochronesRequest extends APIRequest {
             throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_LOCATIONS, Integer.toString(travellers.size()), Integer.toString(isochroneRequest.getMaximumLocations()));
 
         for (TravellerInfo traveller : travellers) {
-            int maxAllowedRange = IsochronesServiceSettings.getMaximumRange(traveller.getRouteSearchParameters().getProfileType(), isochroneRequest.getCalcMethod(), traveller.getRangeType());
+            int maxAllowedRange = getMaximumRange(traveller, isochroneRequest);
             double maxRange = traveller.getMaximumRange();
             if (maxRange > maxAllowedRange)
                 throw new ParameterOutOfRangeException(IsochronesErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, IsochronesRequest.PARAM_RANGE, Double.toString(maxRange), Integer.toString(maxAllowedRange));
@@ -585,6 +590,48 @@ public class IsochronesRequest extends APIRequest {
             }
         }
 
+    }
+
+    private static int getMaximumRange(TravellerInfo traveller, IsochroneRequest isochroneRequest) {
+        int profileType = traveller.getRouteSearchParameters().getProfileType();
+        TravelRangeType range = traveller.getRangeType();
+        String calcMethod = isochroneRequest.getCalcMethod();
+        Integer res;
+
+        RoutingProfileManager rpm = RoutingProfileManager.getInstance();
+        FastIsochroneFactory fastIsochroneFactory = rpm.getProfiles().getRouteProfile(profileType).getGraphhopper().getFastIsochroneFactory();
+        if (fastIsochroneFactory.isEnabled() && calcMethod.equalsIgnoreCase("fastisochrone"))
+            return getMaximumRangeFastIsochrone(traveller, isochroneRequest);
+
+        if (range == DISTANCE) {
+            res = isochroneRequest.getProfileMaxRangeDistances().get(profileType);
+            if (res == null)
+                res = isochroneRequest.getMaximumRangeDistanceDefault();
+        } else {
+            res = isochroneRequest.getProfileMaxRangeTimes().get(profileType);
+            if (res == null)
+                res = isochroneRequest.getMaximumRangeTimeDefault();
+        }
+
+        return res;
+    }
+
+    private static int getMaximumRangeFastIsochrone(TravellerInfo traveller, IsochroneRequest isochroneRequest) {
+        int profileType = traveller.getRouteSearchParameters().getProfileType();
+        TravelRangeType range = traveller.getRangeType();
+        Integer res;
+
+        if (range == DISTANCE) {
+            res = isochroneRequest.getProfileMaxRangeDistancesFastisochrones().get(profileType);
+            if (res == null)
+                res = isochroneRequest.getMaximumRangeDistanceDefaultFastisochrones();
+        } else {
+            res = isochroneRequest.getProfileMaxRangeTimesFastisochrones().get(profileType);
+            if (res == null)
+                res = isochroneRequest.getMaximumRangeTimeDefaultFastisochrones();
+        }
+
+        return res;
     }
 
     void setRangeAndIntervals(TravellerInfo travellerInfo, List<Double> rangeValues, Double intervalValue) throws ParameterValueException, ParameterOutOfRangeException {
