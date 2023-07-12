@@ -39,7 +39,7 @@ jobs:
 
       - name: Get mvn project.version
         run: |
-          projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-/_/g')
+          projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT/.SNAPSHOT/g')
           echo "ORS_VERSION=$projectVersion" >> "$GITHUB_ENV"
 
       - name: RPMBuild
