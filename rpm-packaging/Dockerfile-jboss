@@ -1,10 +1,12 @@
 FROM quay.io/wildfly/wildfly
+ARG ors_version
+ENV ORS_VERSION=$ors_version
 USER root
 WORKDIR /tmp
 RUN yum -y install unzip
 
-COPY openrouteservice-7.1.0-1.noarch.rpm /tmp/openrouteservice-7.1.0-1.noarch.rpm
-RUN rpm -i /tmp/openrouteservice-7.1.0-1.noarch.rpm
+COPY openrouteservice-${ORS_VERSION}-1.noarch.rpm /tmp/openrouteservice-${ORS_VERSION}-1.noarch.rpm
+RUN rpm -i /tmp/openrouteservice-${ORS_VERSION}-1.noarch.rpm
 
 RUN /opt/jboss/wildfly/bin/add-user.sh admin Admin#70365 --silent
 CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]

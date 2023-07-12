@@ -39,7 +39,7 @@ jobs:
 
       - name: Get mvn project.version
         run: |
-          projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-/_/g')
           echo "ORS_VERSION=$projectVersion" >> "$GITHUB_ENV"
 
       - name: RPMBuild
@@ -56,7 +56,7 @@ jobs:
           cp ors-api/src/test/files/elevation/srtm_38_03.gh rpm-packaging/
           cp ors-api/src/test/files/heidelberg.osm.gz rpm-packaging/
           cd rpm-packaging
-          docker build . -t ors-rpm-tomcat
+          docker build . -t ors-rpm-tomcat --build-arg ors_version=${{ env.ORS_VERSION }}
           docker run -it -d -p 8080:8080 --name ors-tomcat ors-rpm-tomcat
           ../.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
 
