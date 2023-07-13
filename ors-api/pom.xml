@@ -172,11 +172,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-test</artifactId>
-        </dependency>
-
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
