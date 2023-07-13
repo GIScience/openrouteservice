@@ -21,8 +21,8 @@ cp ors.war $RPM_BUILD_ROOT/opt/ors/
 
 %post
 if [ -n "$JBOSS_HOME" -a -d $JBOSS_HOME/standalone/deployments ]; then
-    mv /opt/ors/ors.war $JBOSS_HOME/standalone/deployments/ors.war
-    unzip -qq $JBOSS_HOME/standalone/deployments/ors.war -d $JBOSS_HOME/standalone/deployments/ors
+    unzip -qq /opt/ors/ors.war -d $JBOSS_HOME/standalone/deployments/ors.war/
+    touch $JBOSS_HOME/standalone/deployments/ors.war.dodeploy
     echo "deployed ors.war to JBoss deployment dir: $JBOSS_HOME/standalone/deployments"
 elif [ -n "$CATALINA_HOME" -a -d $CATALINA_HOME/webapps ]; then
     mv /opt/ors/ors.war $CATALINA_HOME/webapps/ors.war
@@ -34,7 +34,7 @@ fi
 
 %preun
 if [ -n "$JBOSS_HOME" -a -f $JBOSS_HOME/standalone/deployments/ors.war ]; then
-    mv $JBOSS_HOME/standalone/deployments/ors.war /opt/ors/ors.war
+    rm -rf $JBOSS_HOME/standalone/deployments/ors.war
     echo "Removed ors.war from JBoss deployment dir"
 elif [ -n "$CATALINA_HOME" -a -f $CATALINA_HOME/webapps/ors.war ]; then
     mv $CATALINA_HOME/webapps/ors.war /opt/ors/ors.war
