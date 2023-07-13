@@ -59,6 +59,7 @@ RELEASING:
 - Remove maven-shared-utils dependency ([#1473](https://github.com/GIScience/openrouteservice/issues/1473))
 - update spring-boot from 2.7.10 to 2.7.12 ([#1474](https://github.com/GIScience/openrouteservice/issues/1474))
 - Upgrade org.geotools.gt-epsg-hsql to version 29.1. ([#1479](https://github.com/GIScience/openrouteservice/issues/1479))
+- Upgrade apache-curator to version 5.5.0 and snappy-java to 1.1.10.1 ([#1496](https://github.com/GIScience/openrouteservice/issues/1496))
 
 ## [7.1.0] - 2023-06-13
 ### Added
