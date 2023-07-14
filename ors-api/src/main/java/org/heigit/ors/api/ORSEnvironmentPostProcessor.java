@@ -16,15 +16,18 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        // Override values from application.yml with contents of file in working directory. TODO: additional places?
-        String path = "ors-config.yml";
-        try {
-            List<PropertySource<?>> sources = this.loader.load("yml config", new FileSystemResource(path));
-            if (!sources.isEmpty()) {
-                environment.getPropertySources().addFirst(sources.get(0));
+        // Override values from application.yml with contents of file in working directory.
+        // Later in array => higher precedence
+        String[] configLocations = {"/etc/openrouteservice/ors-config.yml", "~/.openrouteservice/ors-config.yml", "ors-config.yml"};
+        for (String path : configLocations) {
+            try {
+                List<PropertySource<?>> sources = this.loader.load("yml config", new FileSystemResource(path));
+                if (!sources.isEmpty()) {
+                    environment.getPropertySources().addFirst(sources.get(0));
+                }
+            } catch (IllegalStateException | IOException ex) {
+                // Ignore yml file not present
             }
-        } catch (IllegalStateException | IOException ex) {
-            // Ignore yml file not present
         }
     }
 }
