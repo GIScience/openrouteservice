@@ -1,5 +1,6 @@
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.HeavyVehicleGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder
+org.heigit.ors.routing.graphhopper.extensions.storages.builders.UberTrafficGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.WayCategoryGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.WaySurfaceTypeGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.HillIndexGraphStorageBuilder
