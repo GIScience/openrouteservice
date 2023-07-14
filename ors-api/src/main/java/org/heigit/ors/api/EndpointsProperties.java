@@ -297,6 +297,7 @@ public class EndpointsProperties {
         private boolean allowComputeArea = true;
         private int maximumIntervals = 1;
         private MaximumRangeProperties fastisochrones;
+        private Map<String, StatisticsProviderProperties> statisticsProviders = new HashMap<>();
 
         public boolean isEnabled() {
             return enabled;
@@ -344,6 +345,62 @@ public class EndpointsProperties {
 
         public void setFastisochrones(MaximumRangeProperties fastisochrones) {
             this.fastisochrones = fastisochrones;
+        }
+
+        public Map<String, StatisticsProviderProperties> getStatisticsProviders() {
+            return statisticsProviders;
+        }
+
+        public void setStatisticsProviders(Map<String, StatisticsProviderProperties> statisticsProviders) {
+            this.statisticsProviders = statisticsProviders;
+        }
+
+        public static class StatisticsProviderProperties {
+            private boolean enabled;
+            private String providerName;
+            private Map<String, Object> providerParameters;
+            private Map<String, String> propertyMapping;
+            private String attribution;
+
+            public boolean isEnabled() {
+                return enabled;
+            }
+
+            public void setEnabled(boolean enabled) {
+                this.enabled = enabled;
+            }
+
+            public String getProviderName() {
+                return providerName;
+            }
+
+            public void setProviderName(String providerName) {
+                this.providerName = providerName;
+            }
+
+            public Map<String, Object> getProviderParameters() {
+                return providerParameters;
+            }
+
+            public void setProviderParameters(Map<String, Object> providerParameters) {
+                this.providerParameters = providerParameters;
+            }
+
+            public Map<String, String> getPropertyMapping() {
+                return propertyMapping;
+            }
+
+            public void setPropertyMapping(Map<String, String> propertyMapping) {
+                this.propertyMapping = propertyMapping;
+            }
+
+            public String getAttribution() {
+                return attribution;
+            }
+
+            public void setAttribution(String attribution) {
+                this.attribution = attribution;
+            }
         }
     }
 }

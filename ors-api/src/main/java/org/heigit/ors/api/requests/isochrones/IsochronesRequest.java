@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
+import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.routing.*;
 import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -41,7 +42,9 @@ import org.heigit.ors.util.DistanceUnitUtil;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS;
 import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.FASTISOCHRONE;
@@ -487,6 +490,7 @@ public class IsochronesRequest extends APIRequest {
         convertedIsochroneRequest.setProfileMaxRangeTimes(isochroneProperties.getProfileMaxRangeTimes());
         convertedIsochroneRequest.setMaximumRangeTimeDefaultFastisochrones(isochroneProperties.getFastisochrones().getMaximumRangeTimeDefault());
         convertedIsochroneRequest.setProfileMaxRangeTimesFastisochrones(isochroneProperties.getFastisochrones().getProfileMaxRangeTimes());
+        convertedIsochroneRequest.setStatsProviders(constructStatisticsProvidersConfiguration(isochroneProperties.getStatisticsProviders()));
 
         for (int i = 0; i < locations.length; i++) {
             Double[] location = locations[i];
@@ -516,6 +520,27 @@ public class IsochronesRequest extends APIRequest {
             convertedIsochroneRequest.setCalcMethod(convertCalcMethod(FASTISOCHRONE));
         return convertedIsochroneRequest;
 
+    }
+
+    Map<String, StatisticsProviderConfiguration> constructStatisticsProvidersConfiguration (Map<String, EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties> statsProperties) {
+        Map<String, StatisticsProviderConfiguration> statsProviders = new HashMap<>();
+
+        if (statsProperties != null) {
+            int id = 0;
+            for (EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties providerProperties : statsProperties.values()) {
+                Map<String, String> propertyMapping = providerProperties.getPropertyMapping();
+                Map<String, String> propMapping = new HashMap<>();
+                for (Map.Entry<String, String> propEntry : propertyMapping.entrySet())
+                    propMapping.put(propEntry.getValue(), propEntry.getKey());
+                if (propMapping.size() > 0) {
+                    StatisticsProviderConfiguration provConfig = new StatisticsProviderConfiguration(id++, providerProperties.getProviderName(), providerProperties.getProviderParameters(), propMapping, providerProperties.getAttribution());
+                    for (Map.Entry<String, String> property : propMapping.entrySet())
+                        statsProviders.put(property.getKey().toLowerCase(), provConfig);
+                }
+            }
+        }
+
+        return statsProviders;
     }
 
     TravellerInfo constructTravellerInfo(Double[] coordinate) throws Exception {

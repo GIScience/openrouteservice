@@ -9,6 +9,7 @@ import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.util.StringUtility;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public class AppConfigMigration {
     private static final Logger LOGGER = Logger.getLogger(AppConfigMigration.class.getName());
     public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
     public static final String SERVICE_NAME_FASTISOCHRONES = "fastisochrones.";
+    public static final String PARAM_STATISTICS_PROVIDERS = "statistics_providers.";
     public static final String SERVICE_NAME_MATRIX = "matrix";
     public static final String SERVICE_NAME_ROUTING = "routing";
     private static AppConfig config = AppConfig.getGlobal();
@@ -130,6 +132,37 @@ public class AppConfigMigration {
             if (def != -1)
                 fastisochrones.setMaximumRangeTimeDefault(def);
         }
+
+        Map<String, EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties> statisticsProviderPropertiesMap = new HashMap<>();
+        Map<String, Object> providers = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, "statistics_providers", false);
+        if (providers != null) {
+            for (Map.Entry<String, Object> entry : providers.entrySet()) {
+
+                Map<String, Object> provider = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey(), false);
+
+                if (provider.containsKey("provider_name") && provider.containsKey("provider_parameters") && provider.containsKey("property_mapping")) {
+                    EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties statisticsProviderProperties = new EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties();
+                    statisticsProviderProperties.setProviderName(provider.get("provider_name").toString());
+                    Map<String, Object> providerParams = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".provider_parameters", false);
+                    statisticsProviderProperties.setProviderParameters(providerParams);
+                    Map<String, Object> map = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".property_mapping", false);
+                    Map<String, String> propMapping = new HashMap<>();
+                    for (Map.Entry<String, Object> propEntry : map.entrySet())
+                        propMapping.put(propEntry.getKey(), propEntry.getValue().toString());
+                    statisticsProviderProperties.setPropertyMapping(propMapping);
+
+                    value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".enabled");
+                    if (value != null)
+                        statisticsProviderProperties.setEnabled(Boolean.parseBoolean(value));
+                    value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".attribution");
+                    if (value != null)
+                        statisticsProviderProperties.setAttribution(value);
+
+                    statisticsProviderPropertiesMap.put(entry.getKey(), statisticsProviderProperties);
+                }
+            }
+        }
+        isochrones.getStatisticsProviders().putAll(statisticsProviderPropertiesMap);
 
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();
         value = config.getServiceParameter(SERVICE_NAME_MATRIX, "enabled");

@@ -16,6 +16,7 @@ package org.heigit.ors.isochrones;
 import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
+import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.locationtech.jts.geom.Coordinate;
@@ -33,7 +34,6 @@ public class IsochroneRequest extends ServiceRequest {
     private int maximumLocations;
     private boolean allowComputeArea;
     private int maximumIntervals;
-    // TODO instead of copying the structure maybe keep a reference to EndpointProperties?
     private int maximumRangeDistanceDefault;
     private Map<Integer, Integer> profileMaxRangeDistances;
     private int maximumRangeDistanceDefaultFastisochrones;
@@ -42,6 +42,7 @@ public class IsochroneRequest extends ServiceRequest {
     private Map<Integer, Integer> profileMaxRangeTimes;
     private int maximumRangeTimeDefaultFastisochrones;
     private Map<Integer, Integer> profileMaxRangeTimesFastisochrones;
+    private Map<String, StatisticsProviderConfiguration> statsProviders;
 
     public IsochroneRequest() {
         travellers = new ArrayList<>();
@@ -148,6 +149,7 @@ public class IsochroneRequest extends ServiceRequest {
         if ("destination".equalsIgnoreCase(traveller.getLocationType()))
             parameters.setReverseDirection(true);
         parameters.setSmoothingFactor(smoothingFactor);
+        parameters.setStatsProviders(statsProviders);
         return parameters;
     }
 
@@ -262,5 +264,13 @@ public class IsochroneRequest extends ServiceRequest {
 
     public void setProfileMaxRangeTimesFastisochrones(Map<Integer, Integer> profileMaxRangeTimesFastisochrones) {
         this.profileMaxRangeTimesFastisochrones = profileMaxRangeTimesFastisochrones;
+    }
+
+    public Map<String, StatisticsProviderConfiguration> getStatsProviders() {
+        return statsProviders;
+    }
+
+    public void setStatsProviders(Map<String, StatisticsProviderConfiguration> statsProviders) {
+        this.statsProviders = statsProviders;
     }
 }
