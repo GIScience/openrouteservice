@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

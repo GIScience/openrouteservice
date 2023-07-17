@@ -18,8 +18,8 @@ package org.heigit.ors.api.responses.routing.gpx;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RouteSummary;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "extensions")
 public class GPXRouteExtensions {

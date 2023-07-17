@@ -18,9 +18,9 @@ package org.heigit.ors.api.responses.routing.gpx;
 import org.heigit.ors.routing.RouteStep;
 import org.heigit.ors.util.FormatUtility;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlType(propOrder = {"elevation", "name", "instructionDescription", "element"})
 public class GPXRoutePointElement {

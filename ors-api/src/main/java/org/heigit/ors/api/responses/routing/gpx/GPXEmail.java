@@ -18,8 +18,8 @@ package org.heigit.ors.api.responses.routing.gpx;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.RoutingErrorCodes;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "email")
 public class GPXEmail {

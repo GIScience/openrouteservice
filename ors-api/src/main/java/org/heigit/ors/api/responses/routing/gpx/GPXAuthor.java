@@ -17,7 +17,7 @@ package org.heigit.ors.api.responses.routing.gpx;
 
 import org.heigit.ors.exceptions.InternalServerException;
 
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 public class GPXAuthor {
     @XmlElement(name = "name")
