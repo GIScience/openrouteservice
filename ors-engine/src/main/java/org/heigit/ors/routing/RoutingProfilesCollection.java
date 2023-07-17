@@ -153,9 +153,9 @@ public class RoutingProfilesCollection {
 			i++;
 			long profileMemory = profile.getMemoryUsage();
 			totalProfilesMemory += profileMemory;
-			logger.info(String.format("[%d] %s (%.1f%%)", i, RuntimeUtility.getMemorySize(profileMemory), ((double)profileMemory/totalUsedMemory)*100));
+			logger.info("[%d] %s (%.1f%%)".formatted(i, RuntimeUtility.getMemorySize(profileMemory), ((double) profileMemory / totalUsedMemory) * 100));
 		}
-		logger.info(String.format("Total: %s (%.1f%%)", RuntimeUtility.getMemorySize(totalProfilesMemory), ((double)totalProfilesMemory/totalUsedMemory)*100));
+		logger.info("Total: %s (%.1f%%)".formatted(RuntimeUtility.getMemorySize(totalProfilesMemory), ((double) totalProfilesMemory / totalUsedMemory) * 100));
 		logger.info("========================================================================");
 	}
 }

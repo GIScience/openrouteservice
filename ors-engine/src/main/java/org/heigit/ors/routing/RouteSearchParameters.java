@@ -410,13 +410,13 @@ public class RouteSearchParameters {
                     if (areaLimit > 0) {
                         long area = Math.round(GeomUtility.getArea(avoidArea, true));
                         if (area > areaLimit) {
-                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The area of a polygon to avoid must not exceed %s square meters.", areaLimit));
+                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "The area of a polygon to avoid must not exceed %s square meters.".formatted(areaLimit));
                         }
                     }
                     if (extentLimit > 0) {
                         long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
                         if (extent > extentLimit) {
-                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
+                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "The extent of a polygon to avoid must not exceed %s meters.".formatted(extentLimit));
                         }
                     }
                 } catch (InternalServerException e) {

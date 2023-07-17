@@ -78,7 +78,7 @@ public class LocalizationManager {
                 this.langResources.put(langCode, localLangResources);
             }
         } catch (Exception ex) {
-            LOGGER.error(String.format("Unable to load localization from %s", resource));
+            LOGGER.error("Unable to load localization from %s".formatted(resource));
         }
     }
 
