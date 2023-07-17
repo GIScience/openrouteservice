@@ -83,8 +83,10 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasLocationType = false;
 
-    @Schema(name= PARAM_RANGE, description = "Maximum range value of the analysis in **seconds** for time and **metres** for distance." +
-            "Alternatively a comma separated list of specific range values. Ranges will be the same for all locations.",
+    @Schema(name= PARAM_RANGE, description = """
+            Maximum range value of the analysis in **seconds** for time and **metres** for distance.\
+            Alternatively a comma separated list of specific range values. Ranges will be the same for all locations.\
+            """,
             example = "[ 300, 200 ]",
             requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_RANGE)
@@ -101,8 +103,10 @@ public class IsochronesRequest extends APIRequest {
 
     // unit only valid for range_type distance, will be ignored for range_time time
     @Schema(name= PARAM_RANGE_UNITS,
-            description = "Specifies the distance units only if `range_type` is set to distance.\n" +
-                    "Default: m. ",
+            description = """
+                    Specifies the distance units only if `range_type` is set to distance.
+                    Default: m. \
+                    """,
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "range_type"),
                     @ExtensionProperty(name = "value", value = "distance")}
@@ -125,8 +129,10 @@ public class IsochronesRequest extends APIRequest {
     private APIEnums.RouteResponseType responseType = APIEnums.RouteResponseType.GEOJSON;
 
     @Schema(name= PARAM_AREA_UNITS,
-            description = "Specifies the area unit.\n" +
-                    "Default: m. ",
+            description = """
+                    Specifies the area unit.
+                    Default: m. \
+                    """,
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "value", value = "area")}
@@ -151,8 +157,10 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasAttributes = false;
 
-    @Schema(name= PARAM_INTERVAL, description = "Interval of isochrones or equidistants. This is only used if a single range value is given. " +
-            "Value in **seconds** for time and **meters** for distance.",
+    @Schema(name= PARAM_INTERVAL, description = """
+            Interval of isochrones or equidistants. This is only used if a single range value is given. \
+            Value in **seconds** for time and **meters** for distance.\
+            """,
             example = "30"
     )
     @JsonProperty(PARAM_INTERVAL)

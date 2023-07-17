@@ -77,8 +77,10 @@ public class ExportAPI {
     // Functional request methods
     @PostMapping(value = "/{profile}")
     @Operation(
-            description = "Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. " +
-            "This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.",
+            description = """
+            Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. \
+            This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.\
+            """,
             summary = "Export Service"
     )
     @ApiResponse(

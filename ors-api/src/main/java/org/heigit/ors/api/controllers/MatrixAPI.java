@@ -89,8 +89,10 @@ public class MatrixAPI {
 
     @PostMapping(value = "/{profile}", produces = {"application/json;charset=UTF-8"})
     @Operation(
-            description = "Returns duration or distance matrix for multiple source and destination points.\n" +
-            "By default a square duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.",
+            description = """
+            Returns duration or distance matrix for multiple source and destination points.
+            By default a square duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.\
+            """,
             summary = "Matrix Service"
     )
     @ApiResponse(
