@@ -197,26 +197,20 @@ public class ORSWeightingFactory implements WeightingFactory {
 
             for (String weightingName : weightingNames) {
                 switch (weightingName) {
-                    case "steepness_difficulty":
-                        softWeightings.add(new SteepnessDifficultyWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
-                        break;
-                    case "avoid_hills":
-                        softWeightings.add(new AvoidHillsWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
-                        break;
-                    case "green":
-                        softWeightings.add(new GreenWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
-                        break;
-                    case "quiet":
-                        softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
-                        break;
-                    case "csv":
-                        softWeightings.add(new HeatStressWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
-                        break;
-                    case "shadow":
-                        softWeightings.add(new ShadowWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
-                        break;
-                    default:
-                        break;
+                    case "steepness_difficulty" ->
+                            softWeightings.add(new SteepnessDifficultyWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                    case "avoid_hills" ->
+                            softWeightings.add(new AvoidHillsWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                    case "green" ->
+                            softWeightings.add(new GreenWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                    case "quiet" ->
+                            softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                    case "csv" ->
+                            softWeightings.add(new HeatStressWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                    case "shadow" ->
+                            softWeightings.add(new ShadowWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                    default -> {
+                    }
                 }
             }
 

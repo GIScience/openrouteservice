@@ -33,8 +33,8 @@ public class JSONExtra {
 
         for(RouteSegmentItem item : segments) {
             List<Long> segment = new ArrayList<>();
-            segment.add(Long.valueOf(item.getFrom()));
-            segment.add(Long.valueOf(item.getTo()));
+            segment.add((long) item.getFrom());
+            segment.add((long) item.getTo());
             segment.add(item.getValue());
             values.add(segment);
         }
@@ -45,10 +45,11 @@ public class JSONExtra {
         }
     }
 
-    @Schema(description = "A list of values representing a section of the route. The individual values are: \n" +
-            "Value 1: Indice of the staring point of the geometry for this section,\n" +
-            "Value 2: Indice of the end point of the geoemetry for this sections,\n" +
-            "Value 3: [Value](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html) assigned to this section.",
+    @Schema(description = """
+            A list of values representing a section of the route. The individual values are:\s
+            Value 1: Indice of the staring point of the geometry for this section,
+            Value 2: Indice of the end point of the geoemetry for this sections,
+            Value 3: [Value](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html) assigned to this section.""",
             example = "[[0,3,26],[3,10,12]]")
     @JsonProperty("values")
     private List<List<Long>> getValues() {

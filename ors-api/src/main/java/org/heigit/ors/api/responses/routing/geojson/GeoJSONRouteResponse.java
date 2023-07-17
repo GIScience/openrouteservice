@@ -48,7 +48,7 @@ public class GeoJSONRouteResponse extends RouteResponse {
     public GeoJSONRouteResponse(RouteResult[] routeResults, RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) throws StatusCodeException {
         super(request, systemMessageProperties, endpointsProperties);
 
-        this.routeResults = new ArrayList<IndividualRouteResponse>();
+        this.routeResults = new ArrayList<>();
 
         for(RouteResult result : routeResults) {
             this.routeResults.add(new GeoJSONIndividualRouteResponse(result, request));
@@ -60,7 +60,7 @@ public class GeoJSONRouteResponse extends RouteResponse {
             bboxes.add(result.getSummary().getBBox());
         }
 
-        BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[bboxes.size()]));
+        BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[0]));
 
         bbox = BoundingBoxFactory.constructBoundingBox(bounding, request);
     }

@@ -17,7 +17,7 @@ public class JsonEdgeExtra {
     @Schema(description = "Extra info stored on the edge",
             example = "{\"surface_quality_known\" : \"true\"}")
     @JsonProperty(value = "extra")
-    @JsonFormat(shape = JsonFormat.Shape.ANY)
+    @JsonFormat()
     protected Object extra;
 
     JsonEdgeExtra(Map.Entry<Pair<Integer, Integer>, Map<String, Object>> edge) {

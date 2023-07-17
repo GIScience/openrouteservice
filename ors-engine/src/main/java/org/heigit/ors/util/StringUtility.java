@@ -1,19 +1,20 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.util;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class StringUtility {
 
@@ -23,7 +24,7 @@ public class StringUtility {
     {
         return str == null || str.trim().length() == 0;
     }
-	
+
 	public static String substring(String str, char pattern) {
 		int pos1 = -1;
 		int pos2 = -1;
@@ -42,7 +43,7 @@ public class StringUtility {
 		else
 			return null;
 	}
-	
+
 	public static boolean containsDigit(String s) {
 		if (s != null && !s.isEmpty()) {
 			 for ( int i = 0; i < s.length(); ++i ) {
@@ -53,12 +54,12 @@ public class StringUtility {
 		}
 		return false;
 	}
-	
+
 	public static String trimQuotes(String str)
 	{
-		return trim(str, '"');  
+		return trim(str, '"');
 	}
-	
+
 	public static String trim(String str, char ch) {
 		if (str == null)
 			return null;
@@ -66,7 +67,7 @@ public class StringUtility {
 		int firstChar = str.indexOf(ch);
 		int lastChar = str.lastIndexOf(ch);
 		int length = str.length();
-		if (firstChar == 0 && lastChar == length - 1) 
+		if (firstChar == 0 && lastChar == length - 1)
 			result = result.substring(1, length - 1);
 
 		return result;
@@ -75,8 +76,8 @@ public class StringUtility {
 	public static String arrayToString(double[] array, String separator) {
 		int length = array.length;
 	    if (length == 0) return "";
-	    StringBuilder sb = new StringBuilder();	    
-	    
+	    StringBuilder sb = new StringBuilder();
+
 	    for (int i = 0; i < length; ++i) {
 	    	sb.append(array[i]);
 	    	if (i < length -1 )
@@ -84,7 +85,7 @@ public class StringUtility {
 	    }
 	    return sb.toString();
 	}
-	
+
 	public static String combine(String[] values, String separator) {
 		if (values == null)
 			return null;
@@ -95,7 +96,7 @@ public class StringUtility {
 		}
 		return result.toString();
 	}
-	
+
 	public static String decodeRequestString(String inputString) throws UnsupportedEncodingException {
 		if (inputString.startsWith("REQUEST=")) {
 			inputString = inputString.substring(8);
@@ -110,7 +111,7 @@ public class StringUtility {
 		}
 
 		// Decode the application/x-www-form-url encoded query string
-		return java.net.URLDecoder.decode(inputString, "ISO-8859-1");// "UTF-8"
+		return java.net.URLDecoder.decode(inputString, StandardCharsets.ISO_8859_1);// "UTF-8"
 	}
 
 	public static String decodeRequestString2(String inputString) throws UnsupportedEncodingException {
@@ -124,7 +125,7 @@ public class StringUtility {
 		}
 
 		// Decode the application/x-www-form-url encoded query string
-		return java.net.URLDecoder.decode(inputString, "ISO-8859-1");// "UTF-8"
+		return java.net.URLDecoder.decode(inputString, StandardCharsets.ISO_8859_1);// "UTF-8"
 	}
 
 	public static boolean isNullOrEmpty(String str) {

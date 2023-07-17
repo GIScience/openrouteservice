@@ -239,8 +239,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         }
         ConcaveHullOpenSphere concaveHullShell = new ConcaveHullOpenSphere(geometry, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
         Geometry shellGeometry = concaveHullShell.getConcaveHull();
-        if (shellGeometry instanceof GeometryCollection) {
-            GeometryCollection geomColl = (GeometryCollection) shellGeometry;
+        if (shellGeometry instanceof GeometryCollection geomColl) {
             if (geomColl.isEmpty())
                 return;
         }

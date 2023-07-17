@@ -24,18 +24,17 @@ for `profile=cycling-*`:
 
 ```json
 {
-"avoid_features": ["steps"],
-"profile_params": {
-    "weightings": {
-        "steepness_difficulty": 2,
-        },
-    }
-},
-"avoid_polygons": {
-    "type": "Polygon",
-    "coordinates": [
-        [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
- ]}
+  "avoid_features": ["steps"],
+  "profile_params": {
+      "weightings": {
+          "steepness_difficulty": 2
+      }
+  },
+  "avoid_polygons": {
+      "type": "Polygon",
+      "coordinates": [
+          [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
+   ]}
 }
 ```
 `{"avoid_features":["steps"],"profile_params":{"weightings":{"steepness_difficulty":2}}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
@@ -135,7 +134,7 @@ Examples for routing options object with border restrictions:
 
 ```json
 {
-    "avoid_countries": [1,120],
+    "avoid_countries": [1,120]
 }
 ```
 
@@ -146,7 +145,7 @@ Examples for routing options object with border restrictions:
 ```json
 {
     "avoid_borders": "controlled",
-    "avoid_countries": [193],
+    "avoid_countries": [193]
 }
 ```
 

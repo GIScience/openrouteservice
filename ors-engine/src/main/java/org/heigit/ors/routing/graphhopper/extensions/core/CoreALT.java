@@ -232,7 +232,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     }
 
     private void recalculateWeights(PriorityQueue<AStarEntry> queue, boolean reverse) {
-        AStarEntry[] entries = queue.toArray(new AStarEntry[queue.size()]);
+        AStarEntry[] entries = queue.toArray(new AStarEntry[0]);
 
         queue.clear();
         for (AStarEntry value : entries) {

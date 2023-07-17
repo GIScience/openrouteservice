@@ -302,7 +302,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             names.add(CountryBordersReader.INTERNATIONAL_NAME);
         }
 
-        return names.toArray(new String[names.size()]);
+        return names.toArray(new String[0]);
     }
 
     public CountryBordersReader getCbReader() {

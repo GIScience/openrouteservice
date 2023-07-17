@@ -141,9 +141,7 @@ class MatrixRequestHandlerTest {
         springMatrixRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        assertThrows(ParameterValueException.class, () -> {
-            springMatrixRequest.convertMatrixRequest(endpointsProperties);
-        });
+        assertThrows(ParameterValueException.class, () -> springMatrixRequest.convertMatrixRequest(endpointsProperties));
     }
 
     @Test
@@ -154,9 +152,7 @@ class MatrixRequestHandlerTest {
         springMatrixRequest.setMetrics(new MatrixRequestEnums.Metrics[0]);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        assertThrows(ParameterValueException.class, () -> {
-            springMatrixRequest.convertMatrixRequest(endpointsProperties);
-        });
+        assertThrows(ParameterValueException.class, () -> springMatrixRequest.convertMatrixRequest(endpointsProperties));
     }
 
     @Test
@@ -166,9 +162,7 @@ class MatrixRequestHandlerTest {
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"foo"});
         springMatrixRequest.setDestinations(new String[]{"bar"});
-        assertThrows(ParameterValueException.class, () -> {
-            springMatrixRequest.convertMatrixRequest(endpointsProperties);
-        });
+        assertThrows(ParameterValueException.class, () -> springMatrixRequest.convertMatrixRequest(endpointsProperties));
     }
 
     @Test
@@ -178,9 +172,7 @@ class MatrixRequestHandlerTest {
         springMatrixRequest.setLocations(listOfBareCoordinatesList);
         springMatrixRequest.setSources(new String[]{"all"});
         springMatrixRequest.setDestinations(new String[]{"foo"});
-        assertThrows(ParameterValueException.class, () -> {
-            springMatrixRequest.convertMatrixRequest(endpointsProperties);
-        });
+        assertThrows(ParameterValueException.class, () -> springMatrixRequest.convertMatrixRequest(endpointsProperties));
     }
 
     @Test

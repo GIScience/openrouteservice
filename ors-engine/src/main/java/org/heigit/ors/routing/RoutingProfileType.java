@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing;
 
@@ -108,260 +108,125 @@ public class RoutingProfileType {
     }
 
     public static String getName(int profileType) {
-        switch (profileType) {
-            case DRIVING_CAR:
-                return "driving-car";
-            case DRIVING_ELECTRIC_CAR:
-                return "driving-ecar";
-            case DRIVING_HGV:
-                return "driving-hgv";
-            case DRIVING_MOTORCYCLE:
-                return "driving-motorcycle";
-            case DRIVING_EMERGENCY:
-                return "driving-emergency";
-
-            case CYCLING_REGULAR:
-                return "cycling-regular";
-            case CYCLING_MOUNTAIN:
-                return "cycling-mountain";
-            case CYCLING_ROAD:
-                return "cycling-road";
-            case CYCLING_ELECTRIC:
-                return "cycling-electric";
-
-            case FOOT_WALKING:
-                return "foot-walking";
-            case FOOT_HIKING:
-                return "foot-hiking";
-            case FOOT_JOGGING:
-                return "foot-jogging";
-
-            case WHEELCHAIR:
-                return "wheelchair";
+        return switch (profileType) {
+            case DRIVING_CAR -> "driving-car";
+            case DRIVING_ELECTRIC_CAR -> "driving-ecar";
+            case DRIVING_HGV -> "driving-hgv";
+            case DRIVING_MOTORCYCLE -> "driving-motorcycle";
+            case DRIVING_EMERGENCY -> "driving-emergency";
+            case CYCLING_REGULAR -> "cycling-regular";
+            case CYCLING_MOUNTAIN -> "cycling-mountain";
+            case CYCLING_ROAD -> "cycling-road";
+            case CYCLING_ELECTRIC -> "cycling-electric";
+            case FOOT_WALKING -> "foot-walking";
+            case FOOT_HIKING -> "foot-hiking";
+            case FOOT_JOGGING -> "foot-jogging";
+            case WHEELCHAIR -> "wheelchair";
 
             // GH DEFAULTS:
-            case GH_CAR:
-                return "gh-car";
-            case GH_CAR4WD:
-                return "gh-car4wd";
-            case GH_BIKE:
-                return "gh-bike";
-            case GH_BIKE2:
-                return "gh-bike2";
-            case GH_BIKE_MTB:
-                return "gh-mtb";
-            case GH_BIKE_ROAD:
-                return "gh-racingbike";
-            case GH_FOOT:
-                return "gh-foot";
-            case GH_HIKE:
-                return "gh-hike";
-
-            default:
-                return "unknown";
-        }
+            case GH_CAR -> "gh-car";
+            case GH_CAR4WD -> "gh-car4wd";
+            case GH_BIKE -> "gh-bike";
+            case GH_BIKE2 -> "gh-bike2";
+            case GH_BIKE_MTB -> "gh-mtb";
+            case GH_BIKE_ROAD -> "gh-racingbike";
+            case GH_FOOT -> "gh-foot";
+            case GH_HIKE -> "gh-hike";
+            default -> "unknown";
+        };
     }
 
     public static int getFromString(String profileType) {
-        switch (profileType.toLowerCase()) {
-            case "driving-car":
-                return DRIVING_CAR;
-            case "driving-ecar":
-                return DRIVING_ELECTRIC_CAR;
-            case "driving-hgv":
-                return DRIVING_HGV;
-            case "driving-motorcycle":
-                return DRIVING_MOTORCYCLE;
-            case "driving-emergency":
-                return DRIVING_EMERGENCY;
-
-            case "cycling-regular":
-                return CYCLING_REGULAR;
-            case "cycling-mountain":
-                return CYCLING_MOUNTAIN;
-            case "cycling-road":
-                return CYCLING_ROAD;
-            case "cycling-electric":
-                return CYCLING_ELECTRIC;
-
-            case "foot-walking":
-                return FOOT_WALKING;
-            case "foot-hiking":
-                return FOOT_HIKING;
-            case "foot-jogging":
-                return FOOT_JOGGING;
-
-            case "wheelchair":
-                return WHEELCHAIR;
-
-            case "public-transport":
-                return PUBLIC_TRANSPORT;
+        return switch (profileType.toLowerCase()) {
+            case "driving-car" -> DRIVING_CAR;
+            case "driving-ecar" -> DRIVING_ELECTRIC_CAR;
+            case "driving-hgv" -> DRIVING_HGV;
+            case "driving-motorcycle" -> DRIVING_MOTORCYCLE;
+            case "driving-emergency" -> DRIVING_EMERGENCY;
+            case "cycling-regular" -> CYCLING_REGULAR;
+            case "cycling-mountain" -> CYCLING_MOUNTAIN;
+            case "cycling-road" -> CYCLING_ROAD;
+            case "cycling-electric" -> CYCLING_ELECTRIC;
+            case "foot-walking" -> FOOT_WALKING;
+            case "foot-hiking" -> FOOT_HIKING;
+            case "foot-jogging" -> FOOT_JOGGING;
+            case "wheelchair" -> WHEELCHAIR;
+            case "public-transport" -> PUBLIC_TRANSPORT;
 
             // GH DEFAULTS:
-            case "gh-car":
-                return GH_CAR;
-            case "gh-car4wd":
-                return GH_CAR4WD;
-            case "gh-bike":
-                return GH_BIKE;
-            case "gh-bike2":
-                return GH_BIKE2;
-            case "gh-mtb":
-                return GH_BIKE_MTB;
-            case "gh-racingbike":
-                return GH_BIKE_ROAD;
-            case "gh-foot":
-                return GH_FOOT;
-            case "gh-hike":
-                return GH_HIKE;
-
-            default:
-                return UNKNOWN;
-        }
+            case "gh-car" -> GH_CAR;
+            case "gh-car4wd" -> GH_CAR4WD;
+            case "gh-bike" -> GH_BIKE;
+            case "gh-bike2" -> GH_BIKE2;
+            case "gh-mtb" -> GH_BIKE_MTB;
+            case "gh-racingbike" -> GH_BIKE_ROAD;
+            case "gh-foot" -> GH_FOOT;
+            case "gh-hike" -> GH_HIKE;
+            default -> UNKNOWN;
+        };
     }
 
     public static String getEncoderName(int routePref) {
-        switch (routePref) {
-            case RoutingProfileType.DRIVING_CAR:
-                return FlagEncoderNames.CAR_ORS;
-
-            case RoutingProfileType.DRIVING_HGV:
-                return FlagEncoderNames.HEAVYVEHICLE;
-
-            case RoutingProfileType.DRIVING_EMERGENCY:
-                return FlagEncoderNames.EMERGENCY;
-
-            case RoutingProfileType.DRIVING_MOTORCYCLE:
-                return FlagEncoderNames.GH_MOTOCYCLE;
-
-            case RoutingProfileType.DRIVING_ELECTRIC_CAR:
-                return FlagEncoderNames.EVEHICLE;
-
-            case RoutingProfileType.FOOT_JOGGING:
-                return FlagEncoderNames.RUNNING;
-
-            case RoutingProfileType.CYCLING_REGULAR:
-                return FlagEncoderNames.BIKE_ORS;
-
-            case RoutingProfileType.CYCLING_MOUNTAIN:
-                return FlagEncoderNames.MTB_ORS;
-
-            case RoutingProfileType.CYCLING_ROAD:
-                return FlagEncoderNames.ROADBIKE_ORS;
-
-
-            case RoutingProfileType.FOOT_WALKING:
-                return FlagEncoderNames.PEDESTRIAN_ORS;
-
-            case RoutingProfileType.FOOT_HIKING:
-                return FlagEncoderNames.HIKING_ORS;
-
-
-            case RoutingProfileType.WHEELCHAIR:
-                return FlagEncoderNames.WHEELCHAIR;
-
-            case RoutingProfileType.PUBLIC_TRANSPORT:
-                return FlagEncoderNames.GH_FOOT;
-
-            case RoutingProfileType.GH_CAR:
-                return FlagEncoderNames.GH_CAR;
-
-            case RoutingProfileType.GH_CAR4WD:
-                return FlagEncoderNames.GH_CAR4WD;
-
-            case RoutingProfileType.GH_BIKE:
-                return FlagEncoderNames.GH_BIKE;
-
-            case RoutingProfileType.GH_BIKE2:
-                return FlagEncoderNames.GH_BIKE2;
-
-            case RoutingProfileType.GH_BIKE_MTB:
-                return FlagEncoderNames.GH_MTB;
-
-            case RoutingProfileType.GH_BIKE_ROAD:
-                return FlagEncoderNames.GH_RACINGBIKE;
-
-            case RoutingProfileType.GH_FOOT:
-                return FlagEncoderNames.GH_FOOT;
-
-            case RoutingProfileType.GH_HIKE:
-                return FlagEncoderNames.GH_HIKE;
-
-            case RoutingProfileType.CYCLING_ELECTRIC:
-                return FlagEncoderNames.BIKE_ELECTRO;
-
-            default:
-                return FlagEncoderNames.UNKNOWN;
-        }
+        return switch (routePref) {
+            case RoutingProfileType.DRIVING_CAR -> FlagEncoderNames.CAR_ORS;
+            case RoutingProfileType.DRIVING_HGV -> FlagEncoderNames.HEAVYVEHICLE;
+            case RoutingProfileType.DRIVING_EMERGENCY -> FlagEncoderNames.EMERGENCY;
+            case RoutingProfileType.DRIVING_MOTORCYCLE -> FlagEncoderNames.GH_MOTOCYCLE;
+            case RoutingProfileType.DRIVING_ELECTRIC_CAR -> FlagEncoderNames.EVEHICLE;
+            case RoutingProfileType.FOOT_JOGGING -> FlagEncoderNames.RUNNING;
+            case RoutingProfileType.CYCLING_REGULAR -> FlagEncoderNames.BIKE_ORS;
+            case RoutingProfileType.CYCLING_MOUNTAIN -> FlagEncoderNames.MTB_ORS;
+            case RoutingProfileType.CYCLING_ROAD -> FlagEncoderNames.ROADBIKE_ORS;
+            case RoutingProfileType.FOOT_WALKING -> FlagEncoderNames.PEDESTRIAN_ORS;
+            case RoutingProfileType.FOOT_HIKING -> FlagEncoderNames.HIKING_ORS;
+            case RoutingProfileType.WHEELCHAIR -> FlagEncoderNames.WHEELCHAIR;
+            case RoutingProfileType.PUBLIC_TRANSPORT -> FlagEncoderNames.GH_FOOT;
+            case RoutingProfileType.GH_CAR -> FlagEncoderNames.GH_CAR;
+            case RoutingProfileType.GH_CAR4WD -> FlagEncoderNames.GH_CAR4WD;
+            case RoutingProfileType.GH_BIKE -> FlagEncoderNames.GH_BIKE;
+            case RoutingProfileType.GH_BIKE2 -> FlagEncoderNames.GH_BIKE2;
+            case RoutingProfileType.GH_BIKE_MTB -> FlagEncoderNames.GH_MTB;
+            case RoutingProfileType.GH_BIKE_ROAD -> FlagEncoderNames.GH_RACINGBIKE;
+            case RoutingProfileType.GH_FOOT -> FlagEncoderNames.GH_FOOT;
+            case RoutingProfileType.GH_HIKE -> FlagEncoderNames.GH_HIKE;
+            case RoutingProfileType.CYCLING_ELECTRIC -> FlagEncoderNames.BIKE_ELECTRO;
+            default -> FlagEncoderNames.UNKNOWN;
+        };
     }
 
     // these are the names of the toString Method of each FlagEncoder implementation!
     public static int getFromEncoderName(String encoder) {
-        switch (encoder.toLowerCase()) {
-            case FlagEncoderNames.CAR_ORS:
-                return RoutingProfileType.DRIVING_CAR;
+        return switch (encoder.toLowerCase()) {
+            case FlagEncoderNames.CAR_ORS -> RoutingProfileType.DRIVING_CAR;
 
             /* a ors self implemented flagencoder */
-            case FlagEncoderNames.HEAVYVEHICLE:
-                return RoutingProfileType.DRIVING_HGV;
+            case FlagEncoderNames.HEAVYVEHICLE -> RoutingProfileType.DRIVING_HGV;
 
             /* not in use */
-            case FlagEncoderNames.EVEHICLE:
-                return RoutingProfileType.DRIVING_ELECTRIC_CAR;
+            case FlagEncoderNames.EVEHICLE -> RoutingProfileType.DRIVING_ELECTRIC_CAR;
 
             /* currently not in use */
-            case FlagEncoderNames.GH_MOTOCYCLE:
-                return RoutingProfileType.DRIVING_MOTORCYCLE;
-
-            case FlagEncoderNames.BIKE_ORS:
-                return RoutingProfileType.CYCLING_REGULAR;
-
-            case FlagEncoderNames.MTB_ORS:
-            //case FlagEncoderNames.MTB_ORS_OLD:
-                return RoutingProfileType.CYCLING_MOUNTAIN;
-
-            case FlagEncoderNames.ROADBIKE_ORS:
-                return RoutingProfileType.CYCLING_ROAD;
+            case FlagEncoderNames.GH_MOTOCYCLE -> RoutingProfileType.DRIVING_MOTORCYCLE;
+            case FlagEncoderNames.BIKE_ORS -> RoutingProfileType.CYCLING_REGULAR;
+            case FlagEncoderNames.MTB_ORS ->
+                //case FlagEncoderNames.MTB_ORS_OLD:
+                    RoutingProfileType.CYCLING_MOUNTAIN;
+            case FlagEncoderNames.ROADBIKE_ORS -> RoutingProfileType.CYCLING_ROAD;
 
 
             /* not in use */
-            case FlagEncoderNames.RUNNING:
-                return RoutingProfileType.FOOT_JOGGING;
-
-
-            case FlagEncoderNames.WHEELCHAIR:
-                return RoutingProfileType.WHEELCHAIR;
-
-
-            case FlagEncoderNames.GH_CAR:
-                return RoutingProfileType.GH_CAR;
-
-            case FlagEncoderNames.GH_CAR4WD:
-                return RoutingProfileType.GH_CAR4WD;
-
-            case FlagEncoderNames.GH_BIKE:
-                return RoutingProfileType.GH_BIKE;
-
-            case FlagEncoderNames.GH_BIKE2:
-                return RoutingProfileType.GH_BIKE2;
-
-            case FlagEncoderNames.GH_MTB:
-                return RoutingProfileType.GH_BIKE_MTB;
-
-            case FlagEncoderNames.GH_RACINGBIKE:
-                return RoutingProfileType.GH_BIKE_ROAD;
-
-            case FlagEncoderNames.GH_FOOT:
-                return RoutingProfileType.FOOT_WALKING;
-
-            case FlagEncoderNames.GH_HIKE:
-                return RoutingProfileType.FOOT_HIKING;
-
-            case FlagEncoderNames.BIKE_ELECTRO:
-                return RoutingProfileType.CYCLING_ELECTRIC;
-
-            default:
-                return RoutingProfileType.UNKNOWN;
-        }
+            case FlagEncoderNames.RUNNING -> RoutingProfileType.FOOT_JOGGING;
+            case FlagEncoderNames.WHEELCHAIR -> RoutingProfileType.WHEELCHAIR;
+            case FlagEncoderNames.GH_CAR -> RoutingProfileType.GH_CAR;
+            case FlagEncoderNames.GH_CAR4WD -> RoutingProfileType.GH_CAR4WD;
+            case FlagEncoderNames.GH_BIKE -> RoutingProfileType.GH_BIKE;
+            case FlagEncoderNames.GH_BIKE2 -> RoutingProfileType.GH_BIKE2;
+            case FlagEncoderNames.GH_MTB -> RoutingProfileType.GH_BIKE_MTB;
+            case FlagEncoderNames.GH_RACINGBIKE -> RoutingProfileType.GH_BIKE_ROAD;
+            case FlagEncoderNames.GH_FOOT -> RoutingProfileType.FOOT_WALKING;
+            case FlagEncoderNames.GH_HIKE -> RoutingProfileType.FOOT_HIKING;
+            case FlagEncoderNames.BIKE_ELECTRO -> RoutingProfileType.CYCLING_ELECTRIC;
+            default -> RoutingProfileType.UNKNOWN;
+        };
     }
 }

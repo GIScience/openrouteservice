@@ -161,13 +161,14 @@ public class IsochronesRequest extends APIRequest {
     private boolean hasInterval = false;
 
     @Schema(name= PARAM_SMOOTHING,
-            description = "Applies a level of generalisation to the isochrone polygons generated as a `smoothing_factor` between `0` and `100.0`.\n" +
-                    "Generalisation is produced by determining a maximum length of a connecting line between two points found on the outside of a containing polygon.\n" +
-                    "If the distance is larger than a threshold value, the line between the two points is removed and a smaller connecting line between other points is used.\n" +
-                    "Note that the minimum length of this connecting line is ~1333m, and so when the `smoothing_factor` results in a distance smaller than this, the minimum value is used.\n" +
-                    "The threshold value is determined as `(maximum_radius_of_isochrone / 100) * smoothing_factor`.\n" +
-                    "Therefore, a value closer to 100 will result in a more generalised shape.\n" +
-                    "The polygon generation algorithm is based on Duckham and al. (2008) `\"Efficient generation of simple polygons for characterizing the shape of a set of points in the plane.\"`",
+            description = """
+                    Applies a level of generalisation to the isochrone polygons generated as a `smoothing_factor` between `0` and `100.0`.
+                    Generalisation is produced by determining a maximum length of a connecting line between two points found on the outside of a containing polygon.
+                    If the distance is larger than a threshold value, the line between the two points is removed and a smaller connecting line between other points is used.
+                    Note that the minimum length of this connecting line is ~1333m, and so when the `smoothing_factor` results in a distance smaller than this, the minimum value is used.
+                    The threshold value is determined as `(maximum_radius_of_isochrone / 100) * smoothing_factor`.
+                    Therefore, a value closer to 100 will result in a more generalised shape.
+                    The polygon generation algorithm is based on Duckham and al. (2008) `"Efficient generation of simple polygons for characterizing the shape of a set of points in the plane."`""",
             example = "25")
     @JsonProperty(value = PARAM_SMOOTHING)
     private Double smoothing;
@@ -400,35 +401,23 @@ public class IsochronesRequest extends APIRequest {
     }
 
     String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
-        IsochronesRequestEnums.LocationType value;
-
-        switch (locationType) {
-            case DESTINATION:
-                value = IsochronesRequestEnums.LocationType.DESTINATION;
-                break;
-            case START:
-                value = IsochronesRequestEnums.LocationType.START;
-                break;
-            default:
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATION_TYPE, locationType.toString());
-        }
+        IsochronesRequestEnums.LocationType value = switch (locationType) {
+            case DESTINATION -> IsochronesRequestEnums.LocationType.DESTINATION;
+            case START -> IsochronesRequestEnums.LocationType.START;
+            default ->
+                    throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATION_TYPE, locationType.toString());
+        };
 
         return value.toString();
     }
 
     TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
-        TravelRangeType travelRangeType;
-
-        switch (rangeType) {
-            case DISTANCE:
-                travelRangeType = TravelRangeType.DISTANCE;
-                break;
-            case TIME:
-                travelRangeType = TravelRangeType.TIME;
-                break;
-            default:
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_TYPE, rangeType.toString());
-        }
+        TravelRangeType travelRangeType = switch (rangeType) {
+            case DISTANCE -> TravelRangeType.DISTANCE;
+            case TIME -> TravelRangeType.TIME;
+            default ->
+                    throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_TYPE, rangeType.toString());
+        };
 
         return travelRangeType;
 
@@ -620,16 +609,12 @@ public class IsochronesRequest extends APIRequest {
 
     String convertCalcMethod(IsochronesRequestEnums.CalculationMethod bareCalcMethod) throws ParameterValueException {
         try {
-            switch (bareCalcMethod) {
-                case CONCAVE_BALLS:
-                    return "concaveballs";
-                case GRID:
-                    return "grid";
-                case FASTISOCHRONE:
-                    return "fastisochrone";
-                default:
-                    return "none";
-            }
+            return switch (bareCalcMethod) {
+                case CONCAVE_BALLS -> "concaveballs";
+                case GRID -> "grid";
+                case FASTISOCHRONE -> "fastisochrone";
+                default -> "none";
+            };
         } catch (Exception ex) {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "calc_method");
         }

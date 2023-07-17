@@ -282,7 +282,7 @@ public class CountryBordersReader {
             }
         }
 
-        return countries.toArray(new CountryBordersPolygon[countries.size()]);
+        return countries.toArray(new CountryBordersPolygon[0]);
     }
 
     /**
@@ -311,7 +311,7 @@ public class CountryBordersReader {
             }
         }
 
-        return countries.toArray(new CountryBordersPolygon[countries.size()]);
+        return countries.toArray(new CountryBordersPolygon[0]);
     }
 
     /**
@@ -448,7 +448,7 @@ public class CountryBordersReader {
     /**
      * Holder class for storing information about a country read from the ids csv.
      */
-    private class CountryInfo {
+    private static class CountryInfo {
         private String id;
         private String name;
         private String nameEng;

@@ -23,29 +23,21 @@ public class TrafficLinkMetadata {
             try {
                 String propertyName = property.getName().toString();
                 switch (propertyName) {
-                    case "DIR_TRAVEL":
-                        travelDirection = TrafficEnums.LinkTravelDirection.forValue(property.getValue().toString());
-                        break;
-                    case "FUNC_CLASS":
-                        functionalClass = TrafficEnums.FunctionalClass.forValue(Integer.parseInt(property.getValue().toString()));
-                        break;
-                    case "FRONTAGE":
-                        frontageRoad = TrafficEnums.NoYesEnum.forValue(property.getValue().toString().charAt(0));
-                        break;
-                    case "RAMP":
-                        ramp = TrafficEnums.NoYesEnum.forValue(property.getValue().toString().charAt(0));
-                        break;
-                    case "ROUNDABOUT":
-                        roundabout = TrafficEnums.NoYesEnum.forValue(property.getValue().toString().charAt(0));
-                        break;
-                    case "FERRY_TYPE":
-                        ferryType = TrafficEnums.FerryType.forValue(property.getValue().toString().charAt(0));
-                        break;
-                    case "SPECTRFIG":
-                        specialTrafficFigure = TrafficEnums.NoYesEnum.forValue(property.getValue().toString().charAt(0));
-                        break;
-                    default:
-                        break;
+                    case "DIR_TRAVEL" ->
+                            travelDirection = TrafficEnums.LinkTravelDirection.forValue(property.getValue().toString());
+                    case "FUNC_CLASS" ->
+                            functionalClass = TrafficEnums.FunctionalClass.forValue(Integer.parseInt(property.getValue().toString()));
+                    case "FRONTAGE" ->
+                            frontageRoad = TrafficEnums.NoYesEnum.forValue(property.getValue().toString().charAt(0));
+                    case "RAMP" -> ramp = TrafficEnums.NoYesEnum.forValue(property.getValue().toString().charAt(0));
+                    case "ROUNDABOUT" ->
+                            roundabout = TrafficEnums.NoYesEnum.forValue(property.getValue().toString().charAt(0));
+                    case "FERRY_TYPE" ->
+                            ferryType = TrafficEnums.FerryType.forValue(property.getValue().toString().charAt(0));
+                    case "SPECTRFIG" ->
+                            specialTrafficFigure = TrafficEnums.NoYesEnum.forValue(property.getValue().toString().charAt(0));
+                    default -> {
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.debug("Couldn't process property.");

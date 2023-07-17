@@ -491,9 +491,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     }
 
     boolean considerTurnRestrictions(int node) {
-        if (!hasTurnWeighting)
-            return false;
-        return true;
+        return hasTurnWeighting;
     }
 
     public void setHasTurnWeighting(boolean hasTurnWeighting) {

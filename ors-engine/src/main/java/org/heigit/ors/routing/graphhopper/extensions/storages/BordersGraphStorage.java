@@ -82,16 +82,12 @@ public class BordersGraphStorage implements GraphExtension {
 		short start = orsEdges.getShort(edgePointer + EF_START);
 		short end = orsEdges.getShort(edgePointer + EF_END);
 
-		switch (prop) {
-			case TYPE:
-				return border;
-			case START:
-				return start;
-			case END:
-				return end;
-			default:
-				return 0;
-		}
+		return switch (prop) {
+			case TYPE -> border;
+			case START -> start;
+			case END -> end;
+			default -> 0;
+		};
 
 	}
 

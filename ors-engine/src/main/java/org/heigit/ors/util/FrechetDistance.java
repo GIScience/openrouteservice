@@ -333,7 +333,7 @@ public class FrechetDistance {
                                 }
                         }
                 }
-                return list.toArray(new Double[list.size()]);
+                return list.toArray(new Double[0]);
         }
 
         public double computeFrechetDistance() {

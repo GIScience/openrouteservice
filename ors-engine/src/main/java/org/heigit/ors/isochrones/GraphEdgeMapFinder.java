@@ -51,7 +51,7 @@ public class GraphEdgeMapFinder {
 
 		ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
 		EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph);
-		
+
 		Coordinate loc = parameters.getLocation();
 		Snap res = gh.getLocationIndex().findClosest(loc.y, loc.x, edgeFilter);
 		List<Snap> snaps = new ArrayList<>(1);
@@ -113,8 +113,7 @@ public class GraphEdgeMapFinder {
     }
 
     private static Weighting createWeighting(IsochroneSearchParameters parameters, FlagEncoder encoder) {
-        Weighting weighting = parameters.getRangeType() == TravelRangeType.TIME ? new FastestWeighting(encoder)
+        return parameters.getRangeType() == TravelRangeType.TIME ? new FastestWeighting(encoder)
                 : new DistanceWeighting(encoder);
-        return weighting;
     }
 }

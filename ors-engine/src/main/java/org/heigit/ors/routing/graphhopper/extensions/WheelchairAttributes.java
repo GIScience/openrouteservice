@@ -139,30 +139,24 @@ public class WheelchairAttributes {
 
     public void setAttribute(Attribute attribute, int value, boolean markSurfaceQualityKnown) {
         switch (attribute) {
-            case SURFACE:
+            case SURFACE -> {
                 setSurfaceType(value);
                 if (markSurfaceQualityKnown)
                     setSurfaceQualityKnown(true);
-                break;
-            case SMOOTHNESS:
+            }
+            case SMOOTHNESS -> {
                 setSmoothnessType(value);
                 if (markSurfaceQualityKnown)
                     setSurfaceQualityKnown(true);
-                break;
-            case TRACK:
+            }
+            case TRACK -> {
                 setTrackType(value);
                 if (markSurfaceQualityKnown)
                     setSurfaceQualityKnown(true);
-                break;
-            case INCLINE:
-                setIncline(value);
-                break;
-            case KERB:
-                setSlopedKerbHeight(value);
-                break;
-            case WIDTH:
-                setWidth(value);
-                break;
+            }
+            case INCLINE -> setIncline(value);
+            case KERB -> setSlopedKerbHeight(value);
+            case WIDTH -> setWidth(value);
         }
     }
 

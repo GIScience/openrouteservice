@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
@@ -57,27 +57,27 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     private OSMPedestrianProcessor osmPedestrianProcessor = new OSMPedestrianProcessor();
 
     protected Set<String> acceptedPublicTransport = new HashSet<>(5);
-    
+
     /**
      * Fully suitable for wheelchair users
      */
     private final Set<String> fullyWheelchairAccessibleHighways = new HashSet<>();
-    
+
     /**
-     * Suitable for wheelchair users. However highways falling into this category that explicitly indicate a sidewalk is available will be prefered 
+     * Suitable for wheelchair users. However highways falling into this category that explicitly indicate a sidewalk is available will be prefered
      */
     private final Set<String> assumedWheelchairAccessibleHighways = new HashSet<>();
-    
+
     /**
      * Highways that fall into this category will only be considered if further information about surface/smoothness is available
      */
     private final Set<String> limitedWheelchairAccessibleHighways = new HashSet<>();
-    
+
     /**
      * Highways that fall into this category will only be considered if further information about surface/smoothness is available
      */
     private final Set<String> restrictedWheelchairHighways = new HashSet<>();
-    
+
     /**
      * Highways that fall into this category cannot be accessed by Wheelchair users (e.g. steps)
      */
@@ -132,7 +132,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
      * Barriers (nodes) that are not accessible. Routes that would these nodes are not possible.
      */
     private final Set<String> inaccessibleBarriers = new HashSet<>(5);
-    
+
     private final Set<String> accessibilityRelatedAttributes = new HashSet<>();
 
   	public WheelchairFlagEncoder(PMap configuration) {
@@ -141,7 +141,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
         problematicSpeedFactor = configuration.getDouble("problematic_speed_factor", 1);
         preferredSpeedFactor = configuration.getDouble("preferred_speed_factor", 1);
-        	
+
         setProperties(configuration);
     }
 
@@ -192,16 +192,16 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         inaccessibleBarriers.add("kissing_gate");
         inaccessibleBarriers.add("turnstile");
         inaccessibleBarriers.add("hampshire_gate");
-        
+
         acceptedPublicTransport.add("platform");
         // acceptedPublicTransport.add("halt"); --> usually describes a building, not a platform
         // acceptedPublicTransport.add("station"); --> usually describes a building, not a platform
         // acceptedPublicTransport.add("subway_entrance");  --> usually describes a sub entrance (building), not a platform
         // acceptedPublicTransport.add("tram_stop"); --> usually describes the stop itself, not the platform
-        
+
         // include funicular, rail, light_rail, subway, narrow_gauge, aerialway=cablecar (tram is already included via AbstractFlagEncoder) with high costs?
         // --> this would be multi-modal routing, which is currently discouraged for ORS
-        
+
         // fully wheelchair accessible, needs double check with tracktype, surface, smoothness
         fullyWheelchairAccessibleHighways.add(KEY_FOOTWAY); // fußweg, separat modelliert
         fullyWheelchairAccessibleHighways.add(KEY_PEDESTRIAN); // fußgängerzone
@@ -213,7 +213,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         fullyWheelchairAccessibleHighways.add("tertiary_link"); // Kreisstraßenabfahrt
         fullyWheelchairAccessibleHighways.add("road"); // neue Straße, Klassifizierung bisher unklar
 
-        assumedWheelchairAccessibleHighways.add("trunk"); // Schnellstraße 
+        assumedWheelchairAccessibleHighways.add("trunk"); // Schnellstraße
         assumedWheelchairAccessibleHighways.add("trunk_link"); // Schnellstraßenabfahrt
         assumedWheelchairAccessibleHighways.add("primary"); // Bundesstraße
         assumedWheelchairAccessibleHighways.add("primary_link"); //Bundessstraßenabfahrt
@@ -224,7 +224,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         limitedWheelchairAccessibleHighways.add("path"); // Wanderweg
         limitedWheelchairAccessibleHighways.add("track"); // Feldweg
         limitedWheelchairAccessibleHighways.add(KEY_BRIDLEWAY); // Reitweg
-        
+
         // highways that are not suitable for wheelchair users
         nonWheelchairAccessibleHighways.add("steps"); // Treppen
         nonWheelchairAccessibleHighways.add("construction"); // Baustellen
@@ -286,7 +286,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     public double getMeanSpeed() {
         return MEAN_SPEED;
     }
-    
+
     /**
      * Some ways are okay but not separate for pedestrians.
      *
@@ -301,7 +301,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
 
     	String highwayValue = way.getTag(KEY_HIGHWAY);
         if (highwayValue == null) {
-        	
+
         	// ferries and shuttle_trains
             if (way.hasTag(KEY_ROUTE, ferries)) {
             	// check whether information on wheelchair accessbility is available
@@ -329,7 +329,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
             	}
             	return EncodingManager.Access.WAY;
             }
-            
+
             // public transport in general
             // railways (platform, station)
             if (way.hasTag("public_transport", acceptedPublicTransport) || way.hasTag("railway", acceptedPublicTransport)) {
@@ -398,29 +398,29 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 LOGGER.trace(String.format(DEBUG_MSG_SKIPPED, "wheelchair no, restricted or private", way.getId(), way.getTags().toString()));
         		return EncodingManager.Access.CAN_SKIP;
         	}
-        	
+
         	// do not include nonWheelchairAccessibleHighways
             if (nonWheelchairAccessibleHighways.contains(highwayValue)) {
             	// check for wheelchair accessibility
                 LOGGER.trace(String.format(DEBUG_MSG_SKIPPED, "in nonWheelchairAccessibleHighways list", way.getId(), way.getTags().toString()));
             	return EncodingManager.Access.CAN_SKIP;
             }
-        	
+
         	// foot=yes, designated, official, permissive, limited
         	if (way.hasTag("foot", intendedValues)) {
         		return EncodingManager.Access.WAY;
         	}
-        	
+
         	// foot=no, restricted, private
         	if (way.hasTag("foot", restrictedValues)) {
                 LOGGER.trace(String.format(DEBUG_MSG_SKIPPED, "pedestrian no, restricted or private", way.getId(), way.getTags().toString()));
         		return EncodingManager.Access.CAN_SKIP;
         	}
-        	
+
             if (way.hasTag(KEY_SIDEWALK, usableSidewalkValues)) {
             	return EncodingManager.Access.WAY;
             }
-            
+
             if (way.hasTag(KEY_SIDEWALK, noSidewalkValues) && assumedWheelchairAccessibleHighways.contains(highwayValue)) {
                 LOGGER.trace(String.format(DEBUG_MSG_SKIPPED, "in assumedWheelchairAccessibleHighways list with no sidewalks", way.getId(), way.getTags().toString()));
                 return EncodingManager.Access.CAN_SKIP;
@@ -463,14 +463,14 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         if (!access.isFerry()) {
         	// TODO: Depending on availability of sidewalk, surface, smoothness, tracktype and incline MEAN_SPEED or SLOW_SPEED should be encoded
         	// TODO: Maybe also implement AvoidFeaturesWeighting for Wheelchairs
-        	
+
         	// *****************************************  Runge
         	// This is a trick, where we try to underrate the speed for highways that do not have tagged sidewalks.
         	// TODO: this actually affects travel time estimation (might be a good or negative side effect depending on context)
         	double speed = MEAN_SPEED;
         	if (way.hasTag(KEY_HIGHWAY))
         	{
-        		
+
         		String highway = way.getTag(KEY_HIGHWAY);
         		if (assumedWheelchairAccessibleHighways.contains(highway) && !way.hasTag(KEY_SIDEWALK, usableSidewalkValues)) {
                     speed *= 0.8d;
@@ -516,15 +516,15 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
                 speed = 1d;
 
             // *****************************************
-        	
+
             avgSpeedEnc.setDecimal(false, edgeFlags, speed);
 
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
-            
+
             Integer priorityFromRelation = routeMap.get(footRouteEnc.getEnum(false, edgeFlags));
-            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation != null ? priorityFromRelation.intValue() : 0)));
-        } 
+            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(handlePriority(way, priorityFromRelation != null ? priorityFromRelation : 0)));
+        }
         else {
             double ferrySpeed = ferrySpeedCalc.getSpeed(way);
             setSpeed(false, edgeFlags, ferrySpeed);
@@ -558,7 +558,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     	// http://wiki.openstreetmap.org/wiki/DE:Key:traffic_calming
         String highwayValue = way.getTag(KEY_HIGHWAY);
         double maxSpeed = getMaxSpeed(way);
-        
+
         if (isValidSpeed(maxSpeed)) {
         	 if (maxSpeed > 50) {
              	negativeFeatures++;
@@ -569,7 +569,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
              		}
              	}
              }
-             
+
              if (maxSpeed <= 20) {
              	positiveFeatures+=1;
              }
@@ -612,7 +612,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         		negativeFeatures+=1;
         	}
         }
-        
+
         // do not rate foot features twice
         boolean isFootEvaluated = false;
         if (fullyWheelchairAccessibleHighways.contains(highwayValue)) {
@@ -625,7 +625,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         		negativeFeatures++;
         	}
         }
-        
+
         if (!isFootEvaluated) {
         	// key=sidewalk
         	if (way.hasTag(KEY_SIDEWALK, usableSidewalkValues)) {

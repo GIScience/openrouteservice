@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.instructions;
 
@@ -89,7 +89,7 @@ public class InstructionTranslator {
 		actionTurnName = resources.getTranslation("instructions.actions.turn.default.name");
 		actionRoundaboutDefault = resources.getTranslation("instructions.actions.roundabout.default.exit.default");
 		actionRoundaboutName = resources.getTranslation("instructions.actions.roundabout.default.exit.name");
-		
+
 		actionArriveDefault = new String[4];
 		actionArriveName = new String[4];
 		actionArriveDefault[0] = resources.getTranslation("instructions.actions.arrive.default.default");
@@ -105,14 +105,14 @@ public class InstructionTranslator {
 	public String getContinue(InstructionType type, String wayName) {
 		if (Helper.isEmpty(wayName))
 			return actionContinueDefault.replace(STR_TURN_MANEUVER,  turnManeuvers[getTurnManeuver(type)]);
-		else 
+		else
 			return actionContinueName.replace(STR_TURN_MANEUVER, turnManeuvers[getTurnManeuver(type)]).replace(STR_WAY_NAME, wayName);
 	}
 
 	public String getTurn(InstructionType type, String wayName) {
 		if (Helper.isEmpty(wayName))
 			return actionTurnDefault.replace(STR_TURN_MANEUVER,  turnManeuvers[getTurnManeuver(type)]);
-		else 
+		else
 			return actionTurnName.replace(STR_TURN_MANEUVER, turnManeuvers[getTurnManeuver(type)]).replace(STR_WAY_NAME, wayName);
 	}
 
@@ -150,14 +150,14 @@ public class InstructionTranslator {
 		}
 		if (isWayNull)
 			return str;
-		else 
+		else
 			return str.replace(STR_WAY_NAME, wayName);
 	}
 
 	public String getDepart(CardinalDirection direction, String wayName) {
 		if (Helper.isEmpty(wayName))
 			return actionDepartDefault.replace(STR_DIRECTION, directions[direction.ordinal()]);
-		else 
+		else
 			return actionDepartName.replace(STR_DIRECTION, directions[direction.ordinal()]).replace(STR_WAY_NAME, wayName);
 	}
 
@@ -185,32 +185,23 @@ public class InstructionTranslator {
 	public String getArrive(ArrivalDirection direction, String wayName) {
 		if (Helper.isEmpty(wayName))
 			return actionArriveDefault[direction.ordinal()];
-		else 
+		else
 			return actionArriveName[direction.ordinal()].replace(STR_WAY_NAME, wayName);
 	}
 
 	private int getTurnManeuver(InstructionType type) {
-	    switch (type){
-			default:
-            case TURN_LEFT:
-                return 0;
-            case TURN_RIGHT:
-                return 1;
-            case TURN_SHARP_LEFT:
-                return 2;
-            case TURN_SHARP_RIGHT:
-                return 3;
-            case TURN_SLIGHT_LEFT:
-                return 4;
-            case TURN_SLIGHT_RIGHT:
-                return 5;
-            case CONTINUE:
-                return 6;
-            case KEEP_LEFT:
-                return 8;
-            case KEEP_RIGHT:
-                return 9;
-        }
+		return switch (type) {
+			case TURN_LEFT -> 0;
+			case TURN_RIGHT -> 1;
+			case TURN_SHARP_LEFT -> 2;
+			case TURN_SHARP_RIGHT -> 3;
+			case TURN_SLIGHT_LEFT -> 4;
+			case TURN_SLIGHT_RIGHT -> 5;
+			case CONTINUE -> 6;
+			case KEEP_LEFT -> 8;
+			case KEEP_RIGHT -> 9;
+			default -> 0;
+		};
 		//TODO
 		//	_turnManeuvers[7] = _resources.getTranslation("instructions.turn_maneuvers.uturn")
 	}

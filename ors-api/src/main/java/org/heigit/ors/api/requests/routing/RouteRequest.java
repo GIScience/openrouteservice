@@ -966,16 +966,13 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     }
 
     private String convertGeometryFormat(APIEnums.RouteResponseType responseType) throws ParameterValueException {
-        switch (responseType) {
-            case GEOJSON:
-                return "geojson";
-            case JSON:
-                return "encodedpolyline";
-            case GPX:
-                return "gpx";
-            default:
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_FORMAT);
-        }
+        return switch (responseType) {
+            case GEOJSON -> "geojson";
+            case JSON -> "encodedpolyline";
+            case GPX -> "gpx";
+            default ->
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_FORMAT);
+        };
     }
 
     private Coordinate[] convertCoordinates(List<List<Double>> coordinates, boolean allowSingleCoordinate) throws ParameterValueException {
@@ -995,7 +992,7 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
             coords.add(convertSingleCoordinate(coord));
         }
 
-        return coords.toArray(new Coordinate[coords.size()]);
+        return coords.toArray(new Coordinate[0]);
     }
 
     private Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {

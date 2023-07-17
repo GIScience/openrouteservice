@@ -32,8 +32,10 @@ public class RequestProfileParamsWeightings {
     private static final String PARAM_CSV_COLUMN = "csv_column";
     public static final String PARAM_SHADOW_INDEX = "shadow";
 
-    @Schema(name= PARAM_STEEPNESS_DIFFICULTY, description = "Specifies the fitness level for `cycling-*` profiles.\n" +
-            "\n level: 0 = Novice, 1 = Moderate, 2 = Amateur, 3 = Pro. The prefered gradient increases with level.",
+    @Schema(name= PARAM_STEEPNESS_DIFFICULTY, description = """
+            Specifies the fitness level for `cycling-*` profiles.
+
+             level: 0 = Novice, 1 = Moderate, 2 = Amateur, 3 = Pro. The prefered gradient increases with level.""",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "cycling-*")}
@@ -43,8 +45,10 @@ public class RequestProfileParamsWeightings {
     @JsonIgnore
     private boolean hasSteepnessDifficulty = false;
 
-    @Schema(name= PARAM_GREEN_INDEX, description = "Specifies the Green factor for `foot-*` profiles.\n" +
-            "\nfactor: Multiplication factor range from 0 to 1. 0 is the green routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer ways through green areas over a shorter route.",
+    @Schema(name= PARAM_GREEN_INDEX, description = """
+            Specifies the Green factor for `foot-*` profiles.
+
+            factor: Multiplication factor range from 0 to 1. 0 is the green routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer ways through green areas over a shorter route.""",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "foot-*")}
@@ -54,8 +58,10 @@ public class RequestProfileParamsWeightings {
     @JsonIgnore
     private boolean hasGreenIndex = false;
 
-    @Schema(name= PARAM_QUIETNESS, description = "Specifies the Quiet factor for foot-* profiles.\n" +
-            "\nfactor: Multiplication factor range from 0 to 1. 0 is the quiet routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer quiet ways over a shorter route.",
+    @Schema(name= PARAM_QUIETNESS, description = """
+            Specifies the Quiet factor for foot-* profiles.
+
+            factor: Multiplication factor range from 0 to 1. 0 is the quiet routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer quiet ways over a shorter route.""",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "foot-*")}
@@ -75,8 +81,10 @@ public class RequestProfileParamsWeightings {
     @JsonIgnore
     private boolean hasCsv = false;
 
-    @Schema(name= PARAM_SHADOW_INDEX, description = "Specifies the shadow factor for `foot-*` profiles.\n" +
-            "\nfactor: Multiplication factor range from 0 to 1. 0 is the shadow routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer ways through shadow areas over a shorter route.",
+    @Schema(name= PARAM_SHADOW_INDEX, description = """
+            Specifies the shadow factor for `foot-*` profiles.
+
+            factor: Multiplication factor range from 0 to 1. 0 is the shadow routing base factor without multiplying it by the manual factor and is already different from normal routing. 1 will prefer ways through shadow areas over a shorter route.""",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "foot-*")}

@@ -1,5 +1,5 @@
 {
-	default: 
+	"default":
 	{
 		"motorway": 21,
 		"motorway_link": 21,
@@ -23,9 +23,9 @@
 		"pedestrian": 6,
 		"steps": 2
 	},
-	surface:
+	"surface":
 	{
-		"asphalt": 21, 
+		"asphalt": 21,
 		"cobblestone": 9,
 		"cobblestone:flattened": 11,
 		"concrete": 21,
@@ -42,7 +42,7 @@
 		"gravel": 13,
 		"ground": 13,
 		"ice":  2,
-		"metal": 11, 
+		"metal": 11,
 		"mud":  11,
 		"paved": 21,
 		"paving_stones": 13,
@@ -55,7 +55,7 @@
 		"unknown" : 6,
 		"wood": 7
 	},
-	tracktype:
+	"tracktype":
 	{
 		"grade1": 21,
 		"grade2": 15,

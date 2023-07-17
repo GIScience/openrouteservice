@@ -135,7 +135,7 @@ public class IsochronesServiceSettings {
                 String[] profiles = cfgObj.toConfig().getString("profiles").split(",");
                 for (String profileStr : profiles) {
                     profileStr = profileStr.trim();
-                    Integer profile = ("any".equalsIgnoreCase(profileStr)) ? -1 : RoutingProfileType.getFromString(profileStr);
+                    int profile = ("any".equalsIgnoreCase(profileStr)) ? -1 : RoutingProfileType.getFromString(profileStr);
                     if (profile != RoutingProfileType.UNKNOWN)
                         result.put(profile, cfgObj.toConfig().getInt("value"));
                 }

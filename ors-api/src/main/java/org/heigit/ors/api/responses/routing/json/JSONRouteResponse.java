@@ -38,7 +38,7 @@ public class JSONRouteResponse extends RouteResponse {
     public JSONRouteResponse(RouteResult[] routeResults, RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) throws StatusCodeException {
         super(request, systemMessageProperties, endpointsProperties);
 
-        this.routeResults = new ArrayList<IndividualRouteResponse>();
+        this.routeResults = new ArrayList<>();
 
         List<BBox> bboxes = new ArrayList<>();
         for(RouteResult result : routeResults) {
@@ -47,14 +47,14 @@ public class JSONRouteResponse extends RouteResponse {
             responseInformation.setGraphDate(result.getGraphDate());
         }
 
-        BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[bboxes.size()]));
+        BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[0]));
         bbox = BoundingBoxFactory.constructBoundingBox(bounding, request);
     }
 
     @JsonProperty("routes")
     @Schema(description = "A list of routes returned from the request")
     public JSONIndividualRouteResponse[] getRoutes() {
-        return (JSONIndividualRouteResponse[]) routeResults.toArray(new JSONIndividualRouteResponse[routeResults.size()]);
+        return (JSONIndividualRouteResponse[]) routeResults.toArray(new JSONIndividualRouteResponse[0]);
     }
 
     @JsonProperty("bbox")

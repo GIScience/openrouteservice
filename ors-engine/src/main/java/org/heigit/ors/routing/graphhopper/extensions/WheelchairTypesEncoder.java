@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class WheelchairTypesEncoder {
-	
+
 	// surface
 	// =======
 	// http://wiki.openstreetmap.org/wiki/DE:Key:surface
@@ -89,7 +89,7 @@ public final class WheelchairTypesEncoder {
         SURFACE_MAP.put("wood", SURFACE_UNPAVED_WOOD);
         SURFACE_MAP.put("woodchips", SURFACE_UNPAVED_WOODCHIPS);
     }
-	
+
     // smoothness
     // ==========
 	// http://wiki.openstreetmap.org/wiki/DE:Key:smoothness
@@ -104,8 +104,7 @@ public final class WheelchairTypesEncoder {
     private static final int SMOOTHNESS_HORRIBLE = 6;
     private static final int SMOOTHNESS_VERY_HORRIBLE = 7;
     private static final int SMOOTHNESS_IMPASSABLE = 8;
-	
-    @SuppressWarnings("serial")
+
 	private static final HashMap<String, Integer> SMOOTHNESS_MAP = new HashMap<>();
     static {
         SMOOTHNESS_MAP.put("excellent", SMOOTHNESS_EXCELLENT);
@@ -118,7 +117,7 @@ public final class WheelchairTypesEncoder {
         SMOOTHNESS_MAP.put("impassable", SMOOTHNESS_IMPASSABLE);
     }
 
-    
+
     // tracktype
 	// =========
 	// http://wiki.openstreetmap.org/wiki/Key:tracktype
@@ -130,8 +129,7 @@ public final class WheelchairTypesEncoder {
     private static final int TRACKTYPE_GRADE3 = 3;
     private static final int TRACKTYPE_GRADE4 = 4;
     private static final int TRACKTYPE_GRADE5 = 5;
-	
-	@SuppressWarnings("serial")
+
 	private static final HashMap<String, Integer> TRACKTYPE_MAP = new HashMap<>();
 	static {
         TRACKTYPE_MAP.put("grade1", TRACKTYPE_GRADE1);
@@ -142,7 +140,7 @@ public final class WheelchairTypesEncoder {
     }
 
     private WheelchairTypesEncoder() {}
-    
+
     public static int getSurfaceType(String value) {
     	if ("any".equalsIgnoreCase(value))
     		return 0;
@@ -151,18 +149,18 @@ public final class WheelchairTypesEncoder {
     }
 
     public static int getEncodedType(WheelchairAttributes.Attribute attribute, String value) throws Exception {
-        switch(attribute) {
-            case SMOOTHNESS: return getSmoothnessType(APIEnums.SmoothnessTypes.forValue(value));
-            case SURFACE: return getSurfaceType(value);
-            case TRACK: return getTrackType(value);
-            default: throw new Exception("Attribute is not a recognised encoded type");
-        }
+        return switch (attribute) {
+            case SMOOTHNESS -> getSmoothnessType(APIEnums.SmoothnessTypes.forValue(value));
+            case SURFACE -> getSurfaceType(value);
+            case TRACK -> getTrackType(value);
+            default -> throw new Exception("Attribute is not a recognised encoded type");
+        };
     }
-    
+
     public static int getSmoothnessType(APIEnums.SmoothnessTypes smoothnessType) {
     	return SMOOTHNESS_MAP.getOrDefault(smoothnessType.toString(), -1);
     }
-    
+
     public static int getTrackType(String value) {
     	return TRACKTYPE_MAP.getOrDefault(value, -1);
     }

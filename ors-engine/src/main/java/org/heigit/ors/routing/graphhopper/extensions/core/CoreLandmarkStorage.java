@@ -331,8 +331,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         // The graph uses a turn cost based weighting, though, which is not allowed for LM distance calculation.
         @Override
         protected double calcWeight(RoutingCHEdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-            double edgeWeight = edgeState.getWeight(reverse);
-            return edgeWeight;
+            return edgeState.getWeight(reverse);
         }
 
         @Override
@@ -360,25 +359,22 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
             final AtomicBoolean failed = new AtomicBoolean(false);
             IntObjectMap<SPTEntry> map = reverse ? bestWeightMapTo : bestWeightMapFrom;
-            map.forEach(new IntObjectPredicate<SPTEntry>() {
-                @Override
-                public boolean apply(int nodeId, SPTEntry value) {
-                    nodeId = getIndex(nodeId);
-                    int sn = subnetworks[nodeId];
-                    if (sn != subnetworkId) {
-                        if (sn != UNSET_SUBNETWORK && sn != UNCLEAR_SUBNETWORK) {
-                            // this is ugly but can happen in real world, see testWithOnewaySubnetworks
-                            logger.error("subnetworkId for node " + nodeId
-                            + " (" + createPoint(graph.getBaseGraph(), nodeId) + ") already set (" + sn + "). " + "Cannot change to " + subnetworkId);
+            map.forEach((IntObjectPredicate<SPTEntry>) (nodeId, value) -> {
+                nodeId = getIndex(nodeId);
+                int sn = subnetworks[nodeId];
+                if (sn != subnetworkId) {
+                    if (sn != UNSET_SUBNETWORK && sn != UNCLEAR_SUBNETWORK) {
+                        // this is ugly but can happen in real world, see testWithOnewaySubnetworks
+                        logger.error("subnetworkId for node " + nodeId
+                        + " (" + createPoint(graph.getBaseGraph(), nodeId) + ") already set (" + sn + "). " + "Cannot change to " + subnetworkId);
 
-                            failed.set(true);
-                            return false;
-                        }
-
-                        subnetworks[nodeId] = (byte) subnetworkId;
+                        failed.set(true);
+                        return false;
                     }
-                    return true;
+
+                    subnetworks[nodeId] = (byte) subnetworkId;
                 }
+                return true;
             });
             return failed.get();
         }
@@ -389,14 +385,11 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             final AtomicInteger maxedout = new AtomicInteger(0);
             final Map.Entry<Double, Double> finalMaxWeight = new MapEntry<>(0d, 0d);
 
-            map.forEach(new IntObjectProcedure<SPTEntry>() {
-                @Override
-                public void apply(int nodeId, SPTEntry b) {
-                    nodeId = getIndex(nodeId);
-                    if (!setWeight(nodeId * rowSize + lmIdx * 4 + offset, b.weight)) {
-                        maxedout.incrementAndGet();
-                        finalMaxWeight.setValue(Math.max(b.weight, finalMaxWeight.getValue()));
-                    }
+            map.forEach((IntObjectProcedure<SPTEntry>) (nodeId, b) -> {
+                nodeId = getIndex(nodeId);
+                if (!setWeight(nodeId * rowSize + lmIdx * 4 + offset, b.weight)) {
+                    maxedout.incrementAndGet();
+                    finalMaxWeight.setValue(Math.max(b.weight, finalMaxWeight.getValue()));
                 }
             });
 

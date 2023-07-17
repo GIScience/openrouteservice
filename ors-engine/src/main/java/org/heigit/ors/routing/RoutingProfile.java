@@ -361,8 +361,8 @@ public class RoutingProfile {
                     if (prepareCore) {
                         if (coreOpts.hasPath(KEY_THREADS)) {
                             String [] threads = coreOpts.getString(KEY_THREADS).split(",");
-                            int threadsCH = Integer.valueOf(threads[0]);
-                            int threadsLM = threads.length > 1 ? Integer.valueOf(threads[1]) : threadsCH;
+                            int threadsCH = Integer.parseInt(threads[0]);
+                            int threadsLM = threads.length > 1 ? Integer.parseInt(threads[1]) : threadsCH;
                             ghConfig.putObject("prepare.core.threads", threadsCH);
                             ghConfig.putObject("prepare.corelm.threads", threadsLM);
                         }
@@ -667,8 +667,7 @@ public class RoutingProfile {
 
         RPHASTMatrixAlgorithm algorithm = new RPHASTMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, routingCHGraph.getWeighting());
-        MatrixResult matrixResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-        return matrixResult;
+        return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
     }
 
     /**
@@ -688,8 +687,7 @@ public class RoutingProfile {
 
         CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, weighting, edgeFilter);
-        MatrixResult matrixResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-        return matrixResult;
+        return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
     }
 
     /**
@@ -711,8 +709,7 @@ public class RoutingProfile {
 
         DijkstraMatrixAlgorithm algorithm = new DijkstraMatrixAlgorithm();
         algorithm.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-        MatrixResult matrixResult = algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-        return matrixResult;
+        return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
     }
 
      public ExportResult computeExport(ExportRequest req) throws Exception {

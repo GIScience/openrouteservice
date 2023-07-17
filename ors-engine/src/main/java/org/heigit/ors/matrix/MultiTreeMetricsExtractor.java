@@ -291,7 +291,7 @@ public class MultiTreeMetricsExtractor {
         }
     }
 
-    private class MetricsItem {
+    private static class MetricsItem {
         private double time;
         private double distance;
         private double weight;

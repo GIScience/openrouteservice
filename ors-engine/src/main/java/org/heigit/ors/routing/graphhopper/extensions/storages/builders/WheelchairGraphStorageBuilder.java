@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
@@ -149,16 +149,12 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * @return		The WheelchairAttributes object containing the inofrmation for the specified side
 	 */
 	public WheelchairAttributes getStoredAttributes(Side side) {
-		switch (side) {
-			case LEFT:
-				return wheelchairAttributesLeftSide;
-			case RIGHT:
-				return wheelchairAttributesRightSide;
-			case NONE:
-				return wheelchairAttributes;
-			default:
-				return null;
-		}
+		return switch (side) {
+			case LEFT -> wheelchairAttributesLeftSide;
+			case RIGHT -> wheelchairAttributesRightSide;
+			case NONE -> wheelchairAttributes;
+			default -> null;
+		};
 	}
 
 	/**
@@ -259,17 +255,14 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		if (way.hasTag("sidewalk")) {
 			String sw = way.getTag("sidewalk");
 			switch (sw) {
-				case SW_VAL_LEFT:
-					hasLeftSidewalk = true;
-					break;
-				case SW_VAL_RIGHT:
-					hasRightSidewalk = true;
-					break;
-				case KEY_BOTH:
+				case SW_VAL_LEFT -> hasLeftSidewalk = true;
+				case SW_VAL_RIGHT -> hasRightSidewalk = true;
+				case KEY_BOTH -> {
 					hasLeftSidewalk = true;
 					hasRightSidewalk = true;
-					break;
-				default:
+				}
+				default -> {
+				}
 			}
 		}
 	}
@@ -281,15 +274,15 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * @return			The OSM tag key that corresponds to the attribute
 	 */
 	private String attributeToTagName(WheelchairAttributes.Attribute attribute) {
-		switch(attribute) {
-			case SURFACE: return "surface";
-			case SMOOTHNESS: return "smoothness";
-			case TRACK: return "tracktype";
-			case WIDTH: return "width";
-			case INCLINE: return "incline";
-			case KERB: return "kerb";
-			default: return "";
-		}
+		return switch (attribute) {
+			case SURFACE -> "surface";
+			case SMOOTHNESS -> "smoothness";
+			case TRACK -> "tracktype";
+			case WIDTH -> "width";
+			case INCLINE -> "incline";
+			case KERB -> "kerb";
+			default -> "";
+		};
 	}
 
 	/**
@@ -300,16 +293,17 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 	 * @param side			The sidewalk the attribute is for
 	 */
 	private void setSidewalkAttributeForSide(String value, WheelchairAttributes.Attribute attribute, Side side) {
-		switch(side) {
-			case LEFT:
+		switch (side) {
+			case LEFT -> {
 				hasLeftSidewalk = true;
 				wheelchairAttributesLeftSide.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value), true);
-				break;
-			case RIGHT:
+			}
+			case RIGHT -> {
 				hasRightSidewalk = true;
 				wheelchairAttributesRightSide.setAttribute(attribute, convertTagValueToEncodedValue(attribute, value), true);
-				break;
-			default:
+			}
+			default -> {
+			}
 		}
 	}
 
@@ -609,16 +603,11 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 			Map<String, String> tags = entry.getValue();
 			for (Map.Entry<String,String> tag : tags.entrySet()) {
 				switch (tag.getKey()) {
-					case KEY_SLOPED_CURB:
-					case "curb":
-					case "kerb":
-					case KEY_SLOPED_KERB:
-						assumedKerbHeights.add(convertKerbTagValueToCentimetres(tag.getValue()));
-						break;
-					case KEY_KERB_HEIGHT:
-						explicitKerbHeights.add(convertKerbTagValueToCentimetres(tag.getValue()));
-						break;
-					default:
+					case KEY_SLOPED_CURB, "curb", "kerb", KEY_SLOPED_KERB ->
+							assumedKerbHeights.add(convertKerbTagValueToCentimetres(tag.getValue()));
+					case KEY_KERB_HEIGHT -> explicitKerbHeights.add(convertKerbTagValueToCentimetres(tag.getValue()));
+					default -> {
+					}
 				}
 			}
 		}
@@ -687,14 +676,11 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		WheelchairAttributes at = wheelchairAttributes.copy();
 
 		// Now get the specific items
-		switch(side) {
-			case SW_VAL_LEFT:
-				at = at.merge(wheelchairAttributesLeftSide);
-				break;
-			case SW_VAL_RIGHT:
-				at = at.merge(wheelchairAttributesRightSide);
-				break;
-			default:
+		switch (side) {
+			case SW_VAL_LEFT -> at = at.merge(wheelchairAttributesLeftSide);
+			case SW_VAL_RIGHT -> at = at.merge(wheelchairAttributesRightSide);
+			default -> {
+			}
 		}
 		return at;
 	}
@@ -712,36 +698,20 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
 		if (value == null) {
 			return -1;
 		}
-		switch(value) {
-			case "yes":
-			case KEY_BOTH:
-			case "low":
-			case "lowered":
-			case "dropped":
-			case "sloped":
-				centimetreHeight = 3;
-				break;
-			case "no":
-			case "none":
-			case "one":
-			case "rolled":
-			case "regular":
-				centimetreHeight = 15;
-				break;
-			case "at_grade":
-			case "flush":
-				centimetreHeight = 0;
-				break;
-			default:
+		switch (value) {
+			case "yes", KEY_BOTH, "low", "lowered", "dropped", "sloped" -> centimetreHeight = 3;
+			case "no", "none", "one", "rolled", "regular" -> centimetreHeight = 15;
+			case "at_grade", "flush" -> centimetreHeight = 0;
+			default -> {
 				double metresHeight = UnitsConverter.convertOSMDistanceTagToMeters(value);
 				// If no unit was given in the tag, the value might be in meters or centimeters; we can only guess
 				// depending on the value
 				if (metresHeight < 0.15) {
-					centimetreHeight = (int)(metresHeight*100);
+					centimetreHeight = (int) (metresHeight * 100);
 				} else {
-					centimetreHeight = (int)metresHeight;
+					centimetreHeight = (int) metresHeight;
 				}
-				break;
+			}
 		}
 
 		return centimetreHeight;

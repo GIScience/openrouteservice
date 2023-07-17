@@ -478,7 +478,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             return routeSegmentInfo;
     }
 
-    private class setTaskName {
+    private static class setTaskName {
         public setTaskName(String matchingHereLinks) {
         }
     }

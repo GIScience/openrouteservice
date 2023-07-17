@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing;
 
@@ -47,52 +47,23 @@ public class RouteExtraInfoFlag {
         String[] values = value.split("\\|");
         for (String s : values) {
             switch (s.toLowerCase()) {
-                case "steepness":
-                    res |= STEEPNESS;
-                    break;
-                case "surface":
-                    res |= SURFACE;
-                    break;
-                case "waytype":
-                    res |= WAY_TYPE;
-                    break;
-                case "waycategory":
-                    res |= WAY_CATEGORY;
-                    break;
-                case "suitability":
-                    res |= SUITABILITY;
-                    break;
-                case "green":
-                    res |= GREEN;
-                    break;
-                case "noise":
-                    res |= NOISE;
-                    break;
-                case "avgspeed":
-                    res |= AVG_SPEED;
-                    break;
-                case "tollways":
-                    res |= TOLLWAYS;
-                    break;
-                case "traildifficulty":
-                    res |= TRAIL_DIFFICULTY;
-                    break;
-                case "osmid":
-                    res |= OSM_ID;
-                    break;
-                case "roadaccessrestrictions":
-                    res |= ROAD_ACCESS_RESTRICTIONS;
-                    break;
-                case "countryinfo":
-                    res |= COUNTRY_INFO;
-                    break;
-                case "csv":
-                    res |= CSV;
-                    break;
-                case "shadow":
-                    res |= SHADOW;
-                    break;
-                default:
+                case "steepness" -> res |= STEEPNESS;
+                case "surface" -> res |= SURFACE;
+                case "waytype" -> res |= WAY_TYPE;
+                case "waycategory" -> res |= WAY_CATEGORY;
+                case "suitability" -> res |= SUITABILITY;
+                case "green" -> res |= GREEN;
+                case "noise" -> res |= NOISE;
+                case "avgspeed" -> res |= AVG_SPEED;
+                case "tollways" -> res |= TOLLWAYS;
+                case "traildifficulty" -> res |= TRAIL_DIFFICULTY;
+                case "osmid" -> res |= OSM_ID;
+                case "roadaccessrestrictions" -> res |= ROAD_ACCESS_RESTRICTIONS;
+                case "countryinfo" -> res |= COUNTRY_INFO;
+                case "csv" -> res |= CSV;
+                case "shadow" -> res |= SHADOW;
+                default -> {
+                }
             }
         }
         return res;

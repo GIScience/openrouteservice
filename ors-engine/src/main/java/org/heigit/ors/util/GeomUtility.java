@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.util;
 
@@ -33,7 +33,7 @@ import org.opengis.referencing.operation.TransformException;
 public class GeomUtility {
 
 	private static final GeometryFactory geometryFactory = new GeometryFactory();
-	
+
 	private static MathTransform transformWgs84Sphericalmercator = null;// CRS.findMathTransform(DefaultGeographicCRS.WGS84,
 
 	private GeomUtility() {}
@@ -110,11 +110,10 @@ public class GeomUtility {
 	}
 
 	public static double getLength(Geometry geom, boolean inMeters) throws Exception {
-		if (!(geom instanceof LineString))
+		if (!(geom instanceof LineString ls))
 			throw new Exception("Specified geometry type is not supported.");
 
-		LineString ls = (LineString)geom;
-		if (ls.getNumPoints() == 0)
+        if (ls.getNumPoints() == 0)
 			return 0.0;
 
 		if (inMeters) {
@@ -142,14 +141,12 @@ public class GeomUtility {
 	public static double getArea(Geometry geom, boolean inMeters) throws InternalServerException {
 		try {
 			if (inMeters) {
-				if (geom instanceof Polygon) {
+				if (geom instanceof Polygon poly) {
 
 					// https://gis.stackexchange.com/questions/265481/geotools-unexpected-result-reprojecting-bounding-box-to-epsg3035
 					System.setProperty("org.geotools.referencing.forceXY", "true");
 
-					Polygon poly = (Polygon) geom;
-
-					CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
+                    CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
 
 					String mollweideProj = "PROJCS[\"World_Mollweide\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"WGS_1984\",SPHEROID[\"WGS_1984\",6378137,298.257223563]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Mollweide\"],PARAMETER[\"False_Easting\",0],PARAMETER[\"False_Northing\",0],PARAMETER[\"Central_Meridian\",0],UNIT[\"Meter\",1],AUTHORITY[\"EPSG\",\"54009\"]]";
 

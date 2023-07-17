@@ -393,8 +393,7 @@ public class RouteSearchParameters {
 
             if (geom instanceof Polygon) {
                 avoidAreas = new Polygon[]{(Polygon) geom};
-            } else if (geom instanceof MultiPolygon) {
-                MultiPolygon multiPoly = (MultiPolygon) geom;
+            } else if (geom instanceof MultiPolygon multiPoly) {
                 avoidAreas = new Polygon[multiPoly.getNumGeometries()];
                 for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                     avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);

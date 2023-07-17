@@ -1,14 +1,14 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing;
@@ -28,35 +28,24 @@ public class AvoidFeatureFlags {
 	private AvoidFeatureFlags() {}
 
 	public static int getFromString(String value) {
-		switch(value.toLowerCase()) {
-			case "highways":
-				return HIGHWAYS;
-			case "tollways":
-				return TOLLWAYS;
-			case "ferries":
-				return FERRIES;
-			case "steps":
-				return STEPS;
-			case "fords":
-				return FORDS;
-			default:
-				return 0;
-		}
+		return switch (value.toLowerCase()) {
+			case "highways" -> HIGHWAYS;
+			case "tollways" -> TOLLWAYS;
+			case "ferries" -> FERRIES;
+			case "steps" -> STEPS;
+			case "fords" -> FORDS;
+			default -> 0;
+		};
 	}
 
 	public static int getProfileFlags(int profileCategory) {
-		switch(profileCategory) {
-			case RoutingProfileCategory.DRIVING:
-				return DRIVING_FEATURES;
-			case RoutingProfileCategory.CYCLING:
-				return CYCLING_FEATURES;
-			case RoutingProfileCategory.WALKING:
-				return WALKING_FEATURES;
-			case RoutingProfileCategory.WHEELCHAIR:
-				return WHEELCHAIR_FEATURES;
-			default:
-				return RoutingProfileCategory.UNKNOWN;
-		}
+		return switch (profileCategory) {
+			case RoutingProfileCategory.DRIVING -> DRIVING_FEATURES;
+			case RoutingProfileCategory.CYCLING -> CYCLING_FEATURES;
+			case RoutingProfileCategory.WALKING -> WALKING_FEATURES;
+			case RoutingProfileCategory.WHEELCHAIR -> WHEELCHAIR_FEATURES;
+			default -> RoutingProfileCategory.UNKNOWN;
+		};
 	}
 
 	public static boolean isValid(int profileType, int value) {

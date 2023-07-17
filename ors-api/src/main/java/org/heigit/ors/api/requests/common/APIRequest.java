@@ -98,14 +98,11 @@ public class APIRequest {
 
     protected static BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
         if (avoidBorders != null) {
-            switch (avoidBorders) {
-                case ALL:
-                    return BordersExtractor.Avoid.ALL;
-                case CONTROLLED:
-                    return BordersExtractor.Avoid.CONTROLLED;
-                default:
-                    return BordersExtractor.Avoid.NONE;
-            }
+            return switch (avoidBorders) {
+                case ALL -> BordersExtractor.Avoid.ALL;
+                case CONTROLLED -> BordersExtractor.Avoid.CONTROLLED;
+                default -> BordersExtractor.Avoid.NONE;
+            };
         }
         return null;
     }
@@ -138,8 +135,7 @@ public class APIRequest {
 
         if (convertedGeom instanceof Polygon) {
             avoidAreas = new Polygon[]{(Polygon) convertedGeom};
-        } else if (convertedGeom instanceof MultiPolygon) {
-            MultiPolygon multiPoly = (MultiPolygon) convertedGeom;
+        } else if (convertedGeom instanceof MultiPolygon multiPoly) {
             avoidAreas = new Polygon[multiPoly.getNumGeometries()];
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);

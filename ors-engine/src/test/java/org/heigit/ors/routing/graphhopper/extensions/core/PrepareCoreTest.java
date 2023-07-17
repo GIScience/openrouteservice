@@ -538,7 +538,7 @@ public class PrepareCoreTest {
         assertNotEquals(new Shortcut(1, 2, 3.0), new Shortcut(1, 2, 3.5));
     }
 
-    private class Shortcut {
+    private static class Shortcut {
         int first;
         int second;
         double weight;
@@ -551,8 +551,7 @@ public class PrepareCoreTest {
 
         @Override
         public boolean equals(Object o) {
-            if (o instanceof Shortcut) {
-                Shortcut s = (Shortcut) o;
+            if (o instanceof Shortcut s) {
                 return this.first == s.first && this.second == s.second && this.weight == s.weight;
             }
             return false;

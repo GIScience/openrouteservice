@@ -261,7 +261,7 @@ class ResultTest extends ServiceTest {
         for (int i = 0; i < doc_length; i++) {
             String item = doc.getDocumentElement().getChildNodes().item(i).getNodeName();
             switch (item) {
-                case "metadata":
+                case "metadata" -> {
                     gpxMetadata = true;
                     NodeList metadataChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
                     int metadataSize = metadataChildren.getLength();
@@ -275,14 +275,12 @@ class ResultTest extends ServiceTest {
                     for (int j = 0; j < metadataSize; j++) {
                         Node metadataItem = metadataChildren.item(j);
                         switch (metadataItem.getNodeName()) {
-                            case "name":
+                            case "name" -> {
                                 metadataName = true;
                                 gpxMetadataNode = metadataItem;
-                                break;
-                            case "desc":
-                                metadataDescription = true;
-                                break;
-                            case "author":
+                            }
+                            case "desc" -> metadataDescription = true;
+                            case "author" -> {
                                 metadataAuthor = true;
                                 NodeList authorChildren = metadataChildren.item(j).getChildNodes();
                                 int authorLength = authorChildren.getLength();
@@ -292,13 +290,9 @@ class ResultTest extends ServiceTest {
                                 for (int k = 0; k < authorLength; k++) {
                                     Node authorItem = authorChildren.item(k);
                                     switch (authorItem.getNodeName()) {
-                                        case "name":
-                                            authorName = true;
-                                            break;
-                                        case "email":
-                                            authorEmail = true;
-                                            break;
-                                        case "link":
+                                        case "name" -> authorName = true;
+                                        case "email" -> authorEmail = true;
+                                        case "link" -> {
                                             authorLink = true;
                                             NodeList linkChildren = authorChildren.item(k).getChildNodes();
                                             int linkLength = linkChildren.getLength();
@@ -307,23 +301,20 @@ class ResultTest extends ServiceTest {
                                             for (int l = 0; l < linkLength; l++) {
                                                 Node linkItem = linkChildren.item(l);
                                                 switch (linkItem.getNodeName()) {
-                                                    case "text":
-                                                        linkText = true;
-                                                        break;
-                                                    case "type":
-                                                        linkType = true;
+                                                    case "text" -> linkText = true;
+                                                    case "type" -> linkType = true;
                                                 }
                                             }
                                             assertTrue(linkText);
                                             assertTrue(linkType);
-                                            break;
+                                        }
                                     }
                                 }
                                 assertTrue(authorName);
                                 assertTrue(authorEmail);
                                 assertTrue(authorLink);
-                                break;
-                            case "copyright":
+                            }
+                            case "copyright" -> {
                                 metadataCopyright = true;
                                 NodeList copyrightChildren = metadataChildren.item(j).getChildNodes();
                                 int copyrightLength = copyrightChildren.getLength();
@@ -332,21 +323,15 @@ class ResultTest extends ServiceTest {
                                 for (int k = 0; k < copyrightLength; k++) {
                                     Node copyrightItem = copyrightChildren.item(k);
                                     switch (copyrightItem.getNodeName()) {
-                                        case "year":
-                                            copyrightYear = true;
-                                            break;
-                                        case "license":
-                                            copyrightLicense = true;
-                                            break;
+                                        case "year" -> copyrightYear = true;
+                                        case "license" -> copyrightLicense = true;
                                     }
                                 }
                                 assertTrue(copyrightYear);
                                 assertTrue(copyrightLicense);
-                                break;
-                            case "time":
-                                metadataTime = true;
-                                break;
-                            case "extensions":
+                            }
+                            case "time" -> metadataTime = true;
+                            case "extensions" -> {
                                 metadataExtensions = true;
                                 int metadataExtensionsLength = metadataItem.getChildNodes().getLength();
                                 boolean metadataExtensionsSystemMessage = false;
@@ -357,10 +342,8 @@ class ResultTest extends ServiceTest {
                                     }
                                 }
                                 assertTrue(metadataExtensionsSystemMessage);
-                                break;
-                            case "bounds":
-                                metadataBounds = true;
-                                break;
+                            }
+                            case "bounds" -> metadataBounds = true;
                         }
                     }
                     assertTrue(metadataName);
@@ -371,8 +354,8 @@ class ResultTest extends ServiceTest {
                     assertTrue(metadataTime);
                     assertTrue(metadataBounds);
                     assertTrue(metadataExtensions);
-                    break;
-                case "rte":
+                }
+                case "rte" -> {
                     gpxRte = true;
                     NodeList rteChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
                     int rteSize = rteChildren.getLength();
@@ -381,7 +364,7 @@ class ResultTest extends ServiceTest {
                     for (int j = 0; j < rteSize; j++) {
                         Node rteElement = rteChildren.item(j);
                         switch (rteElement.getNodeName()) {
-                            case "rtept":
+                            case "rtept" -> {
                                 rtept = true;
                                 if (instructions) {
                                     int rteptLength = rteElement.getChildNodes().getLength();
@@ -391,13 +374,9 @@ class ResultTest extends ServiceTest {
                                     for (int k = 0; k < rteptLength; k++) {
                                         Node rteptElement = rteElement.getChildNodes().item(k);
                                         switch (rteptElement.getNodeName()) {
-                                            case "name":
-                                                rteptName = true;
-                                                break;
-                                            case "desc":
-                                                rteptDescription = true;
-                                                break;
-                                            case "extensions":
+                                            case "name" -> rteptName = true;
+                                            case "desc" -> rteptDescription = true;
+                                            case "extensions" -> {
                                                 rteptextensions = true;
                                                 int rteptExtensionLength = rteptElement.getChildNodes().getLength();
                                                 boolean distance = false;
@@ -407,32 +386,25 @@ class ResultTest extends ServiceTest {
                                                 for (int l = 0; l < rteptExtensionLength; l++) {
                                                     Node rteptExtensionElement = rteptElement.getChildNodes().item(l);
                                                     switch (rteptExtensionElement.getNodeName()) {
-                                                        case "distance":
-                                                            distance = true;
-                                                            break;
-                                                        case "duration":
-                                                            duration = true;
-                                                            break;
-                                                        case "type":
-                                                            type = true;
-                                                            break;
-                                                        case "step":
-                                                            step = true;
-                                                            break;
+                                                        case "distance" -> distance = true;
+                                                        case "duration" -> duration = true;
+                                                        case "type" -> type = true;
+                                                        case "step" -> step = true;
                                                     }
                                                 }
                                                 assertTrue(distance);
                                                 assertTrue(duration);
                                                 assertTrue(type);
                                                 assertTrue(step);
+                                            }
                                         }
                                     }
                                     assertTrue(rteptName);
                                     assertTrue(rteptDescription);
                                     assertTrue(rteptextensions);
                                 }
-                                break;
-                            case "extensions":
+                            }
+                            case "extensions" -> {
                                 routeExtension = true;
                                 int rteExtensionsLength = rteElement.getChildNodes().getLength();
                                 boolean rteExtensionsDistance = false;
@@ -444,24 +416,12 @@ class ResultTest extends ServiceTest {
                                 for (int k = 0; k < rteExtensionsLength; k++) {
                                     Node extensionsElement = rteElement.getChildNodes().item(k);
                                     switch (extensionsElement.getNodeName()) {
-                                        case "distance":
-                                            rteExtensionsDistance = true;
-                                            break;
-                                        case "duration":
-                                            rteExtensionsDuration = true;
-                                            break;
-                                        case "ascent":
-                                            rteExtensionsAscent = true;
-                                            break;
-                                        case "descent":
-                                            rteExtensionsDescent = true;
-                                            break;
-                                        case "avgspeed":
-                                            rteExtensionsAvgSpeed = true;
-                                            break;
-                                        case "bounds":
-                                            rteExtensionsBounds = true;
-                                            break;
+                                        case "distance" -> rteExtensionsDistance = true;
+                                        case "duration" -> rteExtensionsDuration = true;
+                                        case "ascent" -> rteExtensionsAscent = true;
+                                        case "descent" -> rteExtensionsDescent = true;
+                                        case "avgspeed" -> rteExtensionsAvgSpeed = true;
+                                        case "bounds" -> rteExtensionsBounds = true;
                                     }
                                 }
                                 assertTrue(rteExtensionsDistance);
@@ -470,13 +430,13 @@ class ResultTest extends ServiceTest {
                                 assertTrue(rteExtensionsDescent);
                                 assertTrue(rteExtensionsAvgSpeed);
                                 assertTrue(rteExtensionsBounds);
-                                break;
+                            }
                         }
                     }
                     assertTrue(rtept);
                     assertTrue(routeExtension);
-                    break;
-                case "extensions":
+                }
+                case "extensions" -> {
                     gpxExtensions = true;
                     NodeList gpxExtensionsChildren = doc.getDocumentElement().getChildNodes().item(i).getChildNodes();
                     int gpxExtensionLength = gpxExtensionsChildren.getLength();
@@ -491,30 +451,14 @@ class ResultTest extends ServiceTest {
                     for (int j = 0; j < gpxExtensionLength; j++) {
                         Node gpxExtensionElement = gpxExtensionsChildren.item(j);
                         switch (gpxExtensionElement.getNodeName()) {
-                            case "attribution":
-                                gpxExtensionattribution = true;
-                                break;
-                            case "engine":
-                                gpxExtensionengine = true;
-                                break;
-                            case "build_date":
-                                gpxExtensionbuild_date = true;
-                                break;
-                            case "profile":
-                                gpxExtensionprofile = true;
-                                break;
-                            case "preference":
-                                gpxExtensionpreference = true;
-                                break;
-                            case "language":
-                                gpxExtensionlanguage = true;
-                                break;
-                            case "instructions":
-                                gpxExtensioninstructions = true;
-                                break;
-                            case "elevation":
-                                gpxExtensionelevation = true;
-                                break;
+                            case "attribution" -> gpxExtensionattribution = true;
+                            case "engine" -> gpxExtensionengine = true;
+                            case "build_date" -> gpxExtensionbuild_date = true;
+                            case "profile" -> gpxExtensionprofile = true;
+                            case "preference" -> gpxExtensionpreference = true;
+                            case "language" -> gpxExtensionlanguage = true;
+                            case "instructions" -> gpxExtensioninstructions = true;
+                            case "elevation" -> gpxExtensionelevation = true;
                         }
                     }
                     assertTrue(gpxExtensionattribution);
@@ -525,7 +469,7 @@ class ResultTest extends ServiceTest {
                     assertTrue(gpxExtensionlanguage);
                     assertTrue(gpxExtensioninstructions);
                     assertTrue(gpxExtensionelevation);
-                    break;
+                }
             }
         }
         assertTrue(gpxMetadata);
@@ -539,127 +483,129 @@ class ResultTest extends ServiceTest {
      */
     private void testGpxSchema(Response response) throws IOException, SAXException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        String xsdSchema = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" targetNamespace=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
-                "    <xs:element name=\"gpx\" type=\"ors:gpxType\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "    <xs:complexType name=\"extensionsType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"distance\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"duration\" minOccurs=\"0\"/>\n" +
-                "            <xs:element name=\"type\" minOccurs=\"0\">\n" +
-                "                <xs:simpleType>\n" +
-                "                    <xs:restriction base=\"xs:string\">\n" +
-                "                        <xs:enumeration value=\"0\"/>\n" +
-                "                        <xs:enumeration value=\"1\"/>\n" +
-                "                        <xs:enumeration value=\"2\"/>\n" +
-                "                        <xs:enumeration value=\"3\"/>\n" +
-                "                        <xs:enumeration value=\"4\"/>\n" +
-                "                        <xs:enumeration value=\"5\"/>\n" +
-                "                        <xs:enumeration value=\"6\"/>\n" +
-                "                        <xs:enumeration value=\"7\"/>\n" +
-                "                        <xs:enumeration value=\"8\"/>\n" +
-                "                        <xs:enumeration value=\"9\"/>\n" +
-                "                        <xs:enumeration value=\"10\"/>\n" +
-                "                        <xs:enumeration value=\"11\"/>\n" +
-                "                        <xs:enumeration value=\"12\"/>\n" +
-                "                        <xs:enumeration value=\"13\"/>\n" +
-                "                    </xs:restriction>\n" +
-                "                </xs:simpleType>\n" +
-                "            </xs:element>\n" +
-                "            <xs:element type=\"xs:string\" name=\"step\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"distanceActual\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"ascent\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"descent\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"avgspeed\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"attribution\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"engine\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"build_date\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"profile\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"preference\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"language\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"distance-units\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"instructions\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"elevation\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"system-message\" minOccurs=\"0\"/>\n" +
-                "        </xs:sequence>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"metadataType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"name\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"desc\"/>\n" +
-                "            <xs:element type=\"ors:authorType\" name=\"author\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:copyrightType\" name=\"copyright\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"time\"/>\n" +
-                "            <xs:element type=\"ors:boundsType\" name=\"bounds\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"boundsType\">\n" +
-                "        <xs:simpleContent>\n" +
-                "            <xs:extension base=\"xs:string\">\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"minLat\"/>\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"minLon\"/>\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"maxLat\"/>\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"maxLon\"/>\n" +
-                "            </xs:extension>\n" +
-                "        </xs:simpleContent>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"linkType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"text\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"type\"/>\n" +
-                "        </xs:sequence>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"href\"/>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"gpxType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"ors:metadataType\" name=\"metadata\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:rteType\" name=\"rte\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"version\"/>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"creator\"/>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"emailType\">\n" +
-                "        <xs:simpleContent>\n" +
-                "            <xs:extension base=\"xs:string\">\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"id\"/>\n" +
-                "                <xs:attribute type=\"xs:string\" name=\"domain\"/>\n" +
-                "            </xs:extension>\n" +
-                "        </xs:simpleContent>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"authorType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"name\"/>\n" +
-                "            <xs:element type=\"ors:emailType\" name=\"email\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:linkType\" name=\"link\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"copyrightType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:string\" name=\"year\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"license\"/>\n" +
-                "        </xs:sequence>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"author\"/>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"rteptType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"xs:decimal\" name=\"ele\" minOccurs=\"0\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"name\"/>\n" +
-                "            <xs:element type=\"xs:string\" name=\"desc\"/>\n" +
-                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"lat\" use=\"optional\"/>\n" +
-                "        <xs:attribute type=\"xs:string\" name=\"lon\" use=\"optional\"/>\n" +
-                "    </xs:complexType>\n" +
-                "    <xs:complexType name=\"rteType\">\n" +
-                "        <xs:sequence>\n" +
-                "            <xs:element type=\"ors:rteptType\" name=\"rtept\" maxOccurs=\"unbounded\" minOccurs=\"0\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "            <xs:element type=\"ors:extensionsType\" name=\"extensions\" xmlns:ors=\"https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd\"/>\n" +
-                "        </xs:sequence>\n" +
-                "    </xs:complexType>\n" +
-                "</xs:schema>\n";
+        String xsdSchema = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                    <xs:element name="gpx" type="ors:gpxType" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                    <xs:complexType name="extensionsType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="distance" minOccurs="0"/>
+                            <xs:element type="xs:string" name="duration" minOccurs="0"/>
+                            <xs:element name="type" minOccurs="0">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="0"/>
+                                        <xs:enumeration value="1"/>
+                                        <xs:enumeration value="2"/>
+                                        <xs:enumeration value="3"/>
+                                        <xs:enumeration value="4"/>
+                                        <xs:enumeration value="5"/>
+                                        <xs:enumeration value="6"/>
+                                        <xs:enumeration value="7"/>
+                                        <xs:enumeration value="8"/>
+                                        <xs:enumeration value="9"/>
+                                        <xs:enumeration value="10"/>
+                                        <xs:enumeration value="11"/>
+                                        <xs:enumeration value="12"/>
+                                        <xs:enumeration value="13"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element type="xs:string" name="step" minOccurs="0"/>
+                            <xs:element type="xs:string" name="distanceActual" minOccurs="0"/>
+                            <xs:element type="xs:string" name="ascent" minOccurs="0"/>
+                            <xs:element type="xs:string" name="descent" minOccurs="0"/>
+                            <xs:element type="xs:string" name="avgspeed" minOccurs="0"/>
+                            <xs:element type="xs:string" name="attribution" minOccurs="0"/>
+                            <xs:element type="xs:string" name="engine" minOccurs="0"/>
+                            <xs:element type="xs:string" name="build_date" minOccurs="0"/>
+                            <xs:element type="xs:string" name="profile" minOccurs="0"/>
+                            <xs:element type="xs:string" name="preference" minOccurs="0"/>
+                            <xs:element type="xs:string" name="language" minOccurs="0"/>
+                            <xs:element type="xs:string" name="distance-units" minOccurs="0"/>
+                            <xs:element type="xs:string" name="instructions" minOccurs="0"/>
+                            <xs:element type="xs:string" name="elevation" minOccurs="0"/>
+                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd" minOccurs="0"/>
+                            <xs:element type="xs:string" name="system-message" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:complexType name="metadataType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="name"/>
+                            <xs:element type="xs:string" name="desc"/>
+                            <xs:element type="ors:authorType" name="author" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:copyrightType" name="copyright" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="xs:string" name="time"/>
+                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:complexType name="boundsType">
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute type="xs:string" name="minLat"/>
+                                <xs:attribute type="xs:string" name="minLon"/>
+                                <xs:attribute type="xs:string" name="maxLat"/>
+                                <xs:attribute type="xs:string" name="maxLon"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                    <xs:complexType name="linkType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="text"/>
+                            <xs:element type="xs:string" name="type"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="href"/>
+                    </xs:complexType>
+                    <xs:complexType name="gpxType">
+                        <xs:sequence>
+                            <xs:element type="ors:metadataType" name="metadata" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:rteType" name="rte" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="version"/>
+                        <xs:attribute type="xs:string" name="creator"/>
+                    </xs:complexType>
+                    <xs:complexType name="emailType">
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute type="xs:string" name="id"/>
+                                <xs:attribute type="xs:string" name="domain"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                    <xs:complexType name="authorType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="name"/>
+                            <xs:element type="ors:emailType" name="email" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:linkType" name="link" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                    <xs:complexType name="copyrightType">
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="year"/>
+                            <xs:element type="xs:string" name="license"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="author"/>
+                    </xs:complexType>
+                    <xs:complexType name="rteptType">
+                        <xs:sequence>
+                            <xs:element type="xs:decimal" name="ele" minOccurs="0"/>
+                            <xs:element type="xs:string" name="name"/>
+                            <xs:element type="xs:string" name="desc"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                        <xs:attribute type="xs:string" name="lat" use="optional"/>
+                        <xs:attribute type="xs:string" name="lon" use="optional"/>
+                    </xs:complexType>
+                    <xs:complexType name="rteType">
+                        <xs:sequence>
+                            <xs:element type="ors:rteptType" name="rtept" maxOccurs="unbounded" minOccurs="0" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:schema>
+                """;
         Schema schema = factory.newSchema(new StreamSource(new StringReader(xsdSchema)));
         Validator validator = schema.newValidator();
         Source xmlSource = new StreamSource(new StringReader(response.body().asString()));

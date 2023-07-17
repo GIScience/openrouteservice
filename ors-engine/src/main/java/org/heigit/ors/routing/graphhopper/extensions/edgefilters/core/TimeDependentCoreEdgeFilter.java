@@ -43,7 +43,7 @@ public class TimeDependentCoreEdgeFilter implements EdgeFilter {
 			}
 		}
 
-		conditionalEncoders = conditionalEncodersList.toArray(new BooleanEncodedValue[conditionalEncodersList.size()]);
+		conditionalEncoders = conditionalEncodersList.toArray(new BooleanEncodedValue[0]);
 	}
 
 	public static boolean hasConditionals(EncodingManager encodingManager) {

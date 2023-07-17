@@ -36,37 +36,27 @@ class RouteRequestTest {
 
     @Test
     void expectErrorCoordinatesArrayTooFew() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            request = new RouteRequest(new Double[][]{new Double[]{1.0, 1.0}});
-        });
+        assertThrows(ParameterValueException.class, () -> request = new RouteRequest(new Double[][]{new Double[]{1.0, 1.0}}));
     }
 
     @Test
     void expectErrorCoordinatesArraySingleTooFew() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            request = new RouteRequest(new Double[][]{new Double[]{1.0}, new Double[]{1.0}});
-        });
+        assertThrows(ParameterValueException.class, () -> request = new RouteRequest(new Double[][]{new Double[]{1.0}, new Double[]{1.0}}));
     }
 
     @Test
     void expectErrorCoordinatesArraySingleTooMany() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            request = new RouteRequest(new Double[][]{new Double[]{1.0, 1.0, 1.0}, new Double[]{1.0, 1.0, 1.0}});
-        });
+        assertThrows(ParameterValueException.class, () -> request = new RouteRequest(new Double[][]{new Double[]{1.0, 1.0, 1.0}, new Double[]{1.0, 1.0, 1.0}}));
     }
 
     @Test
     void expectErrorNullStart() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            request = new RouteRequest(null, new Coordinate());
-        });
+        assertThrows(ParameterValueException.class, () -> request = new RouteRequest(null, new Coordinate()));
     }
 
     @Test
     void expectErrorNullEnd() throws ParameterValueException {
-        assertThrows(ParameterValueException.class, () -> {
-            request = new RouteRequest(new Coordinate(), null);
-        });
+        assertThrows(ParameterValueException.class, () -> request = new RouteRequest(new Coordinate(), null));
     }
 
     @Test
