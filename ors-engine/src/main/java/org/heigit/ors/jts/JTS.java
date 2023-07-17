@@ -287,9 +287,9 @@ public final class JTS {
     private static Geometry smoothLineString(GeometryFactory factory, GeometrySmoother smoother,
             Geometry geom, double fit) {
 
-        if (geom instanceof LinearRing) {
+        if (geom instanceof LinearRing linearRing) {
             // Treat as a Polygon
-            Polygon poly = factory.createPolygon((LinearRing) geom, null);
+            Polygon poly = factory.createPolygon(linearRing, null);
             Polygon smoothed = smoother.smooth(poly, fit);
             return smoothed.getExteriorRing();
 
@@ -445,10 +445,10 @@ public final class JTS {
         if (g == null) {
             throw new NullPointerException("The provided Geometry is null");
         }
-        if (g instanceof LineString) {
-            return removeCollinearVertices((LineString) g);
-        } else if (g instanceof Polygon) {
-            return removeCollinearVertices((Polygon) g);
+        if (g instanceof LineString lineString) {
+            return removeCollinearVertices(lineString);
+        } else if (g instanceof Polygon polygon) {
+            return removeCollinearVertices(polygon);
         } else if (g instanceof MultiPolygon mp) {
             Polygon[] parts = new Polygon[mp.getNumGeometries()];
             for (int i = 0; i < mp.getNumGeometries(); i++) {
@@ -482,10 +482,10 @@ public final class JTS {
             return geometry;
         }
 
-        if (geometry instanceof LineString) {
-            return removeCollinearVertices((LineString) geometry);
-        } else if (geometry instanceof Polygon) {
-            return removeCollinearVertices((Polygon) geometry);
+        if (geometry instanceof LineString lineString) {
+            return removeCollinearVertices(lineString);
+        } else if (geometry instanceof Polygon polygon) {
+            return removeCollinearVertices(polygon);
         } else if (geometry instanceof MultiPolygon mp) {
             Polygon[] parts = new Polygon[mp.getNumGeometries()];
             for (int i = 0; i < mp.getNumGeometries(); i++) {

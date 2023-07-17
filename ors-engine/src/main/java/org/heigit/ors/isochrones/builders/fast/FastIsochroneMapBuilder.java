@@ -400,8 +400,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         try {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             concaveHull = ch.getConcaveHull();
-            if (concaveHull instanceof Polygon) {
-                ring = (LinearRing) ((Polygon) concaveHull).getExteriorRing();
+            if (concaveHull instanceof Polygon polygon) {
+                ring = (LinearRing) polygon.getExteriorRing();
                 List<Coordinate> coordinates = new ArrayList<>(ring.getNumPoints());
                 for (int i = 0; i < ring.getNumPoints(); i++) {
                     coordinates.add(ring.getCoordinateN(i));

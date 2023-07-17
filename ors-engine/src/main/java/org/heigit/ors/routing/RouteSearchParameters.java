@@ -391,8 +391,8 @@ public class RouteSearchParameters {
                 throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, KEY_AVOID_POLYGONS);
             }
 
-            if (geom instanceof Polygon) {
-                avoidAreas = new Polygon[]{(Polygon) geom};
+            if (geom instanceof Polygon polygon) {
+                avoidAreas = new Polygon[]{polygon};
             } else if (geom instanceof MultiPolygon multiPoly) {
                 avoidAreas = new Polygon[multiPoly.getNumGeometries()];
                 for (int i = 0; i < multiPoly.getNumGeometries(); i++)

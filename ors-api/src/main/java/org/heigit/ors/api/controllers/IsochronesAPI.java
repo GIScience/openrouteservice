@@ -147,16 +147,16 @@ public class IsochronesAPI {
     @ExceptionHandler({HttpMessageNotReadableException.class, ConversionFailedException.class, HttpMessageConversionException.class, Exception.class})
     public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
         final Throwable cause = e.getCause();
-        if (cause instanceof UnrecognizedPropertyException) {
-            return errorHandler.handleUnknownParameterException(new UnknownParameterException(IsochronesErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
-        } else if (cause instanceof InvalidFormatException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "" + ((InvalidFormatException) cause).getValue()));
-        } else if (cause instanceof ConversionFailedException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "" + ((ConversionFailedException) cause).getValue()));
-        } else if (cause instanceof InvalidDefinitionException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
-        } else if (cause instanceof MismatchedInputException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
+        if (cause instanceof UnrecognizedPropertyException exception) {
+            return errorHandler.handleUnknownParameterException(new UnknownParameterException(IsochronesErrorCodes.UNKNOWN_PARAMETER, exception.getPropertyName()));
+        } else if (cause instanceof InvalidFormatException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, "" + exception.getValue()));
+        } else if (cause instanceof ConversionFailedException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "" + exception.getValue()));
+        } else if (cause instanceof InvalidDefinitionException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, exception.getPath().get(0).getFieldName()));
+        } else if (cause instanceof MismatchedInputException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, exception.getPath().get(0).getFieldName()));
         } else {
             // Check if we are missing the body as a whole
             if (e.getLocalizedMessage().startsWith("Required request body is missing")) {

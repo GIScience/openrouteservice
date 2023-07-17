@@ -28,8 +28,8 @@ public class TollwayExtractor {
 	public TollwayExtractor(TollwaysGraphStorage storage, int profileType, ProfileParameters vehicleParams) {
 		this.storage = storage;
 		this.profileType = profileType;
-		if (vehicleParams instanceof VehicleParameters)
-			this.vehicleParams = (VehicleParameters) vehicleParams;
+		if (vehicleParams instanceof VehicleParameters parameters)
+			this.vehicleParams = parameters;
 	}
 	/**
 	 * return if a way is a tollway for the configured vehicle.

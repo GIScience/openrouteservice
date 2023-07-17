@@ -29,8 +29,8 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     }
 
     public void init(GraphHopperStorage graphHopperStorage, FlagEncoder flagEncoder) {
-        if (flagEncoder instanceof VehicleFlagEncoder)
-            setVehicleFlagEncoder((VehicleFlagEncoder) flagEncoder);
+        if (flagEncoder instanceof VehicleFlagEncoder vehicleFE)
+            setVehicleFlagEncoder(vehicleFE);
         if (flagEncoder instanceof HeavyVehicleFlagEncoder)
             isHGV = true;
         setTrafficGraphStorage(GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class));
@@ -68,8 +68,8 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
 
     protected int getEdgeKey(EdgeIteratorState edge, boolean reverse) {
         int edgeKey;
-        if (edge instanceof VirtualEdgeIteratorState) {
-            edgeKey = ((VirtualEdgeIteratorState) edge).getOriginalEdgeKey();
+        if (edge instanceof VirtualEdgeIteratorState iteratorState) {
+            edgeKey = iteratorState.getOriginalEdgeKey();
         }
         else {
             edgeKey = edge.getEdgeKey();

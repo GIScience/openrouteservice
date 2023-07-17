@@ -345,9 +345,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         // Reserved for processes that need a fully initiated graph e.g. for match making
         if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
             for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
-                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder) {
+                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder storageBuilder) {
                     try {
-                        ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
+                        storageBuilder.postProcess(this);
                     } catch (SchemaException e) {
                         LOGGER.error("Error building the here traffic storage.");
                         throw new RuntimeException(e);

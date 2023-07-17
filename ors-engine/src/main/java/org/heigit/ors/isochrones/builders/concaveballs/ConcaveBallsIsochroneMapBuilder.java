@@ -93,11 +93,11 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         }
 
         double meanSpeed = maxSpeed;
-        if (encoder instanceof ORSAbstractFlagEncoder) {
-            meanSpeed = ((ORSAbstractFlagEncoder) encoder).getMeanSpeed();
+        if (encoder instanceof ORSAbstractFlagEncoder flagEncoder) {
+            meanSpeed = flagEncoder.getMeanSpeed();
         }
-        if (encoder instanceof CommonBikeFlagEncoder) {
-            meanSpeed = ((CommonBikeFlagEncoder) encoder).getMeanSpeed();
+        if (encoder instanceof CommonBikeFlagEncoder flagEncoder) {
+            meanSpeed = flagEncoder.getMeanSpeed();
         }
 
         AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(searchContext, parameters);

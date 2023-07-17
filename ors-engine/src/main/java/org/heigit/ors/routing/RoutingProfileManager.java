@@ -277,14 +277,14 @@ public class RoutingProfileManager {
 
         try {
             for (Object obj : gr.getReturnObjects()) {
-                if (obj instanceof ExtraInfoProcessor) {
+                if (obj instanceof ExtraInfoProcessor processor) {
                     if (extraInfoProcessor == null) {
-                        extraInfoProcessor = (ExtraInfoProcessor) obj;
-                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) obj).getSkippedExtraInfo())) {
-                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) obj).getSkippedExtraInfo());
+                        extraInfoProcessor = processor;
+                        if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
                         }
                     } else {
-                        extraInfoProcessor.appendData((ExtraInfoProcessor) obj);
+                        extraInfoProcessor.appendData(processor);
                     }
                 }
             }
@@ -459,24 +459,24 @@ public class RoutingProfileManager {
             if (numberOfExpectedExtraInfoProcessors > 1) {
                 int extraInfoProcessorIndex = 0;
                 for (Object o : gr.getReturnObjects()) {
-                    if (o instanceof ExtraInfoProcessor) {
-                        extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor) o;
+                    if (o instanceof ExtraInfoProcessor processor) {
+                        extraInfoProcessors[extraInfoProcessorIndex] = processor;
                         extraInfoProcessorIndex++;
-                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                        if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                            gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
                         }
                     }
                 }
             } else {
                 for (Object o : gr.getReturnObjects()) {
-                    if (o instanceof ExtraInfoProcessor) {
+                    if (o instanceof ExtraInfoProcessor processor) {
                         if (extraInfoProcessors[0] == null) {
-                            extraInfoProcessors[0] = (ExtraInfoProcessor) o;
-                            if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor) o).getSkippedExtraInfo())) {
-                                gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, ((ExtraInfoProcessor) o).getSkippedExtraInfo());
+                            extraInfoProcessors[0] = processor;
+                            if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                                gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
                             }
                         } else {
-                            extraInfoProcessors[0].appendData((ExtraInfoProcessor) o);
+                            extraInfoProcessors[0].appendData(processor);
                         }
                     }
                 }

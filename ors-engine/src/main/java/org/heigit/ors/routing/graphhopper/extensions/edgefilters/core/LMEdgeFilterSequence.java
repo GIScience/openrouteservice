@@ -61,11 +61,11 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 		}
 		//Check if the avoidBordersFilter has the same countries or a subset
 		for (EdgeFilter edgeFilter: filters) {
-			if (edgeFilter instanceof AvoidBordersCoreEdgeFilter){
+			if (edgeFilter instanceof AvoidBordersCoreEdgeFilter coreEdgeFilter){
 				//There are no countries queried, but there are some in the lmset
 				if(queryCountries.isEmpty())
 					return false;
-				return queryCountries.containsAll(Arrays.stream(((AvoidBordersCoreEdgeFilter) edgeFilter).getAvoidCountries()).boxed().collect(Collectors.toList()));
+				return queryCountries.containsAll(Arrays.stream(coreEdgeFilter.getAvoidCountries()).boxed().collect(Collectors.toList()));
 			}
 		}
 
@@ -80,10 +80,10 @@ public class LMEdgeFilterSequence extends EdgeFilterSequence implements EdgeFilt
 	private boolean isAvoidFeature(int avoidable){
 		for (EdgeFilter edgeFilter: filters) {
 			//There is only one AvoidFeaturesCoreEdgeFilter per EdgeFilterSequence
-			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter){
+			if (edgeFilter instanceof AvoidFeaturesCoreEdgeFilter coreEdgeFilter){
 				//Some bit magic to find if the storage bits are a subset of the query bits, but not the other way around
 				int reverseQueryFeatures = Integer.MAX_VALUE ^ avoidable;
-				int filterFeatures = ((AvoidFeaturesCoreEdgeFilter) edgeFilter).getAvoidFeatures();
+				int filterFeatures = coreEdgeFilter.getAvoidFeatures();
                 return (reverseQueryFeatures & filterFeatures) == 0;
             }
 		}

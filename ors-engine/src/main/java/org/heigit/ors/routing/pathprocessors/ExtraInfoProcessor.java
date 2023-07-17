@@ -297,8 +297,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private void applyWarningExtensions(GraphHopperStorage graphHopperStorage) {
 		GraphExtension[] extensions = graphHopperStorage.getExtensions().getExtensions();
 		for(GraphExtension ge : extensions) {
-			if (ge instanceof WarningGraphExtension && ((WarningGraphExtension)ge).isUsedForWarning()) {
-				warningExtensions.add(RouteExtraInfoFlag.getFromString(((WarningGraphExtension) ge).getName()));
+			if (ge instanceof WarningGraphExtension extension && extension.isUsedForWarning()) {
+				warningExtensions.add(RouteExtraInfoFlag.getFromString(extension.getName()));
 			}
 		}
 	}
