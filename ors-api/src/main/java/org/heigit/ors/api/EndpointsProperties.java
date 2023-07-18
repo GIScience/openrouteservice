@@ -253,7 +253,7 @@ public class EndpointsProperties {
         public void setMaximumRangeDistance(List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeDistance) {
             this.maximumRangeDistance = maximumRangeDistance;
             for (MaximumRangeProperties.MaximumRangePropertiesEntry maximumRangePropertiesEntry : maximumRangeDistance)
-                for (String profile: maximumRangePropertiesEntry.getProfiles())
+                for (String profile : maximumRangePropertiesEntry.getProfiles())
                     profileMaxRangeDistances.put(RoutingProfileType.getFromString(profile), maximumRangePropertiesEntry.getValue());
         }
 
@@ -272,7 +272,7 @@ public class EndpointsProperties {
         public void setMaximumRangeTime(List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeTime) {
             this.maximumRangeTime = maximumRangeTime;
             for (MaximumRangeProperties.MaximumRangePropertiesEntry maximumRangePropertiesEntry : maximumRangeTime)
-                for (String profile: maximumRangePropertiesEntry.getProfiles())
+                for (String profile : maximumRangePropertiesEntry.getProfiles())
                     profileMaxRangeTimes.put(RoutingProfileType.getFromString(profile), maximumRangePropertiesEntry.getValue());
         }
 

@@ -310,7 +310,6 @@ public class IsochronesServiceTest {
         assertNull(routeSearchParameters.getBearings());
         assertNull(routeSearchParameters.getMaximumRadiuses());
         assertNull(routeSearchParameters.getAvoidCountries());
-        assertNull(routeSearchParameters.getOptions());
     }
 
     @Test
@@ -327,7 +326,6 @@ public class IsochronesServiceTest {
         assertEquals(BordersExtractor.Avoid.CONTROLLED, routeSearchParameters.getAvoidBorders());
         assertNull(routeSearchParameters.getBearings());
         assertNull(routeSearchParameters.getMaximumRadiuses());
-        assertNull(routeSearchParameters.getOptions());
         assertEquals(115, routeSearchParameters.getAvoidCountries()[0]);
 
         ProfileWeightingCollection weightings = routeSearchParameters.getProfileParameters().getWeightings();

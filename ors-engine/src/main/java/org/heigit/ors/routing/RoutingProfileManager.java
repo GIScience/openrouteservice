@@ -50,15 +50,14 @@ import java.util.stream.Collectors;
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
-    private RoutingProfilesCollection routeProfiles;
+    private RoutingProfilesCollection routingProfiles;
     private static RoutingProfileManager instance;
     private boolean initComplete = false;
-    private EngineConfig config;
 
     public RoutingProfileManager(EngineConfig config) {
         if (instance == null) {
-            initialize(config);
             instance = this;
+            initialize(config);
         }
     }
 
@@ -75,10 +74,9 @@ public class RoutingProfileManager {
         LOGGER.info("      ");
 
         long startTime = System.currentTimeMillis();
-        this.config = config;
         try {
 
-            // RoutingManagerConfiguration can be thwon away entirely after config migration
+            // RoutingManagerConfiguration can be thrown away entirely after config migration
             RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(config.getGraphsRootPath());
             RouteProfileConfiguration[] routeProfileConfigurations = rmc.getProfiles();
             if (routeProfileConfigurations.length == 0) {
@@ -89,7 +87,7 @@ public class RoutingProfileManager {
             LOGGER.info(String.format("====> Initializing profiles from '%s' (%d threads) ...",
                     config.getSourceFile(), initializationThreads));
 
-            routeProfiles = new RoutingProfilesCollection();
+            routingProfiles = new RoutingProfilesCollection();
             int nRouteInstances = routeProfileConfigurations.length;
 
             RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
@@ -119,7 +117,7 @@ public class RoutingProfileManager {
                 try {
                     RoutingProfile rp = future.get();
                     nCompletedTasks++;
-                    if (!routeProfiles.add(rp))
+                    if (!routingProfiles.add(rp))
                         LOGGER.warn("Routing profile has already been added.");
                 } catch (ExecutionException e) {
                     LOGGER.error(e);
@@ -146,15 +144,15 @@ public class RoutingProfileManager {
         RuntimeUtility.clearMemory(LOGGER);
 
         if (LOGGER.isInfoEnabled())
-            routeProfiles.printStatistics(LOGGER);
+            routingProfiles.printStatistics(LOGGER);
     }
 
     public void destroy() {
-        routeProfiles.destroy();
+        routingProfiles.destroy();
     }
 
     public RoutingProfilesCollection getProfiles() {
-        return routeProfiles;
+        return routingProfiles;
     }
 
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
@@ -293,7 +291,7 @@ public class RoutingProfileManager {
                 radiuses[1] = searchParams.getMaximumRadiuses()[i];
             } else {
                 try {
-                    int maximumSnappingRadius = routeProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
+                    int maximumSnappingRadius = routingProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
                     radiuses = new double[2];
                     radiuses[0] = maximumSnappingRadius;
                     radiuses[1] = maximumSnappingRadius;
@@ -366,7 +364,7 @@ public class RoutingProfileManager {
                                 // -1 is used to indicate the use of internal limits instead of specifying it in the request.
                                 // we should therefore let them know that they are already using the limit.
                                 if (pointRadius == -1) {
-                                    pointRadius = routeProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
+                                    pointRadius = routingProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
                                     message.append(String.format("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.",
                                             pointRadius,
                                             pointReference,
@@ -512,10 +510,10 @@ public class RoutingProfileManager {
         boolean dynamicWeights = searchParams.requiresDynamicPreprocessedWeights();
         boolean useAlternativeRoutes = searchParams.getAlternativeRoutesCount() > 1;
 
-        RoutingProfile rp = routeProfiles.getRouteProfile(profileType, !dynamicWeights);
+        RoutingProfile rp = routingProfiles.getRouteProfile(profileType, !dynamicWeights);
 
         if (rp == null && !dynamicWeights)
-            rp = routeProfiles.getRouteProfile(profileType, false);
+            rp = routingProfiles.getRouteProfile(profileType, false);
 
         if (rp == null)
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to get an appropriate route profile for RoutePreference = " + RoutingProfileType.getName(req.getSearchParameters().getProfileType()));
@@ -590,13 +588,13 @@ public class RoutingProfileManager {
     public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
 
         int profileType = parameters.getRouteParameters().getProfileType();
-        RoutingProfile rp = routeProfiles.getRouteProfile(profileType, false);
+        RoutingProfile rp = routingProfiles.getRouteProfile(profileType, false);
 
         return rp.buildIsochrone(parameters);
     }
 
     public MatrixResult computeMatrix(MatrixRequest req) throws Exception {
-        RoutingProfile rp = routeProfiles.getRouteProfile(req.getProfileType(), !req.getFlexibleMode());
+        RoutingProfile rp = routingProfiles.getRouteProfile(req.getProfileType(), !req.getFlexibleMode());
 
         if (rp == null)
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
@@ -605,7 +603,7 @@ public class RoutingProfileManager {
     }
 
     public ExportResult computeExport(ExportRequest req) throws Exception {
-        RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
+        RoutingProfile rp = routingProfiles.getRouteProfile((req.getProfileType()));
 
         if (rp == null)
             throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");

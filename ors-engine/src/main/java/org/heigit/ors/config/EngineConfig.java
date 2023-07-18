@@ -13,6 +13,7 @@ public class EngineConfig {
     private final String sourceFile;
     private final String graphsRootPath;
     private final boolean elevationPreprocessed;
+    private final RouteProfileConfiguration[] profiles;
 
     public int getInitializationThreads() {
         return initializationThreads;
@@ -34,17 +35,19 @@ public class EngineConfig {
         return elevationPreprocessed;
     }
 
+    public RouteProfileConfiguration[] getProfiles() {
+        return profiles;
+    }
+
     public EngineConfig(EngineConfigBuilder builder) {
         this.initializationThreads = builder.initializationThreads;
         this.preparationMode = builder.preparationMode;
         this.sourceFile = builder.sourceFile;
         this.elevationPreprocessed = builder.elevationPreprocessed;
         this.graphsRootPath = builder.graphsRootPath;
+        this.profiles = builder.profiles;
     }
 
-    public RouteProfileConfiguration[] getProfiles() {
-        return new RouteProfileConfiguration[0];
-    }
 
     public static class EngineConfigBuilder {
         // Migration guide: 2. add corresponding field (without final)
@@ -53,6 +56,7 @@ public class EngineConfig {
         private String sourceFile;
         private String graphsRootPath;
         private boolean elevationPreprocessed;
+        private RouteProfileConfiguration[] profiles;
 
         public static EngineConfigBuilder init() {
             return new EngineConfigBuilder();
@@ -81,6 +85,11 @@ public class EngineConfig {
 
         public EngineConfigBuilder setElevationPreprocessed(boolean elevationPreprocessed) {
             this.elevationPreprocessed = elevationPreprocessed;
+            return this;
+        }
+
+        public EngineConfigBuilder setProfiles(RouteProfileConfiguration[] profiles) {
+            this.profiles = profiles;
             return this;
         }
 

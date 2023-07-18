@@ -88,9 +88,9 @@ public class AppConfig {
             config = ConfigFactory.parseFile(configFile);
             config = overrideFromEnvVariables(config);
 
+            LOGGER.warn("Deprecation notice: Old configuration method with JSON files is deprecated. Switch to ors-config.yml files!");
         } catch (IOException ioe) {
-            LOGGER.error("ORS can not run without a valid configuration, exiting. Message: " + ioe.getMessage());
-            System.exit(1);
+            // no deprecated JSON config found
         }
 
         //Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
@@ -105,9 +105,6 @@ public class AppConfig {
                     LOGGER.error(e);
                 }
             }
-        } else {
-            LOGGER.error("ORS Configuration is invalid because 'graphs_root_path' is not set, exiting.");
-            System.exit(1);
         }
     }
 

@@ -1,12 +1,12 @@
 package org.heigit.ors.apitests.common;
 
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.EngineConfig;
-import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.IOException;
@@ -23,21 +23,22 @@ public class InitializeGraphsOnce implements BeforeAllCallback, BeforeEachCallba
     private static final String GRAPHS_FOLDER = "graphs-apitests";
     private static final String GRAPHS_FOLDER_DELETED = "graphs-folder-deleted";
 
-
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
         ExtensionContext.Store store = rootStore(extensionContext);
         deleteGraphsFolderOncePerTestRun(store);
-        EngineConfig config = EngineConfig.EngineConfigBuilder.init()
-                .buildWithAppConfigOverride();
-        new RoutingProfileManager(config);
+        SpringExtension.getApplicationContext(extensionContext);
+        while (!RoutingProfileManagerStatus.isReady()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        // Waiting for all graphs being built.
-        // Do it here - instead of beforeAll - because now the Logging configuration has been correctly set up.
-        RoutingProfileManager.getInstance();
     }
 
     private synchronized static void deleteGraphsFolderOncePerTestRun(ExtensionContext.Store store) {

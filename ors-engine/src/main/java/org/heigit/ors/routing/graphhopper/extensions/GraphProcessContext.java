@@ -32,8 +32,6 @@ import java.util.logging.Logger;
 
 public class GraphProcessContext {
 	private static final Logger LOGGER = Logger.getLogger(GraphProcessContext.class.getName());
-
-	private final Envelope bbox;
 	private List<GraphBuilder> graphBuilders;
 	private GraphBuilder[] arrGraphBuilders;
 	private List<GraphStorageBuilder> storageBuilders;
@@ -44,7 +42,6 @@ public class GraphProcessContext {
 	private boolean getElevationFromPreprocessedData;
 
 	public GraphProcessContext(RouteProfileConfiguration config) throws Exception {
-		bbox = config.getExtent();
 		PluginManager<GraphStorageBuilder> mgrGraphStorageBuilders = PluginManager.getPluginManager(GraphStorageBuilder.class);
 
 		if (config.getExtStorages() != null) {
@@ -151,13 +148,6 @@ public class GraphProcessContext {
 			}
 		}
 		return res;
-	}
-
-	public boolean isValidPoint(double x, double y) {
-		if (bbox == null)
-			return true;
-		else
-			return bbox.contains(x, y);
 	}
 
 	public void finish() {

@@ -16,7 +16,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        // Override values from application.yml with contents of file in working directory.
+        // Override values from application.yml with contents of custom config yml file.
         // Later in array => higher precedence
         String[] configLocations = {"/etc/openrouteservice/ors-config.yml", "~/.openrouteservice/ors-config.yml", "ors-config.yml"};
         for (String path : configLocations) {

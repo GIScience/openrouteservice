@@ -40,6 +40,7 @@ import org.heigit.ors.routing.pathprocessors.BordersExtractor;
  *
  * @author Julian Psotta, julian@openrouteservice.org
  */
+// TODO Refactoring: check why this is not in use and still here
 public class RoutingRequestMockup {
 
     private final RoutingRequest routingRequest;
@@ -135,7 +136,6 @@ public class RoutingRequestMockup {
             routingRequest.getSearchParameters().setConsiderTurnRestrictions(false);
             routingRequest.getSearchParameters().setFlexibleMode(false);
             routingRequest.getSearchParameters().setMaximumRadiuses(null);
-            routingRequest.getSearchParameters().setOptions(null);
             routingRequest.getSearchParameters().setProfileType(1);
             routingRequest.getSearchParameters().setVehicleType(0);
             routingRequest.getSearchParameters().setWeightingMethod(1);

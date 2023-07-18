@@ -163,22 +163,23 @@ public class RoutingManagerConfiguration {
                                 profile.getExtStorages().put(storageEntry.getKey(), storageParams);
                             }
                             break;
-                        case "graph_processors":
-                            @SuppressWarnings("unchecked")
-                            Map<String, Object> storageList2 = (Map<String, Object>) paramItem.getValue();
-
-                            for (Map.Entry<String, Object> storageEntry : storageList2.entrySet()) {
-                                @SuppressWarnings("unchecked")
-                                Map<String, Object> entryValue = (Map<String, Object>) storageEntry.getValue();
-                                Map<String, String> storageParams = new HashMap<>();
-
-                                for (Map.Entry<String, Object> entry : entryValue.entrySet()) {
-                                    storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
-                                }
-
-                                profile.getGraphBuilders().put(storageEntry.getKey(), storageParams);
-                            }
-                            break;
+// Not in use anymore
+//                        case "graph_processors":
+//                            @SuppressWarnings("unchecked")
+//                            Map<String, Object> storageList2 = (Map<String, Object>) paramItem.getValue();
+//
+//                            for (Map.Entry<String, Object> storageEntry : storageList2.entrySet()) {
+//                                @SuppressWarnings("unchecked")
+//                                Map<String, Object> entryValue = (Map<String, Object>) storageEntry.getValue();
+//                                Map<String, String> storageParams = new HashMap<>();
+//
+//                                for (Map.Entry<String, Object> entry : entryValue.entrySet()) {
+//                                    storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
+//                                }
+//
+//                                profile.getGraphBuilders().put(storageEntry.getKey(), storageParams);
+//                            }
+//                            break;
                         case "maximum_distance":
                             profile.setMaximumDistance(Double.parseDouble(paramItem.getValue().toString()));
                             break;
@@ -197,14 +198,15 @@ public class RoutingManagerConfiguration {
                         case "maximum_waypoints":
                             profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));
                             break;
-                        case "extent":
-                            @SuppressWarnings("unchecked")
-                            List<Double> bbox = (List<Double>) paramItem.getValue();
-
-                            if (bbox.size() != 4)
-                                throw new Exception("'extent' element must contain 4 elements.");
-                            profile.setExtent(new Envelope(bbox.get(0), bbox.get(1), bbox.get(2), bbox.get(3)));
-                            break;
+// Not in use anymore
+//                        case "extent":
+//                            @SuppressWarnings("unchecked")
+//                            List<Double> bbox = (List<Double>) paramItem.getValue();
+//
+//                            if (bbox.size() != 4)
+//                                throw new Exception("'extent' element must contain 4 elements.");
+//                            profile.setExtent(new Envelope(bbox.get(0), bbox.get(1), bbox.get(2), bbox.get(3)));
+//                            break;
                         case "maximum_snapping_radius":
                             profile.setMaximumSnappingRadius(Integer.parseInt(paramItem.getValue().toString()));
                             break;
@@ -217,9 +219,10 @@ public class RoutingManagerConfiguration {
                         case "maximum_speed_lower_bound":
                             profile.setMaximumSpeedLowerBound(Double.parseDouble(paramItem.getValue().toString()));
                             break;
-                        case "traffic_expiration_min":
-                            profile.setTrafficExpirationMin(Integer.parseInt(paramItem.getValue().toString()));
-                            break;
+// Not in use anymore
+//                        case "traffic_expiration_min":
+//                            profile.setTrafficExpirationMin(Integer.parseInt(paramItem.getValue().toString()));
+//                            break;
                         case "force_turn_costs":
                             profile.setEnforceTurnCosts(Boolean.parseBoolean(paramItem.getValue().toString()));
                             break;

@@ -36,6 +36,32 @@
           ]
         },
         {
+          "name": "com.graphhopper",
+          "level": "warn",
+          "additivity": "false",
+          "AppenderRef": [
+            {
+              "ref": "orslogfile"
+            },
+            {
+              "ref": "stdout"
+            }
+          ]
+        },
+        {
+          "name": "com.conveyal.gtfs",
+          "level": "warn",
+          "additivity": "false",
+          "AppenderRef": [
+            {
+              "ref": "orslogfile"
+            },
+            {
+              "ref": "stdout"
+            }
+          ]
+        },
+        {
           "name": "org.springframework",
           "level": "warn",
           "additivity": "false",
