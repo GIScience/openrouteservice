@@ -9,11 +9,11 @@
 //import static org.junit.jupiter.api.Assertions.assertTrue;
 //
 //
-//class SwaggerTest {
+//class OpenAPITest {
 //    @Test
-//    void testGetSwaggerDocs() {
-//        SwaggerConfig swagger_config = new SwaggerConfig();
-//        Docket api = swagger_config.api();
+//    void testGetOpenAPIDocs() {
+//        OpenAPIConfig oas_config = new OpenAPIConfig();
+//        Docket api = oas_config.api();
 //        assertEquals(DocumentationType.SWAGGER_2, api.getDocumentationType());
 //        assertTrue(api.isEnabled());
 //    }

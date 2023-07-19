@@ -35,7 +35,7 @@ import static org.heigit.ors.api.util.AppInfo.VERSION;
 
 
 @Configuration
-public class SwaggerConfig {
+public class OpenAPIConfig {
 
     private static final String SERVICE_NAME = "Openrouteservice";
 
@@ -44,7 +44,7 @@ public class SwaggerConfig {
     final
     EndpointsProperties endpointsProperties;
 
-    public SwaggerConfig(EndpointsProperties endpointsProperties) {
+    public OpenAPIConfig(EndpointsProperties endpointsProperties) {
         this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
     }
 
