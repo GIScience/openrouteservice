@@ -51,7 +51,7 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI(ServletContext servletContext) {
-        return new OpenAPI(SpecVersion.V31)
+        return new OpenAPI()
                 .servers(generateServers(servletContext))
                 .info(apiInfo());
     }
