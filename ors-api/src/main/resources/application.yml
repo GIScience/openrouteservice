@@ -165,3 +165,5 @@ springdoc:
   api-docs:
     path: /v2/api-docs
     version: OPENAPI_3_0
+  packages-to-scan: org.heigit.ors
+  pathsToMatch: /v2/**

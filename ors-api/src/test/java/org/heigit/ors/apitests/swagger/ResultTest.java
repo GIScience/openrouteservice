@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
-import static org.springdoc.core.SpringDocConfigProperties.ApiDocs.OpenApiVersion.OPENAPI_3_0;
+import static org.springdoc.core.properties.SpringDocConfigProperties.ApiDocs.OpenApiVersion.OPENAPI_3_0;
 
 
 @EndPointAnnotation(name = "api-docs")

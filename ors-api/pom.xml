@@ -253,7 +253,7 @@
 
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
         <!-- As long as swagger-parser uses snakeyaml <2 it cannot be used. Too much vulnerabilities. -->
         <!-- The package is updated quite often. -->
