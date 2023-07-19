@@ -16,20 +16,18 @@
 package org.heigit.ors.api;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.SpecVersion;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
-import org.heigit.ors.api.util.AppConfigMigration;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
-import org.springdoc.core.models.GroupedOpenApi;
+import jakarta.servlet.ServletContext;
+import org.heigit.ors.api.util.AppConfigMigration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import jakarta.servlet.ServletContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,28 +54,6 @@ public class SwaggerConfig {
         return new OpenAPI(SpecVersion.V31)
                 .servers(generateServers(servletContext))
                 .info(apiInfo());
-    }
-
-    /**
-     * This gives a properly versioned swagger endpoint at api-docs/v2 for the ors v2 version.
-     * To introduce, e.g., v3 just use this function and replace v2 with v3.
-     */
-    @Bean
-    public GroupedOpenApi orsV2ApiPath() {
-        String[] paths = {"/v2/**"};
-        return GroupedOpenApi.builder().group("v2").pathsToMatch(paths)
-                .build();
-    }
-
-    /**
-     * This function provides the API v2 at the root api-docs/ path, as this was the old path of service the swagger.
-     * For proper API versioning see orsV2ApiPath().
-     */
-    @Bean
-    public GroupedOpenApi oldOrsV2ApiPath() {
-        String[] paths = {"/v2/**"};
-        return GroupedOpenApi.builder().group("").pathsToMatch(paths)
-                .build();
     }
 
     private List<Server> generateServers(ServletContext servletContext) {
