@@ -43,6 +43,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.heigit.ors.api.services.AbstractApiService.convertRouteProfileType;
+
 @Schema(name = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class MatrixRequest extends APIRequest {

@@ -209,7 +209,12 @@ public class AppConfigMigration {
         value = config.getServiceParameter(SERVICE_NAME_ROUTING, "routing_name");
         if (value != null)
             routing.setGpxName(value);
-
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "maximum_avoid_polygon_area");
+        if (value != null)
+            routing.setMaximumAvoidPolygonArea(Math.max(1, Double.parseDouble(value)));
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "maximum_avoid_polygon_extent");
+        if (value != null)
+            routing.setMaximumAvoidPolygonArea(Math.max(1, Double.parseDouble(value)));
         return endpoints;
     }
 

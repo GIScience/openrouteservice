@@ -48,6 +48,7 @@ import java.util.Map;
 
 import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS;
 import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.FASTISOCHRONE;
+import static org.heigit.ors.api.services.AbstractApiService.convertAPIEnumListToStrings;
 import static org.heigit.ors.common.TravelRangeType.DISTANCE;
 
 

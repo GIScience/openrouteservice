@@ -1,5 +1,7 @@
-package org.heigit.ors.api.requests.common;
+package org.heigit.ors.api.services;
 
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -19,58 +21,74 @@ import org.locationtech.jts.geom.Polygon;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class APIRequestTest {
-    APIRequest request;
+class APIServiceTest {
+    AbstractApiService apiService;
 
+    static class ApiService extends AbstractApiService {
+        @Override
+        EndpointsProperties getEndpointsProperties() {
+            return null;
+        }
+
+        @Override
+        double getMaximumAvoidPolygonArea() {
+            return 0;
+        }
+
+        @Override
+        double getMaximumAvoidPolygonExtent() {
+            return 0;
+        }
+    }
     @BeforeEach
     void setUp() throws Exception {
-        request = new APIRequest();
+        apiService = new ApiService();
     }
 
-//    @Test
-//    void convertAPIEnumListToStrings() {
-//        String[] strVals = APIRequest.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[] {APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
-//        assertEquals(2, strVals.length);
-//        assertEquals("steepness", strVals[0]);
-//        assertEquals("surface", strVals[1]);
-//    }
+    @Test
+    void convertAPIEnumListToStrings() {
+        String[] strVals = AbstractApiService.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[] {APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
+        assertEquals(2, strVals.length);
+        assertEquals("steepness", strVals[0]);
+        assertEquals("surface", strVals[1]);
+    }
 
-//    @Test
-//    void convertAPIEnum() {
-//        String strVal = APIRequest.convertAPIEnum(APIEnums.AvoidBorders.CONTROLLED);
-//        assertEquals("controlled", strVal);
-//    }
+    @Test
+    void convertAPIEnum() {
+        String strVal = AbstractApiService.convertAPIEnum(APIEnums.AvoidBorders.CONTROLLED);
+        assertEquals("controlled", strVal);
+    }
 
-//    @Test
-//    void convertVehicleType() throws IncompatibleParameterException {
-//        int type = APIRequest.convertVehicleType(APIEnums.VehicleType.HGV, 2);
-//        assertEquals(2, type);
-//    }
-//
-//    @Test
-//    void convertVehicleTypeError() throws IncompatibleParameterException {
-//        assertThrows(IncompatibleParameterException.class, () -> {
-//            APIRequest.convertVehicleType(APIEnums.VehicleType.HGV, 1);
-//        });
-//    }
+    @Test
+    void convertVehicleType() throws IncompatibleParameterException {
+        int type = AbstractApiService.convertVehicleType(APIEnums.VehicleType.HGV, 2);
+        assertEquals(2, type);
+    }
 
-//    @Test
-//    void convertAvoidBorders() {
-//        BordersExtractor.Avoid avoid = APIRequest.convertAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
-//        assertEquals(BordersExtractor.Avoid.CONTROLLED, avoid);
-//        avoid = APIRequest.convertAvoidBorders(APIEnums.AvoidBorders.ALL);
-//        assertEquals(BordersExtractor.Avoid.ALL, avoid);
-//        avoid = APIRequest.convertAvoidBorders(APIEnums.AvoidBorders.NONE);
-//        assertEquals(BordersExtractor.Avoid.NONE, avoid);
-//    }
+    @Test
+    void convertVehicleTypeError() throws IncompatibleParameterException {
+        assertThrows(IncompatibleParameterException.class, () -> {
+            AbstractApiService.convertVehicleType(APIEnums.VehicleType.HGV, 1);
+        });
+    }
 
-//    @Test
-//    void convertRouteProfileType() {
-//        int type = APIRequest.convertRouteProfileType(APIEnums.Profile.DRIVING_CAR);
-//        assertEquals(1, type);
-//        type = APIRequest.convertRouteProfileType(APIEnums.Profile.FOOT_WALKING);
-//        assertEquals(20, type);
-//    }
+    @Test
+    void convertAvoidBorders() {
+        BordersExtractor.Avoid avoid = AbstractApiService.convertAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
+        assertEquals(BordersExtractor.Avoid.CONTROLLED, avoid);
+        avoid = AbstractApiService.convertAvoidBorders(APIEnums.AvoidBorders.ALL);
+        assertEquals(BordersExtractor.Avoid.ALL, avoid);
+        avoid = AbstractApiService.convertAvoidBorders(APIEnums.AvoidBorders.NONE);
+        assertEquals(BordersExtractor.Avoid.NONE, avoid);
+    }
+
+    @Test
+    void convertRouteProfileType() {
+        int type = AbstractApiService.convertRouteProfileType(APIEnums.Profile.DRIVING_CAR);
+        assertEquals(1, type);
+        type = AbstractApiService.convertRouteProfileType(APIEnums.Profile.FOOT_WALKING);
+        assertEquals(20, type);
+    }
 
     @Test
     void convertAvoidAreas() throws StatusCodeException {
@@ -83,7 +101,7 @@ class APIRequestTest {
         coords.add(0, poly);
         geomJSON.put("coordinates", coords);
 
-        Polygon[] avoidAreas = request.convertAvoidAreas(geomJSON);
+        Polygon[] avoidAreas = apiService.convertAvoidAreas(geomJSON);
         assertEquals(1, avoidAreas.length);
         assertEquals(4, avoidAreas[0].getCoordinates().length);
         assertEquals(1, avoidAreas[0].getCoordinates()[0].x, 0.0);
@@ -102,7 +120,7 @@ class APIRequestTest {
 
         geomJSONMulti.put("coordinates", coords);
 
-        avoidAreas = request.convertAvoidAreas(geomJSONMulti);
+        avoidAreas = apiService.convertAvoidAreas(geomJSONMulti);
 
         assertEquals(2, avoidAreas.length);
     }
@@ -116,7 +134,7 @@ class APIRequestTest {
             JSONArray poly = generateGeoJSONPolyCoords();
 
             geomJSON.put("coordinates", poly);
-            request.convertAvoidAreas(geomJSON);
+            apiService.convertAvoidAreas(geomJSON);
         });
     }
 
@@ -129,7 +147,7 @@ class APIRequestTest {
             JSONArray poly = generateGeoJSONPolyCoords();
 
             geomJSON.put("coooooooooooordinates", poly);
-            request.convertAvoidAreas(geomJSON);
+            apiService.convertAvoidAreas(geomJSON);
         });
     }
 
@@ -161,7 +179,7 @@ class APIRequestTest {
     @Test
     void convertFeatureTypes() throws UnknownParameterValueException, IncompatibleParameterException {
         APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.FERRIES, APIEnums.AvoidFeatures.FORDS };
-        int converted = APIRequest.convertFeatureTypes(avoids, 1);
+        int converted = AbstractApiService.convertFeatureTypes(avoids, 1);
         assertEquals(24, converted);
     }
 
@@ -169,7 +187,7 @@ class APIRequestTest {
     void convertFeatureTypesIncompatible() throws UnknownParameterValueException, IncompatibleParameterException {
         assertThrows(IncompatibleParameterException.class, () -> {
             APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[]{APIEnums.AvoidFeatures.STEPS};
-            APIRequest.convertFeatureTypes(avoids, 1);
+            AbstractApiService.convertFeatureTypes(avoids, 1);
         });
     }
 
@@ -183,7 +201,7 @@ class APIRequestTest {
         opts.setVehicleType(APIEnums.VehicleType.HGV);
         opts.setProfileParams(params);
 
-        ProfileParameters generatedParams = request.convertParameters(opts, 2);
+        ProfileParameters generatedParams = apiService.convertParameters(opts, 2);
 
         assertEquals(10.0f, ((VehicleParameters)generatedParams).getHeight(), 0.0);
     }
@@ -192,7 +210,7 @@ class APIRequestTest {
     void convertSpecificProfileParameters() {
         RequestProfileParamsRestrictions restrictions = new RequestProfileParamsRestrictions();
         restrictions.setHeight(10.0f);
-        ProfileParameters params = request.convertSpecificProfileParameters(2, restrictions, APIEnums.VehicleType.HGV);
+        ProfileParameters params = apiService.convertSpecificProfileParameters(2, restrictions, APIEnums.VehicleType.HGV);
         assertTrue(params instanceof VehicleParameters);
         assertEquals(10.0f, ((VehicleParameters)params).getHeight(), 0.0);
     }

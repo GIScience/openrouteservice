@@ -68,34 +68,38 @@ public class APIRequest {
         this.profile = profile;
     }
 
-    protected static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
-        String[] attributes = new String[valuesIn.length];
+    //todo remove? multiple usages but not overridden
+//    protected static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
+//        String[] attributes = new String[valuesIn.length];
+//
+//        for (int i = 0; i < valuesIn.length; i++) {
+//            attributes[i] = convertAPIEnum(valuesIn[i]);
+//        }
+//
+//        return attributes;
+//    }
 
-        for (int i = 0; i < valuesIn.length; i++) {
-            attributes[i] = convertAPIEnum(valuesIn[i]);
-        }
+    //todo remove? multiple usages but not overridden
+//    protected static String convertAPIEnum(Enum valuesIn) {
+//        return valuesIn.toString();
+//    }
 
-        return attributes;
-    }
+    //todo remove
+//    protected static int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatibleParameterException {
+//        if (!RoutingProfileType.isHeavyVehicle(profileType)) {
+//            throw new IncompatibleParameterException(GenericErrorCodes.INVALID_PARAMETER_VALUE,
+//                    "vehicle_type", vehicleTypeIn.toString(),
+//                    PARAM_PROFILE, RoutingProfileType.getName(profileType));
+//        }
+//
+//        if (vehicleTypeIn == null) {
+//            return HeavyVehicleAttributes.UNKNOWN;
+//        }
+//
+//        return HeavyVehicleAttributes.getFromString(vehicleTypeIn.toString());
+//    }
 
-    protected static String convertAPIEnum(Enum valuesIn) {
-        return valuesIn.toString();
-    }
-
-    protected static int convertVehicleType(APIEnums.VehicleType vehicleTypeIn, int profileType) throws IncompatibleParameterException {
-        if (!RoutingProfileType.isHeavyVehicle(profileType)) {
-            throw new IncompatibleParameterException(GenericErrorCodes.INVALID_PARAMETER_VALUE,
-                    "vehicle_type", vehicleTypeIn.toString(),
-                    PARAM_PROFILE, RoutingProfileType.getName(profileType));
-        }
-
-        if (vehicleTypeIn == null) {
-            return HeavyVehicleAttributes.UNKNOWN;
-        }
-
-        return HeavyVehicleAttributes.getFromString(vehicleTypeIn.toString());
-    }
-
+    //todo remove, when also IsochronesService is used
     protected static BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
         if (avoidBorders != null) {
             switch (avoidBorders) {
@@ -110,16 +114,19 @@ public class APIRequest {
         return null;
     }
 
-    protected static int convertRouteProfileType(APIEnums.Profile profile) {
-        return RoutingProfileType.getFromString(profile.toString());
-    }
+    //todo remove
+//    protected static int convertRouteProfileType(APIEnums.Profile profile) {
+//        return RoutingProfileType.getFromString(profile.toString());
+//    }
 
+    //todo remove when IsochronesService and MatrixService are used
     protected Polygon[] convertAndValidateAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
         Polygon[] avoidAreas = convertAvoidAreas(geoJson);
         validateAreaLimits(avoidAreas, profileType);
         return avoidAreas;
     }
 
+    //todo remove when IsochronesService and MatrixService are used
     protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
@@ -150,6 +157,8 @@ public class APIRequest {
         return avoidAreas;
     }
 
+    //todo remove when IsochronesService and MatrixService are used,
+    // method already implemented in AbstractApiService
     protected void validateAreaLimits(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
         String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
         String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
@@ -175,6 +184,7 @@ public class APIRequest {
         }
     }
 
+    //todo remove when IsochronesService and MatrixService are used
     protected static int[] convertAvoidCountries(String[] avoidCountries) throws ParameterValueException {
         int[] avoidCountryIds = new int[avoidCountries.length];
         if (avoidCountries.length > 0) {
@@ -196,6 +206,7 @@ public class APIRequest {
         return avoidCountryIds;
     }
 
+    //todo remove when (IsochronesService and) MatrixService are used
     public static DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
         DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
 
@@ -205,6 +216,7 @@ public class APIRequest {
         return units;
     }
 
+    //todo remove when IsochronesService and MatrixService are used
     protected static int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {
         int flags = 0;
         for (APIEnums.AvoidFeatures avoid : avoidFeatures) {
@@ -222,6 +234,7 @@ public class APIRequest {
         return flags;
     }
 
+    //todo remove when IsochronesService and MatrixService are used
     public RouteSearchParameters processRequestOptions(RequestOptions options, RouteSearchParameters params) throws StatusCodeException {
         if (options.hasAvoidBorders())
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
@@ -238,7 +251,7 @@ public class APIRequest {
         return params;
     }
 
-
+    //todo remove when IsochronesService is used
     protected ProfileParameters convertParameters(RequestOptions options, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
         if (options.getProfileParams().hasSurfaceQualityKnown() || options.getProfileParams().hasAllowUnsuitable()) {
@@ -270,6 +283,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     protected ProfileParameters convertSpecificProfileParameters(int profileType, RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
         ProfileParameters params = new ProfileParameters();
         if (RoutingProfileType.isHeavyVehicle(profileType))
@@ -279,6 +293,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     private VehicleParameters convertHeavyVehicleParameters(RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
 
         VehicleParameters params = new VehicleParameters();
@@ -296,6 +311,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     private VehicleParameters setLengthParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
         if (params != null && restrictions != null && restrictions.hasLength()) {
             params.setLength(restrictions.getLength());
@@ -304,6 +320,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     private VehicleParameters setWidthParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
         if (params != null && restrictions != null && restrictions.hasWidth()) {
             params.setWidth(restrictions.getWidth());
@@ -312,6 +329,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     private VehicleParameters setHeightParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
         if (params != null && restrictions != null && restrictions.hasHeight()) {
             params.setHeight(restrictions.getHeight());
@@ -320,6 +338,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     private VehicleParameters setWeightParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
         if (params != null && restrictions != null && restrictions.hasWeight()) {
             params.setWeight(restrictions.getWeight());
@@ -328,6 +347,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     private VehicleParameters setAxleLoadParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
         if (params != null && restrictions != null && restrictions.hasAxleLoad()) {
             params.setAxleload(restrictions.getAxleLoad());
@@ -336,6 +356,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     private VehicleParameters setLoadCharacteristicsParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
         if (params != null && restrictions != null) {
             int loadCharacteristics = 0;
@@ -348,6 +369,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     private WheelchairParameters convertWheelchairParamRestrictions(RequestProfileParamsRestrictions restrictions) {
         WheelchairParameters params = new WheelchairParameters();
 
@@ -367,6 +389,7 @@ public class APIRequest {
         return params;
     }
 
+    //todo remove when IsochronesService is used
     private void validateRestrictionsForProfile(RequestProfileParamsRestrictions restrictions, int profile) throws IncompatibleParameterException {
         // Check that we do not have some parameters that should not be there
         List<String> setRestrictions = restrictions.getRestrictionsThatAreSet();
@@ -401,6 +424,7 @@ public class APIRequest {
         }
     }
 
+    //todo remove when IsochronesService is used
     private ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) throws ParameterOutOfRangeException, ParameterValueException {
         try {
             if (weightings.hasGreenIndex()) {

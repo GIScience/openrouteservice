@@ -18,6 +18,8 @@ import org.heigit.ors.routing.RoutingProfileManager;
 
 import java.util.List;
 
+import static org.heigit.ors.api.services.AbstractApiService.convertRouteProfileType;
+
 @Schema(title = "Graph export Service", name = "graphExportService", description = "Graph export service endpoint.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ExportRequest extends APIRequest {

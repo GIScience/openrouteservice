@@ -38,6 +38,8 @@ endpoints:
     gpx_support_mail: support@openrouteservice.org
     gpx_author: openrouteservice
     gpx_content_licence: LGPL 3.0
+    maximum_avoid_polygon_area: 200000000
+    maximum_avoid_polygon_extent: 20000
   matrix:
     enabled: true
     attribution: openrouteservice.org, OpenStreetMap contributors
