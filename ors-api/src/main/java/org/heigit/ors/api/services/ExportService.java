@@ -26,11 +26,11 @@ public class ExportService extends AbstractApiService {
     }
 
     double getMaximumAvoidPolygonArea() {
-        return getEndpointsProperties().getRouting().getMaximumAvoidPolygonArea();
+        return 0d;
     }
 
     double getMaximumAvoidPolygonExtent() {
-        return getEndpointsProperties().getRouting().getMaximumAvoidPolygonExtent();
+        return 0d;
     }
 
     EndpointsProperties getEndpointsProperties(){

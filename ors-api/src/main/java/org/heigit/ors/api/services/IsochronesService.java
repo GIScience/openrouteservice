@@ -50,13 +50,11 @@ public class IsochronesService extends AbstractApiService {
     }
 
     double getMaximumAvoidPolygonArea() {
-//        return getEndpointsProperties().getIsochrone().getMaximumAvoidPolygonArea();
-        return 0;
+        return 0d;
     }
 
     double getMaximumAvoidPolygonExtent() {
-//        return getEndpointsProperties().getIsochrone().getMaximumAvoidPolygonExtent();
-        return 0;
+        return 0d;
     }
 
 

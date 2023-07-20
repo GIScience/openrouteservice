@@ -36,11 +36,11 @@ public class MatrixService extends AbstractApiService {
     }
 
     double getMaximumAvoidPolygonArea() {
-        return 0;
+        return 0d;
     }
 
     double getMaximumAvoidPolygonExtent() {
-        return 0;
+        return 0d;
     }
 
     EndpointsProperties getEndpointsProperties(){
