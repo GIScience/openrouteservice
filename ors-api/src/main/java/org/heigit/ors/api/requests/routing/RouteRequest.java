@@ -287,7 +287,8 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
                     @ExtensionProperty(name = "ref", value = "schedule"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )},
-            example = "PT30M")
+            example = "PT30M",
+            type = "String")
     @JsonProperty(PARAM_SCHEDULE_DURATION)
     private Duration scheduleDuration;
     @JsonIgnore
@@ -310,7 +311,8 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
                     @ExtensionProperty(name = "value", value = "public-transport")}
             )},
             defaultValue = "PT15M",
-            example = "PT30M")
+            example = "PT30M",
+            type = "String")
     @JsonProperty(PARAM_WALKING_TIME)
     private Duration walkingTime;
     @JsonIgnore
