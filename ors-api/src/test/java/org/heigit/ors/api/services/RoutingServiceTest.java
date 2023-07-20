@@ -44,7 +44,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("unittest")
-class RoutingServiceConvertRouteRequestTest {
+class RoutingServiceTest {
 
     @Autowired RoutingService routingService;
     @Autowired EndpointsProperties endpointsProperties = new EndpointsProperties();
@@ -58,7 +58,7 @@ class RoutingServiceConvertRouteRequestTest {
 
     private final JSONObject geoJsonPolygon;
 
-    public RoutingServiceConvertRouteRequestTest() throws Exception {
+    public RoutingServiceTest() throws Exception {
         init();
         geoJsonPolygon = constructGeoJson();
     }

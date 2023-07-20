@@ -1,6 +1,5 @@
 package org.heigit.ors.api.services;
 
-import org.checkerframework.checker.units.qual.A;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
@@ -35,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ActiveProfiles("unittest")
-public class IsochronesServiceConvertRequestTest {
+public class IsochronesServiceTest {
     IsochronesRequest request;
 
     private RequestProfileParamsRestrictions vehicleParams;
