@@ -13,13 +13,20 @@
  */
 package org.heigit.ors.apitests.swagger;
 
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import io.swagger.parser.OpenAPIParser;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springdoc.core.properties.SpringDocConfigProperties.ApiDocs.OpenApiVersion.OPENAPI_3_0;
 
 
@@ -27,19 +34,16 @@ import static org.springdoc.core.properties.SpringDocConfigProperties.ApiDocs.Op
 @VersionAnnotation(version = "v2")
 class ResultTest extends ServiceTest {
 
-    //    The commented parts should be introduced once the swagger-parser package uses the latest snakeyaml version.
-//    SwaggerParseResult result;
-//    OpenAPI openAPI;
+    SwaggerParseResult result;
+    OpenAPI openAPI;
     String openAPIVersion = String.valueOf(OPENAPI_3_0.getVersion());
 
-//    @BeforeEach
-//    void setUp() {
-//        Response response = RestAssured.given().get(getEndPointPath());
-//        // parse a openapi description from the petstore and get the result
-//        result = new OpenAPIParser().readContents(response.getBody().asString(), null, null);
-//        // the parsed POJO
-//        openAPI = result.getOpenAPI();
-//    }
+    @BeforeEach
+    void setUp() {
+        Response response = RestAssured.given().get(getEndPointPath());
+        result = new OpenAPIParser().readContents(response.getBody().asString(), null, null);
+        openAPI = result.getOpenAPI();
+    }
 
 
     @Test
@@ -64,44 +68,50 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-//    @Test
-//    void testSwaggerSpecValidationErrors() {
-//        if (result.getMessages() != null) {
-//            result.getMessages().forEach(System.err::println);
-//        }
-//        // Assure that no openapi spec validation errors exist.
-//        assertTrue(result.getMessages().isEmpty());
-//        assertTrue(result.isOpenapi31());
-//    }
+    /**
+     * Assure that no openapi spec validation errors exist.
+     * If you encounter an error here, set a breakpoint in:
+     * {@link io.swagger.v3.parser.util.OpenAPIDeserializer.ParseResult} currently around Line 4217 and following
+     * depending on the error type and check the `value` which hints the problem location.
+     * Or go up the call stack and check the `node` to get the exact location, because the provided location in
+     * the error only goes up to the root schema e.g. components.schemas.MatrixRequest
+     */
+    @Test
+    void testSwaggerSpecValidationErrors() {
+        if (result.getMessages() != null) {
+            result.getMessages().forEach(System.err::println);
+        }
+        assertTrue(result.getMessages().isEmpty());
+    }
 
-//    @Test
-//    void testSwaggerVersion() {
-//        assertEquals(openAPIVersion, openAPI.getOpenapi());
-//    }
+    @Test
+    void testSwaggerVersion() {
+        assertEquals(openAPIVersion, openAPI.getOpenapi());
+    }
 
-//    @Test
-//    void testSwaggerInfo() {
-//        assertNotNull(openAPI.getInfo());
-//        assertEquals("Openrouteservice", openAPI.getInfo().getTitle());
-//        assertEquals("v2", openAPI.getInfo().getVersion());
-//    }
+    @Test
+    void testSwaggerInfo() {
+        assertNotNull(openAPI.getInfo());
+        assertEquals("Openrouteservice", openAPI.getInfo().getTitle());
+        assertEquals("v2", openAPI.getInfo().getVersion());
+    }
 
-//    @Test
-//    void testSwaggerTags() {
-//        assertNotNull(openAPI.getTags());
-//        assertEquals(7, openAPI.getTags().size());
-//    }
+    @Test
+    void testSwaggerTags() {
+        assertNotNull(openAPI.getTags());
+        assertEquals(6, openAPI.getTags().size());
+    }
 
-//    @Test
-//    void testSwaggerPaths() {
-//        assertNotNull(openAPI.getPaths());
-//        assertEquals(14, openAPI.getPaths().size());
-//    }
+    @Test
+    void testSwaggerPaths() {
+        assertNotNull(openAPI.getPaths());
+        assertEquals(10, openAPI.getPaths().size());
+    }
 
-//    @Test
-//    void testSwaggerComponents() {
-//        assertNotNull(openAPI.getComponents());
-//        assertNotNull(openAPI.getComponents().getSchemas());
-//        assertEquals(43, openAPI.getComponents().getSchemas().size());
-//    }
+    @Test
+    void testSwaggerComponents() {
+        assertNotNull(openAPI.getComponents());
+        assertNotNull(openAPI.getComponents().getSchemas());
+        assertEquals(38, openAPI.getComponents().getSchemas().size());
+    }
 }
