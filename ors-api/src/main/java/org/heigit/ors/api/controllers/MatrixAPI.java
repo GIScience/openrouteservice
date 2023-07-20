@@ -31,6 +31,7 @@ import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.responses.matrix.json.JSONMatrixResponse;
+import org.heigit.ors.api.services.MatrixService;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
@@ -59,10 +60,12 @@ public class MatrixAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(MatrixErrorCodes.BASE);
     private final EndpointsProperties endpointsProperties;
     private final SystemMessageProperties systemMessageProperties;
+    private final MatrixService matrixService;
 
-    public MatrixAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties) {
+    public MatrixAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, MatrixService matrixService) {
         this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
         this.systemMessageProperties = systemMessageProperties;
+        this.matrixService = matrixService;
     }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
@@ -124,7 +127,7 @@ public class MatrixAPI {
             @Parameter(description = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
-        MatrixResult matrixResult = originalRequest.generateMatrixFromRequest(endpointsProperties);
+        MatrixResult matrixResult = matrixService.generateMatrixFromRequest(originalRequest);
 
         return new JSONMatrixResponse(matrixResult, originalRequest, systemMessageProperties, endpointsProperties);
     }

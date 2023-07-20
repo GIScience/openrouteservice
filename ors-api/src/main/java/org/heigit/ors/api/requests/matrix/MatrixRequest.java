@@ -262,164 +262,164 @@ public class MatrixRequest extends APIRequest {
     public void setResponseType(APIEnums.MatrixResponseType responseType) {
         this.responseType = responseType;
     }
-
-    public MatrixResult generateMatrixFromRequest(EndpointsProperties endpointsProperties) throws StatusCodeException {
-        org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest(endpointsProperties);
-
-        try {
-            return RoutingProfileManager.getInstance().computeMatrix(coreRequest);
-        } catch (StatusCodeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new StatusCodeException(MatrixErrorCodes.UNKNOWN);
-        }
-    }
-
-    public org.heigit.ors.matrix.MatrixRequest convertMatrixRequest(EndpointsProperties endpointsProperties) throws StatusCodeException {
-        org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest(
-                endpointsProperties.getMatrix().getMaximumSearchRadius(),
-                endpointsProperties.getMatrix().getMaximumVisitedNodes(),
-                endpointsProperties.getMatrix().getUTurnCost());
-
-        int numberOfSources = sources == null ? locations.size() : sources.length;
-        int numberODestinations = destinations == null ? locations.size() : destinations.length;
-        Coordinate[] locations = convertLocations(this.locations, numberOfSources * numberODestinations, endpointsProperties);
-
-        coreRequest.setProfileType(convertToMatrixProfileType(profile));
-
-        if (this.hasMetrics())
-            coreRequest.setMetrics(convertMetrics(metrics));
-
-        if (this.hasDestinations())
-            coreRequest.setDestinations(convertDestinations(destinations, locations));
-        else {
-            coreRequest.setDestinations(convertDestinations(new String[]{"all"}, locations));
-        }
-        if (this.hasSources())
-            coreRequest.setSources(convertSources(sources, locations));
-        else {
-            coreRequest.setSources(convertSources(new String[]{"all"}, locations));
-        }
-        if (this.hasId())
-            coreRequest.setId(id);
-        if (this.hasOptimized())
-            coreRequest.setFlexibleMode(!optimized);
-        if (this.hasResolveLocations())
-            coreRequest.setResolveLocations(resolveLocations);
-        if (this.hasUnits())
-            coreRequest.setUnits(convertUnits(units));
-
-        MatrixSearchParameters params = new MatrixSearchParameters();
-        if (this.hasMatrixOptions())
-            coreRequest.setFlexibleMode(this.processMatrixRequestOptions(params));
-        coreRequest.setSearchParameters(params);
-        return coreRequest;
-    }
-
-    private boolean processMatrixRequestOptions(MatrixSearchParameters params) throws StatusCodeException {
-        try {
-            int profileType = convertRouteProfileType(profile);
-            params.setProfileType(profileType);
-        } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
-        }
-        processRequestOptions(matrixOptions, params);
-
-        if (matrixOptions.hasDynamicSpeeds()) {
-            params.setDynamicSpeeds(matrixOptions.getDynamicSpeeds());
-        }
-
-        return isFlexibleMode(matrixOptions);
-    }
+//
+//    public MatrixResult generateMatrixFromRequest(EndpointsProperties endpointsProperties) throws StatusCodeException {
+//        org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest(endpointsProperties);
+//
+//        try {
+//            return RoutingProfileManager.getInstance().computeMatrix(coreRequest);
+//        } catch (StatusCodeException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            throw new StatusCodeException(MatrixErrorCodes.UNKNOWN);
+//        }
+//    }
+//
+//    public org.heigit.ors.matrix.MatrixRequest convertMatrixRequest(EndpointsProperties endpointsProperties) throws StatusCodeException {
+//        org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest(
+//                endpointsProperties.getMatrix().getMaximumSearchRadius(),
+//                endpointsProperties.getMatrix().getMaximumVisitedNodes(),
+//                endpointsProperties.getMatrix().getUTurnCost());
+//
+//        int numberOfSources = sources == null ? locations.size() : sources.length;
+//        int numberODestinations = destinations == null ? locations.size() : destinations.length;
+//        Coordinate[] locations = convertLocations(this.locations, numberOfSources * numberODestinations, endpointsProperties);
+//
+//        coreRequest.setProfileType(convertToMatrixProfileType(profile));
+//
+//        if (this.hasMetrics())
+//            coreRequest.setMetrics(convertMetrics(metrics));
+//
+//        if (this.hasDestinations())
+//            coreRequest.setDestinations(convertDestinations(destinations, locations));
+//        else {
+//            coreRequest.setDestinations(convertDestinations(new String[]{"all"}, locations));
+//        }
+//        if (this.hasSources())
+//            coreRequest.setSources(convertSources(sources, locations));
+//        else {
+//            coreRequest.setSources(convertSources(new String[]{"all"}, locations));
+//        }
+//        if (this.hasId())
+//            coreRequest.setId(id);
+//        if (this.hasOptimized())
+//            coreRequest.setFlexibleMode(!optimized);
+//        if (this.hasResolveLocations())
+//            coreRequest.setResolveLocations(resolveLocations);
+//        if (this.hasUnits())
+//            coreRequest.setUnits(convertUnits(units));
+//
+//        MatrixSearchParameters params = new MatrixSearchParameters();
+//        if (this.hasMatrixOptions())
+//            coreRequest.setFlexibleMode(this.processMatrixRequestOptions(params));
+//        coreRequest.setSearchParameters(params);
+//        return coreRequest;
+//    }
+//
+//    private boolean processMatrixRequestOptions(MatrixSearchParameters params) throws StatusCodeException {
+//        try {
+//            int profileType = convertRouteProfileType(profile);
+//            params.setProfileType(profileType);
+//        } catch (Exception e) {
+//            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
+//        }
+//        processRequestOptions(matrixOptions, params);
+//
+//        if (matrixOptions.hasDynamicSpeeds()) {
+//            params.setDynamicSpeeds(matrixOptions.getDynamicSpeeds());
+//        }
+//
+//        return isFlexibleMode(matrixOptions);
+//    }
 
     public static boolean isFlexibleMode(MatrixRequestOptions opt) {
         return opt.hasAvoidBorders() || opt.hasAvoidPolygonFeatures() || opt.hasAvoidCountries() || opt.hasAvoidFeatures() || opt.hasDynamicSpeeds();
     }
 
-
-    public int convertMetrics(MatrixRequestEnums.Metrics[] metrics) throws ParameterValueException {
-        List<String> metricsAsStrings = new ArrayList<>();
-        for (MatrixRequestEnums.Metrics metric : metrics) {
-            metricsAsStrings.add(metric.toString());
-        }
-
-        String concatMetrics = String.join("|", metricsAsStrings);
-
-        int combined = MatrixMetricsType.getFromString(concatMetrics);
-
-        if (combined == MatrixMetricsType.UNKNOWN)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_METRICS);
-
-        return combined;
-    }
-
-    protected Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes, EndpointsProperties endpointsProperties) throws ParameterValueException, ServerLimitExceededException {
-        if (locations == null || locations.size() < 2)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
-        int maximumNumberOfRoutes = endpointsProperties.getMatrix().getMaximumRoutes(false);
-        if (numberOfRoutes > maximumNumberOfRoutes)
-            throw new ServerLimitExceededException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "Only a total of " + maximumNumberOfRoutes + " routes are allowed.");
-        ArrayList<Coordinate> locationCoordinates = new ArrayList<>();
-
-        for (List<Double> coordinate : locations) {
-            locationCoordinates.add(convertSingleLocationCoordinate(coordinate));
-        }
-        try {
-            return locationCoordinates.toArray(new Coordinate[locations.size()]);
-        } catch (NumberFormatException | ArrayStoreException | NullPointerException ex) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
-        }
-    }
-
-    protected Coordinate convertSingleLocationCoordinate(List<Double> coordinate) throws ParameterValueException {
-        if (coordinate.size() != 2)
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
-        return new Coordinate(coordinate.get(0), coordinate.get(1));
-    }
-
-    protected Coordinate[] convertSources(String[] sourcesIndex, Coordinate[] locations) throws ParameterValueException {
-        int length = sourcesIndex.length;
-        if (length == 0) return locations;
-        if (length == 1 && "all".equalsIgnoreCase(sourcesIndex[0])) return locations;
-        try {
-            ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(sourcesIndex, locations);
-            return indexCoordinateArray.toArray(new Coordinate[0]);
-        } catch (Exception ex) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_SOURCES);
-        }
-    }
-
-    protected Coordinate[] convertDestinations(String[] destinationsIndex, Coordinate[] locations) throws ParameterValueException {
-        int length = destinationsIndex.length;
-        if (length == 0) return locations;
-        if (length == 1 && "all".equalsIgnoreCase(destinationsIndex[0])) return locations;
-        try {
-            ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(destinationsIndex, locations);
-            return indexCoordinateArray.toArray(new Coordinate[0]);
-        } catch (Exception ex) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_DESTINATIONS);
-        }
-    }
-
-    protected ArrayList<Coordinate> convertIndexToLocations(String[] index, Coordinate[] locations) {
-        ArrayList<Coordinate> indexCoordinates = new ArrayList<>();
-        for (String indexString : index) {
-            int indexInteger = Integer.parseInt(indexString);
-            indexCoordinates.add(locations[indexInteger]);
-        }
-        return indexCoordinates;
-    }
-
-    protected int convertToMatrixProfileType(APIEnums.Profile profile) throws ParameterValueException {
-        try {
-            int profileFromString = RoutingProfileType.getFromString(profile.toString());
-            if (profileFromString == 0) {
-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
-            }
-            return profileFromString;
-        } catch (Exception e) {
-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
-        }
-    }
+//
+//    public int convertMetrics(MatrixRequestEnums.Metrics[] metrics) throws ParameterValueException {
+//        List<String> metricsAsStrings = new ArrayList<>();
+//        for (MatrixRequestEnums.Metrics metric : metrics) {
+//            metricsAsStrings.add(metric.toString());
+//        }
+//
+//        String concatMetrics = String.join("|", metricsAsStrings);
+//
+//        int combined = MatrixMetricsType.getFromString(concatMetrics);
+//
+//        if (combined == MatrixMetricsType.UNKNOWN)
+//            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_METRICS);
+//
+//        return combined;
+//    }
+//
+//    protected Coordinate[] convertLocations(List<List<Double>> locations, int numberOfRoutes, EndpointsProperties endpointsProperties) throws ParameterValueException, ServerLimitExceededException {
+//        if (locations == null || locations.size() < 2)
+//            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
+//        int maximumNumberOfRoutes = endpointsProperties.getMatrix().getMaximumRoutes(false);
+//        if (numberOfRoutes > maximumNumberOfRoutes)
+//            throw new ServerLimitExceededException(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, "Only a total of " + maximumNumberOfRoutes + " routes are allowed.");
+//        ArrayList<Coordinate> locationCoordinates = new ArrayList<>();
+//
+//        for (List<Double> coordinate : locations) {
+//            locationCoordinates.add(convertSingleLocationCoordinate(coordinate));
+//        }
+//        try {
+//            return locationCoordinates.toArray(new Coordinate[locations.size()]);
+//        } catch (NumberFormatException | ArrayStoreException | NullPointerException ex) {
+//            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
+//        }
+//    }
+//
+//    protected Coordinate convertSingleLocationCoordinate(List<Double> coordinate) throws ParameterValueException {
+//        if (coordinate.size() != 2)
+//            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_LOCATIONS);
+//        return new Coordinate(coordinate.get(0), coordinate.get(1));
+//    }
+//
+//    protected Coordinate[] convertSources(String[] sourcesIndex, Coordinate[] locations) throws ParameterValueException {
+//        int length = sourcesIndex.length;
+//        if (length == 0) return locations;
+//        if (length == 1 && "all".equalsIgnoreCase(sourcesIndex[0])) return locations;
+//        try {
+//            ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(sourcesIndex, locations);
+//            return indexCoordinateArray.toArray(new Coordinate[0]);
+//        } catch (Exception ex) {
+//            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_SOURCES);
+//        }
+//    }
+//
+//    protected Coordinate[] convertDestinations(String[] destinationsIndex, Coordinate[] locations) throws ParameterValueException {
+//        int length = destinationsIndex.length;
+//        if (length == 0) return locations;
+//        if (length == 1 && "all".equalsIgnoreCase(destinationsIndex[0])) return locations;
+//        try {
+//            ArrayList<Coordinate> indexCoordinateArray = convertIndexToLocations(destinationsIndex, locations);
+//            return indexCoordinateArray.toArray(new Coordinate[0]);
+//        } catch (Exception ex) {
+//            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_DESTINATIONS);
+//        }
+//    }
+//
+//    protected ArrayList<Coordinate> convertIndexToLocations(String[] index, Coordinate[] locations) {
+//        ArrayList<Coordinate> indexCoordinates = new ArrayList<>();
+//        for (String indexString : index) {
+//            int indexInteger = Integer.parseInt(indexString);
+//            indexCoordinates.add(locations[indexInteger]);
+//        }
+//        return indexCoordinates;
+//    }
+//
+//    protected int convertToMatrixProfileType(APIEnums.Profile profile) throws ParameterValueException {
+//        try {
+//            int profileFromString = RoutingProfileType.getFromString(profile.toString());
+//            if (profileFromString == 0) {
+//                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
+//            }
+//            return profileFromString;
+//        } catch (Exception e) {
+//            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
+//        }
+//    }
 }
 
