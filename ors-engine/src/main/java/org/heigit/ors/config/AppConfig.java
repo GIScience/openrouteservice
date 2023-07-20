@@ -39,6 +39,7 @@ public class AppConfig {
     private static String osmMd5Hash = null;
     private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
     private static final String SERVICE_NAME_ROUTING = "routing";
+    private static final String SERVICE_NAME_ISOCHRONES = "isochrones";
 
     public AppConfig(String path) {
         File file = new File(path);
@@ -311,5 +312,13 @@ public class AppConfig {
 
     public static Map<String, Object> getRoutingParametersMap(String paramName, boolean quotedStrings) {
         return getGlobal().getServiceParametersMap(SERVICE_NAME_ROUTING, paramName, quotedStrings);
+    }
+
+    public static List<String> getIsochronesParametersList(String paramName) {
+        return getGlobal().getServiceParametersList(SERVICE_NAME_ISOCHRONES, paramName);
+    }
+
+    public static Map<String, Object> getIsochronesParametersMap(String paramName, boolean quotedStrings) {
+        return getGlobal().getServiceParametersMap(SERVICE_NAME_ISOCHRONES, paramName, quotedStrings);
     }
 }

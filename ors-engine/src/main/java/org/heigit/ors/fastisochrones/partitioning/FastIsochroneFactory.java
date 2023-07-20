@@ -18,7 +18,6 @@ import com.graphhopper.config.Profile;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.util.Helper;
-import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
@@ -57,10 +56,6 @@ public class FastIsochroneFactory {
         fastIsochroneProfiles = orsConfig.getFastisochroneProfiles();
         boolean enableThis = !fastIsochroneProfiles.isEmpty();
         setEnabled(enableThis);
-        if (enableThis) {
-            setDisablingAllowed(orsConfig.getBool(FastIsochrone.INIT_DISABLING_ALLOWED, isDisablingAllowed()));
-            IsochronesServiceSettings.setFastIsochronesActive(orsConfig.getString(FastIsochrone.PROFILE, ""));
-        }
     }
 
     public List<Profile> getFastIsochroneProfiles() {
@@ -81,14 +76,6 @@ public class FastIsochroneFactory {
 
     public final boolean isDisablingAllowed() {
         return disablingAllowed || !isEnabled();
-    }
-
-    /**
-     * This method specifies if it is allowed to disable Core routing at runtime via routing hints.
-     */
-    public final FastIsochroneFactory setDisablingAllowed(boolean disablingAllowed) {
-        this.disablingAllowed = disablingAllowed;
-        return this;
     }
 
     public FastIsochroneFactory setPartition(PreparePartition pp) {

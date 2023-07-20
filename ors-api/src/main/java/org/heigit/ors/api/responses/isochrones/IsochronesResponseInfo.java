@@ -25,7 +25,6 @@ import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.api.util.AppInfo;
 import org.json.JSONObject;
 
