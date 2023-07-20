@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
+import org.heigit.ors.api.services.ExportService;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.export.ExportRequest;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
@@ -53,6 +54,12 @@ import javax.servlet.http.HttpServletResponse;
 @ApiResponse(responseCode = "503", description = "The server is currently unavailable due to overload or maintenance.")
 public class ExportAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(ExportErrorCodes.BASE);
+
+    private final ExportService exportService;
+
+    public ExportAPI(ExportService exportService) {
+        this.exportService = exportService;
+    }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
@@ -113,7 +120,7 @@ public class ExportAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.ExportResponseType.JSON);
 
-        ExportResult result = request.generateExportFromRequest();
+        ExportResult result = exportService.generateExportFromRequest(request);
 
         return new JsonExportResponse(result);
     }

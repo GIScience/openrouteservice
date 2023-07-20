@@ -96,59 +96,59 @@ public class ExportRequest extends APIRequest {
         this.responseType = responseType;
     }
 
-    public ExportResult generateExportFromRequest() throws StatusCodeException {
-        org.heigit.ors.export.ExportRequest exportRequest = this.convertExportRequest();
-
-        try {
-            return RoutingProfileManager.getInstance().computeExport(exportRequest);
-        } catch (StatusCodeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, ExportErrorCodes.UNKNOWN);
-        }
-    }
-
-    private org.heigit.ors.export.ExportRequest convertExportRequest() throws StatusCodeException {
-        org.heigit.ors.export.ExportRequest exportRequest = new org.heigit.ors.export.ExportRequest();
-
-        if  (this.hasId())
-            exportRequest.setId(this.getId());
-
-        int profileType = -1;
-
-        try {
-            profileType = convertRouteProfileType(this.getProfile());
-            exportRequest.setProfileType(profileType);
-        } catch (Exception e) {
-            throw new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ExportRequest.PARAM_PROFILE);
-        }
-
-        exportRequest.setBoundingBox(convertBBox(this.getBbox()));
-        exportRequest.setDebug(debug);
-
-        return exportRequest;
-    }
-
-    BBox convertBBox(List<List<Double>> coordinates) throws ParameterValueException {
-        if (coordinates.size() != 2) {
-            throw new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ExportRequest.PARAM_BBOX);
-        }
-
-        double[] coords = {};
-
-        for (List<Double> coord : coordinates) {
-            coords = Doubles.concat(coords, convertSingleCoordinate(coord));
-        }
-
-        return new BBox(coords);
-    }
-
-    private double[] convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
-        if (coordinate.size() != 2) {
-            throw new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ExportRequest.PARAM_BBOX);
-        }
-
-        return new double[]{coordinate.get(0), coordinate.get(1)};
-    }
-
+//    public ExportResult generateExportFromRequest() throws StatusCodeException {
+//        org.heigit.ors.export.ExportRequest exportRequest = this.convertExportRequest();
+//
+//        try {
+//            return RoutingProfileManager.getInstance().computeExport(exportRequest);
+//        } catch (StatusCodeException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, ExportErrorCodes.UNKNOWN);
+//        }
+//    }
+//
+//    private org.heigit.ors.export.ExportRequest convertExportRequest() throws StatusCodeException {
+//        org.heigit.ors.export.ExportRequest exportRequest = new org.heigit.ors.export.ExportRequest();
+//
+//        if  (this.hasId())
+//            exportRequest.setId(this.getId());
+//
+//        int profileType = -1;
+//
+//        try {
+//            profileType = convertRouteProfileType(this.getProfile());
+//            exportRequest.setProfileType(profileType);
+//        } catch (Exception e) {
+//            throw new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ExportRequest.PARAM_PROFILE);
+//        }
+//
+//        exportRequest.setBoundingBox(convertBBox(this.getBbox()));
+//        exportRequest.setDebug(debug);
+//
+//        return exportRequest;
+//    }
+//
+//    BBox convertBBox(List<List<Double>> coordinates) throws ParameterValueException {
+//        if (coordinates.size() != 2) {
+//            throw new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ExportRequest.PARAM_BBOX);
+//        }
+//
+//        double[] coords = {};
+//
+//        for (List<Double> coord : coordinates) {
+//            coords = Doubles.concat(coords, convertSingleCoordinate(coord));
+//        }
+//
+//        return new BBox(coords);
+//    }
+//
+//    private double[] convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
+//        if (coordinate.size() != 2) {
+//            throw new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ExportRequest.PARAM_BBOX);
+//        }
+//
+//        return new double[]{coordinate.get(0), coordinate.get(1)};
+//    }
+//
 }
