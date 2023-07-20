@@ -80,7 +80,7 @@ public class MatrixRequest extends APIRequest {
             "* `distance` - Returns distance matrix for specified points in defined `units`.
             * `duration` - Returns duration matrix for specified points in **seconds**.
             """,
-            defaultValue = "duration")
+            defaultValue = "[\"duration\"]")
     @JsonProperty(value = PARAM_METRICS)
     private MatrixRequestEnums.Metrics[] metrics;
     @JsonIgnore
