@@ -215,11 +215,11 @@ public class EndpointsProperties {
             this.maximumVisitedNodes = maximumVisitedNodes;
         }
 
-        public double getMaximumSearchRadius() {// vorlage todo remove comment
+        public double getMaximumSearchRadius() {
             return maximumSearchRadius;
         }
 
-        public void setMaximumSearchRadius(double maximumSearchRadius) { //vorlage todo remove comment
+        public void setMaximumSearchRadius(double maximumSearchRadius) {
             this.maximumSearchRadius = maximumSearchRadius;
         }
 
