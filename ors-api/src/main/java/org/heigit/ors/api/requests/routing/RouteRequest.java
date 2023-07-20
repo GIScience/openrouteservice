@@ -282,7 +282,8 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     @JsonIgnore
     private boolean hasSchedule = false;
 
-    @Schema(name= PARAM_SCHEDULE_DURATION, description = "The time window when requesting a public transport schedule.",
+    @Schema(name= PARAM_SCHEDULE_DURATION, description = "The time window when requesting a public transport schedule." +
+            " The format is passed as ISO 8601 duration: https://en.wikipedia.org/wiki/ISO_8601#Durations",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "schedule"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
@@ -305,7 +306,8 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     @JsonIgnore
     private boolean hasScheduleRows = false;
 
-    @Schema(name= PARAM_WALKING_TIME, description = "Maximum duration for walking access and egress of public transport.",
+    @Schema(name= PARAM_WALKING_TIME, description = "Maximum duration for walking access and egress of public transport." +
+            " The value is passed in ISO 8601 duration format: https://en.wikipedia.org/wiki/ISO_8601#Durations",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "public-transport")}
