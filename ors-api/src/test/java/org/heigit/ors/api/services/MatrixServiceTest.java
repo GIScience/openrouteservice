@@ -348,9 +348,9 @@ class MatrixServiceTest {
 
     @Test
     void convertUnitsTest() throws ParameterValueException {
-        assertEquals(DistanceUnit.METERS, APIRequest.convertUnits(APIEnums.Units.METRES));
-        assertEquals(DistanceUnit.KILOMETERS, APIRequest.convertUnits(APIEnums.Units.KILOMETRES));
-        assertEquals(DistanceUnit.MILES, APIRequest.convertUnits(APIEnums.Units.MILES));
+        assertEquals(DistanceUnit.METERS, matrixService.convertUnits(APIEnums.Units.METRES));
+        assertEquals(DistanceUnit.KILOMETERS, matrixService.convertUnits(APIEnums.Units.KILOMETRES));
+        assertEquals(DistanceUnit.MILES, matrixService.convertUnits(APIEnums.Units.MILES));
     }
 
     @Test
