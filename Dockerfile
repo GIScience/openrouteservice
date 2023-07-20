@@ -15,8 +15,8 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/*
 
 FROM base as tomcat
-ARG TOMCAT_MAJOR=9
-ARG TOMCAT_VERSION=9.0.75
+ARG TOMCAT_MAJOR=10
+ARG TOMCAT_VERSION=10.1.11
 
 # hadolint ignore=DL3002
 USER root
