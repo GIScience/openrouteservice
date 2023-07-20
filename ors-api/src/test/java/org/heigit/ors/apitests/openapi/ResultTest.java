@@ -11,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public License along with this library;
  *  if not, see <https://www.gnu.org/licenses/>.
  */
-package org.heigit.ors.apitests.swagger;
+package org.heigit.ors.apitests.openapi;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -47,7 +47,7 @@ class ResultTest extends ServiceTest {
 
 
     @Test
-    void testGetSwagger() {
+    void testGetOpenAPI() {
         given()
                 .get(getEndPointPath())
                 .then().log().ifValidationFails()
@@ -77,7 +77,7 @@ class ResultTest extends ServiceTest {
      * the error only goes up to the root schema e.g. components.schemas.MatrixRequest
      */
     @Test
-    void testSwaggerSpecValidationErrors() {
+    void testOpenAPISpecValidationErrors() {
         if (result.getMessages() != null) {
             result.getMessages().forEach(System.err::println);
         }
@@ -85,31 +85,31 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
-    void testSwaggerVersion() {
+    void testOpenAPIVersion() {
         assertEquals(openAPIVersion, openAPI.getOpenapi());
     }
 
     @Test
-    void testSwaggerInfo() {
+    void testOpenAPIInfo() {
         assertNotNull(openAPI.getInfo());
         assertEquals("Openrouteservice", openAPI.getInfo().getTitle());
         assertEquals("v2", openAPI.getInfo().getVersion());
     }
 
     @Test
-    void testSwaggerTags() {
+    void testOpenAPITags() {
         assertNotNull(openAPI.getTags());
         assertEquals(6, openAPI.getTags().size());
     }
 
     @Test
-    void testSwaggerPaths() {
+    void testOpenAPIPaths() {
         assertNotNull(openAPI.getPaths());
         assertEquals(10, openAPI.getPaths().size());
     }
 
     @Test
-    void testSwaggerComponents() {
+    void testOpenAPIComponents() {
         assertNotNull(openAPI.getComponents());
         assertNotNull(openAPI.getComponents().getSchemas());
         assertEquals(38, openAPI.getComponents().getSchemas().size());
