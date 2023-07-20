@@ -32,6 +32,7 @@ import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochronesResponse;
+import org.heigit.ors.api.services.IsochronesService;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
@@ -60,10 +61,12 @@ public class IsochronesAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(IsochronesErrorCodes.BASE);
     private final EndpointsProperties endpointsProperties;
     private final SystemMessageProperties systemMessageProperties;
+    private final IsochronesService isochronesService;
 
-    public IsochronesAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties) {
+    public IsochronesAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, IsochronesService isochronesService) {
         this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
         this.systemMessageProperties = systemMessageProperties;
+        this.isochronesService = isochronesService;
     }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
@@ -134,7 +137,7 @@ public class IsochronesAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
-        request.generateIsochronesFromRequest(endpointsProperties);
+        isochronesService.generateIsochronesFromRequest(request);
         IsochroneMapCollection isoMaps = request.getIsoMaps();
         return new GeoJSONIsochronesResponse(request, isoMaps, systemMessageProperties, endpointsProperties);
     }
