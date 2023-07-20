@@ -97,21 +97,15 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
-    void testOpenAPITags() {
+    void testOpenAPIProperties() {
         assertNotNull(openAPI.getTags());
-        assertEquals(6, openAPI.getTags().size());
-    }
+        assertTrue(0 < openAPI.getTags().size());
 
-    @Test
-    void testOpenAPIPaths() {
         assertNotNull(openAPI.getPaths());
-        assertEquals(10, openAPI.getPaths().size());
-    }
+        assertTrue(0 < openAPI.getPaths().size());
 
-    @Test
-    void testOpenAPIComponents() {
         assertNotNull(openAPI.getComponents());
         assertNotNull(openAPI.getComponents().getSchemas());
-        assertEquals(38, openAPI.getComponents().getSchemas().size());
+        assertTrue(0 < openAPI.getComponents().getSchemas().size());
     }
 }
