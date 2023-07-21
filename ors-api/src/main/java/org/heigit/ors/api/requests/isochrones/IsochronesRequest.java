@@ -21,35 +21,20 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
-import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
-import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
-import org.heigit.ors.routing.*;
-import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
-import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.common.StatusCode;
-import org.heigit.ors.common.TravelRangeType;
-import org.heigit.ors.common.TravellerInfo;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.ParameterOutOfRangeException;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.isochrones.*;
-import org.heigit.ors.util.DistanceUnitUtil;
+import org.heigit.ors.isochrones.IsochroneMapCollection;
+import org.heigit.ors.isochrones.IsochroneRequest;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
+import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.routing.RoutingProfileType;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.CONCAVE_BALLS;
-import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.CalculationMethod.FASTISOCHRONE;
 import static org.heigit.ors.api.services.AbstractApiService.convertAPIEnumListToStrings;
-import static org.heigit.ors.common.TravelRangeType.DISTANCE;
 
 
 @Schema(name = "IsochronesRequest", description = "The JSON body request sent to the isochrones service which defines options and parameters regarding the isochrones to generate.")

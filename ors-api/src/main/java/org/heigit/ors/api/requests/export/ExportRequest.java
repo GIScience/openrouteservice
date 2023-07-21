@@ -4,21 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.primitives.Doubles;
-import com.graphhopper.util.shapes.BBox;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
-import org.heigit.ors.common.StatusCode;
-import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.export.ExportErrorCodes;
-import org.heigit.ors.export.ExportResult;
-import org.heigit.ors.routing.RoutingProfileManager;
+import org.heigit.ors.routing.APIEnums;
 
 import java.util.List;
-
-import static org.heigit.ors.api.services.AbstractApiService.convertRouteProfileType;
 
 @Schema(title = "Graph export Service", name = "graphExportService", description = "Graph export service endpoint.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

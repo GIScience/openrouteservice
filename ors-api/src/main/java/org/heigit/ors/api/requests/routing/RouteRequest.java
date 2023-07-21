@@ -19,26 +19,21 @@ import com.fasterxml.jackson.annotation.*;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
-import org.heigit.ors.common.StatusCode;
-import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.exceptions.*;
-import org.heigit.ors.localization.LocalizationManager;
-import org.heigit.ors.routing.*;
-import org.heigit.ors.util.StringUtility;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.routing.RouteRequestParameterNames;
+import org.heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.locationtech.jts.geom.Coordinate;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
-import static org.heigit.ors.api.services.AbstractApiService.*;
+import static org.heigit.ors.api.services.AbstractApiService.convertRouteProfileType;
 
 @Schema(title = "Directions Service", name = "directionsService", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

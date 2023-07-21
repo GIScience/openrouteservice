@@ -24,26 +24,14 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.common.APIRequest;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.exceptions.ServerLimitExceededException;
-import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
-import org.heigit.ors.matrix.MatrixMetricsType;
-import org.heigit.ors.matrix.MatrixResult;
-import org.heigit.ors.matrix.MatrixSearchParameters;
 import org.heigit.ors.routing.APIEnums;
-import org.heigit.ors.routing.RoutingErrorCodes;
-import org.heigit.ors.routing.RoutingProfileManager;
-import org.heigit.ors.routing.RoutingProfileType;
-import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.heigit.ors.api.services.AbstractApiService.convertRouteProfileType;
 
 @Schema(name = "MatrixRequest", description = "The JSON body request sent to the matrix service which defines options and parameters regarding the matrix to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
