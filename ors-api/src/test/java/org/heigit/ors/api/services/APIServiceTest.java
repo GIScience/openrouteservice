@@ -1,7 +1,6 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -22,24 +21,8 @@ import org.locationtech.jts.geom.Polygon;
 import static org.junit.jupiter.api.Assertions.*;
 
 class APIServiceTest {
-    AbstractApiService apiService;
+    ApiService apiService;
 
-    static class ApiService extends AbstractApiService {
-        @Override
-        EndpointsProperties getEndpointsProperties() {
-            return null;
-        }
-
-        @Override
-        double getMaximumAvoidPolygonArea() {
-            return 0;
-        }
-
-        @Override
-        double getMaximumAvoidPolygonExtent() {
-            return 0;
-        }
-    }
     @BeforeEach
     void setUp() throws Exception {
         apiService = new ApiService();
@@ -47,7 +30,7 @@ class APIServiceTest {
 
     @Test
     void convertAPIEnumListToStrings() {
-        String[] strVals = AbstractApiService.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[] {APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
+        String[] strVals = ApiService.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[] {APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
         assertEquals(2, strVals.length);
         assertEquals("steepness", strVals[0]);
         assertEquals("surface", strVals[1]);
@@ -55,38 +38,38 @@ class APIServiceTest {
 
     @Test
     void convertAPIEnum() {
-        String strVal = AbstractApiService.convertAPIEnum(APIEnums.AvoidBorders.CONTROLLED);
+        String strVal = ApiService.convertAPIEnum(APIEnums.AvoidBorders.CONTROLLED);
         assertEquals("controlled", strVal);
     }
 
     @Test
     void convertVehicleType() throws IncompatibleParameterException {
-        int type = AbstractApiService.convertVehicleType(APIEnums.VehicleType.HGV, 2);
+        int type = ApiService.convertVehicleType(APIEnums.VehicleType.HGV, 2);
         assertEquals(2, type);
     }
 
     @Test
     void convertVehicleTypeError() throws IncompatibleParameterException {
         assertThrows(IncompatibleParameterException.class, () -> {
-            AbstractApiService.convertVehicleType(APIEnums.VehicleType.HGV, 1);
+            ApiService.convertVehicleType(APIEnums.VehicleType.HGV, 1);
         });
     }
 
     @Test
     void convertAvoidBorders() {
-        BordersExtractor.Avoid avoid = AbstractApiService.convertAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
+        BordersExtractor.Avoid avoid = ApiService.convertAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
         assertEquals(BordersExtractor.Avoid.CONTROLLED, avoid);
-        avoid = AbstractApiService.convertAvoidBorders(APIEnums.AvoidBorders.ALL);
+        avoid = ApiService.convertAvoidBorders(APIEnums.AvoidBorders.ALL);
         assertEquals(BordersExtractor.Avoid.ALL, avoid);
-        avoid = AbstractApiService.convertAvoidBorders(APIEnums.AvoidBorders.NONE);
+        avoid = ApiService.convertAvoidBorders(APIEnums.AvoidBorders.NONE);
         assertEquals(BordersExtractor.Avoid.NONE, avoid);
     }
 
     @Test
     void convertRouteProfileType() {
-        int type = AbstractApiService.convertRouteProfileType(APIEnums.Profile.DRIVING_CAR);
+        int type = ApiService.convertRouteProfileType(APIEnums.Profile.DRIVING_CAR);
         assertEquals(1, type);
-        type = AbstractApiService.convertRouteProfileType(APIEnums.Profile.FOOT_WALKING);
+        type = ApiService.convertRouteProfileType(APIEnums.Profile.FOOT_WALKING);
         assertEquals(20, type);
     }
 
@@ -179,7 +162,7 @@ class APIServiceTest {
     @Test
     void convertFeatureTypes() throws UnknownParameterValueException, IncompatibleParameterException {
         APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.FERRIES, APIEnums.AvoidFeatures.FORDS };
-        int converted = AbstractApiService.convertFeatureTypes(avoids, 1);
+        int converted = ApiService.convertFeatureTypes(avoids, 1);
         assertEquals(24, converted);
     }
 
@@ -187,7 +170,7 @@ class APIServiceTest {
     void convertFeatureTypesIncompatible() throws UnknownParameterValueException, IncompatibleParameterException {
         assertThrows(IncompatibleParameterException.class, () -> {
             APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[]{APIEnums.AvoidFeatures.STEPS};
-            AbstractApiService.convertFeatureTypes(avoids, 1);
+            ApiService.convertFeatureTypes(avoids, 1);
         });
     }
 

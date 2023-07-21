@@ -34,7 +34,7 @@ import org.heigit.ors.routing.RoutingProfileType;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.heigit.ors.api.services.AbstractApiService.convertAPIEnumListToStrings;
+import static org.heigit.ors.api.services.ApiService.convertAPIEnumListToStrings;
 
 
 @Schema(name = "IsochronesRequest", description = "The JSON body request sent to the isochrones service which defines options and parameters regarding the isochrones to generate.")

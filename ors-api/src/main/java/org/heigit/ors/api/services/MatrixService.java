@@ -25,28 +25,12 @@ import java.util.List;
 import static org.heigit.ors.api.requests.matrix.MatrixRequest.isFlexibleMode;
 
 @Service
-public class MatrixService extends AbstractApiService {
-
-
-    private final EndpointsProperties endpointsProperties;
+public class MatrixService extends ApiService {
 
     @Autowired
     public MatrixService(EndpointsProperties endpointsProperties) {
         this.endpointsProperties = endpointsProperties;
     }
-
-    double getMaximumAvoidPolygonArea() {
-        return 0d;
-    }
-
-    double getMaximumAvoidPolygonExtent() {
-        return 0d;
-    }
-
-    EndpointsProperties getEndpointsProperties(){
-        return this.endpointsProperties;
-    }
-
 
     public MatrixResult generateMatrixFromRequest(MatrixRequest matrixRequest) throws StatusCodeException {
         org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest(matrixRequest);

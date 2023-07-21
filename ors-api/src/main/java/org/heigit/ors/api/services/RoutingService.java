@@ -21,24 +21,21 @@ import java.util.stream.Stream;
 
 
 @Service
-public class RoutingService extends AbstractApiService {
-
-    private final EndpointsProperties endpointsProperties;
+public class RoutingService extends ApiService {
 
     @Autowired
     public RoutingService(EndpointsProperties endpointsProperties) {
         this.endpointsProperties = endpointsProperties;
     }
 
+    @Override
     double getMaximumAvoidPolygonArea() {
-        return getEndpointsProperties().getRouting().getMaximumAvoidPolygonArea();
+        return this.endpointsProperties.getRouting().getMaximumAvoidPolygonArea();
     }
 
+    @Override
     double getMaximumAvoidPolygonExtent() {
-         return getEndpointsProperties().getRouting().getMaximumAvoidPolygonExtent();
-    }
-    EndpointsProperties getEndpointsProperties(){
-        return this.endpointsProperties;
+         return this.endpointsProperties.getRouting().getMaximumAvoidPolygonExtent();
     }
 
     public RouteResult[] generateRouteFromRequest(RouteRequest request) throws StatusCodeException {

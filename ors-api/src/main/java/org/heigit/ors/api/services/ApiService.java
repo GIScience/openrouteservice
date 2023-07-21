@@ -30,11 +30,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public abstract class AbstractApiService {
+public class ApiService {
 
-    abstract EndpointsProperties getEndpointsProperties();
-    abstract double getMaximumAvoidPolygonArea();
-    abstract double getMaximumAvoidPolygonExtent();
+    protected EndpointsProperties endpointsProperties;
+
+    double getMaximumAvoidPolygonArea(){
+        return 0d;
+    }
+
+    double getMaximumAvoidPolygonExtent(){
+        return 0d;
+    }
 
     public static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
         String[] attributes = new String[valuesIn.length];

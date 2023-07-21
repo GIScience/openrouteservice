@@ -16,25 +16,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class ExportService extends AbstractApiService {
-
-    private final EndpointsProperties endpointsProperties;
+public class ExportService extends ApiService {
 
     @Autowired
     public ExportService(EndpointsProperties endpointsProperties) {
         this.endpointsProperties = endpointsProperties;
-    }
-
-    double getMaximumAvoidPolygonArea() {
-        return 0d;
-    }
-
-    double getMaximumAvoidPolygonExtent() {
-        return 0d;
-    }
-
-    EndpointsProperties getEndpointsProperties(){
-        return this.endpointsProperties;
     }
 
     public ExportResult generateExportFromRequest(ExportRequest exportApiRequest) throws StatusCodeException {
@@ -52,7 +38,7 @@ public class ExportService extends AbstractApiService {
     private org.heigit.ors.export.ExportRequest convertExportRequest(ExportRequest exportApiRequest) throws StatusCodeException {
         org.heigit.ors.export.ExportRequest exportRequest = new org.heigit.ors.export.ExportRequest();
 
-        if  (exportApiRequest.hasId())
+        if (exportApiRequest.hasId())
             exportRequest.setId(exportApiRequest.getId());
 
         int profileType = -1;

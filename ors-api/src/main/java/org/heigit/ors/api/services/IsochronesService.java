@@ -36,27 +36,12 @@ import static org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums.Calc
 import static org.heigit.ors.common.TravelRangeType.DISTANCE;
 
 @Service
-public class IsochronesService extends AbstractApiService {
+public class IsochronesService extends ApiService {
 
-    private final EndpointsProperties endpointsProperties;
     @Autowired
     public IsochronesService(EndpointsProperties endpointsProperties) {
         this.endpointsProperties = endpointsProperties;
     }
-
-    @Override
-    EndpointsProperties getEndpointsProperties() {
-        return this.endpointsProperties;
-    }
-
-    double getMaximumAvoidPolygonArea() {
-        return 0d;
-    }
-
-    double getMaximumAvoidPolygonExtent() {
-        return 0d;
-    }
-
 
     public void generateIsochronesFromRequest(IsochronesRequest isochronesRequest) throws Exception {
         isochronesRequest.setIsochroneRequest(convertIsochroneRequest(isochronesRequest));

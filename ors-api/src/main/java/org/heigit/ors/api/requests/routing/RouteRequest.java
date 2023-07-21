@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.heigit.ors.api.services.AbstractApiService.convertRouteProfileType;
+import static org.heigit.ors.api.services.ApiService.convertRouteProfileType;
 
 @Schema(title = "Directions Service", name = "directionsService", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
