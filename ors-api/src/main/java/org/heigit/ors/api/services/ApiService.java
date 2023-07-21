@@ -84,7 +84,6 @@ public class ApiService {
         return null;
     }
 
-
     public static int convertRouteProfileType(APIEnums.Profile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
@@ -169,7 +168,6 @@ public class ApiService {
         return avoidCountryIds;
     }
 
-
     public static DistanceUnit convertUnits(APIEnums.Units unitsIn) throws ParameterValueException {
         DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
 
@@ -178,7 +176,6 @@ public class ApiService {
 
         return units;
     }
-
 
     protected static int convertFeatureTypes(APIEnums.AvoidFeatures[] avoidFeatures, int profileType) throws UnknownParameterValueException, IncompatibleParameterException {
         int flags = 0;
@@ -197,7 +194,6 @@ public class ApiService {
         return flags;
     }
 
-
     public RouteSearchParameters processRequestOptions(RequestOptions options, RouteSearchParameters params) throws StatusCodeException {
         if (options.hasAvoidBorders())
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
@@ -213,7 +209,6 @@ public class ApiService {
 
         return params;
     }
-
 
     protected ProfileParameters convertParameters(RequestOptions options, int profileType) throws StatusCodeException {
         ProfileParameters params = new ProfileParameters();
@@ -246,7 +241,6 @@ public class ApiService {
         return params;
     }
 
-
     protected ProfileParameters convertSpecificProfileParameters(int profileType, RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
         ProfileParameters params = new ProfileParameters();
         if (RoutingProfileType.isHeavyVehicle(profileType))
@@ -255,7 +249,6 @@ public class ApiService {
             params = convertWheelchairParamRestrictions(restrictions);
         return params;
     }
-
 
     private VehicleParameters convertHeavyVehicleParameters(RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
 

@@ -122,6 +122,7 @@ public class IsochronesAPI {
             summary = "Isochrones Service",
             hidden = true
     )
+
     @ApiResponse(
             responseCode = "200",
             description = "Standard response for successfully processed requests. Returns GeoJSON.",

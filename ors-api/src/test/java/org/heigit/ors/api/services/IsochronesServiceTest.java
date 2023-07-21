@@ -373,5 +373,4 @@ public class IsochronesServiceTest {
         assertEquals(c1.y, c2.y, 0);
     }
 
-
 }

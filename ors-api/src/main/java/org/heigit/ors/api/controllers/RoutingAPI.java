@@ -212,7 +212,6 @@ public class RoutingAPI {
         return errorHandler.handleStatusCodeException(new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, e.getParameterName()));
     }
 
-
     @ExceptionHandler({HttpMessageNotReadableException.class, ConversionFailedException.class, HttpMessageConversionException.class, Exception.class})
     public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
         final Throwable cause = e.getCause();

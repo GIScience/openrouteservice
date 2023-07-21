@@ -21,6 +21,7 @@ import org.locationtech.jts.geom.Polygon;
 import static org.junit.jupiter.api.Assertions.*;
 
 class APIServiceTest {
+
     ApiService apiService;
 
     @BeforeEach

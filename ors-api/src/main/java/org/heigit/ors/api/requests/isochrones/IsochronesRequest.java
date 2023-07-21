@@ -53,7 +53,6 @@ public class IsochronesRequest extends APIRequest {
     public static final String PARAM_SMOOTHING = "smoothing";
     public static final String PARAM_TIME = "time";
 
-
     @Schema(name= PARAM_LOCATIONS, description = "The locations to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[[8.681495,49.41461],[8.686507,49.41943]]",
             requiredMode = Schema.RequiredMode.REQUIRED)

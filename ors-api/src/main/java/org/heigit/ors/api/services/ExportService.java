@@ -78,5 +78,4 @@ public class ExportService extends ApiService {
         return new double[]{coordinate.get(0), coordinate.get(1)};
     }
 
-
 }

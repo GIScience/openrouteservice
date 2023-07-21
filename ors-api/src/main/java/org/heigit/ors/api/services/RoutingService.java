@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
-
 @Service
 public class RoutingService extends ApiService {
 
@@ -238,7 +237,6 @@ public class RoutingService extends ApiService {
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
-
     private String convertGeometryFormat(APIEnums.RouteResponseType responseType) throws ParameterValueException {
         switch (responseType) {
             case GEOJSON:
@@ -265,7 +263,6 @@ public class RoutingService extends ApiService {
     private static String[] convertAttributes(RouteRequest request) {
         return convertAPIEnumListToStrings(request.getAttributes());
     }
-
 
     private static int convertExtraInfo(RouteRequest request) {
         String[] extraInfosStrings = convertAPIEnumListToStrings(request.getExtraInfo());
@@ -299,7 +296,6 @@ public class RoutingService extends ApiService {
         return instrFormat;
     }
 
-
     private List<Integer> processSkipSegments(RouteRequest request) throws ParameterOutOfRangeException, ParameterValueException, EmptyElementException {
         for (Integer skipSegment : request.getSkipSegments()) {
             if (skipSegment >= request.getCoordinates().size()) {
@@ -318,7 +314,6 @@ public class RoutingService extends ApiService {
         }
         return request.getSkipSegments();
     }
-
 
     private int convertWeightingMethod(RouteRequest request, APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
         if (request.getProfile().equals(APIEnums.Profile.DRIVING_CAR) && preferenceIn.equals(APIEnums.RoutePreference.RECOMMENDED))
@@ -406,6 +401,5 @@ public class RoutingService extends ApiService {
         }
         return params;
     }
-
 
 }
