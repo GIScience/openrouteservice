@@ -1,6 +1,5 @@
 package org.heigit.ors.api.services;
 
-import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
