@@ -16,7 +16,6 @@ package org.heigit.ors.routing.configuration;
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.util.FileUtility;
@@ -46,8 +45,8 @@ public class RoutingManagerConfiguration {
     private RouteProfileConfiguration[] profiles;
 
     private static void addFastIsochronesToProfileConfiguration(List<String> fastIsochroneProfileList, Map<String, Object> defaultFastIsochroneParams, RouteProfileConfiguration profile) {
-        String profileRef = IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles." + profile.getName();
-        Map<String, Object> profileParams = IsochronesServiceSettings.getParametersMap(profileRef, true);
+        String profileRef = "fastisochrones.profiles." + profile.getName();
+        Map<String, Object> profileParams = AppConfig.getIsochronesParametersMap(profileRef, true);
 
         if (profileParams == null)
             profileParams = defaultFastIsochroneParams;
@@ -65,8 +64,8 @@ public class RoutingManagerConfiguration {
 
         // Read profile settings
         List<RouteProfileConfiguration> newProfiles = new ArrayList<>();
-        List<String> fastIsochroneProfileList = IsochronesServiceSettings.getParametersList(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.active");
-        Map<String, Object> defaultFastIsochroneParams = IsochronesServiceSettings.getParametersMap(IsochronesServiceSettings.SERVICE_NAME_FASTISOCHRONES + "profiles.default_params", true);
+        List<String> fastIsochroneProfileList = AppConfig.getIsochronesParametersList("fastisochrones.profiles.active");
+        Map<String, Object> defaultFastIsochroneParams = AppConfig.getIsochronesParametersMap("fastisochrones.profiles.default_params", true);
         if (defaultFastIsochroneParams == null) { // default to disabled if ors.services.isochrones.fastisochrones not available in ors-config.json
             defaultFastIsochroneParams = new HashMap<>();
             defaultFastIsochroneParams.put("enabled", false);
