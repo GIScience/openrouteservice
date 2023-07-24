@@ -55,8 +55,10 @@ public class AppConfig {
             } else if (System.getProperty("ors_app_config") != null) {
                 configFile = new FileSystemResource(System.getProperty("ors_app_config")).getFile();
                 LOGGER.info("System property 'ors_app_config' used as configuration path");
-                LOGGER.warn("DEPRECATION NOTICE: The system property 'ors_app_config' will be not be supported in the" +
-                        " future");
+                LOGGER.warn("""
+                        DEPRECATION NOTICE: The system property 'ors_app_config' will be not be supported in the\
+                         future\
+                        """);
                 LOGGER.warn("Use 'ors_config' instead");
             } else if (System.getenv("ORS_CONFIG") != null) {
                 configFile = new ClassPathResource(System.getenv("ORS_CONFIG")).getFile();
@@ -64,25 +66,33 @@ public class AppConfig {
             } else if (System.getenv("ORS_APP_CONFIG") != null) {
                 configFile = new ClassPathResource(System.getenv("ORS_APP_CONFIG")).getFile();
                 LOGGER.info("Environment variable 'ORS_APP_CONFIG' used as configuration path");
-                LOGGER.warn("DEPRECATION NOTICE: The Environment variable 'ORS_APP_CONFIG' will be not be supported" +
-                        " in the future");
+                LOGGER.warn("""
+                        DEPRECATION NOTICE: The Environment variable 'ORS_APP_CONFIG' will be not be supported\
+                         in the future\
+                        """);
                 LOGGER.warn("Use 'ORS_CONFIG' instead");
             } else if (new ClassPathResource("ors-config.json").isFile()) {
                 configFile = new ClassPathResource("ors-config.json").getFile();
                 LOGGER.info("Default path of 'ors-config.json' used for configuration");
                 if (new ClassPathResource("app.config").isFile()) {
-                    LOGGER.warn("DEPRECATION NOTICE: You seem to have an unused 'app.config' file, which won't be " +
-                            "supported in the future");
+                    LOGGER.warn("""
+                            DEPRECATION NOTICE: You seem to have an unused 'app.config' file, which won't be \
+                            supported in the future\
+                            """);
                 }
             } else if (new ClassPathResource("app.config").isFile()) {
                 configFile = new ClassPathResource("app.config").getFile();
                 LOGGER.info("Deprecated path of 'app.config' used");
-                LOGGER.warn("DEPRECATION NOTICE: The used 'app.config' configuration path will not be supported in the " +
-                        "future.");
+                LOGGER.warn("""
+                        DEPRECATION NOTICE: The used 'app.config' configuration path will not be supported in the \
+                        future.\
+                        """);
                 LOGGER.warn("Use 'ors-config.json' instead.");
             } else {
-                throw new IOException("No valid configuration file found in 'ors-api/src/main/resources'. " +
-                        "Did you copy ors-config-sample.json to ors-config.json?");
+                throw new IOException("""
+                        No valid configuration file found in 'ors-api/src/main/resources'. \
+                        Did you copy ors-config-sample.json to ors-config.json?\
+                        """);
             }
             LOGGER.info("Loading configuration from " + configFile);
             config = ConfigFactory.parseFile(configFile);

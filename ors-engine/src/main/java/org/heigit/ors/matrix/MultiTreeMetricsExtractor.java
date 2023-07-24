@@ -49,21 +49,14 @@ public class MultiTreeMetricsExtractor {
         this.metrics = metrics;
         this.graph = chGraph.getBaseGraph();
         this.weighting = weighting;
-        timeWeighting = new FastestWeighting(encoder);
-        distUnits = units;
-        edgeMetrics = new GHLongObjectHashMap<>();
-
-        if (chGraph instanceof RoutingCHGraph)
-            this.chGraph = (RoutingCHGraph) chGraph;
-        else if (chGraph instanceof QueryRoutingCHGraph) {
-            QueryGraph qGraph = (QueryGraph) chGraph;
-            Graph mainGraph = qGraph.getBaseGraph();
-            if (mainGraph instanceof RoutingCHGraph)
-                this.chGraph = (RoutingCHGraph) mainGraph;
-        }
+        this.chGraph = chGraph;
 
         assert this.chGraph != null;
         maxEdgeId = this.chGraph.getEdges();
+
+        timeWeighting = new FastestWeighting(encoder);
+        distUnits = units;
+        edgeMetrics = new GHLongObjectHashMap<>();
     }
 
     public void setSwap(boolean swap) {

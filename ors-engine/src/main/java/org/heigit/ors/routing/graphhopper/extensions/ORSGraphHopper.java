@@ -132,16 +132,16 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 	@Override
 	protected void cleanUp() {
 		if (LOGGER.isInfoEnabled())
-			LOGGER.info(String.format("call cleanUp for '%s' ", getGraphHopperLocation()));
+			LOGGER.info("call cleanUp for '%s' ".formatted(getGraphHopperLocation()));
 		GraphHopperStorage ghs = getGraphHopperStorage();
 		if (ghs != null) {
 			if (LOGGER.isInfoEnabled())
-				LOGGER.info(String.format("graph %s, details:%s", ghs, ghs.toDetailsString()));
+				LOGGER.info("graph %s, details:%s".formatted(ghs, ghs.toDetailsString()));
 			int prevNodeCount = ghs.getNodes();
 			int ex = ghs.getAllEdges().length();
 			List<FlagEncoder> list = getEncodingManager().fetchEdgeEncoders();
 			if (LOGGER.isDebugEnabled())
-				LOGGER.debug(String.format("will create PrepareRoutingSubnetworks with: NodeCountBefore: '%d' getAllEdges().getMaxId(): '%d' List<FlagEncoder>: '%s' minNetworkSize: '%d' minOneWayNetworkSize: '%d'", prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
+				LOGGER.debug("will create PrepareRoutingSubnetworks with: NodeCountBefore: '%d' getAllEdges().getMaxId(): '%d' List<FlagEncoder>: '%s' minNetworkSize: '%d' minOneWayNetworkSize: '%d'".formatted(prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
 			);
 			ghs.getProperties().put("elevation", hasElevation());
 		} else {
@@ -345,9 +345,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         // Reserved for processes that need a fully initiated graph e.g. for match making
         if (getGraphHopperStorage() != null && processContext != null && processContext.getStorageBuilders() != null) {
             for (GraphStorageBuilder graphStorageBuilder : processContext.getStorageBuilders()) {
-                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder) {
+                if (graphStorageBuilder instanceof HereTrafficGraphStorageBuilder storageBuilder) {
                     try {
-                        ((HereTrafficGraphStorageBuilder) graphStorageBuilder).postProcess(this);
+                        storageBuilder.postProcess(this);
                     } catch (SchemaException e) {
                         LOGGER.error("Error building the here traffic storage.");
                         throw new RuntimeException(e);

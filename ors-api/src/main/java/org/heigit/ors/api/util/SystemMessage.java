@@ -120,12 +120,12 @@ public class SystemMessage {
                 }
             } catch (Exception e) {
                 // ignore otherwise incomplete messages entirely
-                LOGGER.warn(String.format("Invalid SystemMessage object in ors config %s.", message.toString().substring(18)));
+                LOGGER.warn("Invalid SystemMessage object in ors config %s.".formatted(message.toString().substring(18)));
             }
         }
         AppConfigMigration.loadSystemMessagesfromAppConfig(messages);
         if (!messages.isEmpty())
-            LOGGER.info(String.format("SystemMessage loaded %s messages.", messages.size()));
+            LOGGER.info("SystemMessage loaded %s messages.".formatted(messages.size()));
     }
 
     private static void loadConditionsForMessage(SystemMessageProperties.MessageObject message, List<Condition> conditions) {

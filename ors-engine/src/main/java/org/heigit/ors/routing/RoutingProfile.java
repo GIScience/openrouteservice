@@ -150,7 +150,7 @@ public class RoutingProfile {
         long startTime = System.currentTimeMillis();
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(String.format("[%d] Profiles: '%s', location: '%s'.", profileId, config.getProfiles(), config.getGraphPath()));
+            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, config.getProfiles(), config.getGraphPath()));
         }
 
         GraphProcessContext gpc = new GraphProcessContext(config);
@@ -188,9 +188,9 @@ public class RoutingProfile {
 
         if (LOGGER.isInfoEnabled()) {
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
-            LOGGER.info(String.format("[%d] Edges: %s - Nodes: %s.", profileId, ghStorage.getEdges(), ghStorage.getNodes()));
-            LOGGER.info(String.format("[%d] Total time: %s.", profileId, TimeUtility.getElapsedTime(startTime, true)));
-            LOGGER.info(String.format("[%d] Finished at: %s.", profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+            LOGGER.info("[%d] Edges: %s - Nodes: %s.".formatted(profileId, ghStorage.getEdges(), ghStorage.getNodes()));
+            LOGGER.info("[%d] Total time: %s.".formatted(profileId, TimeUtility.getElapsedTime(startTime, true)));
+            LOGGER.info("[%d] Finished at: %s.".formatted(profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
         }
 
         // Make a stamp which help tracking any changes in the size of OSM file.
@@ -748,7 +748,7 @@ public class RoutingProfile {
             }
         });
 
-        LOGGER.debug(String.format("Found %d nodes in bbox.", nodesInBBox.size()));
+        LOGGER.debug("Found %d nodes in bbox.".formatted(nodesInBBox.size()));
 
         if (nodesInBBox.isEmpty()) {
             // without nodes, no export can be calculated

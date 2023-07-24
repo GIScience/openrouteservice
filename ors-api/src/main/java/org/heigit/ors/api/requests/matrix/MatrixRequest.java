@@ -70,22 +70,26 @@ public class MatrixRequest extends APIRequest {
             "* `distance` - Returns distance matrix for specified points in defined `units`.
             * `duration` - Returns duration matrix for specified points in **seconds**.
             """,
-            defaultValue = "duration")
+            defaultValue = "[\"duration\"]")
     @JsonProperty(value = PARAM_METRICS)
     private MatrixRequestEnums.Metrics[] metrics;
     @JsonIgnore
     private boolean hasMetrics = false;
 
-    @Schema(name = PARAM_RESOLVE_LOCATIONS, description = "Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in " +
-            "`destinations` and `sources` will contain a `name` element that identifies the name of the closest street. Default is `false`. ",
+    @Schema(name = PARAM_RESOLVE_LOCATIONS, description = """
+            Specifies whether given locations are resolved or not. If the parameter value set to `true`, every element in \
+            `destinations` and `sources` will contain a `name` element that identifies the name of the closest street. Default is `false`. \
+            """,
             defaultValue = "false")
     @JsonProperty(value = PARAM_RESOLVE_LOCATIONS)
     private boolean resolveLocations;
     @JsonIgnore
     private boolean hasResolveLocations = false;
 
-    @Schema(name = PARAM_UNITS, description = "Specifies the distance unit.\n" +
-            "Default: m.",
+    @Schema(name = PARAM_UNITS, description = """
+            Specifies the distance unit.
+            Default: m.\
+            """,
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "metrics"),
                     @ExtensionProperty(name = "value", value = "distance")}

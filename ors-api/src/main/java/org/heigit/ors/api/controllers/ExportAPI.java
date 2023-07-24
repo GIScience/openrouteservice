@@ -39,7 +39,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @Tag(name = "Export Service", description = "Export the base graph for different modes of transport")
@@ -83,8 +83,10 @@ public class ExportAPI {
     // Functional request methods
     @PostMapping(value = "/{profile}")
     @Operation(
-            description = "Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. " +
-            "This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.",
+            description = """
+            Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. \
+            This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.\
+            """,
             summary = "Export Service"
     )
     @ApiResponse(
@@ -132,14 +134,14 @@ public class ExportAPI {
     @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageConversionException.class, Exception.class})
     public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
         final Throwable cause = e.getCause();
-        if (cause instanceof UnrecognizedPropertyException) {
-            return errorHandler.handleUnknownParameterException(new UnknownParameterException(ExportErrorCodes.UNKNOWN_PARAMETER, ((UnrecognizedPropertyException) cause).getPropertyName()));
-        } else if (cause instanceof InvalidFormatException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_FORMAT, ((InvalidFormatException) cause).getValue().toString()));
-        } else if (cause instanceof InvalidDefinitionException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ((InvalidDefinitionException) cause).getPath().get(0).getFieldName()));
-        } else if (cause instanceof MismatchedInputException) {
-            return errorHandler.handleStatusCodeException(new ParameterValueException(ExportErrorCodes.MISMATCHED_INPUT, ((MismatchedInputException) cause).getPath().get(0).getFieldName()));
+        if (cause instanceof UnrecognizedPropertyException exception) {
+            return errorHandler.handleUnknownParameterException(new UnknownParameterException(ExportErrorCodes.UNKNOWN_PARAMETER, exception.getPropertyName()));
+        } else if (cause instanceof InvalidFormatException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_FORMAT, exception.getValue().toString()));
+        } else if (cause instanceof InvalidDefinitionException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, exception.getPath().get(0).getFieldName()));
+        } else if (cause instanceof MismatchedInputException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(ExportErrorCodes.MISMATCHED_INPUT, exception.getPath().get(0).getFieldName()));
         } else {
             // Check if we are missing the body as a whole
             if (e.getLocalizedMessage().startsWith("Required request body is missing")) {

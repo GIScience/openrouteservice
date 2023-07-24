@@ -20,7 +20,7 @@ import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxBase;
 import org.heigit.ors.util.FormatUtility;
 
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 public class GPXBounds extends BoundingBoxBase implements BoundingBox {
     public GPXBounds() {

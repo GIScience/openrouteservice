@@ -35,7 +35,7 @@ public class AppConfigMigration {
                 }
             } catch (Exception e) {
                 // ignore otherwise incomplete messages entirely
-                LOGGER.warn(String.format("Invalid SystemMessage object in ors config %s.", message.toString().substring(18)));
+                LOGGER.warn("Invalid SystemMessage object in ors config %s.".formatted(message.toString().substring(18)));
             }
         }
     }

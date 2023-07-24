@@ -716,7 +716,7 @@ class ParamsTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("error.code", is(2003))
-                .body("error.message", is(String.format("The extent of a polygon to avoid must not exceed %s meters.", maximumAvoidPolygonExtent)))
+                .body("error.message", is("The extent of a polygon to avoid must not exceed %s meters.".formatted(maximumAvoidPolygonExtent)))
                 .statusCode(400);
 
         body = new JSONObject();
@@ -738,7 +738,7 @@ class ParamsTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("error.code", is(2003))
-                .body("error.message", is(String.format("The area of a polygon to avoid must not exceed %s square meters.", maximumAvoidPolygonArea)))
+                .body("error.message", is("The area of a polygon to avoid must not exceed %s square meters.".formatted(maximumAvoidPolygonArea)))
                 .statusCode(400);
     }
 
