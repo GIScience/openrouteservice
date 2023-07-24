@@ -7,6 +7,8 @@ endpoints:
   matrix:
     maximum_routes: 200
     maximum_visited_nodes: 50000
+  isochrone:
+    maximum_intervals: 10
 
 engine:
   source_file: ./src/test/files/heidelberg.osm.gz

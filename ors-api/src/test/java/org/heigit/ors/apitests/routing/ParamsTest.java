@@ -706,7 +706,7 @@ class ParamsTest extends ServiceTest {
         options.put("avoid_polygons", avoidGeom);
         body.put("options", options);
 
-        double maximumAvoidPolygonExtent = Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_extent"));
+        double maximumAvoidPolygonExtent = endpointsProperties.getRouting().getMaximumAvoidPolygonExtent();
         given()
                 .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
@@ -728,7 +728,7 @@ class ParamsTest extends ServiceTest {
         options.put("avoid_polygons", avoidGeom);
         body.put("options", options);
 
-        double maximumAvoidPolygonArea = Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_area"));
+        double maximumAvoidPolygonArea = endpointsProperties.getRouting().getMaximumAvoidPolygonArea();
         given()
                 .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
