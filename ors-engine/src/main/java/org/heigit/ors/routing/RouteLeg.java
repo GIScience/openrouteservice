@@ -69,19 +69,19 @@ public class RouteLeg {
 		}
 		this.instructions = instructions;
 		this.includeElevation = request.getIncludeElevation();
-		if (leg instanceof Trip.PtLeg) {
-			duration = FormatUtility.roundToDecimals(((Trip.PtLeg) leg).travelTime / 1000.0, 1);
-			tripHeadsign = ((Trip.PtLeg) leg).trip_headsign;
-			routeLongName = ((Trip.PtLeg) leg).route_long_name;
-			routeShortName = ((Trip.PtLeg) leg).route_short_name;
-			routeDesc = ((Trip.PtLeg) leg).route_desc;
-			routeType = ((Trip.PtLeg) leg).route_type;
-			feedId = ((Trip.PtLeg) leg).feed_id;
-			tripId = ((Trip.PtLeg) leg).trip_id;
-			routeId = ((Trip.PtLeg) leg).route_id;
-			isInSameVehicleAsPrevious = ((Trip.PtLeg) leg).isInSameVehicleAsPrevious;
+		if (leg instanceof Trip.PtLeg ptLeg) {
+			duration = FormatUtility.roundToDecimals(ptLeg.travelTime / 1000.0, 1);
+			tripHeadsign = ptLeg.trip_headsign;
+			routeLongName = ptLeg.route_long_name;
+			routeShortName = ptLeg.route_short_name;
+			routeDesc = ptLeg.route_desc;
+			routeType = ptLeg.route_type;
+			feedId = ptLeg.feed_id;
+			tripId = ptLeg.trip_id;
+			routeId = ptLeg.route_id;
+			isInSameVehicleAsPrevious = ptLeg.isInSameVehicleAsPrevious;
 			stops = new ArrayList<>();
-			for (Trip.Stop stop : ((Trip.PtLeg) leg).stops) {
+			for (Trip.Stop stop : ptLeg.stops) {
 				stops.add(new RoutePtStop(stop));
 			}
 		} else { // leg has to be an instance of Trip.WalkLeg

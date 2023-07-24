@@ -52,7 +52,7 @@ public class InitializeGraphsOnce implements BeforeAllCallback, BeforeEachCallba
             try {
                 Path graphsFolder = Paths.get(GRAPHS_FOLDER);
                 // Any lower level will not be displayed since ORS log configuration is not in place at this stage
-                LOGGER.error(String.format("Deleting folder %s to enforce regeneration of graphs%n", graphsFolder.toAbsolutePath()));
+                LOGGER.error("Deleting folder %s to enforce regeneration of graphs%n".formatted(graphsFolder.toAbsolutePath()));
                 FileSystemUtils.deleteRecursively(graphsFolder);
             } catch (IOException e) {
                 throw new RuntimeException(e);

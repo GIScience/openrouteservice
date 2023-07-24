@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class CarFlagEncoderTest {
+class CarFlagEncoderTest {
     private final EncodingManager em = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS + "," + FlagEncoderNames.BIKE_ORS);
     private ReaderWay way;
 
@@ -42,7 +42,7 @@ public class CarFlagEncoderTest {
     }
 
     @Test
-    public void testDestinationTag() {
+    void testDestinationTag() {
         IntsRef relFlags = em.createRelationFlags();
 
         Weighting carFastest = createWeighting(FlagEncoderNames.CAR_ORS, "fastest");

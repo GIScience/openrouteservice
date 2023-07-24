@@ -17,8 +17,8 @@ package org.heigit.ors.api.responses.common.boundingbox;
 
 import org.heigit.ors.api.responses.routing.gpx.GPXBounds;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 @XmlSeeAlso(GPXBounds.class)
 @XmlTransient

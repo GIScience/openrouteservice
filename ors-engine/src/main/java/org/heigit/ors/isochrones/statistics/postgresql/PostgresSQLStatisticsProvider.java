@@ -83,7 +83,7 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
         String port = "5432";
         if (parameters.containsKey("port"))
             port = Integer.toString((Integer) parameters.get("port"));
-        config.setJdbcUrl(String.format("jdbc:postgresql://%s:%s/%s", parameters.get("host"), port, parameters.get("db_name")));
+        config.setJdbcUrl("jdbc:postgresql://%s:%s/%s".formatted(parameters.get("host"), port, parameters.get("db_name")));
         config.setDataSourceClassName(PGSimpleDataSource.class.getName());
         config.addDataSourceProperty("databaseName", parameters.get("db_name"));
         config.addDataSourceProperty("user", parameters.get("user"));

@@ -133,8 +133,8 @@ public class APIRequest {
 
         Polygon[] avoidAreas;
 
-        if (convertedGeom instanceof Polygon) {
-            avoidAreas = new Polygon[]{(Polygon) convertedGeom};
+        if (convertedGeom instanceof Polygon polygon) {
+            avoidAreas = new Polygon[]{polygon};
         } else if (convertedGeom instanceof MultiPolygon multiPoly) {
             avoidAreas = new Polygon[multiPoly.getNumGeometries()];
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)

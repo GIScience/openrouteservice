@@ -61,7 +61,7 @@ public class PluginManager<T extends Plugin> {
 					result.add(instance);
 				}
 				else
-					LOGGER.warn(String.format("'%s' was not found.", storageEntry.getKey()));
+					LOGGER.warn("'%s' was not found.".formatted(storageEntry.getKey()));
 			}
 		}
 		return result;

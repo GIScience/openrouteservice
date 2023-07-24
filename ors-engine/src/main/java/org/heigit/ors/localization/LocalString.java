@@ -51,8 +51,10 @@ public class LocalString {
 
 	@Override 
 	public String toString() { 
-		return "LocalString{" + 
-				"language=" + language +
+		return """
+                LocalString{\
+                language=\
+                """ + language +
 				", string='" + string + '\'' +
 				'}'; 
 	} 

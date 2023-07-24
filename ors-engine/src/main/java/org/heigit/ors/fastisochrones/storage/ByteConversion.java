@@ -29,19 +29,19 @@ public class ByteConversion {
 
     public static double byteArrayToDouble(byte[] bytes) {
         if (bytes.length != Double.BYTES)
-            throw new IllegalArgumentException(String.format(ERROR_MSG_BYTECOUNT, Double.BYTES, bytes.length));
+            throw new IllegalArgumentException(ERROR_MSG_BYTECOUNT.formatted(Double.BYTES, bytes.length));
         return ByteBuffer.wrap(bytes).getDouble();
     }
 
     public static long byteArrayToLong(byte[] bytes) {
         if (bytes.length != Long.BYTES)
-            throw new IllegalArgumentException(String.format(ERROR_MSG_BYTECOUNT, Long.BYTES, bytes.length));
+            throw new IllegalArgumentException(ERROR_MSG_BYTECOUNT.formatted(Long.BYTES, bytes.length));
         return ByteBuffer.wrap(bytes).getLong();
     }
 
     public static int byteArrayToInteger(byte[] bytes) {
         if (bytes.length != Integer.BYTES)
-            throw new IllegalArgumentException(String.format(ERROR_MSG_BYTECOUNT, Integer.BYTES, bytes.length));
+            throw new IllegalArgumentException(ERROR_MSG_BYTECOUNT.formatted(Integer.BYTES, bytes.length));
         return ByteBuffer.wrap(bytes).getInt();
     }
 }

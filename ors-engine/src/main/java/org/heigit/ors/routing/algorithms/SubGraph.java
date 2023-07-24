@@ -405,8 +405,8 @@ public class SubGraph {
 
         @Override
         public boolean isShortcut() {
-            if (currState instanceof CHEdgeIteratorState)
-                return (((CHEdgeIteratorState) currState).isShortcut());
+            if (currState instanceof CHEdgeIteratorState state)
+                return (state.isShortcut());
             else
                 return false;
         }

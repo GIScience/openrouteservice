@@ -376,8 +376,8 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
                                 int trafficLinkId, RouteSegmentInfo routeSegment) {
         for (EdgeIteratorState edge : routeSegment.getEdgesStates()) {
             int originalEdgeKey;
-            if (edge instanceof VirtualEdgeIteratorState) {
-                originalEdgeKey = ((VirtualEdgeIteratorState) edge).getOriginalEdgeKey();
+            if (edge instanceof VirtualEdgeIteratorState iteratorState) {
+                originalEdgeKey = iteratorState.getOriginalEdgeKey();
             } else {
                 originalEdgeKey = edge.getEdgeKey();
             }

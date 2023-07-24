@@ -53,9 +53,11 @@ public class RequestOptions implements RouteRequestParameterNames {
     @JsonIgnore
     private boolean hasAvoidBorders = false;
 
-    @Schema(name = PARAM_AVOID_COUNTRIES, description = "List of countries to exclude from matrix with `driving-*` profiles. Can be used together with `'avoid_borders': 'controlled'`. " +
-            "`[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://GIScience.github.io/openrouteservice/documentation/routing-options/Country-List.html). " +
-            "Also, ISO standard country codes cna be used in place of the numerical ids, for example, DE or DEU for Germany. ",
+    @Schema(name = PARAM_AVOID_COUNTRIES, description = """
+            List of countries to exclude from matrix with `driving-*` profiles. Can be used together with `'avoid_borders': 'controlled'`. \
+            `[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://GIScience.github.io/openrouteservice/documentation/routing-options/Country-List.html). \
+            Also, ISO standard country codes cna be used in place of the numerical ids, for example, DE or DEU for Germany. \
+            """,
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-*")}

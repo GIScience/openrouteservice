@@ -163,8 +163,8 @@ public class PrepareCore extends PrepareContractionHierarchies {
     protected IntContainer contractNode(int node, int level) {
         IntContainer neighbors = super.contractNode(node, level);
 
-        if (neighbors instanceof IntArrayList)
-            ((IntArrayList) neighbors).removeAll(isCoreNode);
+        if (neighbors instanceof IntArrayList intArrayList)
+            intArrayList.removeAll(isCoreNode);
         else
             throw(new IllegalStateException("Not an isntance of IntArrayList"));
 

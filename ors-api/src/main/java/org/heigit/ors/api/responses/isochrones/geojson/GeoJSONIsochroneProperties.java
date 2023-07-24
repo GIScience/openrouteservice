@@ -33,9 +33,11 @@ public class GeoJSONIsochroneProperties {
     @JsonProperty("area")
     private Double area;
 
-    @Schema(description = "Returns a reachability score between 0 and 1 (for attributes=reachfactor). " +
-            "As the maximum reachfactor would be achieved by travelling as the crow flies at maximum speed in a vacuum " +
-            "without obstacles, naturally it can never be 1. The availability of motorways however produces a higher score over normal roads.",
+    @Schema(description = """
+            Returns a reachability score between 0 and 1 (for attributes=reachfactor). \
+            As the maximum reachfactor would be achieved by travelling as the crow flies at maximum speed in a vacuum \
+            without obstacles, naturally it can never be 1. The availability of motorways however produces a higher score over normal roads.\
+            """,
             example = "0.56")
     @JsonProperty("reachfactor")
     private Double reachfactor;

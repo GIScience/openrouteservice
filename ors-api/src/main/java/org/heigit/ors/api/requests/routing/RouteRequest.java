@@ -127,8 +127,10 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     @JsonIgnore
     private boolean hasIncludeManeuvers = false;
 
-    @Schema(name= PARAM_RADII, description = "A list of maximum distances (measured in metres) that limit the search of nearby road segments to every given waypoint. " +
-            "The values must be greater than 0, the value of -1 specifies using the maximum possible search radius. The number of radiuses correspond to the number of waypoints. If only a single value is given, it will be applied to all waypoints.",
+    @Schema(name= PARAM_RADII, description = """
+            A list of maximum distances (measured in metres) that limit the search of nearby road segments to every given waypoint. \
+            The values must be greater than 0, the value of -1 specifies using the maximum possible search radius. The number of radiuses correspond to the number of waypoints. If only a single value is given, it will be applied to all waypoints.\
+            """,
             example = "[200, -1, 30]")
     @JsonProperty(PARAM_RADII)
     @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
@@ -203,16 +205,20 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     @JsonIgnore
     private boolean hasSuppressWarnings = false;
 
-    @Schema(name= PARAM_SIMPLIFY_GEOMETRY, description = "Specifies whether to simplify the geometry. " +
-            "Simplify geometry cannot be applied to routes with more than **one segment** and when `extra_info` is required.",
+    @Schema(name= PARAM_SIMPLIFY_GEOMETRY, description = """
+            Specifies whether to simplify the geometry. \
+            Simplify geometry cannot be applied to routes with more than **one segment** and when `extra_info` is required.\
+            """,
             defaultValue = "false")
     @JsonProperty(value = PARAM_SIMPLIFY_GEOMETRY)
     private boolean simplifyGeometry;
     @JsonIgnore
     private boolean hasSimplifyGeometry = false;
 
-    @Schema(name= PARAM_SKIP_SEGMENTS, description = "Specifies the segments that should be skipped in the route calculation. " +
-            "A segment is the connection between two given coordinates and the counting starts with 1 for the connection between the first and second coordinate.",
+    @Schema(name= PARAM_SKIP_SEGMENTS, description = """
+            Specifies the segments that should be skipped in the route calculation. \
+            A segment is the connection between two given coordinates and the counting starts with 1 for the connection between the first and second coordinate.\
+            """,
             example = "[2,4]")
     @JsonProperty(PARAM_SKIP_SEGMENTS)
     private List<Integer> skipSegments;
@@ -276,12 +282,14 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     @JsonIgnore
     private boolean hasSchedule = false;
 
-    @Schema(name= PARAM_SCHEDULE_DURATION, description = "The time window when requesting a public transport schedule.",
+    @Schema(name= PARAM_SCHEDULE_DURATION, description = "The time window when requesting a public transport schedule." +
+            " The format is passed as ISO 8601 duration: https://en.wikipedia.org/wiki/ISO_8601#Durations",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "schedule"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )},
-            example = "PT30M")
+            example = "PT30M",
+            type = "String")
     @JsonProperty(PARAM_SCHEDULE_DURATION)
     private Duration scheduleDuration;
     @JsonIgnore
@@ -298,13 +306,15 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     @JsonIgnore
     private boolean hasScheduleRows = false;
 
-    @Schema(name= PARAM_WALKING_TIME, description = "Maximum duration for walking access and egress of public transport.",
+    @Schema(name= PARAM_WALKING_TIME, description = "Maximum duration for walking access and egress of public transport." +
+            " The value is passed in ISO 8601 duration format: https://en.wikipedia.org/wiki/ISO_8601#Durations",
             extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "public-transport")}
             )},
             defaultValue = "PT15M",
-            example = "PT30M")
+            example = "PT30M",
+            type = "String")
     @JsonProperty(PARAM_WALKING_TIME)
     private Duration walkingTime;
     @JsonIgnore
