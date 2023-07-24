@@ -82,6 +82,10 @@ public class EndpointsProperties {
         private String gpxAuthor;
         private String gpxContentLicence;
 
+        private double maximumAvoidPolygonArea;
+
+        private double maximumAvoidPolygonExtent;
+
         public boolean isEnabled() {
             return enabled;
         }
@@ -144,6 +148,22 @@ public class EndpointsProperties {
 
         public void setGpxContentLicence(String gpxContentLicence) {
             this.gpxContentLicence = gpxContentLicence;
+        }
+
+        public double getMaximumAvoidPolygonArea() {
+            return maximumAvoidPolygonArea;
+        }
+
+        public void setMaximumAvoidPolygonArea(double maximumAvoidPolygonArea) {
+            this.maximumAvoidPolygonArea = maximumAvoidPolygonArea;
+        }
+
+        public double getMaximumAvoidPolygonExtent() {
+            return maximumAvoidPolygonExtent;
+        }
+
+        public void setMaximumAvoidPolygonExtent(double maximumAvoidPolygonExtent) {
+            this.maximumAvoidPolygonExtent = maximumAvoidPolygonExtent;
         }
     }
 
