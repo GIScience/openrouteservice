@@ -81,10 +81,9 @@ public class EndpointsProperties {
         private String gpxSupportMail;
         private String gpxAuthor;
         private String gpxContentLicence;
-
         private double maximumAvoidPolygonArea;
-
         private double maximumAvoidPolygonExtent;
+        private int maximumAlternativeRoutes;
 
         public boolean isEnabled() {
             return enabled;
@@ -165,6 +164,17 @@ public class EndpointsProperties {
         public void setMaximumAvoidPolygonExtent(double maximumAvoidPolygonExtent) {
             this.maximumAvoidPolygonExtent = maximumAvoidPolygonExtent;
         }
+
+
+        public int getMaximumAlternativeRoutes() {
+            return maximumAlternativeRoutes;
+        }
+
+        public void setMaximumAlternativeRoutes(Integer maximumAlternativeRoutes) {
+            this.maximumAlternativeRoutes = maximumAlternativeRoutes;
+        }
+
+
     }
 
     public static class EndpointMatrixProperties {

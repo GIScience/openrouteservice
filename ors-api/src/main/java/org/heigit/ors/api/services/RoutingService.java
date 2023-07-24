@@ -159,10 +159,9 @@ public class RoutingService extends ApiService {
             }
             if (request.getAlternativeRoutes().hasTargetCount()) {
                 params.setAlternativeRoutesCount(request.getAlternativeRoutes().getTargetCount());
-                String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(request.getProfile().toString(), "maximum_alternative_routes");
-                int countLimit = StringUtility.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
+                int countLimit = endpointsProperties.getRouting().getMaximumAlternativeRoutes();
                 if (countLimit > 0 && request.getAlternativeRoutes().getTargetCount() > countLimit) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(request.getAlternativeRoutes().getTargetCount()), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(request.getAlternativeRoutes().getTargetCount()), "The target alternative routes count has to be equal to or less than " + countLimit);
                 }
             }
             if (request.getAlternativeRoutes().hasWeightFactor())

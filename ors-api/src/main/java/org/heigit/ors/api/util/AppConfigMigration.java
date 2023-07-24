@@ -74,6 +74,7 @@ public class AppConfigMigration {
         if (!StringUtility.isNullOrEmpty(swaggerDocumentationUrl))
             endpoints.setSwaggerDocumentationUrl(swaggerDocumentationUrl);
 
+// ### Isochrones ###
         EndpointsProperties.EndpointIsochroneProperties isochrones = endpoints.getIsochrone();
         String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "enabled");
         if (value != null)
@@ -164,6 +165,7 @@ public class AppConfigMigration {
         }
         isochrones.getStatisticsProviders().putAll(statisticsProviderPropertiesMap);
 
+// ### Matrix ###
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();
         value = config.getServiceParameter(SERVICE_NAME_MATRIX, "enabled");
         if (value != null)
@@ -187,6 +189,7 @@ public class AppConfigMigration {
         if (value != null)
             matrix.setMaximumRoutesFlexible(Math.max(1, Integer.parseInt(value)));
 
+// ### Routing ###
         EndpointsProperties.EndpointRoutingProperties routing = endpoints.getRouting();
         value = config.getServiceParameter(SERVICE_NAME_ROUTING, "enabled");
         if (value != null)
@@ -215,6 +218,10 @@ public class AppConfigMigration {
         value = config.getServiceParameter(SERVICE_NAME_ROUTING, "maximum_avoid_polygon_extent");
         if (value != null)
             routing.setMaximumAvoidPolygonArea(Math.max(1, Double.parseDouble(value)));
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "profiles.default_params.maximum_alternative_routes");
+        if (value != null)
+            routing.setMaximumAlternativeRoutes(Math.max(1, Integer.parseInt(value)));
+
         return endpoints;
     }
 

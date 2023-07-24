@@ -50,11 +50,7 @@ class RoutingServiceTest {
     @Autowired RoutingService routingService;
     @Autowired EndpointsProperties endpointsProperties = new EndpointsProperties();
     RouteRequest request;
-    AppConfig config = AppConfig.getGlobal();
-
     private RequestProfileParamsRestrictions vehicleParams;
-    private RequestProfileParamsRestrictions cyclingParams;
-    private RequestProfileParamsRestrictions walkingParams;
     private RequestProfileParamsRestrictions wheelchairParams;
 
     private final JSONObject geoJsonPolygon;
