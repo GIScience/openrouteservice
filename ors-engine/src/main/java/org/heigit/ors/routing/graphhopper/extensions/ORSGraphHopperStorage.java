@@ -145,12 +145,12 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
 
     @Override
     public String toDetailsString() {
-        String str = super.toDetailsString();
+        StringBuilder str = new StringBuilder(super.toDetailsString());
         for (CHEntry ch : coreEntries) {
-            str += ", " + ch.chStore.toDetailsString();
+            str.append(", ").append(ch.chStore.toDetailsString());
         }
 
-        return str;
+        return str.toString();
     }
 
     // estimated number of core nodes used for array initialization in Tarjan

@@ -104,8 +104,7 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
     private Tuple2<Integer, Integer> rasterCoordinates(int rasterWidth, int node) {
         int x = node % rasterWidth;
         int y = node / rasterWidth;
-        Tuple2<Integer, Integer> coordinates = Tuple.of(x, y);
-        return coordinates;
+        return Tuple.of(x, y);
     }
 
     /**

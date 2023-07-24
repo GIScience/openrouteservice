@@ -37,14 +37,14 @@ public class RouteProfileConfiguration {
 	private Integer maximumWayPoints = 0;
 	private boolean instructions = true;
 	private boolean optimize = false;
-	
+
 	private int encoderFlagsSize = 4;
 	private String encoderOptions = "";
 	private String gtfsFile = "";
 	private Config isochronePreparationOpts;
 	private Config preparationOpts;
 	private Config executionOpts;
-	
+
 	private String elevationProvider = null;
 	private String elevationCachePath = null;
 	private String elevationDataAccess = "MMAP";
@@ -96,7 +96,7 @@ public class RouteProfileConfiguration {
             }
         }
 
-        return list.toArray(new Integer[list.size()]);
+        return list.toArray(new Integer[0]);
     }
 
     public void setName(String value) {

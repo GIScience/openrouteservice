@@ -1,5 +1,5 @@
 {
-	default: 
+	"default":
 	{
 		"motorway": 130,
 		"motorway_link": 50,
@@ -21,9 +21,9 @@
 		"raceway": 100,
 		"cycleway": 10
 	},
-	surface:
+	"surface":
 	{
-		"asphalt": -1, 
+		"asphalt": -1,
 		"concrete": -1,
 		"concrete:plates": -1,
 		"concrete:lanes": -1,
@@ -53,7 +53,7 @@
 		"mud": 10,
 		"unknown" : 30
 	},
-	tracktype:
+	"tracktype":
 	{
 		"grade1": 25,
 		"grade2": 15,
@@ -61,7 +61,7 @@
 		"grade4": 10,
 		"grade5": 5
 	},
-	max_speeds: {
+	"max_speeds": {
 		"AT:urban": 50,
 		"AT:rural": 80,
 		"AT:trunk": 80,

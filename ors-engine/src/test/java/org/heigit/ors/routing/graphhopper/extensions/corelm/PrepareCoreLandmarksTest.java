@@ -233,7 +233,7 @@ class PrepareCoreLandmarksTest
         Helper.removeDir(new File(fileStr));
     }
 
-    private class AllCoreEdgeFilter implements EdgeFilter {
+    private static class AllCoreEdgeFilter implements EdgeFilter {
 
         @Override
         public final boolean accept(EdgeIteratorState iter) {

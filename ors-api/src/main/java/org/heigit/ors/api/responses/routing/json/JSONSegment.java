@@ -93,17 +93,14 @@ public class JSONSegment {
         if(request.hasAttributes()) {
             APIEnums.Attributes[] attributes = request.getAttributes();
             for(APIEnums.Attributes attr : attributes) {
-                switch(attr) {
-                    case DETOUR_FACTOR:
-                        detourFactor = routeSegment.getDetourFactor();
-                        break;
-                    case AVERAGE_SPEED:
+                switch (attr) {
+                    case DETOUR_FACTOR -> detourFactor = routeSegment.getDetourFactor();
+                    case AVERAGE_SPEED -> {
                         double distFactor = (!request.hasUnits() || request.getUnits() == APIEnums.Units.METRES) ? 1000 : 1;
-                        averageSpeed = FormatUtility.roundToDecimals(routeSegment.getDistance() / distFactor / (routeSegment.getDuration() /3600), 2);
-                        break;
-                    case ROUTE_PERCENTAGE:
-                        percentage = FormatUtility.roundToDecimals(routeSegment.getDistance() * 100 / routeLength, 2);
-                        break;
+                        averageSpeed = FormatUtility.roundToDecimals(routeSegment.getDistance() / distFactor / (routeSegment.getDuration() / 3600), 2);
+                    }
+                    case ROUTE_PERCENTAGE ->
+                            percentage = FormatUtility.roundToDecimals(routeSegment.getDistance() * 100 / routeLength, 2);
                 }
             }
         }

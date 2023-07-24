@@ -24,7 +24,7 @@ class WheelchairWayFilterTest {
             assertTrue(filter.accept());
 
 
-        } catch (InvalidObjectException ioe) {
+        } catch (InvalidObjectException ignored) {
 
         }
     }

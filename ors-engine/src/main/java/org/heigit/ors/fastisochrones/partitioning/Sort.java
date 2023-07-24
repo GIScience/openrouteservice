@@ -41,7 +41,7 @@ public class Sort {
         return result;
     }
 
-    private class ArrayIndexComparator implements Comparator<Integer> {
+    private static class ArrayIndexComparator implements Comparator<Integer> {
         private final Double[] array;
 
         public ArrayIndexComparator(Double[] array) {

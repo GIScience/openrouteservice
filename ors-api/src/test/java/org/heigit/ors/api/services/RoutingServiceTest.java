@@ -241,8 +241,8 @@ class RoutingServiceTest {
         assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
         assertEquals(2.0f, params.getMinimumWidth(), 0);
         assertEquals(WheelchairTypesEncoder.getSurfaceType("asphalt"), params.getSurfaceType());
-        assertEquals(true, params.isRequireSurfaceQualityKnown());
-        assertEquals(true, params.allowUnsuitable());
+        assertTrue(params.isRequireSurfaceQualityKnown());
+        assertTrue(params.allowUnsuitable());
     }
 
     @Test

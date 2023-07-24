@@ -433,8 +433,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             Geometry geom = ch.getConcaveHull();
 
-            if (geom instanceof GeometryCollection) {
-                GeometryCollection geomColl = (GeometryCollection) geom;
+            if (geom instanceof GeometryCollection geomColl) {
                 if (geomColl.isEmpty())
                     return;
             }
@@ -729,12 +728,12 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         if (coordinates.size() < 3)
             return "";
         StringBuilder statement = new StringBuilder();
-        statement.append("{\"type\": \"Feature\",\"properties\": {\"name\": \"" + cellId + "\"},\"geometry\": {\"type\": \"Polygon\",\"coordinates\": [[");
+        statement.append("{\"type\": \"Feature\",\"properties\": {\"name\": \"").append(cellId).append("\"},\"geometry\": {\"type\": \"Polygon\",\"coordinates\": [[");
         int i;
         for (i = coordinates.size() - 2; i > 0; i -= 2) {
-            statement.append("[" + String.valueOf(coordinates.get(i + 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(i + 1)).length())) + "," + String.valueOf(coordinates.get(i)).substring(0, Math.min(8, String.valueOf(coordinates.get(i)).length())) + "],");
+            statement.append("[").append(String.valueOf(coordinates.get(i + 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(i + 1)).length()))).append(",").append(String.valueOf(coordinates.get(i)).substring(0, Math.min(8, String.valueOf(coordinates.get(i)).length()))).append("],");
         }
-        statement.append("[" + String.valueOf(coordinates.get(coordinates.size() - 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 1)).length())) + "," + String.valueOf(coordinates.get(coordinates.size() - 2)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 2)).length())) + "]");
+        statement.append("[").append(String.valueOf(coordinates.get(coordinates.size() - 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 1)).length()))).append(",").append(String.valueOf(coordinates.get(coordinates.size() - 2)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 2)).length()))).append("]");
 
         statement.append("]]}},");
         statement.append(System.lineSeparator());
@@ -826,7 +825,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             }
             disconnectedCells.add(connectedCell);
         }
-        Collections.sort(disconnectedCells, (a1, a2) -> a2.size() - a1.size());
+        disconnectedCells.sort((a1, a2) -> a2.size() - a1.size());
         return disconnectedCells;
     }
 }

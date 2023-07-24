@@ -1,8 +1,11 @@
 package org.heigit.ors.routing.graphhopper.extensions.weightings;
 
+import com.graphhopper.routing.weighting.Weighting;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.AdditionWeighting;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.ConstantWeighting;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,7 +17,7 @@ class AdditionWeightingTest {
         ConstantWeighting const3 = new ConstantWeighting(3, 30);
         ConstantWeighting superWeighting = new ConstantWeighting(10, 100);
 
-        ConstantWeighting[] weightings = {const1, const2, const3};
+        List<Weighting> weightings = List.of(new ConstantWeighting[]{const1, const2, const3});
         AdditionWeighting additionWeighting = new AdditionWeighting(weightings, superWeighting);
         assertEquals(60, additionWeighting.calcEdgeWeight(null, false, 0), 0.0001);
         assertEquals(100, additionWeighting.calcEdgeMillis(null, false, 0), 0.0001);

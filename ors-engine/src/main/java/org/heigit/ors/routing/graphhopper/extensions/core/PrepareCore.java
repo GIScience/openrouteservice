@@ -59,8 +59,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
 
     @Override
     public CHStorage getCHStore (CHConfig chConfig) {
-        if (CHConfig.TYPE_CORE.equals(chConfig.getType()) && graph instanceof ORSGraphHopperStorage) {
-            ORSGraphHopperStorage ghStorage = (ORSGraphHopperStorage) graph;
+        if (CHConfig.TYPE_CORE.equals(chConfig.getType()) && graph instanceof ORSGraphHopperStorage ghStorage) {
             CHStorage chStore = ghStorage.getCoreStore(chConfig.getName());
             if (chStore == null)
                 throw new IllegalArgumentException("There is no Core graph '" + chConfig.getName() + "', existing: " + ghStorage.getCoreGraphNames());
@@ -116,7 +115,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
                 restrictedNodesCount++;
     }
 
-    private class RestrictedEdgesWeighting extends AbstractAdjustedWeighting {
+    private static class RestrictedEdgesWeighting extends AbstractAdjustedWeighting {
         private final EdgeFilter restrictionFilter;
 
         RestrictedEdgesWeighting(Weighting weighting, EdgeFilter restrictionFilter) {

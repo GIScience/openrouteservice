@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
@@ -23,11 +23,11 @@ import java.io.Serializable;
 
 public class AvoidAreasEdgeFilter implements EdgeFilter {
 
-	private Envelope env; 
+	private Envelope env;
 	private final Polygon[] polys;
 	private DefaultCoordinateSequence coordSequence;
 	private final GeometryFactory geomFactory = new GeometryFactory();
-	
+
 	/**
 	 * Creates an edges filter which accepts both direction of the specified vehicle.
 	 */
@@ -235,10 +235,11 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
 		 */
 		public void setOrdinate(int index, int ordinateIndex, double value) {
 			switch (ordinateIndex) {
-				case CoordinateSequence.X: coordinates[index].x = value; break;
-				case CoordinateSequence.Y: coordinates[index].y = value; break;
-				case CoordinateSequence.Z: coordinates[index].z = value; break;
-				default: break;
+				case CoordinateSequence.X -> coordinates[index].x = value;
+				case CoordinateSequence.Y -> coordinates[index].y = value;
+				case CoordinateSequence.Z -> coordinates[index].z = value;
+				default -> {
+				}
 			}
 		}
 		/**

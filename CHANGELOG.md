@@ -36,6 +36,7 @@ RELEASING:
 ## [Unreleased]
 
 ### Added
+- workflow for RPM packaging ([#1490](https://github.com/GIScience/openrouteservice/pull/1490))
 - workflow for graph building with GitHub environments ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
 - environment variables for adjusting folders and paths during graph build using docker: ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
   - `ELEVATION_CACHE_FOLDER`: value to overwrite the `ors.services.routing.profiles.default_params.elevation_cache_path` with
@@ -53,6 +54,7 @@ RELEASING:
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
 
 ### Removed
+- dependency on apache-curator ([#1496](https://github.com/GIScience/openrouteservice/issues/1496))
 - ORSKafkaConsumer and related classes ([#1482](https://github.com/GIScience/openrouteservice/pull/1482))
 - RoutingProfileUpdater and related classes
 - Old map matching code
@@ -63,6 +65,7 @@ RELEASING:
 - Remove maven-shared-utils dependency ([#1473](https://github.com/GIScience/openrouteservice/issues/1473))
 - update spring-boot from 2.7.10 to 2.7.12 ([#1474](https://github.com/GIScience/openrouteservice/issues/1474))
 - Upgrade org.geotools.gt-epsg-hsql to version 29.1. ([#1479](https://github.com/GIScience/openrouteservice/issues/1479))
+- various style and low level code problems ([#1489](https://github.com/GIScience/openrouteservice/pull/1489))
 
 ## [7.1.0] - 2023-06-13
 ### Added

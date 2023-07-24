@@ -484,9 +484,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
     }
 
     boolean considerTurnRestrictions() {
-        if (!hasTurnWeighting)
-            return false;
-        return true;
+        return hasTurnWeighting;
     }
 
     public void setMaxVisitedNodes(int numberOfNodes) {

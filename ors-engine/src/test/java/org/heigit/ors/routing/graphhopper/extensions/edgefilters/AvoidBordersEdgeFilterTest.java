@@ -59,9 +59,8 @@ class AvoidBordersEdgeFilterTest {
     private VirtualEdgeIteratorState generateEdge(int id) {
         IntsRef intsRef = encodingManager.createEdgeFlags();
         int edgeKey = GHUtility.createEdgeKey(id, false);
-        VirtualEdgeIteratorState ve =  new VirtualEdgeIteratorState(0, edgeKey, 1, 2, 10,
+        return new VirtualEdgeIteratorState(0, edgeKey, 1, 2, 10,
                 intsRef, "test", Helper.createPointList(51,0,51,1),false);
-        return ve;
     }
 
     @Test

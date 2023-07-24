@@ -32,7 +32,7 @@ public final class WheelchairCoreEdgeFilter implements EdgeFilter {
 	}
 
 	@Override
-	public final boolean accept(EdgeIteratorState iter) {
+	public boolean accept(EdgeIteratorState iter) {
 
 		storage.getEdgeValues(iter.getEdge(), attributes, buffer);
 

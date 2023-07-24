@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.geojson;
 
@@ -98,22 +98,15 @@ public class GeometryJSON {
 
 		String type = json.getString("type");
 		JSONArray arrCoords = json.getJSONArray("coordinates");
-		switch(type) {
-			case "Point":
-				return readPoint(arrCoords);
-			case "MultiPoint":
-				return readMultiPoint(arrCoords);
-			case "LineString":
-				return readLineString(arrCoords);
-			case "MultiLineString":
-				return readMultiLineString(arrCoords);
-			case "Polygon":
-				return readPolygon(arrCoords);
-			case "MultiPolygon":
-				return readMultiPolygon(arrCoords);
-			default:
-				throw new Exception("invalid type: " + type);
-		}
+		return switch (type) {
+			case "Point" -> readPoint(arrCoords);
+			case "MultiPoint" -> readMultiPoint(arrCoords);
+			case "LineString" -> readLineString(arrCoords);
+			case "MultiLineString" -> readMultiLineString(arrCoords);
+			case "Polygon" -> readPolygon(arrCoords);
+			case "MultiPolygon" -> readMultiPolygon(arrCoords);
+			default -> throw new Exception("invalid type: " + type);
+		};
 	}
 
 	private static Point readPoint(JSONArray value) {
@@ -122,7 +115,7 @@ public class GeometryJSON {
 	}
 
 	private static MultiPoint readMultiPoint(JSONArray value) {
-		return factory.createMultiPoint(readCoordinates(value));
+		return factory.createMultiPointFromCoords(readCoordinates(value));
 	}
 
 	private static LineString readLineString(JSONArray value) {
@@ -155,7 +148,7 @@ public class GeometryJSON {
 
 	private static Polygon readPolygon(JSONArray value) {
 		int n = value.length();
-		
+
 		LinearRing shell = null;
 		LinearRing[] holes = new LinearRing[n-1];
 

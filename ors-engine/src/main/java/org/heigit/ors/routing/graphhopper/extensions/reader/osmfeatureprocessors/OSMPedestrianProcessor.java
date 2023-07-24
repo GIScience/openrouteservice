@@ -27,14 +27,9 @@ public class OSMPedestrianProcessor {
         if(way.hasTag("highway")) {
             String highwayType = way.getTag("highway");
             switch (highwayType) {
-                case "footway":
-                case "living_street":
-                case "pedestrian":
-                case "path":
-                case "track":
-                    isPedestrian = true;
-                    break;
-                default:
+                case "footway", "living_street", "pedestrian", "path", "track" -> isPedestrian = true;
+                default -> {
+                }
             }
         }
         if(way.hasTag("public_transport") && way.getTag("public_transport").equals("platform"))

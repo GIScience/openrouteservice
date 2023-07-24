@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
@@ -154,8 +154,8 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 		/*
 		 *       | flag  | surface | smoothness | tracktype | incline | kerbHeight | width  | side  | hasKerbHeight | hasIncline | surfaceQualityKnown | pedestrianised
 		 * lsb-> | 1 bit | 5 bits  |  4 bits    | 3 bits    | 5 bits  | 4 bits     | 5 bits | 2 bit | 1 bit         | 1 bit      | 1 bit               | 1 bit          | 33 bits in total which can fit into 5 bytes
-		 * 	
-		 * 
+		 *
+		 *
 		 */
 
 		if (attrs.hasValues()) {
@@ -184,16 +184,11 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 			if (attrs.getWidth() > 0.0)
 				encodedValue = widthEncoder.setValue(encodedValue, attrs.getWidth());
 
-			switch(attrs.getSide()) {
-				case LEFT:
-					encodedValue = sideFlagEncoder.setValue(encodedValue, 1);
-					break;
-				case RIGHT:
-					encodedValue = sideFlagEncoder.setValue(encodedValue, 2);
-					break;
-				case UNKNOWN:
-				default:
-					break;
+			switch (attrs.getSide()) {
+				case LEFT -> encodedValue = sideFlagEncoder.setValue(encodedValue, 1);
+				case RIGHT -> encodedValue = sideFlagEncoder.setValue(encodedValue, 2);
+				default -> {
+				}
 			}
 
 			if (attrs.isSurfaceQualityKnown()) {
@@ -216,7 +211,7 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 			buffer[3] = 0;
 			buffer[4] = 0;
 		}
-	}	
+	}
 
 	private void decodeAttributes(WheelchairAttributes attrs, byte[] buffer) {
 		attrs.reset();
@@ -260,15 +255,10 @@ public class WheelchairAttributesGraphStorage implements GraphExtension {
 				attrs.setWidth((int) (iValue));
 
 			iValue = sideFlagEncoder.getValue(encodedValue);
-			switch((int) iValue) {
-				case 1:
-					attrs.setSide(WheelchairAttributes.Side.LEFT);
-					break;
-				case 2:
-					attrs.setSide(WheelchairAttributes.Side.RIGHT);
-					break;
-				default:
-					attrs.setSide(WheelchairAttributes.Side.UNKNOWN);
+			switch ((int) iValue) {
+				case 1 -> attrs.setSide(WheelchairAttributes.Side.LEFT);
+				case 2 -> attrs.setSide(WheelchairAttributes.Side.RIGHT);
+				default -> attrs.setSide(WheelchairAttributes.Side.UNKNOWN);
 			}
 
 			iValue = surfaceQualityKnownEncoder.getValue(encodedValue);

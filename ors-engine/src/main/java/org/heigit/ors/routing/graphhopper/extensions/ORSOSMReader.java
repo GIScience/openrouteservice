@@ -246,7 +246,7 @@ public class ORSOSMReader extends OSMReader {
 
 		if(tags.size() > 0 || coords.size() > 1) {
 			// Use an overloaded method that allows the passing of parameters from this reader
-			procCntx.processWay(way, coords.toArray(new Coordinate[coords.size()]), tags, allCoordinates.toArray(new Coordinate[allCoordinates.size()]));
+			procCntx.processWay(way, coords.toArray(new Coordinate[0]), tags, allCoordinates.toArray(new Coordinate[0]));
 		} else {
 			procCntx.processWay(way);
 		}

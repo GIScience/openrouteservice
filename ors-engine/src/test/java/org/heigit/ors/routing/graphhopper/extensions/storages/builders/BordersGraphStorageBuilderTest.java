@@ -80,17 +80,17 @@ class BordersGraphStorageBuilderTest {
 
             h2.add(new CountryBordersPolygon("cO1", gf.createPolygon(coordsO1)));
             h2.add(new CountryBordersPolygon("cO2", gf.createPolygon(coordsO2)));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
 
-        _cbr.addHierarchy(1l, h);
-        _cbr.addHierarchy(2l, h2);
+        _cbr.addHierarchy(1L, h);
+        _cbr.addHierarchy(2L, h2);
         _builder.setBordersBuilder(_cbr);
 
         try {
             _builder.init(null);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
     }

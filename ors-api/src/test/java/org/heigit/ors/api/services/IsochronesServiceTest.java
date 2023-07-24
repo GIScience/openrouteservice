@@ -217,7 +217,7 @@ public class IsochronesServiceTest {
     @Test
     void convertAttributes() {
         IsochronesRequestEnums.Attributes[] atts = new IsochronesRequestEnums.Attributes[]{IsochronesRequestEnums.Attributes.AREA, IsochronesRequestEnums.Attributes.REACH_FACTOR, IsochronesRequestEnums.Attributes.TOTAL_POPULATION};
-        String[] attStr = request.convertAttributes(atts);
+        String[] attStr = IsochronesRequest.convertAttributes(atts);
         assertEquals("area", attStr[0]);
         assertEquals("reachfactor", attStr[1]);
         assertEquals("total_pop", attStr[2]);

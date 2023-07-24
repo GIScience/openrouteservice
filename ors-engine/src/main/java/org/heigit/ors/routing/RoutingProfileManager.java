@@ -354,8 +354,7 @@ public class RoutingProfileManager {
                         for (Throwable error : gr.getErrors()) {
                             if (message.length() > 0)
                                 message.append("; ");
-                            if (error instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
-                                com.graphhopper.util.exceptions.PointNotFoundException pointNotFoundException = (com.graphhopper.util.exceptions.PointNotFoundException) error;
+                            if (error instanceof com.graphhopper.util.exceptions.PointNotFoundException pointNotFoundException) {
                                 int pointReference = (i - 1) + pointNotFoundException.getPointIndex();
 
                                 Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;

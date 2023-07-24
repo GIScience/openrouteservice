@@ -166,7 +166,7 @@ public class EdmondsKarpAStar extends MaxFlowMinCut {
         return (int) Math.ceil(maxBFSCalls * sizeFactor) + nodeOrder.size() * 2;
     }
 
-    private class EdgeInfo {
+    private static class EdgeInfo {
         int edge;
         int baseNode;
         int adjNode;

@@ -62,12 +62,11 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
     @Override
     protected void createPreparationsInternal(GraphHopperStorage ghStorage, List<LandmarkSuggestion> lmSuggestions) {
         for (LMConfig lmConfig : getLMConfigs()) {
-            if (!(lmConfig instanceof CoreLMConfig))
+            if (!(lmConfig instanceof CoreLMConfig coreLMConfig))
                 throw(new IllegalStateException("Expected instance of CoreLMConfig"));
             if (!(ghStorage instanceof ORSGraphHopperStorage))
                 throw(new IllegalStateException("Expected instance of ORSGraphHopperStorage"));
 
-            CoreLMConfig coreLMConfig = (CoreLMConfig) lmConfig;
             String lmConfigName = coreLMConfig.getSuperName();
 
             RoutingCHGraph core = ((ORSGraphHopperStorage) ghStorage).getCoreGraph(lmConfigName);

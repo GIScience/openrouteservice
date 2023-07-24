@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
@@ -61,7 +61,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 
         intendedValues.add("yes");
         intendedValues.add("permissive");
-        
+
         hgvAccess.addAll(Arrays.asList("hgv", "goods", "bus", KEY_AGRICULTURAL, KEY_FORESTRY, "delivery"));
 
         passByDefaultBarriers.add("gate");
@@ -84,7 +84,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         trackTypeSpeedMap.put("grade5", 5); // ... no hard materials. soil/sand/grass
 
         Map<String, Integer> badSurfaceSpeedMap = new HashMap<>();
-        badSurfaceSpeedMap.put("asphalt", -1); 
+        badSurfaceSpeedMap.put("asphalt", -1);
         badSurfaceSpeedMap.put("concrete", -1);
         badSurfaceSpeedMap.put("concrete:plates", -1);
         badSurfaceSpeedMap.put("concrete:lanes", -1);
@@ -113,7 +113,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         badSurfaceSpeedMap.put("sand", 15);
         badSurfaceSpeedMap.put("mud", 10);
         badSurfaceSpeedMap.put("unknown", 30);
-        
+
      // limit speed on bad surfaces to 30 km/h
         badSurfaceSpeed = 30;
 
@@ -128,7 +128,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         defaultSpeedMap.put("trunk", 120);
         defaultSpeedMap.put("trunk_link", 50);
         // linking bigger town
-        defaultSpeedMap.put("primary", 120);  
+        defaultSpeedMap.put("primary", 120);
         defaultSpeedMap.put("primary_link", 50);
         // linking towns + villages
         defaultSpeedMap.put("secondary", 120);
@@ -151,9 +151,9 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         // how to declare this ?
         defaultSpeedMap.put("aeroway=runway", 100);
         defaultSpeedMap.put("aeroway=taxilane", 100);
-        
+
         // FIXME: allow highway=footway, pedestrian
-        
+
         speedLimitHandler = new SpeedLimitHandler(this.toString(), defaultSpeedMap, badSurfaceSpeedMap, trackTypeSpeedMap);
 
         forwardKeys.add("goods:forward");
@@ -162,21 +162,21 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         forwardKeys.add("agricultural:forward");
         forwardKeys.add("forestry:forward");
         forwardKeys.add("delivery:forward");
-        
+
         backwardKeys.add("goods:backward");
         backwardKeys.add("hgv:backward");
         backwardKeys.add("bus:backward");
         backwardKeys.add("agricultural:backward");
         backwardKeys.add("forestry:backward");
         backwardKeys.add("delivery:backward");
-        
+
         noValues.add("no");
         noValues.add("-1");
-        
+
         yesValues.add("yes");
         yesValues.add("1");
     }
-    
+
     @Override
     protected double applyMaxSpeed(ReaderWay way, double speed) {
         double maxSpeed = getMaxSpeed(way);
@@ -187,14 +187,14 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         return speed;
     }
 
-	
+
 	@Override
 	public double getMaxSpeed(ReaderWay way) { // runge
 		String maxspeedTag = way.getTag("maxspeed:hgv");
 		if (Helper.isEmpty(maxspeedTag))
 			maxspeedTag = way.getTag("maxspeed");
 		double maxSpeed = OSMValueExtractor.stringToKmh(maxspeedTag);
-		
+
         String highway = way.getTag(KEY_HIGHWAY);
         double defaultSpeed = speedLimitHandler.getSpeed(highway);
         if (defaultSpeed < maxSpeed) // TODO
@@ -230,7 +230,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
     public EncodingManager.Access getAccess(ReaderWay way)
     {
         String highwayValue = way.getTag(KEY_HIGHWAY);
-        
+
         if (highwayValue == null)
         {
             if (way.hasTag("route", ferries))
@@ -244,7 +244,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
             }
             return EncodingManager.Access.CAN_SKIP;
         }
-        
+
         if (!speedLimitHandler.hasSpeedValue(highwayValue))
             return EncodingManager.Access.CAN_SKIP;
 
@@ -302,7 +302,7 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
         return edgeFlags;
     }
 
-    
+
     /**
 	 * @param weightToPrioMap
 	 *            associate a weight with every priority. This sorted map allows
@@ -323,32 +323,50 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 
             String highway = way.getTag(KEY_HIGHWAY);
 			double maxSpeed = getMaxSpeed(way);
-			
+
 			if (!Helper.isEmpty(highway)) {
-				if (KEY_MOTORWAY.equals(highway) || KEY_MOTORWAY_LINK.equals(highway) || "trunk".equals(highway) || "trunk_link".equals(highway))
-					weightToPrioMap.put(100d,  PriorityCode.BEST.getValue());
-				else if ("primary".equals(highway) || "primary_link".equals(highway))
-					weightToPrioMap.put(100d,  PriorityCode.PREFER.getValue());
-				else if ("secondary".equals(highway) || "secondary_link".equals(highway))
-					weightToPrioMap.put(100d,  PriorityCode.PREFER.getValue());
-				else if ("tertiary".equals(highway) || "tertiary_link".equals(highway))
-					weightToPrioMap.put(100d,  PriorityCode.UNCHANGED.getValue());
-				else if ("residential".equals(highway) || KEY_SERVICE.equals(highway) || "road".equals(highway) || "unclassified".equals(highway)) {
-					 if (maxSpeed > 0 && maxSpeed <= 30)
-						 weightToPrioMap.put(120d,  PriorityCode.REACH_DEST.getValue());
-					 else
-						 weightToPrioMap.put(100d,  PriorityCode.AVOID_IF_POSSIBLE.getValue());
-				}
-				else if ("living_street".equals(highway))
-					 weightToPrioMap.put(100d,  PriorityCode.AVOID_IF_POSSIBLE.getValue());
-				else if (KEY_TRACK.equals(highway))
-					 weightToPrioMap.put(100d,  PriorityCode.REACH_DEST.getValue());
-				else 
-					weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                switch (highway) {
+                    case KEY_MOTORWAY:
+                    case KEY_MOTORWAY_LINK:
+                    case "trunk":
+                    case "trunk_link":
+                        weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
+                        break;
+                    case "primary":
+                    case "primary_link":
+                        weightToPrioMap.put(100d, PriorityCode.PREFER.getValue());
+                        break;
+                    case "secondary":
+                    case "secondary_link":
+                        weightToPrioMap.put(100d, PriorityCode.PREFER.getValue());
+                        break;
+                    case "tertiary":
+                    case "tertiary_link":
+                        weightToPrioMap.put(100d, PriorityCode.UNCHANGED.getValue());
+                        break;
+                    case "residential":
+                    case KEY_SERVICE:
+                    case "road":
+                    case "unclassified":
+                        if (maxSpeed > 0 && maxSpeed <= 30)
+                            weightToPrioMap.put(120d, PriorityCode.REACH_DEST.getValue());
+                        else
+                            weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        break;
+                    case "living_street":
+                        weightToPrioMap.put(100d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        break;
+                    case KEY_TRACK:
+                        weightToPrioMap.put(100d, PriorityCode.REACH_DEST.getValue());
+                        break;
+                    default:
+                        weightToPrioMap.put(40d, PriorityCode.AVOID_IF_POSSIBLE.getValue());
+                        break;
+                }
 			}
-			else	
+			else
 				weightToPrioMap.put(100d, PriorityCode.UNCHANGED.getValue());
-			
+
 			if (maxSpeed > 0) {
 				// We assume that the given road segment goes through a settlement.
 				if (maxSpeed <= 40)

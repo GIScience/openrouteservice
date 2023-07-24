@@ -50,15 +50,12 @@ public class Isochrone {
 
     private double getMeanRadius(String units) {
         if (units == null) units = "m";
-        switch (units) {
-            default:
-            case "m":
-                return meanRadius;
-            case "mi":
-                return UnitsConverter.metersToMiles(meanRadius);
-            case "km":
-                return UnitsConverter.metersToKilometers(meanRadius);
-        }
+        return switch (units) {
+            case "m" -> meanRadius;
+            case "mi" -> UnitsConverter.metersToMiles(meanRadius);
+            case "km" -> UnitsConverter.metersToKilometers(meanRadius);
+            default -> meanRadius;
+        };
     }
 
     public double calcArea(String units) throws Exception {
@@ -67,15 +64,12 @@ public class Isochrone {
         }
         hasArea = true;
         if (units == null) units = "m";
-        switch (units) {
-            default:
-            case "m":
-                return area;
-            case "mi":
-                return UnitsConverter.sqMetersToSqMiles(area);
-            case "km":
-                return UnitsConverter.sqMetersToSqKilometers(area);
-        }
+        return switch (units) {
+            case "m" -> area;
+            case "mi" -> UnitsConverter.sqMetersToSqMiles(area);
+            case "km" -> UnitsConverter.sqMetersToSqKilometers(area);
+            default -> area;
+        };
     }
 
     public void setArea(double area) {

@@ -63,18 +63,13 @@ class MatrixRequestTest {
 
     @Test
     void tooMuchLocationsErrorTest() {
-        assertThrows(ParameterValueException.class, () -> {
-            matrixLocationsListRequest = new MatrixRequest(maximumLocationsArray, endpointsProperties);
-
-        });
+        assertThrows(ParameterValueException.class, () -> matrixLocationsListRequest = new MatrixRequest(maximumLocationsArray, endpointsProperties));
 
     }
 
     @Test
     void tooLittleLocationsErrorTest() {
-        assertThrows(ParameterValueException.class, () -> {
-            matrixLocationsRequest = new MatrixRequest(minimalLocationsArray, endpointsProperties);
-        });
+        assertThrows(ParameterValueException.class, () -> matrixLocationsRequest = new MatrixRequest(minimalLocationsArray, endpointsProperties));
     }
 
     @Test

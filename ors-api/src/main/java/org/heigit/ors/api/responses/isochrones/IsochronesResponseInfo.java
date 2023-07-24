@@ -86,7 +86,7 @@ public class IsochronesResponseInfo {
     }
 
     @Schema(description = "Information about the version of the openrouteservice that was used to generate the isochrones")
-    private class EngineInfo {
+    private static class EngineInfo {
         @Schema(description = "The backend version of the openrouteservice that was queried", example = "5.0")
         @JsonProperty("version")
         private final String version;

@@ -73,20 +73,20 @@ public class RoutingAPI {
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
-    @Operation(summary = "", hidden = true)
+    @Operation(hidden = true)
     public void getGetMapping() throws MissingParameterException {
         throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
     }
 
     @PostMapping
-    @Operation(summary = "", hidden = true)
+    @Operation(hidden = true)
     public String getPostMapping(@RequestBody RouteRequest request) throws MissingParameterException {
         throw new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, "profile");
     }
 
     // Matches any response type that has not been defined
     @PostMapping(value = "/{profile}/*")
-    @Operation(summary = "", hidden = true)
+    @Operation(hidden = true)
     public void getInvalidResponseType() throws StatusCodeException {
         throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, RoutingErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
     }
