@@ -77,14 +77,14 @@ endpoints:
 engine:
   init_threads: 1
   preparation_mode: false
-  source_file: ./src/test/files/heidelberg.osm.gz
-  graphs_root_path: graphs
+  source_file: ./ors-core/data/osm_file.pbf
+  graphs_root_path: ./ors-core/data/graphs
   elevation:
     preprocessed: false
     data_access: MMAP
     cache_clear: false
     provider: multi
-    cache_path: elevation-cache
+    cache_path: ./ors-core/data/elevation_cache
   profile_default:
     enabled: true
     elevation: false

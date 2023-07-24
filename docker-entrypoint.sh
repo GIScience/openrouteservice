@@ -15,10 +15,6 @@ echo "ORS Path: ${ors_base}"
 echo "Catalina Path: ${catalina_base}"
 
 graphs=${ors_base}/ors-core/data/graphs
-tomcat_ors_config=${catalina_base}/webapps/ors/WEB-INF/classes/ors-config.json
-source_ors_config=${ors_base}/ors-core/ors-config.json
-public_ors_config_folder=${ors_base}/ors-conf
-public_ors_config=${public_ors_config_folder}/ors-config.json
 ors_war_path=${ors_base}/ors-core/ors.war
 
 if [ -z "${CATALINA_OPTS}" ]; then
@@ -47,15 +43,6 @@ if [ ! -d "${catalina_base}/webapps/ors" ]; then
   cp -f "${ors_war_path}" "${catalina_base}"/webapps/ors.war
   unzip -qq "${catalina_base}"/webapps/ors.war -d "${catalina_base}/webapps/ors"
 fi
-
-if [ ! -f "$public_ors_config" ]; then
-  echo "No ors-config.json in ors-conf folder. Copying original config from ${source_ors_config}"
-  mkdir -p "${public_ors_config_folder}"
-  cp -f "${source_ors_config}" "${public_ors_config}"
-fi
-
-echo "Deploy ors with config from ${public_ors_config}"
-cp -f "${public_ors_config}" "${tomcat_ors_config}"
 
 # so docker can stop the process gracefully
 exec "${catalina_base}"/bin/catalina.sh run
