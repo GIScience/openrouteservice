@@ -40,11 +40,6 @@
     <packaging>${packagingValue}</packaging>
 
     <properties>
-        <!--
-            A default for packagingValue is needed, if profiles other than buildWar or buildFatJar are used, e.g. apitests.
-            The value is set/overridden in the profiles buildWar and buildFatJar, e.g.
-                mvn clean install -P buildFatJar
-         -->
         <packagingValue>war</packagingValue>
     </properties>
 

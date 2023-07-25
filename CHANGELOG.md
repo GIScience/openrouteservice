@@ -45,6 +45,7 @@ RELEASING:
   - `PBF_FILE_PATH`: value to overwrite the `ors.services.routing.sources` with
 - add .editorconfig to streamline IDE code styling ([#1493](https://github.com/GIScience/openrouteservice/pull/1493))
 - info on duration format in parameter description ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
+- maven profile buildFatJar to build a fatJar (appliction with embedded tomcat, can be started with java -jar ors.jar) instead of a war file
 
 ### Changed
 - url_check.sh to support custom sleep and reporting intervals ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
