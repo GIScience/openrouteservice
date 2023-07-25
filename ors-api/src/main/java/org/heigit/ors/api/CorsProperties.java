@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@ConfigurationProperties(prefix = "cors")
+@ConfigurationProperties(prefix = "ors.cors")
 public class CorsProperties {
 
     public static final List<String> DEFAULT_ALLOWED_ORIGINS = List.of("*");

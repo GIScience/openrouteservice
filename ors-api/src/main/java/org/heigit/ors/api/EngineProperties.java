@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
-@ConfigurationProperties(prefix = "engine")
+@ConfigurationProperties(prefix = "ors.engine")
 public class EngineProperties {
     private int initThreads;
     private boolean preparationMode;

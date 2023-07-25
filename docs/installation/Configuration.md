@@ -25,30 +25,34 @@ spring properties can be set in the ors-config.yml file. The most relevant for n
 | server.port                    | int    | Server port                                                                                                                                                                                                  | 8082                                |                        
 | logging.log4j2.config.override | string | Logging configuration file. **openrouteservice** ships with three presets (`DEFAULT_LOGGING.json`, `DEBUG_LOGGING.json`, `PRODUCTION_LOGGING.json`), but you can also define your own logging configuration. | classpath:logs/DEFAULT_LOGGING.json |                        
 
-Additional properties specific to **openrouteservice** are organized under the following top level keys. Detailed descriptions of each block follows below.
+Additional properties specific to **openrouteservice** are organized under the following top level keys. Detailed
+descriptions of each block follows below.
 
-| key       | description                                                            |
-|-----------|------------------------------------------------------------------------|
-| endpoints | Settings required at runtime to process API requests.                  |
-| engine    | Settings required at graph-build time during startup.                  |
-| cors      | CORS settings for the **openrouteservice** API.                        |
-| messages  | System messages can be sent with APi responses following simple rules. |
+| key           | description                                                            |
+|---------------|------------------------------------------------------------------------|
+| ors.endpoints | Settings required at runtime to process API requests.                  |
+| ors.engine    | Settings required at graph-build time during startup.                  |
+| ors.cors      | CORS settings for the **openrouteservice** API.                        |
+| ors.messages  | System messages can be sent with API responses following simple rules. |
 
 ### Properties in the `endpoints` block
-| key                            | type   | description                                                                            | default value                     |
-|--------------------------------|--------|----------------------------------------------------------------------------------------|-----------------------------------|
-| info.base_url                  | string |                                                                                        | https://openrouteservice.org/     |
-| info.swagger_documentation_url | string | Define the url for the the swagger documentation. Can be different from the `base_url` | https://api.openrouteservice.org/ |
-| info.support_mail              | string |                                                                                        | support@openrouteservice.org      |
-| info.author_tag                | string |                                                                                        | openrouteservice                  |
-| info.content_licence           | string |                                                                                        | LGPL 3.0                          ||    
+
+| key                                             | type   | description                                                                            | default value                     |
+|-------------------------------------------------|--------|----------------------------------------------------------------------------------------|-----------------------------------|
+| ors.endpoints.routing.base_url                  | string |                                                                                        | https://openrouteservice.org/     |
+| ors.endpoints.routing.swagger_documentation_url | string | Define the url for the the swagger documentation. Can be different from the `base_url` | https://api.openrouteservice.org/ |
+| ors.endpoints.routing.support_mail              | string |                                                                                        | support@openrouteservice.org      |
+| ors.endpoints.routing.author_tag                | string |                                                                                        | openrouteservice                  |
+| ors.endpoints.routing.content_licence           | string |                                                                                        | LGPL 3.0                          ||    
 
 ### Properties in the `engine` block
-| key                            | type   | description                                                                            | default value                     |
-|--------------------------------|--------|----------------------------------------------------------------------------------------|-----------------------------------|
-| info.base_url                  | string |                                                                                        | https://openrouteservice.org/     |
+
+| key          | type   | description | default value |
+|--------------|--------|-------------|---------------|
+| ors.engine.x | string |             |               |
 
 ### Properties in the `cors` block
+
 | key                    | type                          | description                                                                        | default value                                                                                                                |
 |------------------------|-------------------------------|------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | cors.allowed_origins   | string / comma separated list | Configures the Access-Control-Allow-Origins CORS header. `*` for all origins       | *                                                                                                                            |                        
@@ -57,12 +61,12 @@ Additional properties specific to **openrouteservice** are organized under the f
 
 ### Properties in the `messages` block
 
-The messages property expects a list of elements where each has the following: 
-| key       | type    | description                                                       | example value        |
-|-----------|---------|-------------------------------------------------------------------|----------------------| 
-| active    | boolean | Enables or disables this message                                  | `true`               |
-| text      | string  | The message text                                                  | `"The message text"` |
-| condition | list    | omittable; may contain any of the conditions from the table below |                      |
+The messages property expects a list of elements where each has the following:
+| key | type | description | example value |
+|-----------|---------|-------------------------------------------------------------------|----------------------|
+| active | boolean | Enables or disables this message | `true`               |
+| text | string | The message text | `"The message text"` |
+| condition | list | omittable; may contain any of the conditions from the table below | |
 
 | condition          | value                                                                                                                | description                                                         |
 |--------------------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|

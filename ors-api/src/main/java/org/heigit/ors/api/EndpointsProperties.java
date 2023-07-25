@@ -11,7 +11,7 @@ import java.util.Map;
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 
 @Configuration
-@ConfigurationProperties(prefix = "endpoints")
+@ConfigurationProperties(prefix = "ors.endpoints")
 public class EndpointsProperties {
     private EndpointDefaultProperties defaults;
     private EndpointRoutingProperties routing;
