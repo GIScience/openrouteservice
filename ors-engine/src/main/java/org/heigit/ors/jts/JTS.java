@@ -16,28 +16,16 @@
  */
 package org.heigit.ors.jts;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.metadata.i18n.ErrorKeys;
 import org.geotools.metadata.i18n.Errors;
+import org.geotools.referencing.GeodeticCalculator;
 import org.locationtech.jts.algorithm.Orientation;
+import org.locationtech.jts.geom.*;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
+import java.util.*;
 
 /**
  * JTS Geometry utility methods, bringing Geotools to JTS.
@@ -51,15 +39,13 @@ import org.locationtech.jts.geom.Polygon;
  * <li>common coordinate sequence implementations for specific uses</li>
  * </ul>
  *
- * @since 2.2
- *
- *
- * @source $URL$
- * @version $Id$
  * @author Jody Garnett
  * @author Martin Desruisseaux
  * @author Simone Giannecchini, GeoSolutions.
  * @author Michael Bedward
+ * @version $Id$
+ * @source $URL$
+ * @since 2.2
  */
 public final class JTS {
     /**
@@ -79,7 +65,7 @@ public final class JTS {
     /**
      * Geodetic calculators already created for a given coordinate reference system. For use in
      * {@link #orthodromicDistance}.
-     *
+     * <p>
      * Note: We would like to use {@link org.geotools.util.CanonicalSet}, but we can't because
      * {@link GeodeticCalculator} keep a reference to the CRS which is used as the key.
      */
@@ -94,19 +80,15 @@ public final class JTS {
     /**
      * Makes sure that an argument is non-null.
      *
-     * @param name
-     *            Argument name.
-     * @param object
-     *            User argument.
-     * @throws IllegalArgumentException
-     *             if {@code object} is null.
+     * @param name   Argument name.
+     * @param object User argument.
+     * @throws IllegalArgumentException if {@code object} is null.
      */
     private static void ensureNonNull(final String name, final Object object) throws IllegalArgumentException {
         if (object == null) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
         }
     }
-
 
 
     /**
@@ -124,19 +106,15 @@ public final class JTS {
      * to be computed, direct use of {@link GeodeticCalculator} provides better performance than
      * this convenience method.
      *
-     * @param p1
-     *            First point
-     * @param p2
-     *            Second point
-     * @param crs
-     *            Reference system the two points are in.
+     * @param p1  First point
+     * @param p2  Second point
+     * @param crs Reference system the two points are in.
      * @return Orthodromic distance between the two points, in meters.
-     * @throws TransformException
-     *             if the coordinates can't be transformed from the specified CRS to a
-     *             {@linkplain org.opengis.referencing.crs.GeographicCRS geographic CRS}.
+     * @throws TransformException if the coordinates can't be transformed from the specified CRS to a
+     *                            {@linkplain org.opengis.referencing.crs.GeographicCRS geographic CRS}.
      */
     public static synchronized double orthodromicDistance(final Coordinate p1, final Coordinate p2,
-            final CoordinateReferenceSystem crs) throws TransformException {
+                                                          final CoordinateReferenceSystem crs) throws TransformException {
         ensureNonNull("p1", p1);
         ensureNonNull("p2", p2);
         ensureNonNull("crs", crs);
@@ -172,10 +150,8 @@ public final class JTS {
      * be copied. If the array length is greater than 3, then all extra dimensions will be set to
      * {@link Double#NaN NaN}.
      *
-     * @param point
-     *            The source coordinate.
-     * @param ordinates
-     *            The destination array.
+     * @param point     The source coordinate.
+     * @param ordinates The destination array.
      */
     public static void copy(final Coordinate point, final double[] ordinates) {
         ensureNonNull("point", point);
@@ -200,9 +176,6 @@ public final class JTS {
     }
 
 
-
-
-
     /**
      * Creates a smoothed copy of the input Geometry. This is only useful for polygonal and lineal
      * geometries. Point objects will be returned unchanged. The smoothing algorithm inserts new
@@ -217,14 +190,10 @@ public final class JTS {
      * MultiLineString, MultiPolygon) or a GeometryCollection. The returned object will be of the
      * same type.
      *
-     * @param geom
-     *            the input geometry
-     * @param fit
-     *            tightness of fit from 0 (loose) to 1 (tight)
-     *
+     * @param geom the input geometry
+     * @param fit  tightness of fit from 0 (loose) to 1 (tight)
      * @return a new Geometry object of the same class as {@code geom}
-     * @throws IllegalArgumentException
-     *             if {@code geom} is {@code null}
+     * @throws IllegalArgumentException if {@code geom} is {@code null}
      */
     public static Geometry smooth(final Geometry geom, double fit) {
         return smooth(geom, fit, new GeometryFactory());
@@ -244,16 +213,11 @@ public final class JTS {
      * MultiLineString, MultiPolygon) or a GeometryCollection. The returned object will be of the
      * same type.
      *
-     * @param geom
-     *            the input geometry
-     * @param fit
-     *            tightness of fit from 0 (loose) to 1 (tight)
-     * @param factory
-     *            the GeometryFactory to use for creating smoothed objects
-     *
+     * @param geom    the input geometry
+     * @param fit     tightness of fit from 0 (loose) to 1 (tight)
+     * @param factory the GeometryFactory to use for creating smoothed objects
      * @return a new Geometry object of the same class as {@code geom}
-     * @throws IllegalArgumentException
-     *             if either {@code geom} or {@code factory} is {@code null}
+     * @throws IllegalArgumentException if either {@code geom} or {@code factory} is {@code null}
      */
     public static Geometry smooth(final Geometry geom, double fit, final GeometryFactory factory) {
 
@@ -266,7 +230,7 @@ public final class JTS {
     }
 
     private static Geometry smooth(final Geometry geom, final double fit,
-            final GeometryFactory factory, GeometrySmoother smoother) {
+                                   final GeometryFactory factory, GeometrySmoother smoother) {
 
         return switch (geom.getGeometryType().toUpperCase()) {
             case "POINT", "MULTIPOINT" ->
@@ -285,7 +249,7 @@ public final class JTS {
     }
 
     private static Geometry smoothLineString(GeometryFactory factory, GeometrySmoother smoother,
-            Geometry geom, double fit) {
+                                             Geometry geom, double fit) {
 
         if (geom instanceof LinearRing linearRing) {
             // Treat as a Polygon
@@ -299,7 +263,7 @@ public final class JTS {
     }
 
     private static Geometry smoothMultiLineString(GeometryFactory factory,
-            GeometrySmoother smoother, Geometry geom, double fit) {
+                                                  GeometrySmoother smoother, Geometry geom, double fit) {
 
         final int N = geom.getNumGeometries();
         LineString[] smoothed = new LineString[N];
@@ -313,7 +277,7 @@ public final class JTS {
     }
 
     private static Geometry smoothMultiPolygon(GeometryFactory factory, GeometrySmoother smoother,
-            Geometry geom, double fit) {
+                                               Geometry geom, double fit) {
 
         final int N = geom.getNumGeometries();
         Polygon[] smoothed = new Polygon[N];
@@ -326,7 +290,7 @@ public final class JTS {
     }
 
     private static Geometry smoothGeometryCollection(GeometryFactory factory,
-            GeometrySmoother smoother, Geometry geom, double fit) {
+                                                     GeometrySmoother smoother, Geometry geom, double fit) {
 
         final int N = geom.getNumGeometries();
         Geometry[] smoothed = new Geometry[N];
@@ -471,7 +435,7 @@ public final class JTS {
      * For the moment this implementation only accepts, {@link Polygon}, {@link LineString} and {@link MultiPolygon} It will throw an exception if the
      * geometry is not one of those types
      *
-     * @param geometry the instance of a {@link Geometry} to remove collinear vertices from.
+     * @param geometry  the instance of a {@link Geometry} to remove collinear vertices from.
      * @param minPoints perform removal of collinear points if num of vertices exceeds minPoints.
      * @return a new instance of the provided {@link Geometry} without collinear vertices.
      */
@@ -502,19 +466,18 @@ public final class JTS {
                         + geometry.getClass());
     }
 
-    public static Polygon toGeometry(final Envelope env)
-    {
-    	return toGeometry(env, factory);
+    public static Polygon toGeometry(final Envelope env) {
+        return toGeometry(env, factory);
     }
 
     public static Polygon toGeometry(final Envelope env, GeometryFactory factory) {
         ensureNonNull("env", env);
 
-        return factory.createPolygon(factory.createLinearRing(new Coordinate[] {
-            new Coordinate(env.getMinX(), env.getMinY()),
-            new Coordinate(env.getMaxX(), env.getMinY()),
-            new Coordinate(env.getMaxX(), env.getMaxY()),
-            new Coordinate(env.getMinX(), env.getMaxY()),
-            new Coordinate(env.getMinX(), env.getMinY()) }), null);
+        return factory.createPolygon(factory.createLinearRing(new Coordinate[]{
+                new Coordinate(env.getMinX(), env.getMinY()),
+                new Coordinate(env.getMaxX(), env.getMinY()),
+                new Coordinate(env.getMaxX(), env.getMaxY()),
+                new Coordinate(env.getMinX(), env.getMaxY()),
+                new Coordinate(env.getMinX(), env.getMinY())}), null);
     }
 }

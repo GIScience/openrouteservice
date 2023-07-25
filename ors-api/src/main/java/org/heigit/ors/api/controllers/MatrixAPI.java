@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
@@ -43,8 +44,6 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @Tag(name = "Matrix Service", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance")
@@ -93,9 +92,9 @@ public class MatrixAPI {
     @PostMapping(value = "/{profile}", produces = {"application/json;charset=UTF-8"})
     @Operation(
             description = """
-            Returns duration or distance matrix for multiple source and destination points.
-            By default a square duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.\
-            """,
+                    Returns duration or distance matrix for multiple source and destination points.
+                    By default a square duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.\
+                    """,
             summary = "Matrix Service"
     )
     @ApiResponse(

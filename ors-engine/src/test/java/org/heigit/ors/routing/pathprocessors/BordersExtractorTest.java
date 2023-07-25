@@ -28,12 +28,12 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BordersExtractorTest {
     private PMap properties = new PMap();
-    private final EncodingManager encodingManager= EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS, properties));
+    private final EncodingManager encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory().createFlagEncoder(FlagEncoderNames.CAR_ORS, properties));
     private final BordersGraphStorage _graphstorage;
 
     public BordersExtractorTest() {
@@ -44,19 +44,19 @@ class BordersExtractorTest {
 
         // (edgeId, borderType, startCountry, endCountry)
 
-        _graphstorage.setEdgeValue(1, BordersGraphStorage.CONTROLLED_BORDER, (short)1, (short)2);
-        _graphstorage.setEdgeValue(2, BordersGraphStorage.OPEN_BORDER, (short)3, (short)4);
-        _graphstorage.setEdgeValue(3, BordersGraphStorage.NO_BORDER, (short)5, (short)5);
-        _graphstorage.setEdgeValue(4, BordersGraphStorage.NO_BORDER, (short)5, (short)6);
-        _graphstorage.setEdgeValue(5, BordersGraphStorage.NO_BORDER, (short)7, (short)7);
-        _graphstorage.setEdgeValue(6, BordersGraphStorage.NO_BORDER, (short)7, (short)7);
+        _graphstorage.setEdgeValue(1, BordersGraphStorage.CONTROLLED_BORDER, (short) 1, (short) 2);
+        _graphstorage.setEdgeValue(2, BordersGraphStorage.OPEN_BORDER, (short) 3, (short) 4);
+        _graphstorage.setEdgeValue(3, BordersGraphStorage.NO_BORDER, (short) 5, (short) 5);
+        _graphstorage.setEdgeValue(4, BordersGraphStorage.NO_BORDER, (short) 5, (short) 6);
+        _graphstorage.setEdgeValue(5, BordersGraphStorage.NO_BORDER, (short) 7, (short) 7);
+        _graphstorage.setEdgeValue(6, BordersGraphStorage.NO_BORDER, (short) 7, (short) 7);
 
     }
 
     private VirtualEdgeIteratorState generateEdge(int id) {
         IntsRef intsRef = encodingManager.createEdgeFlags();
         return new VirtualEdgeIteratorState(0, id, 1, 2, 10,
-                intsRef, "test", Helper.createPointList(51,0,51,1),false);
+                intsRef, "test", Helper.createPointList(51, 0, 51, 1), false);
     }
 
     @Test
@@ -101,7 +101,7 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
 
-        BordersExtractor be = new BordersExtractor(_graphstorage, new int[] {2, 4});
+        BordersExtractor be = new BordersExtractor(_graphstorage, new int[]{2, 4});
         assertTrue(be.restrictedCountry(1));
         assertTrue(be.restrictedCountry(2));
         assertFalse(be.restrictedCountry(3));
@@ -113,7 +113,7 @@ class BordersExtractorTest {
         VirtualEdgeIteratorState ve2 = generateEdge(2);
         VirtualEdgeIteratorState ve3 = generateEdge(3);
 
-        BordersExtractor be = new BordersExtractor(_graphstorage, new int[] {2, 4});
+        BordersExtractor be = new BordersExtractor(_graphstorage, new int[]{2, 4});
         List<Integer> countries = new ArrayList<>();
         countries.add(1);
         countries.add(2);

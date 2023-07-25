@@ -20,6 +20,8 @@
  */
 package org.heigit.ors.api.servlet.listeners;
 
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.EngineProperties;
@@ -28,9 +30,6 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.FormatUtility;
-
-import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.ServletContextListener;
 
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);

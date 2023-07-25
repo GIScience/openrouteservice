@@ -28,9 +28,6 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.index.quadtree.Quadtree;
-import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.exceptions.InternalServerException;
@@ -56,6 +53,9 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFla
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.GeomUtility;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.index.quadtree.Quadtree;
+import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.*;
@@ -782,7 +782,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             double dy2 = dx * scale;
             extendedList.add(lat0 + dy2, lon0 + dx2);
             extendedList.add(lat0 - dy2, lon0 - dx2);
-            if(i == list.size() - 2) {
+            if (i == list.size() - 2) {
                 extendedList.add(lat1 + dy2, lon1 + dx2);
                 extendedList.add(lat1 - dy2, lon1 - dx2);
             }

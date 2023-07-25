@@ -16,12 +16,13 @@
 #    config:
 #      override: classpath:logs/DEBUG_LOGGING.json
 
-engine:
+
+# engine:
 ### uncomment the following lines for development setup using test OSM file fpr Heidelberg
-  source_file: ./src/test/files/heidelberg.osm.gz
-  graphs_root_path: ./graphs
-  elevation:
-    cache_path: ./src/test/files/elevation
+#  source_file: ./src/test/files/heidelberg.osm.gz
+#  graphs_root_path: ./graphs
+#  elevation:
+#    cache_path: ./src/test/files/elevation
 
 ### the following lines are example profile setups. Uncomment profile blocks to activate.
 #  profiles:

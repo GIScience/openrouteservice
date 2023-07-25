@@ -70,8 +70,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
         int edgeKey;
         if (edge instanceof VirtualEdgeIteratorState iteratorState) {
             edgeKey = iteratorState.getOriginalEdgeKey();
-        }
-        else {
+        } else {
             edgeKey = edge.getEdgeKey();
         }
         if (reverse)

@@ -17,21 +17,23 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntContainer;
 import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.graphhopper.coll.MinHeapWithUpdate;
-import com.graphhopper.routing.ch.*;
-import com.graphhopper.routing.util.*;
+import com.graphhopper.routing.ch.CHPreparationGraph;
+import com.graphhopper.routing.ch.PrepareContractionHierarchies;
+import com.graphhopper.routing.util.AllEdgesIterator;
+import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 
-import static com.graphhopper.routing.ch.CHParameters.*;
+import static com.graphhopper.routing.ch.CHParameters.CONTRACTED_NODES;
 import static com.graphhopper.util.Helper.getMemInfo;
 
 /**
  * Prepare the core graph. The core graph is a contraction hierarchies graph in which specified parts are not contracted
  * but remain on the highest level. E.g. used to build the core from restrictions.
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -39,7 +41,7 @@ import static com.graphhopper.util.Helper.getMemInfo;
  */
 public class PrepareCore extends PrepareContractionHierarchies {
     private final EdgeFilter restrictionFilter;
-    private boolean [] restrictedNodes;
+    private boolean[] restrictedNodes;
     private int restrictedNodesCount = 0;
 
     private static int nodesContractedPercentage = 99;
@@ -52,13 +54,13 @@ public class PrepareCore extends PrepareContractionHierarchies {
 
     public PrepareCore(GraphHopperStorage ghStorage, CHConfig chConfig, EdgeFilter restrictionFilter) {
         super(ghStorage, chConfig);
-        PMap pMap = new PMap(CONTRACTED_NODES+"="+nodesContractedPercentage);
+        PMap pMap = new PMap(CONTRACTED_NODES + "=" + nodesContractedPercentage);
         setParams(pMap);
         this.restrictionFilter = restrictionFilter;
     }
 
     @Override
-    public CHStorage getCHStore (CHConfig chConfig) {
+    public CHStorage getCHStore(CHConfig chConfig) {
         if (CHConfig.TYPE_CORE.equals(chConfig.getType()) && graph instanceof ORSGraphHopperStorage ghStorage) {
             CHStorage chStore = ghStorage.getCoreStore(chConfig.getName());
             if (chStore == null)
@@ -166,7 +168,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
         if (neighbors instanceof IntArrayList intArrayList)
             intArrayList.removeAll(isCoreNode);
         else
-            throw(new IllegalStateException("Not an isntance of IntArrayList"));
+            throw (new IllegalStateException("Not an isntance of IntArrayList"));
 
         return neighbors;
     }
