@@ -5,6 +5,7 @@ import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.FileSystemResource;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
             try {
                 List<PropertySource<?>> sources = this.loader.load("yml config", new FileSystemResource(path));
                 if (!sources.isEmpty()) {
-                    environment.getPropertySources().addFirst(sources.get(0));
+                    environment.getPropertySources().addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, sources.get(0));
                 }
             } catch (IllegalStateException | IOException ex) {
                 // Ignore yml file not present
