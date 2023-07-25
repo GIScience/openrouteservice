@@ -36,7 +36,17 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ors-api</artifactId>
     <name>ors-api</name>
-    <packaging>war</packaging>
+
+    <packaging>${packagingValue}</packaging>
+
+    <properties>
+        <!--
+            A default for packagingValue is needed, if profiles other than buildWar or buildFatJar are used, e.g. apitests.
+            The value is set/overridden in the profiles buildWar and buildFatJar, e.g.
+                mvn clean install -P buildFatJar
+         -->
+        <packagingValue>war</packagingValue>
+    </properties>
 
     <build>
         <finalName>ors</finalName>
@@ -276,7 +286,23 @@
             <artifactId>jackson-annotations</artifactId>
         </dependency>
     </dependencies>
+
     <profiles>
+        <profile>
+            <id>buildWar</id>
+            <properties>
+                <packagingValue>war</packagingValue>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>buildFatJar</id>
+            <properties>
+                <packagingValue>jar</packagingValue>
+            </properties>
+        </profile>
         <profile>
             <id>apitests</id>
             <build>
