@@ -384,7 +384,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         int nodeId;
         int edgeId;
 
-        int minSplitLength = 20;
+        int minSplitLength = 200;
         int maxSplitLength = 20000;
         StopWatch sw = new StopWatch();
 
