@@ -8,64 +8,63 @@
 #    config:
 #      override: classpath:logs/DEBUG_LOGGING.json
 
-
-#ors:
+ors:
+### uncomment the following lines to change CORS settings.
 #  cors:
 #    allowed_origins: "*"
 #    allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
 #    preflight_max_age: 600
-#  engine:
+  engine:
+    source_file: ./data/osm_file.pbf
+    graphs_root_path: ./graphs
+    elevation:
+      cache_path: ./elevation_cache
 
-### uncomment the following lines (and the parent elements) for development setup using test OSM file fpr Heidelberg
-#    source_file: ./src/test/files/heidelberg.osm.gz
-#    graphs_root_path: ./graphs
-#    elevation:
-#      cache_path: ./src/test/files/elevation
+    profiles:
+      car:
+        profile: driving-car
+        elevation: true
+        encoder_options:
+          turn_costs: true
+          block_fords: false
+          use_acceleration: true
+        preparation:
+          min_network_size: 200
+          min_one_way_network_size: 200
+          methods:
+            ch:
+              enabled: true
+              threads: 1
+              weightings: fastest
+            lm:
+              enabled: false
+              threads: 1
+              weightings: fastest,shortest
+              landmarks: 16
+            core:
+              enabled: true
+              threads: 1
+              weightings: fastest,shortest
+              landmarks: 64
+              lmsets: highways;allow_all
+        execution:
+          methods:
+            ch:
+              disabling_allowed: true
+            lm:
+              disabling_allowed: true
+              active_landmarks: 6
+            core:
+              disabling_allowed: true
+              active_landmarks: 6
+        ext_storages:
+          WayCategory:
+          HeavyVehicle:
+          WaySurfaceType:
+          RoadAccessRestrictions:
+            use_for_warnings: true
 
 ### the following lines are example profile setups. Uncomment profile blocks (and the parent elements) to activate.
-#    profiles:
-#      car:
-#        profile: driving-car
-#        elevation: true
-#        encoder_options:
-#          turn_costs: true
-#          block_fords: false
-#          use_acceleration: true
-#        preparation:
-#          min_network_size: 200
-#          min_one_way_network_size: 200
-#          methods:
-#            ch:
-#              enabled: true
-#              threads: 1
-#              weightings: fastest
-#            lm:
-#              enabled: false
-#              threads: 1
-#              weightings: fastest,shortest
-#              landmarks: 16
-#            core:
-#              enabled: true
-#              threads: 1
-#              weightings: fastest,shortest
-#              landmarks: 64
-#              lmsets: highways;allow_all
-#        execution:
-#          methods:
-#            ch:
-#              disabling_allowed: true
-#            lm:
-#              disabling_allowed: true
-#              active_landmarks: 6
-#            core:
-#              disabling_allowed: true
-#              active_landmarks: 6
-#        ext_storages:
-#          WayCategory:
-#          HeavyVehicle:
-#          WaySurfaceType:
-#          RoadAccessRestrictions:
-#            use_for_warnings: true
 #      hgv:
 #        profile: driving-hgv
 #        encoder_flags_size: 8

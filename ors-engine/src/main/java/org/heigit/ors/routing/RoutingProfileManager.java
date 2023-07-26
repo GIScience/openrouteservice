@@ -70,12 +70,8 @@ public class RoutingProfileManager {
 
     public void initialize(EngineConfig config) {
         RuntimeUtility.printRAMInfo("", LOGGER);
-
-        LOGGER.info("      ");
-
         long startTime = System.currentTimeMillis();
         try {
-
             // RoutingManagerConfiguration can be thrown away entirely after config migration
             RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(config.getGraphsRootPath());
             RouteProfileConfiguration[] routeProfileConfigurations = rmc.getProfiles();
@@ -83,6 +79,13 @@ public class RoutingProfileManager {
                 routeProfileConfigurations = config.getProfiles();
             }
 
+            if (routeProfileConfigurations.length == 0) {
+                LOGGER.error("");
+                LOGGER.error("No profiles configured. Exiting.");
+                LOGGER.error("");
+                Thread.currentThread().interrupt();
+                System.exit(1);
+            }
             int initializationThreads = config.getInitializationThreads();
             LOGGER.info("====> Initializing profiles from '%s' (%d threads) ...".formatted(
                     config.getSourceFile(), initializationThreads));
@@ -136,9 +139,16 @@ public class RoutingProfileManager {
             initCompleted();
 
             RoutingProfileManagerStatus.setReady(true);
+        } catch (ExecutionException ex) {
+            LOGGER.error("");
+            LOGGER.error("Configured source file: '" + config.getSourceFile() + "' does not appear to be a valid OSM data file! Exiting.");
+            LOGGER.error("");
+            Thread.currentThread().interrupt();
+            System.exit(1);
         } catch (Exception ex) {
             LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
             Thread.currentThread().interrupt();
+            System.exit(1);
         }
 
         RuntimeUtility.clearMemory(LOGGER);

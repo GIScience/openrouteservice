@@ -11,11 +11,11 @@ fi
 
 ors_base=${1}
 catalina_base=${ors_base}/tomcat
+graphs=${ors_base}/graphs
+
 echo "ORS Path: ${ors_base}"
 echo "Catalina Path: ${catalina_base}"
 
-graphs=${ors_base}/ors-core/data/graphs
-ors_war_path=${ors_base}/ors-core/ors.war
 
 if [ -z "${CATALINA_OPTS}" ]; then
   export CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
@@ -38,10 +38,14 @@ if [ "${BUILD_GRAPHS}" = "True" ]; then
 fi
 
 echo "### openrouteservice configuration ###"
-if [ ! -d "${catalina_base}/webapps/ors" ]; then
-  echo "Extract war file to ${catalina_base}/webapps/ors"
-  cp -f "${ors_war_path}" "${catalina_base}"/webapps/ors.war
-  unzip -qq "${catalina_base}"/webapps/ors.war -d "${catalina_base}/webapps/ors"
+if [ ! -f "${ors_base}/conf/ors-config.yml" ]; then
+  echo "Copy ors-config.yml"
+  cp -f "${ors_base}/tmp/ors-config.yml" "${ors_base}/conf/ors-config.yml"
+fi
+
+if [ ! -f "${ors_base}/data/osm_file.pbf" ]; then
+  echo "Copy osm_file.pbf"
+  cp -f "${ors_base}/tmp/osm_file.pbf" "${ors_base}/data/osm_file.pbf"
 fi
 
 # so docker can stop the process gracefully

@@ -24,7 +24,7 @@ public class EngineProperties {
     private String graphsRootPath;
     private ElevationProperties elevation;
     private ProfileProperties profileDefault;
-    private HashMap<String, ProfileProperties> profiles;
+    private Map<String, ProfileProperties> profiles;
 
     public int getInitThreads() {
         return initThreads;
@@ -74,75 +74,77 @@ public class EngineProperties {
         this.profileDefault = profileDefault;
     }
 
-    public HashMap<String, ProfileProperties> getProfiles() {
+    public Map<String, ProfileProperties> getProfiles() {
         return profiles;
     }
 
-    public void setProfiles(HashMap<String, ProfileProperties> profiles) {
+    public void setProfiles(Map<String, ProfileProperties> profiles) {
         this.profiles = profiles;
     }
 
     public RouteProfileConfiguration[] getConvertedProfiles() {
         List<RouteProfileConfiguration> convertedProfiles = new ArrayList<>();
-        for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
-            ProfileProperties profile = profileEntry.getValue();
-            RouteProfileConfiguration convertedProfile = new RouteProfileConfiguration();
-            convertedProfile.setName(profileEntry.getKey());
-            convertedProfile.setEnabled(profile.enabled != null ? profile.enabled : profileDefault.isEnabled());
-            convertedProfile.setProfiles(profile.getProfile());
-            String graphPath = profile.getGraphPath();
-            String rootGraphsPath = getGraphsRootPath();
-            if (!Helper.isEmpty(rootGraphsPath)) {
-                if (Helper.isEmpty(graphPath))
-                    graphPath = Paths.get(rootGraphsPath, profileEntry.getKey()).toString();
-                else if (!FileUtility.isAbsolutePath(graphPath))
-                    graphPath = Paths.get(rootGraphsPath, graphPath).toString();
-            }
-            convertedProfile.setGraphPath(graphPath);
-            convertedProfile.setEncoderOptions(profile.getEncoderOptionsString());
-            convertedProfile.setOptimize(profile.optimize != null ? profile.optimize : profileDefault.getOptimize());
-            convertedProfile.setEncoderFlagsSize(profile.encoderFlagsSize != null ? profile.encoderFlagsSize : profileDefault.getEncoderFlagsSize());
-            convertedProfile.setInstructions(profile.instructions != null ? profile.instructions :  profileDefault.getInstructions());
-            convertedProfile.setMaximumDistance(profile.maximumDistance != null ? profile.maximumDistance : profileDefault.getMaximumDistance());
-            convertedProfile.setMaximumDistanceDynamicWeights(profile.maximumDistanceDynamicWeights != null ? profile.maximumDistanceDynamicWeights : profileDefault.getMaximumDistanceDynamicWeights());
-            convertedProfile.setMaximumDistanceAvoidAreas(profile.maximumDistanceAvoidAreas != null ? profile.maximumDistanceAvoidAreas : profileDefault.getMaximumDistanceAvoidAreas());
-            convertedProfile.setMaximumDistanceAlternativeRoutes(profile.maximumDistanceAlternativeRoutes != null ? profile.maximumDistanceAlternativeRoutes : profileDefault.getMaximumDistanceAlternativeRoutes());
-            convertedProfile.setMaximumDistanceRoundTripRoutes(profile.maximumDistanceRoundTripRoutes != null ? profile.maximumDistanceRoundTripRoutes : profileDefault.getMaximumDistanceRoundTripRoutes());
-            convertedProfile.setMaximumSpeedLowerBound(profile.maximumSpeedLowerBound != null ? profile.maximumSpeedLowerBound : profileDefault.getMaximumSpeedLowerBound());
-            convertedProfile.setMaximumWayPoints(profile.maximumWayPoints != null ? profile.maximumWayPoints : profileDefault.getMaximumWayPoints());
-            convertedProfile.setMaximumSnappingRadius(profile.maximumSnappingRadius != null ? profile.maximumSnappingRadius : profileDefault.getMaximumSnappingRadius());
-            convertedProfile.setLocationIndexResolution(profile.locationIndexResolution != null ? profile.locationIndexResolution : profileDefault.getLocationIndexResolution());
-            convertedProfile.setLocationIndexSearchIterations(profile.locationIndexSearchIterations != null ? profile.locationIndexSearchIterations : profileDefault.getLocationIndexSearchIterations());
-            convertedProfile.setEnforceTurnCosts(profile.forceTurnCosts != null ? profile.forceTurnCosts : profileDefault.getForceTurnCosts());
-            convertedProfile.setGtfsFile(profile.gtfsFile != null ? profile.gtfsFile : profile.getGtfsFile());
-            convertedProfile.setMaximumVisitedNodesPT(profile.maximumVisitedNodes != null ? profile.maximumVisitedNodes : profileDefault.getMaximumVisitedNodes());
-            if (profile.elevation != null && profile.elevation || profileDefault.isElevation()) {
-                convertedProfile.setElevationProvider(elevation.getProvider());
-                convertedProfile.setElevationCachePath(elevation.getCachePath());
-                convertedProfile.setElevationDataAccess(elevation.getDataAccess());
-                convertedProfile.setElevationCacheClear(elevation.isCacheClear());
-                convertedProfile.setElevationSmoothing(profile.elevationSmoothing != null ? profile.elevationSmoothing : profileDefault.getElevationSmoothing());
-                convertedProfile.setInterpolateBridgesAndTunnels(profile.interpolateBridgesAndTunnels != null ? profile.interpolateBridgesAndTunnels : profileDefault.getInterpolateBridgesAndTunnels());
-            }
-            Map<String, Object> preparation = profile.preparation != null ? profile.preparation : profileDefault.getPreparation();
-            if (preparation != null) {
-                convertedProfile.setPreparationOpts(ConfigFactory.parseMap(preparation));
-                if (preparation.containsKey("methods") && preparation.get("methods") != null && ((Map<String, Object>)preparation.get("methods")).containsKey("fastisochrones")) {
-                    convertedProfile.setIsochronePreparationOpts(ConfigFactory.parseMap((Map<String, Object>)((Map<String, Object>)preparation.get("methods")).get("fastisochrones")));
+        if (profiles != null) {
+            for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
+                ProfileProperties profile = profileEntry.getValue();
+                RouteProfileConfiguration convertedProfile = new RouteProfileConfiguration();
+                convertedProfile.setName(profileEntry.getKey());
+                convertedProfile.setEnabled(profile.enabled != null ? profile.enabled : profileDefault.isEnabled());
+                convertedProfile.setProfiles(profile.getProfile());
+                String graphPath = profile.getGraphPath();
+                String rootGraphsPath = getGraphsRootPath();
+                if (!Helper.isEmpty(rootGraphsPath)) {
+                    if (Helper.isEmpty(graphPath))
+                        graphPath = Paths.get(rootGraphsPath, profileEntry.getKey()).toString();
+                    else if (!FileUtility.isAbsolutePath(graphPath))
+                        graphPath = Paths.get(rootGraphsPath, graphPath).toString();
                 }
-            }
-            Map<String, Object> execution = profile.execution != null ? profile.execution : profileDefault.getExecution();
-            if (execution != null) {
-                convertedProfile.setExecutionOpts(ConfigFactory.parseMap(execution));
-            }
-            if (profile.getExtStorages() != null) {
-                for (Map<String, String> storageParams : profile.getExtStorages().values()) {
-                    storageParams.put("gh_profile", RoutingProfile.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(convertedProfile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(convertedProfile.getEncoderOptions())));
-                    storageParams.remove("");
+                convertedProfile.setGraphPath(graphPath);
+                convertedProfile.setEncoderOptions(profile.getEncoderOptionsString());
+                convertedProfile.setOptimize(profile.optimize != null ? profile.optimize : profileDefault.getOptimize());
+                convertedProfile.setEncoderFlagsSize(profile.encoderFlagsSize != null ? profile.encoderFlagsSize : profileDefault.getEncoderFlagsSize());
+                convertedProfile.setInstructions(profile.instructions != null ? profile.instructions :  profileDefault.getInstructions());
+                convertedProfile.setMaximumDistance(profile.maximumDistance != null ? profile.maximumDistance : profileDefault.getMaximumDistance());
+                convertedProfile.setMaximumDistanceDynamicWeights(profile.maximumDistanceDynamicWeights != null ? profile.maximumDistanceDynamicWeights : profileDefault.getMaximumDistanceDynamicWeights());
+                convertedProfile.setMaximumDistanceAvoidAreas(profile.maximumDistanceAvoidAreas != null ? profile.maximumDistanceAvoidAreas : profileDefault.getMaximumDistanceAvoidAreas());
+                convertedProfile.setMaximumDistanceAlternativeRoutes(profile.maximumDistanceAlternativeRoutes != null ? profile.maximumDistanceAlternativeRoutes : profileDefault.getMaximumDistanceAlternativeRoutes());
+                convertedProfile.setMaximumDistanceRoundTripRoutes(profile.maximumDistanceRoundTripRoutes != null ? profile.maximumDistanceRoundTripRoutes : profileDefault.getMaximumDistanceRoundTripRoutes());
+                convertedProfile.setMaximumSpeedLowerBound(profile.maximumSpeedLowerBound != null ? profile.maximumSpeedLowerBound : profileDefault.getMaximumSpeedLowerBound());
+                convertedProfile.setMaximumWayPoints(profile.maximumWayPoints != null ? profile.maximumWayPoints : profileDefault.getMaximumWayPoints());
+                convertedProfile.setMaximumSnappingRadius(profile.maximumSnappingRadius != null ? profile.maximumSnappingRadius : profileDefault.getMaximumSnappingRadius());
+                convertedProfile.setLocationIndexResolution(profile.locationIndexResolution != null ? profile.locationIndexResolution : profileDefault.getLocationIndexResolution());
+                convertedProfile.setLocationIndexSearchIterations(profile.locationIndexSearchIterations != null ? profile.locationIndexSearchIterations : profileDefault.getLocationIndexSearchIterations());
+                convertedProfile.setEnforceTurnCosts(profile.forceTurnCosts != null ? profile.forceTurnCosts : profileDefault.getForceTurnCosts());
+                convertedProfile.setGtfsFile(profile.gtfsFile != null ? profile.gtfsFile : profile.getGtfsFile());
+                convertedProfile.setMaximumVisitedNodesPT(profile.maximumVisitedNodes != null ? profile.maximumVisitedNodes : profileDefault.getMaximumVisitedNodes());
+                if (profile.elevation != null && profile.elevation || profileDefault.isElevation()) {
+                    convertedProfile.setElevationProvider(elevation.getProvider());
+                    convertedProfile.setElevationCachePath(elevation.getCachePath());
+                    convertedProfile.setElevationDataAccess(elevation.getDataAccess());
+                    convertedProfile.setElevationCacheClear(elevation.isCacheClear());
+                    convertedProfile.setElevationSmoothing(profile.elevationSmoothing != null ? profile.elevationSmoothing : profileDefault.getElevationSmoothing());
+                    convertedProfile.setInterpolateBridgesAndTunnels(profile.interpolateBridgesAndTunnels != null ? profile.interpolateBridgesAndTunnels : profileDefault.getInterpolateBridgesAndTunnels());
                 }
-                convertedProfile.getExtStorages().putAll(profile.getExtStorages());
+                Map<String, Object> preparation = profile.preparation != null ? profile.preparation : profileDefault.getPreparation();
+                if (preparation != null) {
+                    convertedProfile.setPreparationOpts(ConfigFactory.parseMap(preparation));
+                    if (preparation.containsKey("methods") && preparation.get("methods") != null && ((Map<String, Object>)preparation.get("methods")).containsKey("fastisochrones")) {
+                        convertedProfile.setIsochronePreparationOpts(ConfigFactory.parseMap((Map<String, Object>)((Map<String, Object>)preparation.get("methods")).get("fastisochrones")));
+                    }
+                }
+                Map<String, Object> execution = profile.execution != null ? profile.execution : profileDefault.getExecution();
+                if (execution != null) {
+                    convertedProfile.setExecutionOpts(ConfigFactory.parseMap(execution));
+                }
+                if (profile.getExtStorages() != null) {
+                    for (Map<String, String> storageParams : profile.getExtStorages().values()) {
+                        storageParams.put("gh_profile", RoutingProfile.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(convertedProfile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(convertedProfile.getEncoderOptions())));
+                        storageParams.remove("");
+                    }
+                    convertedProfile.getExtStorages().putAll(profile.getExtStorages());
+                }
+                convertedProfiles.add(convertedProfile);
             }
-            convertedProfiles.add(convertedProfile);
         }
         return convertedProfiles.toArray(new RouteProfileConfiguration[0]);
     }
@@ -206,10 +208,10 @@ public class EngineProperties {
         private Boolean optimize;
         private String graphPath;
         private Map<String, String> encoderOptions;
-        //        For later use when refactoring RoutingManagerConfiguration
+//        For later use when refactoring RoutingManagerConfiguration
 //        private PreparationProperties preparation;
+//        private ExecutionProperties execution;
         private Map<String, Object> preparation;
-        //        private ExecutionProperties execution;
         private Map<String, Object> execution;
         private Map<String, Map<String, String>> extStorages;
         private Double maximumDistance;
@@ -320,6 +322,7 @@ public class EngineProperties {
             this.encoderOptions = encoderOptions;
         }
 
+//        For later use when refactoring RoutingManagerConfiguration
 //        public PreparationProperties getPreparation() {
 //            return preparation;
 //        }
@@ -472,6 +475,7 @@ public class EngineProperties {
             this.gtfsFile = gtfsFile;
         }
 
+//        For later use when refactoring RoutingManagerConfiguration
 //        public static class PreparationProperties {
 //            private int minNetworkSize;
 //            private int minOneWayNetworkSize;
@@ -503,108 +507,108 @@ public class EngineProperties {
 //                this.minOneWayNetworkSize = minOneWayNetworkSize;
 //            }
 //        }
-
-        public static class MethodsProperties {
-            private CHProperties ch;
-            private LMProperties lm;
-            private CoreProperties core;
-            private FastIsochroneProperties fastisochrones;
-
-            public CHProperties getCh() {
-                return ch;
-            }
-
-            public void setCh(CHProperties ch) {
-                this.ch = ch;
-            }
-
-            public LMProperties getLm() {
-                return lm;
-            }
-
-            public void setLm(LMProperties lm) {
-                this.lm = lm;
-            }
-
-            public CoreProperties getCore() {
-                return core;
-            }
-
-            public void setCore(CoreProperties core) {
-                this.core = core;
-            }
-
-            public FastIsochroneProperties getFastisochrones() {
-                return fastisochrones;
-            }
-
-            public void setFastisochrones(FastIsochroneProperties fastisochrones) {
-                this.fastisochrones = fastisochrones;
-            }
-
-        }
-
-        public static class CHProperties {
-            //TBD
-        }
-
-        public static class LMProperties {
-            //TBD
-        }
-
-        public static class CoreProperties {
-            //TBD
-        }
-
-        public static class FastIsochroneProperties {
-            private boolean enabled;
-            private int threads;
-            private String weightings;
-            private int maxcellnodes;
-
-            public boolean isEnabled() {
-                return enabled;
-            }
-
-            public void setEnabled(boolean enabled) {
-                this.enabled = enabled;
-            }
-
-            public int getThreads() {
-                return threads;
-            }
-
-            public void setThreads(int threads) {
-                this.threads = threads;
-            }
-
-            public String getWeightings() {
-                return weightings;
-            }
-
-            public void setWeightings(String weightings) {
-                this.weightings = weightings;
-            }
-
-            public int getMaxcellnodes() {
-                return maxcellnodes;
-            }
-
-            public void setMaxcellnodes(int maxcellnodes) {
-                this.maxcellnodes = maxcellnodes;
-            }
-        }
-
-        public static class ExecutionProperties {
-            private Map<String, Map<String, String>> methods;
-
-            public Map<String, Map<String, String>> getMethods() {
-                return methods;
-            }
-
-            public void setMethods(Map<String, Map<String, String>> methods) {
-                this.methods = methods;
-            }
-        }
+//
+//        public static class MethodsProperties {
+//            private CHProperties ch;
+//            private LMProperties lm;
+//            private CoreProperties core;
+//            private FastIsochroneProperties fastisochrones;
+//
+//            public CHProperties getCh() {
+//                return ch;
+//            }
+//
+//            public void setCh(CHProperties ch) {
+//                this.ch = ch;
+//            }
+//
+//            public LMProperties getLm() {
+//                return lm;
+//            }
+//
+//            public void setLm(LMProperties lm) {
+//                this.lm = lm;
+//            }
+//
+//            public CoreProperties getCore() {
+//                return core;
+//            }
+//
+//            public void setCore(CoreProperties core) {
+//                this.core = core;
+//            }
+//
+//            public FastIsochroneProperties getFastisochrones() {
+//                return fastisochrones;
+//            }
+//
+//            public void setFastisochrones(FastIsochroneProperties fastisochrones) {
+//                this.fastisochrones = fastisochrones;
+//            }
+//
+//        }
+//
+//        public static class CHProperties {
+//            //TBD
+//        }
+//
+//        public static class LMProperties {
+//            //TBD
+//        }
+//
+//        public static class CoreProperties {
+//            //TBD
+//        }
+//
+//        public static class FastIsochroneProperties {
+//            private boolean enabled;
+//            private int threads;
+//            private String weightings;
+//            private int maxcellnodes;
+//
+//            public boolean isEnabled() {
+//                return enabled;
+//            }
+//
+//            public void setEnabled(boolean enabled) {
+//                this.enabled = enabled;
+//            }
+//
+//            public int getThreads() {
+//                return threads;
+//            }
+//
+//            public void setThreads(int threads) {
+//                this.threads = threads;
+//            }
+//
+//            public String getWeightings() {
+//                return weightings;
+//            }
+//
+//            public void setWeightings(String weightings) {
+//                this.weightings = weightings;
+//            }
+//
+//            public int getMaxcellnodes() {
+//                return maxcellnodes;
+//            }
+//
+//            public void setMaxcellnodes(int maxcellnodes) {
+//                this.maxcellnodes = maxcellnodes;
+//            }
+//        }
+//
+//        public static class ExecutionProperties {
+//            private Map<String, Map<String, String>> methods;
+//
+//            public Map<String, Map<String, String>> getMethods() {
+//                return methods;
+//            }
+//
+//            public void setMethods(Map<String, Map<String, String>> methods) {
+//                this.methods = methods;
+//            }
+//        }
     }
 }

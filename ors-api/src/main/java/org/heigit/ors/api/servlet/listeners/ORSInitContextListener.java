@@ -51,6 +51,7 @@ public class ORSInitContextListener implements ServletContextListener {
                 .buildWithAppConfigOverride();
         Runnable runnable = () -> {
             try {
+                LOGGER.info("Initializing ORS...");
                 new RoutingProfileManager(config);
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS." + e);

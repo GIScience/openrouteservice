@@ -65,22 +65,24 @@ ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 RUN apk add --no-cache bash=~'5' openssl=~'3' && \
     addgroup -g ${GID} ors && \
     adduser -D -h ${BASE_FOLDER} -u ${UID} -G ors ors &&  \
-    mkdir -p ${BASE_FOLDER}/ors-core/logs/ors ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/tomcat/logs &&  \
-    chown -R ors ${BASE_FOLDER}/tomcat ${BASE_FOLDER}/ors-core/logs/ors ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/tomcat/logs
+    mkdir -p ${BASE_FOLDER}/logs ${BASE_FOLDER}/graphs ${BASE_FOLDER}/elevation_cache ${BASE_FOLDER}/conf ${BASE_FOLDER}/data ${BASE_FOLDER}/tomcat/logs&&  \
+    chown -R ors ${BASE_FOLDER}/logs ${BASE_FOLDER}/graphs ${BASE_FOLDER}/elevation_cache ${BASE_FOLDER}/conf ${BASE_FOLDER}/data ${BASE_FOLDER}/tomcat ${BASE_FOLDER}/tomcat/logs
 
 WORKDIR ${BASE_FOLDER}
 
 # Copy over the needed bits and pieces from the other stages.
-COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/ors-core/ors.war
 COPY --chown=ors:ors --from=tomcat /tmp/tomcat ${BASE_FOLDER}/tomcat
-COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/lib/log4j.properties
-COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/ors-core/docker-entrypoint.sh
-COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/ors-core/data/osm_file.pbf
+COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/tomcat/webapps/ors.war
+COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/conf/logging.properties
+COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/docker-entrypoint.sh
+COPY --chown=ors:ors ./ors-api/ors-config.yml ${BASE_FOLDER}/tmp/ors-config.yml
+COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/tmp/osm_file.pbf
 
 USER ${UID}:${GID}
 
 ENV BUILD_GRAPHS="False"
+ENV ORS_CONFIG_LOCATION=conf/ors-config.yml
 
 # Start the container
-ENTRYPOINT ["/home/ors/ors-core/docker-entrypoint.sh"]
+ENTRYPOINT ["/home/ors/docker-entrypoint.sh"]
 CMD ["/home/ors"]
