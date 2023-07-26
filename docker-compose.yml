@@ -5,12 +5,12 @@ services:
     ports:
       - "8080:8080"
       - "9001:9001"
-#    image: openrouteservice/openrouteservice:latest
+    image: openrouteservice/openrouteservice:latest
     user: "${UID:-0}:${GID:-0}"
-    build:
-      context: ./
-      args:
-        OSM_FILE: ./ors-api/src/test/files/heidelberg.osm.gz
+#    build:
+#      context: ./
+#      args:
+#        OSM_FILE: ./ors-api/src/test/files/heidelberg.osm.gz
     volumes:
       - ./docker/graphs:/home/ors/graphs
       - ./docker/elevation_cache:/home/ors/elevation_cache
