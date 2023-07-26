@@ -15,11 +15,12 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
+import org.heigit.ors.routing.RouteStep;
+import org.heigit.ors.util.FormatUtility;
+
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlType;
-import org.heigit.ors.routing.RouteStep;
-import org.heigit.ors.util.FormatUtility;
 
 @XmlType(propOrder = {"elevation", "name", "instructionDescription", "element"})
 public class GPXRoutePointElement {
@@ -38,16 +39,15 @@ public class GPXRoutePointElement {
     @XmlElement(name = "extensions")
     private GPXRoutePointExtensionElement element;
 
-    public GPXRoutePointElement() {
-    }
+    public GPXRoutePointElement() { }
 
-    public GPXRoutePointElement(RouteStep step, double longitude, double latitude, double elevation, int stepNumber) {
+    public GPXRoutePointElement( RouteStep step, double longitude, double latitude, double elevation, int stepNumber) {
         this.latitude = latitude;
         this.longitude = longitude;
-        if (!Double.isNaN(elevation))
+        if(!Double.isNaN(elevation))
             this.elevation = elevation;
 
-        if (step != null) {
+        if(step != null) {
             this.name = step.getName();
             this.instructionDescription = step.getInstruction();
 
@@ -57,7 +57,7 @@ public class GPXRoutePointElement {
 
     @XmlElement(name = "ele")
     public Double getElevation() {
-        if (elevation != null)
+        if(elevation != null)
             return FormatUtility.roundToDecimals(elevation, ELEVATION_DECIMAL_PLACES);
         else
             return null;

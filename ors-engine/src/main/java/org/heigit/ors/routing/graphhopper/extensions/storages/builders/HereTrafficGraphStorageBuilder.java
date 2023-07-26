@@ -22,11 +22,18 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
-import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
+import org.heigit.ors.mapmatching.GhMapMatcher;
+import org.heigit.ors.mapmatching.MapMatcher;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
+import me.tongfei.progressbar.ProgressBar;
 import org.apache.log4j.Logger;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -34,20 +41,18 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.geojson.geom.GeometryJSON;
-import org.heigit.ors.mapmatching.GhMapMatcher;
-import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
-import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilter;
-import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.*;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.HereTrafficReader;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficData;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficLink;
+import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficPattern;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.util.ErrorLoggingUtility;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -55,7 +60,12 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.MissingResourceException;
 
 public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder {
     static final Logger LOGGER = Logger.getLogger(HereTrafficGraphStorageBuilder.class.getName());
@@ -382,10 +392,10 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     public RouteSegmentInfo[] getMatchedSegmentsInternal(Geometry geometry,
-                                                         double originalTrafficLinkLength,
-                                                         int trafficLinkFunctionalClass,
-                                                         boolean bothDirections,
-                                                         int matchingRadius) {
+                                                                double originalTrafficLinkLength,
+                                                                int trafficLinkFunctionalClass,
+                                                                boolean bothDirections,
+                                                                int matchingRadius) {
 
         if (trafficEdgeFilter == null) {
             trafficEdgeFilter = new TrafficEdgeFilter(gh.getGraphHopperStorage());

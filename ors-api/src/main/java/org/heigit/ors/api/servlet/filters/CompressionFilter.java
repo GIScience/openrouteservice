@@ -13,39 +13,44 @@
  */
 package org.heigit.ors.api.servlet.filters;
 
-import jakarta.servlet.*;
+import java.io.IOException;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-
 public class CompressionFilter implements Filter {
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-        if (req instanceof HttpServletRequest request) {
-            HttpServletResponse response = (HttpServletResponse) res;
-            String acceptEncoding = request.getHeader("accept-encoding");
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+		if (req instanceof HttpServletRequest request) {
+			HttpServletResponse response = (HttpServletResponse) res;
+			String acceptEncoding = request.getHeader("accept-encoding");
 
-            if (acceptEncoding != null) {
-                if (acceptEncoding.contains(ContentEncodingType.GZIP)) {
-                    GZIPResponseWrapper wrappedResponse = new GZIPResponseWrapper(response);
-                    chain.doFilter(req, wrappedResponse);
-                    wrappedResponse.finishResponse();
-                    return;
-                } else if (acceptEncoding.contains(ContentEncodingType.DEFLATE)) {
-                    // not implemented
-                }
-            }
-            chain.doFilter(req, res);
-        }
-    }
+			if (acceptEncoding != null) {
+				if(acceptEncoding.contains(ContentEncodingType.GZIP)) {
+					GZIPResponseWrapper wrappedResponse = new GZIPResponseWrapper(response);
+					chain.doFilter(req, wrappedResponse);
+					wrappedResponse.finishResponse();
+					return;
+				} else if (acceptEncoding.contains(ContentEncodingType.DEFLATE)) {
+                   // not implemented
+				}
+			}
+			chain.doFilter(req, res);
+		}
+	}
 
-    @Override
-    public void init(FilterConfig filterConfig) {
-        // nothing to do
-    }
+	@Override
+	public void init(FilterConfig filterConfig) {
+		// nothing to do
+	}
 
-    @Override
-    public void destroy() {
-        // nothing to do
-    }
+	@Override
+	public void destroy() {
+		// nothing to do
+	}
 }

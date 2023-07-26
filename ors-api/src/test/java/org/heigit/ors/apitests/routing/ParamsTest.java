@@ -18,6 +18,7 @@ import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.HelperFunctions;
+import org.heigit.ors.config.AppConfig;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;

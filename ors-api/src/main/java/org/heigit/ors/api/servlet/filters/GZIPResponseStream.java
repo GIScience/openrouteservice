@@ -1,103 +1,104 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library;
- *  if not, see <https://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package org.heigit.ors.api.servlet.filters;
-
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.WriteListener;
-import jakarta.servlet.http.HttpServletResponse;
-import org.heigit.ors.io.ByteArrayOutputStreamEx;
 
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
-class GZIPResponseStream extends ServletOutputStream {
-    private ByteArrayOutputStreamEx bufferStream = null;
-    private GZIPOutputStream gzipOutputStream = null;
-    private ServletOutputStream servletOutputStream = null;
-    private HttpServletResponse servletResponse = null;
-    private boolean closed = false;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.HttpServletResponse;
 
-    public GZIPResponseStream(HttpServletResponse response) throws IOException {
-        super();
+import org.heigit.ors.io.ByteArrayOutputStreamEx;
 
-        this.servletResponse = response;
-        this.servletOutputStream = response.getOutputStream();
-        bufferStream = new ByteArrayOutputStreamEx();
-        gzipOutputStream = new GZIPOutputStream(bufferStream);
-    }
+class GZIPResponseStream extends ServletOutputStream { 
+	private ByteArrayOutputStreamEx bufferStream = null;
+	private GZIPOutputStream gzipOutputStream = null;
+	private ServletOutputStream servletOutputStream = null;
+	private HttpServletResponse servletResponse = null;
+	private boolean closed = false;
 
-    @Override
-    public void close() throws IOException {
-        if (closed)
-            throw new IOException("This output stream has already been closed");
+	public GZIPResponseStream(HttpServletResponse response) throws IOException {
+		super();
+		
+		this.servletResponse = response;
+		this.servletOutputStream = response.getOutputStream();
+		bufferStream = new ByteArrayOutputStreamEx();
+		gzipOutputStream = new GZIPOutputStream(bufferStream);
+	}
 
-        gzipOutputStream.finish();
+	@Override
+	public void close() throws IOException {
+		if (closed)
+			throw new IOException("This output stream has already been closed");
+		
+		gzipOutputStream.finish();
 
-        byte[] bytes = bufferStream.getBuffer();
-        int bytesLength = bufferStream.size();
-
-        servletResponse.setContentLength(bytesLength);
+		byte[] bytes = bufferStream.getBuffer();
+		int bytesLength = bufferStream.size();
+				
+		servletResponse.setContentLength(bytesLength);
         servletResponse.addHeader("Content-Encoding", ContentEncodingType.GZIP);
 
         servletOutputStream.write(bytes, 0, bytesLength);
         servletOutputStream.close();
-        closed = true;
-    }
+		closed = true;
+	}
+	
+	public boolean isClosed() {
+		return closed;
+	}
 
-    public boolean isClosed() {
-        return closed;
-    }
+	@Override
+	public void flush() throws IOException {
+		if (closed)
+			return; // already closed, nothing to do
+		
+		gzipOutputStream.flush();
+	}
 
-    @Override
-    public void flush() throws IOException {
-        if (closed)
-            return; // already closed, nothing to do
+	public void write(int b) throws IOException {
+		if (closed)
+			throw new IOException("Cannot write to a closed output stream");
+		
+		gzipOutputStream.write((byte)b);
+	}
 
-        gzipOutputStream.flush();
-    }
+	@Override
+	public void write(byte[] b) throws IOException {
+		write(b, 0, b.length);
+	}
 
-    public void write(int b) throws IOException {
-        if (closed)
-            throw new IOException("Cannot write to a closed output stream");
+	@Override
+	public void write(byte[] b, int off, int len) throws IOException {
+		if (closed)
+			throw new IOException("Cannot write to a closed output stream");
+		
+		gzipOutputStream.write(b, off, len);
+	}
 
-        gzipOutputStream.write((byte) b);
-    }
+	public void reset() {
+		// nothing to do
+	}
 
-    @Override
-    public void write(byte[] b) throws IOException {
-        write(b, 0, b.length);
-    }
+	@Override
+	public boolean isReady() {
+		return false;
+	}
 
-    @Override
-    public void write(byte[] b, int off, int len) throws IOException {
-        if (closed)
-            throw new IOException("Cannot write to a closed output stream");
-
-        gzipOutputStream.write(b, off, len);
-    }
-
-    public void reset() {
-        // nothing to do
-    }
-
-    @Override
-    public boolean isReady() {
-        return false;
-    }
-
-    @Override
-    public void setWriteListener(WriteListener arg0) {
-        // nothing to do
-    }
+	@Override
+	public void setWriteListener(WriteListener arg0) {
+		// nothing to do
+	}
 }

@@ -13,43 +13,50 @@
  */
 package org.heigit.ors.api.servlet.filters;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletResponse;
-import org.heigit.ors.api.servlet.requests.StatusCodeCaptureWrapper;
-
 import java.io.IOException;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.heigit.ors.api.servlet.requests.StatusCodeCaptureWrapper;
 
 public class StatusCodeHandlerFilter implements Filter {
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // do nothing
-    }
+	@Override
+	public void init(FilterConfig filterConfig) throws ServletException {
+		// do nothing
+	}
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException {
-        StatusCodeCaptureWrapper responseWrapper = new StatusCodeCaptureWrapper((HttpServletResponse) response);
-        Throwable exception = null;
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException {
+		StatusCodeCaptureWrapper responseWrapper = new StatusCodeCaptureWrapper((HttpServletResponse)response);
+		Throwable exception = null;
 
-        try {
-            chain.doFilter(request, responseWrapper);
-        } catch (ServletException e) {
-            exception = e.getRootCause();
-        } catch (Throwable e) { // NOSONAR this is an UnhandledExceptionHandler - we need to catch this
-            exception = e;
-        }
+		try {
+			chain.doFilter(request, responseWrapper);
+		} catch (ServletException e) {
+			exception = e.getRootCause();
+		} catch (Throwable e) { // NOSONAR this is an UnhandledExceptionHandler - we need to catch this
+			exception = e;
+		}
 
-        if (exception != null) {
-            // Add further exception processing if needed
-        }
+		if (exception != null)
+		{
+			// Add further exception processing if needed
+		}
 
-        // 	flush to prevent servlet container to add anymore  headers or content
-        response.flushBuffer();
-    }
+		// 	flush to prevent servlet container to add anymore  headers or content
+		response.flushBuffer();
+	}
 
-    @Override
-    public void destroy() {
-        // do nothing
-    }
+	@Override
+	public void destroy() {
+		// do nothing
+	}
 }

@@ -45,6 +45,7 @@ class ResultTest extends ServiceTest {
         openAPI = result.getOpenAPI();
     }
 
+
     @Test
     void testGetOpenAPI() {
         given()

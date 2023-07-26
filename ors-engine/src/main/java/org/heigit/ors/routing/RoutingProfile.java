@@ -31,13 +31,11 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
+import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.exceptions.*;
+import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.Pair;
-import org.heigit.ors.config.EngineConfig;
-import org.heigit.ors.exceptions.IncompatibleParameterException;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
-import org.heigit.ors.exceptions.PointNotFoundException;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.export.ExportWarning;
@@ -63,14 +61,17 @@ import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
-import org.locationtech.jts.geom.Coordinate;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 /**
@@ -358,7 +359,7 @@ public class RoutingProfile {
 
                     if (prepareCore) {
                         if (coreOpts.hasPath(KEY_THREADS)) {
-                            String[] threads = coreOpts.getString(KEY_THREADS).split(",");
+                            String [] threads = coreOpts.getString(KEY_THREADS).split(",");
                             int threadsCH = Integer.parseInt(threads[0]);
                             int threadsLM = threads.length > 1 ? Integer.parseInt(threads[1]) : threadsCH;
                             ghConfig.putObject("prepare.core.threads", threadsCH);
@@ -418,8 +419,8 @@ public class RoutingProfile {
             ghConfig.putObject("gtfs.file", config.getGtfsFile());
 
         String flagEncoder = vehicle;
-        if (!Helper.isEmpty(config.getEncoderOptions()))
-            flagEncoder += "|" + config.getEncoderOptions();
+        if(!Helper.isEmpty(config.getEncoderOptions()))
+                flagEncoder += "|" + config.getEncoderOptions();
 
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
@@ -710,7 +711,7 @@ public class RoutingProfile {
         return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
     }
 
-    public ExportResult computeExport(ExportRequest req) throws Exception {
+     public ExportResult computeExport(ExportRequest req) throws Exception {
         ExportResult res = new ExportResult();
 
         GraphHopper gh = getGraphhopper();
@@ -1019,7 +1020,8 @@ public class RoutingProfile {
                 if (searchParams.hasDeparture()) {
                     key = RouteRequestParameterNames.PARAM_DEPARTURE;
                     time = searchParams.getDeparture();
-                } else {
+                }
+                else {
                     key = RouteRequestParameterNames.PARAM_ARRIVAL;
                     time = searchParams.getArrival();
                 }

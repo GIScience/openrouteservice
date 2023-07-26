@@ -28,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Domain(GraphHopperDomain.class)
 class AlgorithmComparisonTest {
     private static Directory dir;
-    private Weighting weighting = new ShortestWeighting(carEncoder);
-    private CHConfig chConfig = new CHConfig("c", weighting, false, CHConfig.TYPE_CORE);
+    private  Weighting weighting = new ShortestWeighting(carEncoder);
+    private  CHConfig chConfig = new CHConfig("c", weighting, false, CHConfig.TYPE_CORE);
     private RoutingCHGraph routingCHGraph;
 
     @BeforeProperty
@@ -54,7 +54,7 @@ class AlgorithmComparisonTest {
     }
 
 // TODO Future improvement : Uncomment this and resolve differences to enable this test
-
+    
 //    @Property(tries = 2000)// , seed="-2270368960184993644") // reproduces a failure
 //        // @Report(Reporting.GENERATED)
 //    void compare_distance_computation_between_CoreMatrix_and_CoreALT(
@@ -136,7 +136,7 @@ class AlgorithmComparisonTest {
         return extractValues(sampleGraph, sources, destinations, destTrees);
     }
 
-    private float[] extractValues(GraphHopperStorage sampleGraph, MatrixLocations sources, MatrixLocations destinations, MultiTreeSPEntry[] destTrees) throws Exception {
+    private float[]  extractValues(GraphHopperStorage sampleGraph, MatrixLocations sources, MatrixLocations destinations, MultiTreeSPEntry[] destTrees) throws Exception {
         MultiTreeMetricsExtractor pathMetricsExtractor = new MultiTreeMetricsExtractor(MatrixMetricsType.DISTANCE, sampleGraph.getRoutingCHGraph(), carEncoder, weighting, DistanceUnit.METERS);
         int tableSize = sources.size() * destinations.size();
 

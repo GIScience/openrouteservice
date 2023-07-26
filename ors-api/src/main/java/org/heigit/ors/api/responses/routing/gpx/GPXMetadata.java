@@ -16,8 +16,6 @@
 package org.heigit.ors.api.responses.routing.gpx;
 
 import com.graphhopper.util.shapes.BBox;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
@@ -27,6 +25,8 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.util.GeomUtility;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
 @XmlRootElement(name = "metadata")

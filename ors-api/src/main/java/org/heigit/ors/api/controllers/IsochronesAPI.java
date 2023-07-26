@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
@@ -44,6 +43,8 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @Tag(name = "Isochrones Service", description = "Obtain areas of reachability from given locations")
@@ -91,10 +92,10 @@ public class IsochronesAPI {
     @PostMapping(value = "/{profile}", produces = "application/geo+json;charset=UTF-8")
     @Operation(
             description = """
-                    The Isochrone Service supports time and distance analyses for one single or multiple locations.
-                    You may also specify the isochrone interval or provide multiple exact isochrone range values.
-                    This service allows the same range of profile options as the /directions endpoint,
-                    which help you to further customize your request to obtain a more detailed reachability area response.""",
+            The Isochrone Service supports time and distance analyses for one single or multiple locations.
+            You may also specify the isochrone interval or provide multiple exact isochrone range values.
+            This service allows the same range of profile options as the /directions endpoint,
+            which help you to further customize your request to obtain a more detailed reachability area response.""",
             summary = "Isochrones Service"
     )
     @ApiResponse(
@@ -114,10 +115,10 @@ public class IsochronesAPI {
     @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
     @Operation(
             description = """
-                    The Isochrone Service supports time and distance analyses for one single or multiple locations.
-                    You may also specify the isochrone interval or provide multiple exact isochrone range values.
-                    This service allows the same range of profile options as the /directions endpoint,
-                    which help you to further customize your request to obtain a more detailed reachability area response.""",
+            The Isochrone Service supports time and distance analyses for one single or multiple locations.
+            You may also specify the isochrone interval or provide multiple exact isochrone range values.
+            This service allows the same range of profile options as the /directions endpoint,
+            which help you to further customize your request to obtain a more detailed reachability area response.""",
             summary = "Isochrones Service",
             hidden = true
     )

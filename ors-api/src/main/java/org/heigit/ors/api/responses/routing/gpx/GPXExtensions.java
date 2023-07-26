@@ -16,10 +16,11 @@
 package org.heigit.ors.api.responses.routing.gpx;
 
 import com.graphhopper.util.Helper;
-import jakarta.xml.bind.annotation.XmlElement;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.util.AppInfo;
-import org.heigit.ors.routing.APIEnums;
+
+import jakarta.xml.bind.annotation.XmlElement;
 
 public class GPXExtensions {
     @XmlElement(name = "attribution")
@@ -30,7 +31,7 @@ public class GPXExtensions {
     private String buildDate;
     @XmlElement(name = "profile")
     private String profile;
-    @XmlElement(name = "preference")
+    @XmlElement(name="preference")
     private String preference;
     @XmlElement(name = "language")
     private String language;
@@ -41,8 +42,7 @@ public class GPXExtensions {
     @XmlElement(name = "elevation")
     private boolean includeElevation;
 
-    public GPXExtensions() {
-    }
+    public GPXExtensions() {}
 
     public GPXExtensions(RouteRequest request, String attribution) {
         if (!Helper.isEmpty(attribution))
@@ -68,7 +68,7 @@ public class GPXExtensions {
         else
             includeInstructions = true;
 
-        if (request.hasUseElevation())
+        if(request.hasUseElevation())
             includeElevation = request.getUseElevation();
         else
             includeElevation = false;

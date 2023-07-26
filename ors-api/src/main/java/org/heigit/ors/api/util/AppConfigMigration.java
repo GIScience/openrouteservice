@@ -235,7 +235,8 @@ public class AppConfigMigration {
                     profileStr = profileStr.trim();
                     if ("any".equalsIgnoreCase(profileStr)) {
                         def = value;
-                    } else {
+                    }
+                    else {
                         Integer profile = RoutingProfileType.getFromString(profileStr);
                         if (profile != RoutingProfileType.UNKNOWN)
                             map.put(profile, value);

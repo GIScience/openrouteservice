@@ -32,7 +32,7 @@ import org.json.simple.JSONObject;
 public class RequestOptions implements RouteRequestParameterNames {
 
     @Schema(name = PARAM_AVOID_FEATURES, description = "List of features to avoid. ",
-            extensions = {@Extension(name = "itemRestrictions", properties = {
+            extensions = { @Extension(name = "itemRestrictions", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "itemsWhen", value = "{\"driving-*\":[\"highways\",\"tollways\",\"ferries\"],\"cycling-*\":[\"ferries\",\"steps\",\"fords\"],\"foot-*\":[\"ferries\",\"fords\",\"steps\"],\"wheelchair\":[\"ferries\",\"steps\"]}", parseValue = true)}
             )},
@@ -43,7 +43,7 @@ public class RequestOptions implements RouteRequestParameterNames {
     private boolean hasAvoidFeatures = false;
 
     @Schema(name = PARAM_AVOID_BORDERS, description = "`all` for no border crossing. `controlled` to cross open borders but avoid controlled ones. Only for `driving-*` profiles. ",
-            extensions = {@Extension(name = "validWhen", properties = {
+            extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-*")}
             )},
@@ -58,7 +58,7 @@ public class RequestOptions implements RouteRequestParameterNames {
             `[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://GIScience.github.io/openrouteservice/documentation/routing-options/Country-List.html). \
             Also, ISO standard country codes cna be used in place of the numerical ids, for example, DE or DEU for Germany. \
             """,
-            extensions = {@Extension(name = "validWhen", properties = {
+            extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-*")}
             )},
@@ -69,7 +69,7 @@ public class RequestOptions implements RouteRequestParameterNames {
     private boolean hasAvoidCountries = false;
 
     @Schema(name = PARAM_VEHICLE_TYPE, description = "(for profile=driving-hgv only): hgv,bus,agricultural,delivery,forestry and goods. It is needed for vehicle restrictions to work. ",
-            extensions = {@Extension(name = "validWhen", properties = {
+            extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-hgv")}
             )},
@@ -80,7 +80,7 @@ public class RequestOptions implements RouteRequestParameterNames {
     private boolean hasVehicleType = false;
 
     @Schema(name = PARAM_PROFILE_PARAMS, description = " Specifies additional matrix parameters.",
-            extensions = {@Extension(name = "validWhen", properties = {
+            extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "valueNot", value = "driving-car")}
             )})

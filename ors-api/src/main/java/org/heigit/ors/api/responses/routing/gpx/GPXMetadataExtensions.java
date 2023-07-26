@@ -15,19 +15,19 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.util.SystemMessage;
+
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "extensions")
 public class GPXMetadataExtensions {
     @XmlElement(name = "system-message")
     private String systemMessage;
 
-    public GPXMetadataExtensions() {
-    }
+    public GPXMetadataExtensions() {}
 
     public GPXMetadataExtensions(RouteRequest request, SystemMessageProperties systemMessageProperties) {
         this.systemMessage = SystemMessage.getSystemMessage(request, systemMessageProperties);

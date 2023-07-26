@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.common.AttributeValue;
 import org.heigit.ors.isochrones.Isochrone;
-import org.locationtech.jts.geom.Coordinate;
 
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class GeoJSONIsochroneProperties {
-    @Schema(description = "Id of the isochrone based on the position in the `locations` query-parameter. Every location comprises its own group of polygons.", example = "1")
+    @Schema(description = "Id of the isochrone based on the position in the `locations` query-parameter. Every location comprises its own group of polygons.", example ="1")
     @JsonProperty(value = "group_index")
     private final Integer groupIndex;
 
@@ -25,7 +25,7 @@ public class GeoJSONIsochroneProperties {
     private final Double[] center;
 
     @Schema(description = "Area of the polygon in square meters (for attributes=area).",
-            extensions = {@Extension(name = "validWhen", properties = {
+            extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "containsValue", value = "area")}
             )},
@@ -43,7 +43,7 @@ public class GeoJSONIsochroneProperties {
     private Double reachfactor;
 
     @Schema(description = "Total population of the polygon (for attributes=total_pop).",
-            extensions = {@Extension(name = "validWhen", properties = {
+            extensions = { @Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "attributes"),
                     @ExtensionProperty(name = "containsValue", value = "total_pop")}
             )},

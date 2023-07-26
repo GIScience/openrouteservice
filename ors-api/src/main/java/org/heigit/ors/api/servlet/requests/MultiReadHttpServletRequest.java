@@ -1,25 +1,26 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library;
- *  if not, see <https://www.gnu.org/licenses/>.
+ *  You should have received a copy of the GNU Lesser General Public License along with this library; 
+ *  if not, see <https://www.gnu.org/licenses/>.  
  */
 package org.heigit.ors.api.servlet.requests;
 
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
-import org.heigit.ors.util.StreamUtility;
 
 import java.io.*;
+
+import org.heigit.ors.util.StreamUtility;
 
 public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
@@ -40,7 +41,7 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
     @Override
     public BufferedReader getReader() throws IOException {
         String enc = getCharacterEncoding();
-        if (enc == null) enc = "UTF-8";
+        if(enc == null) enc = "UTF-8";
         return new BufferedReader(new InputStreamReader(getInputStream(), enc));
     }
 
@@ -71,20 +72,20 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
             throw new IOException("mark/reset not supported");
         }
 
-        @Override
-        public boolean isFinished() {
-            return false;
-        }
+		@Override
+		public boolean isFinished() {
+			return false;
+		}
 
-        @Override
-        public boolean isReady() {
-            return true;
-        }
+		@Override
+		public boolean isReady() {
+			return true;
+		}
 
-        @Override
-        public void setReadListener(ReadListener readListener) {
+		@Override
+		public void setReadListener(ReadListener readListener) {
             // do nothing
-        }
+		}
     }
 
 }

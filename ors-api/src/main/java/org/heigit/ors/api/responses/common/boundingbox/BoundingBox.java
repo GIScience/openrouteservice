@@ -15,19 +15,17 @@
 
 package org.heigit.ors.api.responses.common.boundingbox;
 
+import org.heigit.ors.api.responses.routing.gpx.GPXBounds;
+
 import jakarta.xml.bind.annotation.XmlSeeAlso;
 import jakarta.xml.bind.annotation.XmlTransient;
-import org.heigit.ors.api.responses.routing.gpx.GPXBounds;
 
 @XmlSeeAlso(GPXBounds.class)
 @XmlTransient
 public interface BoundingBox {
     double getMinLon();
-
     double getMaxLon();
-
     double getMinLat();
-
     double getMaxLat();
 
     double[] getAsArray();

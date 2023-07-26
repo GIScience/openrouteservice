@@ -14,6 +14,8 @@
 package org.heigit.ors.matrix;
 
 import com.graphhopper.coll.GHLongObjectHashMap;
+import com.graphhopper.routing.querygraph.QueryGraph;
+import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;

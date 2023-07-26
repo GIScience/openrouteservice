@@ -16,9 +16,6 @@
 package org.heigit.ors.api.responses.routing.gpx;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
@@ -26,6 +23,9 @@ import org.heigit.ors.api.responses.routing.RouteResponse;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteResult;
 
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 

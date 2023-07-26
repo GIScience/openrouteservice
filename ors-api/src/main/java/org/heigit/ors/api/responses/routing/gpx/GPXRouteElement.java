@@ -15,14 +15,14 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
+import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RouteSegment;
 import org.heigit.ors.routing.RouteStep;
-import org.locationtech.jts.geom.Coordinate;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 

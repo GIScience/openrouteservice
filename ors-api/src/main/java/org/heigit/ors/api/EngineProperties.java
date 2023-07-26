@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -103,7 +102,7 @@ public class EngineProperties {
                 convertedProfile.setEncoderOptions(profile.getEncoderOptionsString());
                 convertedProfile.setOptimize(profile.optimize != null ? profile.optimize : profileDefault.getOptimize());
                 convertedProfile.setEncoderFlagsSize(profile.encoderFlagsSize != null ? profile.encoderFlagsSize : profileDefault.getEncoderFlagsSize());
-                convertedProfile.setInstructions(profile.instructions != null ? profile.instructions :  profileDefault.getInstructions());
+                convertedProfile.setInstructions(profile.instructions != null ? profile.instructions : profileDefault.getInstructions());
                 convertedProfile.setMaximumDistance(profile.maximumDistance != null ? profile.maximumDistance : profileDefault.getMaximumDistance());
                 convertedProfile.setMaximumDistanceDynamicWeights(profile.maximumDistanceDynamicWeights != null ? profile.maximumDistanceDynamicWeights : profileDefault.getMaximumDistanceDynamicWeights());
                 convertedProfile.setMaximumDistanceAvoidAreas(profile.maximumDistanceAvoidAreas != null ? profile.maximumDistanceAvoidAreas : profileDefault.getMaximumDistanceAvoidAreas());
@@ -128,8 +127,8 @@ public class EngineProperties {
                 Map<String, Object> preparation = profile.preparation != null ? profile.preparation : profileDefault.getPreparation();
                 if (preparation != null) {
                     convertedProfile.setPreparationOpts(ConfigFactory.parseMap(preparation));
-                    if (preparation.containsKey("methods") && preparation.get("methods") != null && ((Map<String, Object>)preparation.get("methods")).containsKey("fastisochrones")) {
-                        convertedProfile.setIsochronePreparationOpts(ConfigFactory.parseMap((Map<String, Object>)((Map<String, Object>)preparation.get("methods")).get("fastisochrones")));
+                    if (preparation.containsKey("methods") && preparation.get("methods") != null && ((Map<String, Object>) preparation.get("methods")).containsKey("fastisochrones")) {
+                        convertedProfile.setIsochronePreparationOpts(ConfigFactory.parseMap((Map<String, Object>) ((Map<String, Object>) preparation.get("methods")).get("fastisochrones")));
                     }
                 }
                 Map<String, Object> execution = profile.execution != null ? profile.execution : profileDefault.getExecution();
@@ -208,7 +207,7 @@ public class EngineProperties {
         private Boolean optimize;
         private String graphPath;
         private Map<String, String> encoderOptions;
-//        For later use when refactoring RoutingManagerConfiguration
+        //        For later use when refactoring RoutingManagerConfiguration
 //        private PreparationProperties preparation;
 //        private ExecutionProperties execution;
         private Map<String, Object> preparation;
