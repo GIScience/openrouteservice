@@ -35,6 +35,9 @@ RELEASING:
 
 ## [Unreleased]
 
+### Changed
+- increase edge splitting threshold for generating isochrones ([#1508](https://github.com/GIScience/openrouteservice/pull/1508))
+
 ## [7.1.0] - 2023-06-13
 ### Added
 - migration from Junit4 to Junit5  ([#1320](https://github.com/GIScience/openrouteservice/pull/1320))
