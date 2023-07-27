@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.FileSystemUtils;
@@ -14,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Order(Integer.MIN_VALUE) // Run before even spring context has been built
-public class InitializeGraphsOnce implements BeforeAllCallback, BeforeEachCallback {
+public class InitializeGraphsOnce implements BeforeAllCallback {
 
     private static final Logger LOGGER = Logger.getLogger(InitializeGraphsOnce.class.getName());
 
@@ -35,10 +34,6 @@ public class InitializeGraphsOnce implements BeforeAllCallback, BeforeEachCallba
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    @Override
-    public void beforeEach(ExtensionContext context) {
     }
 
     private synchronized static void deleteGraphsFolderOncePerTestRun(ExtensionContext.Store store) {

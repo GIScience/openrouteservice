@@ -111,7 +111,7 @@ public class RoutingProfileManager {
                 }
             }
 
-                LOGGER.info("%d tasks submitted.".formatted(nTotalTasks));
+            LOGGER.info("%d profile configurations submitted as tasks.".formatted(nTotalTasks));
 
             int nCompletedTasks = 0;
             while (nCompletedTasks < nTotalTasks) {

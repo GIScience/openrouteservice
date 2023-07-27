@@ -17,10 +17,10 @@ ors:
   engine:
 ### use the following line for development setup using test OSM file for Heidelberg
 #    source_file: ./src/test/files/heidelberg.osm.gz
-    source_file: ./data/osm_file.pbf
-    graphs_root_path: ./graphs
+    source_file: ./ors-core/data/osm_file.pbf
+    graphs_root_path: ./ors-core/data/graphs
     elevation:
-      cache_path: ./elevation_cache
+      cache_path: ./ors-core/data/elevation_cache
 
     profiles:
       car:

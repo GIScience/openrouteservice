@@ -11,7 +11,7 @@ fi
 
 ors_base=${1}
 catalina_base=${ors_base}/tomcat
-graphs=${ors_base}/graphs
+graphs=${ors_base}/ors-core/data/graphs
 
 echo "ORS Path: ${ors_base}"
 echo "Catalina Path: ${catalina_base}"
@@ -38,14 +38,14 @@ if [ "${BUILD_GRAPHS}" = "True" ]; then
 fi
 
 echo "### openrouteservice configuration ###"
-if [ ! -f "${ors_base}/conf/ors-config.yml" ]; then
+if [ ! -f "${ors_base}/ors-conf/ors-config.yml" ]; then
   echo "Copy ors-config.yml"
-  cp -f "${ors_base}/tmp/ors-config.yml" "${ors_base}/conf/ors-config.yml"
+  cp -f "${ors_base}/tmp/ors-config.yml" "${ors_base}/ors-conf/ors-config.yml"
 fi
 
-if [ ! -f "${ors_base}/data/osm_file.pbf" ]; then
+if [ ! -f "${ors_base}/ors-core/data/osm_file.pbf" ]; then
   echo "Copy osm_file.pbf"
-  cp -f "${ors_base}/tmp/osm_file.pbf" "${ors_base}/data/osm_file.pbf"
+  cp -f "${ors_base}/tmp/osm_file.pbf" "${ors_base}/ors-core/data/osm_file.pbf"
 fi
 
 # so docker can stop the process gracefully

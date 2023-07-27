@@ -65,8 +65,8 @@ ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 RUN apk add --no-cache bash=~'5' openssl=~'3' && \
     addgroup -g ${GID} ors && \
     adduser -D -h ${BASE_FOLDER} -u ${UID} -G ors ors &&  \
-    mkdir -p ${BASE_FOLDER}/logs ${BASE_FOLDER}/graphs ${BASE_FOLDER}/elevation_cache ${BASE_FOLDER}/conf ${BASE_FOLDER}/data ${BASE_FOLDER}/tomcat/logs&&  \
-    chown -R ors ${BASE_FOLDER}/logs ${BASE_FOLDER}/graphs ${BASE_FOLDER}/elevation_cache ${BASE_FOLDER}/conf ${BASE_FOLDER}/data ${BASE_FOLDER}/tomcat ${BASE_FOLDER}/tomcat/logs
+    mkdir -p ${BASE_FOLDER}/ors-core/logs ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/ors-core/data ${BASE_FOLDER}/tomcat/logs &&  \
+    chown -R ors ${BASE_FOLDER}/tomcat ${BASE_FOLDER}/ors-core/logs ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/ors-core/data ${BASE_FOLDER}/tomcat/logs
 
 WORKDIR ${BASE_FOLDER}
 
@@ -81,7 +81,7 @@ COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/tmp/osm_file.pbf
 USER ${UID}:${GID}
 
 ENV BUILD_GRAPHS="False"
-ENV ORS_CONFIG_LOCATION=conf/ors-config.yml
+ENV ORS_CONFIG_LOCATION=ors-conf/ors-config.yml
 
 # Start the container
 ENTRYPOINT ["/home/ors/docker-entrypoint.sh"]
