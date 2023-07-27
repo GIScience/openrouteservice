@@ -114,6 +114,7 @@ jobs:
           mkdir $(pwd)/graphs $(pwd)/conf
           sudo chown 1000:1000 $(pwd)/graphs $(pwd)/conf
           docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          docker logs ors-instance
           # Check for health to turn 200 after the graphs are build and spring-boot completely started
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
           # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
