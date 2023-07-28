@@ -540,11 +540,10 @@ class ParamsTest extends ServiceTest {
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
+                .statusCode(200)
                 .body("features[0].properties.value", is(300.0f))
                 .body("features[1].properties.value", is(400.0f))
-                .body("features[2].properties.value", is(600.0f))
-                .statusCode(200);
-
+                .body("features[2].properties.value", is(600.0f));
     }
 
     @Test

@@ -1,12 +1,17 @@
 package org.heigit.ors.api;
 
+import org.heigit.ors.routing.RoutingProfileType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 
 @Configuration
-@ConfigurationProperties(prefix = "endpoints")
+@ConfigurationProperties(prefix = "ors.endpoints")
 public class EndpointsProperties {
     private EndpointDefaultProperties defaults;
     private EndpointRoutingProperties routing;
@@ -76,6 +81,9 @@ public class EndpointsProperties {
         private String gpxSupportMail;
         private String gpxAuthor;
         private String gpxContentLicence;
+        private double maximumAvoidPolygonArea;
+        private double maximumAvoidPolygonExtent;
+        private int maximumAlternativeRoutes;
 
         public boolean isEnabled() {
             return enabled;
@@ -140,6 +148,33 @@ public class EndpointsProperties {
         public void setGpxContentLicence(String gpxContentLicence) {
             this.gpxContentLicence = gpxContentLicence;
         }
+
+        public double getMaximumAvoidPolygonArea() {
+            return maximumAvoidPolygonArea;
+        }
+
+        public void setMaximumAvoidPolygonArea(double maximumAvoidPolygonArea) {
+            this.maximumAvoidPolygonArea = maximumAvoidPolygonArea;
+        }
+
+        public double getMaximumAvoidPolygonExtent() {
+            return maximumAvoidPolygonExtent;
+        }
+
+        public void setMaximumAvoidPolygonExtent(double maximumAvoidPolygonExtent) {
+            this.maximumAvoidPolygonExtent = maximumAvoidPolygonExtent;
+        }
+
+
+        public int getMaximumAlternativeRoutes() {
+            return maximumAlternativeRoutes;
+        }
+
+        public void setMaximumAlternativeRoutes(Integer maximumAlternativeRoutes) {
+            this.maximumAlternativeRoutes = maximumAlternativeRoutes;
+        }
+
+
     }
 
     public static class EndpointMatrixProperties {
@@ -207,12 +242,92 @@ public class EndpointsProperties {
         }
     }
 
-    public static class EndpointIsochroneProperties {
+    public static class MaximumRangeProperties {
+        private int maximumRangeDistanceDefault;
+        private List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeDistance;
+        private int maximumRangeTimeDefault;
+        private List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeTime;
+
+        public int getMaximumRangeDistanceDefault() {
+            return maximumRangeDistanceDefault;
+        }
+
+        public void setMaximumRangeDistanceDefault(int maximumRangeDistanceDefault) {
+            this.maximumRangeDistanceDefault = maximumRangeDistanceDefault;
+        }
+
+        public List<MaximumRangeProperties.MaximumRangePropertiesEntry> getMaximumRangeDistance() {
+            return maximumRangeDistance;
+        }
+
+        public void setMaximumRangeDistance(List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeDistance) {
+            this.maximumRangeDistance = maximumRangeDistance;
+            for (MaximumRangeProperties.MaximumRangePropertiesEntry maximumRangePropertiesEntry : maximumRangeDistance)
+                for (String profile : maximumRangePropertiesEntry.getProfiles())
+                    profileMaxRangeDistances.put(RoutingProfileType.getFromString(profile), maximumRangePropertiesEntry.getValue());
+        }
+
+        public int getMaximumRangeTimeDefault() {
+            return maximumRangeTimeDefault;
+        }
+
+        public void setMaximumRangeTimeDefault(int maximumRangeTimeDefault) {
+            this.maximumRangeTimeDefault = maximumRangeTimeDefault;
+        }
+
+        public List<MaximumRangeProperties.MaximumRangePropertiesEntry> getMaximumRangeTime() {
+            return maximumRangeTime;
+        }
+
+        public void setMaximumRangeTime(List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeTime) {
+            this.maximumRangeTime = maximumRangeTime;
+            for (MaximumRangeProperties.MaximumRangePropertiesEntry maximumRangePropertiesEntry : maximumRangeTime)
+                for (String profile : maximumRangePropertiesEntry.getProfiles())
+                    profileMaxRangeTimes.put(RoutingProfileType.getFromString(profile), maximumRangePropertiesEntry.getValue());
+        }
+
+        private Map<Integer, Integer> profileMaxRangeDistances = new HashMap<>();
+
+        public Map<Integer, Integer> getProfileMaxRangeDistances() {
+            return profileMaxRangeDistances;
+        }
+
+        private Map<Integer, Integer> profileMaxRangeTimes = new HashMap<>();
+
+        public Map<Integer, Integer> getProfileMaxRangeTimes() {
+            return profileMaxRangeTimes;
+        }
+
+        public static class MaximumRangePropertiesEntry {
+            private List<String> profiles;
+            private int value;
+
+            public List<String> getProfiles() {
+                return profiles;
+            }
+
+            public void setProfiles(List<String> profiles) {
+                this.profiles = profiles;
+            }
+
+            public int getValue() {
+                return value;
+            }
+
+            public void setValue(int value) {
+                this.value = value;
+            }
+        }
+    }
+
+    public static class EndpointIsochroneProperties extends MaximumRangeProperties {
         private boolean enabled;
         private String attribution;
         private int maximumLocations;
         private boolean allowComputeArea = true;
         private int maximumIntervals = 1;
+        private MaximumRangeProperties fastisochrones;
+        private Map<String, StatisticsProviderProperties> statisticsProviders = new HashMap<>();
 
         public boolean isEnabled() {
             return enabled;
@@ -252,6 +367,70 @@ public class EndpointsProperties {
 
         public void setMaximumIntervals(int maximumIntervals) {
             this.maximumIntervals = maximumIntervals;
+        }
+
+        public MaximumRangeProperties getFastisochrones() {
+            return fastisochrones;
+        }
+
+        public void setFastisochrones(MaximumRangeProperties fastisochrones) {
+            this.fastisochrones = fastisochrones;
+        }
+
+        public Map<String, StatisticsProviderProperties> getStatisticsProviders() {
+            return statisticsProviders;
+        }
+
+        public void setStatisticsProviders(Map<String, StatisticsProviderProperties> statisticsProviders) {
+            this.statisticsProviders = statisticsProviders;
+        }
+
+        public static class StatisticsProviderProperties {
+            private boolean enabled;
+            private String providerName;
+            private Map<String, Object> providerParameters;
+            private Map<String, String> propertyMapping;
+            private String attribution;
+
+            public boolean isEnabled() {
+                return enabled;
+            }
+
+            public void setEnabled(boolean enabled) {
+                this.enabled = enabled;
+            }
+
+            public String getProviderName() {
+                return providerName;
+            }
+
+            public void setProviderName(String providerName) {
+                this.providerName = providerName;
+            }
+
+            public Map<String, Object> getProviderParameters() {
+                return providerParameters;
+            }
+
+            public void setProviderParameters(Map<String, Object> providerParameters) {
+                this.providerParameters = providerParameters;
+            }
+
+            public Map<String, String> getPropertyMapping() {
+                return propertyMapping;
+            }
+
+            public void setPropertyMapping(Map<String, String> propertyMapping) {
+                this.propertyMapping = propertyMapping;
+            }
+
+            public String getAttribution() {
+                return attribution;
+            }
+
+            public void setAttribution(String attribution) {
+                this.attribution = attribution;
+            }
         }
     }
 }

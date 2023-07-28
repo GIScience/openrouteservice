@@ -1,13 +1,19 @@
 package org.heigit.ors.config;
 
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.util.StringUtility;
+
 import java.util.List;
+import java.util.Map;
 
 public class EngineConfig {
-// Migration guide: 1. add field and getter, assign in constructor
+    // Migration guide: 1. add field and getter, assign in constructor
     private final int initializationThreads;
     private final boolean preparationMode;
     private final String sourceFile;
+    private final String graphsRootPath;
     private final boolean elevationPreprocessed;
+    private final RouteProfileConfiguration[] profiles;
 
     public int getInitializationThreads() {
         return initializationThreads;
@@ -21,8 +27,16 @@ public class EngineConfig {
         return sourceFile;
     }
 
+    public String getGraphsRootPath() {
+        return graphsRootPath;
+    }
+
     public boolean isElevationPreprocessed() {
         return elevationPreprocessed;
+    }
+
+    public RouteProfileConfiguration[] getProfiles() {
+        return profiles;
     }
 
     public EngineConfig(EngineConfigBuilder builder) {
@@ -30,14 +44,19 @@ public class EngineConfig {
         this.preparationMode = builder.preparationMode;
         this.sourceFile = builder.sourceFile;
         this.elevationPreprocessed = builder.elevationPreprocessed;
+        this.graphsRootPath = builder.graphsRootPath;
+        this.profiles = builder.profiles;
     }
+
 
     public static class EngineConfigBuilder {
         // Migration guide: 2. add corresponding field (without final)
         private int initializationThreads = 1;
         private boolean preparationMode;
         private String sourceFile;
+        private String graphsRootPath;
         private boolean elevationPreprocessed;
+        private RouteProfileConfiguration[] profiles;
 
         public static EngineConfigBuilder init() {
             return new EngineConfigBuilder();
@@ -59,8 +78,18 @@ public class EngineConfig {
             return this;
         }
 
+        public EngineConfigBuilder setGraphsRootPath(String graphsRootPath) {
+            this.graphsRootPath = graphsRootPath;
+            return this;
+        }
+
         public EngineConfigBuilder setElevationPreprocessed(boolean elevationPreprocessed) {
             this.elevationPreprocessed = elevationPreprocessed;
+            return this;
+        }
+
+        public EngineConfigBuilder setProfiles(RouteProfileConfiguration[] profiles) {
+            this.profiles = profiles;
             return this;
         }
 
@@ -88,6 +117,10 @@ public class EngineConfig {
             value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "elevation_preprocessed");
             if (value != null)
                 elevationPreprocessed = "true".equalsIgnoreCase(value);
+
+            Map<String, Object> defaultParams = deprecatedAppConfig.getServiceParametersMap(SERVICE_NAME_ROUTING, "profiles.default_params", true);
+            if (defaultParams != null && defaultParams.containsKey("graphs_root_path"))
+                graphsRootPath = StringUtility.trim(defaultParams.get("graphs_root_path").toString(), '"');
 
             return new EngineConfig(this);
         }

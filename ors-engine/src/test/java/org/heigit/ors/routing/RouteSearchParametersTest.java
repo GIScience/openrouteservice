@@ -12,15 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class RouteSearchParametersTest {
 
     @Test
-    void expectFailingProfileParamsWithVehicleProfile() {
-        assertThrows(ParameterValueException.class, () -> {
-            RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-            routeSearchParameters.setProfileType(1);
-            routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
-        });
-    }
-
-    @Test
     void getProfileType() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         assertEquals(0, routeSearchParameters.getProfileType());
@@ -159,21 +150,6 @@ class RouteSearchParametersTest {
     }
 
     @Test
-    void getOptions() {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        assertNull(routeSearchParameters.getOptions());
-    }
-
-    @Test
-    void hasParameters() throws Exception {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        assertFalse(routeSearchParameters.hasParameters(routeSearchParameters.getClass()));
-        routeSearchParameters.setProfileType(2);
-        routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
-        assertTrue(routeSearchParameters.hasParameters(VehicleParameters.class));
-    }
-
-    @Test
     void getProfileParameters() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         assertNull(routeSearchParameters.getProfileParameters());
@@ -253,16 +229,7 @@ class RouteSearchParametersTest {
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
-        routeSearchParameters.setOptions("{\"profile_params\":{\"weightings\":{\"green\":{\"factor\":0.8}}}}");
+        routeSearchParameters.setProfileParams(new VehicleParameters());
         assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "profile param");
-    }
-
-    @Test
-    void alternativeRoutesParams() throws Exception {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setOptions("{\"alternative_routes_count\": 2, \"alternative_routes_weight_factor\": 3.3, \"alternative_routes_share_factor\": 4.4}}");
-        assertEquals(2, routeSearchParameters.getAlternativeRoutesCount());
-        assertEquals(3.3, routeSearchParameters.getAlternativeRoutesWeightFactor(), 0.0);
-        assertEquals(4.4, routeSearchParameters.getAlternativeRoutesShareFactor(), 0.0);
     }
 }

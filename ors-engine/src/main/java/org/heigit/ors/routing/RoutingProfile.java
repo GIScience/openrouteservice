@@ -36,7 +36,6 @@ import org.heigit.ors.exceptions.*;
 import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.Pair;
-import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.export.ExportWarning;
@@ -571,7 +570,7 @@ public class RoutingProfile {
             try {
                 Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<>();
                 for (String attr : tempAttributes) {
-                    StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get(attr);
+                    StatisticsProviderConfiguration provConfig = parameters.getStatsProviders().get(attr);
 
                     if (provConfig != null) {
                         if (mapProviderToAttrs.containsKey(provConfig)) {
@@ -1301,7 +1300,7 @@ public class RoutingProfile {
             if (parameters.hasAttribute(KEY_TOTAL_POP)) {
                 try {
                     Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<>();
-                    StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get(KEY_TOTAL_POP);
+                    StatisticsProviderConfiguration provConfig = parameters.getStatsProviders().get(KEY_TOTAL_POP);
                     if (provConfig != null) {
                         List<String> attrList = new ArrayList<>();
                         attrList.add(KEY_TOTAL_POP);

@@ -20,7 +20,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.api.util.AppInfo;
-import org.heigit.ors.config.IsochronesServiceSettings;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;

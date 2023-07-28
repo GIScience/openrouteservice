@@ -114,6 +114,7 @@ jobs:
           mkdir $(pwd)/graphs $(pwd)/conf
           sudo chown 1000:1000 $(pwd)/graphs $(pwd)/conf
           docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          docker logs ors-instance
           # Check for health to turn 200 after the graphs are build and spring-boot completely started
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
           # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
@@ -122,7 +123,7 @@ jobs:
           # Restart the container to apply the config changes
           docker stop ors-instance
           docker container prune -f 
-          docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf -e CORS_ALLOWED_ORIGINS=https://example.org --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf -e ORS_CORS_ALLOWED_ORIGINS=https://example.org --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
           # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 50
           # It should fail with http code 403 for https://example.com since the Origin is not covered.

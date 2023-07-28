@@ -11,15 +11,11 @@ fi
 
 ors_base=${1}
 catalina_base=${ors_base}/tomcat
+graphs=${ors_base}/ors-core/data/graphs
+
 echo "ORS Path: ${ors_base}"
 echo "Catalina Path: ${catalina_base}"
 
-graphs=${ors_base}/ors-core/data/graphs
-tomcat_ors_config=${catalina_base}/webapps/ors/WEB-INF/classes/ors-config.json
-source_ors_config=${ors_base}/ors-core/ors-config.json
-public_ors_config_folder=${ors_base}/ors-conf
-public_ors_config=${public_ors_config_folder}/ors-config.json
-ors_war_path=${ors_base}/ors-core/ors.war
 
 if [ -z "${CATALINA_OPTS}" ]; then
   export CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
@@ -42,20 +38,24 @@ if [ "${BUILD_GRAPHS}" = "True" ]; then
 fi
 
 echo "### openrouteservice configuration ###"
-if [ ! -d "${catalina_base}/webapps/ors" ]; then
-  echo "Extract war file to ${catalina_base}/webapps/ors"
-  cp -f "${ors_war_path}" "${catalina_base}"/webapps/ors.war
-  unzip -qq "${catalina_base}"/webapps/ors.war -d "${catalina_base}/webapps/ors"
+# Always overwrite the example config in case another one is present
+cp -f "${ors_base}/tmp/ors-config.yml" "${ors_base}/ors-conf/ors-config-example.yml"
+# Check for old .json configs
+JSON_FILES=$(ls -d -- "${ors_base}/ors-conf/"*.json 2>/dev/null)
+if [ -z "$JSON_FILES" ]; then
+    echo "Old .json config found. They're deprecated and will be replaced in ORS version 8."
+    echo "Please migrate to the new .yml example."
+fi
+# No config found. Use the base config
+if [ ! -f "${ors_base}/ors-conf/ors-config.yml" ]; then
+  echo "Copy ors-config.yml"
+  cp -f "${ors_base}/tmp/ors-config.yml" "${ors_base}/ors-conf/ors-config.yml"
 fi
 
-if [ ! -f "$public_ors_config" ]; then
-  echo "No ors-config.json in ors-conf folder. Copying original config from ${source_ors_config}"
-  mkdir -p "${public_ors_config_folder}"
-  cp -f "${source_ors_config}" "${public_ors_config}"
+if [ ! -f "${ors_base}/ors-core/data/osm_file.pbf" ]; then
+  echo "Copy osm_file.pbf"
+  cp -f "${ors_base}/tmp/osm_file.pbf" "${ors_base}/ors-core/data/osm_file.pbf"
 fi
-
-echo "Deploy ors with config from ${public_ors_config}"
-cp -f "${public_ors_config}" "${tomcat_ors_config}"
 
 # so docker can stop the process gracefully
 exec "${catalina_base}"/bin/catalina.sh run

@@ -73,51 +73,6 @@ public class RouteProfileConfiguration {
 		graphBuilders = new HashMap<>();
 	}
 
-    public RouteProfileConfiguration(RouteProfileConfiguration rpc) {
-        name = rpc.name;
-        enabled = rpc.enabled;
-        profiles = rpc.profiles;
-        graphPath = rpc.graphPath;
-
-        maximumDistance = rpc.maximumDistance;
-        maximumDistanceDynamicWeights = rpc.maximumDistanceDynamicWeights;
-        maximumDistanceAvoidAreas = rpc.maximumDistanceAvoidAreas;
-        maximumWayPoints = rpc.maximumWayPoints;
-        optimize = rpc.optimize;
-        instructions = rpc.instructions;
-
-        encoderFlagsSize = rpc.encoderFlagsSize;
-        encoderOptions = rpc.encoderOptions;
-        turnCostEnabled = hasTurnCosts(rpc.encoderOptions);
-		enforceTurnCosts = rpc.enforceTurnCosts;
-
-        isochronePreparationOpts = rpc.isochronePreparationOpts;
-        preparationOpts = rpc.preparationOpts;
-        executionOpts = rpc.executionOpts;
-
-        extStorages = rpc.extStorages;
-        graphBuilders = rpc.graphBuilders;
-
-        elevationCachePath = rpc.elevationCachePath;
-        elevationCacheClear = rpc.elevationCacheClear;
-        elevationProvider = rpc.elevationProvider;
-        elevationDataAccess = rpc.elevationDataAccess;
-        elevationSmoothing = rpc.elevationSmoothing;
-        interpolateBridgesAndTunnels = rpc.interpolateBridgesAndTunnels;
-
-        maximumSnappingRadius = rpc.maximumSnappingRadius;
-        hasMaximumSnappingRadius = rpc.hasMaximumSnappingRadius;
-
-        extent = rpc.extent;
-
-        maximumSpeedLowerBound = rpc.maximumSpeedLowerBound;
-
-        trafficExpirationMin = rpc.trafficExpirationMin;
-
-		gtfsFile = rpc.gtfsFile;
-		maximumVisitedNodesPT = rpc.maximumVisitedNodesPT;
-	}
-
     public static boolean hasTurnCosts(String encoderOptions) {
         for (String option : encoderOptions.split("\\|")) {
             String[] keyValuePair = option.split("=");
@@ -265,14 +220,6 @@ public class RouteProfileConfiguration {
         return encoderOptions;
     }
 
-    public void setExtent(Envelope value) {
-        extent = value;
-    }
-
-    public Envelope getExtent() {
-        return extent;
-    }
-
     public void setElevationProvider(String value) {
         elevationProvider = value;
     }
@@ -404,14 +351,6 @@ public class RouteProfileConfiguration {
 
 	public boolean isEnforceTurnCosts() {
 		return enforceTurnCosts;
-	}
-
-	public void setTrafficExpirationMin(int trafficExpirationMin) {
-		this.trafficExpirationMin = trafficExpirationMin;
-	}
-
-	public int getTrafficExpirationMin() {
-		return this.trafficExpirationMin;
 	}
 
 	public void setGtfsFile(String gtfsFile) {

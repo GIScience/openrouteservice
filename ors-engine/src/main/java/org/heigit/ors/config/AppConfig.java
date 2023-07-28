@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.config;
 
+import com.graphhopper.util.Helper;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
@@ -37,6 +38,8 @@ public class AppConfig {
     private static AppConfig global;
     private static String osmMd5Hash = null;
     private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
+    private static final String SERVICE_NAME_ROUTING = "routing";
+    private static final String SERVICE_NAME_ISOCHRONES = "isochrones";
 
     public AppConfig(String path) {
         File file = new File(path);
@@ -95,9 +98,9 @@ public class AppConfig {
             config = ConfigFactory.parseFile(configFile);
             config = overrideFromEnvVariables(config);
 
+            LOGGER.warn("Deprecation notice: Old configuration method with JSON files is deprecated. Switch to ors-config.yml files!");
         } catch (IOException ioe) {
-            LOGGER.error("ORS can not run without a valid configuration, exiting. Message: " + ioe.getMessage());
-            System.exit(1);
+            // no deprecated JSON config found
         }
 
         //Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
@@ -112,9 +115,6 @@ public class AppConfig {
                     LOGGER.error(e);
                 }
             }
-        } else {
-            LOGGER.error("ORS Configuration is invalid because 'graphs_root_path' is not set, exiting.");
-            System.exit(1);
         }
     }
 
@@ -299,5 +299,33 @@ public class AppConfig {
         }
 
         return result;
+    }
+
+    public static String getRoutingParameter(String paramName) {
+        return getGlobal().getServiceParameter(SERVICE_NAME_ROUTING, paramName);
+    }
+
+    public static String getRoutingParameter(String paramName, boolean notNull) {
+        String value = getGlobal().getServiceParameter(SERVICE_NAME_ROUTING, paramName);
+        if (notNull && Helper.isEmpty(value))
+            throw new IllegalArgumentException("Parameter '" + paramName + "' must not be null or empty.");
+
+        return value;
+    }
+
+    public static List<String> getRoutingParametersList(String paramName) {
+        return getGlobal().getServiceParametersList(SERVICE_NAME_ROUTING, paramName);
+    }
+
+    public static Map<String, Object> getRoutingParametersMap(String paramName, boolean quotedStrings) {
+        return getGlobal().getServiceParametersMap(SERVICE_NAME_ROUTING, paramName, quotedStrings);
+    }
+
+    public static List<String> getIsochronesParametersList(String paramName) {
+        return getGlobal().getServiceParametersList(SERVICE_NAME_ISOCHRONES, paramName);
+    }
+
+    public static Map<String, Object> getIsochronesParametersMap(String paramName, boolean quotedStrings) {
+        return getGlobal().getServiceParametersMap(SERVICE_NAME_ISOCHRONES, paramName, quotedStrings);
     }
 }
