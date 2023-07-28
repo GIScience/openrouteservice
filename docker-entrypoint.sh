@@ -38,6 +38,15 @@ if [ "${BUILD_GRAPHS}" = "True" ]; then
 fi
 
 echo "### openrouteservice configuration ###"
+# Always overwrite the example config in case another one is present
+cp -f "${ors_base}/tmp/ors-config.yml" "${ors_base}/ors-conf/ors-config-example.yml"
+# Check for old .json configs
+JSON_FILES=$(ls -d -- ""${ors_base}/ors-conf/"*.json 2>/dev/null)
+if [ -z "$JSON_FILES" ]; then
+    echo "Old .json config found. They're depricated and will be replaced in ors version 8."
+    echo "Please migrate to the new .yml example."
+fi
+# No config found. Use the base config
 if [ ! -f "${ors_base}/ors-conf/ors-config.yml" ]; then
   echo "Copy ors-config.yml"
   cp -f "${ors_base}/tmp/ors-config.yml" "${ors_base}/ors-conf/ors-config.yml"
