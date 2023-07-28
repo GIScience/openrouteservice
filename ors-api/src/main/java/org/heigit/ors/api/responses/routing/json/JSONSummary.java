@@ -36,7 +36,7 @@ public class JSONSummary {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     protected Double duration;
     @Schema(description = "Total ascent in meters.",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "elevation"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "166.3")
@@ -44,7 +44,7 @@ public class JSONSummary {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     protected Double ascent;
     @Schema(description = "Total descent in meters.",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "elevation"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "201.3")
@@ -88,11 +88,11 @@ public class JSONSummary {
     }
 
     public JSONSummary(RouteResult route, boolean includeElevation, boolean isPtRequest) {
-        if(includeElevation) {
+        if (includeElevation) {
             this.ascent = route.getSummary().getAscent();
             this.descent = route.getSummary().getDescent();
         }
-        if(isPtRequest) {
+        if (isPtRequest) {
             this.transfers = route.getSummary().getTransfers();
             this.fare = route.getSummary().getFare();
         }

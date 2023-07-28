@@ -38,58 +38,58 @@ import java.util.Map;
 @ExtendWith(InitializeGraphsOnce.class)
 @ActiveProfiles("test")
 public abstract class ServiceTest {
-	private final Map<String, Object> dictUrlParams;
-	private String endPointName;
-	private String version;
+    private final Map<String, Object> dictUrlParams;
+    private String endPointName;
+    private String version;
 
-	@Autowired
-	private TestRestTemplate testRestTemplate;
+    @Autowired
+    private TestRestTemplate testRestTemplate;
 
-	@LocalServerPort
-	private Integer port;
+    @LocalServerPort
+    private Integer port;
 
-	@BeforeEach
-	void setupRestAssured() {
-		RestAssured.port = port;
-		RestAssured.baseURI = testRestTemplate.getRootUri();
-	}
+    @BeforeEach
+    void setupRestAssured() {
+        RestAssured.port = port;
+        RestAssured.baseURI = testRestTemplate.getRootUri();
+    }
 
-	public ServiceTest() {
-		dictUrlParams = new HashMap<>();
+    public ServiceTest() {
+        dictUrlParams = new HashMap<>();
 
-		Annotation[] annotations = getClass().getAnnotations();
-		for(Annotation annotation : annotations){
-		    if(annotation instanceof EndPointAnnotation epa){
-				endPointName = epa.name();
-		    }
-		    if(annotation instanceof VersionAnnotation va) {
-				version = va.version();
-			}
-		}
-	}
+        Annotation[] annotations = getClass().getAnnotations();
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof EndPointAnnotation epa) {
+                endPointName = epa.name();
+            }
+            if (annotation instanceof VersionAnnotation va) {
+                version = va.version();
+            }
+        }
+    }
 
-	protected Object getParameter(String paramName) {
-		return dictUrlParams.get(paramName);
-	}
+    protected Object getParameter(String paramName) {
+        return dictUrlParams.get(paramName);
+    }
 
-	protected void addParameter(String paramName, Object paramValue) {
-		dictUrlParams.put(paramName, paramValue);
-	}
+    protected void addParameter(String paramName, Object paramValue) {
+        dictUrlParams.put(paramName, paramValue);
+    }
 
-	protected String getEndPointPath(String altName) {
-		String tmp = endPointName;
-		endPointName = altName;
-		String ret = getEndPointPath();
-		endPointName = tmp;
-		return ret;
-	}
+    protected String getEndPointPath(String altName) {
+        String tmp = endPointName;
+        endPointName = altName;
+        String ret = getEndPointPath();
+        endPointName = tmp;
+        return ret;
+    }
 
-	protected String getEndPointPath() {
-		String path = "";
-		if(version != null && !version.isEmpty())
-			path = version + "/";
-		path = path + endPointName;
+    protected String getEndPointPath() {
+        String path = "";
+        if (version != null && !version.isEmpty())
+            path = version + "/";
+        path = path + endPointName;
 
-		return path;
-	}
+        return path;
+    }
 }

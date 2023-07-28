@@ -20,7 +20,6 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
-import org.locationtech.jts.geom.Envelope;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;

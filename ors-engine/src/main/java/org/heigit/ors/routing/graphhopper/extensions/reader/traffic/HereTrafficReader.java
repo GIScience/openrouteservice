@@ -14,7 +14,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
 
 import com.graphhopper.util.DistanceCalcEarth;
-import org.locationtech.jts.geom.MultiLineString;
 import org.apache.log4j.Logger;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
@@ -24,6 +23,7 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.heigit.ors.util.CSVUtility;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.opengis.feature.Property;
@@ -38,9 +38,9 @@ public class HereTrafficReader {
     private static final Logger LOGGER = Logger.getLogger(HereTrafficReader.class);
 
     private boolean isInitialized;
-    private String streetGeometriesFile;
-    private String patternsReferenceFile;
-    private String patternsFile;
+    private final String streetGeometriesFile;
+    private final String patternsReferenceFile;
+    private final String patternsFile;
 
     private final TrafficData hereTrafficData = new TrafficData();
 

@@ -13,12 +13,16 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.core;
 
-import com.graphhopper.routing.*;
+import com.graphhopper.routing.AbstractRoutingAlgorithm;
+import com.graphhopper.routing.Path;
+import com.graphhopper.routing.RoutingAlgorithm;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.ch.CHEntry;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
-import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.storage.RoutingCHEdgeExplorer;
+import com.graphhopper.storage.RoutingCHEdgeIteratorState;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
@@ -45,7 +49,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     boolean inCore;
 
-    @Deprecated  protected Weighting turnWeighting;
+    @Deprecated
+    protected Weighting turnWeighting;
     protected boolean hasTurnWeighting;
     protected boolean approximate = false;
 
@@ -54,7 +59,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
         chGraph = graph;
 
-        inEdgeExplorer =  chGraph.createInEdgeExplorer();
+        inEdgeExplorer = chGraph.createInEdgeExplorer();
         outEdgeExplorer = chGraph.createOutEdgeExplorer();
 
         // TODO Refactoring: remove this unnecessary duplication
@@ -70,6 +75,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     }
 
     protected abstract void initCollections(int size);
+
     protected SPTEntry bestFwdEntry;
     protected SPTEntry bestBwdEntry;
     protected double bestWeight = Double.MAX_VALUE;
@@ -88,6 +94,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     /**
      * Stopping criterion for phase outside core
+     *
      * @return should stop
      */
     public abstract boolean finishedPhase1();
@@ -99,6 +106,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
 
     /**
      * Stopping criterion for phase inside core
+     *
      * @return should stop
      */
     public abstract boolean finishedPhase2();
@@ -147,7 +155,8 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         runPhase2();
     }
 
-    protected void initPhase2() {}
+    protected void initPhase2() {
+    }
 
     @Override
     public Path calcPath(int from, int to, long at) {
@@ -194,8 +203,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
     int getIncEdge(RoutingCHEdgeIteratorState iter, boolean reverse) {
         if (iter.isShortcut()) {
             return reverse ? iter.getSkippedEdge1() : iter.getSkippedEdge2();
-        }
-        else {
+        } else {
             return iter.getOrigEdge();
         }
     }

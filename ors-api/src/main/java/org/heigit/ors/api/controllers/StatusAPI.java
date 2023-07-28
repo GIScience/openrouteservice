@@ -17,6 +17,7 @@ package org.heigit.ors.api.controllers;
 
 import com.graphhopper.storage.StorableProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.api.util.AppInfo;
@@ -34,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,6 +49,7 @@ public class StatusAPI {
     public StatusAPI(EndpointsProperties endpointsProperties) {
         this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
     }
+
     @GetMapping
     public ResponseEntity fetchHealth(HttpServletRequest request) throws Exception {
         HttpHeaders headers = new HttpHeaders();

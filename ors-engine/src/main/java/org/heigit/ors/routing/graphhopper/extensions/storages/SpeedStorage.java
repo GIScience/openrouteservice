@@ -59,8 +59,8 @@ public class SpeedStorage implements GraphExtension {
         speedData.setBytes(BYTE_COUNT * edgeId + (reverse ? BYTE_POS_SPEED_REVERSE : BYTE_POS_SPEED), new byte[]{speed}, 1);
     }
 
-    public void setSpeed(int edgeId, boolean reverse, int speed){
-        if(speed > Byte.MAX_VALUE || speed < Byte.MIN_VALUE)
+    public void setSpeed(int edgeId, boolean reverse, int speed) {
+        if (speed > Byte.MAX_VALUE || speed < Byte.MIN_VALUE)
             throw new IllegalArgumentException("Speed value " + speed + " out of range: " + Byte.MIN_VALUE + " to " + Byte.MAX_VALUE);
         this.setSpeed(edgeId, reverse, (byte) speed);
     }

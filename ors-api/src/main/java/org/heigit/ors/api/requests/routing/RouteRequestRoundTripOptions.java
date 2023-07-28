@@ -27,21 +27,21 @@ public class RouteRequestRoundTripOptions {
     public static final String PARAM_POINTS = "points";
     public static final String PARAM_SEED = "seed";
 
-    @Schema(name= PARAM_LENGTH, description = "The target length of the route in `m` (note that this is a preferred value, but results may be different).",
+    @Schema(name = PARAM_LENGTH, description = "The target length of the route in `m` (note that this is a preferred value, but results may be different).",
             example = "10000")
     @JsonProperty(PARAM_LENGTH)
     private Float length;
     @JsonIgnore
     private boolean hasLength = false;
 
-    @Schema(name= PARAM_POINTS, description = "The number of points to use on the route. Larger values create more circular routes.",
+    @Schema(name = PARAM_POINTS, description = "The number of points to use on the route. Larger values create more circular routes.",
             example = "5")
     @JsonProperty(PARAM_POINTS)
     private Integer points;
     @JsonIgnore
     private boolean hasPoints = false;
 
-    @Schema(name= PARAM_SEED, description = "A seed to use for adding randomisation to the overall direction of the generated route",
+    @Schema(name = PARAM_SEED, description = "A seed to use for adding randomisation to the overall direction of the generated route",
             example = "1")
     @JsonProperty(PARAM_SEED)
     private Long seed;

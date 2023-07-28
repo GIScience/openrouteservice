@@ -17,6 +17,7 @@ package org.heigit.ors.api.responses.routing.gpx;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
+
 import java.util.Calendar;
 
 public class GPXCopyright {

@@ -12,8 +12,9 @@ public class OSMPedestrianProcessor {
     public OSMPedestrianProcessor() {
         allowed = new ArrayList<>();
         allowed.add("yes");
-        allowed.addAll(Arrays.asList("yes", "designated",  "permissive", "destination"));
+        allowed.addAll(Arrays.asList("yes", "designated", "permissive", "destination"));
     }
+
     /**
      * Determine if the way is pedestrianised, i.e. that a person should be able to traverse it on foot.
      *
@@ -24,7 +25,7 @@ public class OSMPedestrianProcessor {
 
         boolean isPedestrian = false;
 
-        if(way.hasTag("highway")) {
+        if (way.hasTag("highway")) {
             String highwayType = way.getTag("highway");
             switch (highwayType) {
                 case "footway", "living_street", "pedestrian", "path", "track" -> isPedestrian = true;
@@ -32,12 +33,12 @@ public class OSMPedestrianProcessor {
                 }
             }
         }
-        if(way.hasTag("public_transport") && way.getTag("public_transport").equals("platform"))
+        if (way.hasTag("public_transport") && way.getTag("public_transport").equals("platform"))
             isPedestrian = true;
 
-        if(way.hasTag("foot")) {
+        if (way.hasTag("foot")) {
             String footTag = way.getTag("foot");
-            if(allowed.contains(footTag)) {
+            if (allowed.contains(footTag)) {
                 isPedestrian = true;
             }
         }

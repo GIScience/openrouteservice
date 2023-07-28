@@ -17,7 +17,6 @@ package org.heigit.ors.api.responses.isochrones.geojson;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.locationtech.jts.geom.Geometry;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
 import org.heigit.ors.common.Pair;
@@ -25,6 +24,7 @@ import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.isochrones.IsochronesIntersection;
 import org.heigit.ors.util.FormatUtility;
+import org.locationtech.jts.geom.Geometry;
 
 import java.util.*;
 
@@ -40,7 +40,7 @@ public class GeoJSONIsochronesIntersection extends GeoJSONIsochroneBase {
         properties = fillProperties(intersection, request);
     }
 
-    private Map<String, Object> fillProperties(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException  {
+    private Map<String, Object> fillProperties(IsochronesIntersection intersection, IsochronesRequest request) throws InternalServerException {
         Map<String, Object> props = new HashMap<>();
 
         List<Integer[]> contours = new ArrayList<>();

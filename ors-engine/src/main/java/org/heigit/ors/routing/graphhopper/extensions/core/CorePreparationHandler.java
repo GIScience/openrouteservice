@@ -18,7 +18,8 @@ import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.CHConfig;
+import com.graphhopper.storage.GraphHopperStorage;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.GraphProcessContext;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
@@ -30,7 +31,7 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.Core;
 /**
  * This class implements the Core Algo decorator and provides several helper methods related to core
  * preparation and its vehicle profiles.
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -55,7 +56,7 @@ public class CorePreparationHandler extends CHPreparationHandler {
 
     @Override
     public void createPreparations(GraphHopperStorage ghStorage) {
-        if (processContext==null)
+        if (processContext == null)
             throw new IllegalStateException("Set processContext first!");
         super.createPreparations(ghStorage);
     }
@@ -101,9 +102,9 @@ public class CorePreparationHandler extends CHPreparationHandler {
         }
 
         /* Maximum speed & turn restrictions */
-        if ((routingProfileCategory & RoutingProfileCategory.DRIVING) !=0) {
+        if ((routingProfileCategory & RoutingProfileCategory.DRIVING) != 0) {
             String[] encoders = {FlagEncoderNames.CAR_ORS, FlagEncoderNames.HEAVYVEHICLE};
-            for (String encoderName: encoders) {
+            for (String encoderName : encoders) {
                 if (encodingManager.hasEncoder(encoderName)) {
                     FlagEncoder flagEncoder = encodingManager.getEncoder(encoderName);
                     edgeFilterSequence.add(new MaximumSpeedCoreEdgeFilter(flagEncoder, processContext.getMaximumSpeedLowerBound()));

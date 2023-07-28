@@ -1,7 +1,6 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.api.util.HelperFunctions;
 import org.heigit.ors.common.DistanceUnit;
@@ -348,9 +347,9 @@ class MatrixServiceTest {
 
     @Test
     void convertUnitsTest() throws ParameterValueException {
-        assertEquals(DistanceUnit.METERS, matrixService.convertUnits(APIEnums.Units.METRES));
-        assertEquals(DistanceUnit.KILOMETERS, matrixService.convertUnits(APIEnums.Units.KILOMETRES));
-        assertEquals(DistanceUnit.MILES, matrixService.convertUnits(APIEnums.Units.MILES));
+        assertEquals(DistanceUnit.METERS, ApiService.convertUnits(APIEnums.Units.METRES));
+        assertEquals(DistanceUnit.KILOMETERS, ApiService.convertUnits(APIEnums.Units.KILOMETRES));
+        assertEquals(DistanceUnit.MILES, ApiService.convertUnits(APIEnums.Units.MILES));
     }
 
     @Test

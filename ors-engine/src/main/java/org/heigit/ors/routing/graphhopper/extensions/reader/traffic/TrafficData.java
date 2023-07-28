@@ -4,8 +4,8 @@ import com.carrotsearch.hppc.IntObjectHashMap;
 
 public class TrafficData {
 
-    private IntObjectHashMap<TrafficLink> links;
-    private IntObjectHashMap<TrafficPattern> patterns;
+    private final IntObjectHashMap<TrafficLink> links;
+    private final IntObjectHashMap<TrafficPattern> patterns;
 
     public TrafficData() {
         this.links = new IntObjectHashMap<>();

@@ -16,7 +16,7 @@ class GeomUtilityTest {
     static void setUp() {
         pointList3D.add(41.310824, -3.164063, 113.0);
         pointList3D.add(45.089036, 2.900391, 250.0);
-        pointList3D.add(45.336702, -7.119141,244.55);
+        pointList3D.add(45.336702, -7.119141, 244.55);
         pointList3D.add(38.959409, 7.294922, 409.0);
         pointList3D.add(50.958427, 12.304688, 122.0);
         pointList3D.add(18.729502, 38.408203, 400.443);
@@ -38,22 +38,22 @@ class GeomUtilityTest {
         BBox bbox2D = GeomUtility.calculateBoundingBox(pointList2D);
         BBox bbox_fallback = GeomUtility.calculateBoundingBox(emptyPointList);
 
-        assertEquals(-35.507813,bbox3D.minLon, 0.000009);
-        assertEquals(38.408203,bbox3D.maxLon, 0.0000009);
-        assertEquals(-12.897489,bbox3D.minLat, 0.000009);
-        assertEquals(50.958427,bbox3D.maxLat, 0.0000009);
-        assertEquals(113.0,bbox3D.minEle, 0.09);
-        assertEquals(409.0,bbox3D.maxEle, 0.09);
+        assertEquals(-35.507813, bbox3D.minLon, 0.000009);
+        assertEquals(38.408203, bbox3D.maxLon, 0.0000009);
+        assertEquals(-12.897489, bbox3D.minLat, 0.000009);
+        assertEquals(50.958427, bbox3D.maxLat, 0.0000009);
+        assertEquals(113.0, bbox3D.minEle, 0.09);
+        assertEquals(409.0, bbox3D.maxEle, 0.09);
 
-        assertEquals(-35.507813,bbox2D.minLon, 0.000009);
-        assertEquals(38.408203,bbox2D.maxLon, 0.000009);
-        assertEquals(-12.897489,bbox2D.minLat, 0.000009);
-        assertEquals(50.958427,bbox2D.maxLat, 0.000009);
+        assertEquals(-35.507813, bbox2D.minLon, 0.000009);
+        assertEquals(38.408203, bbox2D.maxLon, 0.000009);
+        assertEquals(-12.897489, bbox2D.minLat, 0.000009);
+        assertEquals(50.958427, bbox2D.maxLat, 0.000009);
 
-        assertEquals(0f,bbox_fallback.minLon, 0.000009);
-        assertEquals(0f,bbox_fallback.maxLon, 0.000009);
-        assertEquals(0f,bbox_fallback.minLat, 0.000009);
-        assertEquals(0f,bbox_fallback.maxLat, 0.000009);
+        assertEquals(0f, bbox_fallback.minLon, 0.000009);
+        assertEquals(0f, bbox_fallback.maxLon, 0.000009);
+        assertEquals(0f, bbox_fallback.minLat, 0.000009);
+        assertEquals(0f, bbox_fallback.maxLat, 0.000009);
     }
 
     @Test

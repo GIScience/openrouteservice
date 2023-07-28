@@ -37,7 +37,7 @@ public class Pair<F, S> {
         return (first == null ? 0 : first.hashCode()) ^ (second == null ? 0 : second.hashCode());
     }
 
-    public static <A, B> Pair <A, B> create(A a, B b) {
+    public static <A, B> Pair<A, B> create(A a, B b) {
         return new Pair<>(a, b);
     }
 }

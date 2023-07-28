@@ -50,7 +50,7 @@ public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixRespo
         destinations = constructDestinations(result);
         sources = constructSources(result);
 
-        for (int i=0; i<result.getTables().length; i++) {
+        for (int i = 0; i < result.getTables().length; i++) {
             if (result.getTable(i) != null) {
                 switch (i) {
                     case MatrixMetricsType.DURATION -> durations = constructMetric(result.getTable(i), result);
@@ -68,9 +68,9 @@ public class JSONIndividualMatrixResponse extends JSONBasedIndividualMatrixRespo
 
         Double[][] constructedTable = new Double[sourceCount][destinationCount];
 
-        for (int i=0; i<sourceCount; i++) {
-            for (int j=0; j<destinationCount; j++) {
-                double value = table[(i*destinationCount) + j];
+        for (int i = 0; i < sourceCount; i++) {
+            for (int j = 0; j < destinationCount; j++) {
+                double value = table[(i * destinationCount) + j];
                 if (value == -1)
                     constructedTable[i][j] = null;
                 else

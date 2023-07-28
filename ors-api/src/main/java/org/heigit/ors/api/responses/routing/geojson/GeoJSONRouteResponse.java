@@ -23,7 +23,6 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
-import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
 import org.heigit.ors.api.responses.routing.RouteResponse;
 import org.heigit.ors.api.responses.routing.RouteResponseInfo;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -50,13 +49,13 @@ public class GeoJSONRouteResponse extends RouteResponse {
 
         this.routeResults = new ArrayList<>();
 
-        for(RouteResult result : routeResults) {
+        for (RouteResult result : routeResults) {
             this.routeResults.add(new GeoJSONIndividualRouteResponse(result, request));
             responseInformation.setGraphDate(result.getGraphDate());
         }
 
         List<BBox> bboxes = new ArrayList<>();
-        for(RouteResult result : routeResults) {
+        for (RouteResult result : routeResults) {
             bboxes.add(result.getSummary().getBBox());
         }
 

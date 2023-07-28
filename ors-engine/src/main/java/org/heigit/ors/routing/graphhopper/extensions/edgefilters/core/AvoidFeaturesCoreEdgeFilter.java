@@ -22,34 +22,34 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 
 public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
-	private final byte[] buffer;
-	private final WayCategoryGraphStorage storage;
-	private int avoidFeatures;
-	private static final String TYPE = "avoid_features";
+    private final byte[] buffer;
+    private final WayCategoryGraphStorage storage;
+    private int avoidFeatures;
+    private static final String TYPE = "avoid_features";
 
-	public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory) {
-		buffer = new byte[10];
-		avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileCategory);
-		storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
-	}
+    public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory) {
+        buffer = new byte[10];
+        avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileCategory);
+        storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
+    }
 
-	public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory, int overrideClass) {
-		this(graphStorage, profileCategory);
-		avoidFeatures = overrideClass;
-	}
+    public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory, int overrideClass) {
+        this(graphStorage, profileCategory);
+        avoidFeatures = overrideClass;
+    }
 
-	@Override
-	public final boolean accept(EdgeIteratorState iter) {
-		if(iter instanceof RoutingCHEdgeIterator iterator && iterator.isShortcut())
-			return true;
-		return (storage.getEdgeValue(iter.getEdge(), buffer) & avoidFeatures) == 0;
-	}
+    @Override
+    public final boolean accept(EdgeIteratorState iter) {
+        if (iter instanceof RoutingCHEdgeIterator iterator && iterator.isShortcut())
+            return true;
+        return (storage.getEdgeValue(iter.getEdge(), buffer) & avoidFeatures) == 0;
+    }
 
-	public String getType() {
-		return TYPE;
-	}
+    public String getType() {
+        return TYPE;
+    }
 
-	public int getAvoidFeatures() {
-		return avoidFeatures;
-	}
+    public int getAvoidFeatures() {
+        return avoidFeatures;
+    }
 }

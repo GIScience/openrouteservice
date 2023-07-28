@@ -41,9 +41,9 @@ public class BBoxSerializer extends StdSerializer<double[][]> {
         formattedCoords[1][0] = FormatUtility.roundToDecimals(coordinates[1][0], COORDINATE_PRECISION);
         formattedCoords[1][1] = FormatUtility.roundToDecimals(coordinates[1][1], COORDINATE_PRECISION);
 
-        if(coordinates[0].length == 3)
+        if (coordinates[0].length == 3)
             formattedCoords[0][2] = FormatUtility.roundToDecimals(coordinates[0][2], COORDINATE_PRECISION);
-        if(coordinates[1].length == 3)
+        if (coordinates[1].length == 3)
             formattedCoords[1][2] = FormatUtility.roundToDecimals(coordinates[0][2], COORDINATE_PRECISION);
 
         jsonGenerator.writeStartArray();

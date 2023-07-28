@@ -18,7 +18,6 @@ package org.heigit.ors.api.services;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.routing.*;
 import org.heigit.ors.common.DistanceUnit;
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
@@ -47,8 +46,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("unittest")
 class RoutingServiceTest {
 
-    @Autowired RoutingService routingService;
-    @Autowired EndpointsProperties endpointsProperties = new EndpointsProperties();
+    @Autowired
+    RoutingService routingService;
+    @Autowired
+    EndpointsProperties endpointsProperties = new EndpointsProperties();
     RouteRequest request;
     private RequestProfileParamsRestrictions vehicleParams;
     private RequestProfileParamsRestrictions wheelchairParams;
@@ -64,10 +65,10 @@ class RoutingServiceTest {
         JSONObject geoJsonPolygon = new JSONObject();
         geoJsonPolygon.put("type", "Polygon");
         JSONArray coordsArray = new JSONArray();
-        coordsArray.add(new Double[] { 49.0, 8.0});
-        coordsArray.add(new Double[] { 49.005, 8.01});
-        coordsArray.add(new Double[] { 49.01, 8.0});
-        coordsArray.add(new Double[] { 49.0, 8.0});
+        coordsArray.add(new Double[]{49.0, 8.0});
+        coordsArray.add(new Double[]{49.005, 8.01});
+        coordsArray.add(new Double[]{49.01, 8.0});
+        coordsArray.add(new Double[]{49.0, 8.0});
         JSONArray coordinates = new JSONArray();
 
         coordinates.add(coordsArray);
@@ -97,16 +98,16 @@ class RoutingServiceTest {
         coords.add(coord3);*/
 
         Double[][] coords = new Double[3][2];
-        coords[0] = new Double[] {24.5,39.2};
-        coords[1] = new Double[] {27.4,38.6};
-        coords[2] = new Double[] {26.5,37.2};
+        coords[0] = new Double[]{24.5, 39.2};
+        coords[1] = new Double[]{27.4, 38.6};
+        coords[2] = new Double[]{26.5, 37.2};
 
         request = new RouteRequest(coords);
 
         request.setProfile(APIEnums.Profile.DRIVING_CAR);
-        request.setAttributes(new APIEnums.Attributes[] { APIEnums.Attributes.AVERAGE_SPEED, APIEnums.Attributes.DETOUR_FACTOR});
+        request.setAttributes(new APIEnums.Attributes[]{APIEnums.Attributes.AVERAGE_SPEED, APIEnums.Attributes.DETOUR_FACTOR});
         request.setContinueStraightAtWaypoints(true);
-        request.setExtraInfo(new APIEnums.ExtraInfo[] { APIEnums.ExtraInfo.OSM_ID});
+        request.setExtraInfo(new APIEnums.ExtraInfo[]{APIEnums.ExtraInfo.OSM_ID});
         request.setIncludeGeometry(true);
         request.setIncludeInstructionsInResponse(true);
         request.setIncludeRoundaboutExitInfo(true);
@@ -121,8 +122,8 @@ class RoutingServiceTest {
 
         RouteRequestOptions options = new RouteRequestOptions();
         options.setAvoidBorders(APIEnums.AvoidBorders.CONTROLLED);
-        options.setAvoidCountries(new String[] { "115" });
-        options.setAvoidFeatures(new APIEnums.AvoidFeatures[] {APIEnums.AvoidFeatures.FORDS});
+        options.setAvoidCountries(new String[]{"115"});
+        options.setAvoidFeatures(new APIEnums.AvoidFeatures[]{APIEnums.AvoidFeatures.FORDS});
 
         options.setAvoidPolygonFeatures(geoJsonPolygon);
 
@@ -166,7 +167,7 @@ class RoutingServiceTest {
         assertEquals(3, routingRequest.getCoordinates().length);
 
         assertEquals(RoutingProfileType.getFromString("driving-car"), routingRequest.getSearchParameters().getProfileType());
-        assertArrayEquals(new String[] {"avgspeed", "detourfactor"}, routingRequest.getAttributes());
+        assertArrayEquals(new String[]{"avgspeed", "detourfactor"}, routingRequest.getAttributes());
 
         assertTrue(routingRequest.getContinueStraight());
 
@@ -186,7 +187,7 @@ class RoutingServiceTest {
         assertTrue(routingRequest.getSearchParameters().hasFlexibleMode());
 
         assertEquals(BordersExtractor.Avoid.CONTROLLED, routingRequest.getSearchParameters().getAvoidBorders());
-        assertArrayEquals(new int[] {115}, routingRequest.getSearchParameters().getAvoidCountries());
+        assertArrayEquals(new int[]{115}, routingRequest.getSearchParameters().getAvoidCountries());
         assertEquals(AvoidFeatureFlags.getFromString("fords"), routingRequest.getSearchParameters().getAvoidFeatureTypes());
 
         checkPolygon(routingRequest.getSearchParameters().getAvoidAreas(), geoJsonPolygon);
@@ -243,7 +244,7 @@ class RoutingServiceTest {
 
     @Test
     void testBearings() throws StatusCodeException {
-        request.setBearings(new Double[][] {{10.0,10.0},{260.0, 90.0},{45.0, 30.0}});
+        request.setBearings(new Double[][]{{10.0, 10.0}, {260.0, 90.0}, {45.0, 30.0}});
 
         RoutingRequest routingRequest = routingService.convertRouteRequest(request);
 
@@ -255,7 +256,7 @@ class RoutingServiceTest {
 
     @Test
     void skippedBearingTest() throws Exception {
-        request.setBearings(new Double[][] {{120.0, 90.0}, { , }, {90.0, 30.0}});
+        request.setBearings(new Double[][]{{120.0, 90.0}, {,}, {90.0, 30.0}});
 
         RoutingRequest routingRequest = routingService.convertRouteRequest(request);
 
@@ -272,10 +273,10 @@ class RoutingServiceTest {
 
     @Test
     void testRadius() throws StatusCodeException {
-        request.setMaximumSearchRadii(new Double[] { 50.0, 20.0, 100.0});
+        request.setMaximumSearchRadii(new Double[]{50.0, 20.0, 100.0});
 
         RoutingRequest routingRequest = routingService.convertRouteRequest(request);
-        assertTrue(Arrays.equals(new double[] { 50.0, 20.0, 100.0 }, routingRequest.getSearchParameters().getMaximumRadiuses()));
+        assertArrayEquals(new double[]{50.0, 20.0, 100.0}, routingRequest.getSearchParameters().getMaximumRadiuses());
     }
 
     @Test
@@ -291,7 +292,7 @@ class RoutingServiceTest {
         request.setMaximumSearchRadii(new Double[]{50d});
 
         RoutingRequest routingRequest = routingService.convertRouteRequest(request);
-        assertTrue(Arrays.equals(new double[] {50.0, 50.0, 50.0}, routingRequest.getSearchParameters().getMaximumRadiuses()));
+        assertArrayEquals(new double[]{50.0, 50.0, 50.0}, routingRequest.getSearchParameters().getMaximumRadiuses());
     }
 
     @Test
@@ -303,7 +304,7 @@ class RoutingServiceTest {
     }
 
     @Test
-    void vehicleType() throws Exception{
+    void vehicleType() throws Exception {
         RouteRequestOptions opts = request.getRouteOptions();
         opts.setVehicleType(APIEnums.VehicleType.AGRICULTURAL);
 
@@ -382,8 +383,8 @@ class RoutingServiceTest {
     @Test
     void convertRouteRequestTestForAlternativeRoutes() throws Exception {
         Double[][] coords = new Double[2][2];
-        coords[0] = new Double[] {24.5,39.2};
-        coords[1] = new Double[] {26.5,37.2};
+        coords[0] = new Double[]{24.5, 39.2};
+        coords[1] = new Double[]{26.5, 37.2};
         RouteRequest arRequest = new RouteRequest(coords);
         arRequest.setProfile(APIEnums.Profile.DRIVING_CAR);
 
@@ -446,8 +447,8 @@ class RoutingServiceTest {
     private void checkPolygon(Polygon[] requestPolys, JSONObject apiPolys) {
         assertEquals(1, requestPolys.length);
 
-        JSONArray jsonCoords = (JSONArray)((JSONArray)apiPolys.get("coordinates")).get(0);
-        for (int i=0; i<jsonCoords.size(); i++) {
+        JSONArray jsonCoords = (JSONArray) ((JSONArray) apiPolys.get("coordinates")).get(0);
+        for (int i = 0; i < jsonCoords.size(); i++) {
             Double[] coordPair = (Double[]) jsonCoords.get(i);
             Coordinate c = new Coordinate(coordPair[0], coordPair[1]);
 

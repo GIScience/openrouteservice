@@ -15,9 +15,9 @@
 
 package org.heigit.ors.api.responses.routing;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.routing.RouteResult;
+import org.locationtech.jts.geom.Coordinate;
 
 public class IndividualRouteResponse {
     protected Coordinate[] routeCoordinates;
@@ -26,10 +26,10 @@ public class IndividualRouteResponse {
 
 
     public IndividualRouteResponse(RouteResult result, RouteRequest request) {
-        if(result.getGeometry() != null)
+        if (result.getGeometry() != null)
             this.routeCoordinates = result.getGeometry();
 
-        if(request.hasUseElevation())
+        if (request.hasUseElevation())
             includeElevation = request.getUseElevation();
 
         isPtRequest = request.isPtRequest();

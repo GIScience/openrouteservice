@@ -18,8 +18,8 @@ package org.heigit.ors.api.converters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.CoordinateListWrapper;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class CoordinateListSerializer extends StdSerializer<CoordinateListWrappe
     public void serialize(CoordinateListWrapper listWrapper, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
         jsonGenerator.writeStartArray();
 
-        for(Coordinate coord : listWrapper.getCoordinates()) {
+        for (Coordinate coord : listWrapper.getCoordinates()) {
             jsonGenerator.writeStartArray();
 
             jsonGenerator.writeNumber(coord.x);

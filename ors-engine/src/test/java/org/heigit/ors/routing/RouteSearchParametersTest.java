@@ -1,6 +1,5 @@
 package org.heigit.ors.routing;
 
-import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;

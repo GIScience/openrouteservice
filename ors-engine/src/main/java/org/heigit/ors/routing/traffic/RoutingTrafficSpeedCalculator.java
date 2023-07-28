@@ -6,7 +6,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 
 public class RoutingTrafficSpeedCalculator extends TrafficSpeedCalculator {
-    private double maxPossibleSpeed;
+    private final double maxPossibleSpeed;
 
     public RoutingTrafficSpeedCalculator(SpeedCalculator superSpeedCalculator, GraphHopperStorage graphHopperStorage, FlagEncoder flagEncoder) {
         super(superSpeedCalculator);

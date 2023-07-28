@@ -76,7 +76,7 @@ class CoreLMPreparationHandlerTest {
         assertTrue(handler.isEnabled());
 
         // See #1076
-        ghConfig.setLMProfiles(Collections.<LMProfile>emptyList());
+        ghConfig.setLMProfiles(Collections.emptyList());
         handler = new CoreLMPreparationHandler();
         handler.init(ghConfig);
         assertFalse(handler.isEnabled());

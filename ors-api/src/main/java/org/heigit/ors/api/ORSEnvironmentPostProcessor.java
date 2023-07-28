@@ -1,6 +1,5 @@
 package org.heigit.ors.api;
 
-import org.apache.log4j.Logger;
 import org.heigit.ors.util.StringUtility;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -10,7 +9,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.FileSystemResource;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

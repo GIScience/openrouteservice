@@ -13,11 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
-import com.graphhopper.storage.RAMDirectory;
+import com.graphhopper.storage.*;
 import com.graphhopper.util.GHUtility;
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.TrafficEnums;
 
@@ -85,9 +81,9 @@ public class TrafficGraphStorage implements GraphExtension {
     private int edgesCount; // number of edges with custom values
     private int maxEdgeId = 0; // highest edge id for which traffic data is available
     private int patternCount; // number of traffic patterns
-    private byte[] propertyValue;
-    private byte[] speedValue;
-    private byte[] priorityValue;
+    private final byte[] propertyValue;
+    private final byte[] speedValue;
+    private final byte[] priorityValue;
 
     public TrafficGraphStorage() {
         int edgeEntryIndex = 0;
@@ -141,7 +137,6 @@ public class TrafficGraphStorage implements GraphExtension {
      * Store the linkID <-> patternId matches for all weekdays (Monday - Sunday).</-><br/><br/>
      * <p>
      * This method takes the ID of the traffic edge and adds the weekday specific pattern Id to the lookup.
-     *
      *
      * @param edgeKey   Edge key
      * @param patternId Id of the traffic pattern.
@@ -226,7 +221,7 @@ public class TrafficGraphStorage implements GraphExtension {
         ensureSpeedPatternLookupIndex(patternId);
         speedValue = speedValue > 255 ? 255 : speedValue;
         this.speedValue[0] = (byte) speedValue;
-        orsSpeedPatternLookup.setBytes(patternPointer + ((hour * 4) + minutePointer), this.speedValue, 1);
+        orsSpeedPatternLookup.setBytes(patternPointer + ((hour * 4L) + minutePointer), this.speedValue, 1);
     }
 
     /**
@@ -267,8 +262,8 @@ public class TrafficGraphStorage implements GraphExtension {
      * <p>
      * This method returns the linkID matched on the internal edge ID in both directions if present.
      *
-     * @param edgeKey   Internal ID of the graph edge.
-     * @param weekday  Enum of Weekday to get the pattern for.
+     * @param edgeKey Internal ID of the graph edge.
+     * @param weekday Enum of Weekday to get the pattern for.
      **/
     public int getEdgeIdTrafficPatternLookup(int edgeKey, TrafficEnums.WeekDay weekday) {
         int edgeId = GHUtility.getEdgeFromEdgeKey(edgeKey);
@@ -295,8 +290,8 @@ public class TrafficGraphStorage implements GraphExtension {
      * <p>
      * e.g. This function can be used to retrieve the stored length of the last ors edge <-> traffic edge match.
      *
-     * @param edgeId   Internal ID of the graph edge.
-     * @param forward  Direction
+     * @param edgeId  Internal ID of the graph edge.
+     * @param forward Direction
      **/
     private int getEdgeIdTrafficPatternPriority(int edgeId, boolean forward) {
         long edgePointer = (long) edgeId * edgeLinkLookupEntryBytes;
@@ -321,7 +316,7 @@ public class TrafficGraphStorage implements GraphExtension {
         byte[] values = new byte[1];
         int minutePointer = generateMinutePointer(minute);
         long patternPointer = (long) patternId * patternEntryBytes;
-        orsSpeedPatternLookup.getBytes(patternPointer + ((hour * 4) + minutePointer), values, 1);
+        orsSpeedPatternLookup.getBytes(patternPointer + ((hour * 4L) + minutePointer), values, 1);
         return Byte.toUnsignedInt(values[0]);
     }
 
@@ -350,7 +345,7 @@ public class TrafficGraphStorage implements GraphExtension {
      * ## TODO's ##
      * - enhance internal time encoding and harmonize it in the whole ORS backend when more traffic data comes in.
      *
-     * @param edgeKey           Internal Edge Key
+     * @param edgeKey          Internal Edge Key
      * @param unixMilliSeconds Time in unix milliseconds.
      * @return Returns the speed value in kph. If no value is found -1 is returned.
      */

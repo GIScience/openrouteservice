@@ -11,7 +11,7 @@ public class ConstantWeighting implements Weighting {
 
     public ConstantWeighting(double weight, long millis) {
         this.weight = weight;
-        this. millis = millis;
+        this.millis = millis;
     }
 
     @Override

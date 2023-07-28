@@ -18,7 +18,10 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.graphhopper.coll.GHBitSet;
 import com.graphhopper.coll.GHBitSetImpl;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.CHEdgeFilter;
+import com.graphhopper.storage.RoutingCHEdgeExplorer;
+import com.graphhopper.storage.RoutingCHEdgeIterator;
+import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.core.CoreLandmarkStorage.CoreEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
@@ -35,10 +38,10 @@ import java.util.List;
  * <p>
  * See http://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm. See
  * http://www.timl.id.au/?p=327 and http://homepages.ecs.vuw.ac.nz/~djp/files/P05.pdf
- *
- *
+ * <p>
+ * <p>
  * This has been adapted for use in the core.
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -76,9 +79,9 @@ public class TarjansCoreSCCAlgorithm {
             int nodes = ghStorage.getNodes();
             ignoreSet = new GHBitSetImpl(ghStorage.getCoreNodes());
             for (int start = 0; start < nodes; start++) {
-                    CoreEdgeIterator iter = new CoreEdgeIterator(explorer.setBaseNode(start), this.edgeFilter);
-                    if (!iter.next())
-                        ignoreSet.add(start);
+                CoreEdgeIterator iter = new CoreEdgeIterator(explorer.setBaseNode(start), this.edgeFilter);
+                if (!iter.next())
+                    ignoreSet.add(start);
             }
         } else {
             ignoreSet = new GHBitSetImpl();
@@ -95,7 +98,7 @@ public class TarjansCoreSCCAlgorithm {
     public List<IntArrayList> findComponents() {
         int nodes = core.getNodes();
         for (int start = 0; start < nodes; start++) {
-            if(core.getLevel(start) < coreNodeLevel)
+            if (core.getLevel(start) < coreNodeLevel)
                 continue;
             if (nodeIndex[start] == 0 && !ignoreSet.contains(start))
                 strongConnect(start);
@@ -111,7 +114,7 @@ public class TarjansCoreSCCAlgorithm {
      * @param firstNode start search of SCC at this node
      */
     private void strongConnect(int firstNode) {
-        final Deque <TarjanState> stateStack = new ArrayDeque<>();
+        final Deque<TarjanState> stateStack = new ArrayDeque<>();
         stateStack.push(TarjanState.startState(firstNode));
 
         // nextState label is equivalent to the function entry point in the recursive Tarjan's algorithm.
@@ -204,8 +207,8 @@ public class TarjansCoreSCCAlgorithm {
     }
 
     private static class CoreEdgeIterator implements RoutingCHEdgeIterator {
-        private RoutingCHEdgeIterator chIterator;
-        private CHEdgeFilter coreFilter;
+        private final RoutingCHEdgeIterator chIterator;
+        private final CHEdgeFilter coreFilter;
 
         public CoreEdgeIterator(RoutingCHEdgeIterator chIterator, CHEdgeFilter coreFilter) {
             this.chIterator = chIterator;
@@ -214,7 +217,7 @@ public class TarjansCoreSCCAlgorithm {
 
         @Override
         public boolean next() {
-            while(chIterator.next()) {
+            while (chIterator.next()) {
                 if (coreFilter.accept(chIterator))
                     return true;
             }

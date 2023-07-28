@@ -23,17 +23,17 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.SpeedStorage;
 
 
 public class VariableSpeedCoreEdgeFilter implements EdgeFilter {
-	private SpeedStorage storage;
-	private FlagEncoder flagEncoder;
+    private final SpeedStorage storage;
+    private final FlagEncoder flagEncoder;
 
-	public VariableSpeedCoreEdgeFilter(GraphHopperStorage graphStorage, FlagEncoder flagEncoder) {
-		storage = GraphStorageUtils.getGraphExtension(graphStorage, SpeedStorage.class);
-		this.flagEncoder = flagEncoder;
-	}
+    public VariableSpeedCoreEdgeFilter(GraphHopperStorage graphStorage, FlagEncoder flagEncoder) {
+        storage = GraphStorageUtils.getGraphExtension(graphStorage, SpeedStorage.class);
+        this.flagEncoder = flagEncoder;
+    }
 
-	@Override
-	public final boolean accept(EdgeIteratorState iter) {
-		return !storage.hasSpeed(EdgeIteratorStateHelper.getOriginalEdge(iter), iter.getReverse(flagEncoder.getAccessEnc()));
-	}
+    @Override
+    public final boolean accept(EdgeIteratorState iter) {
+        return !storage.hasSpeed(EdgeIteratorStateHelper.getOriginalEdge(iter), iter.getReverse(flagEncoder.getAccessEnc()));
+    }
 
 }

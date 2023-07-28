@@ -1,9 +1,9 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
 
 public class TrafficPattern {
-    private int patternId;
-    private TrafficEnums.PatternResolution resolution;
-    private short[] values;
+    private final int patternId;
+    private final TrafficEnums.PatternResolution resolution;
+    private final short[] values;
 
     public TrafficPattern(int patternId, TrafficEnums.PatternResolution resolution, short[] values) {
         this.patternId = patternId;

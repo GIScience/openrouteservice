@@ -119,7 +119,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
 
     // MARQ24 MOD START
     protected CommonBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
-    // MARQ24 MOD END
+        // MARQ24 MOD END
         super(speedBits, speedFactor, maxTurnCosts);
         // strict set, usually vehicle and agricultural/forestry are ignored by cyclists
         restrictions.addAll(Arrays.asList(KEY_BICYCLE, "vehicle", "access"));
@@ -346,8 +346,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
                 // MARQ24 MOD START
                 // Runge: http://www.openstreetmap.org/way/1700503
                 || way.hasTag(KEY_BICYCLE_ROAD, "yes")
-                // MARQ24 MOD END
-        ){
+            // MARQ24 MOD END
+        ) {
             return isPermittedWayConditionallyRestricted(way);
         }
 
@@ -410,7 +410,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
             handleSpeed(edgeFlags, way, wayTypeSpeed);
             handleBikeRelated(edgeFlags, way, priorityFromRelation > UNCHANGED.getValue());
-            if (access.isConditional() && conditionalAccessEncoder!=null)
+            if (access.isConditional() && conditionalAccessEncoder != null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
             boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
             if (isRoundabout) {
@@ -447,13 +447,13 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         // MARQ24 - so if this is a pushing section (like path, track or footway) BUT have additional bicycle attributes
         // then we treat this way as it was tagged as "cycleway"...
         if (isPushingWay &&
-            (
-                (way.hasTag("foot", "yes") && way.hasTag(KEY_SEGREGATED, "yes"))
-                || way.hasTag(KEY_BICYCLE, "yes")
-                || way.hasTag(KEY_BICYCLE, KEY_DESIGNATED)
-                || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)
-            )
-            && !isSteps
+                (
+                        (way.hasTag("foot", "yes") && way.hasTag(KEY_SEGREGATED, "yes"))
+                                || way.hasTag(KEY_BICYCLE, "yes")
+                                || way.hasTag(KEY_BICYCLE, KEY_DESIGNATED)
+                                || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)
+                )
+                && !isSteps
         ) {
             isCyclewayLikeWay = true;
             highwaySpeed = getHighwaySpeed(KEY_CYCLEWAY);
@@ -464,9 +464,9 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             SpeedValue surfaceSpeed = surfaceSpeeds.get(s);
             if (surfaceSpeed != null && (!isPushingWay || isCyclewayLikeWay)) {
                 // ok if no specific highway speed is set we will use the surface speed...
-                if(highwaySpeed == null){
+                if (highwaySpeed == null) {
                     speed = surfaceSpeed.speed;
-                }else{
+                } else {
                     speed = calcHighwaySpeedBasedOnSurface(highwaySpeed, surfaceSpeed);
                 }
             }
@@ -476,9 +476,9 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             if (!Helper.isEmpty(tt)) {
                 SpeedValue tracktypeSpeed = trackTypeSpeeds.get(tt);
                 if (tracktypeSpeed != null && (!isPushingWay || isCyclewayLikeWay)) {
-                    if(highwaySpeed == null){
+                    if (highwaySpeed == null) {
                         speed = tracktypeSpeed.speed;
-                    }else{
+                    } else {
                         speed = calcHighwaySpeedBasedOnSurface(highwaySpeed, tracktypeSpeed);
                     }
                 }
@@ -486,8 +486,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         }
 
         // if the speed have not been set yet...
-        if (speed == Integer.MIN_VALUE){
-            if(highwaySpeed != null) {
+        if (speed == Integer.MIN_VALUE) {
+            if (highwaySpeed != null) {
                 if (!way.hasTag(KEY_SERVICE)) {
                     speed = highwaySpeed.speed;
                 } else {
@@ -495,22 +495,22 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
                     // considered as min "living street" speed (or slower)...
                     speed = Math.min(highwaySpeeds.get(KEY_LIVING_STREET).speed, highwaySpeed.speed);
                 }
-            }else {
+            } else {
                 speed = PUSHING_SECTION_SPEED;
             }
         }
 
         // MARQ24 MOD START
-        if(speed <= PUSHING_SECTION_SPEED) {
+        if (speed <= PUSHING_SECTION_SPEED) {
             if (!isSteps) {
                 // MARQ24 if we are still on pushing section speed, then we at least double the speed in the case
                 // that the way is 'segregated' (but of course we sill ignore steps)...
-        // MARQ24 MOD END
+                // MARQ24 MOD END
                 // Increase speed in case of segregated
                 if (way.hasTag(KEY_SEGREGATED, "yes")) {
                     speed = PUSHING_SECTION_SPEED * 2;
                 }
-        // MARQ24 MOD START
+                // MARQ24 MOD START
             } else {
                 // MARQ24: make sure that steps will always get a very slow speed...
                 speed = PUSHING_SECTION_SPEED / 2;
@@ -525,13 +525,13 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     The order of speed arguments MAKE a difference !!! When highway & surface SpeedValue have the UpdateType=BOTH
     then the return value will be always the speed of the last speed argument (surface.speed)!!!
     */
-    public int calcHighwaySpeedBasedOnSurface(SpeedValue highway, SpeedValue surface){
+    public int calcHighwaySpeedBasedOnSurface(SpeedValue highway, SpeedValue surface) {
         if (highway.speed.equals(surface.speed)) {
             return highway.speed;
-        } else if(highway.speed > surface.speed) {
+        } else if (highway.speed > surface.speed) {
             // highway = 18 (residential)
             // surface = 4 (gravel)
-            switch (highway.type){
+            switch (highway.type) {
                 case UPGRADE_ONLY:
                     return highway.speed;
 
@@ -547,7 +547,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         } else {
             // highway = 8 (cycleway)
             // surface = 18 (asphalt)
-            switch (highway.type){
+            switch (highway.type) {
                 case DOWNGRADE_ONLY:
                     return highway.speed;
                 case UPGRADE_ONLY:
@@ -634,11 +634,11 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         String service = way.getTag(KEY_SERVICE);
         String highway = way.getTag(KEY_HIGHWAY);
         // MARQ24 MOD START
-        if(!isRoadBikeEncoder){
-        // MARQ24 MOD END
+        if (!isRoadBikeEncoder) {
+            // MARQ24 MOD END
             // MARQ24 MOD START
             if (way.hasTag(KEY_BICYCLE, KEY_DESIGNATED) || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL) || way.hasTag(KEY_BICYCLE_ROAD, "yes")) {
-            // MARQ24 MOD END
+                // MARQ24 MOD END
                 if ("path".equals(highway)) {
                     weightToPrioMap.put(100d, VERY_NICE.getValue());
                 } else {
@@ -646,13 +646,13 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
                 }
             }
             if (KEY_CYCLEWAY.equals(highway)) {
-                if (way.hasTag("foot", intendedValues) && !way.hasTag(KEY_SEGREGATED, "yes")){
+                if (way.hasTag("foot", intendedValues) && !way.hasTag(KEY_SEGREGATED, "yes")) {
                     weightToPrioMap.put(100d, PREFER.getValue());
                 } else {
                     weightToPrioMap.put(100d, VERY_NICE.getValue());
                 }
             }
-        // MARQ24 MOD START
+            // MARQ24 MOD START
         }
         // MARQ24 MOD END
 
@@ -675,15 +675,15 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
                 || "parking_aisle".equals(service)) {
             int pushingSectionPrio = AVOID_IF_POSSIBLE.getValue();
             // MARQ24 MOD START
-            if(!isRoadBikeEncoder) {
-            // MARQ24 MOD END
+            if (!isRoadBikeEncoder) {
+                // MARQ24 MOD END
                 if (way.hasTag(KEY_BICYCLE, "use_sidepath") || way.hasTag(KEY_BICYCLE, "yes") || way.hasTag(KEY_BICYCLE, "permissive")) {
                     pushingSectionPrio = PREFER.getValue();
                 }
                 if (way.hasTag(KEY_BICYCLE, KEY_DESIGNATED) || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)) {
                     pushingSectionPrio = VERY_NICE.getValue();
                 }
-            // MARQ24 MOD START
+                // MARQ24 MOD START
             }
             // MARQ24 MOD END
 
@@ -736,16 +736,16 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         WayType wayType;
         if (roadValues.contains(highway)) {
             wayType = WayType.ROAD;
-        }else {
+        } else {
             wayType = WayType.OTHER_SMALL_WAY;
         }
 
         boolean isPushingSection = isPushingSection(way);
         if (isPushingSection || KEY_STEPS.equals(highway)) {
             wayType = WayType.PUSHING_SECTION;
-        } else{
+        } else {
             // boost "none identified" partOfCycleRelation
-            if(!isRoadBikeEncoder && partOfCycleRelation){
+            if (!isRoadBikeEncoder && partOfCycleRelation) {
                 wayType = WayType.CYCLEWAY;
             }
 
@@ -773,7 +773,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
                 || way.hasTag("bicycle:forward", "no");
         //MARQ24 MOD START
         if (!way.hasTag(KEY_BICYCLE_ROAD, "yes") && (isOneway || way.hasTag(KEY_JUNCTION, "roundabout"))
-        //MARQ24 MOD END
+                //MARQ24 MOD END
                 && !way.hasTag(KEY_ONEWAY_BICYCLE, "no")
                 && !way.hasTag("bicycle:backward")
                 && !way.hasTag(KEY_CYCLEWAY, oppositeLanes)
@@ -797,6 +797,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     protected void setHighwaySpeed(String highway, SpeedValue speed) {
         highwaySpeeds.put(highway, speed);
     }
+
     SpeedValue getHighwaySpeed(String key) {
         return highwaySpeeds.get(key);
     }
@@ -804,6 +805,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     protected void setTrackTypeSpeed(String tracktype, int speed) {
         trackTypeSpeeds.put(tracktype, new SpeedValue(speed));
     }
+
     protected void setTrackTypeSpeed(String tracktype, SpeedValue speed) {
         trackTypeSpeeds.put(tracktype, speed);
     }
@@ -811,9 +813,11 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     protected void setSurfaceSpeed(String surface, int speed) {
         surfaceSpeeds.put(surface, new SpeedValue(speed));
     }
+
     protected void setSurfaceSpeed(String surface, SpeedValue speed) {
         surfaceSpeeds.put(surface, speed);
     }
+
     SpeedValue getSurfaceSpeed(String key) {
         return surfaceSpeeds.get(key);
     }
@@ -863,18 +867,18 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
 
     protected static class SpeedValue {
         private final Integer speed;
-        private  UpdateType type = UpdateType.BOTH;
+        private UpdateType type = UpdateType.BOTH;
 
-        private SpeedValue(Integer speed){
+        private SpeedValue(Integer speed) {
             this.speed = speed;
         }
 
-        protected SpeedValue(Integer speed, UpdateType type){
+        protected SpeedValue(Integer speed, UpdateType type) {
             this.speed = speed;
             this.type = type;
         }
 
-        public String toString(){
+        public String toString() {
             return switch (type) {
                 case BOTH -> speed + " [BOTH]";
                 case UPGRADE_ONLY -> speed + " [UP]";

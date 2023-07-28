@@ -25,8 +25,8 @@ public class OsmIdGraphStorageBuilder extends AbstractGraphStorageBuilder {
     /**
      * Process the graph edge - In the OSMId graph storage this stores the osm id (the way id) against the edge
      *
-     * @param way       The full way read from the parser
-     * @param edge      The EdgeIteratorState representing the edge to be processed
+     * @param way  The full way read from the parser
+     * @param edge The EdgeIteratorState representing the edge to be processed
      */
     public void processEdge(ReaderWay way, EdgeIteratorState edge) {
         osmIdGraphStorage.setEdgeValue(edge.getEdge(), way.getId());

@@ -23,15 +23,19 @@ import org.heigit.ors.routing.RouteWarning;
  */
 public interface WarningGraphExtension {
     void setIsUsedForWarning(boolean isWarning);
+
     boolean isUsedForWarning();
+
     String getName();
 
     /**
      * Method that determines whether a warning should be generated for the graph storage.
-     * @param extra     The {@link RouteExtraInfo} object for the route for this particular extension. It's values
-     *                  should be used for determining whether a warning should be made.
-     * @return          Whether there should be a warning generated
+     *
+     * @param extra The {@link RouteExtraInfo} object for the route for this particular extension. It's values
+     *              should be used for determining whether a warning should be made.
+     * @return Whether there should be a warning generated
      */
     boolean generatesWarning(RouteExtraInfo extra);
+
     RouteWarning getWarning();
 }
