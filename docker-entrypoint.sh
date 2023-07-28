@@ -43,7 +43,7 @@ cp -f "${ors_base}/tmp/ors-config.yml" "${ors_base}/ors-conf/ors-config-example.
 # Check for old .json configs
 JSON_FILES=$(ls -d -- "${ors_base}/ors-conf/"*.json 2>/dev/null)
 if [ -z "$JSON_FILES" ]; then
-    echo "Old .json config found. They're depricated and will be replaced in ors version 8."
+    echo "Old .json config found. They're deprecated and will be replaced in ORS version 8."
     echo "Please migrate to the new .yml example."
 fi
 # No config found. Use the base config
