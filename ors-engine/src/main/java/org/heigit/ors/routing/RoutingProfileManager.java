@@ -52,7 +52,6 @@ public class RoutingProfileManager {
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
     private RoutingProfilesCollection routingProfiles;
     private static RoutingProfileManager instance;
-    private boolean initComplete = false;
 
     public RoutingProfileManager(EngineConfig config) {
         if (instance == null) {
@@ -78,17 +77,13 @@ public class RoutingProfileManager {
             if (routeProfileConfigurations.length == 0) {
                 routeProfileConfigurations = config.getProfiles();
             }
-
             if (routeProfileConfigurations.length == 0) {
-                LOGGER.error("");
-                LOGGER.error("No profiles configured. Exiting.");
-                LOGGER.error("");
-                Thread.currentThread().interrupt();
-                System.exit(1);
+                fail("No profiles configured. Exiting.");
+                return;
             }
             int initializationThreads = config.getInitializationThreads();
             LOGGER.info("====> Initializing profiles from '%s' (%d threads) ...".formatted(
-                config.getSourceFile(), initializationThreads));
+                    config.getSourceFile(), initializationThreads));
 
             routingProfiles = new RoutingProfilesCollection();
             int nRouteInstances = routeProfileConfigurations.length;
@@ -136,21 +131,16 @@ public class RoutingProfileManager {
 
             LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
             LOGGER.info("========================================================================");
-            initCompleted();
-
             RoutingProfileManagerStatus.setReady(true);
         } catch (ExecutionException ex) {
-            LOGGER.error("");
-            LOGGER.error("Configured source file: '" + config.getSourceFile() + "' does not appear to be a valid OSM data file! Exiting.");
-            LOGGER.error("");
+            fail("Configured source file: '" + config.getSourceFile() + "' does not appear to be a valid OSM data file! Exiting.");
             Thread.currentThread().interrupt();
-            System.exit(1);
+            return;
         } catch (Exception ex) {
-            LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
+            fail("Failed to initialize RoutingProfileManager instance. " + ex.getMessage());
             Thread.currentThread().interrupt();
-            System.exit(1);
+            return;
         }
-
         RuntimeUtility.clearMemory(LOGGER);
 
         if (LOGGER.isInfoEnabled())
@@ -159,6 +149,13 @@ public class RoutingProfileManager {
 
     public void destroy() {
         routingProfiles.destroy();
+    }
+
+    private void fail(String message) {
+        LOGGER.error("");
+        LOGGER.error(message);
+        LOGGER.error("");
+        RoutingProfileManagerStatus.setFailed(true);
     }
 
     public RoutingProfilesCollection getProfiles() {
@@ -180,7 +177,7 @@ public class RoutingProfileManager {
         if (config.getMaximumDistanceRoundTripRoutes() != 0 && config.getMaximumDistanceRoundTripRoutes() < searchParams.getRoundTripLength()) {
             throw new ServerLimitExceededException(
                     RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT,
-                "The requested route length must not be greater than %s meters.".formatted(config.getMaximumDistanceRoundTripRoutes())
+                    "The requested route length must not be greater than %s meters.".formatted(config.getMaximumDistanceRoundTripRoutes())
             );
         }
 
@@ -201,13 +198,12 @@ public class RoutingProfileManager {
                 if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
                     throw new RouteNotFoundException(
                             RoutingErrorCodes.ROUTE_NOT_FOUND,
-                        "Unable to find a route for point (%s).".formatted(
-                            FormatUtility.formatCoordinate(c0))
+                            "Unable to find a route for point (%s).".formatted(FormatUtility.formatCoordinate(c0))
                     );
                 } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                     StringBuilder message = new StringBuilder();
                     for (Throwable error : gr.getErrors()) {
-                        if (message.length() > 0)
+                        if (!message.isEmpty())
                             message.append("; ");
                         message.append(error.getMessage());
                     }
@@ -220,9 +216,9 @@ public class RoutingProfileManager {
                 // has happened, so return that a route could not be found
                 throw new RouteNotFoundException(
                         RoutingErrorCodes.ROUTE_NOT_FOUND,
-                    "Unable to find a route for point (%s).".formatted(
-                        FormatUtility.formatCoordinate(c0)
-                    ));
+                        "Unable to find a route for point (%s).".formatted(
+                                FormatUtility.formatCoordinate(c0)
+                        ));
             }
         }
 
@@ -329,35 +325,35 @@ public class RoutingProfileManager {
                             }
                             throw new RouteNotFoundException(
                                     code,
-                                "Unable to find a route between points %d (%s) and %d (%s). %s".formatted(
-                                    i,
-                                    FormatUtility.formatCoordinate(c0),
-                                    i + 1,
-                                    FormatUtility.formatCoordinate(c1),
-                                    details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
-                                )
+                                    "Unable to find a route between points %d (%s) and %d (%s). %s".formatted(
+                                            i,
+                                            FormatUtility.formatCoordinate(c0),
+                                            i + 1,
+                                            FormatUtility.formatCoordinate(c1),
+                                            details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
+                                    )
                             );
                         }
                         throw new RouteNotFoundException(
                                 RoutingErrorCodes.ROUTE_NOT_FOUND,
-                            "Unable to find a route between points %d (%s) and %d (%s).".formatted(
-                                i,
-                                FormatUtility.formatCoordinate(c0),
-                                i + 1,
-                                FormatUtility.formatCoordinate(c1)
-                            )
+                                "Unable to find a route between points %d (%s) and %d (%s).".formatted(
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1)
+                                )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException) {
                         Map<String, Object> details = ((MaximumNodesExceededException) gr.getErrors().get(0)).getDetails();
                         throw new RouteNotFoundException(
                                 RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
-                            "Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s".formatted(
-                                i,
-                                FormatUtility.formatCoordinate(c0),
-                                i + 1,
-                                FormatUtility.formatCoordinate(c1),
-                                details.get(MaximumNodesExceededException.NODES_KEY).toString()
-                            )
+                                "Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s".formatted(
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1),
+                                        details.get(MaximumNodesExceededException.NODES_KEY).toString()
+                                )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();
@@ -375,14 +371,14 @@ public class RoutingProfileManager {
                                 if (pointRadius == -1) {
                                     pointRadius = routingProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
                                     message.append("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.".formatted(
-                                        pointRadius,
-                                        pointReference,
-                                        FormatUtility.formatCoordinate(pointCoordinate)));
+                                            pointRadius,
+                                            pointReference,
+                                            FormatUtility.formatCoordinate(pointCoordinate)));
                                 } else {
                                     message.append("Could not find routable point within a radius of %.1f meters of specified coordinate %d: %s.".formatted(
-                                        pointRadius,
-                                        pointReference,
-                                        FormatUtility.formatCoordinate(pointCoordinate)));
+                                            pointRadius,
+                                            pointReference,
+                                            FormatUtility.formatCoordinate(pointCoordinate)));
                                 }
 
                             } else {
@@ -398,11 +394,11 @@ public class RoutingProfileManager {
                     // has happened, so return that a route could not be found
                     throw new RouteNotFoundException(
                             RoutingErrorCodes.ROUTE_NOT_FOUND,
-                        "Unable to find a route between points %d (%s) and %d (%s).".formatted(
-                            i,
-                            FormatUtility.formatCoordinate(c0),
-                            i + 1,
-                            FormatUtility.formatCoordinate(c1))
+                            "Unable to find a route between points %d (%s) and %d (%s).".formatted(
+                                    i,
+                                    FormatUtility.formatCoordinate(c0),
+                                    i + 1,
+                                    FormatUtility.formatCoordinate(c1))
                     );
                 }
             }
@@ -618,13 +614,4 @@ public class RoutingProfileManager {
             throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         return rp.computeExport(req);
     }
-
-    public void initCompleted() {
-        initComplete = true;
-    }
-
-    public static boolean isInitComplete() {
-        return RoutingProfileManager.getInstance().initComplete;
-    }
-
 }

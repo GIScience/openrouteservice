@@ -20,6 +20,8 @@
  */
 package org.heigit.ors.api.servlet.listeners;
 
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.EngineProperties;
@@ -28,9 +30,6 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.FormatUtility;
-
-import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.ServletContextListener;
 import org.heigit.ors.util.StringUtility;
 
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_ENV;
@@ -55,19 +54,19 @@ public class ORSInitContextListener implements ServletContextListener {
             }
         }
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
-                .setInitializationThreads(engineProperties.getInitThreads())
-                .setPreparationMode(engineProperties.isPreparationMode())
-                .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
-                .setSourceFile(engineProperties.getSourceFile())
-                .setGraphsRootPath(engineProperties.getGraphsRootPath())
-                .setProfiles(engineProperties.getConvertedProfiles())
-                .buildWithAppConfigOverride();
+            .setInitializationThreads(engineProperties.getInitThreads())
+            .setPreparationMode(engineProperties.isPreparationMode())
+            .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
+            .setSourceFile(engineProperties.getSourceFile())
+            .setGraphsRootPath(engineProperties.getGraphsRootPath())
+            .setProfiles(engineProperties.getConvertedProfiles())
+            .buildWithAppConfigOverride();
         Runnable runnable = () -> {
             try {
                 LOGGER.info("Initializing ORS...");
                 new RoutingProfileManager(config);
             } catch (Exception e) {
-                LOGGER.warn("Unable to initialize ORS." + e);
+                LOGGER.warn("Unable to initialize ORS due to an unexpected exeception: " + e);
             }
         };
         Thread thread = new Thread(runnable);
