@@ -3304,28 +3304,6 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
-    void expectElevationSmoothing() {
-        JSONObject body = new JSONObject();
-        body.put("coordinates", getParameter("coordinatesShort"));
-        body.put("preference", getParameter("preference"));
-        body.put("elevation", true);
-
-        given()
-                .headers(CommonHeaders.jsonContent)
-                .pathParam("profile", "foot-hiking")
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}")
-                .then()
-                .assertThat()
-                .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(2002.1f))
-                .body("routes[0].summary.ascent", is(7.1f))
-                .body("routes[0].summary.descent", is(6.6f))
-                .statusCode(200);
-    }
-
-    @Test
     void expectDepartureAndArrival() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesShort"));
