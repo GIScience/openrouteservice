@@ -23,6 +23,7 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
+import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
 import org.heigit.ors.api.responses.routing.RouteResponse;
 import org.heigit.ors.api.responses.routing.RouteResponseInfo;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -65,7 +66,7 @@ public class GeoJSONRouteResponse extends RouteResponse {
     }
 
     @JsonProperty("features")
-    public List getRoutes() {
+    public List<IndividualRouteResponse> getRoutes() {
         return routeResults;
     }
 

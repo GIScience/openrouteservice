@@ -49,14 +49,17 @@ public class ExportRequest extends APIRequest {
         this.bbox = bbox;
     }
 
+    @Override
     public boolean hasId() {
         return hasId;
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public void setId(String id) {
         this.id = id;
         this.hasId = true;
@@ -74,10 +77,12 @@ public class ExportRequest extends APIRequest {
         this.bbox = bbox;
     }
 
+    @Override
     public APIEnums.Profile getProfile() {
         return profile;
     }
 
+    @Override
     public void setProfile(APIEnums.Profile profile) {
         this.profile = profile;
     }

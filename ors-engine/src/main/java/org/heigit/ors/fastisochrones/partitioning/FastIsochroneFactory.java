@@ -43,7 +43,7 @@ import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters
 public class FastIsochroneFactory {
     private List<Profile> fastIsochroneProfiles;
     private PreparePartition partition;
-    private final boolean disablingAllowed = true;
+    private boolean disablingAllowed = true;
     private boolean enabled = false;
     private IsochroneNodeStorage isochroneNodeStorage;
     private CellStorage cellStorage;
@@ -107,6 +107,7 @@ public class FastIsochroneFactory {
             completionService.take().get();
         } catch (Exception e) {
             threadPool.shutdownNow();
+            Thread.currentThread().interrupt();
             throw new IllegalStateException(e);
         }
     }

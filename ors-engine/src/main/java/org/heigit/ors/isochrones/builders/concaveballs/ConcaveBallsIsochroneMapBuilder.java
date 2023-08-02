@@ -25,6 +25,7 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.GraphEdgeMapFinder;
 import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochroneMap;
@@ -65,7 +66,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         this.searchContext = searchContext;
     }
 
-    public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
+    public IsochroneMap compute(IsochroneSearchParameters parameters) throws InternalServerException {
         StopWatch swTotal = null;
         StopWatch sw = null;
         if (LOGGER.isDebugEnabled()) {
@@ -238,10 +239,10 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         }
         ConcaveHullOpenSphere concaveHullShell = new ConcaveHullOpenSphere(geometry, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
         Geometry shellGeometry = concaveHullShell.getConcaveHull();
-        if (shellGeometry instanceof GeometryCollection geomColl) {
-            if (geomColl.isEmpty())
-                return;
+        if (shellGeometry instanceof GeometryCollection geomColl && (geomColl.isEmpty())) {
+            return;
         }
+        assert shellGeometry instanceof Polygon;
         Polygon polyShell = (Polygon) shellGeometry;
         copyConvexHullPoints(polyShell);
 

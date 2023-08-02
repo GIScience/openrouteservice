@@ -26,28 +26,28 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.ShadowIndexGraphSt
 public class ShadowWeighting extends FastestWeighting {
 
     private static final Logger LOGGER = Logger.getLogger(ShadowWeighting.class.getName());
-    private final ShadowIndexGraphStorage _shadowIndexStorage;
-    private final byte[] _buffer = new byte[1];
-    private final double _userWeighting;
+    private final ShadowIndexGraphStorage shadowIndexStorage;
+    private final byte[] buffer = new byte[1];
+    private final double userWeighting;
 
     public ShadowWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
         super(encoder, map);
-        _userWeighting = map.getDouble("factor", 1);
-        _shadowIndexStorage = GraphStorageUtils.getGraphExtension(graphStorage, ShadowIndexGraphStorage.class);
-        if (_shadowIndexStorage == null) {
+        userWeighting = map.getDouble("factor", 1);
+        shadowIndexStorage = GraphStorageUtils.getGraphExtension(graphStorage, ShadowIndexGraphStorage.class);
+        if (shadowIndexStorage == null) {
             LOGGER.error("ShadowIndexStorage not found.");
         }
     }
 
     private double calShadowWeighting(int shadowIndexValue) {
-        double _amplifyer = 5.; // amplify influence of shadow
-        return shadowIndexValue * 0.01 * _amplifyer * _userWeighting;
+        double amplifier = 5.; // amplify influence of shadow
+        return shadowIndexValue * 0.01 * amplifier * userWeighting;
     }
 
     @Override
     public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
-        int shadowValue = _shadowIndexStorage
-                .getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
+        int shadowValue = shadowIndexStorage
+                .getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), buffer);
         return calShadowWeighting(shadowValue);
     }
 

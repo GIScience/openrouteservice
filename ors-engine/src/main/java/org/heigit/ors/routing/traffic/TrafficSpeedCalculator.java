@@ -22,7 +22,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     private VehicleFlagEncoder vehicleFlagEncoder;
     private boolean isVehicle = false;
     private boolean isHGV = false;
-    private final double HGVTrafficSpeedLimit = 80.0;
+    private static final double HGV_TRAFFIC_SPEED_LIMIT = 80.0;
 
     public TrafficSpeedCalculator(SpeedCalculator superSpeedCalculator) {
         super(superSpeedCalculator);
@@ -53,7 +53,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
             if (isVehicle) {
                 trafficSpeed = vehicleFlagEncoder.adjustSpeedForAcceleration(edge.getDistance(), trafficSpeed);
                 // For heavy vehicles, consider the traffic speeds only up to a predefined speeds
-                if (!isHGV || (isHGV && trafficSpeed <= HGVTrafficSpeedLimit)) {
+                if (!isHGV || (isHGV && trafficSpeed <= HGV_TRAFFIC_SPEED_LIMIT)) {
                     speed = trafficSpeed;
                 }
             } else {

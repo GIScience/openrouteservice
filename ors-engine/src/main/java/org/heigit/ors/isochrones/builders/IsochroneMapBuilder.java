@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.isochrones.builders;
 
+import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.routing.RouteSearchContext;
@@ -21,5 +22,5 @@ public interface IsochroneMapBuilder {
 
     void initialize(RouteSearchContext searchContext);
 
-    IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception;
+    IsochroneMap compute(IsochroneSearchParameters parameters) throws InternalServerException;
 }

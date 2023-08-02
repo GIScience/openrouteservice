@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("unittest")
-public class IsochronesServiceTest {
+class IsochronesServiceTest {
     IsochronesRequest request;
 
     private RequestProfileParamsRestrictions vehicleParams;

@@ -26,7 +26,7 @@ import java.util.List;
 public class SpeedGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private SpeedStorage storage;
 
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException {
         if (storage != null)
             throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
 

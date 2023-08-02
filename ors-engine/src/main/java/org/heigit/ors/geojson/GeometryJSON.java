@@ -16,6 +16,7 @@ package org.heigit.ors.geojson;
 import org.geotools.geometry.jts.coordinatesequence.CoordinateSequences;
 import org.heigit.ors.util.FormatUtility;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.locationtech.jts.geom.*;
 
@@ -65,10 +66,6 @@ public class GeometryJSON {
         return arrCoords;
     }
 
-    private static org.json.simple.JSONArray toJSON(Point point) {
-        return toJSON(point.getCoordinate());
-    }
-
     public static org.json.simple.JSONArray toJSON(Coordinate c) {
         org.json.simple.JSONArray arrCoords = new org.json.simple.JSONArray();
         arrCoords.add(FormatUtility.roundToDecimals(c.x, COORDINATE_PRECISION));
@@ -90,12 +87,12 @@ public class GeometryJSON {
         return arrCoords;
     }
 
-    public static Geometry parse(JSONObject json) throws Exception {
+    public static Geometry parse(JSONObject json) throws JSONException {
         if (!json.has("type"))
-            throw new Exception("type element is missing.");
+            throw new JSONException("type element is missing.");
 
         if (!json.has("coordinates"))
-            throw new Exception("coordinates element is missing.");
+            throw new JSONException("coordinates element is missing.");
 
         String type = json.getString("type");
         JSONArray arrCoords = json.getJSONArray("coordinates");
@@ -106,7 +103,7 @@ public class GeometryJSON {
             case "MultiLineString" -> readMultiLineString(arrCoords);
             case "Polygon" -> readPolygon(arrCoords);
             case "MultiPolygon" -> readMultiPolygon(arrCoords);
-            default -> throw new Exception("invalid type: " + type);
+            default -> throw new JSONException("invalid type: " + type);
         };
     }
 

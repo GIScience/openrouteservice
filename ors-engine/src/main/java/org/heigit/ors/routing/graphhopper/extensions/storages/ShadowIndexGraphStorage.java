@@ -22,10 +22,6 @@ import com.graphhopper.storage.GraphExtension;
  * Created by ZWang on 13/06/2017.
  */
 public class ShadowIndexGraphStorage implements GraphExtension {
-    /* pointer for no entry */
-    protected final int NO_ENTRY = -1;
-    private final int EF_shadowIndex;
-
     private DataAccess orsEdges; // Data store for shadow index value of edges
     private int edgeEntryBytes;
     private int edgesCount; // number of edges with custom values
@@ -33,8 +29,6 @@ public class ShadowIndexGraphStorage implements GraphExtension {
     private final byte[] byteValues;
 
     public ShadowIndexGraphStorage() {
-        EF_shadowIndex = 0;
-
         int edgeEntryIndex = 0;
         edgeEntryBytes = edgeEntryIndex + 1;
         edgesCount = 0;
@@ -44,11 +38,10 @@ public class ShadowIndexGraphStorage implements GraphExtension {
     public void setEdgeValue(int edgeId, byte shadowIndexValue) {
         edgesCount++;
         ensureEdgesIndex(edgeId);
-
         // add entry
         long edgePointer = (long) edgeId * edgeEntryBytes;
         byteValues[0] = shadowIndexValue;
-        orsEdges.setBytes(edgePointer + EF_shadowIndex, byteValues, 1);
+        orsEdges.setBytes(edgePointer, byteValues, 1);
     }
 
     private void ensureEdgesIndex(int edgeId) {
@@ -56,10 +49,8 @@ public class ShadowIndexGraphStorage implements GraphExtension {
     }
 
     public int getEdgeValue(int edgeId, byte[] buffer) {
-
         long edgePointer = (long) edgeId * edgeEntryBytes;
-        orsEdges.getBytes(edgePointer + EF_shadowIndex, buffer, 1);
-
+        orsEdges.getBytes(edgePointer, buffer, 1);
         return buffer[0];
     }
 
@@ -71,9 +62,7 @@ public class ShadowIndexGraphStorage implements GraphExtension {
      */
     @Override
     public void init(Graph graph, Directory dir) {
-        if (edgesCount > 0)
-            throw new AssertionError("The ORS storage must be initialized only once.");
-
+        if (edgesCount > 0) throw new AssertionError("The ORS storage must be initialized only once.");
         this.orsEdges = dir.find("ext_shadowindex");
     }
 
@@ -84,7 +73,6 @@ public class ShadowIndexGraphStorage implements GraphExtension {
     public boolean loadExisting() {
         if (!orsEdges.loadExisting())
             throw new IllegalStateException("Unable to load storage 'ext_shadowlevel'. corrupt file or directory?");
-
         edgeEntryBytes = orsEdges.getHeader(0);
         edgesCount = orsEdges.getHeader(4);
         return true;

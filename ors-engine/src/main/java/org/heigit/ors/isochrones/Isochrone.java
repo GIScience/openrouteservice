@@ -14,6 +14,7 @@
 package org.heigit.ors.isochrones;
 
 import org.heigit.ors.common.AttributeValue;
+import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.UnitsConverter;
@@ -58,7 +59,7 @@ public class Isochrone {
         };
     }
 
-    public double calcArea(String units) throws Exception {
+    public double calcArea(String units) throws InternalServerException {
         if (area == 0.0) {
             area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, true), 2);
         }

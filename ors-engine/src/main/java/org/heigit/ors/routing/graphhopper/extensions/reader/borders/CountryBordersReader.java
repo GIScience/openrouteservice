@@ -99,18 +99,16 @@ public class CountryBordersReader {
 
     // for test mocks
     public void addHierarchy(Long id, CountryBordersHierarchy hierarchy) {
-        if (!hierarchies.containsKey(id)) {
-            hierarchies.put(id, hierarchy);
-        }
+        hierarchies.computeIfAbsent(id, k -> hierarchy);
     }
 
     // for test mocks
     public void addId(String id, String localName, String englishName, String cca2, String cca3) {
-        if (!ids.containsKey(localName)) {
-            ids.put(localName, new CountryInfo(id, localName, englishName));
+        ids.computeIfAbsent(localName, k -> {
             isoCodes.put(cca2.trim().toUpperCase(), Integer.parseInt(id));
             isoCodes.put(cca3.trim().toUpperCase(), Integer.parseInt(id));
-        }
+           return new CountryInfo(id, localName, englishName);
+        });
     }
 
     /**
@@ -267,9 +265,7 @@ public class CountryBordersReader {
      */
     public CountryBordersPolygon[] getCountry(Coordinate c) {
         ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
-        Iterator it = hierarchies.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry) it.next();
+        for (Map.Entry<Long, CountryBordersHierarchy> pair : hierarchies.entrySet()) {
             CountryBordersHierarchy h = pair.getValue();
             if (h.inBbox(c)) {
                 // Now need to check the countries
@@ -281,7 +277,6 @@ public class CountryBordersReader {
                 }
             }
         }
-
         return countries.toArray(new CountryBordersPolygon[0]);
     }
 
@@ -296,9 +291,7 @@ public class CountryBordersReader {
      */
     public CountryBordersPolygon[] getCandidateCountry(Coordinate c) {
         ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
-        Iterator it = hierarchies.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry) it.next();
+        for (Map.Entry<Long, CountryBordersHierarchy> pair : hierarchies.entrySet()) {
             CountryBordersHierarchy h = pair.getValue();
             if (h.inBbox(c)) {
                 // Now need to check the countries
@@ -310,7 +303,6 @@ public class CountryBordersReader {
                 }
             }
         }
-
         return countries.toArray(new CountryBordersPolygon[0]);
     }
 

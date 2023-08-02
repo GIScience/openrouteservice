@@ -1,5 +1,6 @@
 package org.heigit.ors.api.util;
 
+import com.google.common.base.Strings;
 import com.typesafe.config.ConfigObject;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.CorsProperties;
@@ -71,7 +72,7 @@ public class AppConfigMigration {
 
     public static EndpointsProperties overrideEndpointsProperties(EndpointsProperties endpoints) {
         String swaggerDocumentationUrl = config.getParameter("info", "swagger_documentation_url");
-        if (!StringUtility.isNullOrEmpty(swaggerDocumentationUrl))
+        if (!Strings.isNullOrEmpty(swaggerDocumentationUrl))
             endpoints.setSwaggerDocumentationUrl(swaggerDocumentationUrl);
 
 // ### Isochrones ###
@@ -80,7 +81,7 @@ public class AppConfigMigration {
         if (value != null)
             isochrones.setEnabled(Boolean.parseBoolean(value));
         value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
-        if (!StringUtility.isNullOrEmpty(value))
+        if (!Strings.isNullOrEmpty(value))
             isochrones.setMaximumLocations(Integer.parseInt(value));
         value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "allow_compute_area");
         if (value != null)
@@ -198,16 +199,16 @@ public class AppConfigMigration {
         if (value != null)
             routing.setAttribution(value);
         String baseUrl = config.getParameter("info", "base_url");
-        if (!StringUtility.isNullOrEmpty(baseUrl))
+        if (!Strings.isNullOrEmpty(baseUrl))
             routing.setGpxBaseUrl(baseUrl);
         String supportMail = config.getParameter("info", "support_mail");
-        if (!StringUtility.isNullOrEmpty(supportMail))
+        if (!Strings.isNullOrEmpty(supportMail))
             routing.setGpxSupportMail(supportMail);
         String authorTag = config.getParameter("info", "author_tag");
-        if (!StringUtility.isNullOrEmpty(authorTag))
+        if (!Strings.isNullOrEmpty(authorTag))
             routing.setGpxAuthor(authorTag);
         String contentLicence = config.getParameter("info", "content_licence");
-        if (!StringUtility.isNullOrEmpty(contentLicence))
+        if (!Strings.isNullOrEmpty(contentLicence))
             routing.setGpxContentLicence(contentLicence);
         value = config.getServiceParameter(SERVICE_NAME_ROUTING, "routing_name");
         if (value != null)

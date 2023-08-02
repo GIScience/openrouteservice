@@ -27,6 +27,7 @@ import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeIterator;
+import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.*;
 import org.heigit.ors.matrix.algorithms.AbstractContractedMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraManyToMany;
@@ -106,7 +107,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
     /**
      * Compute a MatrixResult from srcData to dstData with the given metrics
      */
-    public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws Exception {
+    public MatrixResult compute(MatrixLocations srcData, MatrixLocations dstData, int metrics) throws StatusCodeException {
         // Search is more efficient for dstData.size > srcData.size, so check if they should be swapped
         swap = checkSwapSrcDst(srcData, dstData);
         if (swap) {
@@ -463,7 +464,7 @@ public class CoreMatrixAlgorithm extends AbstractContractedMatrixAlgorithm {
         return new float[][]{newTimes, newDistances, newWeights};
     }
 
-    private void extractMetrics(MatrixLocations srcData, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws Exception {
+    private void extractMetrics(MatrixLocations srcData, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws StatusCodeException {
         AveragedMultiTreeSPEntry[] destTrees = new AveragedMultiTreeSPEntry[dstData.size()];
         for (int i = 0; i < dstData.size(); i++)
             destTrees[i] = targetMap.get(dstData.getNodeIds()[i]);

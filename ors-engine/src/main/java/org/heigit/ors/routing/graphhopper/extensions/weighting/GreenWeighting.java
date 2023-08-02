@@ -51,7 +51,7 @@ public class GreenWeighting extends FastestWeighting {
         // a weighting factor will be taken into account
         // to control the impact of the "green consideration"
         // just like an amplifier
-        double wf = (double) (level + 1) * 2.0 / TOTAL_LEVEL;
+        double wf = (level + 1) * 2.0 / TOTAL_LEVEL;
         return 1.0 - (1.0 - wf) * factor;
     }
 

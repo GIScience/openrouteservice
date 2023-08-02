@@ -249,12 +249,12 @@ public class TrafficGraphStorage implements GraphExtension {
      * @return The value of the requested property
      */
     public int getOrsRoadProperties(int edgeId, Property prop) {
-        byte[] propertyValue = new byte[1];
+        byte[] localPropertyValue = new byte[1];
         long edgePointer = (long) edgeId * edgePropertyEntryBytes;
         if (prop == Property.ROAD_TYPE) {
-            orsEdgesProperties.getBytes(edgePointer + LOCATION_ROAD_TYPE, propertyValue, 1);
+            orsEdgesProperties.getBytes(edgePointer + LOCATION_ROAD_TYPE, localPropertyValue, 1);
         }
-        return Byte.toUnsignedInt(propertyValue[0]);
+        return Byte.toUnsignedInt(localPropertyValue[0]);
     }
 
     /**

@@ -17,7 +17,6 @@ import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntContainer;
 import com.carrotsearch.hppc.predicates.IntPredicate;
 import com.graphhopper.coll.MinHeapWithUpdate;
-import com.graphhopper.routing.ch.CHPreparationGraph;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
 import com.graphhopper.routing.util.AllEdgesIterator;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -44,7 +43,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
     private boolean[] restrictedNodes;
     private int restrictedNodesCount = 0;
 
-    private static final int nodesContractedPercentage = 99;
+    private static final int NODES_CONTRACTED_PERCENTAGE = 99;
 
     IntPredicate isCoreNode = new IntPredicate() {
         public boolean apply(int node) {
@@ -54,7 +53,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
 
     public PrepareCore(GraphHopperStorage ghStorage, CHConfig chConfig, EdgeFilter restrictionFilter) {
         super(ghStorage, chConfig);
-        PMap pMap = new PMap(CONTRACTED_NODES + "=" + nodesContractedPercentage);
+        PMap pMap = new PMap(CONTRACTED_NODES + "=" + NODES_CONTRACTED_PERCENTAGE);
         setParams(pMap);
         this.restrictionFilter = restrictionFilter;
     }
@@ -97,10 +96,10 @@ public class PrepareCore extends PrepareContractionHierarchies {
         buildFromGraph(prepareGraph, graph, weighting);
         logger.info("Finished building Core graph, took: {}s, {}", sw.stop().getSeconds(), getMemInfo());
         nodeContractor.initFromGraph();
-        postInit(prepareGraph);
+        postInit();
     }
 
-    public void postInit(CHPreparationGraph prepareGraph) {
+    public void postInit() {
         restrictedNodes = new boolean[nodes];
         EdgeExplorer restrictionExplorer;
         restrictionExplorer = graph.createEdgeExplorer(EdgeFilter.ALL_EDGES);//FIXME: each edge is probably unnecessarily visited twice
@@ -125,6 +124,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
             this.restrictionFilter = restrictionFilter;
         }
 
+        @Override
         public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
             if (restrictionFilter.accept(edgeState))
                 return superWeighting.calcEdgeWeight(edgeState, reverse);
@@ -162,6 +162,7 @@ public class PrepareCore extends PrepareContractionHierarchies {
         return super.doNotContract(node) || restrictedNodes[node];
     }
 
+    @Override
     protected IntContainer contractNode(int node, int level) {
         IntContainer neighbors = super.contractNode(node, level);
 

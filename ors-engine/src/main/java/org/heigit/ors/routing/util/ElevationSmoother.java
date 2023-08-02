@@ -62,7 +62,7 @@ public class ElevationSmoother {
                 int n = (int) Math.ceil(dist / MIN_DISTANCE);
 
                 for (int j = 1; j < n; j++) {
-                    double ele = z0 + j * (z1 - z0) / ((double) (n - 1));
+                    double ele = z0 + j * (z1 - z0) / (n - 1);
 
                     if (values.size() == WINDOW_SIZE) {
                         elevSum -= values.getFirst();

@@ -32,13 +32,13 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private CsvGraphStorage storage;
     private final Map<Long, Integer[]> id2Value = new HashMap<>();
     private static final int MAX_VALUE = 100;
-    private final byte defaultValue = 0; // TODO: make configurable
+    private static final byte DEFAULT_VALUE = 0; // TODO: make configurable
     private String[] columnNames;
 
     @Override
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException, IOException {
         if (storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
 
         // TODO Check if the CSV file exists
         String csvFile = parameters.get("filepath");
@@ -90,7 +90,7 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
         // if id not present, fill with default value
         if (gi == null) {
-            Arrays.fill(byteValues, defaultValue);
+            Arrays.fill(byteValues, DEFAULT_VALUE);
         } else {
             int index = 0;
             for (Integer i : gi) {

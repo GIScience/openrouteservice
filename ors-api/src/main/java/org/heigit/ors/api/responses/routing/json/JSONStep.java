@@ -73,7 +73,7 @@ public class JSONStep {
         this.type = step.getType();
         this.instruction = step.getInstruction();
 
-        this.name = StringUtility.isEmpty(step.getName()) ? "-" : step.getName();
+        this.name = StringUtility.isEmptyTrimmed(step.getName()) ? "-" : step.getName();
 
         if (step.getExitNumber() != -1)
             this.exitNumber = step.getExitNumber();

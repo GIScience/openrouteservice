@@ -20,6 +20,7 @@
  */
 package org.heigit.ors.api.servlet.listeners;
 
+import com.google.common.base.Strings;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
@@ -30,7 +31,6 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.FormatUtility;
-import org.heigit.ors.util.StringUtility;
 
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_ENV;
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY;
@@ -46,10 +46,10 @@ public class ORSInitContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
         if (LOGGER.isDebugEnabled()) {
-            if (!StringUtility.isNullOrEmpty(System.getenv(ORS_CONFIG_LOCATION_ENV))) {
+            if (!Strings.isNullOrEmpty(System.getenv(ORS_CONFIG_LOCATION_ENV))) {
                 LOGGER.debug("Configuration loaded by ENV, location: " + System.getenv(ORS_CONFIG_LOCATION_ENV));
             }
-            if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
+            if (!Strings.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
                 LOGGER.debug("Configuration loaded by ARG, location: " + System.getProperty(ORS_CONFIG_LOCATION_PROPERTY));
             }
         }

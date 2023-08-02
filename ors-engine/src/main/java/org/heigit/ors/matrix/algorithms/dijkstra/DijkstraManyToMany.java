@@ -115,8 +115,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         prepare(from, to);
         addEntriesFromMapToQueue();
         outEdgeExplorer = swap ? chGraph.createInEdgeExplorer() : chGraph.createOutEdgeExplorer();
-//        outEdgeExplorer = swap ? graph.createEdgeExplorer(AccessFilter.inEdges(flagEncoder.getAccessEnc()))
-//                : graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
         this.stoppingCriterion = new MultiSourceStoppingCriterion(targetSet, targetMap, treeEntrySize);
 
         runAlgo();

@@ -38,10 +38,9 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
         ferries.add("ferry");
     }
 
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException {
         if (storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
-
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
         storage = new WaySurfaceTypeGraphStorage();
         return storage;
     }

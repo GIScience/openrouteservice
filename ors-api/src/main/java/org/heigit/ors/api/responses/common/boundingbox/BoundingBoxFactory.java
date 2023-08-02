@@ -32,8 +32,7 @@ public class BoundingBoxFactory {
 
     public static BoundingBox constructBoundingBox(BBox bounds, RouteRequest request) throws ParameterValueException {
         switch (request.getResponseType()) {
-            case GEOJSON:
-            case JSON:
+            case GEOJSON, JSON:
                 if (request.hasUseElevation() && request.getUseElevation())
                     return new JSON3DBoundingBox(bounds);
                 return new JSONBoundingBox(bounds);

@@ -187,11 +187,14 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(avgSpeedEnc);
-        if (hasConditionalAccess)
-            registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
-        if (hasConditionalSpeed)
-            registerNewEncodedValue.add(conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.SPEED), false));
-
+        if (hasConditionalAccess) {
+            conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true);
+            registerNewEncodedValue.add(conditionalAccessEncoder);
+        }
+        if (hasConditionalSpeed) {
+            conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.SPEED), false);
+            registerNewEncodedValue.add(conditionalSpeedEncoder);
+        }
     }
 
     @Override
@@ -209,14 +212,14 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             speed = applyMaxSpeed(way, speed);
 
             // TODO: save conditional speeds only if their value is different from the default speed
-            if (getConditionalSpeedInspector() != null && getConditionalSpeedInspector().hasConditionalSpeed(way))
+            if (getConditionalSpeedInspector() != null && getConditionalSpeedInspector().hasConditionalSpeed(way)) {
                 if (getConditionalSpeedInspector().hasLazyEvaluatedConditions() && conditionalSpeedEncoder != null) {
                     conditionalSpeedEncoder.setBool(false, edgeFlags, true);
                 } else {
                     // conditional maxspeed overrides unconditional one
                     speed = applyConditionalSpeed(getConditionalSpeedInspector().getTagValue(), speed);
                 }
-
+            }
             speed = getSurfaceSpeed(way, speed);
 
             if (way.hasTag(KEY_ESTIMATED_DISTANCE)) {
@@ -438,8 +441,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         }
 
         switch (grade) {
-            case "grade":
-            case "grade1":
+            case "grade", "grade1":
                 return 1;
             case "grade2":
                 return 2;

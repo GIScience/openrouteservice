@@ -60,9 +60,9 @@ public class StatisticsProviderFactory {
     private StatisticsProviderFactory() {
     }
 
-    public static StatisticsProvider getProvider(String name, Map<String, Object> parameters) throws Exception {
+    public static StatisticsProvider getProvider(String name, Map<String, Object> parameters) throws IllegalArgumentException, InternalServerException {
         if (name == null)
-            throw new Exception("Data provider is not defined.");
+            throw new IllegalArgumentException("Data provider is not defined.");
         StatisticsProvider provider;
         synchronized (lockObj) {
             String pname = name.toLowerCase();

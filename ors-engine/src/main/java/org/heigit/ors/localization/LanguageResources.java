@@ -27,21 +27,14 @@ public class LanguageResources {
 
     public void addLocalString(String resourceName, String resourceText) {
         int hashCode = resourceName.hashCode();
-        if (!localStrings.containsKey(hashCode)) {
-            LocalString localString = new LocalString(lang, resourceText);
-            localStrings.put(hashCode, localString);
-        }
+        localStrings.computeIfAbsent(hashCode, k -> new LocalString(lang, resourceText));
     }
 
-    public Language getLangCode() {
-        return lang;
-    }
-
-    public String getTranslation(String name) throws Exception {
+    public String getTranslation(String name) throws IllegalArgumentException {
         return getTranslation(name, false);
     }
 
-    public String getTranslation(String name, boolean throwException) throws Exception {
+    public String getTranslation(String name, boolean throwException) throws IllegalArgumentException {
         if (name == null)
             return null;
         LocalString ls = localStrings.get(name.hashCode());
@@ -49,7 +42,7 @@ public class LanguageResources {
             return ls.getString();
         } else {
             if (throwException)
-                throw new Exception("Unable to find translation for '" + name + "' in language '" + lang.getLangTag() + "'.");
+                throw new IllegalArgumentException("Unable to find translation for '" + name + "' in language '" + lang.getLangTag() + "'.");
             else
                 return null;
         }

@@ -18,6 +18,9 @@ import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.RoutingCHGraphImpl;
 
 public class GraphUtils {
+    private GraphUtils() {
+    }
+
     public static Graph getBaseGraph(RoutingCHGraph graph) {
         if (graph instanceof RoutingCHGraphImpl)
             return graph.getBaseGraph();

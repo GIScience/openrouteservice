@@ -56,6 +56,6 @@ public class GhMapMatcher extends AbstractMapMatcher {
 
     @Override
     public void clear() {
-
+        // nothing to do
     }
 }

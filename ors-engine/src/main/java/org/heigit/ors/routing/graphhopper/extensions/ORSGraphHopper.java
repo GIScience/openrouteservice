@@ -73,7 +73,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
@@ -234,6 +233,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
      * @param request     To get the avoid borders setting
      * @param queryResult To get the edges of the queries and check which country they're in
      */
+    // TODO Refactoring: why is this method not in use? Can it be removed?
     private void checkAvoidBorders(GHRequest request, List<Snap> queryResult) {
         /* Avoid borders */
         PMap params = request.getAdditionalHints();
@@ -351,7 +351,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                         storageBuilder.postProcess(this);
                     } catch (SchemaException e) {
                         LOGGER.error("Error building the here traffic storage.");
-                        throw new RuntimeException(e);
+                        throw new IllegalStateException(e);
                     }
                 }
             }
@@ -440,15 +440,15 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     private boolean hasCoreProfile(String profileName) {
-        if (getGraphHopperStorage() instanceof ORSGraphHopperStorage) {
-            List<String> profiles = ((ORSGraphHopperStorage) getGraphHopperStorage()).getCoreGraphNames();
+        if (getGraphHopperStorage() instanceof ORSGraphHopperStorage orsGraphHopperStorage) {
+            List<String> profiles = orsGraphHopperStorage.getCoreGraphNames();
             return contains(profiles, profileName);
         }
         return false;
     }
 
     private boolean hasLMProfile(String profileName) {
-        List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map(LMConfig::getName).collect(Collectors.toList());
+        List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map(LMConfig::getName).toList();
         return contains(profiles, profileName);
     }
 
@@ -493,6 +493,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
     }
 
+    @Override
     protected void loadORS() {
         List<CHConfig> chConfigs;
         if (corePreparationHandler.isEnabled()) {
@@ -502,8 +503,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             chConfigs = emptyList();
         }
 
-        if (getGraphHopperStorage() instanceof ORSGraphHopperStorage)
-            ((ORSGraphHopperStorage) getGraphHopperStorage()).addCoreGraphs(chConfigs);
+        if (getGraphHopperStorage() instanceof ORSGraphHopperStorage orsGraphHopperStorage)
+            orsGraphHopperStorage.addCoreGraphs(chConfigs);
         else
             throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
     }

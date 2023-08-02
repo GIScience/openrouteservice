@@ -20,15 +20,15 @@ public class TrafficEnums {
         BOAT('B'),
         RAIL('R');
 
-        private final char ferryType;
+        private final char ferryTypeChar;
 
         FerryType(char value) {
-            this.ferryType = value;
+            this.ferryTypeChar = value;
         }
 
         public static FerryType forValue(char v) {
             for (FerryType enumItem : FerryType.values()) {
-                if (enumItem.ferryType == v)
+                if (enumItem.ferryTypeChar == v)
                     return enumItem;
             }
             return null;
@@ -39,15 +39,15 @@ public class TrafficEnums {
         YES('Y'),
         NO('N');
 
-        private final char noYesEnum;
+        private final char noYesEnumChar;
 
         NoYesEnum(char value) {
-            this.noYesEnum = value;
+            this.noYesEnumChar = value;
         }
 
         public static NoYesEnum forValue(char v) {
             for (NoYesEnum enumItem : NoYesEnum.values()) {
-                if (enumItem.noYesEnum == v)
+                if (enumItem.noYesEnumChar == v)
                     return enumItem;
             }
             return null;
@@ -64,15 +64,15 @@ public class TrafficEnums {
         CLASS4(4),
         CLASS5(5);
 
-        private final int functionalClass;
+        private final int functionalClassInt;
 
         FunctionalClass(int value) {
-            this.functionalClass = value;
+            this.functionalClassInt = value;
         }
 
         public static FunctionalClass forValue(int v) {
             for (FunctionalClass enumItem : FunctionalClass.values()) {
-                if (enumItem.functionalClass == v)
+                if (enumItem.functionalClassInt == v)
                     return enumItem;
             }
             return null;
@@ -80,7 +80,7 @@ public class TrafficEnums {
 
 
         public int getFunctionalClass() {
-            return functionalClass;
+            return functionalClassInt;
         }
     }
 

@@ -63,5 +63,4 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
         return 0;
     }
-
 }

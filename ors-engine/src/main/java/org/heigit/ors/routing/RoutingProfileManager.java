@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing;
 
+import com.google.common.base.Strings;
 import com.graphhopper.GHResponse;
 import com.graphhopper.util.AngleCalc;
 import com.graphhopper.util.DistanceCalc;
@@ -28,7 +29,6 @@ import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
-import org.heigit.ors.mapmatching.MapMatchingRequest;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
@@ -37,7 +37,6 @@ import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
-import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
 import org.locationtech.jts.geom.Coordinate;
 
@@ -69,7 +68,7 @@ public class RoutingProfileManager {
     }
 
     public void initialize(EngineConfig config) {
-        RuntimeUtility.printRAMInfo("", LOGGER);
+        RuntimeUtility.printRAMInfo("Memory consumption before: ", LOGGER);
         long startTime = System.currentTimeMillis();
         try {
             // RoutingManagerConfiguration can be thrown away entirely after config migration
@@ -91,7 +90,6 @@ public class RoutingProfileManager {
                     config.getSourceFile(), initializationThreads));
 
             routingProfiles = new RoutingProfilesCollection();
-            int nRouteInstances = routeProfileConfigurations.length;
 
             RoutingProfileLoadContext loadCntx = new RoutingProfileLoadContext();
             ExecutorService executor = Executors.newFixedThreadPool(initializationThreads);
@@ -99,8 +97,7 @@ public class RoutingProfileManager {
 
             int nTotalTasks = 0;
 
-            for (int i = 0; i < nRouteInstances; i++) {
-                RouteProfileConfiguration rpc = routeProfileConfigurations[i];
+            for (RouteProfileConfiguration rpc : routeProfileConfigurations) {
                 if (!rpc.getEnabled())
                     continue;
 
@@ -135,9 +132,13 @@ public class RoutingProfileManager {
             loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
             LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
+            RuntimeUtility.printRAMInfo("Memory consumption after: ", LOGGER);
             LOGGER.info("========================================================================");
+            if (LOGGER.isInfoEnabled())
+                routingProfiles.printStatistics(LOGGER);
+            LOGGER.info("========================================================================");
+            LOGGER.info("ORS engine initialization completed.");
             initCompleted();
-
             RoutingProfileManagerStatus.setReady(true);
         } catch (ExecutionException ex) {
             LOGGER.error("");
@@ -150,11 +151,6 @@ public class RoutingProfileManager {
             Thread.currentThread().interrupt();
             System.exit(1);
         }
-
-        RuntimeUtility.clearMemory(LOGGER);
-
-        if (LOGGER.isInfoEnabled())
-            routingProfiles.printStatistics(LOGGER);
     }
 
     public void destroy() {
@@ -165,11 +161,7 @@ public class RoutingProfileManager {
         return routingProfiles;
     }
 
-    public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
-        LOGGER.error("mapmatching not implemented. " + req);
-        throw new UnsupportedOperationException("mapmatching not implemented. " + req);
-    }
-
+    @SuppressWarnings("unchecked")
     public RouteResult[] computeRoundTripRoute(RoutingRequest req) throws Exception {
         List<GHResponse> routes = new ArrayList<>();
 
@@ -207,7 +199,7 @@ public class RoutingProfileManager {
                 } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                     StringBuilder message = new StringBuilder();
                     for (Throwable error : gr.getErrors()) {
-                        if (message.length() > 0)
+                        if (!message.isEmpty())
                             message.append("; ");
                         message.append(error.getMessage());
                     }
@@ -231,7 +223,7 @@ public class RoutingProfileManager {
                 if (obj instanceof ExtraInfoProcessor processor) {
                     if (extraInfoProcessor == null) {
                         extraInfoProcessor = processor;
-                        if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                        if (!Strings.isNullOrEmpty(processor.getSkippedExtraInfo())) {
                             gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
                         }
                     } else {
@@ -257,6 +249,7 @@ public class RoutingProfileManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public RouteResult[] computeLinearRoute(RoutingRequest req) throws Exception {
         List<Integer> skipSegments = req.getSkipSegments();
         List<GHResponse> routes = new ArrayList<>();
@@ -314,8 +307,8 @@ public class RoutingProfileManager {
 
             if (gr.hasErrors()) {
                 if (!gr.getErrors().isEmpty()) {
-                    if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
-                        Map<String, Object> details = ((ConnectionNotFoundException) gr.getErrors().get(0)).getDetails();
+                    if (gr.getErrors().get(0) instanceof ConnectionNotFoundException connectionNotFoundException) {
+                        Map<String, Object> details = connectionNotFoundException.getDetails();
                         if (!details.isEmpty()) {
                             int code = RoutingErrorCodes.ROUTE_NOT_FOUND;
                             if (details.containsKey("entry_not_reached") && details.containsKey("exit_not_reached")) {
@@ -347,8 +340,8 @@ public class RoutingProfileManager {
                                         FormatUtility.formatCoordinate(c1)
                                 )
                         );
-                    } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException) {
-                        Map<String, Object> details = ((MaximumNodesExceededException) gr.getErrors().get(0)).getDetails();
+                    } else if (gr.getErrors().get(0) instanceof MaximumNodesExceededException maximumNodesExceededException) {
+                        Map<String, Object> details = maximumNodesExceededException.getDetails();
                         throw new RouteNotFoundException(
                                 RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
                                 "Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s".formatted(
@@ -362,12 +355,13 @@ public class RoutingProfileManager {
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();
                         for (Throwable error : gr.getErrors()) {
-                            if (message.length() > 0)
+                            if (!message.isEmpty())
                                 message.append("; ");
                             if (error instanceof com.graphhopper.util.exceptions.PointNotFoundException pointNotFoundException) {
                                 int pointReference = (i - 1) + pointNotFoundException.getPointIndex();
 
                                 Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;
+                                assert radiuses != null;
                                 double pointRadius = radiuses[pointNotFoundException.getPointIndex()];
 
                                 // -1 is used to indicate the use of internal limits instead of specifying it in the request.
@@ -413,7 +407,7 @@ public class RoutingProfileManager {
                     if (o instanceof ExtraInfoProcessor processor) {
                         extraInfoProcessors[extraInfoProcessorIndex] = processor;
                         extraInfoProcessorIndex++;
-                        if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                        if (!Strings.isNullOrEmpty(processor.getSkippedExtraInfo())) {
                             gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
                         }
                     }
@@ -423,7 +417,7 @@ public class RoutingProfileManager {
                     if (o instanceof ExtraInfoProcessor processor) {
                         if (extraInfoProcessors[0] == null) {
                             extraInfoProcessors[0] = processor;
-                            if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                            if (!Strings.isNullOrEmpty(processor.getSkippedExtraInfo())) {
                                 gr.getHints().putObject(KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
                             }
                         } else {
@@ -437,7 +431,6 @@ public class RoutingProfileManager {
             routes.add(gr);
             c0 = c1;
         }
-        routes = enrichDirectRoutesTime(routes);
 
         List<RouteExtraInfo>[] extraInfos = new List[numberOfExpectedExtraInfoProcessors];
         int i = 0;
@@ -445,7 +438,7 @@ public class RoutingProfileManager {
             extraInfos[i] = e != null ? e.getExtras() : null;
             i++;
         }
-        return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
+        return new RouteResultBuilder().createRouteResults(enrichDirectRoutesTime(routes), req, extraInfos);
     }
 
     /**
@@ -511,7 +504,7 @@ public class RoutingProfileManager {
             return 0;
     }
 
-    public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
+    public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws InternalServerException, ServerLimitExceededException, ParameterValueException {
         RouteSearchParameters searchParams = req.getSearchParameters();
         int profileType = searchParams.getProfileType();
 
@@ -611,7 +604,7 @@ public class RoutingProfileManager {
         return rp.computeMatrix(req);
     }
 
-    public ExportResult computeExport(ExportRequest req) throws Exception {
+    public ExportResult computeExport(ExportRequest req) throws InternalServerException {
         RoutingProfile rp = routingProfiles.getRouteProfile((req.getProfileType()));
 
         if (rp == null)

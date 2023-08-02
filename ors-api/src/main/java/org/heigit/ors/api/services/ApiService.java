@@ -5,7 +5,6 @@ import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.common.RequestOptions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.*;
@@ -32,6 +31,7 @@ import java.util.Locale;
 
 public class ApiService {
 
+    public static final String PARAM_KEY_FACTOR = "factor";
     protected EndpointsProperties endpointsProperties;
 
     double getMaximumAvoidPolygonArea() {
@@ -42,7 +42,7 @@ public class ApiService {
         return 0d;
     }
 
-    public static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
+    public static String[] convertAPIEnumListToStrings(Enum<?>[] valuesIn) {
         String[] attributes = new String[valuesIn.length];
 
         for (int i = 0; i < valuesIn.length; i++) {
@@ -52,7 +52,7 @@ public class ApiService {
         return attributes;
     }
 
-    protected static String convertAPIEnum(Enum valuesIn) {
+    protected static String convertAPIEnum(Enum<?> valuesIn) {
         return valuesIn.toString();
     }
 
@@ -88,12 +88,13 @@ public class ApiService {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    protected Polygon[] convertAndValidateAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+    protected Polygon[] convertAndValidateAvoidAreas(JSONObject geoJson) throws StatusCodeException {
         Polygon[] avoidAreas = convertAvoidAreas(geoJson);
-        validateAreaLimits(avoidAreas, profileType);
+        validateAreaLimits(avoidAreas);
         return avoidAreas;
     }
 
+    @SuppressWarnings("unchecked")
     protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
@@ -105,25 +106,25 @@ public class ApiService {
         try {
             convertedGeom = GeometryJSON.parse(complexJson);
         } catch (Exception e) {
-            throw new ParameterValueException(GenericErrorCodes.INVALID_JSON_FORMAT, RequestOptions.PARAM_AVOID_POLYGONS);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_JSON_FORMAT, RouteRequestParameterNames.PARAM_AVOID_POLYGONS);
         }
 
         Polygon[] avoidAreas;
 
-        if (convertedGeom instanceof Polygon) {
-            avoidAreas = new Polygon[]{(Polygon) convertedGeom};
+        if (convertedGeom instanceof Polygon polygon) {
+            avoidAreas = new Polygon[]{polygon};
         } else if (convertedGeom instanceof MultiPolygon multiPoly) {
             avoidAreas = new Polygon[multiPoly.getNumGeometries()];
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
         } else {
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_AVOID_POLYGONS);
         }
 
         return avoidAreas;
     }
 
-    protected void validateAreaLimits(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
+    protected void validateAreaLimits(Polygon[] avoidAreas) throws StatusCodeException {
         double areaLimit = getMaximumAvoidPolygonArea();
         double extentLimit = getMaximumAvoidPolygonExtent();
         for (Polygon avoidArea : avoidAreas) {
@@ -141,7 +142,7 @@ public class ApiService {
                     }
                 }
             } catch (InternalServerException e) {
-                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS);
+                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_AVOID_POLYGONS);
             }
         }
     }
@@ -158,7 +159,7 @@ public class ApiService {
                     if (countryId > 0) {
                         avoidCountryIds[i] = countryId;
                     } else {
-                        throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
+                        throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
                     }
                 }
             }
@@ -171,7 +172,7 @@ public class ApiService {
         DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
 
         if (units == DistanceUnit.UNKNOWN)
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_UNITS, unitsIn.toString());
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_UNITS, unitsIn.toString());
 
         return units;
     }
@@ -182,10 +183,10 @@ public class ApiService {
             String avoidFeatureName = avoid.toString();
             int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
             if (flag == 0)
-                throw new UnknownParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName);
+                throw new UnknownParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_AVOID_FEATURES, avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatibleParameterException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName, APIRequest.PARAM_PROFILE, RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_AVOID_FEATURES, avoidFeatureName, APIRequest.PARAM_PROFILE, RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -198,7 +199,7 @@ public class ApiService {
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
 
         if (options.hasAvoidPolygonFeatures())
-            params.setAvoidAreas(convertAndValidateAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
+            params.setAvoidAreas(convertAndValidateAvoidAreas(options.getAvoidPolygonFeatures()));
 
         if (options.hasAvoidCountries())
             params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
@@ -229,12 +230,12 @@ public class ApiService {
             applyWeightings(weightings, params);
         }
 
-        if (params instanceof WheelchairParameters) {
+        if (params instanceof WheelchairParameters wheelchairParameters) {
             if (options.getProfileParams().hasSurfaceQualityKnown()) {
-                ((WheelchairParameters) params).setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());
+                wheelchairParameters.setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());
             }
             if (options.getProfileParams().hasAllowUnsuitable()) {
-                ((WheelchairParameters) params).setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
+                wheelchairParameters.setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
             }
         }
         return params;
@@ -378,7 +379,7 @@ public class ApiService {
                 Float greenFactor = weightings.getGreenIndex();
                 if (greenFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", greenFactor), "green factor", "1.0");
-                pw.addParameter("factor", greenFactor);
+                pw.addParameter(PARAM_KEY_FACTOR, greenFactor);
                 params.add(pw);
             }
 
@@ -387,7 +388,7 @@ public class ApiService {
                 Float quietFactor = weightings.getQuietIndex();
                 if (quietFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", quietFactor), "quiet factor", "1.0");
-                pw.addParameter("factor", quietFactor);
+                pw.addParameter(PARAM_KEY_FACTOR, quietFactor);
                 params.add(pw);
             }
 
@@ -396,7 +397,7 @@ public class ApiService {
                 Float shadowFactor = weightings.getShadowIndex();
                 if (shadowFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", shadowFactor), "shadow factor", "1.0");
-                pw.addParameter("factor", shadowFactor);
+                pw.addParameter(PARAM_KEY_FACTOR, shadowFactor);
                 params.add(pw);
             }
 
@@ -408,7 +409,7 @@ public class ApiService {
             if (weightings.hasCsv()) {
                 ProfileWeighting pw = new ProfileWeighting("csv");
                 pw.addParameter("column", weightings.getCsvColumn());
-                pw.addParameter("factor", weightings.getCsvFactor());
+                pw.addParameter(PARAM_KEY_FACTOR, weightings.getCsvFactor());
                 params.add(pw);
             }
         } catch (InternalServerException e) {

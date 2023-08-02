@@ -43,6 +43,7 @@ public class TrafficEdgeFilter implements EdgeFilter {
     }
 
     public void higherFunctionalClass() {
+        // TODO this is probably meant to be "<= TrafficRelevantWayType.RelevantWayTypes.CLASS4". Who can verify?
         if (hereFunctionalClass > TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && hereFunctionalClass <= TrafficRelevantWayType.RelevantWayTypes.CLASS1.value) {
             // We don't want to increase the functional class higher than CLASS1 and not lower than CLASS4 to not collide with non-links.
             this.hereFunctionalClass -= 1;

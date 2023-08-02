@@ -77,14 +77,13 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * Initiate the wheelchair storage builder
      *
      * @param graphhopper The graphhopper instance to run against
-     * @throws Exception Thrown when the storage has already been initialized
+     * @throws IllegalStateException Thrown when the storage has already been initialized
      * @return The storage that is created from the builder
      */
     @Override
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException {
         if (storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
-
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
         if (parameters.containsKey("KerbsOnCrossings")) {
             kerbHeightOnlyOnCrossing = Boolean.parseBoolean(parameters.get("KerbsOnCrossings"));
         }

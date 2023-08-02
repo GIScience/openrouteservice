@@ -137,6 +137,7 @@ public abstract class AbstractCoreRoutingAlgorithm extends AbstractRoutingAlgori
         return createEmptyPath();
     }
 
+    @Override
     protected Path createEmptyPath() {
         return new Path(graph.getBaseGraph());
     }

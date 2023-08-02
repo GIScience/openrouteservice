@@ -218,7 +218,6 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
                 continue;
 
             edgeWeight = iter.getWeight(false);
-//            edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
 
             if (!Double.isInfinite(edgeWeight)) {
                 MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
@@ -272,7 +271,6 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
             return;
 
         while (iter.next()) {
-//            edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
             edgeWeight = iter.getWeight(false);
             if (!Double.isInfinite(edgeWeight)) {
                 MultiTreeSPEntry ee = bestWeightMap.get(iter.getAdjNode());

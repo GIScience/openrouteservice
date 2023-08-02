@@ -20,10 +20,11 @@ import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.plugins.Plugin;
 import org.locationtech.jts.geom.Coordinate;
 
+import java.io.IOException;
 import java.util.Map;
 
 public interface GraphStorageBuilder extends Plugin {
-    GraphExtension init(GraphHopper graphhopper) throws Exception;
+    GraphExtension init(GraphHopper graphhopper) throws IllegalStateException, IOException;
 
     void processWay(ReaderWay way);
 

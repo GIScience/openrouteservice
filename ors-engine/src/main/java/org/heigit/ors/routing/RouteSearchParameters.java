@@ -72,9 +72,9 @@ public class RouteSearchParameters {
         return profileType;
     }
 
-    public void setProfileType(int profileType) throws Exception {
+    public void setProfileType(int profileType) throws IllegalArgumentException {
         if (profileType == RoutingProfileType.UNKNOWN)
-            throw new Exception("Routing profile is unknown.");
+            throw new IllegalArgumentException("Routing profile is unknown.");
 
         this.profileType = profileType;
 

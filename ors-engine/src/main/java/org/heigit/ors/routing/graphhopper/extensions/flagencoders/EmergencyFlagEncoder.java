@@ -324,28 +324,19 @@ public class EmergencyFlagEncoder extends VehicleFlagEncoder {
 
             if (!Helper.isEmpty(highway)) {
                 switch (highway) {
-                    case KEY_MOTORWAY:
-                    case KEY_MOTORWAY_LINK:
-                    case "trunk":
-                    case "trunk_link":
+                    case KEY_MOTORWAY, KEY_MOTORWAY_LINK, "trunk", "trunk_link":
                         weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
                         break;
-                    case "primary":
-                    case "primary_link":
+                    case "primary", "primary_link":
                         weightToPrioMap.put(100d, PriorityCode.PREFER.getValue());
                         break;
-                    case "secondary":
-                    case "secondary_link":
+                    case "secondary", "secondary_link":
                         weightToPrioMap.put(100d, PriorityCode.PREFER.getValue());
                         break;
-                    case "tertiary":
-                    case "tertiary_link":
+                    case "tertiary", "tertiary_link":
                         weightToPrioMap.put(100d, PriorityCode.UNCHANGED.getValue());
                         break;
-                    case "residential":
-                    case KEY_SERVICE:
-                    case "road":
-                    case "unclassified":
+                    case "residential", KEY_SERVICE, "road", "unclassified":
                         if (maxSpeed > 0 && maxSpeed <= 30)
                             weightToPrioMap.put(120d, PriorityCode.REACH_DEST.getValue());
                         else

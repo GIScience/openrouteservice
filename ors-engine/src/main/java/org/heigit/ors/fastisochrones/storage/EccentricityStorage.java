@@ -91,7 +91,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         borderNodePointer = borderNodeIndexOffset;
         borderNodeToPointerMap = new IntLongHashMap();
         generateBorderNodeToPointerMap();
-        eccentricities.ensureCapacity((long) borderNodeIndexOffset + (long) borderNodeCount * eccentricityBytes);
+        eccentricities.ensureCapacity(borderNodeIndexOffset + (long) borderNodeCount * eccentricityBytes);
     }
 
     private int getNumBorderNodes() {
@@ -108,7 +108,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         for (int node = 0; node < nodeCount; node++) {
             if (isochroneNodeStorage.getBorderness(node)) {
                 borderNodeToPointerMap.put(node, borderNodePointer);
-                borderNodePointer += (long) eccentricityBytes;
+                borderNodePointer += eccentricityBytes;
             }
         }
     }
@@ -183,7 +183,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
             listPointer = listPointer + 4;
             eccentricities.getBytes(listPointer, buffer, 8);
             long nodePointer = byteArrayToLong(buffer);
-            listPointer = listPointer + (long) 8;
+            listPointer = listPointer + 8;
             borderNodeToPointerMap.put(borderNode, nodePointer);
         }
     }

@@ -102,8 +102,7 @@ public class FastIsochroneAlgorithm extends AbstractIsochroneAlgorithm {
             int cell = isochroneNodeStorage.getCellId(sweepEndNode);
             if (cell == startCell)
                 continue;
-            if (!upAndCoreGraphDistMap.containsKey(cell))
-                upAndCoreGraphDistMap.put(cell, new HashMap<>());
+            upAndCoreGraphDistMap.computeIfAbsent(cell, k -> new HashMap<>());
             upAndCoreGraphDistMap.get(cell).put(sweepEndNode, dist);
             startCellMap.remove(sweepEndNode);
         }

@@ -261,7 +261,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         matchedOSMLinks.add(osmGeometry);
     }
 
-    private RouteSegmentInfo[] matchLinkToSegments(ORSGraphHopper graphHopper, int trafficLinkFunctionalClass,
+    private RouteSegmentInfo[] matchLinkToSegments(int trafficLinkFunctionalClass,
                                                    double originalTrafficLinkLength, Geometry geometry, boolean bothDirections) {
         RouteSegmentInfo[] matchedSegments = new RouteSegmentInfo[0];
         if (geometry == null) {
@@ -339,14 +339,14 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         if (hereTrafficLink.isBothDirections()) {
             // Both Directions
             // Split
-            matchedSegmentsFrom = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
-            matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
+            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
+            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         } else if (hereTrafficLink.isOnlyFromDirection()) {
             // One Direction
-            matchedSegmentsFrom = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
+            matchedSegmentsFrom = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getFromGeometry(), false);
         } else {
             // One Direction
-            matchedSegmentsTo = matchLinkToSegments(graphHopper, hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
+            matchedSegmentsTo = matchLinkToSegments(hereTrafficLink.getFunctionalClass(), hereTrafficLink.getLinkLength(), hereTrafficLink.getToGeometry(), false);
         }
 
         processSegments(graphHopper, hereTrafficLink.getLinkId(), hereTrafficLink.getTrafficPatternIds(TrafficEnums.TravelDirection.FROM), matchedSegmentsFrom);
@@ -413,7 +413,6 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
         if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value)) {
             // Test a higher functional class based from the original class
-//            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
             trafficEdgeFilter.higherFunctionalClass();
             mMapMatcher.setEdgeFilter(trafficEdgeFilter);
             match = mMapMatcher.match(locations, bothDirections);
@@ -466,10 +465,5 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             return new RouteSegmentInfo[]{};
         else
             return routeSegmentInfo;
-    }
-
-    private static class setTaskName {
-        public setTaskName(String matchingHereLinks) {
-        }
     }
 }

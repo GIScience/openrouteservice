@@ -26,7 +26,7 @@ public class PluginManager<T extends Plugin> {
     private static final Map<String, Object> pluginMgrCache = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    public static synchronized <T extends Plugin> PluginManager<T> getPluginManager(Class<?> cls) throws Exception {
+    public static synchronized <T extends Plugin> PluginManager<T> getPluginManager(Class<?> cls) {
         PluginManager<T> pmgr = null;
         pmgr = (PluginManager<T>) pluginMgrCache.get(cls.getName());
         if (pmgr == null) {
@@ -37,9 +37,9 @@ public class PluginManager<T extends Plugin> {
     }
 
     @SuppressWarnings("unchecked")
-    public PluginManager(Class<?> cls) throws Exception {
+    public PluginManager(Class<?> cls) throws IllegalArgumentException {
         if (cls.equals(getClass()))
-            throw new Exception("Wrong class parameter");
+            throw new IllegalArgumentException("Wrong class parameter");
         loader = (ServiceLoader<T>) ServiceLoader.load(cls);
         lockObj = new Object();
     }

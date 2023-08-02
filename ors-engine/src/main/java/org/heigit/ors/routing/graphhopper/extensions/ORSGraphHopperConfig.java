@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ORSGraphHopperConfig extends GraphHopperConfig {
+    public static final String KEY_PREPARE_CORELM_THREADS = "prepare.corelm.threads";
     private List<CHProfile> coreProfiles = new ArrayList<>();
     private List<LMProfile> coreLMProfiles = new ArrayList<>();
     private List<Profile> fastisochroneProfiles = new ArrayList<>();
@@ -17,9 +18,8 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         return coreProfiles;
     }
 
-    public GraphHopperConfig setCoreProfiles(List<CHProfile> coreProfiles) {
+    public void setCoreProfiles(List<CHProfile> coreProfiles) {
         this.coreProfiles = coreProfiles;
-        return this;
     }
 
     public List<LMProfile> getCoreLMProfiles() {
@@ -28,16 +28,15 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
     public void setCoreLMProfiles(List<LMProfile> coreLMProfiles) {
         this.coreLMProfiles = coreLMProfiles;
-        if (has("prepare.corelm.threads"))
-            putObject("prepare.corelm.threads", getInt("prepare.corelm.threads", 1));
+        if (has(KEY_PREPARE_CORELM_THREADS))
+            putObject(KEY_PREPARE_CORELM_THREADS, getInt(KEY_PREPARE_CORELM_THREADS, 1));
     }
 
     public List<Profile> getFastisochroneProfiles() {
         return fastisochroneProfiles;
     }
 
-    public GraphHopperConfig setFastisochroneProfiles(List<Profile> fastisochroneProfiles) {
+    public void setFastisochroneProfiles(List<Profile> fastisochroneProfiles) {
         this.fastisochroneProfiles = fastisochroneProfiles;
-        return this;
     }
 }

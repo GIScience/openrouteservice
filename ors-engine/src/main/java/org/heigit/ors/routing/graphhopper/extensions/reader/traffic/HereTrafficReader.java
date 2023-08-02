@@ -44,8 +44,6 @@ public class HereTrafficReader {
 
     private final TrafficData hereTrafficData = new TrafficData();
 
-    private static HereTrafficReader currentInstance;
-
     DistanceCalcEarth distCalc;
 
     /**
@@ -56,7 +54,6 @@ public class HereTrafficReader {
         this.patternsFile = "";
         this.patternsReferenceFile = "";
         this.distCalc = new DistanceCalcEarth();
-        currentInstance = this;
         isInitialized = false;
     }
 
@@ -68,12 +65,11 @@ public class HereTrafficReader {
         this.patternsFile = patterns15MinutesFile;
         this.patternsReferenceFile = refPatternIdsFile;
         this.distCalc = new DistanceCalcEarth();
-        currentInstance = this;
         isInitialized = false;
     }
 
     public void readData() throws IOException {
-        if (streetGeometriesFile.equals("") || patternsFile.equals("") || patternsReferenceFile.equals(""))
+        if (streetGeometriesFile.isEmpty() || patternsFile.isEmpty() || patternsReferenceFile.isEmpty())
             return;
         try {
             SimpleFeatureCollection rawGeometries = readHereGeometries();
@@ -86,7 +82,6 @@ public class HereTrafficReader {
             Map<Integer, TrafficPattern> patterns = readPatterns();
             LOGGER.info("Here patterns pre-processed");
 
-
             generatePatterns(referencePatterns, patterns);
             LOGGER.info("Here input data processed successfully");
 
@@ -96,7 +91,6 @@ public class HereTrafficReader {
             LOGGER.error("Could not access file(s) required for Here traffic data");
             throw ioe;
         }
-        currentInstance = this;
     }
 
     public boolean isInitialized() {
@@ -164,7 +158,7 @@ public class HereTrafficReader {
             for (int i = 1; i < pattern.size(); i++) {
                 patternValues[i - 1] = Short.parseShort(pattern.get(i));
             }
-            TrafficPattern hereTrafficPattern = new TrafficPattern(patternID, TrafficEnums.PatternResolution.MINUTES_15, patternValues);
+            TrafficPattern hereTrafficPattern = new TrafficPattern(patternID, patternValues);
             hereTrafficPatterns.put(patternID, hereTrafficPattern);
         }
         return hereTrafficPatterns;

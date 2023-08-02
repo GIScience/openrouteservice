@@ -21,14 +21,6 @@ public class RuntimeUtility {
     private RuntimeUtility() {
     }
 
-    public static void clearMemory(Logger logger) {
-        logger.info("====> Recycling garbage...");
-        printRAMInfo("Before: ", logger);
-        Runtime.getRuntime().gc();
-        printRAMInfo("After: ", logger);
-        logger.info("========================================================================");
-    }
-
     public static void printRAMInfo(String hint, Logger logger) {
         logger.info(hint + "Total - " + getMemorySize(Runtime.getRuntime().totalMemory()) + ", Free - "
                 + getMemorySize(Runtime.getRuntime().freeMemory()) + ", Max: " + getMemorySize(Runtime.getRuntime().maxMemory())

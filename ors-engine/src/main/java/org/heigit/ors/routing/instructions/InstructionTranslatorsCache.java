@@ -15,6 +15,7 @@ package org.heigit.ors.routing.instructions;
 
 import org.heigit.ors.localization.LocalizationManager;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class InstructionTranslatorsCache {
         return mInstance;
     }
 
-    public InstructionTranslator getTranslator(String langCode) throws Exception {
+    public InstructionTranslator getTranslator(String langCode) throws IOException {
         int hashCode = langCode.hashCode();
         InstructionTranslator res = translators.get(hashCode);
         if (res == null) {

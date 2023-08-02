@@ -23,6 +23,9 @@ import org.heigit.ors.exceptions.ParameterValueException;
 
 
 public class APIEnums {
+
+    public static final String PARAM_NAME_FORMAT = "format";
+
     @Schema(name = "Avoid borders", description = "Specify which type of border crossing to avoid")
     public enum AvoidBorders {
         ALL("all"),
@@ -110,7 +113,7 @@ public class APIEnums {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, "format", v);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, PARAM_NAME_FORMAT, v);
         }
 
         @Override
@@ -136,7 +139,7 @@ public class APIEnums {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, "format", v);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, PARAM_NAME_FORMAT, v);
         }
 
         @Override
@@ -162,7 +165,7 @@ public class APIEnums {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, "format", v);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, PARAM_NAME_FORMAT, v);
         }
 
         @Override

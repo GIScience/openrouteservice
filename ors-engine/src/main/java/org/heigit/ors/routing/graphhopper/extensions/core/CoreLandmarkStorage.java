@@ -88,6 +88,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     /**
      * This method calculates the landmarks and initial weightings to & from them.
      */
+    @Override
     public void createLandmarks() {
         if (isInitialized())
             throw new IllegalStateException("Initialize the landmark storage only once!");
@@ -102,7 +103,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         int coreNodes = getBaseNodes();
 
         // fill 'from' and 'to' weights with maximum value
-        long maxBytes = (long) coreNodes * LM_ROW_LENGTH;
+        long maxBytes = coreNodes * LM_ROW_LENGTH;
         landmarkWeightDA.create(2000);
         landmarkWeightDA.ensureCapacity(maxBytes);
 
@@ -428,7 +429,8 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             int from = mainEdgeState.getBaseNode();
             int to = mainEdgeState.getAdjNode();
 
-            RoutingCHEdgeIteratorState iter1, iter2;
+            RoutingCHEdgeIteratorState iter1;
+            RoutingCHEdgeIteratorState iter2;
             iter1 = core.getEdgeIteratorState(skippedEdge1, from);
             if (iter1 == null) {
                 iter1 = core.getEdgeIteratorState(skippedEdge2, from);

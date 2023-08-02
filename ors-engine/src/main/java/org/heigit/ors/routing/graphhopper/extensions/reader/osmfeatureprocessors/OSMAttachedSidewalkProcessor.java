@@ -122,29 +122,21 @@ public class OSMAttachedSidewalkProcessor {
         }
 
         Set<String> sidewalkProperties = getSidewalkKeys(osmWay);
-
         for (String key : sidewalkProperties) {
             if (key.startsWith("sidewalk:left") || key.startsWith("footway:left")) sidewalkOnLeftSide = true;
             if (key.startsWith("sidewalk:right") || key.startsWith("footway:right")) sidewalkOnRightSide = true;
             if (key.startsWith("sidewalk:both") || key.startsWith("footway:both")) sidewalkOnBothSides = true;
         }
 
-        if (sidewalkOnLeftSide && sidewalkOnRightSide) {
-            sidewalkOnBothSides = true;
-        }
-
-        if (sidewalkOnBothSides) {
+        if (sidewalkOnBothSides || sidewalkOnLeftSide && sidewalkOnRightSide) {
             return Side.BOTH;
         }
-
         if (sidewalkOnLeftSide) {
             return Side.LEFT;
         }
-
         if (sidewalkOnRightSide) {
             return Side.RIGHT;
         }
-
         return Side.NONE;
     }
 }

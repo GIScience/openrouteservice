@@ -61,6 +61,7 @@ class RoutingServiceTest {
         geoJsonPolygon = constructGeoJson();
     }
 
+    @SuppressWarnings("unchecked")
     private JSONObject constructGeoJson() {
         JSONObject geoJsonPolygon = new JSONObject();
         geoJsonPolygon.put("type", "Polygon");

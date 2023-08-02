@@ -151,7 +151,7 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
 
             borderNodes.getBytes(listPointer, buffer, 8);
             long nodePointer = byteArrayToLong(buffer);
-            listPointer = listPointer + (long) 8;
+            listPointer = listPointer + 8;
             borderNodeToPointerMap.put(borderNode, nodePointer);
         }
     }

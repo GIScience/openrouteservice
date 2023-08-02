@@ -40,7 +40,7 @@ public class CoreLMConfig extends LMConfig {
     public boolean equals(Object o) {
         if (!super.equals(o)) {
             return false;
-        } else if (o != null && this.getClass() == o.getClass()) {
+        } else if (this.getClass() == o.getClass()) {
             CoreLMConfig lmConfig = (CoreLMConfig) o;
             return Objects.equals(this.edgeFilter, lmConfig.edgeFilter);
         } else {

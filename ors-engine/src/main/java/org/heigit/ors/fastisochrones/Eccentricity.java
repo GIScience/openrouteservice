@@ -120,6 +120,7 @@ public class Eccentricity extends AbstractEccentricity {
             }
         } catch (Exception e) {
             threadPool.shutdownNow();
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
 
@@ -153,6 +154,7 @@ public class Eccentricity extends AbstractEccentricity {
             }
         } catch (Exception e) {
             threadPool.shutdownNow();
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
         borderNodeDistanceStorage.storeBorderNodeToPointerMap();

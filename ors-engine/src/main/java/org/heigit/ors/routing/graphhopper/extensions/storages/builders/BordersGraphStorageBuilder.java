@@ -26,6 +26,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -58,15 +59,11 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * Initialize the Borders graph extension <br/><br/>
      * Files required for the process are obtained from the ors-config.json and passed to a CountryBordersReader object
      * which stores information required for the process (i.e. country geometries and border types)
-     *
-     * @param graphhopper
-     * @return
-     * @throws Exception
      */
     @Override
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException, IOException, MissingResourceException {
         if (storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
 
         if (this.cbReader == null) {
             // Read the border shapes from the file
@@ -93,7 +90,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             else
                 ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_OPEN_BORDERS);
 
-            // Read the file containing all of the country border polygons
+            // Read the file containing all the country border polygons
             this.cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
         }
 

@@ -1,5 +1,5 @@
 # Image is reused in the workflow builds for master and the latest version
-FROM maven:3.8-openjdk-17-slim as base
+FROM maven:3.8-openjdk-17-slim AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -14,7 +14,7 @@ RUN apt-get update -qq && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-FROM base as tomcat
+FROM base AS tomcat
 ARG TOMCAT_MAJOR=10
 ARG TOMCAT_VERSION=10.1.11
 
@@ -28,7 +28,7 @@ RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOM
     mv /tmp/apache-tomcat-${TOMCAT_VERSION}/ /tmp/tomcat && \
     echo "org.apache.catalina.level = WARNING" >> /tmp/tomcat/conf/logging.properties
 
-FROM base as build
+FROM base AS build
 
 # hadolint ignore=DL3002
 USER root
@@ -45,7 +45,7 @@ COPY pom.xml /ors-core/pom.xml
 RUN mvn package -DskipTests
 
 # build final image, just copying stuff inside
-FROM amazoncorretto:17.0.7-alpine3.17 as publish
+FROM amazoncorretto:17.0.7-alpine3.17 AS publish
 
 # Build ARGS
 ARG UID=1000

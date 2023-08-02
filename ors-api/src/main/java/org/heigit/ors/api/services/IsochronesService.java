@@ -1,6 +1,7 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -73,37 +74,23 @@ public class IsochronesService extends ApiService {
     }
 
     String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
-        IsochronesRequestEnums.LocationType value;
-
-        switch (locationType) {
-            case DESTINATION:
-                value = IsochronesRequestEnums.LocationType.DESTINATION;
-                break;
-            case START:
-                value = IsochronesRequestEnums.LocationType.START;
-                break;
-            default:
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATION_TYPE, locationType.toString());
-        }
+        IsochronesRequestEnums.LocationType value = switch (locationType) {
+            case DESTINATION -> IsochronesRequestEnums.LocationType.DESTINATION;
+            case START -> IsochronesRequestEnums.LocationType.START;
+            default ->
+                    throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATION_TYPE, locationType.toString());
+        };
 
         return value.toString();
     }
 
     TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
-        TravelRangeType travelRangeType;
-
-        switch (rangeType) {
-            case DISTANCE:
-                travelRangeType = TravelRangeType.DISTANCE;
-                break;
-            case TIME:
-                travelRangeType = TravelRangeType.TIME;
-                break;
-            default:
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_TYPE, rangeType.toString());
-        }
-
-        return travelRangeType;
+        return switch (rangeType) {
+            case DISTANCE -> TravelRangeType.DISTANCE;
+            case TIME -> TravelRangeType.TIME;
+            default ->
+                    throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_TYPE, rangeType.toString());
+        };
 
     }
 
@@ -205,7 +192,7 @@ public class IsochronesService extends ApiService {
                 Map<String, String> propMapping = new HashMap<>();
                 for (Map.Entry<String, String> propEntry : propertyMapping.entrySet())
                     propMapping.put(propEntry.getValue(), propEntry.getKey());
-                if (propMapping.size() > 0) {
+                if (!propMapping.isEmpty()) {
                     StatisticsProviderConfiguration provConfig = new StatisticsProviderConfiguration(id++, providerProperties.getProviderName(), providerProperties.getProviderParameters(), propMapping, providerProperties.getAttribution());
                     for (Map.Entry<String, String> property : propMapping.entrySet())
                         statsProviders.put(property.getKey().toLowerCase(), provConfig);
@@ -216,7 +203,7 @@ public class IsochronesService extends ApiService {
         return statsProviders;
     }
 
-    TravellerInfo constructTravellerInfo(IsochronesRequest isochronesRequest, Double[] coordinate) throws Exception {
+    TravellerInfo constructTravellerInfo(IsochronesRequest isochronesRequest, Double[] coordinate) throws StatusCodeException {
         TravellerInfo travellerInfo = new TravellerInfo();
 
         RouteSearchParameters routeSearchParameters = constructRouteSearchParameters(isochronesRequest);
@@ -237,17 +224,17 @@ public class IsochronesService extends ApiService {
         return travellerInfo;
     }
 
-    RouteSearchParameters constructRouteSearchParameters(IsochronesRequest isochronesRequest) throws Exception {
+    RouteSearchParameters constructRouteSearchParameters(IsochronesRequest isochronesRequest) throws StatusCodeException {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         int profileType;
         try {
             profileType = convertToIsochronesProfileType(isochronesRequest.getProfile());
         } catch (Exception e) {
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_PROFILE);
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, APIRequest.PARAM_PROFILE);
         }
 
         if (profileType == RoutingProfileType.UNKNOWN)
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_PROFILE);
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, APIRequest.PARAM_PROFILE);
         routeSearchParameters.setProfileType(profileType);
 
         if (isochronesRequest.hasOptions()) {
@@ -365,16 +352,12 @@ public class IsochronesService extends ApiService {
 
     String convertCalcMethod(IsochronesRequestEnums.CalculationMethod bareCalcMethod) throws ParameterValueException {
         try {
-            switch (bareCalcMethod) {
-                case CONCAVE_BALLS:
-                    return "concaveballs";
-                case GRID:
-                    return "grid";
-                case FASTISOCHRONE:
-                    return "fastisochrone";
-                default:
-                    return "none";
-            }
+            return switch (bareCalcMethod) {
+                case CONCAVE_BALLS -> "concaveballs";
+                case GRID -> "grid";
+                case FASTISOCHRONE -> "fastisochrone";
+                default -> "none";
+            };
         } catch (Exception ex) {
             throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "calc_method");
         }

@@ -44,7 +44,7 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
     }
 
     protected List<JSONSegment> constructSegments(RouteResult routeResult, RouteRequest request) {
-        List segments = new ArrayList<>();
+        List<JSONSegment> segments = new ArrayList<>();
         for (RouteSegment routeSegment : routeResult.getSegments()) {
             segments.add(new JSONSegment(routeSegment, request, routeResult.getSummary().getDistance()));
         }

@@ -37,6 +37,8 @@ import java.util.*;
 
 import static com.graphhopper.routing.ev.RouteNetwork.*;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
+import static org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBikeFlagEncoder.UpdateType.DOWNGRADE_ONLY;
+import static org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBikeFlagEncoder.UpdateType.UPGRADE_ONLY;
 import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
@@ -71,13 +73,9 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     public static final String KEY_SEGREGATED = "segregated";
     public static final String KEY_ONEWAY_BICYCLE = "oneway:bicycle";
     public static final String KEY_BRIDLEWAY = "bridleway";
+    public static final String KEY_BICYCLE_FORWARD = "bicycle:forward";
 
     // Pushing section highways are parts where you need to get off your bike and push it (German: Schiebestrecke)
-    protected final HashSet<String> pushingSectionsHighways = new HashSet<>();
-    protected final HashSet<String> oppositeLanes = new HashSet<>();
-    protected final Set<String> preferHighwayTags = new HashSet<>();
-    protected final Set<String> avoidHighwayTags = new HashSet<>();
-    protected final Set<String> unpavedSurfaceTags = new HashSet<>();
     private final Map<String, SpeedValue> trackTypeSpeeds = new HashMap<>();
     private final Map<String, SpeedValue> surfaceSpeeds = new HashMap<>();
     private final Set<String> roadValues = new HashSet<>();
@@ -89,7 +87,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     // Car speed limit which switches the preference from UNCHANGED to AVOID_IF_POSSIBLE
     private int avoidSpeedLimit;
     EnumEncodedValue<RouteNetwork> bikeRouteEnc;
-    Map<RouteNetwork, Integer> routeMap = new HashMap<>();
+    Map<RouteNetwork, Integer> routeMap = new EnumMap<>(RouteNetwork.class);
     protected boolean conditionalAccess = false;
     // This is the specific bicycle class
     private String classBicycleKey;
@@ -279,7 +277,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     @Override
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
+        avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false);
+        registerNewEncodedValue.add(avgSpeedEnc);
         unpavedEncoder = new SimpleBooleanEncodedValue(getKey(prefix, "paved"), false);
         registerNewEncodedValue.add(unpavedEncoder);
         wayTypeEncoder = new UnsignedIntEncodedValue(getKey(prefix, "waytype"), 2, false);
@@ -531,58 +530,24 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         } else if (highway.speed > surface.speed) {
             // highway = 18 (residential)
             // surface = 4 (gravel)
-            switch (highway.type) {
-                case UPGRADE_ONLY:
-                    return highway.speed;
-
-                case DOWNGRADE_ONLY:
-                case BOTH:
-                default:
-                    return switch (surface.type) {
-                        case UPGRADE_ONLY -> highway.speed;
-                        case DOWNGRADE_ONLY, BOTH -> surface.speed;
-                        default -> surface.speed;
-                    };
+            if (highway.type == UPGRADE_ONLY) {
+                return highway.speed;
             }
+            return switch (surface.type) {
+                case UPGRADE_ONLY -> highway.speed;
+                case DOWNGRADE_ONLY, BOTH -> surface.speed;
+            };
         } else {
             // highway = 8 (cycleway)
             // surface = 18 (asphalt)
-            switch (highway.type) {
-                case DOWNGRADE_ONLY:
-                    return highway.speed;
-                case UPGRADE_ONLY:
-                case BOTH:
-                default:
-                    return switch (surface.type) {
-                        case DOWNGRADE_ONLY -> highway.speed;
-                        case UPGRADE_ONLY, BOTH -> surface.speed;
-                        default -> surface.speed;
-                    };
+            if (highway.type == DOWNGRADE_ONLY) {
+                return highway.speed;
             }
+            return switch (surface.type) {
+                case DOWNGRADE_ONLY -> highway.speed;
+                case UPGRADE_ONLY, BOTH -> surface.speed;
+            };
         }
-    }
-
-    String getWayName(int pavementType, int wayType, Translation tr) {
-        String pavementName = "";
-        if (pavementType == 1)
-            pavementName = tr.tr(KEY_UNPAVED);
-
-        String wayTypeName = switch (wayType) {
-            case 0 -> "";
-            case 1 -> tr.tr("off_bike");
-            case 2 -> tr.tr(KEY_CYCLEWAY);
-            case 3 -> tr.tr("small_way");
-            default -> "";
-        };
-
-        if (pavementName.isEmpty()) {
-            if (wayType == 0 || wayType == 3)
-                return "";
-            return wayTypeName;
-        } else if (wayTypeName.isEmpty())
-            return pavementName;
-        else
-            return wayTypeName + ", " + pavementName;
     }
 
     /**
@@ -762,6 +727,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         // MARQ24 MOD END
     }
 
+    @Override
     protected void handleSpeed(IntsRef edgeFlags, ReaderWay way, double speed) {
         avgSpeedEnc.setDecimal(false, edgeFlags, speed);
         // handle oneways
@@ -769,8 +735,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
                 || way.hasTag(KEY_ONEWAY_BICYCLE, oneways)
                 || way.hasTag("vehicle:backward")
                 || way.hasTag("vehicle:forward")
-                || way.hasTag("bicycle:forward", "yes")
-                || way.hasTag("bicycle:forward", "no");
+                || way.hasTag(KEY_BICYCLE_FORWARD, "yes")
+                || way.hasTag(KEY_BICYCLE_FORWARD, "no");
         //MARQ24 MOD START
         if (!way.hasTag(KEY_BICYCLE_ROAD, "yes") && (isOneway || way.hasTag(KEY_JUNCTION, "roundabout"))
                 //MARQ24 MOD END
@@ -782,7 +748,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             boolean isBackward = way.hasTag("oneway", "-1")
                     || way.hasTag(KEY_ONEWAY_BICYCLE, "-1")
                     || way.hasTag("vehicle:forward", "no")
-                    || way.hasTag("bicycle:forward", "no");
+                    || way.hasTag(KEY_BICYCLE_FORWARD, "no");
             accessEnc.setBool(isBackward, edgeFlags, true);
         } else {
             accessEnc.setBool(false, edgeFlags, true);
@@ -865,7 +831,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         BOTH
     }
 
-    protected static class SpeedValue {
+    public static class SpeedValue {
         private final Integer speed;
         private UpdateType type = UpdateType.BOTH;
 

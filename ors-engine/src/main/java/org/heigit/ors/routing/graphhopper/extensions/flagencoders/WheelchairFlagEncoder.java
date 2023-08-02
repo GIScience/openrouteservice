@@ -54,7 +54,6 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
     private double preferredSpeedFactor = 1;
 
     private final OSMAttachedSidewalkProcessor osmAttachedSidewalkProcessor = new OSMAttachedSidewalkProcessor();
-    private final OSMPedestrianProcessor osmPedestrianProcessor = new OSMPedestrianProcessor();
 
     protected Set<String> acceptedPublicTransport = new HashSet<>(5);
 
@@ -634,7 +633,7 @@ public class WheelchairFlagEncoder extends FootFlagEncoder {
         }
 
 
-        if (!osmAttachedSidewalkProcessor.hasSidewalkInfo(way) && !osmPedestrianProcessor.isPedestrianisedWay(way))
+        if (!osmAttachedSidewalkProcessor.hasSidewalkInfo(way) && !OSMPedestrianProcessor.isPedestrianisedWay(way))
             negativeFeatures += 2;
 
         int sum = positiveFeatures - negativeFeatures;

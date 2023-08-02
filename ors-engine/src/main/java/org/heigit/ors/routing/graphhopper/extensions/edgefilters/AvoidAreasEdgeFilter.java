@@ -213,14 +213,17 @@ public class AvoidAreasEdgeFilter implements EdgeFilter {
          */
         public double getOrdinate(int index, int ordinateIndex) {
             switch (ordinateIndex) {
-                case CoordinateSequence.X:
+                case CoordinateSequence.X -> {
                     return coordinates[index].x;
-                case CoordinateSequence.Y:
+                }
+                case CoordinateSequence.Y -> {
                     return coordinates[index].y;
-                case CoordinateSequence.Z:
+                }
+                case CoordinateSequence.Z -> {
                     return coordinates[index].z;
-                default:
-                    break;
+                }
+                default -> {
+                }
             }
             return Double.NaN;
         }

@@ -174,7 +174,7 @@ public class ORSWeightingFactory implements WeightingFactory {
         return hints.has(RouteRequestParameterNames.PARAM_DEPARTURE) || hints.has(RouteRequestParameterNames.PARAM_ARRIVAL);
     }
 
-    protected Weighting applySoftWeightings(PMap hints, FlagEncoder encoder, Weighting weighting) {
+    protected Weighting applySoftWeightings(PMap hints, FlagEncoder encoder, Weighting weighting) throws IllegalArgumentException {
         // TODO (cleanup): The term "custom_weighting" is easily confused with GH's custom
         //                 weighting and should be renamed.
         if (hints.getBool("custom_weightings", false)) {
@@ -203,8 +203,7 @@ public class ORSWeightingFactory implements WeightingFactory {
                             softWeightings.add(new HeatStressWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
                     case "shadow" ->
                             softWeightings.add(new ShadowWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
-                    default -> {
-                    }
+                    default -> throw new IllegalArgumentException("Unknown weighting name");
                 }
             }
 

@@ -29,6 +29,7 @@ import com.graphhopper.ResponsePath;
 import com.graphhopper.util.PointList;
 import com.graphhopper.util.shapes.BBox;
 import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RouteSegment;
 import org.heigit.ors.routing.RouteStep;
@@ -60,7 +61,7 @@ public class RouteResultMockup {
      * @return Return value is a standardized and profile depending {@link RouteResult}.
      * @throws Exception An Exception is raised if something goes wrong.
      */
-    public static RouteResult[] create(routeResultProfile profile) throws Exception {
+    public static RouteResult[] create(routeResultProfile profile) throws IllegalStateException, StatusCodeException {
         RouteResult routeResult = new RouteResult(0);
         if (profile == routeResultProfile.STANDARD_HEIDELBERG) {
             BBox bbox = new BBox(8.690603626917166, 8.690675487235653, 49.38366164068056, 49.38376283758349);

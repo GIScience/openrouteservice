@@ -43,13 +43,13 @@ public class JsonExportResponse extends ExportResponse {
         for (Map.Entry<Integer, Coordinate> location : exportResult.getLocations().entrySet()) {
             nodes.add(new JsonNode(location));
         }
-        nodesCount = nodes.stream().count();
+        nodesCount = (long) nodes.size();
 
         edges = new ArrayList<>();
         for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : exportResult.getEdgeWeigths().entrySet()) {
             edges.add(new JsonEdge(edgeWeight));
         }
-        edgesCount = edges.stream().count();
+        edgesCount = (long) edges.size();
 
         if (exportResult.hasEdgeExtras()) {
             edgesExtra = new ArrayList<>();
@@ -59,8 +59,8 @@ public class JsonExportResponse extends ExportResponse {
         }
 
         if (exportResult.hasWarning()) {
-            ExportWarning warning = exportResult.getWarning();
-            this.warning = new JSONWarning(warning.getWarningCode(), warning.getWarningMessage());
+            ExportWarning exportWarning = exportResult.getWarning();
+            this.warning = new JSONWarning(exportWarning.getWarningCode(), exportWarning.getWarningMessage());
         }
     }
 }

@@ -33,7 +33,6 @@ public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
 
         if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
             return isAccessible(edgeIterState, true);
-//            return edgeIterState.getReverse(accessEnc);
         else
             return false;
     }

@@ -43,7 +43,7 @@ public class RoutingManagerConfiguration {
 
     private RouteProfileConfiguration[] profiles;
 
-    private static void addFastIsochronesToProfileConfiguration(List<String> fastIsochroneProfileList, Map<String, Object> defaultFastIsochroneParams, RouteProfileConfiguration profile) {
+    private static void addFastIsochronesToProfileConfiguration(Map<String, Object> defaultFastIsochroneParams, RouteProfileConfiguration profile) {
         String profileRef = "fastisochrones.profiles." + profile.getName();
         Map<String, Object> profileParams = AppConfig.getIsochronesParametersMap(profileRef, true);
 
@@ -58,12 +58,11 @@ public class RoutingManagerConfiguration {
         profile.setIsochronePreparationOpts(ConfigFactory.parseString(profileParams.toString()));
     }
 
-    public static RoutingManagerConfiguration loadFromFile(String rootGraphsPath) throws Exception {
+    public static RoutingManagerConfiguration loadFromFile(String rootGraphsPath) {
         RoutingManagerConfiguration configuration = new RoutingManagerConfiguration();
 
         // Read profile settings
         List<RouteProfileConfiguration> newProfiles = new ArrayList<>();
-        List<String> fastIsochroneProfileList = AppConfig.getIsochronesParametersList("fastisochrones.profiles.active");
         Map<String, Object> defaultFastIsochroneParams = AppConfig.getIsochronesParametersMap("fastisochrones.profiles.default_params", true);
         if (defaultFastIsochroneParams == null) { // default to disabled if ors.services.isochrones.fastisochrones not available in ors-config.json
             defaultFastIsochroneParams = new HashMap<>();
@@ -90,7 +89,7 @@ public class RoutingManagerConfiguration {
 
             profile.setGraphPath(graphPath);
 
-            addFastIsochronesToProfileConfiguration(fastIsochroneProfileList, defaultFastIsochroneParams, profile);
+            addFastIsochronesToProfileConfiguration(defaultFastIsochroneParams, profile);
 
             Map<String, Object> profileParams = AppConfig.getRoutingParametersMap(profileRef + ".parameters", true);
 
@@ -106,25 +105,18 @@ public class RoutingManagerConfiguration {
             if (profileParams != null) {
                 for (Map.Entry<String, Object> paramItem : profileParams.entrySet()) {
                     switch (paramItem.getKey()) {
-                        case "preparation":
-                            profile.setPreparationOpts(ConfigFactory.parseString(paramItem.getValue().toString()));
-                            break;
-                        case "execution":
-                            profile.setExecutionOpts(ConfigFactory.parseString(paramItem.getValue().toString()));
-                            break;
-                        case "encoder_options":
-                            profile.setEncoderOptions(StringUtility.trimQuotes(paramItem.getValue().toString()));
-                            break;
-                        case "optimize":
-                            profile.setOptimize(Boolean.parseBoolean(paramItem.getValue().toString()));
-                            break;
-                        case "encoder_flags_size":
-                            profile.setEncoderFlagsSize(Integer.parseInt(paramItem.getValue().toString()));
-                            break;
-                        case "instructions":
-                            profile.setInstructions(Boolean.parseBoolean(paramItem.getValue().toString()));
-                            break;
-                        case "elevation":
+                        case "preparation" ->
+                                profile.setPreparationOpts(ConfigFactory.parseString(paramItem.getValue().toString()));
+                        case "execution" ->
+                                profile.setExecutionOpts(ConfigFactory.parseString(paramItem.getValue().toString()));
+                        case "encoder_options" ->
+                                profile.setEncoderOptions(StringUtility.trimQuotes(paramItem.getValue().toString()));
+                        case "optimize" -> profile.setOptimize(Boolean.parseBoolean(paramItem.getValue().toString()));
+                        case "encoder_flags_size" ->
+                                profile.setEncoderFlagsSize(Integer.parseInt(paramItem.getValue().toString()));
+                        case "instructions" ->
+                                profile.setInstructions(Boolean.parseBoolean(paramItem.getValue().toString()));
+                        case "elevation" -> {
                             if (Boolean.parseBoolean(paramItem.getValue().toString())) {
                                 profile.setElevationProvider(StringUtility.trimQuotes(profileParams.get("elevation_provider").toString()));
                                 if (profileParams.get(PARAM_ELEVATION_DATA_ACCESS) != null)
@@ -143,11 +135,10 @@ public class RoutingManagerConfiguration {
                                     profile.setElevationSmoothing(Boolean.parseBoolean(elevationSmoothing));
                                 }
                             }
-                            break;
-                        case "ext_storages":
+                        }
+                        case "ext_storages" -> {
                             @SuppressWarnings("unchecked")
                             Map<String, Object> storageList = (Map<String, Object>) paramItem.getValue();
-
                             for (Map.Entry<String, Object> storageEntry : storageList.entrySet()) {
                                 @SuppressWarnings("unchecked")
                                 Map<String, Object> entryValue = (Map<String, Object>) storageEntry.getValue();
@@ -161,77 +152,35 @@ public class RoutingManagerConfiguration {
 
                                 profile.getExtStorages().put(storageEntry.getKey(), storageParams);
                             }
-                            break;
-// Not in use anymore
-//                        case "graph_processors":
-//                            @SuppressWarnings("unchecked")
-//                            Map<String, Object> storageList2 = (Map<String, Object>) paramItem.getValue();
-//
-//                            for (Map.Entry<String, Object> storageEntry : storageList2.entrySet()) {
-//                                @SuppressWarnings("unchecked")
-//                                Map<String, Object> entryValue = (Map<String, Object>) storageEntry.getValue();
-//                                Map<String, String> storageParams = new HashMap<>();
-//
-//                                for (Map.Entry<String, Object> entry : entryValue.entrySet()) {
-//                                    storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
-//                                }
-//
-//                                profile.getGraphBuilders().put(storageEntry.getKey(), storageParams);
-//                            }
-//                            break;
-                        case "maximum_distance":
-                            profile.setMaximumDistance(Double.parseDouble(paramItem.getValue().toString()));
-                            break;
-                        case "maximum_distance_dynamic_weights":
-                            profile.setMaximumDistanceDynamicWeights(Double.parseDouble(paramItem.getValue().toString()));
-                            break;
-                        case "maximum_distance_avoid_areas":
-                            profile.setMaximumDistanceAvoidAreas(Double.parseDouble(paramItem.getValue().toString()));
-                            break;
-                        case "maximum_distance_alternative_routes":
-                            profile.setMaximumDistanceAlternativeRoutes(Double.parseDouble(paramItem.getValue().toString()));
-                            break;
-                        case "maximum_distance_round_trip_routes":
-                            profile.setMaximumDistanceRoundTripRoutes(Double.parseDouble(paramItem.getValue().toString()));
-                            break;
-                        case "maximum_waypoints":
-                            profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));
-                            break;
-// Not in use anymore
-//                        case "extent":
-//                            @SuppressWarnings("unchecked")
-//                            List<Double> bbox = (List<Double>) paramItem.getValue();
-//
-//                            if (bbox.size() != 4)
-//                                throw new Exception("'extent' element must contain 4 elements.");
-//                            profile.setExtent(new Envelope(bbox.get(0), bbox.get(1), bbox.get(2), bbox.get(3)));
-//                            break;
-                        case "maximum_snapping_radius":
-                            profile.setMaximumSnappingRadius(Integer.parseInt(paramItem.getValue().toString()));
-                            break;
-                        case "location_index_resolution":
-                            profile.setLocationIndexResolution(Integer.parseInt(paramItem.getValue().toString()));
-                            break;
-                        case "location_index_search_iterations":
-                            profile.setLocationIndexSearchIterations(Integer.parseInt(paramItem.getValue().toString()));
-                            break;
-                        case "maximum_speed_lower_bound":
-                            profile.setMaximumSpeedLowerBound(Double.parseDouble(paramItem.getValue().toString()));
-                            break;
-// Not in use anymore
-//                        case "traffic_expiration_min":
-//                            profile.setTrafficExpirationMin(Integer.parseInt(paramItem.getValue().toString()));
-//                            break;
-                        case "force_turn_costs":
-                            profile.setEnforceTurnCosts(Boolean.parseBoolean(paramItem.getValue().toString()));
-                            break;
-                        case "gtfs_file":
-                            profile.setGtfsFile(StringUtility.trimQuotes(paramItem.getValue().toString()));
-                            break;
-                        case "maximum_visited_nodes":
-                            profile.setMaximumVisitedNodesPT(Integer.parseInt(paramItem.getValue().toString()));
-                            break;
-                        default:
+                        }
+                        case "maximum_distance" ->
+                                profile.setMaximumDistance(Double.parseDouble(paramItem.getValue().toString()));
+                        case "maximum_distance_dynamic_weights" ->
+                                profile.setMaximumDistanceDynamicWeights(Double.parseDouble(paramItem.getValue().toString()));
+                        case "maximum_distance_avoid_areas" ->
+                                profile.setMaximumDistanceAvoidAreas(Double.parseDouble(paramItem.getValue().toString()));
+                        case "maximum_distance_alternative_routes" ->
+                                profile.setMaximumDistanceAlternativeRoutes(Double.parseDouble(paramItem.getValue().toString()));
+                        case "maximum_distance_round_trip_routes" ->
+                                profile.setMaximumDistanceRoundTripRoutes(Double.parseDouble(paramItem.getValue().toString()));
+                        case "maximum_waypoints" ->
+                                profile.setMaximumWayPoints(Integer.parseInt(paramItem.getValue().toString()));
+                        case "maximum_snapping_radius" ->
+                                profile.setMaximumSnappingRadius(Integer.parseInt(paramItem.getValue().toString()));
+                        case "location_index_resolution" ->
+                                profile.setLocationIndexResolution(Integer.parseInt(paramItem.getValue().toString()));
+                        case "location_index_search_iterations" ->
+                                profile.setLocationIndexSearchIterations(Integer.parseInt(paramItem.getValue().toString()));
+                        case "maximum_speed_lower_bound" ->
+                                profile.setMaximumSpeedLowerBound(Double.parseDouble(paramItem.getValue().toString()));
+                        case "force_turn_costs" ->
+                                profile.setEnforceTurnCosts(Boolean.parseBoolean(paramItem.getValue().toString()));
+                        case "gtfs_file" ->
+                                profile.setGtfsFile(StringUtility.trimQuotes(paramItem.getValue().toString()));
+                        case "maximum_visited_nodes" ->
+                                profile.setMaximumVisitedNodesPT(Integer.parseInt(paramItem.getValue().toString()));
+                        default -> {
+                        }
                     }
                 }
             }

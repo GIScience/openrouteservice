@@ -47,7 +47,7 @@ public class InstructionTranslator {
     private final String[] numerals;
     private final String[] turnManeuvers;
 
-    InstructionTranslator(LanguageResources resources) throws Exception {
+    InstructionTranslator(LanguageResources resources) {
         directions = new String[8];
         directions[0] = resources.getTranslation("instructions.directions.north");
         directions[1] = resources.getTranslation("instructions.directions.northeast");

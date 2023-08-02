@@ -15,7 +15,6 @@ package org.heigit.ors.routing.configuration;
 
 import com.typesafe.config.Config;
 import org.heigit.ors.routing.RoutingProfileType;
-import org.locationtech.jts.geom.Envelope;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,15 +51,12 @@ public class RouteProfileConfiguration {
     private boolean interpolateBridgesAndTunnels = true;
     private int maximumSnappingRadius = 350;
 
-    private Envelope extent;
     private boolean hasMaximumSnappingRadius = false;
 
     private int locationIndexResolution = 500;
     private int locationIndexSearchIterations = 4;
 
     private double maximumSpeedLowerBound = 80;
-
-    private final int trafficExpirationMin = 15;
 
     private int maximumVisitedNodesPT = 1000000;
 

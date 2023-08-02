@@ -1,7 +1,7 @@
 package org.heigit.ors.api.converters;
 
+import com.google.common.base.Strings;
 import org.heigit.ors.api.EngineProperties;
-import org.heigit.ors.util.StringUtility;
 import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ public class ConfigEmptyProfileMapConverter implements Converter<String, Map<Str
     @Override
     public Map<String, EngineProperties.ProfileProperties> convert(String from) {
         Map<String, EngineProperties.ProfileProperties> map = new HashMap<>();
-        if (!StringUtility.isNullOrEmpty(from))
+        if (!Strings.isNullOrEmpty(from))
             map.put(from, new EngineProperties.ProfileProperties());
         return map;
     }

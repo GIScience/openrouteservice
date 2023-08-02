@@ -48,32 +48,32 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
         this.errorCodeBase = errorCodeBase;
     }
 
-    public ResponseEntity handleStatusCodeException(StatusCodeException exception) {
+    public ResponseEntity<Object> handleStatusCodeException(StatusCodeException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         logException(exception);
-        return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
+        return new ResponseEntity<>(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
-    public ResponseEntity handleUnknownParameterException(UnknownParameterException exception) {
+    public ResponseEntity<Object> handleUnknownParameterException(UnknownParameterException exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         logException(exception);
-        return new ResponseEntity(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
+        return new ResponseEntity<>(constructErrorBody(exception), headers, convertOrsToSpringHttpCode(exception.getStatusCode()));
     }
 
-    public ResponseEntity handleGenericException(Exception exception) {
+    public ResponseEntity<Object> handleGenericException(Exception exception) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         logException(exception);
         Throwable cause = exception.getCause();
         if (cause instanceof ValueInstantiationException e) {
             if (e.getCause() instanceof StatusCodeException origExc) {
-                return new ResponseEntity(constructErrorBody(origExc), headers, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(constructErrorBody(origExc), headers, HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity(constructErrorBody(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "")), headers, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(constructErrorBody(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "")), headers, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity(constructGenericErrorBody(exception), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(constructGenericErrorBody(exception), headers, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private void logException(Exception exception) {
@@ -103,6 +103,7 @@ public class CommonResponseEntityExceptionHandler extends ResponseEntityExceptio
         return json.toString();
     }
 
+    @SuppressWarnings("unchecked")
     private JSONObject constructJsonBody(Exception exception, int internalErrorCode) {
         JSONObject json = new JSONObject();
 

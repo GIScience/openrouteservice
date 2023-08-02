@@ -44,7 +44,7 @@ public class GraphEdgeMapFinder {
     private GraphEdgeMapFinder() {
     }
 
-    public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
+    public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws InternalServerException {
         GraphHopper gh = searchCntx.getGraphHopper();
         FlagEncoder encoder = searchCntx.getEncoder();
         GraphHopperStorage graph = gh.getGraphHopperStorage();

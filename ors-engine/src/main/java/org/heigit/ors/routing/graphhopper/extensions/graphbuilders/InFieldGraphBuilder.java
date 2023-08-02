@@ -50,7 +50,7 @@ public class InFieldGraphBuilder extends AbstractGraphBuilder {
     private EncodingManager encodingManager;
 
     @Override
-    public void init(GraphHopper graphhopper) throws Exception {
+    public void init(GraphHopper graphhopper) {
         // create local network taken from
         // https://github.com/graphhopper/graphhopper/blob/0.5/core/src/test/java/com/graphhopper/GraphHopperTest.java#L746
         FootFlagEncoder footEncoder = new FootFlagEncoder();

@@ -27,19 +27,20 @@ import com.graphhopper.util.PMap;
  * @author Andrzej Oles
  */
 public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
-    public static double DEFAULT_DESTINATION_FACTOR = 1;
-    public static double VEHICLE_DESTINATION_FACTOR = 10;
-    public static double DEFAULT_PRIVATE_FACTOR = 1.2;
-    public static double VEHICLE_PRIVATE_FACTOR = 10;
+    public static final double DEFAULT_DESTINATION_FACTOR = 1;
+    public static final double VEHICLE_DESTINATION_FACTOR = 10;
+    public static final double DEFAULT_PRIVATE_FACTOR = 1.2;
+    public static final double VEHICLE_PRIVATE_FACTOR = 10;
 
-    static double MIN_DESTINATION_FACTOR = 1;
-    static double MAX_DESTINATION_FACTOR = 10;
-    static double MIN_PRIVATE_FACTOR = 1;
-    static double MAX_PRIVATE_FACTOR = 10;
+    static final double MIN_DESTINATION_FACTOR = 1;
+    static final double MAX_DESTINATION_FACTOR = 10;
+    static final double MIN_PRIVATE_FACTOR = 1;
+    static final double MAX_PRIVATE_FACTOR = 10;
 
     private final EnumEncodedValue<RoadAccess> roadAccessEnc;
     // this factor puts a penalty on roads with a "destination"-only or private access, see GH#733 and GH#1936
-    private final double destinationPenalty, privatePenalty;
+    private final double destinationPenalty;
+    private final double privatePenalty;
 
     public LimitedAccessWeighting(Weighting superWeighting, PMap map) {
         super(superWeighting);

@@ -36,6 +36,7 @@ public class CorePathExtractor extends DefaultBidirPathExtractor {
         this.weighting = weighting;
     }
 
+    @Override
     public void onEdge(int edge, int adjNode, boolean reverse, int prevOrNextEdge) {
         if (reverse) {
             this.shortcutUnpacker.visitOriginalEdgesBwd(edge, adjNode, true, prevOrNextEdge);

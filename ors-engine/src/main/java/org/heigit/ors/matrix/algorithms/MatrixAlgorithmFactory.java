@@ -27,10 +27,8 @@ public class MatrixAlgorithmFactory {
     public static MatrixAlgorithm createAlgorithm(MatrixRequest req, GraphHopper gh) {
         if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled())
             return new RPHASTMatrixAlgorithm();
-        if (gh instanceof ORSGraphHopper orsGraphHopper) {
-            if (req.getSearchParameters().getDynamicSpeeds() && orsGraphHopper.isCoreEnabled()) {
-                return new CoreMatrixAlgorithm();
-            }
+        if (gh instanceof ORSGraphHopper orsGraphHopper && req.getSearchParameters().getDynamicSpeeds() && orsGraphHopper.isCoreEnabled()) {
+            return new CoreMatrixAlgorithm();
         }
         return new DijkstraMatrixAlgorithm();
     }

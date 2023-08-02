@@ -34,27 +34,21 @@ import java.util.Map;
  */
 public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private static final Logger LOGGER = Logger.getLogger(ShadowIndexGraphStorageBuilder.class.getName());
-    private ShadowIndexGraphStorage _storage;
-    private final Map<Long, Integer> osm_shadowindex_lookup = new HashMap<>();
-    private final int max_level = 100;
-    private final int no_data = 30;
-
-    public ShadowIndexGraphStorageBuilder() {
-
-    }
+    private ShadowIndexGraphStorage shadowIndexStorage;
+    private final Map<Long, Integer> osmShadowIndexLookup = new HashMap<>();
+    private static final int MAX_LEVEL = 100;
+    private static final int NO_DATA = 30;
 
     @Override
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
-        if (_storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
-
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException, IOException {
+        if (shadowIndexStorage != null)
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
         // TODO Check if the shadow index file exists
         String csvFile = parameters.get("filepath");
         LOGGER.info("Shadow Index File: " + csvFile);
         readShadowIndicesFromCSV(csvFile);
-        _storage = new ShadowIndexGraphStorage();
-
-        return _storage;
+        shadowIndexStorage = new ShadowIndexGraphStorage();
+        return shadowIndexStorage;
     }
 
     private void readShadowIndicesFromCSV(String csvFile) throws IOException {
@@ -64,20 +58,17 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
             while ((row = csvBuffer.readLine()) != null) {
                 if (!parseCSVrow(row, rowValues))
                     continue;
-
-                osm_shadowindex_lookup.put(Long.parseLong(rowValues[0]), Integer.parseInt(rowValues[1]));
+                osmShadowIndexLookup.put(Long.parseLong(rowValues[0]), Integer.parseInt(rowValues[1]));
             }
         } catch (IOException openFileEx) {
             LOGGER.error(openFileEx.getStackTrace());
             throw openFileEx;
         }
-
     }
 
     private boolean parseCSVrow(String row, String[] rowValues) {
         if (Helper.isEmpty(row))
             return false;
-
         int pos = row.indexOf(',');
         if (pos > 0) {
             rowValues[0] = row.substring(0, pos).trim();
@@ -88,40 +79,28 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
             return false;
     }
 
-    @Override
     public void processWay(ReaderWay way) {
-
+        // Nothing to do
     }
 
-    @Override
     public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-        //_storage.setEdgeValue(edge.getEdge(), getShadowIndex(way.getId()));
-        byte shadow_index = getShadowIndex(way.getId());
-        _storage.setEdgeValue(edge.getEdge(), shadow_index);
+        shadowIndexStorage.setEdgeValue(edge.getEdge(), getShadowIndex(way.getId()));
     }
 
     private byte getShadowIndex(long id) {
-        Integer shadow_index = osm_shadowindex_lookup.get(id);
-
-        if (shadow_index == null)
-            return (byte) no_data;
-
-        if (shadow_index > max_level) {
-            LOGGER.warn("\nThe shadow index value of osm way, id = " + id + " is " + shadow_index
+        Integer shadowIndex = osmShadowIndexLookup.get(id);
+        if (shadowIndex == null)
+            return (byte) NO_DATA;
+        if (shadowIndex > MAX_LEVEL) {
+            LOGGER.warn("\nThe shadow index value of osm way, id = " + id + " is " + shadowIndex
                     + ", which is larger than than max level!");
-            return (byte) max_level;
+            return (byte) MAX_LEVEL;
         }
-
-        return (byte) (shadow_index.intValue());
+        return (byte) (shadowIndex.intValue());
     }
 
     @Override
     public String getName() {
         return "ShadowIndex";
     }
-
-    public ShadowIndexGraphStorage get_storage() {
-        return _storage;
-    }
-
 }

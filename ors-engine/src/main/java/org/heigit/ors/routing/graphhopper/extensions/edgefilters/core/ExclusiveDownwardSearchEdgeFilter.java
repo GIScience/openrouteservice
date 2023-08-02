@@ -30,7 +30,7 @@ public class ExclusiveDownwardSearchEdgeFilter extends DownwardSearchEdgeFilter 
         this.swap = swap;
     }
 
-    //    @Override
+    @Override
     public boolean accept(RoutingCHEdgeIteratorState edgeIterState) {
         int adj = edgeIterState.getAdjNode();
         if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel < graph.getLevel(adj))

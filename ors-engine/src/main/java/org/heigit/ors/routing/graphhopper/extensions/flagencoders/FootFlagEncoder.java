@@ -58,7 +58,7 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
     Set<String> noSidewalkValues = new HashSet<>(5);
     protected DecimalEncodedValue priorityWayEncoder;
     protected EnumEncodedValue<RouteNetwork> footRouteEnc;
-    Map<RouteNetwork, Integer> routeMap = new HashMap<>();
+    Map<RouteNetwork, Integer> routeMap = new EnumMap<>(RouteNetwork.class);
     private BooleanEncodedValue conditionalAccessEncoder;
 
     protected void setProperties(PMap properties) {
@@ -160,7 +160,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
         // first two bits are reserved for route handling in superclass
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
         // larger value required - ferries are faster than pedestrians
-        registerNewEncodedValue.add(avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false));
+        avgSpeedEnc = new UnsignedDecimalEncodedValue(getKey(prefix, "average_speed"), speedBits, speedFactor, false);
+        registerNewEncodedValue.add(avgSpeedEnc);
         priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, FlagEncoderKeys.PRIORITY_KEY), 4, PriorityCode.getFactor(1), false);
         registerNewEncodedValue.add(priorityWayEncoder);
         if (properties.getBool(ConditionalEdges.ACCESS, false)) {
@@ -262,14 +263,10 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
         if (way.hasTag(OSMTags.Keys.MAN_MADE, "pier"))
             acceptPotentially = EncodingManager.Access.WAY;
 
-
         // only route via lock_gate if foot-tag allows for it.
-        if (way.hasTag(OSMTags.Keys.WATERWAY, "lock_gate")) {
-            if (way.hasTag(OSMTags.Keys.FOOT, intendedValues)) {
-                acceptPotentially = EncodingManager.Access.WAY;
-            }
+        if (way.hasTag(OSMTags.Keys.WATERWAY, "lock_gate") && (way.hasTag(OSMTags.Keys.FOOT, intendedValues))) {
+            acceptPotentially = EncodingManager.Access.WAY;
         }
-
 
         if (!acceptPotentially.canSkip()) {
             if (way.hasTag(restrictions, restrictedValues))

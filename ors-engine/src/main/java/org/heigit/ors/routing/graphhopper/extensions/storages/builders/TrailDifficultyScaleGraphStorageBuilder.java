@@ -26,9 +26,9 @@ public class TrailDifficultyScaleGraphStorageBuilder extends AbstractGraphStorag
     private int mtbScale;
     private int mtbUphillScale;
 
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException {
         if (storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
         storage = new TrailDifficultyScaleGraphStorage();
         return storage;
     }

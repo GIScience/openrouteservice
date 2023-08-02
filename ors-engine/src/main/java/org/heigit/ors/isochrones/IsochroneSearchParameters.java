@@ -23,7 +23,7 @@ import java.util.Map;
 public class IsochroneSearchParameters {
     private final int travellerId;
     private Coordinate location;
-    private Boolean reverseDirection = false;
+    private boolean reverseDirection;
     private TravelRangeType rangeType = TravelRangeType.TIME;
     private double[] ranges;
     private RouteSearchParameters parameters;
@@ -63,11 +63,11 @@ public class IsochroneSearchParameters {
         this.location = location;
     }
 
-    public Boolean getReverseDirection() {
+    public boolean getReverseDirection() {
         return reverseDirection;
     }
 
-    public void setReverseDirection(Boolean value) {
+    public void setReverseDirection(boolean value) {
         reverseDirection = value;
     }
 

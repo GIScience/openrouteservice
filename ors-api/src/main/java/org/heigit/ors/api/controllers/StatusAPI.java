@@ -16,6 +16,7 @@
 package org.heigit.ors.api.controllers;
 
 import com.graphhopper.storage.StorableProperties;
+import com.typesafe.config.ConfigException;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.EndpointsProperties;
@@ -26,6 +27,7 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,9 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 
-import java.text.SimpleDateFormat;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -51,19 +52,14 @@ public class StatusAPI {
     }
 
     @GetMapping
-    public ResponseEntity fetchHealth(HttpServletRequest request) throws Exception {
+    public ResponseEntity<String> fetchHealth(HttpServletRequest request) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
         org.json.JSONObject jInfo = new org.json.JSONObject(true);
-
         jInfo.put("engine", AppInfo.getEngineInfo());
-
         if (RoutingProfileManagerStatus.isReady()) {
             RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
-
             if (!profileManager.getProfiles().getUniqueProfiles().isEmpty()) {
-
                 List<String> list = new ArrayList<>(4);
                 if (endpointsProperties.getRouting().isEnabled())
                     list.add("routing");
@@ -73,49 +69,47 @@ public class StatusAPI {
                     list.add("matrix");
                 jInfo.put("services", list);
                 jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
-
-                org.json.JSONObject jProfiles = new org.json.JSONObject(true);
-                int i = 1;
-
-                for (RoutingProfile rp : profileManager.getProfiles().getUniqueProfiles()) {
-                    RouteProfileConfiguration rpc = rp.getConfiguration();
-                    org.json.JSONObject jProfileProps = new org.json.JSONObject(true);
-
-                    jProfileProps.put("profiles", rpc.getProfiles());
-                    StorableProperties storageProps = rp.getGraphProperties();
-                    jProfileProps.put("creation_date", storageProps.get("osmreader.import.date"));
-
-                    if (rpc.getExtStorages() != null && rpc.getExtStorages().size() > 0)
-                        jProfileProps.put("storages", rpc.getExtStorages());
-
-                    org.json.JSONObject jProfileLimits = new org.json.JSONObject(true);
-                    if (rpc.getMaximumDistance() > 0)
-                        jProfileLimits.put("maximum_distance", rpc.getMaximumDistance());
-
-                    if (rpc.getMaximumDistanceDynamicWeights() > 0)
-                        jProfileLimits.put("maximum_distance_dynamic_weights", rpc.getMaximumDistanceDynamicWeights());
-
-                    if (rpc.getMaximumDistanceAvoidAreas() > 0)
-                        jProfileLimits.put("maximum_distance_avoid_areas", rpc.getMaximumDistanceAvoidAreas());
-
-                    if (rpc.getMaximumWayPoints() > 0)
-                        jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
-
-                    if (jProfileLimits.length() > 0)
-                        jProfileProps.put("limits", jProfileLimits);
-
-                    jProfiles.put("profile " + i, jProfileProps);
-
-                    i++;
-                }
-
-                jInfo.put("profiles", jProfiles);
+                jInfo.put("profiles", getProfiles(profileManager));
             }
         }
+        return new ResponseEntity<>(constructResponse(request, jInfo), headers, HttpStatus.OK);
+    }
 
-        String jsonResponse = constructResponse(request, jInfo);
+    private static JSONObject getProfiles(RoutingProfileManager profileManager) {
+        JSONObject jProfiles = new JSONObject(true);
+        int i = 1;
 
-        return new ResponseEntity<>(jsonResponse, headers, HttpStatus.OK);
+        for (RoutingProfile rp : profileManager.getProfiles().getUniqueProfiles()) {
+            RouteProfileConfiguration rpc = rp.getConfiguration();
+            JSONObject jProfileProps = new JSONObject(true);
+
+            jProfileProps.put("profiles", rpc.getProfiles());
+            StorableProperties storageProps = rp.getGraphProperties();
+            jProfileProps.put("creation_date", storageProps.get("osmreader.import.date"));
+
+            if (rpc.getExtStorages() != null && !rpc.getExtStorages().isEmpty())
+                jProfileProps.put("storages", rpc.getExtStorages());
+
+            JSONObject jProfileLimits = new JSONObject(true);
+            if (rpc.getMaximumDistance() > 0)
+                jProfileLimits.put("maximum_distance", rpc.getMaximumDistance());
+
+            if (rpc.getMaximumDistanceDynamicWeights() > 0)
+                jProfileLimits.put("maximum_distance_dynamic_weights", rpc.getMaximumDistanceDynamicWeights());
+
+            if (rpc.getMaximumDistanceAvoidAreas() > 0)
+                jProfileLimits.put("maximum_distance_avoid_areas", rpc.getMaximumDistanceAvoidAreas());
+
+            if (rpc.getMaximumWayPoints() > 0)
+                jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
+
+            if (!jProfileLimits.isEmpty())
+                jProfileProps.put("limits", jProfileLimits);
+
+            jProfiles.put("profile " + i, jProfileProps);
+            i++;
+        }
+        return jProfiles;
     }
 
     private String constructResponse(HttpServletRequest req, org.json.JSONObject json) {
@@ -140,10 +134,6 @@ public class StatusAPI {
                 return json.toString();
             }
         }
-    }
-
-    private String formatDateTime(Date date) {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(date);
     }
 
     protected boolean getBooleanParam(HttpServletRequest req, String string, boolean defaultValue) {

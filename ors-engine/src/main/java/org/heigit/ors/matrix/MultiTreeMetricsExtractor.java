@@ -23,6 +23,7 @@ import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryItem;
 import org.heigit.ors.util.DistanceUnitUtil;
@@ -77,7 +78,7 @@ public class MultiTreeMetricsExtractor {
     }
 
     public void calcValues(MultiTreeSPEntry[] targets, MatrixLocations srcData, MatrixLocations dstData, float[] times,
-                           float[] distances, float[] weights) throws Exception {
+                           float[] distances, float[] weights) throws StatusCodeException {
         if (targets == null)
             throw new IllegalStateException("Target destinations not set");
 

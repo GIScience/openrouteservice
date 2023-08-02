@@ -32,7 +32,7 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
     private static final int NOT_TOLLWAYS = ~AvoidFeatureFlags.TOLLWAYS;
 
-    public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphHopperStorage graphStorage) throws Exception {
+    public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphHopperStorage graphStorage) throws IllegalStateException {
         this.buffer = new byte[10];
 
         int profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
@@ -40,14 +40,14 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
 
         storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
         if (storage == null)
-            throw new Exception("ExtendedGraphStorage for avoid features was not found.");
+            throw new IllegalStateException("ExtendedGraphStorage for avoid features was not found.");
 
         TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
         if (extTollways != null)
             tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
     }
 
-    public AvoidFeaturesEdgeFilter(int avoidFeatureType, GraphHopperStorage graphStorage) throws Exception {
+    public AvoidFeaturesEdgeFilter(int avoidFeatureType, GraphHopperStorage graphStorage) throws IllegalArgumentException, IllegalStateException {
         if (avoidFeatureType == AvoidFeatureFlags.TOLLWAYS)
             throw new IllegalArgumentException("Invalid constructor for use with feature type: " + AvoidFeatureFlags.TOLLWAYS);
         this.buffer = new byte[10];

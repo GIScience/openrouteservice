@@ -39,9 +39,9 @@ public class NoiseIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private static final int MAX_LEVEL = 8;
 
     @Override
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException, IOException {
         if (storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
 
         // TODO Refactoring Check if the _noiseIndexFile exists
         String csvFile = parameters.get("filepath");

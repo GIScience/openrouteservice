@@ -34,19 +34,17 @@ import java.util.*;
 public class MatrixSearchContextBuilder {
     private final boolean resolveNames;
     private final LocationIndex locIndex;
-    private final EdgeFilter edgeFilter;
     private Map<Coordinate, LocationEntry> locationCache;
     private final GraphHopperStorage graphHopperStorage;
     private Weighting weighting;
 
-    public MatrixSearchContextBuilder(GraphHopperStorage graphHopperStorage, LocationIndex index, EdgeFilter edgeFilter, boolean resolveNames) {
+    public MatrixSearchContextBuilder(GraphHopperStorage graphHopperStorage, LocationIndex index, boolean resolveNames) {
         locIndex = index;
-        this.edgeFilter = edgeFilter;
         this.resolveNames = resolveNames;
         this.graphHopperStorage = graphHopperStorage;
     }
 
-    public MatrixSearchContext create(Graph graph, RoutingCHGraph chGraph, Weighting weighting, String profileName, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius) throws Exception {
+    public MatrixSearchContext create(Graph graph, RoutingCHGraph chGraph, Weighting weighting, String profileName, Coordinate[] sources, Coordinate[] destinations, double maxSearchRadius) throws PointNotFoundException {
         if (locationCache == null)
             locationCache = new HashMap<>();
         else
@@ -150,8 +148,7 @@ public class MatrixSearchContextBuilder {
         return defaultSnapFilter;
     }
 
-
-    private MatrixLocations createLocations(Coordinate[] coords) throws Exception {
+    private MatrixLocations createLocations(Coordinate[] coords) throws IllegalStateException {
         MatrixLocations mlRes = new MatrixLocations(coords.length);
         for (int i = 0; i < coords.length; i++) {
             Coordinate p = coords[i];
@@ -159,7 +156,7 @@ public class MatrixSearchContextBuilder {
             if (ld != null)
                 mlRes.setData(i, ld.nodeId == -1 ? -1 : ld.snap.getClosestNode(), ld.location);
             else
-                throw new Exception("Oops!");
+                throw new IllegalStateException("Oops!");
         }
         return mlRes;
     }

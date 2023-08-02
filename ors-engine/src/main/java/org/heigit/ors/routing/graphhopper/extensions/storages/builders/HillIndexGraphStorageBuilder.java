@@ -26,16 +26,16 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private HillIndexGraphStorage storage;
     private HillIndexCalculator hillIndexCalc;
 
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException {
         if (storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
         if (graphhopper.hasElevation()) {
             storage = new HillIndexGraphStorage(parameters);
             hillIndexCalc = new HillIndexCalculator();
 
             return storage;
         }
-        throw new Exception("HillIndexGraphStorageBuilder cannot be initialized since elevation is deactivated for this profile.");
+        throw new IllegalStateException("HillIndexGraphStorageBuilder cannot be initialized since elevation is deactivated for this profile.");
     }
 
     public void processWay(ReaderWay way) {

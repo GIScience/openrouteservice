@@ -62,10 +62,8 @@ public class MultiSourceStoppingCriterion {
             return;
         for (IntObjectCursor<AveragedMultiTreeSPEntry> entry : targetMap) {
             for (int source = 0; source < treeEntrySize; ++source) {
-                if (allTargetsForSourceFound.getOrDefault(source, false)) {
-
+                if (Boolean.TRUE.equals(allTargetsForSourceFound.get(source))) {
                     double entryWeight = entry.value.getItem(source).getWeight();
-
                     if (entryWeight > this.combinedUnsettled.getItem(source).getWeight()) {
                         this.combinedUnsettled.getItem(source).setWeight(entryWeight);
                     }
@@ -99,7 +97,7 @@ public class MultiSourceStoppingCriterion {
 
     private void setSourceTargetsFound() {
         for (int source = 0; source < treeEntrySize; source += 1) {
-            if (allTargetsForSourceFound.getOrDefault(source, false))
+            if (Boolean.TRUE.equals(allTargetsForSourceFound.get(source)))
                 continue;
             boolean allFound = true;
             for (IntCursor targetId : targetSet) {

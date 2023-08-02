@@ -115,7 +115,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         isochroneNodeStorage = ((ORSGraphHopper) searchcontext.getGraphHopper()).getFastIsochroneFactory().getIsochroneNodeStorage();
     }
 
-    public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
+    public IsochroneMap compute(IsochroneSearchParameters parameters) throws InternalServerException {
         StopWatch swTotal = null;
         StopWatch sw = null;
         if (DebugUtility.isDebug()) {
@@ -255,7 +255,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         return isochroneMap;
     }
 
-    private EdgeFilterSequence getEdgeFilterSequence(ORSEdgeFilterFactory edgeFilterFactory) throws Exception {
+    private EdgeFilterSequence getEdgeFilterSequence(ORSEdgeFilterFactory edgeFilterFactory) throws IllegalArgumentException, IllegalStateException {
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
         EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchcontext.getProperties(), searchcontext.getEncoder(), searchcontext.getGraphHopper().getGraphHopperStorage());
         edgeFilterSequence.add(edgeFilter);
@@ -265,8 +265,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
     private double determineMeanSpeed(double maxSpeed) {
         double meanSpeed = maxSpeed;
-        if (searchcontext.getEncoder() instanceof ORSAbstractFlagEncoder) {
-            meanSpeed = ((ORSAbstractFlagEncoder) searchcontext.getEncoder()).getMeanSpeed();
+        if (searchcontext.getEncoder() instanceof ORSAbstractFlagEncoder orsAbstractFlagEncoder) {
+            meanSpeed = orsAbstractFlagEncoder.getMeanSpeed();
         }
         return meanSpeed;
     }
@@ -433,10 +433,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             Geometry geom = ch.getConcaveHull();
 
-            if (geom instanceof GeometryCollection geomColl) {
-                if (geomColl.isEmpty())
-                    return;
-            }
+            if (geom instanceof GeometryCollection geomColl && (geomColl.isEmpty())) return;
 
             poly = (Polygon) geom;
         } catch (Exception e) {
@@ -446,7 +443,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
     }
 
-    public Boolean addPoint(List<Coordinate> points, Quadtree tree, double lon, double lat, boolean checkNeighbours) {
+    public Boolean addPoint(List<Coordinate> points, Quadtree tree, double lon, double lat,
+                            boolean checkNeighbours) {
         if (checkNeighbours) {
             visitor.setPoint(lon, lat);
             searchEnv.init(lon - searchWidth, lon + searchWidth, lat - searchWidth, lat + searchWidth);
@@ -503,7 +501,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         }
     }
 
-    private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Double> contourCoordinates, List<Coordinate> points, double lon, double lat,
+    private GeometryCollection buildIsochrone(AccessibilityMap
+                                                      edgeMap, List<Double> contourCoordinates, List<Coordinate> points, double lon, double lat,
                                               double isolineCost) {
         IntObjectMap<SPTEntry> map = edgeMap.getMap();
         treeSet.clear();
@@ -580,7 +579,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         return new GeometryCollection(geometries, geomFactory);
     }
 
-    private void addContourCoordinates(List<Double> contourCoordinates, List<Coordinate> points, Quadtree qtree) {
+    private void addContourCoordinates(List<Double> contourCoordinates, List<Coordinate> points, Quadtree
+            qtree) {
         int j = 0;
         while (j < contourCoordinates.size()) {
             double latitude = contourCoordinates.get(j);
@@ -591,7 +591,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         }
     }
 
-    private void addEdgeCaseGeometry(EdgeIteratorState iter, Quadtree qtree, List<Coordinate> points, double bufferSize, float maxCost, float minCost, double isolineCost) {
+    private void addEdgeCaseGeometry(EdgeIteratorState iter, Quadtree qtree, List<Coordinate> points,
+                                     double bufferSize, float maxCost, float minCost, double isolineCost) {
         PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
         int size = pl.size();
         if (size > 0) {
@@ -634,7 +635,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         }
     }
 
-    private void addBufferedWayGeometry(List<Coordinate> points, Quadtree qtree, double bufferSize, EdgeIteratorState iter) {
+    private void addBufferedWayGeometry(List<Coordinate> points, Quadtree qtree,
+                                        double bufferSize, EdgeIteratorState iter) {
         // always use mode=3, since other ones do not provide correct results
         PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
         // Always buffer geometry
@@ -659,7 +661,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         }
     }
 
-    private void handleFullyReachableCells(Set<Geometry> isochroneGeometries, Set<Integer> fullyReachableCells) {
+    private void handleFullyReachableCells
+            (Set<Geometry> isochroneGeometries, Set<Integer> fullyReachableCells) {
         //printing for debug
 //        StringBuilder cellsPrintStatement = new StringBuilder();
 //
@@ -740,7 +743,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         return statement.toString();
     }
 
-    private void splitEdgeToCoordinates(double lat0, double lat1, double lon0, double lon1, List<Coordinate> coordinates, double minlim, double maxlim) {
+    private void splitEdgeToCoordinates(double lat0, double lat1, double lon0, double lon1, List<
+            Coordinate> coordinates, double minlim, double maxlim) {
         double dist = distance(lat0, lat1, lon0, lon1);
 
         if (dist > minlim && dist < maxlim) {
@@ -751,7 +755,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         }
     }
 
-    private void splitEdgeToDoubles(double lat0, double lat1, double lon0, double lon1, List<Double> coordinates, double minlim, double maxlim) {
+    private void splitEdgeToDoubles(double lat0, double lat1, double lon0, double lon1, List<Double> coordinates,
+                                    double minlim, double maxlim) {
         double dist = distance(lat0, lat1, lon0, lon1);
 
         if (dist > minlim && dist < maxlim) {

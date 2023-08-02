@@ -41,7 +41,7 @@ public abstract class AbstractOneToManyRoutingAlgorithm implements OneToManyRout
      * @param weighting     set the used weight calculation (e.g. fastest, shortest).
      * @param traversalMode how the graph is traversed e.g. if via nodes or edges.
      */
-    public AbstractOneToManyRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
+    protected AbstractOneToManyRoutingAlgorithm(Graph graph, Weighting weighting, TraversalMode traversalMode) {
         this.weighting = weighting;
         this.flagEncoder = weighting.getFlagEncoder();
         this.traversalMode = traversalMode;

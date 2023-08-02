@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.APIEnums;
-import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.locationtech.jts.geom.Coordinate;
@@ -34,10 +33,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.heigit.ors.api.services.ApiService.convertRouteProfileType;
+import static org.heigit.ors.routing.RouteRequestParameterNames.*;
 
 @Schema(title = "Directions Service", name = "directionsService", description = "The JSON body request sent to the routing service which defines options and parameters regarding the route to generate.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class RouteRequest extends APIRequest implements RouteRequestParameterNames {
+public class RouteRequest extends APIRequest {
 
     @Schema(name = PARAM_COORDINATES, description = "The waypoints to use for the route as an array of `longitude/latitude` pairs in WGS 84 (EPSG:4326)",
             example = "[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]]",

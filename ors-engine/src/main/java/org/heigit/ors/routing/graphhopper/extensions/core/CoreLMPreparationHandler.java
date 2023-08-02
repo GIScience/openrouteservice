@@ -40,7 +40,7 @@ import java.util.Map;
  * @author Andrzej Oles
  */
 public class CoreLMPreparationHandler extends LMPreparationHandler {
-    private static final Logger logger = Logger.getLogger(CoreLandmarkStorage.class);
+    private static final Logger logger = Logger.getLogger(CoreLMPreparationHandler.class);
 
     private final CoreLMOptions coreLMOptions = new CoreLMOptions();
 
@@ -97,9 +97,9 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
 
     /**
      * This method creates a mapping of CoreNode ids to integers from 0 to numCoreNodes to save space.
-     * Otherwise we would have to store a lot of empty info
+     * Otherwise, we would have to store a lot of empty info
      */
-    public static HashMap<Integer, Integer> createCoreNodeIdMap(RoutingCHGraph core) {
+    public static Map<Integer, Integer> createCoreNodeIdMap(RoutingCHGraph core) {
         HashMap<Integer, Integer> coreNodeIdMap = new HashMap<>();
         int maxNode = GraphUtils.getBaseGraph(core).getNodes();
         int coreNodeLevel = maxNode;

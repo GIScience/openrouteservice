@@ -69,7 +69,7 @@ public class RoutingRequestMockup {
      *
      * @return @{@link RoutingRequest} is being returned for mockup use.
      */
-    public RoutingRequest create(routeProfile profile) throws Exception {
+    public RoutingRequest create(routeProfile profile) {
 
         if (profile == RoutingRequestMockup.routeProfile.STANDARD_HEIDELBERG_2D) {
             routingRequest.setGeometryFormat("geojson");
@@ -126,7 +126,7 @@ public class RoutingRequestMockup {
     /**
      * This function initializes the {@link org.heigit.ors.routing.RouteSearchParameters} from the {@link RoutingRequest} with standard variables from self-designed profiles.
      */
-    private void setRouteSearchParameters(searchParamProfile profile) throws Exception {
+    private void setRouteSearchParameters(searchParamProfile profile) {
         if (profile == searchParamProfile.STANDARD_CAR_SEARCH_PROFILE) {
             routingRequest.getSearchParameters().setAvoidAreas(null);
             routingRequest.getSearchParameters().setAvoidBorders(BordersExtractor.Avoid.NONE);

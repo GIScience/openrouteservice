@@ -1,6 +1,6 @@
 package org.heigit.ors.api;
 
-import org.heigit.ors.util.StringUtility;
+import com.google.common.base.Strings;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.boot.env.YamlPropertySourceLoader;
@@ -24,10 +24,10 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
         // Override values from application.yml with contents of custom config yml file.
         // Later in array => higher precedence
         List<String> configLocations = new ArrayList<>();
-        if (!StringUtility.isNullOrEmpty(System.getenv(ORS_CONFIG_LOCATION_ENV))) {
+        if (!Strings.isNullOrEmpty(System.getenv(ORS_CONFIG_LOCATION_ENV))) {
             configLocations.add(System.getenv(ORS_CONFIG_LOCATION_ENV));
         }
-        if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
+        if (!Strings.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
             configLocations.add(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY));
         }
         for (String path : configLocations) {

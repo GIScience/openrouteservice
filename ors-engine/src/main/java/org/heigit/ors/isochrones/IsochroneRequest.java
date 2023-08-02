@@ -157,9 +157,9 @@ public class IsochroneRequest extends ServiceRequest {
         return travellers;
     }
 
-    public void addTraveller(TravellerInfo traveller) throws Exception {
+    public void addTraveller(TravellerInfo traveller) throws IllegalArgumentException{
         if (traveller == null)
-            throw new Exception("'traveller' argument is null.");
+            throw new IllegalArgumentException("'traveller' argument is null.");
 
         travellers.add(traveller);
     }

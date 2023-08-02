@@ -110,9 +110,9 @@ public class GeomUtility {
             return new BBox(minLon, maxLon, minLat, maxLat);
     }
 
-    public static double getLength(Geometry geom, boolean inMeters) throws Exception {
+    public static double getLength(Geometry geom, boolean inMeters) throws UnsupportedOperationException {
         if (!(geom instanceof LineString ls))
-            throw new Exception("Specified geometry type is not supported.");
+            throw new UnsupportedOperationException("Specified geometry type is not supported.");
 
         if (ls.getNumPoints() == 0)
             return 0.0;

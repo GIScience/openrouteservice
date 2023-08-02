@@ -24,12 +24,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
 import org.heigit.ors.routing.APIEnums;
-import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.json.simple.JSONObject;
+
+import static org.heigit.ors.routing.RouteRequestParameterNames.*;
 
 @Schema(name = "Matrix Options", description = "Advanced options for matrix", subTypes = {MatrixRequest.class})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class RequestOptions implements RouteRequestParameterNames {
+public class RequestOptions {
 
     @Schema(name = PARAM_AVOID_FEATURES, description = "List of features to avoid. ",
             extensions = {@Extension(name = "itemRestrictions", properties = {

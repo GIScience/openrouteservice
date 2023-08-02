@@ -2,17 +2,13 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessor
 
 import com.graphhopper.reader.ReaderWay;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 public class OSMPedestrianProcessor {
-    private final List<String> allowed;
+    private static final Set<String> footValues = Set.of("yes", "designated", "permissive", "destination");
+    private static final Set<String> highwayVaules = Set.of("footway", "living_street", "pedestrian", "path", "track");
 
-    public OSMPedestrianProcessor() {
-        allowed = new ArrayList<>();
-        allowed.add("yes");
-        allowed.addAll(Arrays.asList("yes", "designated", "permissive", "destination"));
+    private OSMPedestrianProcessor() {
     }
 
     /**
@@ -21,28 +17,9 @@ public class OSMPedestrianProcessor {
      * @param way
      * @return
      */
-    public boolean isPedestrianisedWay(ReaderWay way) {
-
-        boolean isPedestrian = false;
-
-        if (way.hasTag("highway")) {
-            String highwayType = way.getTag("highway");
-            switch (highwayType) {
-                case "footway", "living_street", "pedestrian", "path", "track" -> isPedestrian = true;
-                default -> {
-                }
-            }
-        }
-        if (way.hasTag("public_transport") && way.getTag("public_transport").equals("platform"))
-            isPedestrian = true;
-
-        if (way.hasTag("foot")) {
-            String footTag = way.getTag("foot");
-            if (allowed.contains(footTag)) {
-                isPedestrian = true;
-            }
-        }
-
-        return isPedestrian;
+    public static boolean isPedestrianisedWay(ReaderWay way) {
+        return way.hasTag("highway") && highwayVaules.contains(way.getTag("highway").toLowerCase())
+                || way.hasTag("public_transport") && way.getTag("public_transport").equals("platform")
+                || way.hasTag("foot") && footValues.contains(way.getTag("foot").toLowerCase());
     }
 }

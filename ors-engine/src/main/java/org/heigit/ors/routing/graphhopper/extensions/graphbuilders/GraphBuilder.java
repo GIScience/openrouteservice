@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface GraphBuilder extends Plugin {
-    void init(GraphHopper graphhopper) throws Exception;
+    void init(GraphHopper graphhopper);
 
-    boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges) throws Exception;
+    boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges);
 
     void finish();
 

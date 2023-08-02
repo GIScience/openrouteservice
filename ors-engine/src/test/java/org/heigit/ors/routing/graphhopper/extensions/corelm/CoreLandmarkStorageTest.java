@@ -35,7 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Map;
 
 import static org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler.createCoreNodeIdMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -134,7 +134,7 @@ class CoreLandmarkStorageTest {
     }
 
     private CoreLandmarkStorage createLandmarks(LMEdgeFilterSequence lmEdgeFilter) {
-        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(routingCHGraph);
+        Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(routingCHGraph);
         CoreLMConfig coreLMConfig = new CoreLMConfig(encoder.toString(), weighting).setEdgeFilter(lmEdgeFilter);
         CoreLandmarkStorage storage = new CoreLandmarkStorage(dir, graph, routingCHGraph, coreLMConfig, 2);
         storage.setCoreNodeIdMap(coreNodeIdMap);

@@ -20,9 +20,11 @@ import org.heigit.ors.util.StringUtility;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,12 +34,12 @@ public class LocalizationManager {
     private final Map<String, LanguageResources> langResources;
     private static LocalizationManager mInstance = null;
 
-    private LocalizationManager() throws Exception {
+    private LocalizationManager() throws IllegalStateException, IOException {
         langResources = new HashMap<>();
         loadLocalizations();
     }
 
-    public static LocalizationManager getInstance() throws Exception {
+    public static LocalizationManager getInstance() throws IllegalStateException, IOException {
         if (null == mInstance) {
             synchronized (LocalizationManager.class) {
                 mInstance = new LocalizationManager();
@@ -46,7 +48,7 @@ public class LocalizationManager {
         return mInstance;
     }
 
-    private void loadLocalizations() throws Exception {
+    private void loadLocalizations() throws IllegalStateException, IOException {
         PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(this.getClass().getClassLoader());
 
         String filePattern = "ors_(.*?)(\\.default)?.resources";
@@ -56,10 +58,10 @@ public class LocalizationManager {
         Pattern pattern = Pattern.compile(filePattern);
 
         if (resources.length == 0)
-            throw new Exception("Localization resources can not be found.");
+            throw new IllegalStateException("Localization resources can not be found.");
 
         for (Resource res : resources) {
-            Matcher matcher = pattern.matcher(res.getFilename());
+            Matcher matcher = pattern.matcher(Objects.requireNonNull(res.getFilename()));
             if (matcher.find()) {
                 loadLocalization(matcher.group(1).toLowerCase(), res, matcher.group(2) != null);
             }
@@ -72,9 +74,10 @@ public class LocalizationManager {
         try {
             Config allConfig = ConfigFactory.parseURL(resource.getURL());
             allConfig.entrySet().forEach(entry -> localLangResources.addLocalString(entry.getKey(), StringUtility.trim(entry.getValue().render(), '\"')));
-            this.langResources.put(langTag, localLangResources);
-            if (isDefault || !this.langResources.containsKey(langCode)) {
-                this.langResources.put(langCode, localLangResources);
+            langResources.put(langTag, localLangResources);
+            langResources.computeIfAbsent(langCode, k -> localLangResources);
+            if (isDefault) {
+                langResources.put(langCode, localLangResources);
             }
         } catch (Exception ex) {
             LOGGER.error("Unable to load localization from %s".formatted(resource));

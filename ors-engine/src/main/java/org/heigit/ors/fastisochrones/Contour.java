@@ -271,7 +271,7 @@ public class Contour {
         IntHashSet visitedCells = new IntHashSet();
         IntObjectMap<IntHashSet> superCells = new IntObjectHashMap<>();
         //Sorting the ids creates better supercells as close Ids are also geographically closer
-        List<Integer> orderedCellIds = Arrays.stream(cellIds.toArray()).boxed().sorted().collect(Collectors.toList());
+        List<Integer> orderedCellIds = Arrays.stream(cellIds.toArray()).boxed().sorted().toList();
         for (int cellId : orderedCellIds) {
             if (visitedCells.contains(cellId))
                 continue;

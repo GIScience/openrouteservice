@@ -19,7 +19,7 @@ import java.util.Map;
 public class DebugUtility {
 
     private static final boolean IS_DEBUG;
-    private static final Map listMap = new HashMap<String, long[]>();
+    private static final Map<String, long[]> listMap = new HashMap<>();
 
     static {
         IS_DEBUG = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
@@ -38,7 +38,7 @@ public class DebugUtility {
     }
 
     public static boolean listContains(String name, final long v) {
-        long[] array = (long[]) listMap.get(name);
+        long[] array = listMap.get(name);
         for (long i : array) {
             if (i == v)
                 return true;

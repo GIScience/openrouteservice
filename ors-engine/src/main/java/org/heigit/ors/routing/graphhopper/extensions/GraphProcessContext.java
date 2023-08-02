@@ -40,7 +40,7 @@ public class GraphProcessContext {
 
     private boolean getElevationFromPreprocessedData;
 
-    public GraphProcessContext(RouteProfileConfiguration config) throws Exception {
+    public GraphProcessContext(RouteProfileConfiguration config) {
         PluginManager<GraphStorageBuilder> mgrGraphStorageBuilders = PluginManager.getPluginManager(GraphStorageBuilder.class);
 
         if (config.getExtStorages() != null) {

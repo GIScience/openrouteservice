@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.json.JSONBasedIndividualRouteResponse;
+import org.heigit.ors.api.responses.routing.json.JSONExtra;
 import org.heigit.ors.api.responses.routing.json.JSONSegment;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.geojson.GeometryJSON;
@@ -40,7 +41,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
         super(routeResult, request);
         List<JSONSegment> segments = constructSegments(routeResult, request);
 
-        Map extras = constructExtras(request, routeResult);
+        Map<String, JSONExtra> extras = constructExtras(request, routeResult);
 
         properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation, this.isPtRequest, constructLegs(routeResult));
     }

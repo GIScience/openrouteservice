@@ -29,10 +29,10 @@ public class WheelchairEdgeFilter implements EdgeFilter {
     private final WheelchairAttributes attributes;
     private WheelchairParameters params;
 
-    public WheelchairEdgeFilter(WheelchairParameters params, GraphHopperStorage graphStorage) throws Exception {
+    public WheelchairEdgeFilter(WheelchairParameters params, GraphHopperStorage graphStorage) throws IllegalStateException {
         storage = GraphStorageUtils.getGraphExtension(graphStorage, WheelchairAttributesGraphStorage.class);
         if (storage == null)
-            throw new Exception("ExtendedGraphStorage for wheelchair attributes was not found.");
+            throw new IllegalStateException("ExtendedGraphStorage for wheelchair attributes was not found.");
         this.params = params;
         if (this.params == null) {
             this.params = new WheelchairParameters();

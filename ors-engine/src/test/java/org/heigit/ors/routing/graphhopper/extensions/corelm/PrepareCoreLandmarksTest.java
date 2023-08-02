@@ -107,7 +107,7 @@ class PrepareCoreLandmarksTest
         }
 
         RoutingCHGraph core = contractGraph(graph, chConfig, new AllCoreEdgeFilter());
-        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
+        Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
         Directory dir = new RAMDirectory();
         LocationIndexTree index = new LocationIndexTree(graph, dir);
         index.prepareIndex();

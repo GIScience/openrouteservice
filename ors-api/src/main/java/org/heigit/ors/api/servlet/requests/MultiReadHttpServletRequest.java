@@ -63,7 +63,7 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
         @Override
         public synchronized void mark(int i) {
-            throw new RuntimeException(new IOException("mark/reset not supported"));
+            throw new UnsupportedOperationException(new IOException("mark/reset not supported"));
         }
 
         @Override

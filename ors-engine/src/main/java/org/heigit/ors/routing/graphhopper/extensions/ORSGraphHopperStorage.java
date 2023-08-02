@@ -19,7 +19,6 @@ import com.graphhopper.storage.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ORSGraphHopperStorage extends GraphHopperStorage {
     private final Collection<CHEntry> coreEntries;
@@ -75,16 +74,17 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
     }
 
     public List<String> getCoreGraphNames() {
-        return coreEntries.stream().map(ch -> ch.chConfig.getName()).collect(Collectors.toList());
+        return coreEntries.stream().map(ch -> ch.chConfig.getName()).toList();
     }
 
     public List<CHConfig> getCoreConfigs() {
-        return coreEntries.stream().map(c -> c.chConfig).collect(Collectors.toList());
+        return coreEntries.stream().map(c -> c.chConfig).toList();
     }
 
     /**
      * After configuring this storage you need to create it explicitly.
      */
+    @Override
     public ORSGraphHopperStorage create(long byteCount) {
         super.create(byteCount);
 
@@ -110,6 +110,7 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
         }
     }
 
+    @Override
     public void flush() {
         super.flush();
         coreEntries.stream().map(ch -> ch.chStore).filter(s -> !s.isClosed()).forEach(CHStorage::flush);
@@ -130,6 +131,7 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
      * Avoid that edges and nodes of the base graph are further modified. Necessary as hook for e.g.
      * ch graphs on top to initialize themselves
      */
+    @Override
     public synchronized void freeze() {
         if (isFrozen())
             return;

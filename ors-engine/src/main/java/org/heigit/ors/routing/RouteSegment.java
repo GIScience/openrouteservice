@@ -15,6 +15,7 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.ResponsePath;
 import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.FormatUtility;
 
@@ -29,7 +30,7 @@ public class RouteSegment {
     private double detourFactor = 0.0;
     private final List<RouteStep> steps;
 
-    public RouteSegment(ResponsePath path, DistanceUnit units) throws Exception {
+    public RouteSegment(ResponsePath path, DistanceUnit units) throws StatusCodeException {
         distance = FormatUtility.roundToDecimalsForUnits(DistanceUnitUtil.convert(path.getDistance(), DistanceUnit.METERS, units), units);
         duration = FormatUtility.roundToDecimals(path.getTime() / 1000.0, 1);
         ascent = path.getAscend();

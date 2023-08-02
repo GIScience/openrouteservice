@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v2/health")
 public class HealthAPI {
     @GetMapping
-    public ResponseEntity<?> fetchHealth() {
+    public ResponseEntity<String> fetchHealth() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         JSONObject jsonResponse = new JSONObject();

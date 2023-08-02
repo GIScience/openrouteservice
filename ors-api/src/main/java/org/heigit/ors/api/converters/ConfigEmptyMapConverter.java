@@ -1,6 +1,6 @@
 package org.heigit.ors.api.converters;
 
-import org.heigit.ors.util.StringUtility;
+import com.google.common.base.Strings;
 import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ public class ConfigEmptyMapConverter implements Converter<String, Map<String, St
     @Override
     public Map<String, String> convert(String from) {
         Map<String, String> map = new HashMap<>();
-        if (!StringUtility.isNullOrEmpty(from))
+        if (!Strings.isNullOrEmpty(from))
             map.put(from, "");
         return map;
     }

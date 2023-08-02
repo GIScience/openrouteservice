@@ -64,13 +64,12 @@ public class MatrixMetricsType {
     }
 
     public static String getMetricNameFromInt(int metric) {
-        String res = switch (metric) {
+        return switch (metric) {
             case MatrixMetricsType.DURATION -> KEY_DURATION;
             case MatrixMetricsType.DISTANCE -> KEY_DISTANCE;
             case MatrixMetricsType.WEIGHT -> KEY_WEIGHT;
             default -> KEY_UNKNOWN;
         };
-        return res;
     }
 
     public static Set<String> getMetricsNamesFromInt(int metric) {

@@ -118,12 +118,12 @@ public class ExtraInfoProcessor implements PathProcessor {
 
     private CountryBordersReader countryBordersReader;
 
-    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) throws Exception {
+    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) {
         this(opts, graphHopperStorage, enc);
         this.countryBordersReader = cbReader;
     }
 
-    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) throws Exception {
+    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) {
         encoder = enc;
         encoderWithPriority = encoder.supports(PriorityWeighting.class);
         List<String> skippedExtras = new ArrayList<>();
@@ -515,7 +515,7 @@ public class ExtraInfoProcessor implements PathProcessor {
         if (osmIdInfoBuilder != null) {
             long osmId = extOsmId.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
 
-            osmIdInfoBuilder.addSegment((double) osmId, osmId, geom, dist);
+            osmIdInfoBuilder.addSegment(osmId, osmId, geom, dist);
         }
 
         if (roadAccessRestrictionsInfoBuilder != null) {
