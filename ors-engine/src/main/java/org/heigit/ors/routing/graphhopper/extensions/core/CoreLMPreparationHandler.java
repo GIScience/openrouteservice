@@ -24,11 +24,15 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLandmark;
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class implements the A*, landmark and triangulation (ALT) decorator for Core.
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -63,9 +67,9 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
     protected void createPreparationsInternal(GraphHopperStorage ghStorage, List<LandmarkSuggestion> lmSuggestions) {
         for (LMConfig lmConfig : getLMConfigs()) {
             if (!(lmConfig instanceof CoreLMConfig coreLMConfig))
-                throw(new IllegalStateException("Expected instance of CoreLMConfig"));
+                throw (new IllegalStateException("Expected instance of CoreLMConfig"));
             if (!(ghStorage instanceof ORSGraphHopperStorage))
-                throw(new IllegalStateException("Expected instance of ORSGraphHopperStorage"));
+                throw (new IllegalStateException("Expected instance of ORSGraphHopperStorage"));
 
             String lmConfigName = coreLMConfig.getSuperName();
 
@@ -78,7 +82,7 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
                 throw new IllegalStateException("""
                         maximumWeight cannot be null. Default should be just negative. \
                         Couldn't find \
-                        """ + lmConfigName  + " in " + getMaximumWeights());
+                        """ + lmConfigName + " in " + getMaximumWeights());
 
             PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
                     coreLMConfig, getLandmarks(), coreNodeIdMap).
@@ -100,7 +104,7 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
         int maxNode = GraphUtils.getBaseGraph(core).getNodes();
         int coreNodeLevel = maxNode;
         int index = 0;
-        for (int i = 0; i < maxNode; i++){
+        for (int i = 0; i < maxNode; i++) {
             if (core.getLevel(i) < coreNodeLevel)
                 continue;
             coreNodeIdMap.put(i, index);
@@ -109,7 +113,7 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
         return coreNodeIdMap;
     }
 
-    public CoreLMOptions getCoreLMOptions(){
+    public CoreLMOptions getCoreLMOptions() {
         return coreLMOptions;
     }
 

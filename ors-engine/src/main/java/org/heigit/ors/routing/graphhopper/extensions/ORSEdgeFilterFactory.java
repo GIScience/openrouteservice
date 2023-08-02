@@ -19,12 +19,12 @@ import com.graphhopper.routing.util.EdgeFilterFactory;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
-import org.locationtech.jts.geom.Polygon;
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
-import org.apache.log4j.Logger;
+import org.locationtech.jts.geom.Polygon;
 
 public class ORSEdgeFilterFactory implements EdgeFilterFactory {
     private static final Logger LOGGER = Logger.getLogger(ORSEdgeFilterFactory.class.getName());
@@ -51,7 +51,7 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
             if (opts.has("avoid_areas")) {
                 edgeFilters.add(new AvoidAreasEdgeFilter(opts.getObject("avoid_areas", new Polygon[]{})));
             }
-    
+
             /* Heavy vehicle filter */
             if (opts.has("edgefilter_hgv")) {
                 edgeFilters.add(new HeavyVehicleEdgeFilter(opts.getInt("edgefilter_hgv", 0), opts.getObject("routing_profile_params", new VehicleParameters()), gs));
@@ -61,17 +61,17 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
             else if (opts.has("edgefilter_wheelchair")) {
                 edgeFilters.add(new WheelchairEdgeFilter(opts.getObject("routing_profile_params", new WheelchairParameters()), gs));
             }
-    
+
             /* Avoid features */
             if (opts.has("avoid_features") && opts.has("routing_profile_type")) {
                 edgeFilters.add(new AvoidFeaturesEdgeFilter(opts.getInt("routing_profile_type", 0), opts.getObject("avoid_features", new RouteSearchParameters()), gs));
             }
-    
+
             /* Avoid borders */
             if (opts.has("avoid_borders")) {
                 edgeFilters.add(new AvoidBordersEdgeFilter(opts.getObject("avoid_borders", new RouteSearchParameters()), gs));
             }
-            
+
         } catch (Exception ex) {
             LOGGER.error(ex);
         }

@@ -286,13 +286,13 @@ public class EndpointsProperties {
                     profileMaxRangeTimes.put(RoutingProfileType.getFromString(profile), maximumRangePropertiesEntry.getValue());
         }
 
-        private Map<Integer, Integer> profileMaxRangeDistances = new HashMap<>();
+        private final Map<Integer, Integer> profileMaxRangeDistances = new HashMap<>();
 
         public Map<Integer, Integer> getProfileMaxRangeDistances() {
             return profileMaxRangeDistances;
         }
 
-        private Map<Integer, Integer> profileMaxRangeTimes = new HashMap<>();
+        private final Map<Integer, Integer> profileMaxRangeTimes = new HashMap<>();
 
         public Map<Integer, Integer> getProfileMaxRangeTimes() {
             return profileMaxRangeTimes;

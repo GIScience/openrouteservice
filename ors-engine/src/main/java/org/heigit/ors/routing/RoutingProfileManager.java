@@ -88,7 +88,7 @@ public class RoutingProfileManager {
             }
             int initializationThreads = config.getInitializationThreads();
             LOGGER.info("====> Initializing profiles from '%s' (%d threads) ...".formatted(
-                config.getSourceFile(), initializationThreads));
+                    config.getSourceFile(), initializationThreads));
 
             routingProfiles = new RoutingProfilesCollection();
             int nRouteInstances = routeProfileConfigurations.length;
@@ -180,7 +180,7 @@ public class RoutingProfileManager {
         if (config.getMaximumDistanceRoundTripRoutes() != 0 && config.getMaximumDistanceRoundTripRoutes() < searchParams.getRoundTripLength()) {
             throw new ServerLimitExceededException(
                     RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT,
-                "The requested route length must not be greater than %s meters.".formatted(config.getMaximumDistanceRoundTripRoutes())
+                    "The requested route length must not be greater than %s meters.".formatted(config.getMaximumDistanceRoundTripRoutes())
             );
         }
 
@@ -201,8 +201,8 @@ public class RoutingProfileManager {
                 if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
                     throw new RouteNotFoundException(
                             RoutingErrorCodes.ROUTE_NOT_FOUND,
-                        "Unable to find a route for point (%s).".formatted(
-                            FormatUtility.formatCoordinate(c0))
+                            "Unable to find a route for point (%s).".formatted(
+                                    FormatUtility.formatCoordinate(c0))
                     );
                 } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                     StringBuilder message = new StringBuilder();
@@ -220,9 +220,9 @@ public class RoutingProfileManager {
                 // has happened, so return that a route could not be found
                 throw new RouteNotFoundException(
                         RoutingErrorCodes.ROUTE_NOT_FOUND,
-                    "Unable to find a route for point (%s).".formatted(
-                        FormatUtility.formatCoordinate(c0)
-                    ));
+                        "Unable to find a route for point (%s).".formatted(
+                                FormatUtility.formatCoordinate(c0)
+                        ));
             }
         }
 
@@ -329,35 +329,35 @@ public class RoutingProfileManager {
                             }
                             throw new RouteNotFoundException(
                                     code,
-                                "Unable to find a route between points %d (%s) and %d (%s). %s".formatted(
-                                    i,
-                                    FormatUtility.formatCoordinate(c0),
-                                    i + 1,
-                                    FormatUtility.formatCoordinate(c1),
-                                    details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
-                                )
+                                    "Unable to find a route between points %d (%s) and %d (%s). %s".formatted(
+                                            i,
+                                            FormatUtility.formatCoordinate(c0),
+                                            i + 1,
+                                            FormatUtility.formatCoordinate(c1),
+                                            details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
+                                    )
                             );
                         }
                         throw new RouteNotFoundException(
                                 RoutingErrorCodes.ROUTE_NOT_FOUND,
-                            "Unable to find a route between points %d (%s) and %d (%s).".formatted(
-                                i,
-                                FormatUtility.formatCoordinate(c0),
-                                i + 1,
-                                FormatUtility.formatCoordinate(c1)
-                            )
+                                "Unable to find a route between points %d (%s) and %d (%s).".formatted(
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1)
+                                )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException) {
                         Map<String, Object> details = ((MaximumNodesExceededException) gr.getErrors().get(0)).getDetails();
                         throw new RouteNotFoundException(
                                 RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
-                            "Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s".formatted(
-                                i,
-                                FormatUtility.formatCoordinate(c0),
-                                i + 1,
-                                FormatUtility.formatCoordinate(c1),
-                                details.get(MaximumNodesExceededException.NODES_KEY).toString()
-                            )
+                                "Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s".formatted(
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1),
+                                        details.get(MaximumNodesExceededException.NODES_KEY).toString()
+                                )
                         );
                     } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                         StringBuilder message = new StringBuilder();
@@ -375,14 +375,14 @@ public class RoutingProfileManager {
                                 if (pointRadius == -1) {
                                     pointRadius = routingProfiles.getRouteProfile(profileType).getConfiguration().getMaximumSnappingRadius();
                                     message.append("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.".formatted(
-                                        pointRadius,
-                                        pointReference,
-                                        FormatUtility.formatCoordinate(pointCoordinate)));
+                                            pointRadius,
+                                            pointReference,
+                                            FormatUtility.formatCoordinate(pointCoordinate)));
                                 } else {
                                     message.append("Could not find routable point within a radius of %.1f meters of specified coordinate %d: %s.".formatted(
-                                        pointRadius,
-                                        pointReference,
-                                        FormatUtility.formatCoordinate(pointCoordinate)));
+                                            pointRadius,
+                                            pointReference,
+                                            FormatUtility.formatCoordinate(pointCoordinate)));
                                 }
 
                             } else {
@@ -398,11 +398,11 @@ public class RoutingProfileManager {
                     // has happened, so return that a route could not be found
                     throw new RouteNotFoundException(
                             RoutingErrorCodes.ROUTE_NOT_FOUND,
-                        "Unable to find a route between points %d (%s) and %d (%s).".formatted(
-                            i,
-                            FormatUtility.formatCoordinate(c0),
-                            i + 1,
-                            FormatUtility.formatCoordinate(c1))
+                            "Unable to find a route between points %d (%s) and %d (%s).".formatted(
+                                    i,
+                                    FormatUtility.formatCoordinate(c0),
+                                    i + 1,
+                                    FormatUtility.formatCoordinate(c1))
                     );
                 }
             }

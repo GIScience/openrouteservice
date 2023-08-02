@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.algorithms;
 
@@ -30,7 +30,7 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     protected PriorityQueue<SPTEntry> fromHeap;
     protected SPTEntry currEdge;
     private int visitedNodes;
-    
+
     private int targetsFound = 0;
     private IntObjectMap<SPTEntry> targets;
     private int targetsCount = 0;
@@ -46,59 +46,52 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
         fromMap = new GHIntObjectHashMap<>(size);
         targets = new GHIntObjectHashMap<>();
     }
-    
-    public void reset()
-    {
-    	fromHeap.clear();
-    	fromMap.clear();
-    	targetsFound = 0;
+
+    public void reset() {
+        fromHeap.clear();
+        fromMap.clear();
+        targetsFound = 0;
     }
-    
-    public int getFoundTargets()
-    {
-    	return targetsFound;
+
+    public int getFoundTargets() {
+        return targetsFound;
     }
-    
-    public int getTargetsCount()
-    {
-    	return targetsCount;
+
+    public int getTargetsCount() {
+        return targetsCount;
     }
-    
-    public void prepare(int[] from, int[] to)
-    {
-    	this.targets.clear();
-    	
-    	for (int i = 0; i < to.length; ++i)
-    	{
-    		int nodeId = to[i];
-    		if (nodeId >= 0)
-    			this.targets.put(nodeId, new SPTEntry(EdgeIterator.NO_EDGE, nodeId, 1));
-    	}
+
+    public void prepare(int[] from, int[] to) {
+        this.targets.clear();
+
+        for (int i = 0; i < to.length; ++i) {
+            int nodeId = to[i];
+            if (nodeId >= 0)
+                this.targets.put(nodeId, new SPTEntry(EdgeIterator.NO_EDGE, nodeId, 1));
+        }
     }
-    
+
     @Override
     public SPTEntry[] calcPaths(int from, int[] to) {
-    	targetsCount = targets.containsKey(from) ? targets.size() - 1 : targets.size();
-    	
-    	if (targetsCount > 0)
-    	{
-    		currEdge = createSPTEntry(from, 0);
-    		if (!traversalMode.isEdgeBased()) {
-    			fromMap.put(from, currEdge);
-    		}
-    		
-    		runAlgo();
-    	}
-    	
-    	SPTEntry[] res = new SPTEntry[to.length];
-    	
-    	for (int i = 0; i < to.length; i++)
-    	{
-    		int nodeId = to[i];
-    		if (nodeId >= 0)
-    			res[i] = fromMap.get(to[i]);
-    	}
-    	
+        targetsCount = targets.containsKey(from) ? targets.size() - 1 : targets.size();
+
+        if (targetsCount > 0) {
+            currEdge = createSPTEntry(from, 0);
+            if (!traversalMode.isEdgeBased()) {
+                fromMap.put(from, currEdge);
+            }
+
+            runAlgo();
+        }
+
+        SPTEntry[] res = new SPTEntry[to.length];
+
+        for (int i = 0; i < to.length; i++) {
+            int nodeId = to[i];
+            if (nodeId >= 0)
+                res[i] = fromMap.get(to[i]);
+        }
+
         return res;
     }
 
@@ -145,23 +138,21 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     }
 
     private boolean finished() {
-    	if (currEdge.edge != -1)
-    	{
-    		SPTEntry entry = targets.get(currEdge.adjNode);
-    		if (entry != null)
-    		{
-    			entry.adjNode = currEdge.adjNode;
-    			entry.weight = currEdge.weight;
-    			entry.edge = currEdge.edge;
-    			entry.parent = currEdge.parent;
+        if (currEdge.edge != -1) {
+            SPTEntry entry = targets.get(currEdge.adjNode);
+            if (entry != null) {
+                entry.adjNode = currEdge.adjNode;
+                entry.weight = currEdge.weight;
+                entry.edge = currEdge.edge;
+                entry.parent = currEdge.parent;
 
                 entry.originalEdge = currEdge.originalEdge;
 
-    			targetsFound++;
-    		}
-    	}
-    	
-    	return targetsFound == targetsCount;
+                targetsFound++;
+            }
+        }
+
+        return targetsFound == targetsCount;
     }
 
 

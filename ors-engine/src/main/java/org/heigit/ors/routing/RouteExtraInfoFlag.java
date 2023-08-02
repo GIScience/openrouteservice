@@ -32,7 +32,8 @@ public class RouteExtraInfoFlag {
     public static final int SHADOW = 8192;
     public static final int CSV = 16384;
 
-    private RouteExtraInfoFlag() {}
+    private RouteExtraInfoFlag() {
+    }
 
     public static boolean isSet(int extraInfo, int value) {
         return (extraInfo & value) == value;

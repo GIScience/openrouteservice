@@ -15,6 +15,7 @@ package org.heigit.ors.isochrones;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -22,10 +23,8 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.shapes.GHPoint3D;
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.RouteSearchContext;
@@ -35,6 +34,7 @@ import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.DistanceWeighting;
 import org.heigit.ors.routing.traffic.TrafficSpeedCalculator;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -49,14 +49,14 @@ public class GraphEdgeMapFinder {
         FlagEncoder encoder = searchCntx.getEncoder();
         GraphHopperStorage graph = gh.getGraphHopperStorage();
 
-		ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
-		EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph);
+        ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
+        EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph);
 
-		Coordinate loc = parameters.getLocation();
-		Snap res = gh.getLocationIndex().findClosest(loc.y, loc.x, edgeFilter);
-		List<Snap> snaps = new ArrayList<>(1);
-		snaps.add(res);
-		QueryGraph queryGraph = QueryGraph.create(graph, snaps);
+        Coordinate loc = parameters.getLocation();
+        Snap res = gh.getLocationIndex().findClosest(loc.y, loc.x, edgeFilter);
+        List<Snap> snaps = new ArrayList<>(1);
+        snaps.add(res);
+        QueryGraph queryGraph = QueryGraph.create(graph, snaps);
 
         GHPoint3D snappedPosition = res.getSnappedPoint();
 

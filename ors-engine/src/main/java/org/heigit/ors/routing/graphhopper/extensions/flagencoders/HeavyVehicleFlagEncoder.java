@@ -18,13 +18,13 @@ import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
-import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import com.graphhopper.routing.util.TransportationMode;
+import com.graphhopper.routing.util.parsers.helpers.OSMValueExtractor;
 import com.graphhopper.routing.weighting.PriorityWeighting;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import java.util.*;
 
@@ -50,8 +50,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     /**
      * Should be only instantied via EncodingManager
      */
-    public HeavyVehicleFlagEncoder()
-    {
+    public HeavyVehicleFlagEncoder() {
         this(5, 5, 0);
     }
 
@@ -121,11 +120,11 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     }
 
     @Override
-    public double getMaxSpeed( ReaderWay way ) {
+    public double getMaxSpeed(ReaderWay way) {
         double maxSpeed = OSMValueExtractor.stringToKmh(way.getTag("maxspeed:hgv"));
 
         double fwdSpeed = OSMValueExtractor.stringToKmh(way.getTag("maxspeed:hgv:forward"));
-        if (isValidSpeed(fwdSpeed)  && (!isValidSpeed(maxSpeed) || fwdSpeed < maxSpeed)) {
+        if (isValidSpeed(fwdSpeed) && (!isValidSpeed(maxSpeed) || fwdSpeed < maxSpeed)) {
             maxSpeed = fwdSpeed;
         }
 
@@ -157,10 +156,10 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     @Override
     public EncodingManager.Access getAccess(ReaderWay way) {
         String highwayValue = way.getTag(KEY_HIGHWAY);
-        String [] restrictionValues = way.getFirstPriorityTagValues(restrictions);
+        String[] restrictionValues = way.getFirstPriorityTagValues(restrictions);
         if (highwayValue == null) {
             if (way.hasTag("route", ferries)) {
-                for (String restrictionValue: restrictionValues) {
+                for (String restrictionValue : restrictionValues) {
                     if (restrictedValues.contains(restrictionValue))
                         return EncodingManager.Access.CAN_SKIP;
                     if (intendedValues.contains(restrictionValue) ||
@@ -186,7 +185,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
             return EncodingManager.Access.CAN_SKIP;
 
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
-        for (String restrictionValue: restrictionValues) {
+        for (String restrictionValue : restrictionValues) {
             if (!restrictionValue.isEmpty()) {
                 if (restrictedValues.contains(restrictionValue) && !getConditionalTagInspector().isRestrictedWayConditionallyPermitted(way))
                     return EncodingManager.Access.CAN_SKIP;
@@ -212,7 +211,7 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
                 double mwv = Double.parseDouble(maxwidth);
                 if (mwv < 2.0)
                     return EncodingManager.Access.CAN_SKIP;
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 // do nothing
             }
         }
@@ -241,13 +240,12 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
     }
 
     /**
-     * @param weightToPrioMap
-     *            associate a weight with every priority. This sorted map allows
-     *            subclasses to 'insert' more important priorities as well as
-     *            overwrite determined priorities.
+     * @param weightToPrioMap associate a weight with every priority. This sorted map allows
+     *                        subclasses to 'insert' more important priorities as well as
+     *                        overwrite determined priorities.
      */
     protected void collect(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) { // Runge
-        if (way.hasTag("hgv", VAL_DESIGNATED) || (way.hasTag("access", VAL_DESIGNATED) && (way.hasTag(VAL_GOODS, "yes") || way.hasTag("hgv", "yes") || way.hasTag("bus", "yes") || way.hasTag(VAL_AGRICULTURAL, "yes") || way.hasTag(VAL_FORESTRY, "yes") )))
+        if (way.hasTag("hgv", VAL_DESIGNATED) || (way.hasTag("access", VAL_DESIGNATED) && (way.hasTag(VAL_GOODS, "yes") || way.hasTag("hgv", "yes") || way.hasTag("bus", "yes") || way.hasTag(VAL_AGRICULTURAL, "yes") || way.hasTag(VAL_FORESTRY, "yes"))))
             weightToPrioMap.put(100d, PriorityCode.BEST.getValue());
         else {
             String highway = way.getTag(KEY_HIGHWAY);

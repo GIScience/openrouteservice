@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ActiveProfiles("unittest")
@@ -52,10 +51,10 @@ public class IsochronesServiceTest {
         JSONObject geoJsonPolygon = new JSONObject();
         geoJsonPolygon.put("type", "Polygon");
         JSONArray coordsArray = new JSONArray();
-        coordsArray.add(new Double[] { 49.0, 8.0});
-        coordsArray.add(new Double[] { 49.005, 8.01});
-        coordsArray.add(new Double[] { 49.01, 8.0});
-        coordsArray.add(new Double[] { 49.0, 8.0});
+        coordsArray.add(new Double[]{49.0, 8.0});
+        coordsArray.add(new Double[]{49.005, 8.01});
+        coordsArray.add(new Double[]{49.01, 8.0});
+        coordsArray.add(new Double[]{49.0, 8.0});
         JSONArray coordinates = new JSONArray();
 
         coordinates.add(coordsArray);

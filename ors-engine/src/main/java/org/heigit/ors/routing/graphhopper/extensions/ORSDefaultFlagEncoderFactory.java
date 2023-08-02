@@ -25,7 +25,7 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
 
     @Override
     public FlagEncoder createFlagEncoder(String name, PMap configuration) {
-        switch(name){
+        switch (name) {
             case FlagEncoderNames.CAR_ORS:
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.CarFlagEncoder(configuration);
 
@@ -44,7 +44,7 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
             case FlagEncoderNames.MTB_ORS:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
                 // consider_elevation is enabled we have various detours (over smaler tracks)
-                if(configuration.getBool(KEY_CONSIDER_ELEVATION, false)){
+                if (configuration.getBool(KEY_CONSIDER_ELEVATION, false)) {
                     configuration.remove(KEY_CONSIDER_ELEVATION);
                 }
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.MountainBikeFlagEncoder(configuration);
@@ -52,7 +52,7 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
             case FlagEncoderNames.BIKE_ELECTRO:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
                 // consider_elevation is enabled we have various detours (over smaler tracks)
-                if(configuration.getBool(KEY_CONSIDER_ELEVATION, false)){
+                if (configuration.getBool(KEY_CONSIDER_ELEVATION, false)) {
                     configuration.remove(KEY_CONSIDER_ELEVATION);
                 }
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.ElectroBikeFlagEncoder(configuration);
@@ -61,7 +61,7 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenRoadbike FlagEncoder - when
                 // consider_elevation is enabled we have various detours (over smaler tracks)
                 // see http://localhost:3035/directions?n1=51.562385&n2=8.724582&n3=15&a=51.573202,8.709326,51.54879,8.710184&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
-                if(configuration.getBool(KEY_CONSIDER_ELEVATION, false)){
+                if (configuration.getBool(KEY_CONSIDER_ELEVATION, false)) {
                     configuration.remove(KEY_CONSIDER_ELEVATION);
                 }
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.RoadBikeFlagEncoder(configuration);

@@ -14,30 +14,31 @@
 package org.heigit.ors.routing;
 
 public class WeightingMethod {
-	public static final int UNKNOWN = 0;
-	public static final int FASTEST = 1;
-	public static final int SHORTEST = 2;
-	public static final int RECOMMENDED = 3;
+    public static final int UNKNOWN = 0;
+    public static final int FASTEST = 1;
+    public static final int SHORTEST = 2;
+    public static final int RECOMMENDED = 3;
 
-	private  WeightingMethod() {}
+    private WeightingMethod() {
+    }
 
-	public static int getFromString(String method) {
-		if ("fastest".equalsIgnoreCase(method)) {
-			return WeightingMethod.FASTEST;
-		} else if ("shortest".equalsIgnoreCase(method)) {
-			return WeightingMethod.SHORTEST;
-		} else if ("recommended".equalsIgnoreCase(method)) {
-			return WeightingMethod.RECOMMENDED;
-		}
-		return WeightingMethod.UNKNOWN;
-	}
+    public static int getFromString(String method) {
+        if ("fastest".equalsIgnoreCase(method)) {
+            return WeightingMethod.FASTEST;
+        } else if ("shortest".equalsIgnoreCase(method)) {
+            return WeightingMethod.SHORTEST;
+        } else if ("recommended".equalsIgnoreCase(method)) {
+            return WeightingMethod.RECOMMENDED;
+        }
+        return WeightingMethod.UNKNOWN;
+    }
 
-	public static String getName(int profileType) {
-		return switch (profileType) {
-			case FASTEST -> "fastest";
-			case SHORTEST -> "shortest";
-			case RECOMMENDED -> "recommended";
-			default -> "";
-		};
-	}
+    public static String getName(int profileType) {
+        return switch (profileType) {
+            case FASTEST -> "fastest";
+            case SHORTEST -> "shortest";
+            case RECOMMENDED -> "recommended";
+            default -> "";
+        };
+    }
 }

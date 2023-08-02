@@ -46,14 +46,14 @@ public class GeoJSONSummary extends JSONSummary {
     private final List<JSONLeg> legs;
     private final List<RouteWarning> warnings;
     @Schema(description = "Departure date and time",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "departure"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "2020-01-31T12:45:00+01:00")
     @JsonProperty(value = "departure")
     protected ZonedDateTime departure;
     @Schema(description = "Arrival date and time",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "arrival"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "2020-01-31T13:15:00+01:00")
@@ -68,7 +68,7 @@ public class GeoJSONSummary extends JSONSummary {
         this.warnings = result.getWarnings();
         this.legs = legs;
 
-        if(result.hasDepartureAndArrival()) {
+        if (result.hasDepartureAndArrival()) {
             departure = result.getDeparture();
             arrival = result.getArrival();
         }
@@ -100,7 +100,7 @@ public class GeoJSONSummary extends JSONSummary {
     @JsonProperty("warnings")
     public List<Map<String, Object>> getWarnings() {
         List<Map<String, Object>> warningsMap = new ArrayList<>();
-        for (RouteWarning warning: warnings) {
+        for (RouteWarning warning : warnings) {
             Map<String, Object> warningMap = new HashMap<>();
             warningMap.put("code", warning.getWarningCode());
             warningMap.put("message", warning.getWarningMessage());

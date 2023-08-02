@@ -15,14 +15,14 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
-import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RouteSegment;
 import org.heigit.ors.routing.RouteStep;
+import org.locationtech.jts.geom.Coordinate;
 
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class GPXRouteElement {
         }
 
         // it may be the case that we did not ask for instructions so there will be no steps
-        if (steps.isEmpty() && routeCoordinates.length > 0) {
+        if (steps.isEmpty()) {
             for (Coordinate coord : routeCoordinates) {
                 routePoints.add(new GPXRoutePointElement(null, coord.x, coord.y, coord.z, -1));
             }

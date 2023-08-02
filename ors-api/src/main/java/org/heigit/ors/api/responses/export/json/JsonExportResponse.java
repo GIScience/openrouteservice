@@ -2,13 +2,13 @@ package org.heigit.ors.api.responses.export.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.responses.export.ExportResponse;
 import org.heigit.ors.api.responses.routing.json.JSONWarning;
-import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.common.Pair;
+import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.export.ExportWarning;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;

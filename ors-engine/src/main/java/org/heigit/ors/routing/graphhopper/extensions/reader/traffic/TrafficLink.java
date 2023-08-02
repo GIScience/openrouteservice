@@ -16,14 +16,14 @@ import java.util.Map;
 public class TrafficLink {
     private static final Logger LOGGER = Logger.getLogger(TrafficLink.class);
 
-    private int linkId;
+    private final int linkId;
     private double linkLength;
     private boolean isTeardrop;
 
     private LineString linkGeometry;
-    private TrafficLinkMetadata trafficLinkMetadata;
-    private EnumMap<TrafficEnums.WeekDay, Integer> trafficPatternIdsFrom;
-    private EnumMap<TrafficEnums.WeekDay, Integer> trafficPatternIdsTo;
+    private final TrafficLinkMetadata trafficLinkMetadata;
+    private final EnumMap<TrafficEnums.WeekDay, Integer> trafficPatternIdsFrom;
+    private final EnumMap<TrafficEnums.WeekDay, Integer> trafficPatternIdsTo;
 
     /**
      * Construct a TrafficLink object used for processing the link traffic data.
@@ -145,17 +145,13 @@ public class TrafficLink {
         } else if (coordinateFirstY > coordinateLastY) {
             // Last  coordinate is Reference if its latitude is lower.
             return false;
-        } else if (coordinateFirstX < coordinateLastX) {
-            // First coordinate is the reference if latitudes are equal but its longitude is lower.
-            // This represents horizontal lines >------>
-            return false;
-        } else if (coordinateFirstX > coordinateLastX) {
-            // First coordinate is the reference if latitudes are equal but its longitude is lower.
-            return false;
-        } else {
+        } else // First coordinate is the reference if latitudes are equal but its longitude is lower.
             // Teardrop nodes with same Coords. This shouldn't happen with roads from Here!
-            return true;
-        }
+            if (coordinateFirstX < coordinateLastX) {
+                // First coordinate is the reference if latitudes are equal but its longitude is lower.
+                // This represents horizontal lines >------>
+                return false;
+            } else return !(coordinateFirstX > coordinateLastX);
     }
 
     public Geometry getToGeometry() {

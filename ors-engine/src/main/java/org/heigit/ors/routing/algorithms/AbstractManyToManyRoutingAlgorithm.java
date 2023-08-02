@@ -55,7 +55,7 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
         this.additionalEdgeFilter = additionalEdgeFilter;
         return this;
     }
-    
+
     protected boolean accept(RoutingCHEdgeIterator iter, int prevOrNextEdgeId, boolean reverse) {
         if (hasInfiniteUTurnCost) {
             if (iter.getEdge() == prevOrNextEdgeId)
@@ -69,14 +69,14 @@ public abstract class AbstractManyToManyRoutingAlgorithm implements ManyToManyRo
     /**
      * Get the incoming edge for iter. This is the last edge of the iter coming into the next edge.
      * This algorithm only uses forwards searches, therefore its always last edge, never first edge.
+     *
      * @param iter The iterator whose edge is incoming
      * @return the incoming edge
      */
     protected int getIncEdge(RoutingCHEdgeIteratorState iter, boolean reverse) {
         if (iter.isShortcut()) {
             return reverse ? iter.getSkippedEdge1() : iter.getSkippedEdge2();
-        }
-        else {
+        } else {
             return iter.getOrigEdge();
         }
     }

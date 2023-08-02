@@ -21,44 +21,45 @@ import java.util.Iterator;
 import java.util.List;
 
 public class AppendableRouteExtraInfoBuilder extends SimpleRouteExtraInfoBuilder {
-	private final ArrayList<SegmentParams> segmentParamsList;
+    private final ArrayList<SegmentParams> segmentParamsList;
 
     public AppendableRouteExtraInfoBuilder(RouteExtraInfo extraInfo) {
-    	super(extraInfo);
-		segmentParamsList = new ArrayList<>();
-	}
-
-	@Override
-	public void addSegment(double value, long valueIndex, PointList geom, double dist) {
-    	segmentParamsList.add(new SegmentParams(value, valueIndex, geom, dist));
+        super(extraInfo);
+        segmentParamsList = new ArrayList<>();
     }
 
-	public List<SegmentParams> getSegmentParamsList() {
-		return segmentParamsList;
-	}
+    @Override
+    public void addSegment(double value, long valueIndex, PointList geom, double dist) {
+        segmentParamsList.add(new SegmentParams(value, valueIndex, geom, dist));
+    }
 
-	public void append(AppendableRouteExtraInfoBuilder more) {
-		this.segmentParamsList.addAll(more.getSegmentParamsList());
-	}
+    public List<SegmentParams> getSegmentParamsList() {
+        return segmentParamsList;
+    }
 
-	@Override
-	public void finish() {
-		for (Iterator<SegmentParams> it = segmentParamsList.iterator(); it.hasNext(); ){
-			SegmentParams s = it.next();
-			super.addSegment(s.value, s.valueIndex, s.geom, s.dist, !it.hasNext());
-		}
-	}
+    public void append(AppendableRouteExtraInfoBuilder more) {
+        this.segmentParamsList.addAll(more.getSegmentParamsList());
+    }
 
-	private static class SegmentParams {
-		double value;
-		long valueIndex;
-		PointList geom;
-		double dist;
-		SegmentParams(double value, long valueIndex, PointList geom, double dist) {
-			this.value = value;
-			this.valueIndex = valueIndex;
-			this.geom = geom;
-			this.dist = dist;
-		}
-	}
+    @Override
+    public void finish() {
+        for (Iterator<SegmentParams> it = segmentParamsList.iterator(); it.hasNext(); ) {
+            SegmentParams s = it.next();
+            super.addSegment(s.value, s.valueIndex, s.geom, s.dist, !it.hasNext());
+        }
+    }
+
+    private static class SegmentParams {
+        double value;
+        long valueIndex;
+        PointList geom;
+        double dist;
+
+        SegmentParams(double value, long valueIndex, PointList geom, double dist) {
+            this.value = value;
+            this.valueIndex = valueIndex;
+            this.geom = geom;
+            this.dist = dist;
+        }
+    }
 }

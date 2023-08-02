@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
-import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
@@ -31,6 +30,7 @@ import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RouteWarning;
 import org.heigit.ors.util.DistanceUnitUtil;
 import org.heigit.ors.util.PolylineEncoder;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -67,14 +67,14 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     private final Map<String, JSONExtra> extras;
 
     @Schema(description = "Departure date and time",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "departure"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "2020-01-31T12:45:00+01:00")
     @JsonProperty(value = "departure")
     protected ZonedDateTime departure;
     @Schema(description = "Arrival date and time",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "arrival"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "2020-01-31T13:15:00+01:00")
@@ -86,7 +86,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
         geomResponse = constructEncodedGeometry(this.routeCoordinates);
 
-        if(this.includeElevation)
+        if (this.includeElevation)
             summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration(), routeResult.getSummary().getAscent(), routeResult.getSummary().getDescent());
         else
             summary = new JSONSummary(routeResult.getSummary().getDistance(), routeResult.getSummary().getDuration());
@@ -96,7 +96,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
             summary.setFare(routeResult.getSummary().getFare());
         }
 
-        if(routeResult.hasDepartureAndArrival()) {
+        if (routeResult.hasDepartureAndArrival()) {
             departure = routeResult.getDeparture();
             arrival = routeResult.getArrival();
         }
@@ -109,18 +109,18 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
         extras = new HashMap<>();
         List<RouteExtraInfo> responseExtras = routeResult.getExtraInfo();
-        if(responseExtras != null) {
+        if (responseExtras != null) {
             double routeLength = routeResult.getSummary().getDistance();
             DistanceUnit units = DistanceUnit.METERS;
             if (request.hasUnits())
-                units =  DistanceUnitUtil.getFromString(request.getUnits().toString(), DistanceUnit.UNKNOWN);
+                units = DistanceUnitUtil.getFromString(request.getUnits().toString(), DistanceUnit.UNKNOWN);
             for (RouteExtraInfo extraInfo : responseExtras) {
                 extras.put(extraInfo.getName(), new JSONExtra(extraInfo.getSegments(), extraInfo.getSummary(units, routeLength, true)));
             }
         }
 
         if (routeResult.getWarnings() != null && !routeResult.getWarnings().isEmpty()) {
-            warnings= new ArrayList<>();
+            warnings = new ArrayList<>();
             for (RouteWarning warning : routeResult.getWarnings()) {
                 warnings.add(new JSONWarning(warning));
             }
@@ -130,7 +130,7 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
     }
 
     private String constructEncodedGeometry(final Coordinate[] coordinates) {
-        if(coordinates != null)
+        if (coordinates != null)
             return PolylineEncoder.encode(coordinates, includeElevation, new StringBuilder());
         else
             return "";

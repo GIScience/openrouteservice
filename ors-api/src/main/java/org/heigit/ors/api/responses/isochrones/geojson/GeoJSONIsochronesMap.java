@@ -1,8 +1,8 @@
 package org.heigit.ors.api.responses.isochrones.geojson;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochroneMap;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;

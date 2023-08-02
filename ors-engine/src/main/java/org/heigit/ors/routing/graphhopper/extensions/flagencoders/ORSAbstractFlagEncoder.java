@@ -25,7 +25,8 @@ public abstract class ORSAbstractFlagEncoder extends AbstractFlagEncoder {
 
     public abstract double getMeanSpeed();
 
-    private  boolean blockBarriers = false;
+    private boolean blockBarriers = false;
+
     /**
      * Should barriers block when no access limits are given?
      */

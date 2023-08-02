@@ -28,26 +28,26 @@ class CountryBordersHierarchyTest {
 
     CountryBordersPolygon cbp1, cbp2, cbp3;
     CountryBordersHierarchy cbh1, cbh2;
-    Coordinate[] country1Geom = new Coordinate[] {
-            new Coordinate(0,0),
-            new Coordinate(0,1),
-            new Coordinate(1,1),
-            new Coordinate(1,0),
-            new Coordinate(0,0)
+    Coordinate[] country1Geom = new Coordinate[]{
+            new Coordinate(0, 0),
+            new Coordinate(0, 1),
+            new Coordinate(1, 1),
+            new Coordinate(1, 0),
+            new Coordinate(0, 0)
     };
-    Coordinate[] country2Geom = new Coordinate[] {
-            new Coordinate(0.1,0.1),
-            new Coordinate(-1,0.1),
-            new Coordinate(-1,-1),
-            new Coordinate(0.1,-1),
-            new Coordinate(0.1,0.1)
+    Coordinate[] country2Geom = new Coordinate[]{
+            new Coordinate(0.1, 0.1),
+            new Coordinate(-1, 0.1),
+            new Coordinate(-1, -1),
+            new Coordinate(0.1, -1),
+            new Coordinate(0.1, 0.1)
     };
-    Coordinate[] country3Geom = new Coordinate[] {
-            new Coordinate(5,5),
-            new Coordinate(10,5),
-            new Coordinate(10,10),
-            new Coordinate(5,10),
-            new Coordinate(5,5)
+    Coordinate[] country3Geom = new Coordinate[]{
+            new Coordinate(5, 5),
+            new Coordinate(10, 5),
+            new Coordinate(10, 10),
+            new Coordinate(5, 10),
+            new Coordinate(5, 5)
     };
 
     public CountryBordersHierarchyTest() {

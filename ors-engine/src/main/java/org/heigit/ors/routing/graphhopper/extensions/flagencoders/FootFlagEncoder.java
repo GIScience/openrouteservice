@@ -226,7 +226,7 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
             }
             accessEnc.setBool(false, edgeFlags, true);
             accessEnc.setBool(true, edgeFlags, true);
-            if (access.isConditional() && conditionalAccessEncoder!=null)
+            if (access.isConditional() && conditionalAccessEncoder != null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
         } else {
             double ferrySpeed = ferrySpeedCalc.getSpeed(way);
@@ -243,8 +243,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
     /**
      * Method which generates the acceptance flag for ways that are not seen as being highways (such as ferry routes)
      *
-     * @param way   The way that is to be assessed
-     * @return      The acceptance flag for the way
+     * @param way The way that is to be assessed
+     * @return The acceptance flag for the way
      */
     private EncodingManager.Access handleNonHighways(ReaderWay way) {
         EncodingManager.Access acceptPotentially = EncodingManager.Access.CAN_SKIP;
@@ -284,8 +284,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
      * Determine if the way is seen as being too difficult based on any sac_scale tags and the information provided in
      * the setup of the object (suitableSacScales)
      *
-     * @param way   The way to be assessed
-     * @return      Whether the way is too difficult or not
+     * @param way The way to be assessed
+     * @return Whether the way is too difficult or not
      */
     private boolean hasTooDifficultSacScale(ReaderWay way) {
         String sacScale = way.getTag(OSMTags.Keys.SAC_SCALE);
@@ -296,9 +296,9 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
      * Assign priorities based on relations and values stored against the way. This is the top level method that calls
      * other priority assessment methods
      *
-     * @param way                   The way to be assessed
-     * @param priorityFromRelation  The priority obtained from any relations
-     * @return                      The overall priority value for the way
+     * @param way                  The way to be assessed
+     * @param priorityFromRelation The priority obtained from any relations
+     * @return The overall priority value for the way
      */
     protected int handlePriority(ReaderWay way, int priorityFromRelation) {
         TreeMap<Double, Integer> weightToPrioMap = new TreeMap<>();
@@ -335,8 +335,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
      * Update the weight priority map based on values relating to highway types that are identified as being "safe" or
      * with low speeds
      *
-     * @param way               The way containing the tag information
-     * @param weightToPrioMap   The priority weight map that will have the weightings updated
+     * @param way             The way containing the tag information
+     * @param weightToPrioMap The priority weight map that will have the weightings updated
      */
     void assignSafeHighwayPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         String highway = way.getTag(OSMTags.Keys.HIGHWAY);
@@ -355,8 +355,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
     /**
      * Update the weight priority map based on tunnel information
      *
-     * @param way               The way containing the tag information
-     * @param weightToPrioMap   The priority weight map that will have the weightings updated
+     * @param way             The way containing the tag information
+     * @param weightToPrioMap The priority weight map that will have the weightings updated
      */
     void assignTunnelPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         if (way.hasTag(OSMTags.Keys.TUNNEL, intendedValues)) {
@@ -370,8 +370,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
     /**
      * Update the weight priority map based on values relating to avoiding highways
      *
-     * @param way               The way containing the tag information
-     * @param weightToPrioMap   The priority weight map that will have the weightings updated
+     * @param way             The way containing the tag information
+     * @param weightToPrioMap The priority weight map that will have the weightings updated
      */
     private void assignAvoidHighwayPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         String highway = way.getTag(OSMTags.Keys.HIGHWAY);
@@ -387,8 +387,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
      * Mark the way as to be avoided if there is no sidewalk present on highway types identified as needing a sidewalk
      * to be traversed
      *
-     * @param way               The way containing the tag information
-     * @param weightToPrioMap   The priority weight map that will have the weightings updated
+     * @param way             The way containing the tag information
+     * @param weightToPrioMap The priority weight map that will have the weightings updated
      */
     private void assignAvoidUnlessSidewalkPresentPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         String highway = way.getTag(OSMTags.Keys.HIGHWAY);
@@ -399,8 +399,8 @@ public abstract class FootFlagEncoder extends com.graphhopper.routing.util.FootF
     /**
      * Update the weight priority map based on values relating to bicycle ways.
      *
-     * @param way               The way containing the tag information
-     * @param weightToPrioMap   The priority weight map that will have the weightings updated
+     * @param way             The way containing the tag information
+     * @param weightToPrioMap The priority weight map that will have the weightings updated
      */
     private void assignBicycleWayPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
         if (way.hasTag(OSMTags.Keys.BICYCLE, "official") || way.hasTag(OSMTags.Keys.BICYCLE, KEY_DESIGNATED))

@@ -56,32 +56,33 @@ public class RoutingProfileType {
     public static final int GH_FOOT = 46;
     public static final int GH_HIKE = 47;
 
-    private RoutingProfileType() {}
+    private RoutingProfileType() {
+    }
 
     public static boolean isDriving(int routePref) {
         return routePref == DRIVING_CAR
-            || routePref == DRIVING_HGV
-            || routePref == DRIVING_ELECTRIC_CAR
-            || routePref == DRIVING_EMERGENCY
-            || routePref == DRIVING_MOTORCYCLE
-            || routePref == DRIVING_CAROFFROAD
-            || routePref == DRIVING_TRAFFIC
-            || routePref == GH_CAR
-            || routePref == GH_CAR4WD;
+                || routePref == DRIVING_HGV
+                || routePref == DRIVING_ELECTRIC_CAR
+                || routePref == DRIVING_EMERGENCY
+                || routePref == DRIVING_MOTORCYCLE
+                || routePref == DRIVING_CAROFFROAD
+                || routePref == DRIVING_TRAFFIC
+                || routePref == GH_CAR
+                || routePref == GH_CAR4WD;
     }
 
     public static boolean isHeavyVehicle(int routePref) {
         return routePref == DRIVING_HGV
-            || routePref == DRIVING_CAROFFROAD
-            || routePref == DRIVING_EMERGENCY;
+                || routePref == DRIVING_CAROFFROAD
+                || routePref == DRIVING_EMERGENCY;
     }
 
     public static boolean isWalking(int routePref) {
         return routePref == FOOT_WALKING
-            || routePref == FOOT_HIKING
-            || routePref == FOOT_JOGGING
-            || routePref == GH_FOOT
-            || routePref == GH_HIKE;
+                || routePref == FOOT_HIKING
+                || routePref == FOOT_JOGGING
+                || routePref == GH_FOOT
+                || routePref == GH_HIKE;
     }
 
     public static boolean isPedestrian(int routePref) {
@@ -94,13 +95,13 @@ public class RoutingProfileType {
 
     public static boolean isCycling(int routePref) {
         return routePref == CYCLING_REGULAR
-            || routePref == CYCLING_MOUNTAIN
-            || routePref == CYCLING_ROAD
-            || routePref == CYCLING_ELECTRIC
-            || routePref == GH_BIKE
-            || routePref == GH_BIKE2
-            || routePref == GH_BIKE_MTB
-            || routePref == GH_BIKE_ROAD;
+                || routePref == CYCLING_MOUNTAIN
+                || routePref == CYCLING_ROAD
+                || routePref == CYCLING_ELECTRIC
+                || routePref == GH_BIKE
+                || routePref == GH_BIKE2
+                || routePref == GH_BIKE_MTB
+                || routePref == GH_BIKE_ROAD;
     }
 
     public static boolean supportMessages(int profileType) {

@@ -23,9 +23,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
+import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.api.util.AppInfo;
 import org.json.JSONObject;
 
 @Schema(name = "IsochronesResponseInfo", description = "Information about the request")
@@ -56,7 +56,7 @@ public class IsochronesResponseInfo {
     @JsonProperty("engine")
     private final EngineInfo engineInfo;
 
-    @Schema(description = "System message", example ="A message string configured in the service")
+    @Schema(description = "System message", example = "A message string configured in the service")
     @JsonProperty("system_message")
     private final String systemMessage;
 

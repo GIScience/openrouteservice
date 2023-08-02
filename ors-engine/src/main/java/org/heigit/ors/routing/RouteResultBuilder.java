@@ -37,17 +37,16 @@ import java.util.List;
 import static org.heigit.ors.routing.RouteResult.*;
 
 // visibilities needed until RouteResultBuilderTest is properly migrated
-public class RouteResultBuilder
-{
-	private final AngleCalc angleCalc;
-	private final DistanceCalc distCalc;
-	private static final CardinalDirection[] directions = {CardinalDirection.NORTH, CardinalDirection.NORTH_EAST, CardinalDirection.EAST, CardinalDirection.SOUTH_EAST, CardinalDirection.SOUTH, CardinalDirection.SOUTH_WEST, CardinalDirection.WEST, CardinalDirection.NORTH_WEST};
+public class RouteResultBuilder {
+    private final AngleCalc angleCalc;
+    private final DistanceCalc distCalc;
+    private static final CardinalDirection[] directions = {CardinalDirection.NORTH, CardinalDirection.NORTH_EAST, CardinalDirection.EAST, CardinalDirection.SOUTH_EAST, CardinalDirection.SOUTH, CardinalDirection.SOUTH_WEST, CardinalDirection.WEST, CardinalDirection.NORTH_WEST};
     private int startWayPointIndex = 0;
 
-	public RouteResultBuilder() {
-		angleCalc = new AngleCalc();
-		distCalc = new DistanceCalcEarth();
-	}
+    public RouteResultBuilder() {
+        angleCalc = new AngleCalc();
+        distCalc = new DistanceCalcEarth();
+    }
 
     RouteResult[] createRouteResults(List<GHResponse> responses, RoutingRequest request, List<RouteExtraInfo>[] extras) throws Exception {
         if (responses.isEmpty())
@@ -58,7 +57,7 @@ public class RouteResultBuilder
             return createRouteResultSetFromMultiplePaths(responses.get(0), request, extras);
     }
 
-    private RouteResult createInitialRouteResult (RoutingRequest request, List<RouteExtraInfo> extras) {
+    private RouteResult createInitialRouteResult(RoutingRequest request, List<RouteExtraInfo> extras) {
         RouteResult result = new RouteResult(request.getExtraInfo());
 
         result.addExtras(request, extras);
@@ -102,7 +101,7 @@ public class RouteResultBuilder
 
         if (request.getSearchParameters().isTimeDependent()) {
             String timezoneDeparture = responses.get(0).getHints().getString(KEY_TIMEZONE_DEPARTURE, DEFAULT_TIMEZONE);
-            String timezoneArrival = responses.get(responses.size()-1).getHints().getString(KEY_TIMEZONE_ARRIVAL, DEFAULT_TIMEZONE);
+            String timezoneArrival = responses.get(responses.size() - 1).getHints().getString(KEY_TIMEZONE_ARRIVAL, DEFAULT_TIMEZONE);
 
             setDepartureArrivalTimes(timezoneDeparture, timezoneArrival, request, result);
         }
@@ -209,12 +208,12 @@ public class RouteResultBuilder
     private void addLegsToRouteResult(RouteResult result, RoutingRequest request, List<Trip.Leg> legs, GHResponse response) throws Exception {
         for (Trip.Leg leg : legs) {
             startWayPointIndex = 0;
-            List<RouteStep> instructions = leg instanceof Trip.WalkLeg wl ? convertRouteSteps(wl.instructions, PointList.from((LineString)leg.geometry), request, null) : null;
+            List<RouteStep> instructions = leg instanceof Trip.WalkLeg wl ? convertRouteSteps(wl.instructions, PointList.from((LineString) leg.geometry), request, null) : null;
             result.addLeg(new RouteLeg(leg, instructions, response, request));
         }
     }
 
-    private List<RouteStep> convertRouteSteps(InstructionList instructions, PointList points, RoutingRequest request, PointList nextRouteFirstStepPoints) throws Exception{
+    private List<RouteStep> convertRouteSteps(InstructionList instructions, PointList points, RoutingRequest request, PointList nextRouteFirstStepPoints) throws Exception {
         List<RouteStep> result = new ArrayList<>();
         int nInstructions = instructions.size();
         InstructionTranslator instrTranslator = InstructionTranslatorsCache.getInstance().getTranslator(request.getLanguage());
@@ -324,45 +323,44 @@ public class RouteResultBuilder
         if (points.size() < 2)
             return ArrivalDirection.UNKNOWN;
 
-		int lastIndex = points.size() - 1;
-		double lon0 = points.getLon(lastIndex - 1);
-		double lat0 = points.getLat(lastIndex - 1);
-		double lon1 = points.getLon(lastIndex);
-		double lat1 = points.getLat(lastIndex);
+        int lastIndex = points.size() - 1;
+        double lon0 = points.getLon(lastIndex - 1);
+        double lat0 = points.getLat(lastIndex - 1);
+        double lon1 = points.getLon(lastIndex);
+        double lat1 = points.getLat(lastIndex);
 
-		double dist = distCalc.calcDist(lat1, lon1, destination.y, destination.x);
+        double dist = distCalc.calcDist(lat1, lon1, destination.y, destination.x);
 
-		if (dist < 1)
-			return ArrivalDirection.STRAIGHT_AHEAD;
-		else
-		{
-			double sign = Math.signum((lon1 - lon0) * (destination.y - lat0) - (lat1 - lat0) * (destination.x - lon0));
-			if (sign == 0)
-				return ArrivalDirection.STRAIGHT_AHEAD;
-			else if (sign == 1)
-				return ArrivalDirection.LEFT;
-			else
-				return ArrivalDirection.RIGHT;
-		}
-	}
+        if (dist < 1)
+            return ArrivalDirection.STRAIGHT_AHEAD;
+        else {
+            double sign = Math.signum((lon1 - lon0) * (destination.y - lat0) - (lat1 - lat0) * (destination.x - lon0));
+            if (sign == 0)
+                return ArrivalDirection.STRAIGHT_AHEAD;
+            else if (sign == 1)
+                return ArrivalDirection.LEFT;
+            else
+                return ArrivalDirection.RIGHT;
+        }
+    }
 
-	private int getEndWayPointIndex(int startIndex, InstructionType instrType, Instruction instr) {
-		if (instrType == InstructionType.FINISH
+    private int getEndWayPointIndex(int startIndex, InstructionType instrType, Instruction instr) {
+        if (instrType == InstructionType.FINISH
                 // "empty" departure instruction means start and end coordinates are the same, index should not increase
                 || (instrType == InstructionType.DEPART && instr.getDistance() == 0.0 && instr.getPoints().size() == 1)
-            )
-			return startIndex;
-		else
-			return startIndex + instr.getPoints().size();
-	}
+        )
+            return startIndex;
+        else
+            return startIndex + instr.getPoints().size();
+    }
 
-	private RouteStepManeuver calcManeuver(InstructionType instrType, PointList prevSegPoints, PointList segPoints, PointList nextSegPoints) {
-		RouteStepManeuver maneuver = new RouteStepManeuver();
+    private RouteStepManeuver calcManeuver(InstructionType instrType, PointList prevSegPoints, PointList segPoints, PointList nextSegPoints) {
+        RouteStepManeuver maneuver = new RouteStepManeuver();
         maneuver.setBearingBefore(0);
         maneuver.setBearingAfter(0);
-		if (nextSegPoints == null) {
+        if (nextSegPoints == null) {
             return maneuver;
-		}
+        }
         if (instrType == InstructionType.DEPART) {
             double lon0 = segPoints.getLon(0);
             double lat0 = segPoints.getLat(0);
@@ -370,13 +368,13 @@ public class RouteResultBuilder
             double lon1;
             double lat1;
             if (segPoints.size() == 1) {
-                lon1  = nextSegPoints.getLon(0);
-                lat1  = nextSegPoints.getLat(0);
+                lon1 = nextSegPoints.getLon(0);
+                lat1 = nextSegPoints.getLat(0);
             } else {
-                lon1  = segPoints.getLon(1);
-                lat1  = segPoints.getLat(1);
+                lon1 = segPoints.getLon(1);
+                lat1 = segPoints.getLat(1);
             }
-            maneuver.setBearingAfter((int)Math.round(angleCalc.calcAzimuth(lat0, lon0, lat1, lon1)));
+            maneuver.setBearingAfter((int) Math.round(angleCalc.calcAzimuth(lat0, lon0, lat1, lon1)));
         } else if (prevSegPoints.size() > 0) {
             int locIndex = prevSegPoints.size() - 1;
             double lon0 = prevSegPoints.getLon(locIndex);
@@ -384,7 +382,7 @@ public class RouteResultBuilder
             double lon1 = segPoints.getLon(0);
             double lat1 = segPoints.getLat(0);
             maneuver.setLocation(new Coordinate(lon1, lat1));
-            maneuver.setBearingBefore((int)Math.round(angleCalc.calcAzimuth(lat0, lon0, lat1, lon1)));
+            maneuver.setBearingBefore((int) Math.round(angleCalc.calcAzimuth(lat0, lon0, lat1, lon1)));
             if (instrType != InstructionType.FINISH) {
                 double lon2;
                 double lat2;
@@ -395,26 +393,26 @@ public class RouteResultBuilder
                     lon2 = segPoints.getLon(1);
                     lat2 = segPoints.getLat(1);
                 }
-                maneuver.setBearingAfter((int)Math.round(angleCalc.calcAzimuth(lat1, lon1, lat2, lon2)));
+                maneuver.setBearingAfter((int) Math.round(angleCalc.calcAzimuth(lat1, lon1, lat2, lon2)));
             }
         }
         return maneuver;
-	}
-
-	private boolean isTurnInstruction(InstructionType instrType) {
-		return instrType == InstructionType.TURN_LEFT || instrType == InstructionType.TURN_SLIGHT_LEFT
-				|| instrType == InstructionType.TURN_SHARP_LEFT || instrType == InstructionType.TURN_RIGHT
-				|| instrType == InstructionType.TURN_SLIGHT_RIGHT || instrType == InstructionType.TURN_SHARP_RIGHT;
-	}
-
-	private boolean isKeepInstruction(InstructionType instrType){
-	    return instrType == InstructionType.KEEP_LEFT || instrType == InstructionType.KEEP_RIGHT;
     }
 
-    private InstructionType getInstructionType(boolean isDepart, Instruction instr)	{
-		if (isDepart) {
-			return InstructionType.DEPART;
-		}
+    private boolean isTurnInstruction(InstructionType instrType) {
+        return instrType == InstructionType.TURN_LEFT || instrType == InstructionType.TURN_SLIGHT_LEFT
+                || instrType == InstructionType.TURN_SHARP_LEFT || instrType == InstructionType.TURN_RIGHT
+                || instrType == InstructionType.TURN_SLIGHT_RIGHT || instrType == InstructionType.TURN_SHARP_RIGHT;
+    }
+
+    private boolean isKeepInstruction(InstructionType instrType) {
+        return instrType == InstructionType.KEEP_LEFT || instrType == InstructionType.KEEP_RIGHT;
+    }
+
+    private InstructionType getInstructionType(boolean isDepart, Instruction instr) {
+        if (isDepart) {
+            return InstructionType.DEPART;
+        }
 
         return switch (instr.getSign()) {
             case Instruction.TURN_LEFT -> InstructionType.TURN_LEFT;
@@ -434,17 +432,17 @@ public class RouteResultBuilder
             case Instruction.CONTINUE_ON_STREET -> InstructionType.CONTINUE;
             default -> InstructionType.CONTINUE;
         };
-	}
+    }
 
-	private CardinalDirection calcDirection(double lat1, double lon1, double lat2, double lon2 ) {
-		double orientation = - angleCalc.calcOrientation(lat1, lon1, lat2, lon2);
-		orientation = Helper.round4(orientation + Math.PI / 2);
-		if (orientation < 0)
-			orientation += 2 * Math.PI;
+    private CardinalDirection calcDirection(double lat1, double lon1, double lat2, double lon2) {
+        double orientation = -angleCalc.calcOrientation(lat1, lon1, lat2, lon2);
+        orientation = Helper.round4(orientation + Math.PI / 2);
+        if (orientation < 0)
+            orientation += 2 * Math.PI;
 
-		double degree = Math.toDegrees(orientation);
-		return directions[(int)Math.floor(((degree+ 22.5) % 360) / 45)];
-	}
+        double degree = Math.toDegrees(orientation);
+        return directions[(int) Math.floor(((degree + 22.5) % 360) / 45)];
+    }
 
     private void handleResponseWarnings(RouteResult result, GHResponse response) {
         String skippedExtras = response.getHints().getString("skipped_extra_info", "");

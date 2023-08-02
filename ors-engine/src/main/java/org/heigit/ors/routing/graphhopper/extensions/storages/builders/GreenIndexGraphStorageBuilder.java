@@ -70,12 +70,12 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
             String row;
             // Jump the header line
             row = csvBuffer.readLine();
-            char separator = row.contains(";") ? ';': ',';
+            char separator = row.contains(";") ? ';' : ',';
             String[] rowValues = new String[2];
 
-            while ((row = csvBuffer.readLine()) != null)  {
+            while ((row = csvBuffer.readLine()) != null) {
                 if (!parseCSVrow(row, separator, rowValues))
-                	continue;
+                    continue;
 
                 greenIndices.put(Long.parseLong(rowValues[0]), Double.parseDouble(rowValues[1]));
             }
@@ -85,18 +85,18 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         }
     }
 
-    private boolean parseCSVrow(String row, char separator,  String[] rowValues) {
+    private boolean parseCSVrow(String row, char separator, String[] rowValues) {
         if (Helper.isEmpty(row))
-        	return false;
+            return false;
 
         int pos = row.indexOf(separator);
         if (pos > 0) {
-        	rowValues[0] = row.substring(0, pos).trim();
-        	rowValues[1] = row.substring(pos+1).trim();
-        	// read, check and push "osm_id" and "ungreen_factor" values
+            rowValues[0] = row.substring(0, pos).trim();
+            rowValues[1] = row.substring(pos + 1).trim();
+            // read, check and push "osm_id" and "ungreen_factor" values
             return !Helper.isEmpty(rowValues[0]) && !Helper.isEmpty(rowValues[1]);
         }
-       	return false;
+        return false;
     }
 
     @Override

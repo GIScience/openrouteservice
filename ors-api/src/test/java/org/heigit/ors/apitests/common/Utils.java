@@ -32,27 +32,26 @@ import java.nio.file.Paths;
 
 public class Utils {
 
-	public synchronized static final String getORSVersion() {
+    public synchronized static final String getORSVersion() {
 
-		String version = null;
+        String version = null;
 
-		try {
-			String curDir = System.getProperty("user.dir");
-			Path pomFile = Paths.get(Paths.get(curDir).getParent().toString(), "openrouteservice").resolve("pom.xml");
+        try {
+            String curDir = System.getProperty("user.dir");
+            Path pomFile = Paths.get(Paths.get(curDir).getParent().toString(), "openrouteservice").resolve("pom.xml");
 
-			try (InputStream is = Files.newInputStream(pomFile))
-			{
-				Document doc = DocumentBuilderFactory.newInstance()
-						.newDocumentBuilder().parse(is);
-				doc.getDocumentElement().normalize();
-				version = (String) XPathFactory.newInstance().newXPath().compile("/project/version").evaluate(doc, XPathConstants.STRING);
-				if (version != null) {
-					version = version.trim();
-				}
-			}
-		} catch (Exception ignored) {
-		}
+            try (InputStream is = Files.newInputStream(pomFile)) {
+                Document doc = DocumentBuilderFactory.newInstance()
+                        .newDocumentBuilder().parse(is);
+                doc.getDocumentElement().normalize();
+                version = (String) XPathFactory.newInstance().newXPath().compile("/project/version").evaluate(doc, XPathConstants.STRING);
+                if (version != null) {
+                    version = version.trim();
+                }
+            }
+        } catch (Exception ignored) {
+        }
 
-		return version;
-	}
+        return version;
+    }
 }

@@ -14,11 +14,11 @@ import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.index.quadtree.Quadtree;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.index.quadtree.Quadtree;
 import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.*;

@@ -278,7 +278,7 @@ class CoreNodeContractor implements NodeContractor {
             }
         }
         if (!exists)
-            prepareGraph.addShortcut(fromNode, toNode, incomingEdge, outgoingEdge, weight, time,inOrigEdgeCount + outOrigEdgeCount);
+            prepareGraph.addShortcut(fromNode, toNode, incomingEdge, outgoingEdge, weight, time, inOrigEdgeCount + outOrigEdgeCount);
     }
 
     @Override

@@ -15,8 +15,8 @@
 
 package org.heigit.ors.api.requests.routing;
 
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -31,7 +31,7 @@ class RouteRequestTest {
 
     @BeforeEach
     void setup() throws ParameterValueException {
-        request = new RouteRequest(new Double[][] {new Double[] {1.0,1.0}, new Double[] {2.0,2.0}});
+        request = new RouteRequest(new Double[][]{new Double[]{1.0, 1.0}, new Double[]{2.0, 2.0}});
     }
 
     @Test
@@ -67,19 +67,19 @@ class RouteRequestTest {
 
     @Test
     void testHasAttributes() {
-        request.setAttributes(new APIEnums.Attributes[] {APIEnums.Attributes.AVERAGE_SPEED});
+        request.setAttributes(new APIEnums.Attributes[]{APIEnums.Attributes.AVERAGE_SPEED});
         assertTrue(request.hasAttributes());
     }
 
     @Test
     void testHasMaximumSearchRadii() {
-        request.setMaximumSearchRadii(new Double[] { 1.0 });
+        request.setMaximumSearchRadii(new Double[]{1.0});
         assertTrue(request.hasMaximumSearchRadii());
     }
 
     @Test
     void testHasBearings() {
-        request.setBearings(new Double[][] {new Double[] {0.0, 90.0}});
+        request.setBearings(new Double[][]{new Double[]{0.0, 90.0}});
         assertTrue(request.hasBearings());
     }
 
@@ -103,7 +103,7 @@ class RouteRequestTest {
 
     @Test
     void testHasExtraInfo() {
-        request.setExtraInfo(new APIEnums.ExtraInfo[] { APIEnums.ExtraInfo.SURFACE });
+        request.setExtraInfo(new APIEnums.ExtraInfo[]{APIEnums.ExtraInfo.SURFACE});
         assertTrue(request.hasExtraInfo());
     }
 

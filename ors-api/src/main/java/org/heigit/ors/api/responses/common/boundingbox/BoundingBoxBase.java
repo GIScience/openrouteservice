@@ -25,7 +25,8 @@ public class BoundingBoxBase implements BoundingBox {
     protected double maxLat;
     protected double maxLon;
 
-    public BoundingBoxBase() {}
+    public BoundingBoxBase() {
+    }
 
     public BoundingBoxBase(BBox bounding) {
         minLat = bounding.minLat;
@@ -51,7 +52,7 @@ public class BoundingBoxBase implements BoundingBox {
     }
 
     public double[] getAsArray() {
-        return new double[] {
+        return new double[]{
                 FormatUtility.roundToDecimals(minLon, COORDINATE_DECIMAL_PLACES),
                 FormatUtility.roundToDecimals(minLat, COORDINATE_DECIMAL_PLACES),
                 FormatUtility.roundToDecimals(maxLon, COORDINATE_DECIMAL_PLACES),

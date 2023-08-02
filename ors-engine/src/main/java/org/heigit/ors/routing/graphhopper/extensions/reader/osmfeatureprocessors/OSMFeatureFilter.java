@@ -16,12 +16,14 @@ public interface OSMFeatureFilter {
 
     /**
      * Should the element that has been assigned to this filter be accepted into the graph
+     *
      * @return
      */
     boolean accept();
 
     /**
      * Prepare the element that has been assigned to the filter for processing
+     *
      * @return
      */
     ReaderElement prepareForProcessing();

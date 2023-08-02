@@ -13,16 +13,16 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.heigit.ors.geojson.GeometryJSON;
-import org.heigit.ors.util.CSVUtility;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.log4j.Logger;
+import org.heigit.ors.geojson.GeometryJSON;
+import org.heigit.ors.util.CSVUtility;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 
 import java.io.*;
 import java.util.*;
@@ -66,9 +66,9 @@ public class CountryBordersReader {
     /**
      * Create a CountryBordersReader object and read in data for borders, ids and open borders.
      *
-     * @param filepath      Path to the borders (polygon) data
-     * @param idsPath       Path to a csv file containing numeric identifiers for countries (and english name)
-     * @param openPath      Path to a csv file containing pairs of country names which have open borders
+     * @param filepath Path to the borders (polygon) data
+     * @param idsPath  Path to a csv file containing numeric identifiers for countries (and english name)
+     * @param openPath Path to a csv file containing pairs of country names which have open borders
      */
     public CountryBordersReader(String filepath, String idsPath, String openPath) throws IOException {
         borderFile = filepath;
@@ -99,14 +99,14 @@ public class CountryBordersReader {
 
     // for test mocks
     public void addHierarchy(Long id, CountryBordersHierarchy hierarchy) {
-        if(!hierarchies.containsKey(id)) {
+        if (!hierarchies.containsKey(id)) {
             hierarchies.put(id, hierarchy);
         }
     }
 
     // for test mocks
     public void addId(String id, String localName, String englishName, String cca2, String cca3) {
-        if(!ids.containsKey(localName)) {
+        if (!ids.containsKey(localName)) {
             ids.put(localName, new CountryInfo(id, localName, englishName));
             isoCodes.put(cca2.trim().toUpperCase(), Integer.parseInt(id));
             isoCodes.put(cca3.trim().toUpperCase(), Integer.parseInt(id));
@@ -121,9 +121,9 @@ public class CountryBordersReader {
      * @param country2
      */
     public void addOpenBorder(String country1, String country2) {
-        if(openBorders.containsKey(country1)) {
+        if (openBorders.containsKey(country1)) {
             // The key exists, so now add the second country if it is not present
-            if(!openBorders.get(country1).contains(country2)) {
+            if (!openBorders.get(country1).contains(country2)) {
                 openBorders.get(country1).add(country2);
             }
         } else {
@@ -132,8 +132,8 @@ public class CountryBordersReader {
             openBorders.put(country1, c2);
         }
 
-        if(openBorders.containsKey(country2)) {// The key exists, so now add the second country if it is not present
-            if(!openBorders.get(country2).contains(country1)) {
+        if (openBorders.containsKey(country2)) {// The key exists, so now add the second country if it is not present
+            if (!openBorders.get(country2).contains(country1)) {
                 openBorders.get(country2).add(country1);
             }
         } else {
@@ -146,11 +146,11 @@ public class CountryBordersReader {
     /**
      * Method to read the geometries from a GeoJSON file that represent the boundaries of different countries. Ideally
      * it should be written using many small objects split into hierarchies.
-     *
+     * <p>
      * If the file is a .tar.gz format, it will decompress it and then store the reulting data to be read into the
      * JSON object.
      *
-     * @return      A (Geo)JSON object representing the contents of the file
+     * @return A (Geo)JSON object representing the contents of the file
      */
     private JSONObject readBordersData() throws IOException {
         String data = "";
@@ -158,7 +158,7 @@ public class CountryBordersReader {
         BufferedReader buf = null;
         TarArchiveInputStream tis = null;
         try (InputStream is = new FileInputStream(borderFile)) {
-            if(borderFile.endsWith(".tar.gz")) {
+            if (borderFile.endsWith(".tar.gz")) {
                 // We are working with a compressed file
                 tis = new TarArchiveInputStream(
                         new GzipCompressorInputStream(
@@ -169,8 +169,8 @@ public class CountryBordersReader {
                 TarArchiveEntry entry;
                 StringBuilder sb = new StringBuilder();
 
-                while((entry = tis.getNextTarEntry()) != null) {
-                    if(!entry.isDirectory()) {
+                while ((entry = tis.getNextTarEntry()) != null) {
+                    if (!entry.isDirectory()) {
                         byte[] bytes = new byte[(int) entry.getSize()];
                         while (tis.read(bytes) > 0)
                             sb.append(new String(bytes));
@@ -196,9 +196,9 @@ public class CountryBordersReader {
             throw ioe;
         } finally {
             try {
-                if(tis != null)
+                if (tis != null)
                     tis.close();
-                if(buf != null)
+                if (buf != null)
                     buf.close();
             } catch (IOException ioe) {
                 LOGGER.warn("Error closing file reader buffers!");
@@ -222,7 +222,7 @@ public class CountryBordersReader {
 
         int len = features.length();
 
-        for(int i=0; i<len; i++) {
+        for (int i = 0; i < len; i++) {
             try {
                 JSONObject obj = features.getJSONObject(i);
                 Geometry geom = GeometryJSON.parse(obj.getJSONObject("geometry"));
@@ -233,15 +233,15 @@ public class CountryBordersReader {
                 Long hId = -1L;
 
                 // If there is no hierarchy info, then we set the id of the hierarchy to be a default of 1
-                if(obj.getJSONObject(KEY_PROPERTIES).has(hierarchyIdField))
+                if (obj.getJSONObject(KEY_PROPERTIES).has(hierarchyIdField))
                     hId = obj.getJSONObject(KEY_PROPERTIES).getLong(hierarchyIdField);
 
                 // Create the borders object
                 CountryBordersPolygon c = new CountryBordersPolygon(id, geom);
 
                 // add to the hierarchy
-                if(c != null) {
-                    if(!hierarchies.containsKey(hId)) {
+                if (c != null) {
+                    if (!hierarchies.containsKey(hId)) {
                         hierarchies.put(hId, new CountryBordersHierarchy());
                         hierarchyCount++;
                     }
@@ -262,20 +262,20 @@ public class CountryBordersReader {
      * Method for getting a list of country objects that the given point can be found within. This could be more than
      * one if the point is found in overlapping regions.
      *
-     * @param c     The point that you want to know which country is in
-     * @return      An array of CountryBorderPolygons that the point is within the geometry of.
+     * @param c The point that you want to know which country is in
+     * @return An array of CountryBorderPolygons that the point is within the geometry of.
      */
     public CountryBordersPolygon[] getCountry(Coordinate c) {
         ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
         Iterator it = hierarchies.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry)it.next();
-            CountryBordersHierarchy h =  pair.getValue();
-            if(h.inBbox(c)) {
+        while (it.hasNext()) {
+            Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry) it.next();
+            CountryBordersHierarchy h = pair.getValue();
+            if (h.inBbox(c)) {
                 // Now need to check the countries
                 List<CountryBordersPolygon> ps = h.getPolygons();
-                for(CountryBordersPolygon cp : ps) {
-                    if(cp.inBbox(c) && cp.inArea(c)) {
+                for (CountryBordersPolygon cp : ps) {
+                    if (cp.inBbox(c) && cp.inArea(c)) {
                         countries.add(cp);
                     }
                 }
@@ -291,20 +291,20 @@ public class CountryBordersReader {
      * returned may not actually surround the point. The method should be used to get a quick approximation as to
      * whether the country is a candidate for containing the point.
      *
-     * @param c     The point that you want to know which country is in
-     * @return      An array of CountryBorderPolygons that the point is within the geometry of.
+     * @param c The point that you want to know which country is in
+     * @return An array of CountryBorderPolygons that the point is within the geometry of.
      */
     public CountryBordersPolygon[] getCandidateCountry(Coordinate c) {
         ArrayList<CountryBordersPolygon> countries = new ArrayList<>();
         Iterator it = hierarchies.entrySet().iterator();
-        while(it.hasNext()) {
-            Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry)it.next();
-            CountryBordersHierarchy h =  pair.getValue();
-            if(h.inBbox(c)) {
+        while (it.hasNext()) {
+            Map.Entry<Long, CountryBordersHierarchy> pair = (Map.Entry) it.next();
+            CountryBordersHierarchy h = pair.getValue();
+            if (h.inBbox(c)) {
                 // Now need to check the countries
                 List<CountryBordersPolygon> ps = h.getPolygons();
-                for(CountryBordersPolygon cp : ps) {
-                    if(cp.inBbox(c)) {
+                for (CountryBordersPolygon cp : ps) {
+                    if (cp.inBbox(c)) {
                         countries.add(cp);
                     }
                 }
@@ -317,14 +317,14 @@ public class CountryBordersReader {
     /**
      * Get the unique identifier of the country (read from a CSV file in the constructor)
      *
-     * @param name      The local name of the country
-     * @return          The unique identifier
+     * @param name The local name of the country
+     * @return The unique identifier
      */
     public String getId(String name) {
-        if(name.equals(INTERNATIONAL_NAME))
+        if (name.equals(INTERNATIONAL_NAME))
             return INTERNATIONAL_ID;
 
-        if(ids.containsKey(name))
+        if (ids.containsKey(name))
             return ids.get(name).id;
         else
             return "";
@@ -333,14 +333,14 @@ public class CountryBordersReader {
     /**
      * Get the English name of the country (read from the id CSV)
      *
-     * @param name      The local name of the country
-     * @return          The English name of the country
+     * @param name The local name of the country
+     * @return The English name of the country
      */
     public String getEngName(String name) {
-        if(name.equals(INTERNATIONAL_NAME))
+        if (name.equals(INTERNATIONAL_NAME))
             return INTERNATIONAL_NAME;
 
-        if(ids.containsKey(name))
+        if (ids.containsKey(name))
             return ids.get(name).nameEng;
         else
             return "";
@@ -349,14 +349,14 @@ public class CountryBordersReader {
     /**
      * Get whether a border between two specified countries is open or closed
      *
-     * @param c1        The first country of the border (English name)
-     * @param c2        The second country of the border (English name)
+     * @param c1 The first country of the border (English name)
+     * @param c2 The second country of the border (English name)
      * @return
      */
     public boolean isOpen(String c1, String c2) {
-        if(openBorders.containsKey(c1)) {
+        if (openBorders.containsKey(c1)) {
             return openBorders.get(c1).contains(c2);
-        } else if(openBorders.containsKey(c2))
+        } else if (openBorders.containsKey(c2))
             return openBorders.get(c2).contains(c1);
 
         return false;
@@ -367,8 +367,8 @@ public class CountryBordersReader {
      * this class. (Usually there should be only one instance for each server instance, and even if not, the
      * borders data used should be the same)
      *
-     * @param code      The code to look up
-     * @return          The ID of the country or 0 if not found
+     * @param code The code to look up
+     * @return The ID of the country or 0 if not found
      */
     public static int getCountryIdByISOCode(String code) {
         return currentInstance != null ? currentInstance.isoCodes.getOrDefault(code.toUpperCase(), 0) : 0;
@@ -387,8 +387,8 @@ public class CountryBordersReader {
         int countries = 0;
         int isoCCA2 = 0;
         int isoCCA3 = 0;
-        for(List<String> col : data) {
-            if(col.size() >= 3) {
+        for (List<String> col : data) {
+            if (col.size() >= 3) {
                 ids.put(col.get(1), new CountryInfo(col.get(0), col.get(1), col.get(2)));
                 countries++;
             }
@@ -399,11 +399,11 @@ public class CountryBordersReader {
                 LOGGER.error("Invalid country ID " + col.get(0));
                 continue;
             }
-            if(col.size() >= 4 && !col.get(3).trim().isEmpty()) {
+            if (col.size() >= 4 && !col.get(3).trim().isEmpty()) {
                 isoCodes.put(col.get(3).trim().toUpperCase(), intID);
                 isoCCA2++;
             }
-            if(col.size() == 5 && !col.get(4).trim().isEmpty()) {
+            if (col.size() == 5 && !col.get(4).trim().isEmpty()) {
                 isoCodes.put(col.get(4).trim().toUpperCase(), intID);
                 isoCCA3++;
             }
@@ -411,14 +411,14 @@ public class CountryBordersReader {
         LOGGER.info(countries + " country IDs read");
         if (isoCCA2 > 0) {
             if (isoCCA2 < countries) {
-                LOGGER.warn((countries - isoCCA2)+ " countries have no ISO 3166-1 CCA2 code assigned.");
+                LOGGER.warn((countries - isoCCA2) + " countries have no ISO 3166-1 CCA2 code assigned.");
             } else {
                 LOGGER.info("ISO 3166-1 CCA2 codes enabled for all countries");
             }
         }
         if (isoCCA3 > 0) {
             if (isoCCA3 < countries) {
-                LOGGER.warn((countries - isoCCA3)+ " countries have no ISO 3166-1 CCA3 code assigned.");
+                LOGGER.warn((countries - isoCCA3) + " countries have no ISO 3166-1 CCA3 code assigned.");
             } else {
                 LOGGER.info("ISO 3166-1 CCA3 codes enabled for all countries");
             }
@@ -434,10 +434,10 @@ public class CountryBordersReader {
         List<List<String>> data = CSVUtility.readFile(openPath);
 
         // Loop through and store in the hashmap
-        for(List<String> col : data) {
-            if(col.size() == 2) {
+        for (List<String> col : data) {
+            if (col.size() == 2) {
                 // See if there is already the start country
-                if(!openBorders.containsKey(col.get(0))) {
+                if (!openBorders.containsKey(col.get(0))) {
                     openBorders.put(col.get(0), new ArrayList<>());
                 }
                 openBorders.get(col.get(0)).add(col.get(1));

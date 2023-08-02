@@ -14,9 +14,9 @@
 package org.heigit.ors.apitests.matrix;
 
 import org.hamcrest.Matchers;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
-import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -219,7 +219,7 @@ class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/blah")
+                .post(getEndPointPath() + "/{profile}/blah")
                 .then()
                 .assertThat()
                 .body("error.code", Matchers.is(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
@@ -230,7 +230,7 @@ class ParamsTest extends ServiceTest {
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath()+"/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/json")
                 .then()
                 .assertThat()
                 .body("error.code", Matchers.is(MatrixErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
@@ -521,7 +521,7 @@ class ParamsTest extends ServiceTest {
     void expectQuerySources() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("sources", new String[] {"all"});
+        body.put("sources", new String[]{"all"});
         given()
                 .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
@@ -539,7 +539,7 @@ class ParamsTest extends ServiceTest {
     void expectQueryDestinations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("destinations", new String[] {"all"});
+        body.put("destinations", new String[]{"all"});
         given()
                 .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))

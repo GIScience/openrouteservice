@@ -29,27 +29,30 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
     public AvoidBordersCoreEdgeFilter(GraphHopperStorage graphStorage) {
         this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
     }
+
     //Used to specify multiple countries to avoid (For a specific LM set)
     public AvoidBordersCoreEdgeFilter(GraphHopperStorage graphStorage, int[] avoidCountries) {
         this.storage = GraphStorageUtils.getGraphExtension(graphStorage, BordersGraphStorage.class);
         this.avoidCountries = avoidCountries;
-        if(avoidCountries.length > 0) isAvoidCountries = true;
+        if (avoidCountries.length > 0) isAvoidCountries = true;
     }
 
-    public int[] getAvoidCountries(){
+    public int[] getAvoidCountries() {
         return avoidCountries;
     }
+
     /**
-     *Determine whether or not an edge is to be filtered
+     * Determine whether or not an edge is to be filtered
+     *
      * @param iter iterator pointing to a given edge
      * @return <tt>true</tt> iff the edge pointed to by the iterator is not to be filtered
      */
     @Override
     public final boolean accept(EdgeIteratorState iter) {
         //If a specific country was given, just check if its one of the country borders
-        if(iter instanceof RoutingCHEdgeIterator iterator && iterator.isShortcut())
+        if (iter instanceof RoutingCHEdgeIterator iterator && iterator.isShortcut())
             return true;
-        if(isAvoidCountries)
+        if (isAvoidCountries)
             return !restrictedCountry(iter.getEdge());
         //else check if there is ANY border
         if (storage == null) {
@@ -64,8 +67,8 @@ public class AvoidBordersCoreEdgeFilter implements EdgeFilter {
         int startCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.START);
         int endCountry = storage.getEdgeValue(edgeId, BordersGraphStorage.Property.END);
 
-        for(int i=0; i<avoidCountries.length; i++) {
-            if(startCountry == avoidCountries[i] || endCountry == avoidCountries[i] ) {
+        for (int i = 0; i < avoidCountries.length; i++) {
+            if (startCountry == avoidCountries[i] || endCountry == avoidCountries[i]) {
                 return true;
             }
         }

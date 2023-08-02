@@ -24,97 +24,98 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.util.DistanceUnitUtil;
 
 public class PathMetricsExtractor {
-	private final int metrics;
-	private final Graph graph;
-	private final Weighting weighting;
-	private final DistanceUnit distUnits;
-	private final GHLongObjectHashMap<MetricsItem> edgeMetrics = new GHLongObjectHashMap<>();
-	private static class MetricsItem {
-		protected double distance;
-		protected double time;
-		protected double weight;
-	}
+    private final int metrics;
+    private final Graph graph;
+    private final Weighting weighting;
+    private final DistanceUnit distUnits;
+    private final GHLongObjectHashMap<MetricsItem> edgeMetrics = new GHLongObjectHashMap<>();
 
-	public PathMetricsExtractor(int metrics, Graph graph, Weighting weighting, DistanceUnit units) {
-		this.metrics = metrics;
-		this.graph = graph;
-		this.weighting = weighting;
-		this.distUnits = units;
-	}
+    private static class MetricsItem {
+        protected double distance;
+        protected double time;
+        protected double weight;
+    }
 
-	public void setEmptyValues(int sourceIndex, MatrixLocations dstData, float[] times, float[] distances, float[] weights) {
-		int offset = sourceIndex * dstData.size();
-		for (int i = 0; i < dstData.getNodeIds().length; i++) {
-			if (times != null)
-				times[offset+i] = -1;
-			if (distances != null)
-				distances[offset+i] = -1;
-			if (weights != null)
-				weights[offset+i] = -1;
-		}
-	}
+    public PathMetricsExtractor(int metrics, Graph graph, Weighting weighting, DistanceUnit units) {
+        this.metrics = metrics;
+        this.graph = graph;
+        this.weighting = weighting;
+        this.distUnits = units;
+    }
 
-	public void calcValues(int sourceIndex, SPTEntry[] targets, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws IllegalStateException, StatusCodeException {
-		if (targets == null)
-			throw new IllegalStateException("Target destinations not set");
+    public void setEmptyValues(int sourceIndex, MatrixLocations dstData, float[] times, float[] distances, float[] weights) {
+        int offset = sourceIndex * dstData.size();
+        for (int i = 0; i < dstData.getNodeIds().length; i++) {
+            if (times != null)
+                times[offset + i] = -1;
+            if (distances != null)
+                distances[offset + i] = -1;
+            if (weights != null)
+                weights[offset + i] = -1;
+        }
+    }
 
-		int index = sourceIndex * dstData.size();
-		double pathTime;
-		double pathDistance;
-		double pathWeight;
-		boolean calcTime = MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION);
-		boolean calcDistance = MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE);
-		boolean calcWeight = MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT);
+    public void calcValues(int sourceIndex, SPTEntry[] targets, MatrixLocations dstData, float[] times, float[] distances, float[] weights) throws IllegalStateException, StatusCodeException {
+        if (targets == null)
+            throw new IllegalStateException("Target destinations not set");
 
-		for (int i = 0; i < targets.length; ++i) {
-			SPTEntry goalEdge = targets[i];
+        int index = sourceIndex * dstData.size();
+        double pathTime;
+        double pathDistance;
+        double pathWeight;
+        boolean calcTime = MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION);
+        boolean calcDistance = MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE);
+        boolean calcWeight = MatrixMetricsType.isSet(metrics, MatrixMetricsType.WEIGHT);
 
-			if (goalEdge != null) {
-				pathTime = 0.0;
-				pathDistance = 0.0;
-				pathWeight = 0.0;
+        for (int i = 0; i < targets.length; ++i) {
+            SPTEntry goalEdge = targets[i];
 
-				while (EdgeIterator.Edge.isValid(goalEdge.edge)) {
-					EdgeIteratorState iter = graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
-					long edgeKey = iter.getEdgeKey();
-					MetricsItem edgeMetricsItem = edgeMetrics.get(edgeKey);
+            if (goalEdge != null) {
+                pathTime = 0.0;
+                pathDistance = 0.0;
+                pathWeight = 0.0;
 
-					if (edgeMetricsItem == null) {
-						edgeMetricsItem = new MetricsItem();
-						if (calcDistance)
-							edgeMetricsItem.distance = (distUnits == DistanceUnit.METERS) ? iter.getDistance() : DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.METERS, distUnits);
-						if (calcTime)
-							edgeMetricsItem.time = weighting.calcEdgeMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
-						if (calcWeight)
-							edgeMetricsItem.weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
-						edgeMetrics.put(edgeKey, edgeMetricsItem);
-					}
+                while (EdgeIterator.Edge.isValid(goalEdge.edge)) {
+                    EdgeIteratorState iter = graph.getEdgeIteratorState(goalEdge.edge, goalEdge.adjNode);
+                    long edgeKey = iter.getEdgeKey();
+                    MetricsItem edgeMetricsItem = edgeMetrics.get(edgeKey);
 
-					pathDistance += edgeMetricsItem.distance;
-					pathTime += edgeMetricsItem.time;
-					pathWeight += edgeMetricsItem.weight;
+                    if (edgeMetricsItem == null) {
+                        edgeMetricsItem = new MetricsItem();
+                        if (calcDistance)
+                            edgeMetricsItem.distance = (distUnits == DistanceUnit.METERS) ? iter.getDistance() : DistanceUnitUtil.convert(iter.getDistance(), DistanceUnit.METERS, distUnits);
+                        if (calcTime)
+                            edgeMetricsItem.time = weighting.calcEdgeMillis(iter, false, EdgeIterator.NO_EDGE) / 1000.0;
+                        if (calcWeight)
+                            edgeMetricsItem.weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
+                        edgeMetrics.put(edgeKey, edgeMetricsItem);
+                    }
 
-					goalEdge = goalEdge.parent;
+                    pathDistance += edgeMetricsItem.distance;
+                    pathTime += edgeMetricsItem.time;
+                    pathWeight += edgeMetricsItem.weight;
 
-					if (goalEdge == null)
-						break;
-				}
-			} else {
-				pathTime = -1;
-				pathDistance= -1;
-				pathWeight = -1;
-			}
+                    goalEdge = goalEdge.parent;
 
-			if (calcTime)
-				times[index] = (float)pathTime;
+                    if (goalEdge == null)
+                        break;
+                }
+            } else {
+                pathTime = -1;
+                pathDistance = -1;
+                pathWeight = -1;
+            }
 
-			if (calcDistance)
-				distances[index] = (float)pathDistance;
+            if (calcTime)
+                times[index] = (float) pathTime;
 
-			if (calcWeight)
-				weights[index] = (float)pathWeight;
+            if (calcDistance)
+                distances[index] = (float) pathDistance;
 
-			index++;
-		}
-	}
+            if (calcWeight)
+                weights[index] = (float) pathWeight;
+
+            index++;
+        }
+    }
 }
