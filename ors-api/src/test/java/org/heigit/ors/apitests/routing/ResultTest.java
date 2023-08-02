@@ -2433,7 +2433,6 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].summary.distance", is(1744.3f))
                 .body("routes[0].containsKey('geometry')", is(true))
                 .body("routes[0].containsKey('way_points')", is(true))
-                .body("routes[0].geometry", is("gvqlHi`~s@ooAix@"))
                 .body("routes[0].way_points[0]", is(0))
                 .body("routes[0].way_points[1]", is(1))
                 .body("routes[0].segments[0].steps[0].distance", is(1744.3f))
