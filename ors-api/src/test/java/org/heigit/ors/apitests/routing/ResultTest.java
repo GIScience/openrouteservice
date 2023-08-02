@@ -101,6 +101,18 @@ class ResultTest extends ServiceTest {
 
         addParameter("coordinatesWalking", coordsFoot);
 
+        JSONArray coordsFootBridge = new JSONArray();
+        JSONArray coordFootBridge1 = new JSONArray();
+        coordFootBridge1.put(8.692013);
+        coordFootBridge1.put(49.415036);
+        coordsFootBridge.put(coordFootBridge1);
+        JSONArray coordFootBridge2 = new JSONArray();
+        coordFootBridge2.put( 8.692765);
+        coordFootBridge2.put(49.410540);
+        coordsFootBridge.put(coordFootBridge2);
+
+        addParameter("coordinatesWalkingBridge", coordsFootBridge);
+
         JSONArray coordinatesPT = new JSONArray();
         JSONArray coordinatesPTFlipped = new JSONArray();
         JSONArray coordPT1 = new JSONArray();
@@ -3280,6 +3292,7 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    @Disabled("Should be tested with unit test")
     void expectNoInterpolationOfBridgesAndTunnels() { // consider rewriting as unit test
                                                             // wait for elevation smoothing check
         JSONObject body = new JSONObject();
