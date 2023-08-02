@@ -68,6 +68,7 @@ RELEASING:
 - Centrality API and implementation (use export API and external centrality tools instead)
 - workaround for springfox-swagger package & GroupedOpenApi builders ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - wrong instanceof checks/casts for RoutingCHGraph ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
+- ElevationSmoother 
 
 ### Fixed
 - GTFS issues with old jts-core version used in GH ([#1501](https://github.com/GIScience/openrouteservice/pull/1501))
