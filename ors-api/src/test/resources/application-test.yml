@@ -24,6 +24,7 @@ ors:
       cache_path: ./src/test/files/elevation
     profile_default:
       elevation: true
+      elevation_smoothing: true
       encoder_flags_size: 4
       maximum_snapping_radius: 350
       preparation:
@@ -221,7 +222,6 @@ ors:
           TrailDifficulty:
       hiking:
         profile: foot-hiking
-        elevation_smoothing: true
         encoder_options:
           block_fords: false
         ext_storages:
