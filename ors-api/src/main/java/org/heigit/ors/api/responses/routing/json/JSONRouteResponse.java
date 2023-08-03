@@ -23,7 +23,6 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
-import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
 import org.heigit.ors.api.responses.routing.RouteResponse;
 import org.heigit.ors.api.responses.routing.RouteResponseInfo;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -41,7 +40,7 @@ public class JSONRouteResponse extends RouteResponse {
         this.routeResults = new ArrayList<>();
 
         List<BBox> bboxes = new ArrayList<>();
-        for(RouteResult result : routeResults) {
+        for (RouteResult result : routeResults) {
             this.routeResults.add(new JSONIndividualRouteResponse(result, request));
             bboxes.add(result.getSummary().getBBox());
             responseInformation.setGraphDate(result.getGraphDate());
@@ -54,7 +53,7 @@ public class JSONRouteResponse extends RouteResponse {
     @JsonProperty("routes")
     @Schema(description = "A list of routes returned from the request")
     public JSONIndividualRouteResponse[] getRoutes() {
-        return (JSONIndividualRouteResponse[]) routeResults.toArray(new JSONIndividualRouteResponse[0]);
+        return routeResults.toArray(new JSONIndividualRouteResponse[0]);
     }
 
     @JsonProperty("bbox")

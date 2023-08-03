@@ -13,11 +13,10 @@
  */
 package org.heigit.ors.isochrones;
 
-import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
-import org.locationtech.jts.geom.Coordinate;
-
 import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.routing.RouteSearchParameters;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Map;
 

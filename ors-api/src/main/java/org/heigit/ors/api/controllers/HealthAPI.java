@@ -37,13 +37,10 @@ public class HealthAPI {
         JSONObject jsonResponse = new JSONObject();
         HttpStatus status;
 
-        if (!RoutingProfileManagerStatus.isReady())
-        {
+        if (!RoutingProfileManagerStatus.isReady()) {
             jsonResponse.put("status", "not ready");
             status = HttpStatus.SERVICE_UNAVAILABLE;
-        }
-        else
-        {
+        } else {
             jsonResponse.put("status", "ready");
             status = HttpStatus.OK;
         }

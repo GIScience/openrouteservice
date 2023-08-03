@@ -42,7 +42,7 @@ package org.heigit.ors.util;
  * <li>0.00000001 should be rendered as "0.00000001"
  * <li>0.000000001 should be rendered as "0"
  * </ul>
- *
+ * <p>
  * Originally authored by Julien Aym&eacute;.
  */
 public final class DoubleFormatUtil {
@@ -54,10 +54,10 @@ public final class DoubleFormatUtil {
      * Rounds the given source value at the given precision
      * and writes the rounded value into the given target
      *
-     * @param source the source value to round
-     * @param decimals the decimals to round at (use if abs(source) &ge; 1.0)
+     * @param source    the source value to round
+     * @param decimals  the decimals to round at (use if abs(source) &ge; 1.0)
      * @param precision the precision to round at (use if abs(source) &lt; 1.0)
-     * @param target the buffer to write to
+     * @param target    the buffer to write to
      */
     public static void formatDouble(double source, int decimals, int precision, StringBuilder target) {
         int scale = (Math.abs(source) >= 1.0) ? decimals : precision;
@@ -75,10 +75,10 @@ public final class DoubleFormatUtil {
      * This method internally uses the String representation of the source value,
      * in order to avoid any double precision computation error.
      *
-     * @param source the source value to round
-     * @param decimals the decimals to round at (use if abs(source) &ge; 1.0)
+     * @param source    the source value to round
+     * @param decimals  the decimals to round at (use if abs(source) &ge; 1.0)
      * @param precision the precision to round at (use if abs(source) &lt; 1.0)
-     * @param target the buffer to write to
+     * @param target    the buffer to write to
      */
     public static void formatDoublePrecise(double source, int decimals, int precision, StringBuilder target) {
         if (isRoundedToZero(source, decimals, precision)) {
@@ -183,8 +183,8 @@ public final class DoubleFormatUtil {
     /**
      * Returns true if the given source value will be rounded to zero
      *
-     * @param source the source value to round
-     * @param decimals the decimals to round at (use if abs(source) &ge; 1.0)
+     * @param source    the source value to round
+     * @param decimals  the decimals to round at (use if abs(source) &ge; 1.0)
      * @param precision the precision to round at (use if abs(source) &lt; 1.0)
      * @return true if the source value will be rounded to zero
      */
@@ -198,6 +198,7 @@ public final class DoubleFormatUtil {
      */
     private static final long[] POWERS_OF_TEN_LONG = new long[19];
     private static final double[] POWERS_OF_TEN_DOUBLE = new double[30];
+
     static {
         POWERS_OF_TEN_LONG[0] = 1L;
         for (int i = 1; i < POWERS_OF_TEN_LONG.length; i++) {
@@ -228,9 +229,9 @@ public final class DoubleFormatUtil {
      * Helper method to do the custom rounding used within formatDoublePrecise
      *
      * @param target the buffer to write to
-     * @param scale the expected rounding scale
-     * @param intP the source integer part
-     * @param decP the source decimal part, truncated to scale + 1 digit
+     * @param scale  the expected rounding scale
+     * @param intP   the source integer part
+     * @param decP   the source decimal part, truncated to scale + 1 digit
      */
     private static void format(StringBuilder target, int scale, long intP, long decP) {
         if (decP != 0L) {
@@ -271,10 +272,10 @@ public final class DoubleFormatUtil {
      * This method internally uses double precision computation and rounding,
      * so the result may not be accurate (see formatDouble method for conditions).
      *
-     * @param source the source value to round
-     * @param decimals the decimals to round at (use if abs(source) &ge; 1.0)
+     * @param source    the source value to round
+     * @param decimals  the decimals to round at (use if abs(source) &ge; 1.0)
      * @param precision the precision to round at (use if abs(source) &lt; 1.0)
-     * @param target the buffer to write to
+     * @param target    the buffer to write to
      */
     public static void formatDoubleFast(double source, int decimals, int precision, StringBuilder target) {
         if (isRoundedToZero(source, decimals, precision)) {
@@ -348,7 +349,7 @@ public final class DoubleFormatUtil {
      * of the double for a fast rounding
      *
      * @param source the source to round
-     * @param scale the scale to round at
+     * @param scale  the scale to round at
      * @return true if the rounding will potentially use too many digits
      */
     private static boolean tooManyDigitsUsed(double source, int scale) {
@@ -362,7 +363,7 @@ public final class DoubleFormatUtil {
      * of a rounding value for the given scale.
      *
      * @param source the source to round
-     * @param scale the scale to round at
+     * @param scale  the scale to round at
      * @return true if the source will be potentially rounded at the scale
      */
     private static boolean tooCloseToRound(double source, int scale) {

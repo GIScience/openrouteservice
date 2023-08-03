@@ -101,13 +101,13 @@ public class ORSGraphHopperStorage extends GraphHopperStorage {
 
     @Override
     public void loadExistingORS() {
-            coreEntries.forEach(cg -> {
-                if (!cg.chStore.loadExisting())
-                    throw new IllegalStateException("Cannot load " + cg);
-            });
-            if (getExtensions() != null) {
-                getExtensions().loadExisting();
-            }
+        coreEntries.forEach(cg -> {
+            if (!cg.chStore.loadExisting())
+                throw new IllegalStateException("Cannot load " + cg);
+        });
+        if (getExtensions() != null) {
+            getExtensions().loadExisting();
+        }
     }
 
     public void flush() {

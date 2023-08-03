@@ -18,7 +18,7 @@ class RouteRequestRoundTripOptionsTest {
         assertFalse(options.hasLength());
         options.setLength(123.4f);
         assertTrue(options.hasLength());
-        assertEquals((Float)123.4f, options.getLength());
+        assertEquals((Float) 123.4f, options.getLength());
     }
 
     @Test

@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
@@ -45,8 +46,6 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @Tag(name = "Directions Service", description = "Get directions for different modes of transport")
@@ -97,9 +96,9 @@ public class RoutingAPI {
     @Operation(
             method = "GET",
             description = """
-            Get a basic route between two points with the profile provided. Returned response is in GeoJSON format. \
-            This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.\
-            """, summary = "Directions Service")
+                    Get a basic route between two points with the profile provided. Returned response is in GeoJSON format. \
+                    This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.\
+                    """, summary = "Directions Service")
     @ApiResponse(
             responseCode = "200",
             description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",

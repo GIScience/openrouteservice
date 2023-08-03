@@ -30,7 +30,7 @@ class APIServiceTest {
 
     @Test
     void convertAPIEnumListToStrings() {
-        String[] strVals = ApiService.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[] {APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
+        String[] strVals = ApiService.convertAPIEnumListToStrings(new APIEnums.ExtraInfo[]{APIEnums.ExtraInfo.STEEPNESS, APIEnums.ExtraInfo.SURFACE});
         assertEquals(2, strVals.length);
         assertEquals("steepness", strVals[0]);
         assertEquals("surface", strVals[1]);
@@ -98,8 +98,8 @@ class APIServiceTest {
         polys2.add(0, poly);
 
         coords = new JSONArray();
-        coords.add(0,polys1);
-        coords.add(0,polys2);
+        coords.add(0, polys1);
+        coords.add(0, polys2);
 
         geomJSONMulti.put("coordinates", coords);
 
@@ -161,7 +161,7 @@ class APIServiceTest {
 
     @Test
     void convertFeatureTypes() throws UnknownParameterValueException, IncompatibleParameterException {
-        APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[] { APIEnums.AvoidFeatures.FERRIES, APIEnums.AvoidFeatures.FORDS };
+        APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[]{APIEnums.AvoidFeatures.FERRIES, APIEnums.AvoidFeatures.FORDS};
         int converted = ApiService.convertFeatureTypes(avoids, 1);
         assertEquals(24, converted);
     }
@@ -186,7 +186,7 @@ class APIServiceTest {
 
         ProfileParameters generatedParams = apiService.convertParameters(opts, 2);
 
-        assertEquals(10.0f, ((VehicleParameters)generatedParams).getHeight(), 0.0);
+        assertEquals(10.0f, ((VehicleParameters) generatedParams).getHeight(), 0.0);
     }
 
     @Test
@@ -195,6 +195,6 @@ class APIServiceTest {
         restrictions.setHeight(10.0f);
         ProfileParameters params = apiService.convertSpecificProfileParameters(2, restrictions, APIEnums.VehicleType.HGV);
         assertTrue(params instanceof VehicleParameters);
-        assertEquals(10.0f, ((VehicleParameters)params).getHeight(), 0.0);
+        assertEquals(10.0f, ((VehicleParameters) params).getHeight(), 0.0);
     }
 }

@@ -22,160 +22,161 @@ import org.locationtech.jts.geom.*;
 @SuppressWarnings("unchecked")
 public class GeometryJSON {
 
-	private static final int COORDINATE_PRECISION = 6;
-	private static final GeometryFactory factory = new GeometryFactory();
+    private static final int COORDINATE_PRECISION = 6;
+    private static final GeometryFactory factory = new GeometryFactory();
 
-	private GeometryJSON() {}
+    private GeometryJSON() {
+    }
 
-	public static org.json.simple.JSONArray toJSON(Polygon poly) {
-		org.json.simple.JSONArray coords = new org.json.simple.JSONArray();
+    public static org.json.simple.JSONArray toJSON(Polygon poly) {
+        org.json.simple.JSONArray coords = new org.json.simple.JSONArray();
 
-		LineString shell = poly.getExteriorRing();
+        LineString shell = poly.getExteriorRing();
 
-		boolean inverse = shell.getNumPoints() > 1 && !CoordinateSequences.isCCW(shell.getCoordinateSequence());
-		coords.add(toJSON(shell, inverse));
+        boolean inverse = shell.getNumPoints() > 1 && !CoordinateSequences.isCCW(shell.getCoordinateSequence());
+        coords.add(toJSON(shell, inverse));
 
-		if (poly.getNumInteriorRing() > 0) {
-			int nRings = poly.getNumInteriorRing();
+        if (poly.getNumInteriorRing() > 0) {
+            int nRings = poly.getNumInteriorRing();
 
-			for (int j = 0; j < nRings; ++j) {
-				LineString ring = poly.getInteriorRingN(j);
-				inverse = ring.getNumPoints() > 1 && CoordinateSequences.isCCW(ring.getCoordinateSequence());
-				coords.add(toJSON(ring, inverse));
-			}
-		}
+            for (int j = 0; j < nRings; ++j) {
+                LineString ring = poly.getInteriorRingN(j);
+                inverse = ring.getNumPoints() > 1 && CoordinateSequences.isCCW(ring.getCoordinateSequence());
+                coords.add(toJSON(ring, inverse));
+            }
+        }
 
-		return coords;
-	}
+        return coords;
+    }
 
-	private static org.json.simple.JSONArray toJSON(LineString line, boolean inverseSeq) {
-		// "coordinates": [ [100.0, 0.0], [101.0, 1.0] ]
-		int size = line.getNumPoints();
+    private static org.json.simple.JSONArray toJSON(LineString line, boolean inverseSeq) {
+        // "coordinates": [ [100.0, 0.0], [101.0, 1.0] ]
+        int size = line.getNumPoints();
 
-		org.json.simple.JSONArray arrCoords = new org.json.simple.JSONArray();
+        org.json.simple.JSONArray arrCoords = new org.json.simple.JSONArray();
 
-		CoordinateSequence seq = line.getCoordinateSequence();
+        CoordinateSequence seq = line.getCoordinateSequence();
 
-		for (int i = 0; i < size; ++i)  {
-			Coordinate coord = seq.getCoordinate(inverseSeq ? size - i - 1: i);
-			arrCoords.add(toJSON(coord));
-		}
+        for (int i = 0; i < size; ++i) {
+            Coordinate coord = seq.getCoordinate(inverseSeq ? size - i - 1 : i);
+            arrCoords.add(toJSON(coord));
+        }
 
-		return arrCoords;
-	}
+        return arrCoords;
+    }
 
-	private static org.json.simple.JSONArray toJSON(Point point) {
-		return toJSON(point.getCoordinate());
-	}
+    private static org.json.simple.JSONArray toJSON(Point point) {
+        return toJSON(point.getCoordinate());
+    }
 
-	public static org.json.simple.JSONArray toJSON(Coordinate c) {
-		org.json.simple.JSONArray arrCoords =  new org.json.simple.JSONArray();
-		arrCoords.add(FormatUtility.roundToDecimals(c.x, COORDINATE_PRECISION));
-		arrCoords.add(FormatUtility.roundToDecimals(c.y, COORDINATE_PRECISION));
+    public static org.json.simple.JSONArray toJSON(Coordinate c) {
+        org.json.simple.JSONArray arrCoords = new org.json.simple.JSONArray();
+        arrCoords.add(FormatUtility.roundToDecimals(c.x, COORDINATE_PRECISION));
+        arrCoords.add(FormatUtility.roundToDecimals(c.y, COORDINATE_PRECISION));
 
-		return arrCoords;
-	}
+        return arrCoords;
+    }
 
-	public static org.json.simple.JSONArray toJSON(Coordinate[] coords, boolean includeElevation) {
-		org.json.simple.JSONArray arrCoords =  new org.json.simple.JSONArray();
-		for (Coordinate c : coords) {
-			org.json.simple.JSONArray coord = new org.json.simple.JSONArray();
-			coord.add(FormatUtility.roundToDecimals(c.x, COORDINATE_PRECISION));
-			coord.add(FormatUtility.roundToDecimals(c.y, COORDINATE_PRECISION));
-			if (includeElevation)
-				coord.add(FormatUtility.roundToDecimals(c.z, 1));
-			arrCoords.add(coord);
-		}
-		return arrCoords;
-	}
+    public static org.json.simple.JSONArray toJSON(Coordinate[] coords, boolean includeElevation) {
+        org.json.simple.JSONArray arrCoords = new org.json.simple.JSONArray();
+        for (Coordinate c : coords) {
+            org.json.simple.JSONArray coord = new org.json.simple.JSONArray();
+            coord.add(FormatUtility.roundToDecimals(c.x, COORDINATE_PRECISION));
+            coord.add(FormatUtility.roundToDecimals(c.y, COORDINATE_PRECISION));
+            if (includeElevation)
+                coord.add(FormatUtility.roundToDecimals(c.z, 1));
+            arrCoords.add(coord);
+        }
+        return arrCoords;
+    }
 
-	public static Geometry parse(JSONObject json) throws Exception {
-		if (!json.has("type"))
-			throw new Exception("type element is missing.");
+    public static Geometry parse(JSONObject json) throws Exception {
+        if (!json.has("type"))
+            throw new Exception("type element is missing.");
 
-		if (!json.has("coordinates"))
-			throw new Exception("coordinates element is missing.");
+        if (!json.has("coordinates"))
+            throw new Exception("coordinates element is missing.");
 
-		String type = json.getString("type");
-		JSONArray arrCoords = json.getJSONArray("coordinates");
-		return switch (type) {
-			case "Point" -> readPoint(arrCoords);
-			case "MultiPoint" -> readMultiPoint(arrCoords);
-			case "LineString" -> readLineString(arrCoords);
-			case "MultiLineString" -> readMultiLineString(arrCoords);
-			case "Polygon" -> readPolygon(arrCoords);
-			case "MultiPolygon" -> readMultiPolygon(arrCoords);
-			default -> throw new Exception("invalid type: " + type);
-		};
-	}
+        String type = json.getString("type");
+        JSONArray arrCoords = json.getJSONArray("coordinates");
+        return switch (type) {
+            case "Point" -> readPoint(arrCoords);
+            case "MultiPoint" -> readMultiPoint(arrCoords);
+            case "LineString" -> readLineString(arrCoords);
+            case "MultiLineString" -> readMultiLineString(arrCoords);
+            case "Polygon" -> readPolygon(arrCoords);
+            case "MultiPolygon" -> readMultiPolygon(arrCoords);
+            default -> throw new Exception("invalid type: " + type);
+        };
+    }
 
-	private static Point readPoint(JSONArray value) {
-		Coordinate c = new Coordinate(value.getDouble(0), value.getDouble(1));
-		return factory.createPoint(c);
-	}
+    private static Point readPoint(JSONArray value) {
+        Coordinate c = new Coordinate(value.getDouble(0), value.getDouble(1));
+        return factory.createPoint(c);
+    }
 
-	private static MultiPoint readMultiPoint(JSONArray value) {
-		return factory.createMultiPointFromCoords(readCoordinates(value));
-	}
+    private static MultiPoint readMultiPoint(JSONArray value) {
+        return factory.createMultiPointFromCoords(readCoordinates(value));
+    }
 
-	private static LineString readLineString(JSONArray value) {
-		return factory.createLineString(readCoordinates(value));
-	}
+    private static LineString readLineString(JSONArray value) {
+        return factory.createLineString(readCoordinates(value));
+    }
 
-	private static MultiLineString readMultiLineString(JSONArray value) {
-		int n = value.length();
-		LineString[] lineStrings = new LineString[n];
+    private static MultiLineString readMultiLineString(JSONArray value) {
+        int n = value.length();
+        LineString[] lineStrings = new LineString[n];
 
-		for (int i = 0; i < n; i++) {
-			JSONArray arrLineString = (JSONArray) value.get(i);
-			lineStrings[i] = readLineString(arrLineString);
-		}
+        for (int i = 0; i < n; i++) {
+            JSONArray arrLineString = (JSONArray) value.get(i);
+            lineStrings[i] = readLineString(arrLineString);
+        }
 
-		return factory.createMultiLineString(lineStrings);
-	}
+        return factory.createMultiLineString(lineStrings);
+    }
 
-	private static MultiPolygon readMultiPolygon(JSONArray value) {
-		int n = value.length();
-		Polygon[] polys = new Polygon[n];
+    private static MultiPolygon readMultiPolygon(JSONArray value) {
+        int n = value.length();
+        Polygon[] polys = new Polygon[n];
 
-		for (int i = 0; i < n; i++) {
-			JSONArray arrPoly = (JSONArray) value.get(i);
-			polys[i] = readPolygon(arrPoly);
-		}
+        for (int i = 0; i < n; i++) {
+            JSONArray arrPoly = (JSONArray) value.get(i);
+            polys[i] = readPolygon(arrPoly);
+        }
 
-		return factory.createMultiPolygon(polys);
-	}
+        return factory.createMultiPolygon(polys);
+    }
 
-	private static Polygon readPolygon(JSONArray value) {
-		int n = value.length();
+    private static Polygon readPolygon(JSONArray value) {
+        int n = value.length();
 
-		LinearRing shell = null;
-		LinearRing[] holes = new LinearRing[n-1];
+        LinearRing shell = null;
+        LinearRing[] holes = new LinearRing[n - 1];
 
-		for (int i = 0; i < n; i++) {
-			JSONArray arrLineString = (JSONArray) value.get(i);
-			if (i == 0)
-				shell = factory.createLinearRing(readCoordinates(arrLineString));
-			else
-				holes[i-1] = factory.createLinearRing(readCoordinates(arrLineString));
-		}
+        for (int i = 0; i < n; i++) {
+            JSONArray arrLineString = (JSONArray) value.get(i);
+            if (i == 0)
+                shell = factory.createLinearRing(readCoordinates(arrLineString));
+            else
+                holes[i - 1] = factory.createLinearRing(readCoordinates(arrLineString));
+        }
 
-		if (holes.length == 0)
-			return factory.createPolygon(shell);
-		else
-			return factory.createPolygon(shell, holes);
-	}
+        if (holes.length == 0)
+            return factory.createPolygon(shell);
+        else
+            return factory.createPolygon(shell, holes);
+    }
 
-	private static Coordinate[] readCoordinates(JSONArray value) {
-		int n = value.length();
+    private static Coordinate[] readCoordinates(JSONArray value) {
+        int n = value.length();
 
-		Coordinate[] coords = new Coordinate[n];
+        Coordinate[] coords = new Coordinate[n];
 
-		for (int i = 0; i < n; i++) {
-			JSONArray arrCoord = value.getJSONArray(i);
-			coords[i] = new Coordinate(arrCoord.getDouble(0), arrCoord.getDouble(1));
-		}
+        for (int i = 0; i < n; i++) {
+            JSONArray arrCoord = value.getJSONArray(i);
+            coords[i] = new Coordinate(arrCoord.getDouble(0), arrCoord.getDouble(1));
+        }
 
-		return coords;
-	}
+        return coords;
+    }
 }

@@ -16,9 +16,9 @@ package org.heigit.ors.apitests.matrix;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
-import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
+import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.HelperFunctions;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,12 +28,13 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
-import static org.heigit.ors.matrix.MatrixErrorCodes.*;
+import static org.heigit.ors.matrix.MatrixErrorCodes.MAX_VISITED_NODES_EXCEEDED;
 
 @EndPointAnnotation(name = "matrix")
 @VersionAnnotation(version = "v2")
 class ResultTest extends ServiceTest {
     public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
+
     public ResultTest() {
         // Three locations
         JSONArray locations3 = new JSONArray();
@@ -344,7 +345,7 @@ class ResultTest extends ServiceTest {
                 .body("distances[1][1]", is(closeTo(0.0, 0.001)))
                 .body("distances[1][2]", is(closeTo(479.08, 5)))
                 .body("distances[2][0]", is(closeTo(1274.4, 12)))
-                .body("distances[2][1]", is(closeTo(376.77,4)))
+                .body("distances[2][1]", is(closeTo(376.77, 4)))
                 .body("distances[2][2]", is(closeTo(0.0, 0.001)))
 
                 .statusCode(200);
@@ -770,7 +771,8 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testIdInSummary() {
-        JSONObject body = new JSONObject();body.put("locations", getParameter("locations"));
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
         body.put("id", "request123");
 
         given()
@@ -791,7 +793,7 @@ class ResultTest extends ServiceTest {
     void testDefinedSources() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("sources", new JSONArray(new int[] {1,2}));
+        body.put("sources", new JSONArray(new int[]{1, 2}));
         body.put("metrics", getParameter("metricsDuration"));
 
         given()
@@ -819,7 +821,7 @@ class ResultTest extends ServiceTest {
     void testDefinedDestinations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("destinations", new JSONArray(new int[] {1,2}));
+        body.put("destinations", new JSONArray(new int[]{1, 2}));
         body.put("metrics", getParameter("metricsDuration"));
 
         given()
@@ -849,8 +851,8 @@ class ResultTest extends ServiceTest {
         JSONObject body = new JSONObject();
 
         body.put("locations", getParameter("locations5"));
-        body.put("sources", new JSONArray(new int[] {0,1}));
-        body.put("destinations", new JSONArray(new int[] {2,3,4}));
+        body.put("sources", new JSONArray(new int[]{0, 1}));
+        body.put("destinations", new JSONArray(new int[]{2, 3, 4}));
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)

@@ -17,10 +17,10 @@ package org.heigit.ors.api.requests.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.converters.CoordinateListDeserializer;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class CoordinateListWrapper {
             via.add(coordinates.get(i));
         }
 
-        end = coordinates.get(coordinates.size()-1);
+        end = coordinates.get(coordinates.size() - 1);
     }
 
     public CoordinateListWrapper(double[][] coordinates) throws ParameterValueException {
@@ -106,7 +106,7 @@ public class CoordinateListWrapper {
         startCoords.add(start.x);
         startCoords.add(start.y);
         coordinates.add(startCoords);
-        for(Coordinate c : via) {
+        for (Coordinate c : via) {
             List<Double> viaCoords = new ArrayList<>();
             viaCoords.add(c.x);
             viaCoords.add(c.y);

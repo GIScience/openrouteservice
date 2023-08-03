@@ -16,13 +16,13 @@
 package org.heigit.ors.api.responses.common.boundingbox;
 
 import com.graphhopper.util.shapes.BBox;
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.gpx.GPXBounds;
 import org.heigit.ors.api.responses.routing.json.JSON3DBoundingBox;
 import org.heigit.ors.api.responses.routing.json.JSONBoundingBox;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.routing.RoutingErrorCodes;
 
 public class BoundingBoxFactory {
@@ -31,10 +31,10 @@ public class BoundingBoxFactory {
     }
 
     public static BoundingBox constructBoundingBox(BBox bounds, RouteRequest request) throws ParameterValueException {
-        switch(request.getResponseType()) {
+        switch (request.getResponseType()) {
             case GEOJSON:
             case JSON:
-                if(request.hasUseElevation() && request.getUseElevation())
+                if (request.hasUseElevation() && request.getUseElevation())
                     return new JSON3DBoundingBox(bounds);
                 return new JSONBoundingBox(bounds);
             case GPX:

@@ -34,5 +34,6 @@ public class IsochronesErrorCodes {
     public static final int PARAMETER_VALUE_EXCEEDS_MINIMUM = 3012;
     public static final int UNKNOWN = 3099;
 
-    private IsochronesErrorCodes() {}
+    private IsochronesErrorCodes() {
+    }
 }

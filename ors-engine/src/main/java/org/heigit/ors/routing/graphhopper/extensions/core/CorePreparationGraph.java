@@ -109,8 +109,7 @@ public class CorePreparationGraph extends CHPreparationGraph {
         public int getTime() {
             if (isShortcut()) {
                 return ((PrepareCoreShortcut) currEdge).getTime();
-            }
-            else {
+            } else {
                 PrepareCoreBaseEdge baseEdge = (PrepareCoreBaseEdge) currEdge;
                 if (nodeAisBase()) {
                     return reverse ? baseEdge.getTimeBA() : baseEdge.getTimeAB();

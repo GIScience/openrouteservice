@@ -29,46 +29,46 @@ class BordersGraphStorageBuilderTest {
 
     private final CountryBordersReader _cbr;
 
-    private final Coordinate[] coords1 = new Coordinate[] {
-            new Coordinate(0,0),
-            new Coordinate(1,0),
-            new Coordinate(1,1),
-            new Coordinate(0,1),
-            new Coordinate(0,0)
+    private final Coordinate[] coords1 = new Coordinate[]{
+            new Coordinate(0, 0),
+            new Coordinate(1, 0),
+            new Coordinate(1, 1),
+            new Coordinate(0, 1),
+            new Coordinate(0, 0)
     };
-    private final Coordinate[] coords2 = new Coordinate[] {
-            new Coordinate(1,0),
-            new Coordinate(1,1),
-            new Coordinate(2,1),
-            new Coordinate(2,0),
-            new Coordinate(1,0)
+    private final Coordinate[] coords2 = new Coordinate[]{
+            new Coordinate(1, 0),
+            new Coordinate(1, 1),
+            new Coordinate(2, 1),
+            new Coordinate(2, 0),
+            new Coordinate(1, 0)
     };
-    private final Coordinate[] coords3 = new Coordinate[] {
-            new Coordinate(2,0),
-            new Coordinate(3,0),
-            new Coordinate(3,1),
-            new Coordinate(2,1),
-            new Coordinate(2,0)
+    private final Coordinate[] coords3 = new Coordinate[]{
+            new Coordinate(2, 0),
+            new Coordinate(3, 0),
+            new Coordinate(3, 1),
+            new Coordinate(2, 1),
+            new Coordinate(2, 0)
     };
-    private final Coordinate[] coordsO1 = new Coordinate[] {
-            new Coordinate(100,100),
-            new Coordinate(100,102),
-            new Coordinate(102,102),
-            new Coordinate(102,100),
-            new Coordinate(100,100)
+    private final Coordinate[] coordsO1 = new Coordinate[]{
+            new Coordinate(100, 100),
+            new Coordinate(100, 102),
+            new Coordinate(102, 102),
+            new Coordinate(102, 100),
+            new Coordinate(100, 100)
     };
-    private final Coordinate[] coordsO2 = new Coordinate[] {
-            new Coordinate(101,101),
-            new Coordinate(103,101),
-            new Coordinate(103,103),
-            new Coordinate(101,103),
-            new Coordinate(101,101)
+    private final Coordinate[] coordsO2 = new Coordinate[]{
+            new Coordinate(101, 101),
+            new Coordinate(103, 101),
+            new Coordinate(103, 103),
+            new Coordinate(101, 103),
+            new Coordinate(101, 101)
     };
 
     private final GeometryFactory gf = new GeometryFactory();
 
     public BordersGraphStorageBuilderTest() {
-        _builder= new BordersGraphStorageBuilder();
+        _builder = new BordersGraphStorageBuilder();
         _cbr = new CountryBordersReader();
 
         CountryBordersHierarchy h = new CountryBordersHierarchy();
@@ -101,9 +101,9 @@ class BordersGraphStorageBuilderTest {
     @Test
     void TestProcessWay() {
         ReaderWay rw = new ReaderWay(1);
-        Coordinate[] cs = new Coordinate[] {
-                new Coordinate(0.5,0.5),
-                new Coordinate(1.5,0.5)
+        Coordinate[] cs = new Coordinate[]{
+                new Coordinate(0.5, 0.5),
+                new Coordinate(1.5, 0.5)
         };
 
         _builder.processWay(rw, cs, null);
@@ -112,9 +112,9 @@ class BordersGraphStorageBuilderTest {
         assertEquals("c2", rw.getTag("country2"));
 
         ReaderWay rw2 = new ReaderWay(1);
-        Coordinate[] cs2 = new Coordinate[] {
-                new Coordinate(0.5,0.5),
-                new Coordinate(0.75,0.5)
+        Coordinate[] cs2 = new Coordinate[]{
+                new Coordinate(0.5, 0.5),
+                new Coordinate(0.75, 0.5)
         };
 
         _builder.processWay(rw2, cs2, null);
@@ -128,9 +128,9 @@ class BordersGraphStorageBuilderTest {
      */
     @Test
     void TestFindBorderCrossing() {
-        String[] names = _builder.findBorderCrossing(new Coordinate[] {
-                new Coordinate(0.5,0.5),
-                new Coordinate(1.5,0.5)
+        String[] names = _builder.findBorderCrossing(new Coordinate[]{
+                new Coordinate(0.5, 0.5),
+                new Coordinate(1.5, 0.5)
         });
 
         assertEquals(2, names.length);
@@ -141,16 +141,16 @@ class BordersGraphStorageBuilderTest {
     @Test
     void TestOverlappingRegion() {
         // Overlapping and crossing border - should return the two countries
-        String[] names = _builder.findBorderCrossing(new Coordinate[] {
-                new Coordinate(101.5,101.5),
-                new Coordinate(102.5,101.5)
+        String[] names = _builder.findBorderCrossing(new Coordinate[]{
+                new Coordinate(101.5, 101.5),
+                new Coordinate(102.5, 101.5)
         });
         assertEquals(2, names.length);
 
         // Overlapping but not crossing - should return only the one country
-        String[] names2 = _builder.findBorderCrossing(new Coordinate[] {
-                new Coordinate(101.5,101.5),
-                new Coordinate(101.75,101.5)
+        String[] names2 = _builder.findBorderCrossing(new Coordinate[]{
+                new Coordinate(101.5, 101.5),
+                new Coordinate(101.75, 101.5)
         });
         assertEquals(1, names2.length);
     }

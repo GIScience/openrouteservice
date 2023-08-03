@@ -4,5 +4,6 @@ public class FlagEncoderKeys {
 
     public static final String PRIORITY_KEY = "priority";
 
-    private FlagEncoderKeys() {}
+    private FlagEncoderKeys() {
+    }
 }

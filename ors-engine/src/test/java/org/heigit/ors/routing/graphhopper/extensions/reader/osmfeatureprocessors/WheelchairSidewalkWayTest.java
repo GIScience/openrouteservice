@@ -34,7 +34,7 @@ class WheelchairSidewalkWayTest {
 
         int count = 0;
 
-        while(!way.hasWayBeenFullyProcessed()) {
+        while (!way.hasWayBeenFullyProcessed()) {
             count++;
             way.prepare();
         }

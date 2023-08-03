@@ -11,9 +11,9 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 public class HeatStressWeighting extends FastestWeighting {
 
-    private CsvGraphStorage heatStressStorage;
-    private byte[] buffer;
-    private double weightingFactor;
+    private final CsvGraphStorage heatStressStorage;
+    private final byte[] buffer;
+    private final double weightingFactor;
     private final String columnName;
     private final int columnIndex; // Caches index of columnName for performance reasons
 

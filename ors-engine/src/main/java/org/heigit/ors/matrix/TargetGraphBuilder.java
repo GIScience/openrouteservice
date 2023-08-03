@@ -36,7 +36,7 @@ public class TargetGraphBuilder {
         this.chGraph = chGraph;
         //Get node count from base graph, as chGraph should be a query graph with additional virtual nodes that are counted in chGraph.getNodes()
         //TODO Refactoring : implement isVirtualNode in QueryRoutingCHGraph from underlying query graph for better style
-        if(chGraph instanceof QueryRoutingCHGraph)
+        if (chGraph instanceof QueryRoutingCHGraph)
             this.nodeCount = chGraph.getBaseGraph().getBaseGraph().getNodes();
         else
             this.nodeCount = chGraph.getNodes();

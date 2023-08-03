@@ -10,8 +10,6 @@ import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 
-import java.io.File;
-
 @ServletComponentScan("org.heigit.ors.api.servlet.listeners")
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {

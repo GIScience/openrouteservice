@@ -13,78 +13,76 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-
 import org.heigit.ors.routing.graphhopper.extensions.TollwayType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
 
-public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder
-{
-	private TollwaysGraphStorage storage;
-	private int tollways;
-	private final List<String> tollTags = new ArrayList<>(6);
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-	public TollwaysGraphStorageBuilder() {
-		// Currently consider only toll tags relevant to cars or hgvs:
-		tollTags.addAll(Arrays.asList("toll", "toll:hgv", "toll:N1", "toll:N2", "toll:N3",  "toll:motorcar"));
-	}
+public class TollwaysGraphStorageBuilder extends AbstractGraphStorageBuilder {
+    private TollwaysGraphStorage storage;
+    private int tollways;
+    private final List<String> tollTags = new ArrayList<>(6);
 
-	public GraphExtension init(GraphHopper graphhopper) throws Exception {
-		if (storage != null)
-			throw new Exception("GraphStorageBuilder has been already initialized.");
+    public TollwaysGraphStorageBuilder() {
+        // Currently consider only toll tags relevant to cars or hgvs:
+        tollTags.addAll(Arrays.asList("toll", "toll:hgv", "toll:N1", "toll:N2", "toll:N3", "toll:motorcar"));
+    }
 
-		storage = new TollwaysGraphStorage();
+    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+        if (storage != null)
+            throw new Exception("GraphStorageBuilder has been already initialized.");
 
-		return storage;
-	}
+        storage = new TollwaysGraphStorage();
 
-	public void processWay(ReaderWay way) {
-		tollways = TollwayType.NONE;
+        return storage;
+    }
 
-		for (String key : tollTags) {
-			if (way.hasTag(key)) {
-				String value = way.getTag(key);
+    public void processWay(ReaderWay way) {
+        tollways = TollwayType.NONE;
 
-				if (value != null) {
-					switch (key) {
-						case "toll" -> setFlag(TollwayType.GENERAL, value);
-						case "toll:hgv" -> setFlag(TollwayType.HGV, value);
-						case "toll:N1" -> //currently not used in OSM
-								setFlag(TollwayType.N1, value);
-						case "toll:N2" -> setFlag(TollwayType.N2, value);
-						case "toll:N3" -> setFlag(TollwayType.N3, value);
-						case "toll:motorcar" -> setFlag(TollwayType.MOTORCAR, value);
-						default -> {
-						}
-					}
-				}
-			}
-		}
+        for (String key : tollTags) {
+            if (way.hasTag(key)) {
+                String value = way.getTag(key);
 
-	}
+                if (value != null) {
+                    switch (key) {
+                        case "toll" -> setFlag(TollwayType.GENERAL, value);
+                        case "toll:hgv" -> setFlag(TollwayType.HGV, value);
+                        case "toll:N1" -> //currently not used in OSM
+                                setFlag(TollwayType.N1, value);
+                        case "toll:N2" -> setFlag(TollwayType.N2, value);
+                        case "toll:N3" -> setFlag(TollwayType.N3, value);
+                        case "toll:motorcar" -> setFlag(TollwayType.MOTORCAR, value);
+                        default -> {
+                        }
+                    }
+                }
+            }
+        }
 
-	private void setFlag(int flag, String value) {
-		switch (value) {
-			case "yes" -> tollways |= flag;
-			case "no" -> tollways &= ~flag;
-			default -> {
-			}
-		}
-	}
+    }
 
-	public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-		storage.setEdgeValue(edge.getEdge(), tollways);
-	}
+    private void setFlag(int flag, String value) {
+        switch (value) {
+            case "yes" -> tollways |= flag;
+            case "no" -> tollways &= ~flag;
+            default -> {
+            }
+        }
+    }
 
-	@Override
-	public String getName() {
-		return "Tollways";
-	}
+    public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+        storage.setEdgeValue(edge.getEdge(), tollways);
+    }
+
+    @Override
+    public String getName() {
+        return "Tollways";
+    }
 }

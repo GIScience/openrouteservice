@@ -10,7 +10,7 @@ public class HelperFunctions {
      * This function creates a {@link List<List<Double>>} with fake coordinates.
      * The size depends on maximumSize.
      *
-     * @param maximumSize number of maximum coordinates in the {@link  List<List<Double>>}
+     * @param maximumSize    number of maximum coordinates in the {@link  List<List<Double>>}
      * @param coordDimension defines the size of the coords 1. only x; 2. x,y; 3. x,y,z
      * @return {@link List<List<Double>>}
      */
@@ -81,7 +81,7 @@ public class HelperFunctions {
      * This function creates a {@link JSONArray} with fake coordinates.
      * The size depends on maximumSize.
      *
-     * @param maximumSize number of maximum coordinates in the {@link JSONArray}
+     * @param maximumSize    number of maximum coordinates in the {@link JSONArray}
      * @param coordDimension defines the size of the coords 1. only x; 2. x,y; 3. x,y,z
      * @return {@link JSONArray}
      */

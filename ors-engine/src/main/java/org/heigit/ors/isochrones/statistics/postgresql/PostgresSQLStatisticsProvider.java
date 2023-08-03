@@ -16,10 +16,10 @@ package org.heigit.ors.isochrones.statistics.postgresql;
 import com.graphhopper.util.Helper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
-import org.apache.log4j.Logger;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -44,6 +44,7 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
     private String geomColumn = null;
     private HikariDataSource dataSource;
     private String postgisVersion = null;
+
     /**
      * This function initializes the connection to the server according to the settings in the ors-config.json.
      * The connection is established using a {@link HikariDataSource} object with the configuration data from the ors-config.json.

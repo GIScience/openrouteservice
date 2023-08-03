@@ -20,45 +20,46 @@ import java.util.Map;
 
 public final class WheelchairTypesEncoder {
 
-	// surface
-	// =======
-	// http://wiki.openstreetmap.org/wiki/DE:Key:surface
-	// http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Path_properties.2C_in_general
-	// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#Weg_Eigenschaften_allgemein
-	// 26 Werte (5 bits)
-	private static final int SURFACE_PAVED = 1;
-	private static final int SURFACE_ASPHALT = 2;
-	private static final int SURFACE_CONCRETE = 3;
-	private static final int SURFACE_PAVING_STONES = 4;
-	private static final int SURFACE_CONCRETE_PLATES = 5;
-	private static final int SURFACE_COBBLESTONE_FLATTENED = 6;
-	private static final int SURFACE_CONCRETE_LANES = 7;
-	private static final int SURFACE_COBBLESTONE = 8;
+    // surface
+    // =======
+    // http://wiki.openstreetmap.org/wiki/DE:Key:surface
+    // http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Path_properties.2C_in_general
+    // http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#Weg_Eigenschaften_allgemein
+    // 26 Werte (5 bits)
+    private static final int SURFACE_PAVED = 1;
+    private static final int SURFACE_ASPHALT = 2;
+    private static final int SURFACE_CONCRETE = 3;
+    private static final int SURFACE_PAVING_STONES = 4;
+    private static final int SURFACE_CONCRETE_PLATES = 5;
+    private static final int SURFACE_COBBLESTONE_FLATTENED = 6;
+    private static final int SURFACE_CONCRETE_LANES = 7;
+    private static final int SURFACE_COBBLESTONE = 8;
 
-	// http://wiki.openstreetmap.org/wiki/Key:surface
-	// these might still be "feasable" for experienced wheelchair users
-	private static final int SURFACE_UNPAVED = 9;
-	private static final int SURFACE_UNPAVED_FINE_GRAVEL = 10;
-	private static final int SURFACE_UNPAVED_COMPACTED = 11;
-	private static final int SURFACE_UNPAVED_METAL = 12;
-	private static final int SURFACE_UNPAVED_ICE = 13;
-	private static final int SURFACE_UNPAVED_GRASS_PAVER = 14;
-	private static final int SURFACE_UNPAVED_SAND = 15;
-	// these are probably not "feasible" for wheelchair users
-	private static final int SURFACE_UNPAVED_DIRT = 16;
-	private static final int SURFACE_UNPAVED_EARTH = 17;
-	private static final int SURFACE_UNPAVED_GRASS = 18;
-	private static final int SURFACE_UNPAVED_GRAVEL = 19;
-	private static final int SURFACE_UNPAVED_GROUND = 20;
-	private static final int SURFACE_UNPAVED_MUD = 21;
-	private static final int SURFACE_UNPAVED_PEBBLESTONE = 22;
-	private static final int SURFACE_UNPAVED_SALT = 23;
-	private static final int SURFACE_UNPAVED_SNOW = 24;
-	private static final int SURFACE_UNPAVED_WOOD = 25;
-	private static final int SURFACE_UNPAVED_WOODCHIPS = 26;
+    // http://wiki.openstreetmap.org/wiki/Key:surface
+    // these might still be "feasable" for experienced wheelchair users
+    private static final int SURFACE_UNPAVED = 9;
+    private static final int SURFACE_UNPAVED_FINE_GRAVEL = 10;
+    private static final int SURFACE_UNPAVED_COMPACTED = 11;
+    private static final int SURFACE_UNPAVED_METAL = 12;
+    private static final int SURFACE_UNPAVED_ICE = 13;
+    private static final int SURFACE_UNPAVED_GRASS_PAVER = 14;
+    private static final int SURFACE_UNPAVED_SAND = 15;
+    // these are probably not "feasible" for wheelchair users
+    private static final int SURFACE_UNPAVED_DIRT = 16;
+    private static final int SURFACE_UNPAVED_EARTH = 17;
+    private static final int SURFACE_UNPAVED_GRASS = 18;
+    private static final int SURFACE_UNPAVED_GRAVEL = 19;
+    private static final int SURFACE_UNPAVED_GROUND = 20;
+    private static final int SURFACE_UNPAVED_MUD = 21;
+    private static final int SURFACE_UNPAVED_PEBBLESTONE = 22;
+    private static final int SURFACE_UNPAVED_SALT = 23;
+    private static final int SURFACE_UNPAVED_SNOW = 24;
+    private static final int SURFACE_UNPAVED_WOOD = 25;
+    private static final int SURFACE_UNPAVED_WOODCHIPS = 26;
 
 
-	private static final Map<String, Integer> SURFACE_MAP = new HashMap<>();
+    private static final Map<String, Integer> SURFACE_MAP = new HashMap<>();
+
     static {
         SURFACE_MAP.put("paved", SURFACE_PAVED);
         SURFACE_MAP.put("asphalt", SURFACE_ASPHALT);
@@ -92,10 +93,10 @@ public final class WheelchairTypesEncoder {
 
     // smoothness
     // ==========
-	// http://wiki.openstreetmap.org/wiki/DE:Key:smoothness
-	// http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Path_properties.2C_in_general
-	// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#Weg_Eigenschaften_allgemein1
-	// 8 Werte (4 Bits)
+    // http://wiki.openstreetmap.org/wiki/DE:Key:smoothness
+    // http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Path_properties.2C_in_general
+    // http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#Weg_Eigenschaften_allgemein1
+    // 8 Werte (4 Bits)
     private static final int SMOOTHNESS_EXCELLENT = 1;
     private static final int SMOOTHNESS_GOOD = 2;
     private static final int SMOOTHNESS_INTERMEDIATE = 3;
@@ -105,7 +106,8 @@ public final class WheelchairTypesEncoder {
     private static final int SMOOTHNESS_VERY_HORRIBLE = 7;
     private static final int SMOOTHNESS_IMPASSABLE = 8;
 
-	private static final HashMap<String, Integer> SMOOTHNESS_MAP = new HashMap<>();
+    private static final HashMap<String, Integer> SMOOTHNESS_MAP = new HashMap<>();
+
     static {
         SMOOTHNESS_MAP.put("excellent", SMOOTHNESS_EXCELLENT);
         SMOOTHNESS_MAP.put("good", SMOOTHNESS_GOOD);
@@ -119,19 +121,20 @@ public final class WheelchairTypesEncoder {
 
 
     // tracktype
-	// =========
-	// http://wiki.openstreetmap.org/wiki/Key:tracktype
-	// http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Path_properties.2C_in_general
-	// http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#Weg_Eigenschaften_allgemein
-	// 5 Werte (3 Bits)
+    // =========
+    // http://wiki.openstreetmap.org/wiki/Key:tracktype
+    // http://wiki.openstreetmap.org/wiki/Wheelchair_routing#Path_properties.2C_in_general
+    // http://wiki.openstreetmap.org/wiki/DE:Wheelchair_routing#Weg_Eigenschaften_allgemein
+    // 5 Werte (3 Bits)
     private static final int TRACKTYPE_GRADE1 = 1;
     private static final int TRACKTYPE_GRADE2 = 2;
     private static final int TRACKTYPE_GRADE3 = 3;
     private static final int TRACKTYPE_GRADE4 = 4;
     private static final int TRACKTYPE_GRADE5 = 5;
 
-	private static final HashMap<String, Integer> TRACKTYPE_MAP = new HashMap<>();
-	static {
+    private static final HashMap<String, Integer> TRACKTYPE_MAP = new HashMap<>();
+
+    static {
         TRACKTYPE_MAP.put("grade1", TRACKTYPE_GRADE1);
         TRACKTYPE_MAP.put("grade2", TRACKTYPE_GRADE2);
         TRACKTYPE_MAP.put("grade3", TRACKTYPE_GRADE3);
@@ -139,13 +142,14 @@ public final class WheelchairTypesEncoder {
         TRACKTYPE_MAP.put("grade5", TRACKTYPE_GRADE5);
     }
 
-    private WheelchairTypesEncoder() {}
+    private WheelchairTypesEncoder() {
+    }
 
     public static int getSurfaceType(String value) {
-    	if ("any".equalsIgnoreCase(value))
-    		return 0;
-    	else
-    		return SURFACE_MAP.getOrDefault(value, -1);
+        if ("any".equalsIgnoreCase(value))
+            return 0;
+        else
+            return SURFACE_MAP.getOrDefault(value, -1);
     }
 
     public static int getEncodedType(WheelchairAttributes.Attribute attribute, String value) throws Exception {
@@ -158,11 +162,11 @@ public final class WheelchairTypesEncoder {
     }
 
     public static int getSmoothnessType(APIEnums.SmoothnessTypes smoothnessType) {
-    	return SMOOTHNESS_MAP.getOrDefault(smoothnessType.toString(), -1);
+        return SMOOTHNESS_MAP.getOrDefault(smoothnessType.toString(), -1);
     }
 
     public static int getTrackType(String value) {
-    	return TRACKTYPE_MAP.getOrDefault(value, -1);
+        return TRACKTYPE_MAP.getOrDefault(value, -1);
     }
 }
 

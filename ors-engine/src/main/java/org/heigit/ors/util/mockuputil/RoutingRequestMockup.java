@@ -25,11 +25,11 @@
 
 package org.heigit.ors.util.mockuputil;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.routing.RouteInstructionsFormat;
 import org.heigit.ors.routing.RoutingRequest;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * This is a {@link org.heigit.ors.routing.RoutingRequest} Mockup-Class, used in junit tests and wherever needed.

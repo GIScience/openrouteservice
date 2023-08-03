@@ -1,23 +1,22 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing;
 
 import com.graphhopper.util.Helper;
-import org.locationtech.jts.geom.Coordinate;
-
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.ServiceRequest;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -27,237 +26,239 @@ public class RoutingRequest extends ServiceRequest {
     public static final String ATTR_DETOURFACTOR = "detourfactor";
 
     private Coordinate[] coordinates;
-	private RouteSearchParameters searchParameters;
-	private DistanceUnit units = DistanceUnit.METERS;
-	private String language = "en";
-	private String geometryFormat = "encodedpolyline";
-	private boolean geometrySimplify = false;
-	private RouteInstructionsFormat instructionsFormat = RouteInstructionsFormat.TEXT;
-	private boolean includeInstructions = true;
-	private boolean includeElevation = false;
-	private boolean includeGeometry = true;
-	private boolean includeManeuvers = false;
+    private RouteSearchParameters searchParameters;
+    private DistanceUnit units = DistanceUnit.METERS;
+    private String language = "en";
+    private String geometryFormat = "encodedpolyline";
+    private boolean geometrySimplify = false;
+    private RouteInstructionsFormat instructionsFormat = RouteInstructionsFormat.TEXT;
+    private boolean includeInstructions = true;
+    private boolean includeElevation = false;
+    private boolean includeGeometry = true;
+    private boolean includeManeuvers = false;
     private boolean includeRoundaboutExits = false;
-	private String[] attributes = null;
+    private String[] attributes = null;
     private int extraInfo;
     private int locationIndex = -1;
     private boolean continueStraight = false;
-	private List<Integer> skipSegments = new ArrayList<>();
-	private boolean includeCountryInfo = false;
-	private double maximumSpeed;
+    private List<Integer> skipSegments = new ArrayList<>();
+    private boolean includeCountryInfo = false;
+    private double maximumSpeed;
 
-	private String responseFormat = "json";
-	// Fields specific to GraphHopper GTFS
-	private boolean schedule;
-	private Duration walkingTime;
-	private int scheduleRows;
-	private boolean ignoreTransfers;
-	private Duration scheduleDuration;
+    private String responseFormat = "json";
+    // Fields specific to GraphHopper GTFS
+    private boolean schedule;
+    private Duration walkingTime;
+    private int scheduleRows;
+    private boolean ignoreTransfers;
+    private Duration scheduleDuration;
 
-	public RoutingRequest()
-	{
-		searchParameters = new RouteSearchParameters();
-	}
+    public RoutingRequest() {
+        searchParameters = new RouteSearchParameters();
+    }
 
-	public Coordinate[] getCoordinates() {
-		return coordinates;
-	}
-	
-	public Coordinate getDestination()
-	{
-		return coordinates[coordinates.length - 1];
-	}
+    public Coordinate[] getCoordinates() {
+        return coordinates;
+    }
 
-	public void setCoordinates(Coordinate[] coordinates) {
-		this.coordinates = coordinates;
-	}
+    public Coordinate getDestination() {
+        return coordinates[coordinates.length - 1];
+    }
 
-	public RouteSearchParameters getSearchParameters() {
-		return searchParameters;
-	}
+    public void setCoordinates(Coordinate[] coordinates) {
+        this.coordinates = coordinates;
+    }
 
-	public void setSearchParameters(RouteSearchParameters searchParameters) {
-		this.searchParameters = searchParameters;
-	}
+    public RouteSearchParameters getSearchParameters() {
+        return searchParameters;
+    }
 
-	public boolean getIncludeInstructions() {
-		return includeInstructions;
-	}
+    public void setSearchParameters(RouteSearchParameters searchParameters) {
+        this.searchParameters = searchParameters;
+    }
 
-	public void setIncludeInstructions(boolean includeInstructions) {
-		this.includeInstructions = includeInstructions;
-	}
+    public boolean getIncludeInstructions() {
+        return includeInstructions;
+    }
 
-	public DistanceUnit getUnits() {
-		return units;
-	}
+    public void setIncludeInstructions(boolean includeInstructions) {
+        this.includeInstructions = includeInstructions;
+    }
 
-	public void setUnits(DistanceUnit units) {
-		this.units = units;
-	}
+    public DistanceUnit getUnits() {
+        return units;
+    }
 
-	public String getGeometryFormat() {
-		return geometryFormat;
-	}
+    public void setUnits(DistanceUnit units) {
+        this.units = units;
+    }
 
-	public void setGeometryFormat(String geometryFormat) {
-		this.geometryFormat = geometryFormat;
-	}
+    public String getGeometryFormat() {
+        return geometryFormat;
+    }
 
-	public boolean getGeometrySimplify() { return geometrySimplify; }
+    public void setGeometryFormat(String geometryFormat) {
+        this.geometryFormat = geometryFormat;
+    }
 
-	public void setGeometrySimplify(boolean geometrySimplify) { this.geometrySimplify = geometrySimplify; }
+    public boolean getGeometrySimplify() {
+        return geometrySimplify;
+    }
 
-	public String getLanguage() {
-		return language;
-	}
+    public void setGeometrySimplify(boolean geometrySimplify) {
+        this.geometrySimplify = geometrySimplify;
+    }
 
-	public void setLanguage(String language) {
-		this.language = language;
-	}
+    public String getLanguage() {
+        return language;
+    }
 
-	public RouteInstructionsFormat getInstructionsFormat() {
-		return instructionsFormat;
-	}
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 
-	public void setInstructionsFormat(RouteInstructionsFormat format) {
-		instructionsFormat = format;
-	}
+    public RouteInstructionsFormat getInstructionsFormat() {
+        return instructionsFormat;
+    }
 
-	public int getExtraInfo() {
-		return extraInfo;
-	}
+    public void setInstructionsFormat(RouteInstructionsFormat format) {
+        instructionsFormat = format;
+    }
 
-	public void setExtraInfo(int extraInfo) {
-		this.extraInfo = extraInfo;
-	}
+    public int getExtraInfo() {
+        return extraInfo;
+    }
 
-	public boolean getIncludeElevation() {
-		return includeElevation;
-	}
+    public void setExtraInfo(int extraInfo) {
+        this.extraInfo = extraInfo;
+    }
 
-	public void setIncludeElevation(boolean includeElevation) {
-		this.includeElevation = includeElevation;
-	}
+    public boolean getIncludeElevation() {
+        return includeElevation;
+    }
 
-	public boolean getIncludeGeometry() {
-		return includeGeometry;
-	}
+    public void setIncludeElevation(boolean includeElevation) {
+        this.includeElevation = includeElevation;
+    }
 
-	public void setIncludeGeometry(boolean includeGeometry) {
-		this.includeGeometry = includeGeometry;
-	}
+    public boolean getIncludeGeometry() {
+        return includeGeometry;
+    }
 
-	public String[] getAttributes() {
-		return attributes;
-	}
+    public void setIncludeGeometry(boolean includeGeometry) {
+        this.includeGeometry = includeGeometry;
+    }
 
-	public void setAttributes(String[] attributes) {
-		this.attributes = attributes;
-	}
-	
-	public boolean hasAttribute(String attr) {
-		if (attributes == null || attr == null)
-			return false;
+    public String[] getAttributes() {
+        return attributes;
+    }
 
-		for (String attribute : attributes)
-			if (attr.equalsIgnoreCase(attribute))
-				return true;
+    public void setAttributes(String[] attributes) {
+        this.attributes = attributes;
+    }
 
-		return false;
-	}
+    public boolean hasAttribute(String attr) {
+        if (attributes == null || attr == null)
+            return false;
 
-	public int getLocationIndex() {
-		return locationIndex;
-	}
+        for (String attribute : attributes)
+            if (attr.equalsIgnoreCase(attribute))
+                return true;
 
-	public void setLocationIndex(int locationIndex) {
-		this.locationIndex = locationIndex;
-	}
+        return false;
+    }
 
-	public boolean getIncludeManeuvers() {
-		return includeManeuvers;
-	}
+    public int getLocationIndex() {
+        return locationIndex;
+    }
 
-	public void setIncludeManeuvers(boolean includeManeuvers) {
-		this.includeManeuvers = includeManeuvers;
-	}
+    public void setLocationIndex(int locationIndex) {
+        this.locationIndex = locationIndex;
+    }
 
-	public boolean getContinueStraight() {
-		return continueStraight;
-	}
+    public boolean getIncludeManeuvers() {
+        return includeManeuvers;
+    }
 
-	public void setContinueStraight(boolean continueStraight) {
-		this.continueStraight = continueStraight;
-	}
+    public void setIncludeManeuvers(boolean includeManeuvers) {
+        this.includeManeuvers = includeManeuvers;
+    }
 
-	public boolean getIncludeRoundaboutExits() {
-		return includeRoundaboutExits;
-	}
+    public boolean getContinueStraight() {
+        return continueStraight;
+    }
 
-	public void setIncludeRoundaboutExits(boolean includeRoundaboutExits) {
-		this.includeRoundaboutExits = includeRoundaboutExits;
-	}
+    public void setContinueStraight(boolean continueStraight) {
+        this.continueStraight = continueStraight;
+    }
 
-	public boolean isValid() {
-		return coordinates != null;
-	}
+    public boolean getIncludeRoundaboutExits() {
+        return includeRoundaboutExits;
+    }
 
-	public List<Integer> getSkipSegments() {
-		return skipSegments;
-	}
+    public void setIncludeRoundaboutExits(boolean includeRoundaboutExits) {
+        this.includeRoundaboutExits = includeRoundaboutExits;
+    }
 
-	public void setSkipSegments(List<Integer> skipSegments) {
-		this.skipSegments = skipSegments;
-	}
+    public boolean isValid() {
+        return coordinates != null;
+    }
 
-	public boolean getIncludeCountryInfo() {
-		return includeCountryInfo;
-	}
+    public List<Integer> getSkipSegments() {
+        return skipSegments;
+    }
 
-	public void setIncludeCountryInfo(boolean includeCountryInfo) {
-		this.includeCountryInfo = includeCountryInfo;
-	}
+    public void setSkipSegments(List<Integer> skipSegments) {
+        this.skipSegments = skipSegments;
+    }
 
-	public void setMaximumSpeed(double maximumSpeed){
-		this.maximumSpeed = maximumSpeed;
-	}
+    public boolean getIncludeCountryInfo() {
+        return includeCountryInfo;
+    }
 
-	public double getMaximumSpeed(){
-		return maximumSpeed;
-	}
+    public void setIncludeCountryInfo(boolean includeCountryInfo) {
+        this.includeCountryInfo = includeCountryInfo;
+    }
 
-	public void setResponseFormat(String responseFormat) {
-		if (!Helper.isEmpty(responseFormat)) {
-			this.responseFormat = responseFormat;
-		}
-	}
+    public void setMaximumSpeed(double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+    }
 
-	public String getResponseFormat() {
-		return this.responseFormat;
-	}
+    public double getMaximumSpeed() {
+        return maximumSpeed;
+    }
 
-	public boolean isRoundTripRequest() {
-		return this.coordinates.length == 1 && this.searchParameters.getRoundTripLength() > 0;
-	}
+    public void setResponseFormat(String responseFormat) {
+        if (!Helper.isEmpty(responseFormat)) {
+            this.responseFormat = responseFormat;
+        }
+    }
 
-	public void setSchedule(boolean schedule) {
-		this.schedule = schedule;
-	}
+    public String getResponseFormat() {
+        return this.responseFormat;
+    }
 
-	public void setWalkingTime(Duration walkingTime) {
-		this.walkingTime = walkingTime;
-	}
+    public boolean isRoundTripRequest() {
+        return this.coordinates.length == 1 && this.searchParameters.getRoundTripLength() > 0;
+    }
 
-	public void setScheduleRows(int scheduleRows) {
-		this.scheduleRows = scheduleRows;
-	}
+    public void setSchedule(boolean schedule) {
+        this.schedule = schedule;
+    }
 
-	public void setIgnoreTransfers(boolean ignoreTransfers) {
-		this.ignoreTransfers = ignoreTransfers;
-	}
+    public void setWalkingTime(Duration walkingTime) {
+        this.walkingTime = walkingTime;
+    }
 
-	public void setScheduleDuaration(Duration scheduleDuration) {
-		this.scheduleDuration = scheduleDuration;
-	}
+    public void setScheduleRows(int scheduleRows) {
+        this.scheduleRows = scheduleRows;
+    }
+
+    public void setIgnoreTransfers(boolean ignoreTransfers) {
+        this.ignoreTransfers = ignoreTransfers;
+    }
+
+    public void setScheduleDuaration(Duration scheduleDuration) {
+        this.scheduleDuration = scheduleDuration;
+    }
 }

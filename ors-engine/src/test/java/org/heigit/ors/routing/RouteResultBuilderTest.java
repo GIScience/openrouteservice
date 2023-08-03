@@ -28,12 +28,12 @@ class RouteResultBuilderTest {
 
     @BeforeEach
     void init() throws Exception {
-        Coordinate [] coordinates = new Coordinate[2];
+        Coordinate[] coordinates = new Coordinate[2];
         coordinates[0] = new Coordinate(12.3, 45.6);
         coordinates[1] = new Coordinate(23.4, 56.7);
         request1 = new RoutingRequest();
         request1.setCoordinates(coordinates);
-        request1.setAttributes(new String[] {"detourfactor"});
+        request1.setAttributes(new String[]{"detourfactor"});
         request1.setExtraInfo(RouteExtraInfoFlag.getFromString("osmid"));
         request1.setIncludeManeuvers(true);
 

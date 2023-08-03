@@ -19,8 +19,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.api.requests.common.CoordinateListWrapper;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,10 +38,10 @@ public class CoordinateListDeserializer extends StdDeserializer<CoordinateListWr
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
         List<Coordinate> convertedCoords = new ArrayList<>();
 
-        if(node.isArray()) {
+        if (node.isArray()) {
             Iterator<JsonNode> coordinates = node.iterator();
             JsonNode coord;
-            while(coordinates.hasNext() && ( coord = coordinates.next()) != null) {
+            while (coordinates.hasNext() && (coord = coordinates.next()) != null) {
                 convertedCoords.add(new Coordinate(coord.get(0).asDouble(), coord.get(1).asDouble()));
             }
         }

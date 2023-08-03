@@ -163,9 +163,9 @@ class MatrixRequestTest {
         matrixLocationsRequest = new MatrixRequest(bareCoordinates, endpointsProperties);
         matrixLocationsListRequest = new MatrixRequest(listOfBareCoordinatesList);
         matrixLocationsRequest.setDestinations(new String[]{"all"});
-        matrixLocationsListRequest.setDestinations(new String[]{"1","2"});
+        matrixLocationsListRequest.setDestinations(new String[]{"1", "2"});
         assertArrayEquals(new String[]{"all"}, matrixLocationsRequest.getDestinations());
-        assertArrayEquals(new String[]{"1","2"}, matrixLocationsListRequest.getDestinations());
+        assertArrayEquals(new String[]{"1", "2"}, matrixLocationsListRequest.getDestinations());
     }
 
     @Test

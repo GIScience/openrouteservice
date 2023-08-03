@@ -29,7 +29,8 @@ public class RouteWarning {
 
     /**
      * Generate the warning object and initialise the contents based on the warning code passed
-     * @param warning   The warning code for the warning that should be generated
+     *
+     * @param warning The warning code for the warning that should be generated
      */
     public RouteWarning(int warning, String additionalInfo) {
         warningCode = warning;

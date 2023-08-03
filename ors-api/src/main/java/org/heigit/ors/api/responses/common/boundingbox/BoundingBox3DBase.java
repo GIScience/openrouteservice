@@ -39,7 +39,7 @@ public class BoundingBox3DBase extends BoundingBoxBase {
 
     @Override
     public double[] getAsArray() {
-        return new double[] {
+        return new double[]{
                 FormatUtility.roundToDecimals(minLon, COORDINATE_DECIMAL_PLACES),
                 FormatUtility.roundToDecimals(minLat, COORDINATE_DECIMAL_PLACES),
                 FormatUtility.roundToDecimals(minEle, ELEVATION_DECIMAL_PLACES),

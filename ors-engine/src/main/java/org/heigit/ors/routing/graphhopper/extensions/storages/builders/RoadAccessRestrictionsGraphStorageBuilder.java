@@ -21,10 +21,10 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.*;
 
@@ -70,9 +70,10 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
     /**
      * Initialise the road access restrictions graph storage builder for a profile and set the profile type to be that
      * specified.
-     * @param graphhopper   The graphhopper instance being used (not used)
-     * @param profileType   The id of the profile type that the RoadAccessRestrictions are for
-     * @return              The RoadAccessRestrictionStorage object created as part of the initialisation
+     *
+     * @param graphhopper The graphhopper instance being used (not used)
+     * @param profileType The id of the profile type that the RoadAccessRestrictions are for
+     * @return The RoadAccessRestrictionStorage object created as part of the initialisation
      * @throws Exception
      */
     public GraphExtension init(GraphHopper graphhopper, int profileType) throws Exception {
@@ -91,8 +92,9 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
     /**
      * Initialise the road access restrictions graph storage builder for a profile
-     * @param graphhopper   The graphhopper instance being used
-     * @return              The RoadAccessRestrictionStorage object created as part of the initialisation
+     *
+     * @param graphhopper The graphhopper instance being used
+     * @return The RoadAccessRestrictionStorage object created as part of the initialisation
      * @throws Exception
      */
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
@@ -127,19 +129,20 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
      * Process the road access restrictions of a  way feature ready for processing into edges. It checks to see if there
      * are restrictions present in the form of tags (e.g. access=private) and then stores the information accordingly.
      * It first checks if there have already been restrictions recorded and if so clears them.
-     * @param way       The way to be processed
-     * @param coords    List of coordinates for the way (not used)
-     * @param nodeTags  List of node ids and the key value pairs for the tags of that node. These values can be used to
-     *                  apply restrictions on a way introduced by items like lift gates that are nodes on the way
+     *
+     * @param way      The way to be processed
+     * @param coords   List of coordinates for the way (not used)
+     * @param nodeTags List of node ids and the key value pairs for the tags of that node. These values can be used to
+     *                 apply restrictions on a way introduced by items like lift gates that are nodes on the way
      */
     @Override
-    public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String,String>> nodeTags) {
+    public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags) {
         if (hasRestrictions) {
             hasRestrictions = false;
             restrictions = 0;
         }
 
-        if(nodeTags != null) {
+        if (nodeTags != null) {
             for (Map<String, String> tagPairs : nodeTags.values()) {
                 for (Map.Entry<String, String> pair : tagPairs.entrySet()) {
                     way.setTag(pair.getKey(), pair.getValue());
@@ -162,9 +165,10 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
     /**
      * Get the type of restrictions that have been set on the way.
-     * @param way   The way to be checked
-     * @param tags  The tags(keys) that should be accessed for the access restrictions
-     * @return      0 if no restriction, else the integer encoded restriction value for the way
+     *
+     * @param way  The way to be checked
+     * @param tags The tags(keys) that should be accessed for the access restrictions
+     * @return 0 if no restriction, else the integer encoded restriction value for the way
      */
     private int getRestrictionType(ReaderWay way, List<String> tags) {
         int res = 0;
@@ -185,9 +189,10 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
     /**
      * Get the type of restrictions that have been set on the way.
-     * @param way   The way to be checked
-     * @param tag   The tag(key) that should be accessed for the access restrictions
-     * @return      0 if no restriction, else the integer encoded restriction value for the way
+     *
+     * @param way The way to be checked
+     * @param tag The tag(key) that should be accessed for the access restrictions
+     * @return 0 if no restriction, else the integer encoded restriction value for the way
      */
     private int getRestrictionType(ReaderWay way, String tag) {
         int res = 0;
@@ -204,9 +209,10 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
     /**
      * Take the encoded restriction value and update it with the passed restriction value
-     * @param encodedRestrictions   Integer representation of the current restrictions
-     * @param restrictionValue      The new restriction to be applied
-     * @return                      An integer encoded representation of all restrictions that have been set
+     *
+     * @param encodedRestrictions Integer representation of the current restrictions
+     * @param restrictionValue    The new restriction to be applied
+     * @return An integer encoded representation of all restrictions that have been set
      */
     private int updateRestriction(int encodedRestrictions, String restrictionValue) {
         int res = encodedRestrictions;
@@ -228,9 +234,10 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
     /**
      * Check if access is allowed on the way. e.g. it would check if motor_car=yes/permissive/destination etc. is set
-     * @param way       The OSM way to be checked
-     * @param tagNames  The tags (keys) to be checked
-     * @return          Whether access is allowed on the way
+     *
+     * @param way      The OSM way to be checked
+     * @param tagNames The tags (keys) to be checked
+     * @return Whether access is allowed on the way
      */
     private boolean isAccessAllowed(ReaderWay way, List<String> tagNames) {
         return way.hasTag(tagNames, permissiveValues);
@@ -238,9 +245,10 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
     /**
      * Check if access is allowed on the way. e.g. it would check if motor_car=yes/permissive/destination etc. is set
-     * @param way       The OSM way to be checked
-     * @param tagName   The single tag (key) to be checked
-     * @return          Whether access is allowed on the way
+     *
+     * @param way     The OSM way to be checked
+     * @param tagName The single tag (key) to be checked
+     * @return Whether access is allowed on the way
      */
     private boolean isAccessAllowed(ReaderWay way, String tagName) {
         return way.hasTag(tagName, permissiveValues);

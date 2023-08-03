@@ -31,7 +31,7 @@ public class JSONExtra {
     public JSONExtra(List<RouteSegmentItem> segments, List<ExtraSummaryItem> summaryItems) {
         values = new ArrayList<>();
 
-        for(RouteSegmentItem item : segments) {
+        for (RouteSegmentItem item : segments) {
             List<Long> segment = new ArrayList<>();
             segment.add((long) item.getFrom());
             segment.add((long) item.getTo());
@@ -40,7 +40,7 @@ public class JSONExtra {
         }
 
         summary = new ArrayList<>();
-        for(ExtraSummaryItem item : summaryItems) {
+        for (ExtraSummaryItem item : summaryItems) {
             summary.add(new JSONExtraSummary(item.getValue(), item.getDistance(), item.getAmount()));
         }
     }

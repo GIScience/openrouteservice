@@ -14,52 +14,50 @@
 package org.heigit.ors.matrix;
 
 public class MatrixResult {
-  private final float[][] tables;
-  private ResolvedLocation[] destinations;
-  private ResolvedLocation[] sources;
-  private String graphDate;
+    private final float[][] tables;
+    private ResolvedLocation[] destinations;
+    private ResolvedLocation[] sources;
+    private String graphDate;
 
-  public MatrixResult(ResolvedLocation[] sources, ResolvedLocation[] destinations) {
-	  tables = new float[6][];
-	  this.sources = sources;
-	  this.destinations = destinations;
-  }
+    public MatrixResult(ResolvedLocation[] sources, ResolvedLocation[] destinations) {
+        tables = new float[6][];
+        this.sources = sources;
+        this.destinations = destinations;
+    }
 
-  public void setTable(int metric, float[] values)
-  {
-	  tables[metric] = values;
-  }
+    public void setTable(int metric, float[] values) {
+        tables[metric] = values;
+    }
 
-  public float[] getTable(int metric)
-  {
-	  return tables[metric];
-  }
+    public float[] getTable(int metric) {
+        return tables[metric];
+    }
 
-  public float[][] getTables() {
-      return tables;
-  }
+    public float[][] getTables() {
+        return tables;
+    }
 
-  public ResolvedLocation[] getDestinations()
-  {
-	  return destinations;
-  }
+    public ResolvedLocation[] getDestinations() {
+        return destinations;
+    }
 
-  public void setDestinations(ResolvedLocation[] locations)
-  {
-	  destinations = locations;
-  }
+    public void setDestinations(ResolvedLocation[] locations) {
+        destinations = locations;
+    }
 
-  public ResolvedLocation[] getSources()
-  {
-	  return sources;
-  }
+    public ResolvedLocation[] getSources() {
+        return sources;
+    }
 
-  public void setSources(ResolvedLocation[] locations)
-  {
-	  sources = locations;
-  }
+    public void setSources(ResolvedLocation[] locations) {
+        sources = locations;
+    }
 
-  public void setGraphDate(String graphDate) {this.graphDate = graphDate; }
+    public void setGraphDate(String graphDate) {
+        this.graphDate = graphDate;
+    }
 
-  public String getGraphDate() { return graphDate; }
+    public String getGraphDate() {
+        return graphDate;
+    }
 }

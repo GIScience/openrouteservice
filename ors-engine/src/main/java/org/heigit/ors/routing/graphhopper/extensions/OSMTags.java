@@ -16,14 +16,17 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 public class OSMTags {
-    private OSMTags() {}
+    private OSMTags() {
+    }
 
     public static class Keys {
-        private Keys() {}
+        private Keys() {
+        }
+
         public static final String HIGHWAY = "highway";
         public static final String SIDEWALK = "sidewalk";
         public static final String ROUTE = "route";
-        public static final String FOOT  = "foot";
+        public static final String FOOT = "foot";
         public static final String SAC_SCALE = "sac_scale";
         public static final String FORD = "ford";
         public static final String MOTOR_ROAD = "motorroad";

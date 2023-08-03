@@ -21,65 +21,66 @@ import java.util.List;
 import java.util.Set;
 
 public class MatrixMetricsType {
-	public static final int UNKNOWN = 0;
-	public static final int DURATION = 1;
-	public static final int DISTANCE = 2;
-	public static final int WEIGHT = 4;
-	public static final String KEY_DURATION = "duration";
-	public static final String KEY_DISTANCE = "distance";
-	public static final String KEY_WEIGHT = "weight";
-	public static final String KEY_UNKNOWN = "unknown";
+    public static final int UNKNOWN = 0;
+    public static final int DURATION = 1;
+    public static final int DISTANCE = 2;
+    public static final int WEIGHT = 4;
+    public static final String KEY_DURATION = "duration";
+    public static final String KEY_DISTANCE = "distance";
+    public static final String KEY_WEIGHT = "weight";
+    public static final String KEY_UNKNOWN = "unknown";
 
-	private MatrixMetricsType() {}
+    private MatrixMetricsType() {
+    }
 
     public static boolean isSet(int metrics, int value) {
         return (metrics & value) == value;
     }
 
-	public static int getFromString(String value) {
-		if (Helper.isEmpty(value))
-			return 0;
+    public static int getFromString(String value) {
+        if (Helper.isEmpty(value))
+            return 0;
 
-		String[] values = value.toLowerCase().split("\\|");
-		int res = UNKNOWN;
+        String[] values = value.toLowerCase().split("\\|");
+        int res = UNKNOWN;
 
-		for(String str : values) {
-			switch(str) {
-				case KEY_DURATION:
-					res |= DURATION;
-					break;
-				case KEY_DISTANCE:
-					res |= DISTANCE;
-					break;
-				case KEY_WEIGHT:
-					res |= WEIGHT;
-					break;
-				default:
-					return UNKNOWN;
-			}
-		}
+        for (String str : values) {
+            switch (str) {
+                case KEY_DURATION:
+                    res |= DURATION;
+                    break;
+                case KEY_DISTANCE:
+                    res |= DISTANCE;
+                    break;
+                case KEY_WEIGHT:
+                    res |= WEIGHT;
+                    break;
+                default:
+                    return UNKNOWN;
+            }
+        }
 
-		return res;
-	}
+        return res;
+    }
 
-	public static String getMetricNameFromInt(int metric) {
-		String res = switch (metric) {
-			case MatrixMetricsType.DURATION -> KEY_DURATION;
-			case MatrixMetricsType.DISTANCE -> KEY_DISTANCE;
-			case MatrixMetricsType.WEIGHT -> KEY_WEIGHT;
-			default -> KEY_UNKNOWN;
-		};
-		return res;
-	}
+    public static String getMetricNameFromInt(int metric) {
+        String res = switch (metric) {
+            case MatrixMetricsType.DURATION -> KEY_DURATION;
+            case MatrixMetricsType.DISTANCE -> KEY_DISTANCE;
+            case MatrixMetricsType.WEIGHT -> KEY_WEIGHT;
+            default -> KEY_UNKNOWN;
+        };
+        return res;
+    }
 
-	public static Set<String> getMetricsNamesFromInt(int metric) {
-		return switch (metric) {
-			case MatrixMetricsType.DURATION -> new HashSet<>(List.of(KEY_DURATION));
-			case MatrixMetricsType.DISTANCE -> new HashSet<>(List.of(KEY_DISTANCE));
-			case MatrixMetricsType.WEIGHT -> new HashSet<>(List.of(KEY_WEIGHT));
-			case MatrixMetricsType.DURATION | MatrixMetricsType.DISTANCE ->
-					new HashSet<>(Arrays.asList(KEY_DURATION, KEY_DISTANCE));
-			default -> new HashSet<>(List.of(KEY_UNKNOWN));
-		};
-	}
+    public static Set<String> getMetricsNamesFromInt(int metric) {
+        return switch (metric) {
+            case MatrixMetricsType.DURATION -> new HashSet<>(List.of(KEY_DURATION));
+            case MatrixMetricsType.DISTANCE -> new HashSet<>(List.of(KEY_DISTANCE));
+            case MatrixMetricsType.WEIGHT -> new HashSet<>(List.of(KEY_WEIGHT));
+            case MatrixMetricsType.DURATION | MatrixMetricsType.DISTANCE ->
+                    new HashSet<>(Arrays.asList(KEY_DURATION, KEY_DISTANCE));
+            default -> new HashSet<>(List.of(KEY_UNKNOWN));
+        };
+    }
 }

@@ -3,7 +3,6 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessor
 import com.graphhopper.reader.ReaderWay;
 
 
-
 public class WheelchairSidewalkWay extends PedestrianWay {
     private final OSMAttachedSidewalkProcessor sidewalkProcessor;
     private final OSMAttachedSidewalkProcessor.Side side;
@@ -19,7 +18,7 @@ public class WheelchairSidewalkWay extends PedestrianWay {
 
     @Override
     public boolean hasWayBeenFullyProcessed() {
-        if(side == OSMAttachedSidewalkProcessor.Side.BOTH && lastPrepared == OSMAttachedSidewalkProcessor.Side.RIGHT) {
+        if (side == OSMAttachedSidewalkProcessor.Side.BOTH && lastPrepared == OSMAttachedSidewalkProcessor.Side.RIGHT) {
             return true;
         }
 
@@ -30,12 +29,12 @@ public class WheelchairSidewalkWay extends PedestrianWay {
     public void prepare() {
         // Find out if anything has been done yet
 
-        if(side == OSMAttachedSidewalkProcessor.Side.BOTH && lastPrepared == OSMAttachedSidewalkProcessor.Side.RIGHT) {
+        if (side == OSMAttachedSidewalkProcessor.Side.BOTH && lastPrepared == OSMAttachedSidewalkProcessor.Side.RIGHT) {
             // The right sidewalk is the last to be processed when we are looking at both sides
             lastPrepared = OSMAttachedSidewalkProcessor.Side.BOTH;
         }
 
-        if(lastPrepared != side) {
+        if (lastPrepared != side) {
             this.readerWay = sidewalkProcessor.attachSidewalkTag(this.readerWay, side);
             lastPrepared = sidewalkProcessor.getPreparedSide(this.readerWay);
         }

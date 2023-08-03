@@ -1,7 +1,7 @@
 /*
  * This file is part of the OpenSphere project which aims to
  * develop geospatial algorithms.
- * 
+ *
  * Copyright (C) 2012 Eric Grosso
  *
  * This library is free software; you can redistribute it and/or
@@ -20,353 +20,331 @@
  *
  * For more information, contact:
  * Eric Grosso, eric.grosso.os@gmail.com
- * 
+ *
  */
 package org.opensphere.geometry.triangulation.model;
+
+import org.locationtech.jts.geom.LineSegment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.locationtech.jts.geom.LineSegment;
-
 /**
  * Edge.
- * 
- * @author Eric Grosso
  *
+ * @author Eric Grosso
  */
 public class Edge {
 
-	/** ID of the edge */
-	private int id;
-	
-	/** Geometry of the edge */
-	private LineSegment geometry;
+    /**
+     * ID of the edge
+     */
+    private int id;
 
-	/** Indicator to know if the edge is a border edge
-	 *  of the triangulation framework */
-	private boolean border;
+    /**
+     * Geometry of the edge
+     */
+    private LineSegment geometry;
 
-	/** Origin vertex of the edge */
-	private Vertex oV;
-	
-	/** End vertex of the edge */
-	private Vertex eV;
+    /**
+     * Indicator to know if the edge is a border edge
+     * of the triangulation framework
+     */
+    private boolean border;
 
-	/** Triangles in relationship with this edge */
-	private List<Triangle> triangles = new ArrayList<>();
-	
-	/** Edges in relationship with this edge */
-	private List<Edge> incidentEdges = new ArrayList<>();
+    /**
+     * Origin vertex of the edge
+     */
+    private Vertex oV;
 
-	
-	/**
-	 * Default constructor.
-	 */
-	public Edge() {
-		//
-	}
-	
-	/**
-	 * Constructor.
-	 * 
-	 * @param id
-	 * 		ID of the edge
-	 */
-	public Edge(int id) {
-		this.id = id;
-	}
+    /**
+     * End vertex of the edge
+     */
+    private Vertex eV;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param id
-	 * 		ID of the edge
-	 * @param geometry
-	 * 		geometry of the edge (segment)
-	 */
-	public Edge(int id, LineSegment geometry) {
-		this.id = id;
-		this.geometry = geometry;
-	}
+    /**
+     * Triangles in relationship with this edge
+     */
+    private List<Triangle> triangles = new ArrayList<>();
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param id
-	 * 		ID of the edge
-	 * @param border
-	 * 		defines if the edge is a border edge
-	 * 		or not in the triangulation framework
-	 */
-	public Edge(int id, boolean border) {
-		this.id = id;
-		this.border = border;
-	}
+    /**
+     * Edges in relationship with this edge
+     */
+    private List<Edge> incidentEdges = new ArrayList<>();
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param id
-	 * 		ID of the edge
-	 * @param geometry
-	 * 		geometry of the edge (segment)
- 	 * @param border
-	 * 		defines if the edge is a border edge
-	 * 		or not in the triangulation framework
-	 */
-	public Edge(int id, LineSegment geometry, boolean border) {
-		this.id = id;
-		this.geometry = geometry;
-		this.border = border;
-	}
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param id
-	 * 		ID of the edge
-	 * @param geometry
-	 * 		geometry of the edge (segment)
-	 * @param oV
-	 * 		origin vertex
-	 * @param eV
-	 * 		end vertex
-	 * @param border
-	 * 		defines if the edge is a border edge
-	 * 		or not in the triangulation framework
-	 */
-	public Edge(int id, LineSegment geometry, Vertex oV, Vertex eV, boolean border) {
-		this.id = id;
-		this.geometry = geometry;
-		this.oV = oV;
-		this.eV = eV;
-		this.border = border;
-	}
+    /**
+     * Default constructor.
+     */
+    public Edge() {
+        //
+    }
 
-	
-	/**
-	 * Returns the ID of the edge.
-	 * 
-	 * @return
-	 * 		the ID of the edge
-	 */
-	public int getId() {
-		return this.id;
-	}
+    /**
+     * Constructor.
+     *
+     * @param id ID of the edge
+     */
+    public Edge(int id) {
+        this.id = id;
+    }
 
-	/**
-	 * Defines the ID of the edge.
-	 * 
-	 * @param id
-	 * 		ID of the edge
-	 */
-	public void setId(int id) {
-		this.id = id;
-	}
+    /**
+     * Constructor.
+     *
+     * @param id       ID of the edge
+     * @param geometry geometry of the edge (segment)
+     */
+    public Edge(int id, LineSegment geometry) {
+        this.id = id;
+        this.geometry = geometry;
+    }
 
-	/**
-	 * Returns the geometry of the edge.
-	 * 
-	 * @return
-	 * 		the geometry of the edge
-	 */
-	public LineSegment getGeometry() {
-		return this.geometry;
-	}
+    /**
+     * Constructor.
+     *
+     * @param id     ID of the edge
+     * @param border defines if the edge is a border edge
+     *               or not in the triangulation framework
+     */
+    public Edge(int id, boolean border) {
+        this.id = id;
+        this.border = border;
+    }
 
-	/**
-	 * Defines the geometry of the edge.
-	 * 
-	 * @param geometry
-	 * 		geometry of the edge (segment)
-	 */
-	public void setGeometry(LineSegment geometry) {
-		this.geometry = geometry;
-	}
+    /**
+     * Constructor.
+     *
+     * @param id       ID of the edge
+     * @param geometry geometry of the edge (segment)
+     * @param border   defines if the edge is a border edge
+     *                 or not in the triangulation framework
+     */
+    public Edge(int id, LineSegment geometry, boolean border) {
+        this.id = id;
+        this.geometry = geometry;
+        this.border = border;
+    }
 
-	/**
-	 * Returns true if the edge is a border edge
-	 * of the triangulation framework, false otherwise.
-	 * 
-	 * @return
-	 * 		true if the edge is a border edge,
-	 * 		false otherwise
-	 */
-	public boolean isBorder() {
-		return this.border;
-	}
+    /**
+     * Constructor.
+     *
+     * @param id       ID of the edge
+     * @param geometry geometry of the edge (segment)
+     * @param oV       origin vertex
+     * @param eV       end vertex
+     * @param border   defines if the edge is a border edge
+     *                 or not in the triangulation framework
+     */
+    public Edge(int id, LineSegment geometry, Vertex oV, Vertex eV, boolean border) {
+        this.id = id;
+        this.geometry = geometry;
+        this.oV = oV;
+        this.eV = eV;
+        this.border = border;
+    }
 
-	/**
-	 * Defines the indicator to know if the edge
-	 * is a border edge of the triangulation framework.
-	 * 
-	 * @param border
-	 * 		true if the edge is a border edge,
-	 * 		false otherwise
-	 */
-	public void setBorder(boolean border) {
-		this.border = border;
-	}
-	
-	/**
-	 * Returns the origin vertex of the edge.
-	 * 
-	 * @return
-	 * 		the origin vertex of the edge
-	 */	
-	public Vertex getOV() {
-		return this.oV;
-	}
 
-	/**
-	 * Defines the origin vertex of the edge.
-	 * 
-	 * @param oV
-	 * 		origin vertex of the edge
-	 */
-	public void setOV(Vertex oV) {
-		this.oV = oV;
-	}
+    /**
+     * Returns the ID of the edge.
+     *
+     * @return the ID of the edge
+     */
+    public int getId() {
+        return this.id;
+    }
 
-	/**
-	 * Returns the end vertex of the edge.
-	 * 
-	 * @return
-	 * 		the end vertex of the edge
-	 */	
-	public Vertex getEV() {
-		return this.eV;
-	}
+    /**
+     * Defines the ID of the edge.
+     *
+     * @param id ID of the edge
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	/**
-	 * Defines the end vertex of the edge.
-	 * 
-	 * @param eV
-	 * 		end vertex of the edge
-	 */
-	public void setEV(Vertex eV) {
-		this.eV = eV;
-	}
-	
-	/**
-	 * Returns the triangles in relationship with the edge.
-	 * 
-	 * @return
-	 * 		the triangles in relationship with the edge
-	 */
-	public List<Triangle> getTriangles() {
-		return this.triangles;
-	}
+    /**
+     * Returns the geometry of the edge.
+     *
+     * @return the geometry of the edge
+     */
+    public LineSegment getGeometry() {
+        return this.geometry;
+    }
 
-	/**
-	 * Defines the triangles in relationship with the edge.
-	 * 
-	 * @param triangles
-	 * 		the triangles in relationship with the edge
-	 */
-	public void setTriangles(List<Triangle> triangles) {
-		this.triangles = triangles;
-	}
+    /**
+     * Defines the geometry of the edge.
+     *
+     * @param geometry geometry of the edge (segment)
+     */
+    public void setGeometry(LineSegment geometry) {
+        this.geometry = geometry;
+    }
 
-	/**
-	 * Returns the edges in relationship with the edge.
-	 * 
-	 * @return
-	 * 		the edges in relationship with the edge
-	 */
-	public List<Edge> getIncidentEdges() {
-		return this.incidentEdges;
-	}
+    /**
+     * Returns true if the edge is a border edge
+     * of the triangulation framework, false otherwise.
+     *
+     * @return true if the edge is a border edge,
+     * false otherwise
+     */
+    public boolean isBorder() {
+        return this.border;
+    }
 
-	/**
-	 * Defines the edges in relationship with the edge.
-	 * 
-	 * @param edges
-	 * 		the edges in relationship with the edge
-	 */
-	public void setIncidentEdges(List<Edge> edges) {
-		this.incidentEdges = edges;
-	}
+    /**
+     * Defines the indicator to know if the edge
+     * is a border edge of the triangulation framework.
+     *
+     * @param border true if the edge is a border edge,
+     *               false otherwise
+     */
+    public void setBorder(boolean border) {
+        this.border = border;
+    }
 
-	/**
-	 * Add a triangle in relationship with the edge.
-	 * 
-	 * @return
-	 * 		true if added, false otherwise
-	 */
-	public boolean addTriangle(Triangle triangle) {
-		return getTriangles().add(triangle);
-	}
+    /**
+     * Returns the origin vertex of the edge.
+     *
+     * @return the origin vertex of the edge
+     */
+    public Vertex getOV() {
+        return this.oV;
+    }
 
-	/**
-	 * Add triangles in relationship with the edge.
-	 * 
-	 * @return
-	 * 		true if added, false otherwise
-	 */
-	public boolean addTriangles(List<Triangle> triangles) {
-		return getTriangles().addAll(triangles);
-	}
+    /**
+     * Defines the origin vertex of the edge.
+     *
+     * @param oV origin vertex of the edge
+     */
+    public void setOV(Vertex oV) {
+        this.oV = oV;
+    }
 
-	/**
-	 * Remove a triangle in relationship with the edge.
-	 * 
-	 * @return
-	 * 		true if removed, false otherwise
-	 */
-	public boolean removeTriangle(Triangle triangle) {
-		return getTriangles().remove(triangle);
-	}
+    /**
+     * Returns the end vertex of the edge.
+     *
+     * @return the end vertex of the edge
+     */
+    public Vertex getEV() {
+        return this.eV;
+    }
 
-	/**
-	 * Remove triangles in relationship with the edge.
-	 * 
-	 * @return
-	 * 		true if removed, false otherwise
-	 */
-	public boolean removeTriangles(List<Triangle> triangles) {
-		return getTriangles().removeAll(triangles);
-	}
+    /**
+     * Defines the end vertex of the edge.
+     *
+     * @param eV end vertex of the edge
+     */
+    public void setEV(Vertex eV) {
+        this.eV = eV;
+    }
 
-	/**
-	 * Add an incident edge in relationship with the edge.
-	 * 
-	 * @return
-	 * 		true if added, false otherwise
-	 */
-	public boolean addIncidentEdge(Edge edge) {
-		return getIncidentEdges().add(edge);
-	}
+    /**
+     * Returns the triangles in relationship with the edge.
+     *
+     * @return the triangles in relationship with the edge
+     */
+    public List<Triangle> getTriangles() {
+        return this.triangles;
+    }
 
-	/**
-	 * Add incident edges in relationship with the edge.
-	 * 
-	 * @return
-	 * 		true if added, false otherwise
-	 */
-	public boolean addIncidentEdges(List<Edge> edges) {
-		return getIncidentEdges().addAll(edges);
-	}
+    /**
+     * Defines the triangles in relationship with the edge.
+     *
+     * @param triangles the triangles in relationship with the edge
+     */
+    public void setTriangles(List<Triangle> triangles) {
+        this.triangles = triangles;
+    }
 
-	/**
-	 * Remove an incident edge in relationship with the edge.
-	 * 
-	 * @return
-	 * 		true if removed, false otherwise
-	 */
-	public boolean removeIncidentEdge(Edge edge) {
-		return getIncidentEdges().remove(edge);
-	}
+    /**
+     * Returns the edges in relationship with the edge.
+     *
+     * @return the edges in relationship with the edge
+     */
+    public List<Edge> getIncidentEdges() {
+        return this.incidentEdges;
+    }
 
-	/**
-	 * Remove incident edges in relationship with the edge.
-	 * 
-	 * @return
-	 * 		true if removed, false otherwise
-	 */
-	public boolean removeAllIncidentEdges(List<Edge> edges) {
-		return getIncidentEdges().removeAll(edges);
-	}
+    /**
+     * Defines the edges in relationship with the edge.
+     *
+     * @param edges the edges in relationship with the edge
+     */
+    public void setIncidentEdges(List<Edge> edges) {
+        this.incidentEdges = edges;
+    }
+
+    /**
+     * Add a triangle in relationship with the edge.
+     *
+     * @return true if added, false otherwise
+     */
+    public boolean addTriangle(Triangle triangle) {
+        return getTriangles().add(triangle);
+    }
+
+    /**
+     * Add triangles in relationship with the edge.
+     *
+     * @return true if added, false otherwise
+     */
+    public boolean addTriangles(List<Triangle> triangles) {
+        return getTriangles().addAll(triangles);
+    }
+
+    /**
+     * Remove a triangle in relationship with the edge.
+     *
+     * @return true if removed, false otherwise
+     */
+    public boolean removeTriangle(Triangle triangle) {
+        return getTriangles().remove(triangle);
+    }
+
+    /**
+     * Remove triangles in relationship with the edge.
+     *
+     * @return true if removed, false otherwise
+     */
+    public boolean removeTriangles(List<Triangle> triangles) {
+        return getTriangles().removeAll(triangles);
+    }
+
+    /**
+     * Add an incident edge in relationship with the edge.
+     *
+     * @return true if added, false otherwise
+     */
+    public boolean addIncidentEdge(Edge edge) {
+        return getIncidentEdges().add(edge);
+    }
+
+    /**
+     * Add incident edges in relationship with the edge.
+     *
+     * @return true if added, false otherwise
+     */
+    public boolean addIncidentEdges(List<Edge> edges) {
+        return getIncidentEdges().addAll(edges);
+    }
+
+    /**
+     * Remove an incident edge in relationship with the edge.
+     *
+     * @return true if removed, false otherwise
+     */
+    public boolean removeIncidentEdge(Edge edge) {
+        return getIncidentEdges().remove(edge);
+    }
+
+    /**
+     * Remove incident edges in relationship with the edge.
+     *
+     * @return true if removed, false otherwise
+     */
+    public boolean removeAllIncidentEdges(List<Edge> edges) {
+        return getIncidentEdges().removeAll(edges);
+    }
 
 }

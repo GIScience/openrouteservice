@@ -14,8 +14,6 @@
 package org.heigit.ors.matrix;
 
 import com.graphhopper.coll.GHLongObjectHashMap;
-import com.graphhopper.routing.querygraph.QueryGraph;
-import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -37,7 +35,7 @@ public class MultiTreeMetricsExtractor {
     private final DistanceUnit distUnits;
     private final GHLongObjectHashMap<MetricsItem> edgeMetrics;
     private final long maxEdgeId;
-    private RoutingCHGraph chGraph;
+    private final RoutingCHGraph chGraph;
     private double edgeDistance;
     private double edgeWeight;
     private double edgeTime;

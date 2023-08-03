@@ -41,7 +41,7 @@ class GraphGenerator implements RandomGenerator<GraphHopperStorage> {
         return new GraphBuilder(encodingManager).setCHConfigs(chConfig).create();
     }
 
-    private static Map<GraphHopperStorage, Long> randomSeeds = new HashMap<>();
+    private static final Map<GraphHopperStorage, Long> randomSeeds = new HashMap<>();
 
     private static void rememberSeed(GraphHopperStorage storage, long randomSeed) {
         randomSeeds.put(storage, randomSeed);

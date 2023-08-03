@@ -75,10 +75,10 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
     public EncodingManager.Access getAccess(ReaderWay way) {
         // TODO: Ferries have conditionals, like opening hours or are closed during some time in the year
         String highwayValue = way.getTag("highway");
-        String [] restrictionValues = way.getFirstPriorityTagValues(restrictions);
+        String[] restrictionValues = way.getFirstPriorityTagValues(restrictions);
         if (highwayValue == null) {
             if (way.hasTag("route", ferries)) {
-                for (String restrictionValue: restrictionValues) {
+                for (String restrictionValue : restrictionValues) {
                     if (restrictedValues.contains(restrictionValue))
                         return EncodingManager.Access.CAN_SKIP;
                     if (intendedValues.contains(restrictionValue) ||
@@ -93,8 +93,8 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
         if ("track".equals(highwayValue)) {
             String tt = way.getTag("tracktype");
             if (tt != null) {
-            	int grade = getTrackGradeLevel(tt);
-            	if (grade > maxTrackGradeLevel)
+                int grade = getTrackGradeLevel(tt);
+                if (grade > maxTrackGradeLevel)
                     return EncodingManager.Access.CAN_SKIP;
             }
         }
@@ -106,7 +106,7 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
             return EncodingManager.Access.CAN_SKIP;
 
         // multiple restrictions needs special handling compared to foot and bike, see also motorcycle
-        for (String restrictionValue: restrictionValues) {
+        for (String restrictionValue : restrictionValues) {
             if (!restrictionValue.isEmpty()) {
                 if (restrictedValues.contains(restrictionValue))
                     return isRestrictedWayConditionallyPermitted(way);

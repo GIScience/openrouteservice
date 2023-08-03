@@ -196,7 +196,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
-        return handleWayTags(edgeFlags,way,access,0);
+        return handleWayTags(edgeFlags, way, access, 0);
     }
 
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access, long relationFlags) {
@@ -209,8 +209,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             speed = applyMaxSpeed(way, speed);
 
             // TODO: save conditional speeds only if their value is different from the default speed
-            if (getConditionalSpeedInspector()!=null && getConditionalSpeedInspector().hasConditionalSpeed(way))
-                if (getConditionalSpeedInspector().hasLazyEvaluatedConditions() && conditionalSpeedEncoder!=null) {
+            if (getConditionalSpeedInspector() != null && getConditionalSpeedInspector().hasConditionalSpeed(way))
+                if (getConditionalSpeedInspector().hasLazyEvaluatedConditions() && conditionalSpeedEncoder != null) {
                     conditionalSpeedEncoder.setBool(false, edgeFlags, true);
                 } else {
                     // conditional maxspeed overrides unconditional one
@@ -222,8 +222,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             if (way.hasTag(KEY_ESTIMATED_DISTANCE)) {
                 if (way.hasTag(KEY_HIGHWAY, KEY_RESIDENTIAL)) {
                     speed = addResedentialPenalty(speed, way);
-                }
-                else if (this.useAcceleration) {
+                } else if (this.useAcceleration) {
                     double estDist = way.getTag(KEY_ESTIMATED_DISTANCE, Double.MAX_VALUE);
                     speed = adjustSpeedForAcceleration(estDist, speed);
                 }
@@ -242,10 +241,10 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
                         // The following line throws exceptions when it tries to parse a value "3; 2"
                         int lanes = Integer.parseInt(way.getTag("lanes"));
                         if (lanes >= 2)
-                            speed  = speed < 40 ? speed : 40;
+                            speed = speed < 40 ? speed : 40;
                         else
-                            speed  = speed < 35 ? speed : 35;
-                    } catch(Exception ex) {
+                            speed = speed < 35 ? speed : 35;
+                    } catch (Exception ex) {
                         // do nothing
                     }
                 }
@@ -263,7 +262,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
                 setAccess(access, edgeFlags, true, true);
             }
 
-            if (access.isConditional() && conditionalAccessEncoder!=null)
+            if (access.isConditional() && conditionalAccessEncoder != null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
         } else {
             double ferrySpeed = ferrySpeedCalc.getSpeed(way);
@@ -297,7 +296,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         if (bwd)
             accessEnc.setBool(true, edgeFlags, true);
 
-        if (access.isConditional() && conditionalAccessEncoder!=null) {
+        if (access.isConditional() && conditionalAccessEncoder != null) {
             if (fwd)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
             if (bwd)
@@ -380,8 +379,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     protected double getSurfaceSpeed(ReaderWay way, double speed) {
         // limit speed if bad surface
         String surface = way.getTag("surface");
-        if (surface != null)
-        {
+        if (surface != null) {
             Integer surfaceSpeed = speedLimitHandler.getSurfaceSpeed(surface);
             if (speed > surfaceSpeed && surfaceSpeed != -1)
                 return surfaceSpeed;
@@ -427,19 +425,19 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             int maxGrade = 0;
             try {
                 String[] values = grade.split(";");
-                for(String v : values)                 {
-                    int iv = Integer.parseInt(v.replace("grade","").trim());
+                for (String v : values) {
+                    int iv = Integer.parseInt(v.replace("grade", "").trim());
                     if (iv > maxGrade)
                         maxGrade = iv;
                 }
 
                 return maxGrade;
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 // do nothing
             }
         }
 
-        switch(grade) {
+        switch (grade) {
             case "grade":
             case "grade1":
                 return 1;
@@ -463,15 +461,15 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             return 0;
         double speed = baseSpeed;
 
-        if(way.hasTag(KEY_HIGHWAY, KEY_RESIDENTIAL)) {
+        if (way.hasTag(KEY_HIGHWAY, KEY_RESIDENTIAL)) {
             double estDist = way.getTag(KEY_ESTIMATED_DISTANCE, Double.MAX_VALUE);
             // take into account number of nodes to get an average distance between nodes
             double interimDistance = estDist;
             int interimNodes = way.getNodes().size() - 2;
-            if(interimNodes > 0) {
-                interimDistance = estDist/(interimNodes+1);
+            if (interimNodes > 0) {
+                interimDistance = estDist / (interimNodes + 1);
             }
-            if(interimDistance < 100) {
+            if (interimDistance < 100) {
                 speed = speed * 0.5;
             }
         }
@@ -502,13 +500,13 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
      * along the way (assuming starting from 0km/h) and then uses the length to travel and the supposed maximum speed
      * to determine an average speed for travelling along the whole segment.
      *
-     * @param distance				How long the segment to travel along is
-     * @param maximumSpeedInKmph	The maximum speed that a vehicle can travel along this segment (usually the speed limit)
+     * @param distance           How long the segment to travel along is
+     * @param maximumSpeedInKmph The maximum speed that a vehicle can travel along this segment (usually the speed limit)
      * @return
      */
     public double adjustSpeedForAcceleration(double distance, double maximumSpeedInKmph) {
         // We only want to perform the adjustment if the road is a slower speed - main roads shouldnt be affected as much due to less junctions and changes in direction
-        if(maximumSpeedInKmph < ACCELERATION_SPEED_CUTOFF_MAX) {
+        if (maximumSpeedInKmph < ACCELERATION_SPEED_CUTOFF_MAX) {
             if (distance <= 0) {
                 return maximumSpeedInKmph;
             }
@@ -516,10 +514,10 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             // slower roads can be assumed to have slower acceleration...
 
             double normalisedSpeed = maximumSpeedInKmph;
-            if(normalisedSpeed < ACCELERATION_SPEED_CUTOFF_MIN)
+            if (normalisedSpeed < ACCELERATION_SPEED_CUTOFF_MIN)
                 normalisedSpeed = ACCELERATION_SPEED_CUTOFF_MIN;
 
-            normalisedSpeed = (normalisedSpeed -ACCELERATION_SPEED_CUTOFF_MIN) / (ACCELERATION_SPEED_CUTOFF_MAX-ACCELERATION_SPEED_CUTOFF_MIN);
+            normalisedSpeed = (normalisedSpeed - ACCELERATION_SPEED_CUTOFF_MIN) / (ACCELERATION_SPEED_CUTOFF_MAX - ACCELERATION_SPEED_CUTOFF_MIN);
 
             accelerationModifier = Math.pow(0.01, normalisedSpeed);
 
@@ -539,7 +537,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
                 return convertMpsToKmph(distance / (duration * 2));
             } else {
                 double timeAtMaxSpeed = distanceAtMaxSpeed / convertKmphToMps(maximumSpeedInKmph);
-                double averageSpeedMps = distance / (timeToMaxSpeed*2 + timeAtMaxSpeed);
+                double averageSpeedMps = distance / (timeToMaxSpeed * 2 + timeAtMaxSpeed);
 
                 return convertMpsToKmph(averageSpeedMps);
             }
@@ -551,22 +549,22 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     /**
      * How many seconds does it take to reach maximum speed based on initial speed and acceleration.
      *
-     * @param initialSpeedInKmph	How fast the vehicle is travelling at the start of the calculation
-     * @param maxSpeedInKmph		The target speed to be reached
-     * @return						How long it takes to reach the speed in seconds
+     * @param initialSpeedInKmph How fast the vehicle is travelling at the start of the calculation
+     * @param maxSpeedInKmph     The target speed to be reached
+     * @return How long it takes to reach the speed in seconds
      */
     private double durationToMaxSpeed(double initialSpeedInKmph, double maxSpeedInKmph) {
-        return  (maxSpeedInKmph - initialSpeedInKmph) / accelerationKmpHpS();
+        return (maxSpeedInKmph - initialSpeedInKmph) / accelerationKmpHpS();
     }
 
     /**
      * How long in seconds does it take to reach the intended distance based on the initial travelling speed and the
      * maximum speed that can be travelled.
      *
-     * @param initialSpeedInKmph	The speed of the vehicle when starting the calculation
-     * @param maxSpeedInKmph		The maximum speed the vehicle can travel at
-     * @param distanceInM			The target distance to be travelled
-     * @return						How long it takes in seconds to reach the target distance
+     * @param initialSpeedInKmph The speed of the vehicle when starting the calculation
+     * @param maxSpeedInKmph     The maximum speed the vehicle can travel at
+     * @param distanceInM        The target distance to be travelled
+     * @return How long it takes in seconds to reach the target distance
      */
     private double durationToTravelDistance(double initialSpeedInKmph, double maxSpeedInKmph, double distanceInM) {
         double secondsTravelled = 0;
@@ -574,7 +572,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
         double currentSpeed = initialSpeedInKmph;
 
-        while(currentSpeed < maxSpeedInKmph && distanceTravelled < distanceInM) {
+        while (currentSpeed < maxSpeedInKmph && distanceTravelled < distanceInM) {
             currentSpeed += accelerationKmpHpS();
             secondsTravelled += 1;
             distanceTravelled += convertKmphToMps(currentSpeed);
@@ -582,7 +580,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
         double distanceRemaining = distanceInM - distanceTravelled;
 
-        if(distanceRemaining > 0) {
+        if (distanceRemaining > 0) {
             secondsTravelled += (distanceRemaining / convertKmphToMps(maxSpeedInKmph));
         }
 
@@ -592,17 +590,17 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     /**
      * How far can the vehicle travel in the specified time frame
      *
-     * @param initialSpeedInKmph	The starting speed of the vehicle
-     * @param maxSpeedInKmph		The maximum travel speed
-     * @param duration				How long is the vehicle travelling for
-     * @return						The distance in metres that the vehicle travels in the specified time
+     * @param initialSpeedInKmph The starting speed of the vehicle
+     * @param maxSpeedInKmph     The maximum travel speed
+     * @param duration           How long is the vehicle travelling for
+     * @return The distance in metres that the vehicle travels in the specified time
      */
     private double distanceTravelledInDuration(double initialSpeedInKmph, double maxSpeedInKmph, double duration) {
         double secondsTravelled = 0;
         double distanceTravelled = 0;
         double currentSpeed = initialSpeedInKmph;
 
-        while(currentSpeed < maxSpeedInKmph && secondsTravelled < duration) {
+        while (currentSpeed < maxSpeedInKmph && secondsTravelled < duration) {
             currentSpeed += accelerationKmpHpS();
             secondsTravelled += 1;
             distanceTravelled += convertKmphToMps(currentSpeed);
@@ -610,7 +608,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
         double secondsRemaining = duration - secondsTravelled;
 
-        if(secondsRemaining > 0 ) {
+        if (secondsRemaining > 0) {
             distanceTravelled += (secondsRemaining * convertKmphToMps(maxSpeedInKmph));
         }
 
@@ -620,8 +618,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     /**
      * Convert kilometres per hour to metres per second
      *
-     * @param speedInKmph	The speed to be converted in km per hour
-     * @return				The speed in metres per second
+     * @param speedInKmph The speed to be converted in km per hour
+     * @return The speed in metres per second
      */
     private double convertKmphToMps(double speedInKmph) {
         return (speedInKmph * 1000) / 3600;
@@ -630,8 +628,8 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     /**
      * Convert metres per second to kilometres per hour
      *
-     * @param speedInMps	The speed in metres per second
-     * @return				The speed in kilometres per hour
+     * @param speedInMps The speed in metres per second
+     * @return The speed in kilometres per hour
      */
     private double convertMpsToKmph(double speedInMps) {
         return (3600 * speedInMps) / 1000;

@@ -11,14 +11,14 @@
      *  You should have received a copy of the GNU Lesser General Public License along with this library;
      *  if not, see <https://www.gnu.org/licenses/>.
      */
-package org.heigit.ors.routing.graphhopper.extensions.storages;
+    package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+    import com.graphhopper.storage.DataAccess;
+    import com.graphhopper.storage.Directory;
+    import com.graphhopper.storage.Graph;
+    import com.graphhopper.storage.GraphExtension;
 
-import java.util.Arrays;
+    import java.util.Arrays;
 
     public class CsvGraphStorage implements GraphExtension {
         /* pointer for no entry */
@@ -28,7 +28,7 @@ import java.util.Arrays;
         private int edgeEntryBytes;
         private int edgesCount; // number of edges with custom values
         private final int numEntries;
-        private String[] columnNames;
+        private final String[] columnNames;
 
         public CsvGraphStorage(String[] columnNames) {
             efCsvIndex = 0;
@@ -64,7 +64,7 @@ import java.util.Arrays;
 
         public int columnIndex(String columnName) {
             int index = 0;
-            for (String name: columnNames) {
+            for (String name : columnNames) {
                 if (name.equals(columnName)) {
                     return index;
                 }
@@ -128,7 +128,9 @@ import java.util.Arrays;
          * flush on close!
          */
         @Override
-        public void close() { orsEdges.close(); }
+        public void close() {
+            orsEdges.close();
+        }
 
         @Override
         public boolean isClosed() {
@@ -150,6 +152,6 @@ import java.util.Arrays;
         public int numEntries() {
             return numEntries;
         }
-}
+    }
 
 

@@ -1,15 +1,15 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
@@ -30,7 +30,7 @@ public class ShadowIndexGraphStorage implements GraphExtension {
     private int edgeEntryBytes;
     private int edgesCount; // number of edges with custom values
 
-    private byte[] byteValues;
+    private final byte[] byteValues;
 
     public ShadowIndexGraphStorage() {
         EF_shadowIndex = 0;
@@ -56,7 +56,7 @@ public class ShadowIndexGraphStorage implements GraphExtension {
     }
 
     public int getEdgeValue(int edgeId, byte[] buffer) {
-    	
+
         long edgePointer = (long) edgeId * edgeEntryBytes;
         orsEdges.getBytes(edgePointer + EF_shadowIndex, buffer, 1);
 
@@ -97,7 +97,7 @@ public class ShadowIndexGraphStorage implements GraphExtension {
      */
     @Override
     public GraphExtension create(long initBytes) {
-        orsEdges.create((long) initBytes * edgeEntryBytes);
+        orsEdges.create(initBytes * edgeEntryBytes);
         return this;
     }
 
@@ -109,7 +109,7 @@ public class ShadowIndexGraphStorage implements GraphExtension {
     @Override
     public void flush() {
         orsEdges.setHeader(0, edgeEntryBytes);
-        orsEdges.setHeader(1 * 4, edgesCount);
+        orsEdges.setHeader(4, edgesCount);
         orsEdges.flush();
     }
 
@@ -118,7 +118,9 @@ public class ShadowIndexGraphStorage implements GraphExtension {
      * flush on close!
      */
     @Override
-    public void close() { orsEdges.close(); }
+    public void close() {
+        orsEdges.close();
+    }
 
     @Override
     public boolean isClosed() {
