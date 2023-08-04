@@ -12,7 +12,8 @@ public class ExportResponse {
     @JsonIgnore
     protected ExportResult exportResults;
 
-    public ExportResponse() {};
+    public ExportResponse() {
+    }
 
     // In RouteResponse, this method was used to get metadata from RouteRequest.
     public ExportResponse(ExportResult result) {

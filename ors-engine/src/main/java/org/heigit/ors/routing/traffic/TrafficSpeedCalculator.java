@@ -22,7 +22,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
     private VehicleFlagEncoder vehicleFlagEncoder;
     private boolean isVehicle = false;
     private boolean isHGV = false;
-    private double HGVTrafficSpeedLimit = 80.0;
+    private final double HGVTrafficSpeedLimit = 80.0;
 
     public TrafficSpeedCalculator(SpeedCalculator superSpeedCalculator) {
         super(superSpeedCalculator);
@@ -70,8 +70,7 @@ public class TrafficSpeedCalculator extends AbstractAdjustedSpeedCalculator {
         int edgeKey;
         if (edge instanceof VirtualEdgeIteratorState iteratorState) {
             edgeKey = iteratorState.getOriginalEdgeKey();
-        }
-        else {
+        } else {
             edgeKey = edge.getEdgeKey();
         }
         if (reverse)

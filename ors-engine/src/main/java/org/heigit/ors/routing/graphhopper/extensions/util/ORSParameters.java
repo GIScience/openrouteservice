@@ -20,7 +20,8 @@ package org.heigit.ors.routing.graphhopper.extensions.util;
  * @author Hendrik Leuschner
  */
 public class ORSParameters {
-    private ORSParameters() {}
+    private ORSParameters() {
+    }
 
     /* Parameters with an 'INIT' prefix are used as defaults and/or are configured at start.*/
     static final String ROUTING_INIT_PREFIX = "routing.";
@@ -29,7 +30,8 @@ public class ORSParameters {
      * Parameters that can be passed as hints and influence routing per request.
      */
     public static final class Weighting {
-        private Weighting() {}
+        private Weighting() {
+        }
 
         public static final String TIME_DEPENDENT_SPEED_OR_ACCESS = "time_dependent_speed_or_access";
     }
@@ -39,7 +41,8 @@ public class ORSParameters {
      * Properties for routing with contraction hierarchies speedup
      */
     public static final class Core {
-        private Core() {}
+        private Core() {
+        }
 
         public static final String PREPARE = "prepare.core.";
         /**
@@ -61,7 +64,8 @@ public class ORSParameters {
      * Properties for routing with landmark speedup
      */
     public static final class CoreLandmark {
-        private CoreLandmark() {}
+        private CoreLandmark() {
+        }
 
         public static final String PREPARE = "prepare.corelm.";
         /**
@@ -94,7 +98,8 @@ public class ORSParameters {
      * Properties for partition preparation
      */
     public static final class FastIsochrone {
-        private FastIsochrone(){}
+        private FastIsochrone() {
+        }
 
         public static final String PREPARE = "prepare.fastisochrone.";
         /**

@@ -90,7 +90,7 @@ public class MatrixRequest extends APIRequest {
             Specifies the distance unit.
             Default: m.\
             """,
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "metrics"),
                     @ExtensionProperty(name = "value", value = "distance")}
             )},

@@ -195,7 +195,7 @@ public class IsochronesService extends ApiService {
 
     }
 
-    Map<String, StatisticsProviderConfiguration> constructStatisticsProvidersConfiguration (Map<String, EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties> statsProperties) {
+    Map<String, StatisticsProviderConfiguration> constructStatisticsProvidersConfiguration(Map<String, EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties> statsProperties) {
         Map<String, StatisticsProviderConfiguration> statsProviders = new HashMap<>();
 
         if (statsProperties != null) {

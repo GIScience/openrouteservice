@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Store Landmark distances for core nodes
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CoreLandmarkStorage extends LandmarkStorage {
     private static final Logger logger = Logger.getLogger(CoreLandmarkStorage.class);
-    private RoutingCHGraphImpl core;
+    private final RoutingCHGraphImpl core;
     private final LMEdgeFilterSequence landmarksFilter;
     private Map<Integer, Integer> coreNodeIdMap;
     private final ORSGraphHopperStorage graph;
@@ -63,7 +63,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     private IntHashSet subnetworkNodes;
 
     public CoreLandmarkStorage(Directory dir, ORSGraphHopperStorage graph, final CoreLMConfig lmConfig, int landmarks) {
-        this(dir, graph, (RoutingCHGraphImpl) graph.getCoreGraph(lmConfig.getSuperName()), lmConfig, landmarks);
+        this(dir, graph, graph.getCoreGraph(lmConfig.getSuperName()), lmConfig, landmarks);
     }
 
     //needed primarily for unit tests
@@ -76,7 +76,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         setMinimumNodes(Math.min(getBaseNodes() / 2, 10000));
     }
 
-    public void setCoreNodeIdMap (Map<Integer, Integer> coreNodeIdMap) {
+    public void setCoreNodeIdMap(Map<Integer, Integer> coreNodeIdMap) {
         this.coreNodeIdMap = coreNodeIdMap;
     }
 
@@ -84,6 +84,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
     public String getLandmarksFileName() {
         return "landmarks_core_";
     }
+
     /**
      * This method calculates the landmarks and initial weightings to & from them.
      */
@@ -193,7 +194,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
         int subnetworkCount = landmarkIDs.size();
         // store all landmark node IDs and one int for the factor itself.
-        landmarkWeightDA.ensureCapacity(maxBytes /* landmark weights */ + subnetworkCount * landmarks /* landmark mapping per subnetwork */);
+        landmarkWeightDA.ensureCapacity(maxBytes /* landmark weights */ + (long) subnetworkCount * landmarks /* landmark mapping per subnetwork */);
 
         // calculate offset to point into landmark mapping
         long bytePos = maxBytes;
@@ -204,8 +205,8 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             }
         }
 
-        landmarkWeightDA.setHeader(0 * 4, coreNodes);
-        landmarkWeightDA.setHeader(1 * 4, landmarks);
+        landmarkWeightDA.setHeader(0, coreNodes);
+        landmarkWeightDA.setHeader(4, landmarks);
         landmarkWeightDA.setHeader(2 * 4, subnetworkCount);
         if (factor * DOUBLE_MLTPL > Integer.MAX_VALUE)
             throw new UnsupportedOperationException("landmark weight factor cannot be bigger than Integer.MAX_VALUE " + factor * DOUBLE_MLTPL);
@@ -263,7 +264,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         }
 
         private boolean acceptEdge(RoutingCHEdgeIteratorState edgeState) {
-            if (edgeFilter==null)
+            if (edgeFilter == null)
                 return true;
             if (edgeState.isShortcut())
                 return true;
@@ -366,7 +367,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
                     if (sn != UNSET_SUBNETWORK && sn != UNCLEAR_SUBNETWORK) {
                         // this is ugly but can happen in real world, see testWithOnewaySubnetworks
                         logger.error("subnetworkId for node " + nodeId
-                        + " (" + createPoint(graph.getBaseGraph(), nodeId) + ") already set (" + sn + "). " + "Cannot change to " + subnetworkId);
+                                + " (" + createPoint(graph.getBaseGraph(), nodeId) + ") already set (" + sn + "). " + "Cannot change to " + subnetworkId);
 
                         failed.set(true);
                         return false;
@@ -387,7 +388,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
             map.forEach((IntObjectProcedure<SPTEntry>) (nodeId, b) -> {
                 nodeId = getIndex(nodeId);
-                if (!setWeight(nodeId * rowSize + lmIdx * 4 + offset, b.weight)) {
+                if (!setWeight(nodeId * rowSize + lmIdx * 4L + offset, b.weight)) {
                     maxedout.incrementAndGet();
                     finalMaxWeight.setValue(Math.max(b.weight, finalMaxWeight.getValue()));
                 }
@@ -432,8 +433,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             if (iter1 == null) {
                 iter1 = core.getEdgeIteratorState(skippedEdge2, from);
                 iter2 = core.getEdgeIteratorState(skippedEdge1, to);
-            }
-            else {
+            } else {
                 iter2 = core.getEdgeIteratorState(skippedEdge2, to);
             }
 

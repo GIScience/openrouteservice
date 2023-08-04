@@ -16,14 +16,16 @@ package org.heigit.ors.routing.graphhopper.extensions.core;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.ch.CHEntry;
-import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.BalancedWeightApproximator;
+import com.graphhopper.routing.weighting.BeelineWeightApproximator;
 import com.graphhopper.routing.weighting.WeightApproximator;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHEdgeExplorer;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.storage.RoutingCHGraph;
-import com.graphhopper.util.*;
+import com.graphhopper.util.DistancePlaneProjection;
+import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,7 @@ import java.util.PriorityQueue;
 
 /**
  * Calculates best path using CH routing outside core and ALT inside core.
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -136,8 +138,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
             if (considerTurnRestrictions(currFrom.adjNode))
                 initBestWeightMapEntryList(bestWeightMapFromCore, currFrom.adjNode).add(currFrom);
-        }
-        else {
+        } else {
             bestWeightMapOtherCH = bestWeightMapToCH;
             fillEdgesCH(currFrom, fromPriorityQueueCH, bestWeightMapFromCH, outEdgeExplorer, false);
             visitedCountFrom1++;
@@ -159,8 +160,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
             if (considerTurnRestrictions(currTo.adjNode))
                 initBestWeightMapEntryList(bestWeightMapToCore, currTo.adjNode).add(currTo);
-        }
-        else {
+        } else {
             bestWeightMapOtherCH = bestWeightMapFromCH;
             fillEdgesCH(currTo, toPriorityQueueCH, bestWeightMapToCH, inEdgeExplorer, true);
             visitedCountTo1++;
@@ -245,7 +245,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
     public boolean finishedPhase2() {
         if (finishedFrom || finishedTo)
             return true;
-            // AO: in order to guarantee that the shortest path is found it is neccesary to account for possible precision loss in LM distance approximation by introducing the additional offset
+        // AO: in order to guarantee that the shortest path is found it is neccesary to account for possible precision loss in LM distance approximation by introducing the additional offset
         return currFrom.weight + currTo.weight >= bestWeight + approximatorOffset;
     }
 
@@ -366,8 +366,7 @@ public class CoreALT extends AbstractCoreRoutingAlgorithm {
 
                     updateBestPathCore(aStarEntry, traversalId, reverse);
                 }
-            }
-            else {
+            } else {
                 AStarEntry aStarEntry = bestWeightMap.get(traversalId);
                 if (aStarEntry == null || aStarEntry.getWeightOfVisitedPath() > alreadyVisitedWeight) {
                     double currWeightToGoal = weightApprox.approximate(iter.getAdjNode(), reverse);

@@ -33,7 +33,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Schema(name="JSONLeg", description = "Leg of a route")
+@Schema(name = "JSONLeg", description = "Leg of a route")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONLeg {
     @Schema(description = "The type of the leg, possible values are currently 'walk' and 'pt'.", example = "pt")
@@ -65,14 +65,14 @@ public class JSONLeg {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     private final Double duration;
     @Schema(description = "Departure date and time",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "departure"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "2020-01-31T12:45:00+01:00")
     @JsonProperty(value = "departure")
     protected ZonedDateTime departure;
     @Schema(description = "Arrival date and time",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "arrival"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "2020-01-31T13:15:00+01:00")
@@ -127,7 +127,7 @@ public class JSONLeg {
         }
         if (leg.getStops() != null) {
             stops = new ArrayList<>();
-            for(RoutePtStop stop : leg.getStops()) {
+            for (RoutePtStop stop : leg.getStops()) {
                 stops.add(new JSONPtStop(stop));
             }
         } else {
@@ -137,7 +137,7 @@ public class JSONLeg {
     }
 
     private String constructEncodedGeometry(final Coordinate[] coordinates, boolean includeElevation) {
-        if(coordinates != null)
+        if (coordinates != null)
             return PolylineEncoder.encode(coordinates, includeElevation, new StringBuilder());
         else
             return "";

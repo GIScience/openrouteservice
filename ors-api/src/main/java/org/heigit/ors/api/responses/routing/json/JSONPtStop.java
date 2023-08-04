@@ -24,7 +24,7 @@ import org.heigit.ors.routing.RoutePtStop;
 import java.util.Date;
 import java.util.List;
 
-@Schema(name="JSONPtStop", description = "Stop of a public transport leg")
+@Schema(name = "JSONPtStop", description = "Stop of a public transport leg")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONPtStop {
     @Schema(description = "The ID of the stop.", example = "de:08221:1138:0:O")

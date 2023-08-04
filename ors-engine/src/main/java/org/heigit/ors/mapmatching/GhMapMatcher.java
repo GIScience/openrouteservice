@@ -20,12 +20,14 @@ import java.util.List;
  */
 public class GhMapMatcher extends AbstractMapMatcher {
     PMap hints;
+
     public GhMapMatcher(GraphHopper graphHopper, String profile) {
         setGraphHopper(graphHopper);
         hints = new PMap()
-            .putObject("profile", profile)
-            .putObject(Parameters.Landmark.DISABLE, true);
+                .putObject("profile", profile)
+                .putObject(Parameters.Landmark.DISABLE, true);
     }
+
     @Override
     public RouteSegmentInfo[] match(Coordinate[] locations, boolean bothDirections) {
         MapMatching mapMatching = new MapMatching(graphHopper, hints);
@@ -39,8 +41,8 @@ public class GhMapMatcher extends AbstractMapMatcher {
         double distance = mr.getMatchLength();
         long time = mr.getMatchMillis();
         Geometry geometry = null; // TODO: get geometry from match result
-                                  // it is unclear, whether the geometry is
-                                  // used at all, so we leave it for now.
+        // it is unclear, whether the geometry is
+        // used at all, so we leave it for now.
         RouteSegmentInfo[] rsi = new RouteSegmentInfo[1];
         rsi[0] = new RouteSegmentInfo(edgeStates, distance, time, geometry);
         return rsi;

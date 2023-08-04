@@ -42,5 +42,7 @@ public class RoutingErrorCodes {
 
     public static final int PT_MAX_VISITED_NODES_EXCEEDED = 2017;
     public static final int UNKNOWN = 2099;
-    private RoutingErrorCodes() {}
+
+    private RoutingErrorCodes() {
+    }
 }

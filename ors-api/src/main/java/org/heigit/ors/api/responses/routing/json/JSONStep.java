@@ -27,7 +27,7 @@ import org.heigit.ors.util.StringUtility;
 
 import java.util.Arrays;
 
-@Schema(name="JSONStep", description = "Step of a route segment")
+@Schema(name = "JSONStep", description = "Step of a route segment")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JSONStep {
     @Schema(description = "The distance for the step in metres.", example = "245")
@@ -50,7 +50,7 @@ public class JSONStep {
     @JsonProperty("exit_number")
     private Integer exitNumber;
     @Schema(description = "Contains the bearing of the entrance and all passed exits in a roundabout.",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "roundabout_exits"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )}, example = "[10,45,60]")
@@ -60,7 +60,7 @@ public class JSONStep {
     @JsonProperty("way_points")
     private int[] waypoints;
     @Schema(description = "The maneuver to be performed.",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "maneuvers"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )})

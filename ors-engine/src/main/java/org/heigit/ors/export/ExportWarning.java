@@ -8,7 +8,8 @@ public class ExportWarning {
 
     /**
      * Generate the warning object and initialize the message based on the warning code passed
-     * @param warning   The warning code for the warning that should be generated
+     *
+     * @param warning The warning code for the warning that should be generated
      */
     public ExportWarning(int warning) {
         warningCode = warning;

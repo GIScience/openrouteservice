@@ -13,145 +13,139 @@
  */
 package org.heigit.ors.api.servlet.requests;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 
-public class ByteStreamResponseWrapper extends HttpServletResponseWrapper
-{
+public class ByteStreamResponseWrapper extends HttpServletResponseWrapper {
     private ByteArrayOutputStream byteStream;
 
-    public ByteStreamResponseWrapper(HttpServletResponse response)
-    {
+    public ByteStreamResponseWrapper(HttpServletResponse response) {
         super(response);
     }
 
     @Override
-    public ServletOutputStream getOutputStream()
-    {
+    public ServletOutputStream getOutputStream() {
         ServletOutputStreamImpl outputStream = null;
 
-        this.byteStream =  (null == this.byteStream)
-            ? new ByteArrayOutputStream() : this.byteStream;
+        this.byteStream = (null == this.byteStream)
+                ? new ByteArrayOutputStream() : this.byteStream;
         outputStream = new ServletOutputStreamImpl(this.byteStream);
 
         return (outputStream);
     }
 
     @Override
-    public PrintWriter getWriter()
-    {
+    public PrintWriter getWriter() {
         PrintWriter printWriter = null;
 
-        this.byteStream =  (null == this.byteStream)
-            ? new ByteArrayOutputStream() : this.byteStream;
+        this.byteStream = (null == this.byteStream)
+                ? new ByteArrayOutputStream() : this.byteStream;
         printWriter = new PrintWriter(this.byteStream);
 
         return (printWriter);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return ((null == this.byteStream)
                 ? null : this.byteStream.toString());
     }
 
-    public byte[] toBytes()
-    {
+    public byte[] toBytes() {
         return ((null == this.byteStream)
                 ? null : this.byteStream.toByteArray());
     }
 
-	public static class ServletOutputStreamImpl extends ServletOutputStream {
-		private final OutputStream outputStream;
-		private byte[] buffer;
+    public static class ServletOutputStreamImpl extends ServletOutputStream {
+        private final OutputStream outputStream;
+        private byte[] buffer;
 
-		public ServletOutputStreamImpl(OutputStream out) {
-			outputStream = out;
-		}
-
-
-		/**
-		 * Writes a byte to the output stream.
-		 */
-		public final void write(int b) throws IOException {
-			outputStream.write(b);
-		}
-
-		/**
-		 * Writes a byte buffer to the output stream.
-		 */
-		@Override
-		public final void write(byte[] buf, int offset, int len)
-				throws IOException {
-			outputStream.write(buf, offset, len);
-		}
-
-		/**
-		 * Prints a string to the stream. Note, this method does not properly
-		 * handle character encoding.
-		 *
-		 * @param s
-		 *            the string to write.
-		 */
-		@Override
-		public void print(String s) throws IOException {
-			if (s == null)
-				s = "null";
-
-			try (OutputStream out = outputStream) {
-				int length = s.length();
-
-				if (buffer == null)
-					buffer = new byte[128];
-
-				byte[] localBuffer = this.buffer;
-
-				// server/0810
-				int offset = 0;
-
-				while (length > 0) {
-					int sublen = localBuffer.length;
-					if (length < sublen)
-						sublen = length;
-
-					for (int i = 0; i < sublen; i++) {
-						localBuffer[i] = (byte) s.charAt(i + offset);
-					}
-
-					out.write(localBuffer, 0, sublen);
-
-					length -= sublen;
-					offset += sublen;
-				}
-			}
-		}
-
-		@Override
-		public final void flush() throws IOException {
-			outputStream.flush();
-		}
-
-		public String toString() {
-			return getClass().getSimpleName() + "[" + outputStream + "]";
-		}
+        public ServletOutputStreamImpl(OutputStream out) {
+            outputStream = out;
+        }
 
 
-		@Override
-		public boolean isReady() {
-			return true;
-		}
+        /**
+         * Writes a byte to the output stream.
+         */
+        public final void write(int b) throws IOException {
+            outputStream.write(b);
+        }
+
+        /**
+         * Writes a byte buffer to the output stream.
+         */
+        @Override
+        public final void write(byte[] buf, int offset, int len)
+                throws IOException {
+            outputStream.write(buf, offset, len);
+        }
+
+        /**
+         * Prints a string to the stream. Note, this method does not properly
+         * handle character encoding.
+         *
+         * @param s the string to write.
+         */
+        @Override
+        public void print(String s) throws IOException {
+            if (s == null)
+                s = "null";
+
+            try (OutputStream out = outputStream) {
+                int length = s.length();
+
+                if (buffer == null)
+                    buffer = new byte[128];
+
+                byte[] localBuffer = this.buffer;
+
+                // server/0810
+                int offset = 0;
+
+                while (length > 0) {
+                    int sublen = localBuffer.length;
+                    if (length < sublen)
+                        sublen = length;
+
+                    for (int i = 0; i < sublen; i++) {
+                        localBuffer[i] = (byte) s.charAt(i + offset);
+                    }
+
+                    out.write(localBuffer, 0, sublen);
+
+                    length -= sublen;
+                    offset += sublen;
+                }
+            }
+        }
+
+        @Override
+        public final void flush() throws IOException {
+            outputStream.flush();
+        }
+
+        public String toString() {
+            return getClass().getSimpleName() + "[" + outputStream + "]";
+        }
 
 
-		@Override
-		public void setWriteListener(WriteListener writeListener) {
-			// do nothing
-		}
-	}
+        @Override
+        public boolean isReady() {
+            return true;
+        }
+
+
+        @Override
+        public void setWriteListener(WriteListener writeListener) {
+            // do nothing
+        }
+    }
 }

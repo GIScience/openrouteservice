@@ -26,7 +26,7 @@ import org.heigit.ors.api.requests.common.RequestOptions;
 public class RouteRequestOptions extends RequestOptions {
     public static final String PARAM_ROUND_TRIP_OPTIONS = "round_trip";
 
-    @Schema(name= PARAM_ROUND_TRIP_OPTIONS, description = "Options to be applied on round trip routes.",
+    @Schema(name = PARAM_ROUND_TRIP_OPTIONS, description = "Options to be applied on round trip routes.",
             example = "{\"length\":10000,\"points\":5}")
     @JsonProperty(PARAM_ROUND_TRIP_OPTIONS)
     private RouteRequestRoundTripOptions roundTripOptions;

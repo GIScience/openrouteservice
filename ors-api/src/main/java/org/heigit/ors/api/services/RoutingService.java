@@ -4,11 +4,9 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestRoundTripOptions;
 import org.heigit.ors.common.StatusCode;
-import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.*;
-import org.heigit.ors.util.StringUtility;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +32,7 @@ public class RoutingService extends ApiService {
 
     @Override
     double getMaximumAvoidPolygonExtent() {
-         return this.endpointsProperties.getRouting().getMaximumAvoidPolygonExtent();
+        return this.endpointsProperties.getRouting().getMaximumAvoidPolygonExtent();
     }
 
     public RouteResult[] generateRouteFromRequest(RouteRequest request) throws StatusCodeException {

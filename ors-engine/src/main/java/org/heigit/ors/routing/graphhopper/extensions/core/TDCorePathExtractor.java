@@ -18,7 +18,8 @@ import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
-import com.graphhopper.util.*;
+import com.graphhopper.util.EdgeIterator;
+import com.graphhopper.util.EdgeIteratorState;
 
 public class TDCorePathExtractor extends CorePathExtractor {
 

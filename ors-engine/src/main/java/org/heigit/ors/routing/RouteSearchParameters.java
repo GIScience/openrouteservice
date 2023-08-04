@@ -13,34 +13,14 @@
  */
 package org.heigit.ors.routing;
 
-import com.graphhopper.util.Helper;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
-import org.heigit.ors.common.StatusCode;
-import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.exceptions.UnknownParameterValueException;
-import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
-import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.heigit.ors.util.GeomUtility;
-import org.heigit.ors.util.StringUtility;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.locationtech.jts.geom.Polygon;
 
-import java.text.ParseException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Iterator;
 
 /**
  * This class is used to store the search/calculation Parameters to calculate the desired Route/Isochrones etc…
@@ -324,14 +304,14 @@ public class RouteSearchParameters {
 
     public boolean requiresDynamicPreprocessedWeights() {
         return hasAvoidAreas()
-            || hasAvoidFeatures()
-            || hasAvoidBorders()
-            || hasAvoidCountries()
-            || getConsiderTurnRestrictions()
-            || hasNonDefaultVehicleType()
-            || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || hasMaximumSpeed()
-            || hasFlexibleMode();
+                || hasAvoidFeatures()
+                || hasAvoidBorders()
+                || hasAvoidCountries()
+                || getConsiderTurnRestrictions()
+                || hasNonDefaultVehicleType()
+                || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
+                || hasMaximumSpeed()
+                || hasFlexibleMode();
     }
 
     /**
@@ -339,10 +319,10 @@ public class RouteSearchParameters {
      */
     public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
-            || hasBearings()
-            || hasContinueStraight()
-            || (getProfileParameters() != null && getProfileParameters().hasWeightings())
-            || getAlternativeRoutesCount() > 0;
+                || hasBearings()
+                || hasContinueStraight()
+                || (getProfileParameters() != null && getProfileParameters().hasWeightings())
+                || getAlternativeRoutesCount() > 0;
     }
 
     // time-dependent stuff
@@ -355,7 +335,7 @@ public class RouteSearchParameters {
     }
 
     public boolean hasDeparture() {
-        return departure!=null;
+        return departure != null;
     }
 
     public LocalDateTime getArrival() {
@@ -366,7 +346,9 @@ public class RouteSearchParameters {
         this.arrival = arrival;
     }
 
-    public boolean hasArrival() { return arrival!=null; }
+    public boolean hasArrival() {
+        return arrival != null;
+    }
 
     public boolean isTimeDependent() {
         return (hasDeparture() || hasArrival());

@@ -54,15 +54,15 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
 
     public RoadBikeFlagEncoder(PMap properties) {
         this(
-            // MARQ24 MOD START
-            //(int) properties.getLong("speed_bits", 4),
-            properties.getInt("speed_bits", 4 + (properties.getBool("consider_elevation", false) ? 1 : 0)),
-            // MARQ24 MOD END
-            properties.getDouble("speed_factor", 2),
-            properties.getBool("turn_costs", false) ? 1 : 0
-            // MARQ24 MOD START
-            ,properties.getBool("consider_elevation", false)
-            // MARQ24 MOD END
+                // MARQ24 MOD START
+                //(int) properties.getLong("speed_bits", 4),
+                properties.getInt("speed_bits", 4 + (properties.getBool("consider_elevation", false) ? 1 : 0)),
+                // MARQ24 MOD END
+                properties.getDouble("speed_factor", 2),
+                properties.getBool("turn_costs", false) ? 1 : 0
+                // MARQ24 MOD START
+                , properties.getBool("consider_elevation", false)
+                // MARQ24 MOD END
         );
         setProperties(properties);
     }
@@ -74,7 +74,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     // MARQ24 MOD START
     public RoadBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
-    // MARQ24 MOD END
+        // MARQ24 MOD END
         preferHighwayTags.add("road");
         preferHighwayTags.add(VAL_SECONDARY);
         preferHighwayTags.add(VAL_SECONDARY_LINK);
@@ -156,39 +156,39 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         preferHighwayTags.add(VAL_UNCLASSIFIED);
 
         // adjusted speeds...
-        setHighwaySpeed("trunk",           20);
-        setHighwaySpeed("trunk_link",      20);
-        setHighwaySpeed("primary",         22);
-        setHighwaySpeed("primary_link",    22);
-        setHighwaySpeed(VAL_SECONDARY,       24);
-        setHighwaySpeed(VAL_SECONDARY_LINK,  24);
-        setHighwaySpeed(VAL_TERTIARY,        26);
-        setHighwaySpeed(VAL_TERTIARY_LINK,   26);
-        setHighwaySpeed("road",            20);
-        setHighwaySpeed(VAL_UNCLASSIFIED,    20);
-        setHighwaySpeed(VAL_RESIDENTIAL,      new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
+        setHighwaySpeed("trunk", 20);
+        setHighwaySpeed("trunk_link", 20);
+        setHighwaySpeed("primary", 22);
+        setHighwaySpeed("primary_link", 22);
+        setHighwaySpeed(VAL_SECONDARY, 24);
+        setHighwaySpeed(VAL_SECONDARY_LINK, 24);
+        setHighwaySpeed(VAL_TERTIARY, 26);
+        setHighwaySpeed(VAL_TERTIARY_LINK, 26);
+        setHighwaySpeed("road", 20);
+        setHighwaySpeed(VAL_UNCLASSIFIED, 20);
+        setHighwaySpeed(VAL_RESIDENTIAL, new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
 
         // make sure that we will avoid 'cycleway' & 'service' ways where ever
         // it is possible...
-        setHighwaySpeed("cycleway",                new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
-        setHighwaySpeed(VAL_SERVICE,                 new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
+        setHighwaySpeed("cycleway", new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
+        setHighwaySpeed(VAL_SERVICE, new SpeedValue(8, UpdateType.DOWNGRADE_ONLY));
 
         // overwriting also the SurfaceSpeeds... to the "max" of the residential speed
-        setSurfaceSpeed("paved",                    new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("asphalt",                  new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("concrete",                 new SpeedValue(18, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("paved", new SpeedValue(18, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("asphalt", new SpeedValue(18, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("concrete", new SpeedValue(18, UpdateType.UPGRADE_ONLY));
 
-        setSurfaceSpeed("concrete:lanes",           new SpeedValue(16, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("concrete:plates",          new SpeedValue(16, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("paving_stones",            new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("paving_stones:30",         new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("cobblestone",              new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("cobblestone:flattened",    new SpeedValue(10, UpdateType.UPGRADE_ONLY));
-        setSurfaceSpeed("sett",                     new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("concrete:lanes", new SpeedValue(16, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("concrete:plates", new SpeedValue(16, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("paving_stones", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("paving_stones:30", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("cobblestone", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("cobblestone:flattened", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setSurfaceSpeed("sett", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
 
         // overwriting also the trackTypeSpeeds... to the "max" of the residential speed
-        setTrackTypeSpeed(VAL_GRADE_1,                new SpeedValue(18, UpdateType.UPGRADE_ONLY));
-        setTrackTypeSpeed("grade2",                new SpeedValue(10, UpdateType.UPGRADE_ONLY));
+        setTrackTypeSpeed(VAL_GRADE_1, new SpeedValue(18, UpdateType.UPGRADE_ONLY));
+        setTrackTypeSpeed("grade2", new SpeedValue(10, UpdateType.UPGRADE_ONLY));
 
         // HSW - asphalt cycleway vs asphalt roundabout
         // http://localhost:3035/directions?n1=51.965101&n2=8.24595&n3=18&a=51.965555,8.243968,51.964878,8.245057&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km

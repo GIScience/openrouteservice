@@ -250,7 +250,7 @@ public class InertialFlow implements Runnable {
         EdgeIterator edgeIterator;
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
         edgeFilterSequence.add(AccessFilter.allEdges(flagEncoder.getAccessEnc()));
-        if(edgeFilter != null)
+        if (edgeFilter != null)
             edgeFilterSequence.add(edgeFilter);
 
         while (!nodeSet.isEmpty()) {

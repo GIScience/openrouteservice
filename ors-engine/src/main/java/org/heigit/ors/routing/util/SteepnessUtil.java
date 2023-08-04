@@ -24,7 +24,7 @@ public class SteepnessUtil {
         if (absValue < 1.0)
             res = 0;
             // 1-3%: Slightly uphill but not particularly challenging. A bit like riding into the wind.
-        else if (absValue >=1 && absValue < 4)
+        else if (absValue >= 1 && absValue < 4)
             res = 1;
             // 4-6%: A manageable gradient that can cause fatigue over long periods.
         else if (absValue >= 4 && absValue < 7)
@@ -39,7 +39,7 @@ public class SteepnessUtil {
         else if (absValue >= 16)
             res = 5;
 
-        return res*((value > 0) ? 1 :-1);
+        return res * ((value > 0) ? 1 : -1);
     }
 
     public static void computeRouteSplits(PointList points, boolean reverse, DistanceCalc dc, List<RouteSplit> splits) {
@@ -49,7 +49,7 @@ public class SteepnessUtil {
             return;
 
         int nPoints = points.size();
-        int i0 = reverse ? nPoints - 1 :0;
+        int i0 = reverse ? nPoints - 1 : 0;
         double maxAltitude = Double.MIN_VALUE;
         double minAltitude = Double.MAX_VALUE;
         double prevMinAltitude;
@@ -93,12 +93,12 @@ public class SteepnessUtil {
             if (maxAltitude - z1 > ELEVATION_THRESHOLD || z1 - minAltitude > ELEVATION_THRESHOLD) {
                 boolean bApply = true;
                 int elevSign = cumElev > 0 ? 1 : -1;
-                double gradient = elevSign*100*(prevMaxAltitude - prevMinAltitude) / splitLength;
+                double gradient = elevSign * 100 * (prevMaxAltitude - prevMinAltitude) / splitLength;
                 if (Double.isNaN(gradient) || Math.abs(gradient) > 30) // possibly noise
                     gradient = 0.0;
 
                 if (prevGC != 0) {
-                    double zn= Double.MIN_NORMAL;
+                    double zn = Double.MIN_NORMAL;
 
                     if (!reverse) {
                         if (jj + 1 < nPoints)
@@ -109,13 +109,13 @@ public class SteepnessUtil {
                     }
 
                     if (zn != Double.MIN_VALUE) {
-                        double elevGap = length/30;
+                        double elevGap = length / 30;
                         if (
-                            (
-                                elevSign > 0 && prevGC > 0 || prevGC < 0
-                            )
-                            && Math.abs(zn - z1) < elevGap) {
-                                bApply = false;
+                                (
+                                        elevSign > 0 && prevGC > 0 || prevGC < 0
+                                )
+                                        && Math.abs(zn - z1) < elevGap) {
+                            bApply = false;
                         }
                     }
                 }
@@ -133,7 +133,7 @@ public class SteepnessUtil {
                     if (reverse) {
                         split.start = iEnd;
                         split.end = iStart;
-                        splits.add(0,split);
+                        splits.add(0, split);
                     } else {
                         split.start = iStart;
                         split.end = iEnd;
@@ -148,7 +148,7 @@ public class SteepnessUtil {
                     maxAltitude = Math.max(z0, z1);
                     splitLength = 0.0;
 
-                    cumElev= elevDiff;
+                    cumElev = elevDiff;
                 }
             }
 
@@ -163,7 +163,7 @@ public class SteepnessUtil {
             double elevDiff = maxAltitude - minAltitude;
             if (splits.isEmpty() && splitLength < 50 && elevDiff < ELEVATION_THRESHOLD)
                 elevDiff = 0;
-            double gradient = (cumElev > 0 ? 1: -1)*100*elevDiff / splitLength;
+            double gradient = (cumElev > 0 ? 1 : -1) * 100 * elevDiff / splitLength;
             if (Math.abs(gradient) > 7 && maxAltitude < 100 && splitLength < 120)
                 gradient = 0.0; //  noise
 
@@ -180,7 +180,7 @@ public class SteepnessUtil {
                 if (reverse) {
                     lastSplit.start = iEnd;
                     lastSplit.end = iStart;
-                    splits.add(0,lastSplit);
+                    splits.add(0, lastSplit);
                 } else {
                     lastSplit.start = iStart;
                     lastSplit.end = iEnd;

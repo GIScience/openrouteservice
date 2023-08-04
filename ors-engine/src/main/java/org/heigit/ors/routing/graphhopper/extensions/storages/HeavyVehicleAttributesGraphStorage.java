@@ -1,180 +1,183 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.DataAccess;
+import com.graphhopper.storage.Directory;
+import com.graphhopper.storage.Graph;
+import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.BitUtil;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 
 public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
-	private static final int  EF_RESTRICTION_BYTES = 2;
-	private static final String MSG_EF_RESTRICTION_IS_NOT_SUPPORTED = "EF_RESTRICTION is not supported.";
+    private static final int EF_RESTRICTION_BYTES = 2;
+    private static final String MSG_EF_RESTRICTION_IS_NOT_SUPPORTED = "EF_RESTRICTION is not supported.";
 
-	private final int efVehicleType;
-	private final int efRestrictions;
+    private final int efVehicleType;
+    private final int efRestrictions;
 
-	private DataAccess orsEdges;
-	protected int edgeEntryIndex = 0;
-	protected int edgeEntryBytes;
-	protected int edgesCount;
+    private DataAccess orsEdges;
+    protected int edgeEntryIndex = 0;
+    protected int edgeEntryBytes;
+    protected int edgesCount;
 
-	private static final double FACTOR = 100.0;
+    private static final double FACTOR = 100.0;
 
-	public HeavyVehicleAttributesGraphStorage(boolean includeRestrictions) {
-		efVehicleType = nextBlockEntryIndex(1);
+    public HeavyVehicleAttributesGraphStorage(boolean includeRestrictions) {
+        efVehicleType = nextBlockEntryIndex(1);
 
-		if (includeRestrictions)
-			// first byte indicates whether any restrictions are given 
-			efRestrictions = nextBlockEntryIndex(VehicleDimensionRestrictions.COUNT * EF_RESTRICTION_BYTES);
-		else
-			efRestrictions = -1;
+        if (includeRestrictions)
+            // first byte indicates whether any restrictions are given
+            efRestrictions = nextBlockEntryIndex(VehicleDimensionRestrictions.COUNT * EF_RESTRICTION_BYTES);
+        else
+            efRestrictions = -1;
 
-		edgeEntryBytes = edgeEntryIndex;
-		edgesCount = 0;
-	}
-	
-	public void init(Graph graph, Directory dir) {
-		if (edgesCount > 0)
-			throw new AssertionError("The ext_hgv storage must be initialized only once.");
+        edgeEntryBytes = edgeEntryIndex;
+        edgesCount = 0;
+    }
 
-		this.orsEdges = dir.find("ext_hgv");
-	}
+    public void init(Graph graph, Directory dir) {
+        if (edgesCount > 0)
+            throw new AssertionError("The ext_hgv storage must be initialized only once.");
 
-	private int nextBlockEntryIndex(int size) {
-		int res = edgeEntryIndex;
-		edgeEntryIndex += size;
-		return res;
-	}
+        this.orsEdges = dir.find("ext_hgv");
+    }
 
-	public void setSegmentSize(int bytes) {
-		orsEdges.setSegmentSize(bytes);
-	}
+    private int nextBlockEntryIndex(int size) {
+        int res = edgeEntryIndex;
+        edgeEntryIndex += size;
+        return res;
+    }
 
-	public HeavyVehicleAttributesGraphStorage create(long initBytes) {
-		orsEdges.create(initBytes * edgeEntryBytes);
-		return this;
-	}
+    public void setSegmentSize(int bytes) {
+        orsEdges.setSegmentSize(bytes);
+    }
 
-	public void flush() {
-		orsEdges.setHeader(0, edgeEntryBytes);
-		orsEdges.setHeader(4, edgesCount);
-		orsEdges.flush();
-	}
+    public HeavyVehicleAttributesGraphStorage create(long initBytes) {
+        orsEdges.create(initBytes * edgeEntryBytes);
+        return this;
+    }
 
-	public void close() {
-		orsEdges.close();
-	}
+    public void flush() {
+        orsEdges.setHeader(0, edgeEntryBytes);
+        orsEdges.setHeader(4, edgesCount);
+        orsEdges.flush();
+    }
 
-	public int entries() {
-		return edgesCount;
-	}
+    public void close() {
+        orsEdges.close();
+    }
 
-	public boolean loadExisting() {
-		if (!orsEdges.loadExisting())
-			throw new IllegalStateException("Unable to load storage 'ext_hgv'. corrupt file or directory? ");
+    public int entries() {
+        return edgesCount;
+    }
 
-		edgeEntryBytes = orsEdges.getHeader(0);
-		edgesCount = orsEdges.getHeader(4);
-		return true;
-	}
+    public boolean loadExisting() {
+        if (!orsEdges.loadExisting())
+            throw new IllegalStateException("Unable to load storage 'ext_hgv'. corrupt file or directory? ");
 
-	private void ensureEdgesIndex(int edgeIndex) {
-		orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
-	}
+        edgeEntryBytes = orsEdges.getHeader(0);
+        edgesCount = orsEdges.getHeader(4);
+        return true;
+    }
 
-	public void setEdgeValue(int edgeId, int vehicleType, int heavyVehicleDestination, double[] restrictionValues) {
-		edgesCount++;
-		ensureEdgesIndex(edgeId);
+    private void ensureEdgesIndex(int edgeIndex) {
+        orsEdges.ensureCapacity(((long) edgeIndex + 1) * edgeEntryBytes);
+    }
 
-		long edgePointer = (long) edgeId * edgeEntryBytes;
+    public void setEdgeValue(int edgeId, int vehicleType, int heavyVehicleDestination, double[] restrictionValues) {
+        edgesCount++;
+        ensureEdgesIndex(edgeId);
 
-		byte [] byteValues = {(byte) vehicleType, (byte) heavyVehicleDestination};
-		orsEdges.setBytes(edgePointer + efVehicleType, byteValues, 2);
+        long edgePointer = (long) edgeId * edgeEntryBytes;
 
-		if (efRestrictions == -1)
-			throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
+        byte[] byteValues = {(byte) vehicleType, (byte) heavyVehicleDestination};
+        orsEdges.setBytes(edgePointer + efVehicleType, byteValues, 2);
 
-		byte[] buffer = new byte[2];
-		for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++) {
-			short shortValue = (short) (restrictionValues[i] * FACTOR);
-			BitUtil.LITTLE.fromShort(buffer, shortValue);
-			orsEdges.setBytes(edgePointer + efRestrictions + i * EF_RESTRICTION_BYTES, buffer, 2);
-		}
-	}
+        if (efRestrictions == -1)
+            throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
 
-	public double getEdgeRestrictionValue(int edgeId, int valueIndex) {
-		long edgeBase = (long) edgeId * edgeEntryBytes;
+        byte[] buffer = new byte[2];
+        for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++) {
+            short shortValue = (short) (restrictionValues[i] * FACTOR);
+            BitUtil.LITTLE.fromShort(buffer, shortValue);
+            orsEdges.setBytes(edgePointer + efRestrictions + i * EF_RESTRICTION_BYTES, buffer, 2);
+        }
+    }
 
-		if (efRestrictions == -1)
-			throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
+    public double getEdgeRestrictionValue(int edgeId, int valueIndex) {
+        long edgeBase = (long) edgeId * edgeEntryBytes;
 
-		return getShort(edgeBase + efRestrictions + valueIndex * EF_RESTRICTION_BYTES) / FACTOR;
-	}
+        if (efRestrictions == -1)
+            throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
 
-	public boolean getEdgeRestrictionValues(int edgeId, double[] retValues) {
-		long edgeBase = (long) edgeId * edgeEntryBytes;
+        return getShort(edgeBase + efRestrictions + (long) valueIndex * EF_RESTRICTION_BYTES) / FACTOR;
+    }
 
-		if (efRestrictions == -1)
-			throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
+    public boolean getEdgeRestrictionValues(int edgeId, double[] retValues) {
+        long edgeBase = (long) edgeId * edgeEntryBytes;
 
-		for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++)
-			retValues[i] = getShort(edgeBase + efRestrictions + i * EF_RESTRICTION_BYTES) / FACTOR;
+        if (efRestrictions == -1)
+            throw new IllegalStateException(MSG_EF_RESTRICTION_IS_NOT_SUPPORTED);
 
-		return true;
-	}
+        for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++)
+            retValues[i] = getShort(edgeBase + efRestrictions + i * EF_RESTRICTION_BYTES) / FACTOR;
 
-	public int getEdgeVehicleType(int edgeId, byte[] buffer) {
-		long edgeBase = (long) edgeId * edgeEntryBytes;
-		orsEdges.getBytes(edgeBase + efVehicleType, buffer, 2);
-		
-		int result = buffer[0];
-	    if (result < 0)
-	    	result = (byte)(result & 0xff);
-	    
-	    return result;
-	}
+        return true;
+    }
 
-	public boolean hasEdgeRestriction(int edgeId) {
-		long edgeBase = (long) edgeId * edgeEntryBytes;
+    public int getEdgeVehicleType(int edgeId, byte[] buffer) {
+        long edgeBase = (long) edgeId * edgeEntryBytes;
+        orsEdges.getBytes(edgeBase + efVehicleType, buffer, 2);
 
-		byte[] buffer = new byte[2];
-		orsEdges.getBytes(edgeBase + efVehicleType, buffer, 2);
+        int result = buffer[0];
+        if (result < 0)
+            result = (byte) (result & 0xff);
 
-		if (buffer[0] != 0 || buffer[1] != 0)
-			return true;
+        return result;
+    }
 
-		if (efRestrictions > 0)
-			for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++)
-				if (getShort(edgeBase + efRestrictions + i * EF_RESTRICTION_BYTES) != 0)
-					return true;
+    public boolean hasEdgeRestriction(int edgeId) {
+        long edgeBase = (long) edgeId * edgeEntryBytes;
 
-		return false;
-	}
+        byte[] buffer = new byte[2];
+        orsEdges.getBytes(edgeBase + efVehicleType, buffer, 2);
 
-	private short getShort(long bytePos) {
-		byte[] buffer = new byte[2];
-		orsEdges.getBytes(bytePos, buffer, 2);
-		return BitUtil.LITTLE.toShort(buffer);
-	}
+        if (buffer[0] != 0 || buffer[1] != 0)
+            return true;
 
-	@Override
-	public long getCapacity() {
-		return orsEdges.getCapacity();
-	}
+        if (efRestrictions > 0)
+            for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++)
+                if (getShort(edgeBase + efRestrictions + i * EF_RESTRICTION_BYTES) != 0)
+                    return true;
 
-	@Override
-	public boolean isClosed() {
-		return false;
-	}
+        return false;
+    }
+
+    private short getShort(long bytePos) {
+        byte[] buffer = new byte[2];
+        orsEdges.getBytes(bytePos, buffer, 2);
+        return BitUtil.LITTLE.toShort(buffer);
+    }
+
+    @Override
+    public long getCapacity() {
+        return orsEdges.getCapacity();
+    }
+
+    @Override
+    public boolean isClosed() {
+        return false;
+    }
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of the OpenSphere project which aims to
  * develop geospatial algorithms.
- * 
+ *
  * Copyright (C) 2012 Eric Grosso
  *
  * This library is free software; you can redistribute it and/or
@@ -20,26 +20,11 @@
  *
  * For more information, contact:
  * Eric Grosso, eric.grosso.os@gmail.com
- * 
+ *
  */
 package org.opensphere.geometry.algorithm;
 
-import java.util.*;
-import java.util.Map.Entry;
-
-import org.opensphere.geometry.triangulation.model.Edge;
-import org.opensphere.geometry.triangulation.model.Triangle;
-import org.opensphere.geometry.triangulation.model.Vertex;
-
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineSegment;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.LinearRing;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.*;
 import org.locationtech.jts.geom.impl.CoordinateArraySequence;
 import org.locationtech.jts.operation.linemerge.LineMerger;
 import org.locationtech.jts.triangulate.ConformingDelaunayTriangulationBuilder;
@@ -47,6 +32,12 @@ import org.locationtech.jts.triangulate.quadedge.QuadEdge;
 import org.locationtech.jts.triangulate.quadedge.QuadEdgeSubdivision;
 import org.locationtech.jts.triangulate.quadedge.QuadEdgeTriangle;
 import org.locationtech.jts.util.UniqueCoordinateArrayFilter;
+import org.opensphere.geometry.triangulation.model.Edge;
+import org.opensphere.geometry.triangulation.model.Triangle;
+import org.opensphere.geometry.triangulation.model.Vertex;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Computes a concave hull of a {@link Geometry} which is a concave
@@ -61,7 +52,6 @@ import org.locationtech.jts.util.UniqueCoordinateArrayFilter;
  * set of points in the plane".
  *
  * @author Eric Grosso
- *
  */
 public class ConcaveHullOpenSphere {
 
@@ -97,7 +87,7 @@ public class ConcaveHullOpenSphere {
      */
     // Modification by Maxim Rylov: Added convertGeometryCollection parameter 
     public ConcaveHullOpenSphere(GeometryCollection geometries, double threshold, boolean convertGeometryCollection) {
-        this.geometries = convertGeometryCollection ? transformIntoPointGeometryCollection(geometries): geometries; 
+        this.geometries = convertGeometryCollection ? transformIntoPointGeometryCollection(geometries) : geometries;
         this.threshold = threshold;
         this.geomFactory = geometries.getFactory();
     }
@@ -140,7 +130,7 @@ public class ConcaveHullOpenSphere {
             CoordinateArraySequence cs = new CoordinateArraySequence(c);
             geometries[i] = new Point(cs, gc.getFactory());
         }
-       
+
         return new GeometryCollection(geometries, gc.getFactory());
     }
 
@@ -175,6 +165,7 @@ public class ConcaveHullOpenSphere {
         private final QuadEdge qe;
         private final LineSegment ls;
         private final double length;
+
         public QuadEdgeLineSegment(QuadEdge qe) {
             this.qe = qe;
             this.ls = qe.toLineSegment();

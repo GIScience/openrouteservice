@@ -300,7 +300,7 @@ class CoreDijkstraTest {
         //car
         prepareCore(g, carConfig, new CoreTestEdgeFilter());
         RoutingCHGraph chGraph = g.getCoreGraph(carConfig.getName());
-        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(g,  carWeighting, new AlgorithmOptions());
+        RoutingAlgorithm algo = new CoreRoutingAlgorithmFactory(chGraph).createAlgo(g, carWeighting, new AlgorithmOptions());
         Path p1 = algo.calcPath(0, 7);
 
         assertEquals(IntArrayList.from(0, 4, 6, 7), p1.calcNodes());

@@ -9,14 +9,14 @@
 #      override: classpath:logs/DEBUG_LOGGING.json
 
 ors:
-### uncomment the following lines to change CORS settings.
-#  cors:
-#    allowed_origins: "*"
-#    allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
-#    preflight_max_age: 600
+  ### uncomment the following lines to change CORS settings.
+  #cors:
+  #  allowed_origins: "*"
+  #  allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
+  #  preflight_max_age: 600
   engine:
-### use the following line for development setup using test OSM file for Heidelberg
-#    source_file: ./src/test/files/heidelberg.osm.gz
+    ### use the following line for development setup using test OSM file for Heidelberg
+    #source_file: ./src/test/files/heidelberg.osm.gz
     source_file: ./ors-core/data/osm_file.pbf
     graphs_root_path: ./ors-core/data/graphs
     elevation:

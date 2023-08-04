@@ -20,7 +20,7 @@ public class AppConfigMigration {
     public static final String PARAM_STATISTICS_PROVIDERS = "statistics_providers.";
     public static final String SERVICE_NAME_MATRIX = "matrix";
     public static final String SERVICE_NAME_ROUTING = "routing";
-    private static AppConfig config = AppConfig.getGlobal();
+    private static final AppConfig config = AppConfig.getGlobal();
 
     private AppConfigMigration() {
     }
@@ -235,8 +235,7 @@ public class AppConfigMigration {
                     profileStr = profileStr.trim();
                     if ("any".equalsIgnoreCase(profileStr)) {
                         def = value;
-                    }
-                    else {
+                    } else {
                         Integer profile = RoutingProfileType.getFromString(profileStr);
                         if (profile != RoutingProfileType.UNKNOWN)
                             map.put(profile, value);

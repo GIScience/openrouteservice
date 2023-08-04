@@ -40,22 +40,22 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
     /**
      * Initialise the edge filter object based on the type of borders to filter
      *
-     * @param searchParams      The search parameters passed into the request
-     * @param extBorders        The extended borders graph storage to use
+     * @param searchParams The search parameters passed into the request
+     * @param extBorders   The extended borders graph storage to use
      */
     private void init(RouteSearchParameters searchParams, BordersGraphStorage extBorders) {
         // Init the graph storage
         isStorageBuilt = extBorders != null;
-        if(isStorageBuilt) {
+        if (isStorageBuilt) {
             int[] countriesToAvoid;
-            if(searchParams.hasAvoidCountries())
+            if (searchParams.hasAvoidCountries())
                 countriesToAvoid = searchParams.getAvoidCountries();
             else
                 countriesToAvoid = new int[0];
 
             this.avoidCountries = countriesToAvoid.length > 0;
 
-            if(searchParams.hasAvoidBorders()) {
+            if (searchParams.hasAvoidBorders()) {
                 avoidBorders = searchParams.getAvoidBorders();
             }
 
@@ -67,7 +67,7 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
      * Determine whether the edge should be accepted for processing or reject. Depending on whether the request was to
      * not cross any border or not cross controlled borders determines the type of border to reject.
      *
-     * @param iter      An iterator to the edges that need to be filtered
+     * @param iter An iterator to the edges that need to be filtered
      * @return
      */
     @Override
@@ -77,15 +77,15 @@ public class AvoidBordersEdgeFilter implements EdgeFilter {
 
         if (avoidBorders != BordersExtractor.Avoid.NONE) {
             // We have been told to avoid some form of border
-            switch(avoidBorders) {
+            switch (avoidBorders) {
                 case ALL:
-                    if(bordersExtractor.isBorder(iter.getEdge())) {
+                    if (bordersExtractor.isBorder(iter.getEdge())) {
                         // It is a border, and we want to avoid all borders
                         return false;
                     }
                     break;
                 case CONTROLLED:
-                    if(bordersExtractor.isControlledBorder(iter.getEdge())) {
+                    if (bordersExtractor.isControlledBorder(iter.getEdge())) {
                         // We want to only avoid controlled borders
                         return false;
                     }

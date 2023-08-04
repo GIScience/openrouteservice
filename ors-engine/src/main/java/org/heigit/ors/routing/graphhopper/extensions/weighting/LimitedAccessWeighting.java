@@ -48,9 +48,9 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
             throw new IllegalArgumentException("road_access is not available");
 
         // ensure that we do not need to change getMinWeight, i.e. road_access_factor >= 1
-        double defaultDestinationFactor = encoder.getTransportationMode().isMotorVehicle()? VEHICLE_DESTINATION_FACTOR : DEFAULT_DESTINATION_FACTOR;
+        double defaultDestinationFactor = encoder.getTransportationMode().isMotorVehicle() ? VEHICLE_DESTINATION_FACTOR : DEFAULT_DESTINATION_FACTOR;
         destinationPenalty = checkBounds("road_access_destination_factor", map.getDouble("road_access_destination_factor", defaultDestinationFactor), MIN_DESTINATION_FACTOR, MAX_DESTINATION_FACTOR);
-        double defaultPrivateFactor = encoder.getTransportationMode().isMotorVehicle()? VEHICLE_PRIVATE_FACTOR : DEFAULT_PRIVATE_FACTOR;
+        double defaultPrivateFactor = encoder.getTransportationMode().isMotorVehicle() ? VEHICLE_PRIVATE_FACTOR : DEFAULT_PRIVATE_FACTOR;
         privatePenalty = checkBounds("road_access_private_factor", map.getDouble("road_access_private_factor", defaultPrivateFactor), MIN_PRIVATE_FACTOR, MAX_PRIVATE_FACTOR);
         roadAccessEnc = destinationPenalty > 1 || privatePenalty > 1 ? encoder.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class) : null;
     }

@@ -60,10 +60,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 
 class PrepareCoreLandmarksTest
-/* extends AbstractRoutingAlgorithmTester */ {
+        /* extends AbstractRoutingAlgorithmTester */ {
     private ORSGraphHopperStorage graph;
     private FlagEncoder encoder;
-    private TraversalMode tm = TraversalMode.NODE_BASED;
+    private final TraversalMode tm = TraversalMode.NODE_BASED;
     private EncodingManager encodingManager;
     private Weighting weighting;
     private CHConfig chConfig;

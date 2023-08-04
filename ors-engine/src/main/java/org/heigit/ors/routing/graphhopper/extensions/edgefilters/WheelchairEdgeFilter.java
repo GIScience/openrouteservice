@@ -24,9 +24,9 @@ import org.heigit.ors.routing.parameters.WheelchairParameters;
 
 public class WheelchairEdgeFilter implements EdgeFilter {
     private static final Logger LOGGER = Logger.getLogger(WheelchairEdgeFilter.class.getName());
-    private byte[] buffer;
-    private WheelchairAttributesGraphStorage storage;
-    private WheelchairAttributes attributes;
+    private final byte[] buffer;
+    private final WheelchairAttributesGraphStorage storage;
+    private final WheelchairAttributes attributes;
     private WheelchairParameters params;
 
     public WheelchairEdgeFilter(WheelchairParameters params, GraphHopperStorage graphStorage) throws Exception {

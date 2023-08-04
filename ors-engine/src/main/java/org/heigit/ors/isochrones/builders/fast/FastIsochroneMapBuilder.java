@@ -28,9 +28,6 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.index.quadtree.Quadtree;
-import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.exceptions.InternalServerException;
@@ -56,6 +53,9 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFla
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.GeomUtility;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.index.quadtree.Quadtree;
+import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.*;
@@ -325,7 +325,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 continue;
             }
 
-            LinearRing ring = (LinearRing) ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing();
+            LinearRing ring = ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing();
             for (int i = 0; i < ring.getNumPoints(); i++) {
                 contourCoordinates.add(ring.getCoordinateN(i).y);
                 contourCoordinates.add(ring.getCoordinateN(i).x);
@@ -401,7 +401,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
             concaveHull = ch.getConcaveHull();
             if (concaveHull instanceof Polygon polygon) {
-                ring = (LinearRing) polygon.getExteriorRing();
+                ring = polygon.getExteriorRing();
                 List<Coordinate> coordinates = new ArrayList<>(ring.getNumPoints());
                 for (int i = 0; i < ring.getNumPoints(); i++) {
                     coordinates.add(ring.getCoordinateN(i));
@@ -731,9 +731,9 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         statement.append("{\"type\": \"Feature\",\"properties\": {\"name\": \"").append(cellId).append("\"},\"geometry\": {\"type\": \"Polygon\",\"coordinates\": [[");
         int i;
         for (i = coordinates.size() - 2; i > 0; i -= 2) {
-            statement.append("[").append(String.valueOf(coordinates.get(i + 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(i + 1)).length()))).append(",").append(String.valueOf(coordinates.get(i)).substring(0, Math.min(8, String.valueOf(coordinates.get(i)).length()))).append("],");
+            statement.append("[").append(String.valueOf(coordinates.get(i + 1)), 0, Math.min(8, String.valueOf(coordinates.get(i + 1)).length())).append(",").append(String.valueOf(coordinates.get(i)), 0, Math.min(8, String.valueOf(coordinates.get(i)).length())).append("],");
         }
-        statement.append("[").append(String.valueOf(coordinates.get(coordinates.size() - 1)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 1)).length()))).append(",").append(String.valueOf(coordinates.get(coordinates.size() - 2)).substring(0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 2)).length()))).append("]");
+        statement.append("[").append(String.valueOf(coordinates.get(coordinates.size() - 1)), 0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 1)).length())).append(",").append(String.valueOf(coordinates.get(coordinates.size() - 2)), 0, Math.min(8, String.valueOf(coordinates.get(coordinates.size() - 2)).length())).append("]");
 
         statement.append("]]}},");
         statement.append(System.lineSeparator());
@@ -782,7 +782,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             double dy2 = dx * scale;
             extendedList.add(lat0 + dy2, lon0 + dx2);
             extendedList.add(lat0 - dy2, lon0 - dx2);
-            if(i == list.size() - 2) {
+            if (i == list.size() - 2) {
                 extendedList.add(lat1 + dy2, lon1 + dx2);
                 extendedList.add(lat1 - dy2, lon1 - dx2);
             }

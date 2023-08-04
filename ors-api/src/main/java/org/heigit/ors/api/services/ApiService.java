@@ -34,11 +34,11 @@ public class ApiService {
 
     protected EndpointsProperties endpointsProperties;
 
-    double getMaximumAvoidPolygonArea(){
+    double getMaximumAvoidPolygonArea() {
         return 0d;
     }
 
-    double getMaximumAvoidPolygonExtent(){
+    double getMaximumAvoidPolygonExtent() {
         return 0d;
     }
 
@@ -112,8 +112,7 @@ public class ApiService {
 
         if (convertedGeom instanceof Polygon) {
             avoidAreas = new Polygon[]{(Polygon) convertedGeom};
-        } else if (convertedGeom instanceof MultiPolygon) {
-            MultiPolygon multiPoly = (MultiPolygon) convertedGeom;
+        } else if (convertedGeom instanceof MultiPolygon multiPoly) {
             avoidAreas = new Polygon[multiPoly.getNumGeometries()];
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
@@ -322,17 +321,17 @@ public class ApiService {
     private WheelchairParameters convertWheelchairParamRestrictions(RequestProfileParamsRestrictions restrictions) {
         WheelchairParameters params = new WheelchairParameters();
 
-        if(restrictions.hasSurfaceType())
+        if (restrictions.hasSurfaceType())
             params.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(restrictions.getSurfaceType()));
-        if(restrictions.hasTrackType())
+        if (restrictions.hasTrackType())
             params.setTrackType(WheelchairTypesEncoder.getTrackType(restrictions.getTrackType()));
-        if(restrictions.hasSmoothnessType())
+        if (restrictions.hasSmoothnessType())
             params.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(restrictions.getSmoothnessType()));
-        if(restrictions.hasMaxSlopedKerb())
+        if (restrictions.hasMaxSlopedKerb())
             params.setMaximumSlopedKerb(restrictions.getMaxSlopedKerb());
-        if(restrictions.hasMaxIncline())
+        if (restrictions.hasMaxIncline())
             params.setMaximumIncline(restrictions.getMaxIncline());
-        if(restrictions.hasMinWidth())
+        if (restrictions.hasMinWidth())
             params.setMinimumWidth(restrictions.getMinWidth());
 
         return params;

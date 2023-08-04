@@ -11,6 +11,7 @@ public abstract class Way {
 
     /**
      * Is the way a pedestrianised way
+     *
      * @return
      */
     public boolean isPedestrianised() {
@@ -27,5 +28,6 @@ public abstract class Way {
     /**
      * Prepare the way ready for processing, such as adding side tags
      */
-    public void prepare() {}
+    public void prepare() {
+    }
 }

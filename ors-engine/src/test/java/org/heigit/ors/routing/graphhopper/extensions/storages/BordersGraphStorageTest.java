@@ -29,7 +29,7 @@ class BordersGraphStorageTest {
 
     @Test
     void TestItemCreation() {
-        _storage.setEdgeValue(1, (short)1, (short)2, (short)3);
+        _storage.setEdgeValue(1, (short) 1, (short) 2, (short) 3);
 
         assertEquals(1, _storage.getEdgeValue(1, BordersGraphStorage.Property.TYPE));
         assertEquals(2, _storage.getEdgeValue(1, BordersGraphStorage.Property.START));

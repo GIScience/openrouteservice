@@ -2,7 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessor
 
 import com.graphhopper.reader.ReaderWay;
 
-public abstract class PedestrianWay extends Way{
+public abstract class PedestrianWay extends Way {
     protected PedestrianWay(ReaderWay way) {
         this.readerWay = way;
     }

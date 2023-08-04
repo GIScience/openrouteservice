@@ -144,7 +144,7 @@ public class ORSRouter extends Router {
                     }
             }
 
-            if (lms==null) {
+            if (lms == null) {
                 return new CoreRoutingAlgorithmFactory(chGraph, queryGraph);
             } else {
                 return new CoreRoutingAlgorithmFactory(chGraph, queryGraph, lms);

@@ -50,7 +50,7 @@ class CoreLandmarkStorageTest {
     private BooleanEncodedValue subnetworkEnc;
 
     private Weighting weighting;
-    private Directory dir = new GHDirectory("", DAType.RAM_INT);
+    private final Directory dir = new GHDirectory("", DAType.RAM_INT);
     private RoutingCHGraph routingCHGraph;
     private CHConfig chConfig;
 
@@ -63,7 +63,7 @@ class CoreLandmarkStorageTest {
         weighting = new ShortestWeighting(encoder);
         chConfig = new CHConfig(encoder.toString(), weighting, false, CHConfig.TYPE_CORE);
 
-        graph =  new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1);
+        graph = new ORSGraphHopperStorage(new RAMDirectory(), encodingManager, false, false, -1);
         graph.addCoreGraph(chConfig);
         graph.create(1000);
         routingCHGraph = graph.getCoreGraph(chConfig.getName());
@@ -110,7 +110,7 @@ class CoreLandmarkStorageTest {
 
         PrepareCore prepare = new PrepareCore(graph, chConfig, restrictedEdges);
 
-        if (nodeOrdering!=null)
+        if (nodeOrdering != null)
             prepare.useFixedNodeOrdering(NodeOrderingProvider.fromArray(nodeOrdering));
 
         // set contraction parameters to prevent test results from changing when algorithm parameters are tweaked

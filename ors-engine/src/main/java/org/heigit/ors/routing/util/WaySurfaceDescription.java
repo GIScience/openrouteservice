@@ -9,7 +9,7 @@ public class WaySurfaceDescription {
     }
 
     public void setWayType(int wayType) {
-        this.wayType = (byte)wayType;
+        this.wayType = (byte) wayType;
     }
 
     public byte getSurfaceType() {
@@ -17,7 +17,7 @@ public class WaySurfaceDescription {
     }
 
     public void setSurfaceType(int surfaceType) {
-        this.surfaceType = (byte)surfaceType;
+        this.surfaceType = (byte) surfaceType;
     }
 
     public void reset() {

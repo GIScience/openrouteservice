@@ -10,9 +10,9 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.AveragedMultiTreeS
 import java.util.PriorityQueue;
 
 public class MultiSourceStoppingCriterion {
-    private int treeEntrySize;
+    private final int treeEntrySize;
     private AveragedMultiTreeSPEntry combinedUnsettled;
-    private IntHashSet targetSet;
+    private final IntHashSet targetSet;
     IntObjectMap<AveragedMultiTreeSPEntry> targetMap;
     IntObjectMap<Boolean> allTargetsForSourceFound;
 
@@ -23,8 +23,9 @@ public class MultiSourceStoppingCriterion {
         this.treeEntrySize = treeEntrySize;
         this.allTargetsForSourceFound = new IntObjectHashMap<>(treeEntrySize);
     }
+
     public boolean isFinished(AveragedMultiTreeSPEntry currEdge, PriorityQueue<AveragedMultiTreeSPEntry> prioQueue) {
-        if(combinedUnsettled != null && checkAllTargetsForAllSourcesFound())
+        if (combinedUnsettled != null && checkAllTargetsForAllSourcesFound())
             return !queueHasSmallerWeight(combinedUnsettled, prioQueue);
 
         if (!targetSet.contains(currEdge.getAdjNode()))
@@ -42,12 +43,12 @@ public class MultiSourceStoppingCriterion {
      * until the prioQueue has no more possible better values
      */
     private void createCombinedUnsettled() {
-        if(this.combinedUnsettled == null)
+        if (this.combinedUnsettled == null)
             this.combinedUnsettled = initCombinedUnsettled();
         updateCombinedUnsettled();
     }
 
-    private AveragedMultiTreeSPEntry initCombinedUnsettled(){
+    private AveragedMultiTreeSPEntry initCombinedUnsettled() {
         AveragedMultiTreeSPEntry combinedUnsettledTarget = new AveragedMultiTreeSPEntry(-1, -1, -1.0, false, null, treeEntrySize);
         //Set all weights to low start weight
         for (int i = 0; i < treeEntrySize; ++i)
@@ -56,12 +57,12 @@ public class MultiSourceStoppingCriterion {
         return combinedUnsettledTarget;
     }
 
-    public void updateCombinedUnsettled(){
-        if(combinedUnsettled == null)
+    public void updateCombinedUnsettled() {
+        if (combinedUnsettled == null)
             return;
-        for(IntObjectCursor<AveragedMultiTreeSPEntry> entry : targetMap){
+        for (IntObjectCursor<AveragedMultiTreeSPEntry> entry : targetMap) {
             for (int source = 0; source < treeEntrySize; ++source) {
-                if(allTargetsForSourceFound.getOrDefault(source, false)) {
+                if (allTargetsForSourceFound.getOrDefault(source, false)) {
 
                     double entryWeight = entry.value.getItem(source).getWeight();
 
@@ -75,37 +76,38 @@ public class MultiSourceStoppingCriterion {
 
     /**
      * Check whether the priorityqueue has an entry that could possibly lead to a shorter path for any of the subItems
+     *
      * @return
      */
     private boolean queueHasSmallerWeight(AveragedMultiTreeSPEntry target, PriorityQueue<AveragedMultiTreeSPEntry> prioQueue) {
         for (AveragedMultiTreeSPEntry entry : prioQueue) {
             for (int i = 0; i < treeEntrySize; ++i) {
-                if(entry.getItem(i).getWeight() < target.getItem(i).getWeight())
+                if (entry.getItem(i).getWeight() < target.getItem(i).getWeight())
                     return true;
             }
         }
         return false;
     }
 
-    private boolean checkAllTargetsForAllSourcesFound(){
-        for (int source = 0; source < treeEntrySize; source++){
-            if(combinedUnsettled.getItem(source).getWeight() == -1.0)
+    private boolean checkAllTargetsForAllSourcesFound() {
+        for (int source = 0; source < treeEntrySize; source++) {
+            if (combinedUnsettled.getItem(source).getWeight() == -1.0)
                 return false;
         }
         return true;
     }
 
     private void setSourceTargetsFound() {
-        for(int source = 0; source < treeEntrySize; source += 1){
-            if(allTargetsForSourceFound.getOrDefault(source, false))
+        for (int source = 0; source < treeEntrySize; source += 1) {
+            if (allTargetsForSourceFound.getOrDefault(source, false))
                 continue;
             boolean allFound = true;
             for (IntCursor targetId : targetSet) {
                 //The target has not been reached yet
-                if(!targetMap.containsKey(targetId.value))
+                if (!targetMap.containsKey(targetId.value))
                     return;
                 AveragedMultiTreeSPEntry target = targetMap.get(targetId.value);
-                if(target.getItem(source).getWeight() == Double.POSITIVE_INFINITY) {
+                if (target.getItem(source).getWeight() == Double.POSITIVE_INFINITY) {
                     allFound = false;
                     break;
                 }

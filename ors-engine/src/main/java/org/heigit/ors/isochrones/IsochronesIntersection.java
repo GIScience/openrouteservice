@@ -13,75 +13,70 @@
  */
 package org.heigit.ors.isochrones;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-
+import org.heigit.ors.common.Pair;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.GeomUtility;
 import org.heigit.ors.util.UnitsConverter;
-import org.heigit.ors.common.Pair;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class IsochronesIntersection {
-	private final Geometry geometry;
-	private Envelope envelope;
-	private double area = 0.0;
-	private final List<Pair<Integer, Integer>> contourRefs;
+    private final Geometry geometry;
+    private Envelope envelope;
+    private double area = 0.0;
+    private final List<Pair<Integer, Integer>> contourRefs;
 
-	public IsochronesIntersection(Geometry geometry) {
-		this.geometry = geometry;
-		contourRefs = new ArrayList<>();
-	}
+    public IsochronesIntersection(Geometry geometry) {
+        this.geometry = geometry;
+        contourRefs = new ArrayList<>();
+    }
 
-	public List<Pair<Integer, Integer>> getContourRefs()
-	{
-		return contourRefs;
-	}
+    public List<Pair<Integer, Integer>> getContourRefs() {
+        return contourRefs;
+    }
 
-	public void addContourRefs(Pair<Integer, Integer> ref)
-	{
-		contourRefs.add(ref);
-	}
+    public void addContourRefs(Pair<Integer, Integer> ref) {
+        contourRefs.add(ref);
+    }
 
-	public void addContourRefs(Collection<Pair<Integer, Integer>> refs)
-	{
-		contourRefs.addAll(refs);
-	}
+    public void addContourRefs(Collection<Pair<Integer, Integer>> refs) {
+        contourRefs.addAll(refs);
+    }
 
-	public Geometry getGeometry()
-	{
-		return geometry;
-	}
+    public Geometry getGeometry() {
+        return geometry;
+    }
 
-	public double getArea(String units) throws InternalServerException {
-		if (area == 0.0) {
-			area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, true), 2);
-		}
-		if (units == null)
-			units = "m";
-		return switch (units) {
-			case "m" -> area;
-			case "mi" -> UnitsConverter.sqMetersToSqMiles(this.area);
-			case "km" -> UnitsConverter.sqMetersToSqKilometers(this.area);
-			default -> area;
-		};
-	}
+    public double getArea(String units) throws InternalServerException {
+        if (area == 0.0) {
+            area = FormatUtility.roundToDecimals(GeomUtility.getArea(geometry, true), 2);
+        }
+        if (units == null)
+            units = "m";
+        return switch (units) {
+            case "m" -> area;
+            case "mi" -> UnitsConverter.sqMetersToSqMiles(this.area);
+            case "km" -> UnitsConverter.sqMetersToSqKilometers(this.area);
+            default -> area;
+        };
+    }
 
-	public boolean intersects(IsochronesIntersection other) {
-		if (!getEnvelope().intersects(other.getEnvelope()))
-			return false;
+    public boolean intersects(IsochronesIntersection other) {
+        if (!getEnvelope().intersects(other.getEnvelope()))
+            return false;
 
-		return geometry.intersects(other.geometry);
-	}
+        return geometry.intersects(other.geometry);
+    }
 
-	public Envelope getEnvelope() {
-		if(envelope == null)
-			envelope = geometry.getEnvelopeInternal();
+    public Envelope getEnvelope() {
+        if (envelope == null)
+            envelope = geometry.getEnvelopeInternal();
 
-		return envelope;
-	}
+        return envelope;
+    }
 }

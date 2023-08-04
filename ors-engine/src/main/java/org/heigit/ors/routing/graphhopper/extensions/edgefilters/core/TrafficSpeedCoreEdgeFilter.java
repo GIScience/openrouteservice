@@ -26,7 +26,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorag
  */
 
 public class TrafficSpeedCoreEdgeFilter implements EdgeFilter {
-    private TrafficGraphStorage trafficGraphStorage;
+    private final TrafficGraphStorage trafficGraphStorage;
 
     public TrafficSpeedCoreEdgeFilter(GraphHopperStorage graphHopperStorage) {
         trafficGraphStorage = GraphStorageUtils.getGraphExtension(graphHopperStorage, TrafficGraphStorage.class);

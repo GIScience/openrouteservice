@@ -35,7 +35,7 @@ class HikingFlagEncoderTest {
 
     public HikingFlagEncoderTest() {
         encodingManager = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.HIKING_ORS);
-        flagEncoder = (HikingFlagEncoder)encodingManager.getEncoder(FlagEncoderNames.HIKING_ORS);
+        flagEncoder = (HikingFlagEncoder) encodingManager.getEncoder(FlagEncoderNames.HIKING_ORS);
     }
 
     @BeforeEach
@@ -111,20 +111,20 @@ class HikingFlagEncoderTest {
         TreeMap<Double, Integer> priorityMap = new TreeMap<>();
         way.setTag("highway", "track");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
-        assertEquals((Integer)PriorityCode.VERY_NICE.getValue(), priorityMap.lastEntry().getValue());
+        assertEquals((Integer) PriorityCode.VERY_NICE.getValue(), priorityMap.lastEntry().getValue());
         priorityMap.clear();
         way.setTag("highway", "path");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
-        assertEquals((Integer)PriorityCode.VERY_NICE.getValue(), priorityMap.lastEntry().getValue());
+        assertEquals((Integer) PriorityCode.VERY_NICE.getValue(), priorityMap.lastEntry().getValue());
         priorityMap.clear();
         way.setTag("highway", "footway");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
-        assertEquals((Integer)PriorityCode.VERY_NICE.getValue(), priorityMap.lastEntry().getValue());
+        assertEquals((Integer) PriorityCode.VERY_NICE.getValue(), priorityMap.lastEntry().getValue());
         priorityMap.clear();
 
         way.setTag("highway", "living_street");
         flagEncoder.assignSafeHighwayPriority(way, priorityMap);
-        assertEquals((Integer)PriorityCode.PREFER.getValue(), priorityMap.lastEntry().getValue());
+        assertEquals((Integer) PriorityCode.PREFER.getValue(), priorityMap.lastEntry().getValue());
         priorityMap.clear();
     }
 

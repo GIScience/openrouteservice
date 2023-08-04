@@ -10,7 +10,7 @@ public class GraphUtils {
         return chGraph.getLevel(nodeId) >= coreNodeLevel;
     }
 
-    private static boolean isVirtualNode(int node, int nodeCount){
+    private static boolean isVirtualNode(int node, int nodeCount) {
         return node >= nodeCount;
     }
 }

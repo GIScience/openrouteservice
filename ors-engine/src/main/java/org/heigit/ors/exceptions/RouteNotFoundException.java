@@ -14,8 +14,7 @@ public class RouteNotFoundException extends StatusCodeException {
         this(errorCode, "");
     }
 
-    public RouteNotFoundException()
-    {
+    public RouteNotFoundException() {
         this(0);
     }
 }
