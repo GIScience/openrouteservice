@@ -52,7 +52,6 @@ public class RoutingProfileManager {
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
     private RoutingProfilesCollection routingProfiles;
     private static RoutingProfileManager instance;
-    private boolean initComplete = false;
 
     public RoutingProfileManager(EngineConfig config) {
         if (instance == null) {
@@ -78,13 +77,9 @@ public class RoutingProfileManager {
             if (routeProfileConfigurations.length == 0) {
                 routeProfileConfigurations = config.getProfiles();
             }
-
             if (routeProfileConfigurations.length == 0) {
-                LOGGER.error("");
-                LOGGER.error("No profiles configured. Exiting.");
-                LOGGER.error("");
-                Thread.currentThread().interrupt();
-                System.exit(1);
+                fail("No profiles configured. Exiting.");
+                return;
             }
             int initializationThreads = config.getInitializationThreads();
             LOGGER.info("====> Initializing profiles from '%s' (%d threads) ...".formatted(
@@ -136,21 +131,16 @@ public class RoutingProfileManager {
 
             LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
             LOGGER.info("========================================================================");
-            initCompleted();
-
             RoutingProfileManagerStatus.setReady(true);
         } catch (ExecutionException ex) {
-            LOGGER.error("");
-            LOGGER.error("Configured source file: '" + config.getSourceFile() + "' does not appear to be a valid OSM data file! Exiting.");
-            LOGGER.error("");
+            fail("Configured source file: '" + config.getSourceFile() + "' does not appear to be a valid OSM data file! Exiting.");
             Thread.currentThread().interrupt();
-            System.exit(1);
+            return;
         } catch (Exception ex) {
-            LOGGER.error("Failed to initialize RoutingProfileManager instance.", ex);
+            fail("Failed to initialize RoutingProfileManager instance. " + ex.getMessage());
             Thread.currentThread().interrupt();
-            System.exit(1);
+            return;
         }
-
         RuntimeUtility.clearMemory(LOGGER);
 
         if (LOGGER.isInfoEnabled())
@@ -159,6 +149,13 @@ public class RoutingProfileManager {
 
     public void destroy() {
         routingProfiles.destroy();
+    }
+
+    private void fail(String message) {
+        LOGGER.error("");
+        LOGGER.error(message);
+        LOGGER.error("");
+        RoutingProfileManagerStatus.setFailed(true);
     }
 
     public RoutingProfilesCollection getProfiles() {
@@ -201,13 +198,12 @@ public class RoutingProfileManager {
                 if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
                     throw new RouteNotFoundException(
                             RoutingErrorCodes.ROUTE_NOT_FOUND,
-                            "Unable to find a route for point (%s).".formatted(
-                                    FormatUtility.formatCoordinate(c0))
+                            "Unable to find a route for point (%s).".formatted(FormatUtility.formatCoordinate(c0))
                     );
                 } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
                     StringBuilder message = new StringBuilder();
                     for (Throwable error : gr.getErrors()) {
-                        if (message.length() > 0)
+                        if (!message.isEmpty())
                             message.append("; ");
                         message.append(error.getMessage());
                     }
@@ -618,13 +614,4 @@ public class RoutingProfileManager {
             throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         return rp.computeExport(req);
     }
-
-    public void initCompleted() {
-        initComplete = true;
-    }
-
-    public static boolean isInitComplete() {
-        return RoutingProfileManager.getInstance().initComplete;
-    }
-
 }
