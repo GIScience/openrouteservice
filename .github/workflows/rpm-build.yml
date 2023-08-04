@@ -1,18 +1,24 @@
 name: Package Java WAR into RPM
 
 on:
-#  release:
- #   types:
+  #  release:
+  #   types:
   #    - created
   workflow_dispatch:
+  pull_request:
+    branches: [ master ]
 
 env:
   HEALTH_WAIT_TIME: 200
+  TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
 
 jobs:
-  build:
+  prepare_docker_images:
+    name: Build ${{ matrix.docker_file }}
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        docker_file: [ Dockerfile-RHEL8 ]
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v2
@@ -41,22 +47,57 @@ jobs:
           echo "ORS_VERSION=$projectVersion" >> "$GITHUB_ENV"
 
       - name: RPMBuild
+        id: rpmbuild
         run: |
-          export ORS_VERSION=${{ env.ORS_VERSION }}
+          # Define the RPM build directory
+          export RPM_BUILD_DIR=$env.RUNNER_TEMP/rpmbuild
+          
+          # Install RPM
           sudo apt-get install rpm
-          mkdir -p ~/rpmbuild/{BUILD,RPMS,SPECS,SRPMS}
-          cp ors-api/target/ors.war ~/rpmbuild/BUILD/
+          # Clean the RPM build directory
+          rm -rf $RPM_BUILD_DIR
+          # Create the RPM build directory structure from scratch
+          mkdir -p $RPM_BUILD_DIR/{BUILD,RPMS,SPECS,SRPMS}
+          cp ors-api/target/ors.war $RPM_BUILD_DIR/BUILD/
           rpmbuild -bb .rpm-packaging/ors-war.spec
-          mv ~/rpmbuild/RPMS/noarch/openrouteservice-${{ env.ORS_VERSION }}-1.noarch.rpm .rpm-packaging/
+          # Save the RPM package name as an step output
+          echo "rpm_path=$RPM_BUILD_DIR/RPMS/noarch/openrouteservice-$ORS_VERSION-.noarch.rpm" >> $GITHUB_OUTPUT
 
-      - name: Test with Tomcat
+      - name: Prepare the graph environment
         run: |
           cp ors-api/src/test/files/elevation/srtm_38_03.gh .rpm-packaging/
           cp ors-api/src/test/files/heidelberg.osm.gz .rpm-packaging/
-          cd .rpm-packaging
-          docker build . -t ors-rpm-tomcat --build-arg ors_version=${{ env.ORS_VERSION }}
-          docker run -it -d -p 8080:8080 --name ors-tomcat ors-rpm-tomcat
-          ../.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
+
+      - name: Build rpm test image for dockerfile ${{ matrix.docker_file }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: .rpm-packaging/${{ matrix.docker_file }}
+          push: false
+          load: true
+          tags: ${{ env.TEST_IMAGE_NAME }}-${{ matrix.docker_file }}:latest
+          build-args: |
+            REDHAT_ORG=${{ secrets.REDHAT_ORG }}
+            REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
+            RPM_PATH=${{ steps.rpmbuild.outputs.rpm_path }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run and test the docker image
+        run: |
+          echo "Waiting for the docker container to start"
+          # Run the pre-build docker image and mount the needed files
+          docker run run -it -d -p 8080:8080 --name ors-rpm-testing \
+            # Mount the elevation file to avoid downloading it
+            -v $(pwd)/ors-api/src/test/files/elevation/srtm_38_03.gh:/tmp/elevation-cache/srtm_38_03.gh \
+            # Mount the osm pbf file for the graph build
+            -v $(pwd)/ors-api/src/test/files/heidelberg.osm.gz:/tmp/heidelberg.osm.gz  \
+            # Mount the special ors-config.json file for the rpm container
+            -v $(pwd)/.rpm-packaging/ors-config.json:/tmp/ors-config.json \
+            ${{ env.TEST_IMAGE_NAME }}-${{ matrix.docker_file }}:latest
+          
+          echo "Waiting for the docker container to build graphs and return 200"
+          .github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
 
 
 #      - name: Attach RPM package to release

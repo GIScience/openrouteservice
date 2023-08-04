@@ -1,0 +1,37 @@
+FROM registry.redhat.io/jboss-webserver-5/jws57-openjdk17-openshift-rhel8 as base
+
+# Become root
+USER root
+
+ARG REDHAT_ORG
+ARG REDHAT_ACTIVATION_KEY_NAME
+
+# Allow container only redhat login
+# Taken from here: https://serverfault.com/questions/1106847/rhel-9-in-docker-container-on-macos-subscription-manager-is-disabled-when-runni
+RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py && \
+    # Login to redhat. Register returns a non-zero exit code, even if it succeeds, so we need to catch it.
+    subscription-manager register --org=$REDHAT_ORG --activationkey=$REDHAT_ACTIVATION_KEY_NAME || echo "Subscribed Success" && \
+    # Attach to the rhel8 repositories of the access key and unregister if it fails
+    subscription-manager attach || subscription-manager unregister && \
+    # Update the system and unregister if it fails
+    yum update -y || subscription-manager unregister && \
+    # Unregister from redhat in any case in the end to avoid too many registered systems
+    subscription-manager unregister
+
+
+from base as rpminstall
+
+# Get the rpm path from the build args
+ARG RPM_PATH
+
+# Echo it for debugging
+RUN echo "RPM_PATH: $RPM_PATH"
+
+# Copy the rpm file from the previous step
+COPY $RPM_PATH ./openrouteservice.noarch.rpm
+
+# Install the rpm file
+RUN yum install -y ./openrouteservice.noarch.rpm
+
+# Become the jboss user again
+USER jboss
