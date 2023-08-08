@@ -56,7 +56,7 @@ public class AppConfig {
                         " future");
                 LOGGER.warn("Use 'ors_config' instead");
             } else if (System.getenv("ORS_CONFIG") != null) {
-                configFile = new ClassPathResource(System.getenv("ORS_CONFIG")).getFile();
+                configFile = new FileSystemResource(System.getenv("ORS_CONFIG")).getFile();
                 LOGGER.info("Environment variable 'ORS_CONFIG' used as configuration path");
             } else if (System.getenv("ORS_APP_CONFIG") != null) {
                 configFile = new ClassPathResource(System.getenv("ORS_APP_CONFIG")).getFile();
