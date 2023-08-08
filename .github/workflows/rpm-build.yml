@@ -1,8 +1,8 @@
 name: Package Java WAR into RPM
 
 on:
-#  release:
- #   types:
+  #  release:
+  #   types:
   #    - created
   workflow_dispatch:
   pull_request:
@@ -10,17 +10,30 @@ on:
 
 env:
   HEALTH_WAIT_TIME: 200
+  TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
 
 jobs:
-  build:
+  prepare_docker_images:
+    name: Build ${{ matrix.docker_file }}
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        docker_file: [ dockerfile-rhel8 ]
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        id: buildx
+        with:
+          install: true
 
       - name: Cache Maven packages
         uses: actions/cache@v2
@@ -43,23 +56,93 @@ jobs:
           echo "ORS_VERSION=$projectVersion" >> "$GITHUB_ENV"
 
       - name: RPMBuild
+        id: rpmbuild
         run: |
-          export ORS_VERSION=${{ env.ORS_VERSION }}
+          # Define the RPM build directory
+          export RPM_BUILD_DIR=$HOME/rpmbuild
+          echo "RPM_BUILD_DIR=$RPM_BUILD_DIR"
+          # Install RPM
           sudo apt-get install rpm
-          mkdir -p ~/rpmbuild/{BUILD,RPMS,SPECS,SRPMS}
-          cp ors-api/target/ors.war ~/rpmbuild/BUILD/
-          rpmbuild -bb .rpm-packaging/ors-war.spec
-          mv ~/rpmbuild/RPMS/noarch/openrouteservice-${{ env.ORS_VERSION }}-1.noarch.rpm .rpm-packaging/
+          # Clean the RPM build directory
+          rm -rf $RPM_BUILD_DIR
+          # Create the RPM build directory structure from scratch
+          mkdir -p $RPM_BUILD_DIR/{BUILD,RPMS,SPECS,SRPMS}
+          cp -f ${{ github.workspace }}/ors-api/target/ors.war $RPM_BUILD_DIR/BUILD/
+          rpmbuild -bb ${{ github.workspace }}/.rpm-packaging/ors-war.spec
+          # Copy the RPM package to the workspace
+          cp -f $RPM_BUILD_DIR/RPMS/noarch/*.rpm ${{ github.workspace }}/ors.rpm
+          # Save the RPM package name as an step output
+          echo "RPM_PATH=${{ github.workspace }}/ors.rpm" >> "$GITHUB_ENV"
 
-      - name: Test with Tomcat
+      - name: Prepare the graph environment
         run: |
           cp ors-api/src/test/files/elevation/srtm_38_03.gh .rpm-packaging/
           cp ors-api/src/test/files/heidelberg.osm.gz .rpm-packaging/
-          cd .rpm-packaging
-          docker build . -t ors-rpm-tomcat --build-arg ors_version=${{ env.ORS_VERSION }}
-          docker run -it -d -p 8080:8080 --name ors-tomcat ors-rpm-tomcat
-          ../.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
 
+      - name: Login to RedHat Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.redhat.io
+          username: ${{ secrets.REDHAT_REGISTRY_LOGIN }}
+          password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
+
+      - name: Build rpm test image for dockerfile ${{ matrix.docker_file }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: .rpm-packaging/${{ matrix.docker_file }}
+          push: false
+          load: false
+          tags: ${{ env.TEST_IMAGE_NAME }}-${{ matrix.docker_file }}:latest
+          build-args: |
+            REDHAT_ORG=${{ secrets.REDHAT_ORG }}
+            REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Load the rpm test image from cache ${{ matrix.docker_file }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: .rpm-packaging/${{ matrix.docker_file }}
+          push: false
+          load: true
+          tags: ${{ env.TEST_IMAGE_NAME }}-${{ matrix.docker_file }}:latest
+          build-args: |
+            REDHAT_ORG=${{ secrets.REDHAT_ORG }}
+            REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
+          cache-from: type=gha
+      - name: Run and test the docker image
+        run: |
+          echo "Waiting for the docker container to start"
+          # Run the pre-build docker image and mount the needed files
+          # Mount the elevation file to avoid downloading it
+          # Mount the osm pbf file for the graph build
+          # Mount the special ors-config.json file for the rpm container
+          docker run -it -d -p 8080:8080 --name ors-rpm-testing \
+            -v $(pwd)/ors-api/src/test/files/elevation/srtm_38_03.gh:/opt/openrouteservice/.elevation-cache/srtm_38_03.gh \
+            -v $(pwd)/ors-api/src/test/files/heidelberg.osm.gz:/opt/openrouteservice/files/osm-file.osm.gz  \
+            -v $(pwd)/.rpm-packaging/ors-config.json:/opt/openrouteservice/config/ors-config.json \
+            -v $RPM_PATH:/tmp/ors.rpm \
+            ${{ env.TEST_IMAGE_NAME }}-${{ matrix.docker_file }}:latest
+          
+          # Create the missing jws5* rpm packages with fakeprovide
+          docker exec -u root ors-rpm-testing fakeprovide jws5-runtime
+          docker exec -u root ors-rpm-testing fakeprovide jws5-tomcat
+          docker exec -u root ors-rpm-testing fakeprovide jws5-tomcat-native
+          docker exec -u root ors-rpm-testing fakeprovide jws5-tomcat-selinux
+          # List the fakeprovide packages
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS | grep fakeprovide"
+          # Install the rpm package as root with the fakeprovide packages
+          docker exec -u root ors-rpm-testing sh -c "yum install -y fakeprovide-jws5-* /tmp/ors.rpm"
+          # Check that the rpm package is installed and fail if $? is not 0
+          docker exec -u root ors-rpm-testing sh -c "rpm -q openrouteservice" || exit 1
+          # TODO: Check that all the files are in it's place after installation.
+          # TODO: Restart the container to load the new configuration
+          
+          # echo "Waiting for the docker container to build graphs and return 200"
+          # .github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
+          echo "Print docker logs"
+          docker logs ors-rpm-testing
 
 #      - name: Attach RPM package to release
 #        uses: actions/upload-release-asset@v1
