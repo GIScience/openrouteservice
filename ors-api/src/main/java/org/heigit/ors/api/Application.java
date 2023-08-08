@@ -2,6 +2,7 @@ package org.heigit.ors.api;
 
 import jakarta.servlet.ServletContextListener;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
+import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.StringUtility;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,6 +24,9 @@ public class Application extends SpringBootServletInitializer {
             System.setProperty(ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY, args[0]);
         }
         SpringApplication.run(Application.class, args);
+        if (RoutingProfileManagerStatus.hasFailed()) {
+            System.exit(1);
+        }
     }
 
     @Bean("ORSInitContextListenerBean")

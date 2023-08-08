@@ -37,7 +37,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
                     environment.getPropertySources().addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, sources.get(0));
                 }
             } catch (IllegalStateException | IOException ex) {
-                // Ignore yml file not present
+                System.out.printf("WARNING: Configuration file '%s' could not be loaded.%n", path);
             }
         }
     }
