@@ -125,6 +125,17 @@ jobs:
             -v $RPM_PATH:/tmp/ors.rpm \
             ${{ env.TEST_IMAGE_NAME }}-${{ matrix.docker_file }}:latest
           
+          ##### Check a clean environment #####
+          # Check that the rpm package is not installed and fail if it is
+          docker exec -u root ors-rpm-testing sh -c "rpm -q openrouteservice" && exit 1 || echo "openrouteservice is not installed"
+          # Check that the folder /opt/openrouteservice doesn't exist and fail if it does
+          docker exec -u root ors-rpm-testing sh -c "ls /opt/openrouteservice" && exit 1 || echo "/opt/openrouteservice doesn't exist"
+          # Check that the folder webapps/ors doesn't exist and fail if it does
+          docker exec -u root ors-rpm-testing sh -c 'ls ${JWS_HOME}/webapps/ors' && exit 1 || echo "webapps/ors doesn't exist"
+          # Check that the folder webapps/ors.war doesn't exist and fail if it does
+          docker exec -u root ors-rpm-testing sh -c 'ls ${JWS_HOME}/webapps/ors.war' && exit 1 || echo "webapps/ors.war doesn't exist"
+          
+          ##### Install the rpm package #####
           # Create the missing jws5* rpm packages with fakeprovide
           docker exec -u root ors-rpm-testing fakeprovide jws5-runtime
           docker exec -u root ors-rpm-testing fakeprovide jws5-tomcat
@@ -133,11 +144,56 @@ jobs:
           # List the fakeprovide packages
           docker exec -u root ors-rpm-testing sh -c "ls -sahlS | grep fakeprovide"
           # Install the rpm package as root with the fakeprovide packages
-          docker exec -u root ors-rpm-testing sh -c "yum install -y fakeprovide-jws5-* /tmp/ors.rpm"
+          docker exec -u root ors-rpm-testing sh -c 'yum install -y fakeprovide-jws5-* /tmp/ors.rpm'
+          
+          ##### Test installation process was successful #####
           # Check that the rpm package is installed and fail if $? is not 0
-          docker exec -u root ors-rpm-testing sh -c "rpm -q openrouteservice" || exit 1
-          # TODO: Check that all the files are in it's place after installation.
-          # TODO: Restart the container to load the new configuration
+          docker exec -u root ors-rpm-testing sh -c "rpm -q openrouteservice" || exit 1 && echo "openrouteservice is installed"
+          # Check that the ors-config.json file is in it's place in /opt/openrouteservice/config/ors-config.json
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/config/ors-config.json" || exit 1
+          # Check that the elevation file is in it's place in /opt/openrouteservice/.elevation-cache/srtm_38_03.gh
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/.elevation-cache/srtm_38_03.gh" || exit 1
+          # Check that the osm pbf file is in it's place in /opt/openrouteservice/files/osm-file.osm.gz
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/files/osm-file.osm.gz" || exit 1
+          # Check that the war file is in it's place in /tmp/ors.war
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /tmp/ors.war" || exit 1
+          # Check ${JWS_HOME}/webapps folder is created
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS ${JWS_HOME}/webapps" || exit 1
+          # Check /opt/openrouteservice/ contains the following folders: config, logs, .war-files, .elevation-cache, files, graphs
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/" || exit 1
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/config" || exit 1
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/logs" || exit 1
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/.war-files" || exit 1
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/.elevation-cache" || exit 1
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/files" || exit 1
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/graphs" || exit 1
+          # Check /opt/openrouteservice/.war-files/$ORS_VERSION_ors.war exists
+          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/.war-files/$ORS_VERSION_ors.war"
+          # Check ${JWS_HOME}/webapps/ doesn't contain a folder called ors after the installation
+          docker exec -u root ors-rpm-testing sh -c 'ls -sahlS ${JWS_HOME}/webapps' | grep ors && exit 1 || echo "webapps/ors doesn't exist"
+          # Check ${JWS_HOME}/webapps/ors.war is a symlink to /opt/openrouteservice/.war-files/$ORS_VERSION_ors.war
+          docker exec -u root ors-rpm-testing sh -c 'if [ -L ${JWS_HOME}/webapps/ors.war ]; then exit 0; else exit 1; fi' && echo "Symlink exists" || echo exit 1
+          # Check the group openrouteservice exists
+          docker exec -u root ors-rpm-testing sh -c "getent group openrouteservice" || exit 1
+          # Check the user openrouteservice and jboss exist
+          docker exec -u root ors-rpm-testing sh -c "getent passwd openrouteservice jboss" || exit 1
+          # Check the users openrouteservice and jboss are in the group openrouteservice
+          docker exec -u root ors-rpm-testing sh -c "getent group openrouteservice | grep openrouteservice | grep jboss" || exit 1
+          # Check that ${JWS_HOME}/bin/setenv.sh contains export ORS_CONFIG=/opt/openrouteservice/config/ors-config.json
+          docker exec -u root ors-rpm-testing sh -c 'cat ${JWS_HOME}/bin/setenv.sh | grep ORS_CONFIG=/opt/openrouteservice/config/ors-config.json' || exit 1
+          # Check that the default java is java-17-openjdk
+          docker exec -u root ors-rpm-testing sh -c 'java -version 2>&1 | grep "openjdk version \"17"' || exit 1'
+          # Check that the number of folders in /opt/openrouteservice/ owned by user and group openrouteservice is 7
+          docker exec -u root ors-rpm-testing sh -c 'find /opt/openrouteservice/ -type d -user openrouteservice -group openrouteservice | wc -l | grep 7' || exit 1
+          # Check that the number of files in /opt/openrouteservice/ owned by user and group openrouteservice is 4
+          docker exec -u root ors-rpm-testing sh -c 'find /opt/openrouteservice/ -type f -user openrouteservice -group openrouteservice | wc -l | grep 4' || exit 1
+          # Check that the number of files and folders in /opt/openrouteservice/ owned by some other user is 0
+          docker exec -u root ors-rpm-testing sh -c 'find /opt/openrouteservice/ -not -user openrouteservice | wc -l | grep 0' || exit 1
+          # Check that the number of files and folders in /opt/openrouteservice/ owned by some other group is 0
+          docker exec -u root ors-rpm-testing sh -c 'find /opt/openrouteservice/ -not -group openrouteservice | wc -l | grep 0' || exit 1
+          
+          # Restart the container to load the new configuration
+          docker restart ors-rpm-testing
           
           # echo "Waiting for the docker container to build graphs and return 200"
           # .github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
