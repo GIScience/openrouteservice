@@ -36,6 +36,7 @@ public class PolylineEncoder {
             encode(lat - prevLat, buffer);
             encode(lon - prevLon, buffer);
 
+            // Note that encoding elevation is not supported by the official polyline encoding
             if (includeElevation) {
                 elev = (long) Math.floor(c.z * 100);
                 encode(elev - prevEle, buffer);

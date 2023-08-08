@@ -32,7 +32,6 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBorde
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import org.heigit.ors.routing.parameters.ProfileParameters;
-import org.heigit.ors.routing.util.ElevationSmoother;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableSteepnessExtraInfoBuilder;
@@ -538,13 +537,10 @@ public class ExtraInfoProcessor implements PathProcessor {
     public PointList processPoints(PointList points) {
         PointList result = points;
 
-        if (points.is3D())
-            result = ElevationSmoother.smooth(points);
-
-        if (steepnessInfoBuilder != null) {
-            // compute steepness information only after elevation data is smoothed.
-            steepnessInfoBuilder.addPoints(result);
-        }
+		if (steepnessInfoBuilder != null) {
+			// compute steepness information only after elevation data is smoothed.
+			steepnessInfoBuilder.addPoints(result);
+		}
 
         return result;
     }
