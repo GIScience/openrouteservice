@@ -2,10 +2,10 @@ package org.heigit.ors.api;
 
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
-import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.util.FileUtility;
+import org.heigit.ors.util.ProfileTools;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -137,7 +137,7 @@ public class EngineProperties {
                 }
                 if (profile.getExtStorages() != null) {
                     for (Map<String, String> storageParams : profile.getExtStorages().values()) {
-                        storageParams.put("gh_profile", RoutingProfile.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(convertedProfile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(convertedProfile.getEncoderOptions())));
+                        storageParams.put("gh_profile", ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(convertedProfile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(convertedProfile.getEncoderOptions())));
                         storageParams.remove("");
                     }
                     convertedProfile.getExtStorages().putAll(profile.getExtStorages());

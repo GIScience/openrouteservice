@@ -16,9 +16,9 @@ package org.heigit.ors.routing.configuration;
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.util.FileUtility;
+import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.StringUtility;
 
 import java.nio.file.Paths;
@@ -157,7 +157,7 @@ public class RoutingManagerConfiguration {
                                     storageParams.put(entry.getKey(), StringUtility.trimQuotes(entry.getValue().toString()));
                                 }
 
-                                storageParams.put("gh_profile", RoutingProfile.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(profile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(profile.getEncoderOptions())));
+                                storageParams.put("gh_profile", ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(profile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(profile.getEncoderOptions())));
 
                                 profile.getExtStorages().put(storageEntry.getKey(), storageParams);
                             }
