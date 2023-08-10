@@ -36,6 +36,7 @@ RELEASING:
 ## [Unreleased]
 
 ### Added
+- snapping service endpoints for returning nearest points on the graph ([#1519](https://github.com/GIScience/openrouteservice/issues/1519))
 - workflow for RPM packaging ([#1490](https://github.com/GIScience/openrouteservice/pull/1490))
 - workflow for graph building with GitHub environments ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
 - environment variables for adjusting folders and paths during graph build using docker: ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
