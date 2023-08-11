@@ -13,7 +13,6 @@ get_date_time() {
 log_error() {
     local message="$1"
     echo -e "\e[31m($(get_date_time) | $SCRIPT_NAME | ERROR ): ${message}\e[0m"
-#    exit 1
 }
 
 # Function to print a success message in green
@@ -33,6 +32,7 @@ check_java_version() {
     result=$(docker exec -u root "$CONTAINER_NAME" bash -c "java -version 2>&1 | grep \"openjdk version \\\"$java_version.\"")
     if [[ -z "$result" ]]; then
         log_error "Java version should be $java_version but is not."
+        return 1
     fi
     log_success "Java version is $java_version as expected"
 }
@@ -50,8 +50,10 @@ check_line_in_file() {
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
         log_error "Line '$line' should exist in file $path_to_file but does not."
+        return 1
     elif [[ "$should_exist" = false && $exit_code -eq 0 ]]; then
         log_error "Line '$line' should not exist in file $path_to_file but does."
+        return 1
     fi
     # If should exist is true, the logging should be different
     if [[ "$should_exist" = true ]]; then
@@ -73,8 +75,10 @@ check_folder_exists() {
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
         log_error "Folder at $path_to_folder should exist but does not."
+        return 1
     elif [[ "$should_exist" = false && $exit_code -eq 0 ]]; then
         log_error "Folder at $path_to_folder should not exist but does."
+        return 1
     fi
     # If should exist is true, the logging should be different
     if [[ "$should_exist" = true ]]; then
@@ -96,8 +100,10 @@ check_file_exists() {
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
             log_error "File or folder at $path_to_file should exist but does not."
+            return 1
     elif [[ "$should_exist" = false && $exit_code -eq 0 ]]; then
             log_error "File or folder at $path_to_file should not exist but does."
+            return 1
     fi
     # If should exist is true, the logging should be different
     if [[ "$should_exist" = true ]]; then
@@ -120,6 +126,7 @@ check_file_is_symlink() {
     exit_code=$?
     if [ "$should_exist" = true ] && [ $exit_code -ne 0 ]; then
         log_error "Symlink at $path_to_file does not exist but should. Exit code was: $exit_code."
+        return 1
     fi
 
     # Check if file is a symlink
@@ -127,8 +134,10 @@ check_file_is_symlink() {
     result=$(docker exec -u root "$CONTAINER_NAME" bash -c "find $path_to_file -type l -xtype f | wc -l")
     if [[ "$should_exist" = true && $result -ne 1 ]]; then
         log_error "A file exists at $path_to_file but it is no symlink."
+        return 1
     elif [[ "$should_exist" = false && $result -ne 0 ]]; then
         log_error "The Symlink at $path_to_file shouldn't exist but does."
+        return 1
     fi
     log_success "Symlink at $path_to_file exists as expected."
 }
@@ -145,8 +154,10 @@ check_group_exists() {
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
         log_error "Group $group_name should exist but does not."
+        return 1
     elif [[ "$should_exist" = false && $exit_code -eq 0 ]]; then
         log_error "Group $group_name shouldn't exist but does."
+        return 1
     fi
     # If should exist is true, the logging should be different
     if [[ "$should_exist" = true ]]; then
@@ -168,8 +179,10 @@ check_user_exists() {
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
       log_error "User $user_name should exist but does not."
+      return 1
     elif [[ "$should_exist" = false && $exit_code -eq 0 ]]; then
         log_error "User $user_name shouldn't exist but does."
+        return 1
     fi
     # If should exist is true, the logging should be different
     if [[ "$should_exist" = true ]]; then
@@ -191,6 +204,7 @@ check_user_in_group() {
     exit_code=$?
     if [[ $exit_code -ne 0 ]]; then
         log_error "User $user_name should be in group $group_name but is not."
+        return 1
     fi
     log_success "User $user_name is in group $group_name as expected."
 }
@@ -218,6 +232,7 @@ find_owned_content() {
     result=$(docker exec -u root "$CONTAINER_NAME" bash -c "find $folder $user_option $group_option | wc -l")
     if [ "$result" != "$count" ]; then
         log_error "Expected $count owned items in $folder but found $result"
+        return 1
     fi
     log_success "Found $count owned items in $folder for user $user | group $group as expected."
 }
@@ -234,8 +249,10 @@ check_rpm_installed() {
     exit_code=$?
     if [[ "$should_be_installed" = "true" && $exit_code -ne 0 ]]; then
         log_error "Package $package should be installed but is not. Message was: $result"
+        return 1
     elif [[ "$should_be_installed" = "false" && $exit_code -eq 0 ]]; then
         log_error "Package $package should not be installed but is. Message was: $result"
+        return 1
     fi
     # If should exist is true, the logging should be different
     if [[ "$should_be_installed" = "true" ]]; then
@@ -248,11 +265,13 @@ check_rpm_installed() {
 # Check that the CONTAINER_NAME variables are set
 if [ -z "$CONTAINER_NAME" ]; then
     log_error "Please set the CONTAINER_NAME variable."
+    return 1
 fi
 
 # Check that the script name is set
 if [ -z "$SCRIPT_NAME" ]; then
     log_error "Please set the SCRIPT_NAME variable."
+    return 1
 fi
 
 
