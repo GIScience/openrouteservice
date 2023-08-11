@@ -18,6 +18,8 @@ Requires:  jws5-tomcat-selinux
 Requires:  java-%{java_version}-openjdk
 Vendor: HeiGIT gGmbH
 
+# For a detailed step explanation see: https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
+
 %description
 The openrouteservice API provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from http://www.openstreetmap.org.
 It is highly customizable, performant and written in Java.
@@ -28,8 +30,8 @@ mkdir -p %{buildroot}%{ors_local_folder}/.war-files/
 cp -f ors.war %{buildroot}%{ors_local_folder}/.war-files/%{ors_version}_ors.war
 
 %files
-# Allow 660 read and write for folders and 644 files for the ors group
-%defattr(644,-,%{ors_group},660)
+# Allow 770 for read and write for files for the ors group
+%defattr(770,%{ors_user},%{ors_group},-)
 "/opt/openrouteservice/.war-files/%{ors_version}_ors.war"
 
 %pre
@@ -121,6 +123,8 @@ alternatives --set java $(readlink -f /etc/alternatives/jre_%{java_version})/bin
 
 # Set the correct permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
 chown -R %{ors_user}:%{ors_group} %{ors_local_folder}
+# Set recursive 770 permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
+chmod -R 770 %{ors_local_folder}
 
 %postun
 # Uninstall routine if $1 is 0 but leave the opt folder
