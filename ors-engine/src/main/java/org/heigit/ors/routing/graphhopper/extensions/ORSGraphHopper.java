@@ -63,6 +63,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTraff
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.heigit.ors.routing.util.RoutingProfileHashBuilder;
 import org.heigit.ors.util.CoordTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -157,6 +158,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     @Override
     public GraphHopper importOrLoad() {
+
+        this.addProfileHashToGhLocation();
         GraphHopper gh = super.importOrLoad();
 
         if ((tmcEdges != null) && (osmId2EdgeIds != null)) {
@@ -193,6 +196,31 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
 
         return gh;
+    }
+
+    public void addProfileHashToGhLocation() {
+        String hash = createProfileHash();
+        String extendedPath = String.join("/", getGraphHopperLocation(), hash);
+        this.setGraphHopperLocation(extendedPath);
+        LOGGER.info("extended graphHopperLocation with hash: %s".formatted(hash));
+    }
+
+    String createProfileHash() {
+        RoutingProfileHashBuilder builder = RoutingProfileHashBuilder.builder()
+                .withString(config.getProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()))
+                .withString(config.getCHProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
+                .withString(config.getLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
+                .withMapStringObject(config.asPMap().toMap(), "pMap");
+        if (config instanceof ORSGraphHopperConfig orsConfig){
+            builder.withString(orsConfig.getCoreProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
+                    .withString(orsConfig.getCoreLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
+                    .withString(orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));
+        }
+        return builder.build();
+        //jh: TODO handle file names: remove path, only keep name. or use file hash
+// name=pedestrian_ors_fastest|vehicle=pedestrian_ors|weighting=fastest|turnCosts=false|hints={}name=pedestrian_ors_recommended|vehicle=pedestrian_ors|weighting=recommended|turnCosts=false|hints={}name=pedestrian_ors_shortest|vehicle=pedestrian_ors|weighting=shortest|turnCosts=false|hints={}
+// pedestrian_ors_recommended|preparation_profile=this|maximum_lm_weight=-1.0pedestrian_ors_shortest|preparation_profile=this|maximum_lm_weight=-1.0
+// pMap(datareader.file=/home/jh/data/osm/andorra-latest.osm.pbf,graph.bytes_for_flags=8,graph.dataaccess=RAM_STORE,graph.elevation.cache_dir=elevation-cache,graph.elevation.clear=false,graph.elevation.dataaccess=MMAP,graph.elevation.provider=multi,graph.elevation.smoothing=true,graph.encoded_values=road_environment,graph.flag_encoders=pedestrian_ors|block_fords=false,graph.location=graphs/walking,index.high_resolution=500,index.max_region_search=4,prepare.core.weightings=no,prepare.fastisochrone.weightings=no,prepare.lm.landmarks=16,prepare.lm.threads=1,prepare.min_network_size=200,prepare.min_one_way_network_size=200,routing.lm.active_landmarks=8)
     }
 
     @Override

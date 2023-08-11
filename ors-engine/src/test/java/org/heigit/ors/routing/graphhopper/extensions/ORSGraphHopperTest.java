@@ -3,14 +3,19 @@ package org.heigit.ors.routing.graphhopper.extensions;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
+import com.graphhopper.config.CHProfile;
+import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
+import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -72,20 +77,8 @@ class ORSGraphHopperTest {
      */
     @Test
     void buildGraphWithPreprocessedData() throws Exception {
-        RouteProfileConfiguration rpc = new RouteProfileConfiguration();
-        rpc.setName("whocares");
-        rpc.setEnabled(true);
-        rpc.setProfiles("driving-car");
-        GraphProcessContext gpc = new GraphProcessContext(rpc);
-        gpc.setGetElevationFromPreprocessedData(true);
-        ORSGraphHopper gh = new ORSGraphHopper(gpc);
-        ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
-        ghConfig.putObject("graph.dataaccess", "RAM");
-        ghConfig.putObject("graph.location", "unittest.testgraph");
-        ghConfig.putObject("datareader.file", "src/test/files/preprocessed_osm_data.pbf");
-        ghConfig.setProfiles(List.of(new Profile("blah").setVehicle("car").setWeighting("fastest").setTurnCosts(true)));
-        gh.init(ghConfig);
-        gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
+        ORSGraphHopper gh = createORSGraphHopper(ghConfig);
         gh.importOrLoad();
         ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
         assertEquals(419, storage.getNodes());
@@ -130,4 +123,126 @@ class ORSGraphHopperTest {
         assertEquals(8.687160015106201, waypoints.getLon(1), 0);
     }
 
+    @Test
+    public void profileHashAddedToGraphHopperLocation() throws Exception {
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
+        ORSGraphHopper gh = createORSGraphHopper(ghConfig);
+
+        String pathBefore = gh.getGraphHopperLocation();
+        String profileHash = gh.createProfileHash();
+        gh.importOrLoad();
+        String pathAfter = gh.getGraphHopperLocation();
+
+        assertNotEquals(pathAfter, pathBefore);
+        assertEquals("%s/%s".formatted(pathBefore, profileHash), pathAfter);
+    }
+
+    static class CountingHashCollector {
+        public int callCount = 0;
+        public Set<String> hashes = new HashSet<>();
+        void createHashAndCount(ORSGraphHopper gh){
+            callCount++;
+            String profileHash = gh.createProfileHash();
+            hashes.add(profileHash);
+            System.out.println(profileHash);
+        }
+    }
+    @Test
+    public void createProfileHash() throws Exception {
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
+        ORSGraphHopper gh = createORSGraphHopper(ghConfig);
+        CountingHashCollector collector = new CountingHashCollector();
+        collector.createHashAndCount(gh);
+
+        gh.getConfig().getProfiles().get(0).setName("changed");
+        collector.createHashAndCount(gh);
+
+        gh.getConfig().getProfiles().get(0).setVehicle("changed");
+        collector.createHashAndCount(gh);
+
+        gh.getConfig().getProfiles().get(0).setTurnCosts(!gh.getConfig().getProfiles().get(0).isTurnCosts());
+        collector.createHashAndCount(gh);
+
+        gh.getConfig().getProfiles().get(0).setWeighting("changed");
+        collector.createHashAndCount(gh);
+
+        gh.getConfig().getCHProfiles().add(new CHProfile("added"));
+        collector.createHashAndCount(gh);
+
+        gh.getConfig().getLMProfiles().add(new LMProfile("added"));
+        collector.createHashAndCount(gh);
+
+        gh.getConfig().getLMProfiles().get(0).setPreparationProfile("changed");
+        collector.createHashAndCount(gh);
+
+        gh.getConfig().getLMProfiles().get(0).setPreparationProfile("this");
+        gh.getConfig().getLMProfiles().get(0).setMaximumLMWeight(gh.getConfig().getLMProfiles().get(0).getMaximumLMWeight()-1);
+        collector.createHashAndCount(gh);
+
+        PMap pMap = gh.getConfig().asPMap();
+        //TODO modify and createHashAndCount
+        assertNotNull(pMap);
+
+//        ORSGraphHopperConfig newConfig = createORSGraphHopperConfig();
+//        gh = createORSGraphHopper(newConfig);
+//        newConfig.putObject("prepare.min_one_way_network_size", gh.getMinNetworkSize()+1);
+//        gh.init(newConfig);
+//        collector.createHashAndCount(gh);
+//
+//        gh.setMinOneWayNetworkSize(gh.getMinOneWayNetworkSize()+1);
+//        collector.createHashAndCount(gh);
+//
+
+
+        ORSGraphHopperConfig config = (ORSGraphHopperConfig) gh.getConfig();
+
+        config.getFastisochroneProfiles().add(new Profile("added"));
+        collector.createHashAndCount(gh);
+
+        config.getFastisochroneProfiles().get(0).setVehicle("changed");
+        collector.createHashAndCount(gh);
+
+        config.getFastisochroneProfiles().get(0).setTurnCosts(!gh.getConfig().getProfiles().get(0).isTurnCosts());
+        collector.createHashAndCount(gh);
+
+        config.getFastisochroneProfiles().get(0).setWeighting("changed");
+        collector.createHashAndCount(gh);
+
+        config.getCoreProfiles().add(new CHProfile("added"));
+        collector.createHashAndCount(gh);
+
+        config.getCoreLMProfiles().add(new LMProfile("added"));
+        collector.createHashAndCount(gh);
+
+        config.getCoreLMProfiles().get(0).setPreparationProfile("changed");
+        collector.createHashAndCount(gh);
+
+        config.getCoreLMProfiles().get(0).setPreparationProfile("this");
+        config.getCoreLMProfiles().get(0).setMaximumLMWeight(gh.getConfig().getLMProfiles().get(0).getMaximumLMWeight()-1);
+        collector.createHashAndCount(gh);
+
+        assertEquals(collector.hashes.size(), collector.callCount);
+    }
+
+    private static ORSGraphHopper createORSGraphHopper(ORSGraphHopperConfig ghConfig) throws Exception {
+        RouteProfileConfiguration rpc = new RouteProfileConfiguration();
+        rpc.setName("whocares");
+        rpc.setEnabled(true);
+        rpc.setProfiles("driving-car");
+        GraphProcessContext gpc = new GraphProcessContext(rpc);
+        gpc.setGetElevationFromPreprocessedData(true);
+        ORSGraphHopper gh = new ORSGraphHopper(gpc);
+        gh.init(ghConfig);
+        gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
+        return gh;
+    }
+
+    private static ORSGraphHopperConfig createORSGraphHopperConfig() {
+        ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
+        ghConfig.putObject("graph.dataaccess", "RAM");
+        ghConfig.putObject("graph.location", "unittest.testgraph");
+        ghConfig.putObject("datareader.file", "src/test/files/preprocessed_osm_data.pbf");
+        ghConfig.setProfiles(List.of(new Profile("blah").setVehicle("car").setWeighting("fastest").setTurnCosts(true)));
+        return ghConfig;
+    }
 }
