@@ -21,7 +21,7 @@ check_folder_exists '${JWS_HOME}/webapps/ors' false || SUCCESSFUL=false
 # shellcheck disable=SC2016
 check_file_exists '${JWS_HOME}/webapps/ors.war' false || SUCCESSFUL=false
 check_file_exists '/tmp/ors.rpm' true || SUCCESSFUL=false
-check_rpm_installed 'openrouteservice' false || SUCCESSFUL=false
+check_rpm_installed 'openrouteservice-jws5' false || SUCCESSFUL=false
 # shellcheck disable=SC2016
 check_line_in_file 'export ORS_CONFIG=' '${JWS_HOME}/bin/setenv.sh' false || SUCCESSFUL=false
 
