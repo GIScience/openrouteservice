@@ -73,10 +73,16 @@ jobs:
           mkdir -p $RPM_BUILD_DIR/{BUILD,RPMS,SPECS,SRPMS}
           cp -f ${{ github.workspace }}/ors-api/target/ors.war $RPM_BUILD_DIR/BUILD/
           rpmbuild -bb ${{ github.workspace }}/.rpm-packaging/ors-war.spec
+          
+          # Save the RPM package name and path as an step output
+          RPM_NAME=openrouteservice-${{ env.ORS_VERSION }}.noarch.rpm"
+          RPM_PATH=${{ github.workspace }}/$RPM_NAME
+          echo "RPM_NAME=$RPM_NAME" >> "$GITHUB_ENV"
+          echo "RPM_PATH=$RPM_PATH" >> "$GITHUB_ENV"
+          
           # Copy the RPM package to the workspace
-          cp -f $RPM_BUILD_DIR/RPMS/noarch/*.rpm ${{ github.workspace }}/ors.rpm
-          # Save the RPM package name as an step output
-          echo "RPM_PATH=${{ github.workspace }}/ors.rpm" >> "$GITHUB_ENV"
+          cp -f $RPM_BUILD_DIR/RPMS/noarch/*.rpm $RPM_PATH
+
 
       - name: Import the GPG key
         uses: MichaelsJP/ghaction-import-gpg@v1.0
@@ -230,10 +236,12 @@ jobs:
       - name: Clean the public GPG key
         run: |
           rm -f ${{ env.GPG_KEY_PATH }}
-#      - name: Attach RPM package to release
-#        uses: actions/upload-release-asset@v1
-#        with:
-#          upload_url: ${{ github.event.release.upload_url }}
-#          asset_path: ~/rpmbuild/RPMS/noarch/my-app-1.0.0-1.noarch.rpm
-#          asset_name: my-app-1.0.0-1.noarch.rpm
-#          asset_content_type: application/x-rpm
+
+      - name: Attach RPM package to release
+        if: github.event_name == 'release' && github.event.action == 'published'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.RPM_PATH }}
+          asset_name: ${{ env.RPM_NAME }}
+          asset_content_type: application/x-rpm
