@@ -47,4 +47,3 @@ check_line_in_file 'export ORS_CONFIG=' '${JWS_HOME}/bin/setenv.sh' false || exi
 # Check for owned content
 find_owned_content "/opt/openrouteservice/*" "openrouteservice" "" 0 || exit 1
 find_owned_content "/opt/openrouteservice/*" "" "openrouteservice" 0 || exit 1
-find_owned_content "/opt/openrouteservice/*" "openrouteservice" "openrouteservice" 0 || exit 1
