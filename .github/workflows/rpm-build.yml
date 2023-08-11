@@ -6,9 +6,9 @@ on:
   #    - created
   workflow_dispatch:
   pull_request:
-    branches: [ v7.2.* ]
+    branches: [ releases/v7.2.* ]
   push:
-    branches: [ v7.2.* ]
+    branches: [ releases/v7.2.* ]
 env:
   HEALTH_WAIT_TIME: 200
   TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
