@@ -6,8 +6,9 @@ on:
   #    - created
   workflow_dispatch:
   pull_request:
-    branches: [ master ]
-
+    branches: [ v7.2.* ]
+  push:
+    branches: [ v7.2.* ]
 env:
   HEALTH_WAIT_TIME: 200
   TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
@@ -18,7 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        docker_file: [ dockerfile-rhel8 ]
+        docker_file: [ dockerfile-jboss-java17-rhel8 ]
+    env:
+      CONTAINER_NAME: ${{ matrix.docker_file }}
+      IMAGE_NAME: local/${{ matrix.docker_file }}:latest
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v2
@@ -74,6 +78,42 @@ jobs:
           # Save the RPM package name as an step output
           echo "RPM_PATH=${{ github.workspace }}/ors.rpm" >> "$GITHUB_ENV"
 
+      - name: Import the GPG key
+        uses: MichaelsJP/ghaction-import-gpg@v1.0
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+          fingerprint: ${{ secrets.GPG_FINGERPRINT }}
+
+      - name: Prepare the signing environment
+        run: |
+          echo "Paste the GPG key fingerprint to the ~/.rpmmacros file"
+          cat > ~/.rpmmacros << EOF
+          %_signature gpg
+          %_gpg_name ${{ secrets.GPG_FINGERPRINT }}
+          EOF
+          
+          echo "List loaded gpg keys in store"
+          gpg --list-secret-keys
+          echo "Import the public GPG key to rpm"
+          gpg --export --armor ${{ secrets.GPG_FINGERPRINT }} > public_key.asc
+          rpm --import public_key.asc
+          echo "List loaded gpg keys in rpm"
+          rpm --query --all | grep --ignore-case gpg
+          # Export the key path to the environment
+          echo "GPG_KEY_PATH=$(realpath public_key.asc)" >> "$GITHUB_ENV"
+
+      - name: Sign the RPM package
+        run: |
+          rpm --addsign ${{ env.RPM_PATH }}
+          # Print signature details
+          rpm --query -pi ${{ env.RPM_PATH }}
+          # Verify the signature and fail if it is not valid
+          rpm --checksig ${{ env.RPM_PATH }}
+          if [ $? -ne 0 ]; then
+            echo "RPM signature is not valid"
+            exit 1
+          fi
       - name: Prepare the graph environment
         run: |
           cp ors-api/src/test/files/elevation/srtm_38_03.gh .rpm-packaging/
@@ -86,19 +126,20 @@ jobs:
           username: ${{ secrets.REDHAT_REGISTRY_LOGIN }}
           password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
 
-      - name: Build rpm test image for dockerfile ${{ matrix.docker_file }}
+      - name: Build rpm image for dockerfile ${{ matrix.docker_file }}
         uses: docker/build-push-action@v4
         with:
           context: .
           file: .rpm-packaging/${{ matrix.docker_file }}
           push: false
           load: false
-          tags: ${{ env.TEST_IMAGE_NAME }}-${{ matrix.docker_file }}:latest
+          tags: ${{ env.IMAGE_NAME }}
           build-args: |
             REDHAT_ORG=${{ secrets.REDHAT_ORG }}
             REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: Load the rpm test image from cache ${{ matrix.docker_file }}
         uses: docker/build-push-action@v4
         with:
@@ -106,100 +147,91 @@ jobs:
           file: .rpm-packaging/${{ matrix.docker_file }}
           push: false
           load: true
-          tags: ${{ env.TEST_IMAGE_NAME }}-${{ matrix.docker_file }}:latest
+          tags: ${{ env.IMAGE_NAME }}
           build-args: |
             REDHAT_ORG=${{ secrets.REDHAT_ORG }}
             REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
           cache-from: type=gha
-      - name: Run and test the docker image
+
+      - name: Setup the docker container
+        shell: bash
         run: |
           echo "Waiting for the docker container to start"
           # Run the pre-build docker image and mount the needed files
           # Mount the elevation file to avoid downloading it
           # Mount the osm pbf file for the graph build
           # Mount the special ors-config.json file for the rpm container
-          docker run -it -d -p 8080:8080 --name ors-rpm-testing \
+          docker run -it -d -p 8080:8080 --name ${{ env.CONTAINER_NAME }} \
             -v $(pwd)/ors-api/src/test/files/elevation/srtm_38_03.gh:/opt/openrouteservice/.elevation-cache/srtm_38_03.gh \
             -v $(pwd)/ors-api/src/test/files/heidelberg.osm.gz:/opt/openrouteservice/files/osm-file.osm.gz  \
             -v $(pwd)/.rpm-packaging/ors-config.json:/opt/openrouteservice/config/ors-config.json \
-            -v $RPM_PATH:/tmp/ors.rpm \
-            ${{ env.TEST_IMAGE_NAME }}-${{ matrix.docker_file }}:latest
-          
-          ##### Check a clean environment #####
-          # Check that the rpm package is not installed and fail if it is
-          docker exec -u root ors-rpm-testing sh -c "rpm -q openrouteservice" && exit 1 || echo "openrouteservice is not installed"
-          # Check that the folder /opt/openrouteservice doesn't exist and fail if it does
-          docker exec -u root ors-rpm-testing sh -c "ls /opt/openrouteservice" && exit 1 || echo "/opt/openrouteservice doesn't exist"
-          # Check that the folder webapps/ors doesn't exist and fail if it does
-          docker exec -u root ors-rpm-testing sh -c 'ls ${JWS_HOME}/webapps/ors' && exit 1 || echo "webapps/ors doesn't exist"
-          # Check that the folder webapps/ors.war doesn't exist and fail if it does
-          docker exec -u root ors-rpm-testing sh -c 'ls ${JWS_HOME}/webapps/ors.war' && exit 1 || echo "webapps/ors.war doesn't exist"
-          
+            -v ${{ env.RPM_PATH }}:/tmp/ors.rpm \
+            -v ${{ env.GPG_KEY_PATH }}:/tmp/public_key.asc \
+            ${{ env.IMAGE_NAME }}
+
+      - name: Check the pre-install environment
+        shell: bash
+        run: |
+          ##### Check the pre install environment #####
+          echo "Checking the pre install environment"
+          bash ${{ github.workspace }}/.rpm-packaging/rhel8_pre_install_check.sh
+
+      - name: Install the rpm package
+        shell: bash
+        run: |
+          ##### Import the GPG key #####
+          echo "Importing the GPG key inside the docker container"
+          docker exec -u root ${{ env.CONTAINER_NAME }} rpm --import /tmp/public_key.asc
+
           ##### Install the rpm package #####
+          echo "Installing the rpm package"
           # Create the missing jws5* rpm packages with fakeprovide
-          docker exec -u root ors-rpm-testing fakeprovide jws5-runtime
-          docker exec -u root ors-rpm-testing fakeprovide jws5-tomcat
-          docker exec -u root ors-rpm-testing fakeprovide jws5-tomcat-native
-          docker exec -u root ors-rpm-testing fakeprovide jws5-tomcat-selinux
+          docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-runtime
+          docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat
+          docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-native
+          docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-selinux
           # List the fakeprovide packages
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS | grep fakeprovide"
+          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c "ls -sahlS | grep fakeprovide"
           # Install the rpm package as root with the fakeprovide packages
-          docker exec -u root ors-rpm-testing sh -c 'yum install -y fakeprovide-jws5-* /tmp/ors.rpm'
+          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum install -y fakeprovide-jws5-* /tmp/ors.rpm'
           
-          ##### Test installation process was successful #####
-          # Check that the rpm package is installed and fail if $? is not 0
-          docker exec -u root ors-rpm-testing sh -c "rpm -q openrouteservice" || exit 1 && echo "openrouteservice is installed"
-          # Check that the ors-config.json file is in it's place in /opt/openrouteservice/config/ors-config.json
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/config/ors-config.json" || exit 1
-          # Check that the elevation file is in it's place in /opt/openrouteservice/.elevation-cache/srtm_38_03.gh
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/.elevation-cache/srtm_38_03.gh" || exit 1
-          # Check that the osm pbf file is in it's place in /opt/openrouteservice/files/osm-file.osm.gz
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/files/osm-file.osm.gz" || exit 1
-          # Check that the war file is in it's place in /tmp/ors.war
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /tmp/ors.war" || exit 1
-          # Check ${JWS_HOME}/webapps folder is created
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS ${JWS_HOME}/webapps" || exit 1
-          # Check /opt/openrouteservice/ contains the following folders: config, logs, .war-files, .elevation-cache, files, graphs
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/" || exit 1
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/config" || exit 1
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/logs" || exit 1
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/.war-files" || exit 1
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/.elevation-cache" || exit 1
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/files" || exit 1
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/graphs" || exit 1
-          # Check /opt/openrouteservice/.war-files/$ORS_VERSION_ors.war exists
-          docker exec -u root ors-rpm-testing sh -c "ls -sahlS /opt/openrouteservice/.war-files/$ORS_VERSION_ors.war"
-          # Check ${JWS_HOME}/webapps/ doesn't contain a folder called ors after the installation
-          docker exec -u root ors-rpm-testing sh -c 'ls -sahlS ${JWS_HOME}/webapps' | grep ors && exit 1 || echo "webapps/ors doesn't exist"
-          # Check ${JWS_HOME}/webapps/ors.war is a symlink to /opt/openrouteservice/.war-files/$ORS_VERSION_ors.war
-          docker exec -u root ors-rpm-testing sh -c 'if [ -L ${JWS_HOME}/webapps/ors.war ]; then exit 0; else exit 1; fi' && echo "Symlink exists" || echo exit 1
-          # Check the group openrouteservice exists
-          docker exec -u root ors-rpm-testing sh -c "getent group openrouteservice" || exit 1
-          # Check the user openrouteservice and jboss exist
-          docker exec -u root ors-rpm-testing sh -c "getent passwd openrouteservice jboss" || exit 1
-          # Check the users openrouteservice and jboss are in the group openrouteservice
-          docker exec -u root ors-rpm-testing sh -c "getent group openrouteservice | grep openrouteservice | grep jboss" || exit 1
-          # Check that ${JWS_HOME}/bin/setenv.sh contains export ORS_CONFIG=/opt/openrouteservice/config/ors-config.json
-          docker exec -u root ors-rpm-testing sh -c 'cat ${JWS_HOME}/bin/setenv.sh | grep ORS_CONFIG=/opt/openrouteservice/config/ors-config.json' || exit 1
-          # Check that the default java is java-17-openjdk
-          docker exec -u root ors-rpm-testing sh -c 'java -version 2>&1 | grep "openjdk version \"17"' || exit 1'
-          # Check that the number of folders in /opt/openrouteservice/ owned by user and group openrouteservice is 7
-          docker exec -u root ors-rpm-testing sh -c 'find /opt/openrouteservice/ -type d -user openrouteservice -group openrouteservice | wc -l | grep 7' || exit 1
-          # Check that the number of files in /opt/openrouteservice/ owned by user and group openrouteservice is 4
-          docker exec -u root ors-rpm-testing sh -c 'find /opt/openrouteservice/ -type f -user openrouteservice -group openrouteservice | wc -l | grep 4' || exit 1
-          # Check that the number of files and folders in /opt/openrouteservice/ owned by some other user is 0
-          docker exec -u root ors-rpm-testing sh -c 'find /opt/openrouteservice/ -not -user openrouteservice | wc -l | grep 0' || exit 1
-          # Check that the number of files and folders in /opt/openrouteservice/ owned by some other group is 0
-          docker exec -u root ors-rpm-testing sh -c 'find /opt/openrouteservice/ -not -group openrouteservice | wc -l | grep 0' || exit 1
-          
+          ##### Check the post install environment #####
+          echo "Checking the post install environment"
+          bash ${{ github.workspace }}/.rpm-packaging/rhel8_post_install_check.sh
+
+      - name: Test the graph building
+        shell: bash
+        run: |
+          ##### Start the graph building #####
           # Restart the container to load the new configuration
-          docker restart ors-rpm-testing
+          docker restart ${{ env.CONTAINER_NAME }}
           
           # echo "Waiting for the docker container to build graphs and return 200"
-          # .github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
+          .github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
           echo "Print docker logs"
-          docker logs ors-rpm-testing
+          docker logs ${{ env.CONTAINER_NAME }}
 
+      - name: Print the container logs
+        shell: bash
+        run: |
+          ##### Print the container logs #####
+          echo "Print docker logs"
+          docker logs ${{ env.CONTAINER_NAME }}
+
+      - name: Uninstall the rpm package
+        shell: bash
+        run: |
+          ##### Uninstall the rpm package #####
+          echo "Uninstalling the rpm package"
+          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum remove -y openrouteservice'
+          
+          ##### Check the post uninstall environment #####
+          echo "Checking the post uninstall environment"
+          bash ${{ github.workspace }}/.rpm-packaging/rhel8_post_uninstall_check.sh
+
+      - name: Clean the public GPG key
+        run: |
+          rm -f ${{ env.GPG_KEY_PATH }}
 #      - name: Attach RPM package to release
 #        uses: actions/upload-release-asset@v1
 #        with:
