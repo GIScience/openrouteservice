@@ -208,13 +208,11 @@ jobs:
           
           # echo "Waiting for the docker container to build graphs and return 200"
           .github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
-          echo "Print docker logs"
-          docker logs ${{ env.CONTAINER_NAME }}
-
-      - name: Print the container logs
+      - name: Print the container logs for debugging
+        if: runner.debug == '1'
         shell: bash
         run: |
-          ##### Print the container logs #####
+          ##### Print the container logs for debugging #####
           echo "Print docker logs"
           docker logs ${{ env.CONTAINER_NAME }}
 
