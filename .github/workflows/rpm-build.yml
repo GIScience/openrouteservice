@@ -258,8 +258,8 @@ jobs:
             exit 1
           fi
       - name: Upload the snapshot RPM package to the nexus snapshots rpm registry
-        # Only upload if event is push and it's on a pull request
-        if: github.event.pull_request
+        # Only upload if this is a push on a release/v7.2.* branch
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/releases/v7.2.')
         run: |
           # Upload it to a subfolder with the name of the branch
           curl -v -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
