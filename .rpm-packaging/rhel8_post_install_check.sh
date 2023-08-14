@@ -17,7 +17,7 @@ SUCCESSFUL=true
 
 echo "Checking the installation"
 # Check if the RPM package is installed
-check_rpm_installed 'openrouteservice' true || SUCCESSFUL=false
+check_rpm_installed 'openrouteservice-jws5' true || SUCCESSFUL=false
 # Check the correct directory and file structure
 check_file_exists '/opt/openrouteservice/config/ors-config.json' true || SUCCESSFUL=false
 check_file_exists '/opt/openrouteservice/.elevation-cache/srtm_38_03.gh' true || SUCCESSFUL=false

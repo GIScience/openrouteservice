@@ -5,10 +5,10 @@
 %define jboss_user jboss
 %define ors_group openrouteservice
 %define ors_user  openrouteservice
-Name: openrouteservice
+Name: openrouteservice-jws5
 Version: %{ors_version}
 Release: 1
-Summary: openrouteservice WAR deployment
+Summary: openrouteservice WAR deployment with JWS5
 License: GPL 3
 BuildArch: noarch
 Requires:  jws5-runtime

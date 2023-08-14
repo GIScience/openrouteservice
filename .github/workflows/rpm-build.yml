@@ -1,14 +1,14 @@
-name: Package Java WAR into RPM
+name: Package Java WAR into RPM with JBoss Web Server 5
 
 on:
-  #  release:
-  #   types:
-  #    - created
+  release:
+    types: [ created ]
+    branches: [ releases/v7.2.* ]
   workflow_dispatch:
   pull_request:
-    branches: [ v7.2.* ]
+    branches: [ releases/v7.2.* ]
   push:
-    branches: [ v7.2.* ]
+    branches: [ releases/v7.2.* ]
 env:
   HEALTH_WAIT_TIME: 200
   TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
@@ -73,10 +73,16 @@ jobs:
           mkdir -p $RPM_BUILD_DIR/{BUILD,RPMS,SPECS,SRPMS}
           cp -f ${{ github.workspace }}/ors-api/target/ors.war $RPM_BUILD_DIR/BUILD/
           rpmbuild -bb ${{ github.workspace }}/.rpm-packaging/ors-war.spec
+          
+          # Save the RPM package name and path as an step output
+          export rpm_name=openrouteservice-${{ env.ORS_VERSION }}-jws5-el8-noarch.rpm
+          export rpm_path=${{ github.workspace }}/$rpm_name
+          echo "RPM_NAME=$rpm_name" >> "$GITHUB_ENV"
+          echo "RPM_PATH=$rpm_path" >> "$GITHUB_ENV"
+          
           # Copy the RPM package to the workspace
-          cp -f $RPM_BUILD_DIR/RPMS/noarch/*.rpm ${{ github.workspace }}/ors.rpm
-          # Save the RPM package name as an step output
-          echo "RPM_PATH=${{ github.workspace }}/ors.rpm" >> "$GITHUB_ENV"
+          cp -f $RPM_BUILD_DIR/RPMS/noarch/*.rpm $rpm_path
+
 
       - name: Import the GPG key
         uses: MichaelsJP/ghaction-import-gpg@v1.0
@@ -208,13 +214,11 @@ jobs:
           
           # echo "Waiting for the docker container to build graphs and return 200"
           .github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
-          echo "Print docker logs"
-          docker logs ${{ env.CONTAINER_NAME }}
-
-      - name: Print the container logs
+      - name: Print the container logs for debugging
+        if: runner.debug == '1'
         shell: bash
         run: |
-          ##### Print the container logs #####
+          ##### Print the container logs for debugging #####
           echo "Print docker logs"
           docker logs ${{ env.CONTAINER_NAME }}
 
@@ -223,7 +227,7 @@ jobs:
         run: |
           ##### Uninstall the rpm package #####
           echo "Uninstalling the rpm package"
-          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum remove -y openrouteservice'
+          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum remove -y openrouteservice-jws5'
           
           ##### Check the post uninstall environment #####
           echo "Checking the post uninstall environment"
@@ -232,10 +236,37 @@ jobs:
       - name: Clean the public GPG key
         run: |
           rm -f ${{ env.GPG_KEY_PATH }}
-#      - name: Attach RPM package to release
-#        uses: actions/upload-release-asset@v1
-#        with:
-#          upload_url: ${{ github.event.release.upload_url }}
-#          asset_path: ~/rpmbuild/RPMS/noarch/my-app-1.0.0-1.noarch.rpm
-#          asset_name: my-app-1.0.0-1.noarch.rpm
-#          asset_content_type: application/x-rpm
+
+      - name: Attach RPM package to release
+        if: github.event_name == 'release' && github.event.action == 'published'
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.RPM_PATH }}
+          asset_name: ${{ env.RPM_NAME }}
+          asset_content_type: application/x-rpm
+
+      - name: Upload the RPM package to the nexus releases rpm registry
+        if: github.event_name == 'release' && github.event.action == 'published'
+        run: |
+          curl -v -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
+              --upload-file '${{ env.RPM_PATH }}' \
+              '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/releases/noarch/${{ env.RPM_NAME }}'
+          res=$?
+          if test "$res" != "0"; then
+            echo "RPM package upload to the nexus rpm registry failed"
+            exit 1
+          fi
+      - name: Upload the snapshot RPM package to the nexus snapshots rpm registry
+        # Only upload if this is a push on a release/v7.2.* branch
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/releases/v7.2.')
+        run: |
+          # Upload it to a subfolder with the name of the branch
+          curl -v -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
+              --upload-file '${{ env.RPM_PATH }}' \
+              '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/snapshots/noarch/${{ env.RPM_NAME }}'
+          res=$?
+          if test "$res" != "0"; then
+            echo "RPM package upload to the nexus rpm registry failed"
+            exit 1
+          fi
