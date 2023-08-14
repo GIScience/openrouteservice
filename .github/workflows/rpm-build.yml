@@ -270,13 +270,3 @@ jobs:
             echo "RPM package upload to the nexus rpm registry failed"
             exit 1
           fi
-#        with:
-#          serverUrl: ${{ secrets.NEXUS_URL }}
-#          username: ${{ secrets.NEXUS_USERNAME }}
-#          password: ${{ secrets.NEXUS_PASSWORD }}
-#          repository: ${{ secrets.NEXUS_RPM_REPOSITORY }}
-#          format: yum
-#          coordinates: groupId=org.heigit.ors artifactId=openrouteservice version=${{ env.VERSION }}
-#          assets: extension=rpm
-#          filename: ${{ env.RPM_PATH }}
-#          failIfAssetExists: false
