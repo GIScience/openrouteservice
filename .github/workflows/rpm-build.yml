@@ -12,6 +12,9 @@ on:
 env:
   HEALTH_WAIT_TIME: 200
   TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
+  RPM_REPO_TESTING_PATH: '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/testing/noarch/'
+  RPM_REPO_SNAPSHOTS_PATH: '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/snapshots/noarch/'
+  RPM_REPO_RELEASES_PATH: '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/releases/noarch/'
 
 jobs:
   prepare_docker_images:
@@ -59,7 +62,7 @@ jobs:
           projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT/.SNAPSHOT/g')
           echo "ORS_VERSION=$projectVersion" >> "$GITHUB_ENV"
 
-      - name: RPMBuild
+      - name: Build the RPM package
         id: rpmbuild
         run: |
           # Define the RPM build directory
@@ -82,7 +85,6 @@ jobs:
           
           # Copy the RPM package to the workspace
           cp -f $RPM_BUILD_DIR/RPMS/noarch/*.rpm $rpm_path
-
 
       - name: Import the GPG key
         uses: MichaelsJP/ghaction-import-gpg@v1.0
@@ -119,11 +121,7 @@ jobs:
           if [ $? -ne 0 ]; then
             echo "RPM signature is not valid"
             exit 1
-          fi
-      - name: Prepare the graph environment
-        run: |
-          cp ors-api/src/test/files/elevation/srtm_38_03.gh .rpm-packaging/
-          cp ors-api/src/test/files/heidelberg.osm.gz .rpm-packaging/
+          fi    
 
       - name: Login to RedHat Container Registry
         uses: docker/login-action@v2
