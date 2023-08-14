@@ -132,21 +132,7 @@ jobs:
           username: ${{ secrets.REDHAT_REGISTRY_LOGIN }}
           password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
 
-      - name: Build rpm image for dockerfile ${{ matrix.docker_file }}
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: .rpm-packaging/${{ matrix.docker_file }}
-          push: false
-          load: false
-          tags: ${{ env.IMAGE_NAME }}
-          build-args: |
-            REDHAT_ORG=${{ secrets.REDHAT_ORG }}
-            REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Load the rpm test image from cache ${{ matrix.docker_file }}
+      - name: Build and load the rpm image for dockerfile ${{ matrix.docker_file }}
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -158,6 +144,7 @@ jobs:
             REDHAT_ORG=${{ secrets.REDHAT_ORG }}
             REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
           cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Setup the docker container
         shell: bash
