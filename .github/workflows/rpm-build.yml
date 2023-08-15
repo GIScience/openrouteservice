@@ -11,7 +11,7 @@ on:
     branches: [ releases/v7.2.* ]
 env:
   HEALTH_WAIT_TIME: 200
-  RPM_TESTING_REPO_WAIT_TIME: 30
+  RPM_TESTING_REPO_WAIT_TIME: 60
   TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
   RPM_REPO_TESTING_URL: '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/testing'
   RPM_REPO_SNAPSHOTS_URL: '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/snapshots'
