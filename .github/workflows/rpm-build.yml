@@ -205,7 +205,7 @@ jobs:
           ##### Wait for the RPM repomd.xml to be initialized #####
           echo "Waiting for the RPM repomd.xml to be initialized"
           # Do a curl request to the testing repository and wait for 200 response
-          .github/utils/url_check.sh ${{ steps.snapshots_and_testing_urls.outputs.rpm_repo_testing_url }}/repodata/repomd.xml 200 ${{ env.RPM_TESTING_REPO_WAIT_TIME }}
+          .github/utils/url_check.sh '${{ steps.snapshots_and_testing_urls.outputs.rpm_repo_testing_url }}/repodata/repomd.xml' 200 ${{ env.RPM_TESTING_REPO_WAIT_TIME }}
 
       - name: Install the rpm package
         shell: bash
@@ -244,7 +244,7 @@ jobs:
           docker restart ${{ env.CONTAINER_NAME }}
           
           # echo "Waiting for the docker container to build graphs and return 200"
-          .github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
+          .github/utils/url_check.sh '127.0.0.1:8080/ors/v2/health' 200 ${{ env.HEALTH_WAIT_TIME }}
       - name: Print the container logs for debugging
         if: runner.debug == '1'
         shell: bash

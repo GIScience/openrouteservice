@@ -1,13 +1,11 @@
 #!/bin/bash
-host=${1}
-port=${2}
-path=${3}
-http_code=${4}
-timeout=${5}
+url=${1}
+http_code=${2}
+timeout=${3}
 # default to 2 sec sleep timer
-sleep=${6:-2}
+sleep=${4:-2}
 # default to reporting every 10 executions
-report_every=${7:-10}
+report_every=${5:-10}
 
 function wait_for_url() {
   local url="$1"
@@ -39,4 +37,4 @@ function wait_for_url() {
   done
 }
 
-wait_for_url "$host:$port$path" "${timeout}" "${http_code}" "${sleep}" "${report_every}"
+wait_for_url "${url}" "${timeout}" "${http_code}" "${sleep}" "${report_every}"
