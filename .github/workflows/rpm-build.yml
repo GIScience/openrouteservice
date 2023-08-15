@@ -142,13 +142,22 @@ jobs:
         run: |
           # Upload the RPM package to the testing repository and only use -v if github.debug is true
 
-          curl -v -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
-            --upload-file '${{ env.RPM_PATH }}' '${{ steps.snapshots_and_testing_urls.outputs.rpm_repo_testing_url }}/${{ env.RPM_NAME }}'
+          code=$(curl -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' --write-out '%{http_code}' \
+            --upload-file '${{ env.RPM_PATH }}' '${{ steps.snapshots_and_testing_urls.outputs.rpm_repo_testing_url }}/${{ env.RPM_NAME }}')
 
           # Validate curls exit code
           if [ $? -ne 0 ]; then
               echo "Failed to upload the RPM package to the testing repository"
               exit 1
+          fi
+          
+          # Validate that the http code is >= 200 and < 300
+          if [ $code -lt 200 ] || [ $code -ge 300 ]; then
+              echo "Failed to upload the RPM package to the testing repository"
+              exit 1
+          else
+            # Echo success
+            echo "Successfully uploaded the RPM package to the testing repository"
           fi
 
       - name: Login to RedHat Container Registry
@@ -199,7 +208,7 @@ jobs:
           echo "Checking the pre install environment"
           bash ${{ github.workspace }}/.rpm-packaging/rhel8_pre_install_check.sh
 
-      - name: Wait for the RPM repo to initialize
+      - name: Wait for the RPM repo to initialize the repodata folder
         shell: bash
         run: |
           ##### Wait for the RPM repomd.xml to be initialized #####
