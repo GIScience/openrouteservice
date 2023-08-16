@@ -13,9 +13,10 @@ env:
   HEALTH_WAIT_TIME: 200
   RPM_TESTING_REPO_WAIT_TIME: 60
   TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
-  RPM_REPO_TESTING_URL: '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/testing'
-  RPM_REPO_SNAPSHOTS_URL: '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/snapshots'
-  RPM_REPO_RELEASES_URL: '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/releases'
+  RPM_REPO_NAME: 'openrouteservice-rpm'
+  RPM_REPO_TESTING_FOLDER: 'testing'
+  RPM_REPO_SNAPSHOTS_FOLDER: 'snapshots'
+  RPM_REPO_RELEASES_FOLDER: 'releases'
 
 jobs:
   prepare_docker_images:
@@ -27,6 +28,9 @@ jobs:
     env:
       CONTAINER_NAME: ${{ matrix.docker_file }}
       IMAGE_NAME: local/${{ matrix.docker_file }}:latest
+      RPM_REPO_TESTING_URL: '${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_TESTING_FOLDER }}'
+      RPM_REPO_RELEASES_URL: '${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_RELEASES_FOLDER }}'
+      RPM_REPO_SNAPSHOTS_URL: '${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_SNAPSHOTS_FOLDER }}'
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v2
@@ -136,7 +140,14 @@ jobs:
           if [ $? -ne 0 ]; then
             echo "RPM signature is not valid"
             exit 1
-          fi    
+          fi
+
+      - name: Prepare the RPM repository
+        run: |
+          # Check that the RPM Nexus repository exists and fail completely if not.
+          .github/utils/check_nexus_repo_exists.sh ${{ secrets.NEXUS_URL }} ${{ env.RPM_REPO_NAME }} ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }} 'true'
+          # Clean the testing repository
+          .github/utils/clean_nexus_repo_folder.sh ${{ secrets.NEXUS_URL }} ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }} ${{ env.RPM_REPO_NAME }} ${{ env.RPM_REPO_TESTING_FOLDER }}#
 
       - name: Upload the testing RPM
         run: |
@@ -320,3 +331,8 @@ jobs:
             echo "RPM package upload to the nexus rpm registry failed"
             exit 1
           fi
+
+      - name: Clean the testing RPM repository
+        run: |
+          # Clean the testing repository
+          .github/utils/clean_nexus_repo_folder.sh ${{ secrets.NEXUS_URL }} ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }} ${{ env.RPM_REPO_NAME }} ${{ env.RPM_REPO_TESTING_FOLDER }}
