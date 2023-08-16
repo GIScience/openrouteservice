@@ -1,6 +1,7 @@
 package org.heigit.ors.api;
 
 import jakarta.servlet.ServletContextListener;
+import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.StringUtility;
@@ -30,9 +31,9 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean("ORSInitContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties) {
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties, GraphService graphService) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener(engineProperties));
+        bean.setListener(new ORSInitContextListener(engineProperties, graphService));
         return bean;
     }
 }

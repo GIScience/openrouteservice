@@ -96,6 +96,16 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
     private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
+    private String routeProfileName;
+    private ORSGraphManager orsGraphManager;
+
+    public ORSGraphManager getOrsGraphManager(){
+        return this.orsGraphManager;
+    }
+
+    public void setRouteProfileName(String routeProfileName) {
+        this.routeProfileName = routeProfileName;
+    }
 
     public GraphHopperConfig getConfig() {
         return config;
@@ -158,8 +168,16 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     @Override
     public GraphHopper importOrLoad() {
+        if (isFullyLoaded()) {
+            throw new IllegalStateException("graph is already successfully loaded");
+        }
 
-        this.addProfileHashToGhLocation();
+        String hash = createProfileHash();
+        String localDirectory = extendGhLocation(hash);
+
+        orsGraphManager = new ORSGraphManager(routeProfileName, hash, localDirectory);
+        orsGraphManager.downloadGraphIfNecessary();
+
         GraphHopper gh = super.importOrLoad();
 
         if ((tmcEdges != null) && (osmId2EdgeIds != null)) {
@@ -198,11 +216,11 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return gh;
     }
 
-    public void addProfileHashToGhLocation() {
-        String hash = createProfileHash();
+    public String extendGhLocation(String hash) {
         String extendedPath = String.join("/", getGraphHopperLocation(), hash);
         this.setGraphHopperLocation(extendedPath);
-        LOGGER.info("extended graphHopperLocation with hash: %s".formatted(hash));
+        LOGGER.info("Extended graphHopperLocation with hash: %s".formatted(hash));
+        return extendedPath;
     }
 
     String createProfileHash() {
@@ -217,7 +235,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                     .withString(orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));
         }
         return builder.build();
-        //jh: TODO handle file names: remove path, only keep name. or use file hash
+        //jh: TODO    IMPORTANT    Handle file names: Remove path, only keep name. Or use file hash.
+        // Because graphs calculated on other machine have different path, but should have same profile hash.
+
 // name=pedestrian_ors_fastest|vehicle=pedestrian_ors|weighting=fastest|turnCosts=false|hints={}name=pedestrian_ors_recommended|vehicle=pedestrian_ors|weighting=recommended|turnCosts=false|hints={}name=pedestrian_ors_shortest|vehicle=pedestrian_ors|weighting=shortest|turnCosts=false|hints={}
 // pedestrian_ors_recommended|preparation_profile=this|maximum_lm_weight=-1.0pedestrian_ors_shortest|preparation_profile=this|maximum_lm_weight=-1.0
 // pMap(datareader.file=/home/jh/data/osm/andorra-latest.osm.pbf,graph.bytes_for_flags=8,graph.dataaccess=RAM_STORE,graph.elevation.cache_dir=elevation-cache,graph.elevation.clear=false,graph.elevation.dataaccess=MMAP,graph.elevation.provider=multi,graph.elevation.smoothing=true,graph.encoded_values=road_environment,graph.flag_encoders=pedestrian_ors|block_fords=false,graph.location=graphs/walking,index.high_resolution=500,index.max_region_search=4,prepare.core.weightings=no,prepare.fastisochrone.weightings=no,prepare.lm.landmarks=16,prepare.lm.threads=1,prepare.min_network_size=200,prepare.min_one_way_network_size=200,routing.lm.active_landmarks=8)

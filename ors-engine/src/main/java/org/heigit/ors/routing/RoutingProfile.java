@@ -135,7 +135,7 @@ public class RoutingProfile {
         gpc.setGetElevationFromPreprocessedData(engineConfig.isElevationPreprocessed());
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc);
-
+        gh.setRouteProfileName(config.getName());
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 

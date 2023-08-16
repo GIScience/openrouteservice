@@ -25,10 +25,13 @@ import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.EngineProperties;
+import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
+import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
 
@@ -38,9 +41,11 @@ import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
     private final EngineProperties engineProperties;
+    private final GraphService graphService;
 
-    public ORSInitContextListener(EngineProperties engineProperties) {
+    public ORSInitContextListener(EngineProperties engineProperties, GraphService graphService) {
         this.engineProperties = engineProperties;
+        this.graphService = graphService;
     }
 
     @Override
@@ -64,7 +69,11 @@ public class ORSInitContextListener implements ServletContextListener {
         Runnable runnable = () -> {
             try {
                 LOGGER.info("Initializing ORS...");
-                new RoutingProfileManager(config);
+                RoutingProfileManager routingProfileManager = new RoutingProfileManager(config);
+                for (RoutingProfile profile : routingProfileManager.getProfiles().getUniqueProfiles()){
+                    ORSGraphHopper orsGraphHopper = profile.getGraphhopper();
+                    graphService.addGraphhopperLocation(orsGraphHopper.getOrsGraphManager());
+                }
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exeception: " + e);
             }
