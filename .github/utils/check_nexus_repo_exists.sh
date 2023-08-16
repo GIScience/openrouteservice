@@ -1,5 +1,19 @@
 #!/bin/bash
 
+
+# Define the ENV SCRIPT_NAME
+# shellcheck disable=SC2034
+SCRIPT_NAME=check_nexus_repo_exists
+
+START_DIRECTORY="$(
+  cd "$(dirname "$0")" >/dev/null 2>&1 || exit 1
+  pwd -P
+)"
+
+# Import helper functions
+. "$START_DIRECTORY/helper/helper_functions.sh"
+
+
 # Function to test if a repository name exists in the JSON data
 # Usage: test_repository_name_exists <repository_name> <nexus_domain> <username> <password> <should_exist>
 test_repository_name_exists() {
@@ -17,18 +31,18 @@ test_repository_name_exists() {
     # Check if the repository name exists in the parsed JSON data
     if [ "$should_exist" = "true" ]; then
         if [ -n "$json_data" ]; then
-            echo "Repository '$repository_name' exists as expected."
+            log_success "Repository '$repository_name' exists as expected."
             exit 0
         else
-            echo "Repository '$repository_name' does not exist, but should."
+            log_error "Repository '$repository_name' does not exist, but should."
             exit 1
         fi
     else
         if [ -n "$json_data" ]; then
-            echo "Repository '$repository_name' exists, but should not."
+            log_error "Repository '$repository_name' exists, but should not."
             exit 1
         else
-            echo "Repository '$repository_name' does not exist as expected."
+            log_success "Repository '$repository_name' does not exist as expected."
             exit 0
         fi
     fi

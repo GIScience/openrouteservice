@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Define the ENV SCRIPT_NAME
+# shellcheck disable=SC2034
+SCRIPT_NAME=clean_nexus_repo
+
+START_DIRECTORY="$(
+  cd "$(dirname "$0")" >/dev/null 2>&1 || exit 1
+  pwd -P
+)"
+
+# Import helper functions
+. "$START_DIRECTORY/helper/helper_functions.sh"
+
+
 # Function to delete an item by ID
 # Usage: delete_nexus_item <item_id> <nexus_domain> <username> <password>
 delete_nexus_item() {
@@ -29,13 +42,13 @@ process_nexus_repo() {
 
     # If the array is empty, echo a message and exit successfully
     if [ ${#item_ids[@]} -eq 0 ]; then
-        echo "Either repository $repository_name not found or no items in the repository found."
+        log_success "No items found in repository '$repository_name'."
         exit 0
     fi
 
     # Iterate over the array and delete files by ID
     for id in "${item_ids[@]}"; do
-        echo "Deleting item with ID: $id"
+        log_success "Deleting item with ID: $id"
         delete_nexus_item "$id" "$nexus_domain" "$username" "$password"
     done
 }
