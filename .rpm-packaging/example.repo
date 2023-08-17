@@ -1,6 +1,6 @@
 [openrouteservice-rpm]
 name=openrouteservice RPM repository
-baseurl=https://test-repo.openrouteservice.org/repository/openrouteservice-rpm/releases/noarch/
+baseurl=https://test-repo.openrouteservice.org/repository/openrouteservice-rpm/releases/openrouteservice-jws5/
 enabled=1
 gpgcheck=1
 gpgkey=https://keys.openpgp.org/vks/v1/by-fingerprint/825F57B756C0B5851C398478585E8FA82AFB5B55

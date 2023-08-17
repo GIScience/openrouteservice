@@ -28,9 +28,7 @@ jobs:
     env:
       CONTAINER_NAME: ${{ matrix.docker_file }}
       IMAGE_NAME: local/${{ matrix.docker_file }}:latest
-      RPM_REPO_TESTING_URL: '${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_TESTING_FOLDER }}'
-      RPM_REPO_RELEASES_URL: '${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_RELEASES_FOLDER }}'
-      RPM_REPO_SNAPSHOTS_URL: '${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_SNAPSHOTS_FOLDER }}'
+
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v2
@@ -67,19 +65,29 @@ jobs:
           projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT/.SNAPSHOT/g')
           echo "ORS_VERSION=$projectVersion" >> "$GITHUB_ENV"
 
-      - name: Extract branch name and set the rpm snapshots and testing repository urls
-        id: snapshots_and_testing_urls
+      - name: Extract branch name and set the jobs environment variables
+        id: job_environment_variables
         shell: bash
         run: |
+          # Define the local urls
+          RPM_REPO_TESTING_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_TESTING_FOLDER }}'
+          RPM_REPO_RELEASES_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_RELEASES_FOLDER }}'
+          RPM_REPO_SNAPSHOTS_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_SNAPSHOTS_FOLDER }}'
+          
+          # Get the branch name
           branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          
           # Replace all slashes and underscores with dashes
           branch=${branch//[\/_]/-}
+          
           # Remove all characters except underscores and alphanumeric characters 
           branch=${branch//[^a-zA-Z0-9_-]/}
           echo "branch=$branch" >> $GITHUB_OUTPUT
-          # Set the testing and snapshot repository url
-          echo "rpm_repo_testing_url=${{ env.RPM_REPO_TESTING_URL }}/$branch/noarch" >> $GITHUB_OUTPUT
-          echo "rpm_repo_snapshots_url=${{ env.RPM_REPO_SNAPSHOTS_URL }}/$branch/noarch" >> $GITHUB_OUTPUT
+          
+          # Set the testing and snapshot repository url to the job output
+          echo "rpm_repo_testing_url=$RPM_REPO_TESTING_URL/$branch" >> $GITHUB_OUTPUT
+          echo "rpm_repo_snapshots_url=$RPM_REPO_SNAPSHOTS_URL/$branch" >> $GITHUB_OUTPUT
+          echo "rpm_repo_releases_url=$RPM_REPO_RELEASES_URL/openrouteservice-jws" >> $GITHUB_OUTPUT
 
       - name: Build the RPM package
         id: rpmbuild
@@ -145,16 +153,16 @@ jobs:
       - name: Prepare the RPM repository
         run: |
           # Check that the RPM Nexus repository exists and fail completely if not.
-          .github/utils/check_nexus_repo_exists.sh ${{ secrets.NEXUS_URL }} ${{ env.RPM_REPO_NAME }} ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }} 'true'
+          .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
           # Clean the testing repository
-          .github/utils/clean_nexus_repo_folder.sh ${{ secrets.NEXUS_URL }} ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }} ${{ env.RPM_REPO_NAME }} ${{ env.RPM_REPO_TESTING_FOLDER }}#
+          .github/utils/clean_nexus_repo_folder.sh '${{ secrets.NEXUS_URL }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_REPO_NAME }}' '${{ env.RPM_REPO_TESTING_FOLDER }}'
 
       - name: Upload the testing RPM
         run: |
           # Upload the RPM package to the testing repository and only use -v if github.debug is true
 
           code=$(curl -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' --write-out '%{http_code}' \
-            --upload-file '${{ env.RPM_PATH }}' '${{ steps.snapshots_and_testing_urls.outputs.rpm_repo_testing_url }}/${{ env.RPM_NAME }}')
+            --upload-file '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/noarch/${{ env.RPM_NAME }}')
 
           # Validate curls exit code
           if [ $? -ne 0 ]; then
@@ -195,7 +203,7 @@ jobs:
       - name: Prepare the example.repo file
         run: |
           # Replace the baseurl line with the testing repository url
-          sed -i "s|baseurl=.*|baseurl=${{ steps.snapshots_and_testing_urls.outputs.rpm_repo_testing_url }}|g" .rpm-packaging/example.repo
+          sed -i "s|baseurl=.*|baseurl=${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}|g" .rpm-packaging/example.repo
 
       - name: Setup the docker container
         shell: bash
@@ -225,7 +233,7 @@ jobs:
           ##### Wait for the RPM repomd.xml to be initialized #####
           echo "Waiting for the RPM repomd.xml to be initialized"
           # Do a curl request to the testing repository and wait for 200 response
-          .github/utils/url_check.sh '${{ steps.snapshots_and_testing_urls.outputs.rpm_repo_testing_url }}/repodata/repomd.xml' 200 ${{ env.RPM_TESTING_REPO_WAIT_TIME }}
+          .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/repodata/repomd.xml' 200 ${{ env.RPM_TESTING_REPO_WAIT_TIME }}
 
       - name: Install the rpm package
         shell: bash
@@ -307,7 +315,7 @@ jobs:
           fi
           curl $verbose_flag -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
               --upload-file '${{ env.RPM_PATH }}' \
-              '${{ env.RPM_REPO_RELEASES_URL }}/noarch/${{ env.RPM_NAME }}'
+              '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/noarch/${{ env.RPM_NAME }}'
           res=$?
           if test "$res" != "0"; then
             echo "RPM package upload to the nexus rpm registry failed"
@@ -325,7 +333,7 @@ jobs:
           # Upload it to a subfolder with the name of the branch
           curl $verbose_flag -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
               --upload-file '${{ env.RPM_PATH }}' \
-              '${{ steps.snapshots_and_testing_urls.outputs.rpm_repo_snapshots_url }}/${{ env.RPM_NAME }}'
+              '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/noarch${{ env.RPM_NAME }}'
           res=$?
           if test "$res" != "0"; then
             echo "RPM package upload to the nexus rpm registry failed"
@@ -335,4 +343,4 @@ jobs:
       - name: Clean the testing RPM repository
         run: |
           # Clean the testing repository
-          .github/utils/clean_nexus_repo_folder.sh ${{ secrets.NEXUS_URL }} ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }} ${{ env.RPM_REPO_NAME }} ${{ env.RPM_REPO_TESTING_FOLDER }}
+          .github/utils/clean_nexus_repo_folder.sh '${{ secrets.NEXUS_URL }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_REPO_NAME }}' '${{ env.RPM_REPO_TESTING_FOLDER }}/${{ steps.job_environment_variables.outputs.branch }}'
