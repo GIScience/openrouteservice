@@ -168,25 +168,8 @@ jobs:
 
       - name: Upload the testing RPM
         run: |
-          # Upload the RPM package to the testing repository and only use -v if github.debug is true
-
-          code=$(curl -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' --write-out '%{http_code}' \
-            --upload-file '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/noarch/${{ env.RPM_NAME }}')
-
-          # Validate curls exit code
-          if [ $? -ne 0 ]; then
-              echo "Failed to upload the RPM package to the testing repository"
-              exit 1
-          fi
-          
-          # Validate that the http code is >= 200 and < 300
-          if [ $code -lt 200 ] || [ $code -ge 300 ]; then
-              echo "Failed to upload the RPM package to the testing repository"
-              exit 1
-          else
-            # Echo success
-            echo "Successfully uploaded the RPM package to the testing repository"
-          fi
+          # Upload the RPM package to the testing repository
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/noarch/${{ env.RPM_NAME }}'
 
       - name: Login to RedHat Container Registry
         uses: docker/login-action@v2
@@ -318,36 +301,14 @@ jobs:
         if: github.event_name == 'release' && github.event.action == 'published'
         run: |
           # Only upload with verbose mode if debug is enabled
-          verbose_flag=""
-          if [ "${{ github.debug }}" = "true" ]; then
-          verbose_flag="-v"
-          fi
-          curl $verbose_flag -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
-              --upload-file '${{ env.RPM_PATH }}' \
-              '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/noarch/${{ env.RPM_NAME }}'
-          res=$?
-          if test "$res" != "0"; then
-            echo "RPM package upload to the nexus rpm registry failed"
-            exit 1
-          fi
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/noarch/${{ env.RPM_NAME }}'
+
       - name: Upload the snapshot RPM package to the nexus snapshots rpm registry
         # Only upload if this is a push on a release/v7.2.* branch
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/releases/v7.2.')
         run: |
           # Only upload with verbose mode if debug is enabled
-          verbose_flag=""
-          if [ "${{ github.debug }}" = "true" ]; then
-          verbose_flag="-v"
-          fi
-          # Upload it to a subfolder with the name of the branch
-          curl $verbose_flag -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
-              --upload-file '${{ env.RPM_PATH }}' \
-              '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/noarch${{ env.RPM_NAME }}'
-          res=$?
-          if test "$res" != "0"; then
-            echo "RPM package upload to the nexus rpm registry failed"
-            exit 1
-          fi
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/noarch/${{ env.RPM_NAME }}'
 
       - name: Clean the testing RPM repository
         run: |
