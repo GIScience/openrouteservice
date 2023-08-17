@@ -21,3 +21,11 @@ log_success() {
     local message="$1"
     echo -e "\e[32m($(get_date_time) | $SCRIPT_NAME | SUCCESS ): ${message}\e[0m"
 }
+
+
+# Function to print a info message in blue
+# Usage: log_info <message>
+log_info() {
+    local message="$1"
+    echo -e "\e[34m($(get_date_time) | $SCRIPT_NAME | INFO ): ${message}\e[0m"
+}

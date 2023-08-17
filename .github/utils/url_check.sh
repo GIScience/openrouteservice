@@ -43,7 +43,7 @@ function wait_for_url() {
       return 1
     fi
     if [ $(( turn % report_every )) -eq "0" ]; then
-      log_success "GET request failed with response code ${response} for ${url}, retrying for another ${remaining_time} seconds..."
+      log_info "GET request failed with response code ${response} for ${url}, retrying for another ${remaining_time} seconds..."
     fi
     (( turn+=1 ))
     sleep "$sleep"

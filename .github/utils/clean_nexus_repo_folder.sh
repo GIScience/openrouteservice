@@ -59,7 +59,7 @@ process_nexus_repo() {
         # Extract .repository, .assets into variables
         repository=$(echo "$item" | jq -r '.repository')
         assets=$(echo "$item" | jq -r '.assets')
-        echo "Processing repository '$repository'."
+        log_info "Processing repository '$repository'."
         # Iterate over the assets array and extract .path and .id into variables
         for asset in $(echo "$assets" | jq -r -c '.[]'); do
             # Extract .path and .id into variables from the asset json object stored as a string with jq
@@ -67,8 +67,8 @@ process_nexus_repo() {
             id=$(echo "$asset" | jq -r '.id')
             # Check if the path contains the repository directory
             if [[ "$path" == "$repository_directory"* ]]; then
-                echo "Path contains '$repository_directory'."
-                echo "Deleting item with ID '$id' and path '$path' from repository '$repository_name'."
+                log_info "Path contains '$repository_directory'."
+                log_info "Deleting item with ID '$id' and path '$path' from repository '$repository_name'."
                 # Delete the item
                 delete_nexus_item "$id" "$nexus_domain" "$username" "$password"
             fi
