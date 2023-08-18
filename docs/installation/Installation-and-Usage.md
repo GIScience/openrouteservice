@@ -25,13 +25,16 @@ More explanation about customization can be found in the [Advanced Docker Setup]
 
 ## Installation of `openrouteservice-jws5` via RPM Package
 
-The following explanation will guide you through the installation of the `openrouteservice-jws5` package on `RHEL8/CentOS 8` with `Java 17` and `JBoss Web Server 5` for `ors version 7.2.x`.
+The following explanation will guide you through the installation of the `openrouteservice-jws5` package
+on `RHEL8/CentOS 8` with `Java 17` and `JBoss Web Server 5` for `ors version 7.2.x`.
 
 ---
 **Necessary Packages**
 
 To successfully install OpenRouteService via the RPM package,
-ensure that your RedHat Enterprise Linux 8 or CentOS 8 system has the following packages enabled through the subscription manager::
+ensure that your RedHat Enterprise Linux 8 or CentOS 8 system has the following packages enabled through the
+subscription manager::
+
 ```bash
 - jws5-runtime  
 - jws5-tomcat  
@@ -40,7 +43,7 @@ ensure that your RedHat Enterprise Linux 8 or CentOS 8 system has the following 
 - java-17-openjdk
 ```
 
-In case these packages are absent, the installation process will make an automatic attempt to install them. 
+In case these packages are absent, the installation process will make an automatic attempt to install them.
 A failure to do so will result in the inability to install the `openrouteservice-jws5` package.
 
 ---
@@ -66,17 +69,20 @@ The expected output should be the `tomcat` installation directory of JBoss Web S
 ---
 **Required JWS5 User**
 
-The installation of `openrouteservice-jws5` anticipates one of the following users to be present and employed **as the execution user** by JBoss Web Server 5:
+The installation of `openrouteservice-jws5` anticipates one of the following users to be present and employed **as the
+execution user** by JBoss Web Server 5:
 
 - `jboss` or
 - `tomcat`
 
-The existence of either `jboss` **or** `tomcat` users is mandatory for the successful installation of `openrouteservice-jws5`.
+The existence of either `jboss` **or** `tomcat` users is mandatory for the successful installation
+of `openrouteservice-jws5`.
 
 ---
 **Yum .repo Configuration**
 
-To access and install `openrouteservice` via RPM packages from our repository, set up the following .repo file within `/etc/yum.repos.d/`:
+To access and install `openrouteservice` via RPM packages from our repository, set up the following .repo file
+within `/etc/yum.repos.d/`:
 
 > /etc/yum.repos.d/ors.repo
 
@@ -96,8 +102,9 @@ gpgkey=https://keys.openpgp.org/vks/v1/by-fingerprint/825F57B756C0B5851C39847858
 #gpgcheck=1
 #gpgkey=https://keys.openpgp.org/vks/v1/by-fingerprint/825F57B756C0B5851C398478585E8FA82AFB5B55
 ```
-This repository includes two channels: `snapshots` and `releases`. 
-The `snapshots channel` contains the latest snapshot builds of the `openrouteservice-jws5` package, 
+
+This repository includes two channels: `snapshots` and `releases`.
+The `snapshots channel` contains the latest snapshot builds of the `openrouteservice-jws5` package,
 while the `releases channel` holds the latest release builds (though it is not yet operational).
 
 ---
@@ -108,23 +115,28 @@ To install the latest snapshot build of the `openrouteservice-jws5` package, run
 ```bash
 yum update && yum install openrouteservice-jws5
 ``` 
+
 ---
 **Default openrouteservice User and Group**
 
-The installation of `openrouteservice-jws5` establishes a `new openrouteservice user and group`. 
-This `non-root`, `nologin` user is employed to securely manage RPM package files and directories during installation, upgrading, and removal of openrouteservice-jws5 packages.
+The installation of `openrouteservice-jws5` establishes a `new openrouteservice user and group`.
+This `non-root`, `nologin` user is employed to securely manage RPM package files and directories during installation,
+upgrading, and removal of openrouteservice-jws5 packages.
 
-Both `jboss` and `tomcat` users `are assigned membership` within the openrouteservice group, 
-granting them access to manipulate files and folders `within /opt/openrouteservice/` and its subdirectories. 
+Both `jboss` and `tomcat` users `are assigned membership` within the openrouteservice group,
+granting them access to manipulate files and folders `within /opt/openrouteservice/` and its subdirectories.
 
-Upon each execution of the openrouteservice-jws5 package's update routine, file and folder permissions within `/opt/openrouteservice` are realigned to the openrouteservice user and group.
+Upon each execution of the openrouteservice-jws5 package's update routine, file and folder permissions
+within `/opt/openrouteservice` are realigned to the openrouteservice user and group.
 
-This collaborative group setup prevents interference between the jboss and tomcat user permissions during installation, ensuring a smooth process.
+This collaborative group setup prevents interference between the jboss and tomcat user permissions during installation,
+ensuring a smooth process.
 
 ---
 **Default folder structure**
 
-Upon installation, `openrouteservice-jws5` generates the `/opt/openrouteservice/ working directory`, which houses the subsequent subfolders (initially empty unless manually created):
+Upon installation, `openrouteservice-jws5` generates the `/opt/openrouteservice/ working directory`, which houses the
+subsequent subfolders (initially empty unless manually created):
 
 ```bash
 /opt/openrouteservice/
@@ -136,24 +148,28 @@ Upon installation, `openrouteservice-jws5` generates the `/opt/openrouteservice/
 └── logs # Contains the log files
 ```
 
-Of these folders, only `.war-files` houses the versioned `.war files`. 
-The remaining folders are empty following the first installation. 
-Always, `the .war-files folder retains all versioned .war files` from prior installations. 
-The current `.war file` from the latest package installation is `linked` to the tomcat server `through a symbolic link`, as follows:
+Of these folders, only `.war-files` houses the versioned `.war files`.
+The remaining folders are empty following the first installation.
+Always, `the .war-files folder retains all versioned .war files` from prior installations.
+The current `.war file` from the latest package installation is `linked` to the tomcat server `through a symbolic link`,
+as follows:
 
 > (symlink) ${JWS_HOME}/webapps/ors.war -> /opt/openrouteservice/.war-files/openrouteservice-{LATEST_VERSION}.war
 ---
 **Configuration**
 
-For proper operation, the `openrouteservice-jws5` installation `necessitates` the presence of the `ors-config.yml` configuration file within the `/opt/openrouteservice/config/` directory. 
+For proper operation, the `openrouteservice-jws5` installation `necessitates` the presence of the `ors-config.yml`
+configuration file within the `/opt/openrouteservice/config/` directory.
 This configuration file effectively configures the openrouteservice backend.
 
-Upon installation, a sample configuration file (`config-example.yml`) can be located `within` the `/opt/openrouteservice/config/` directory.
+Upon installation, a sample configuration file (`config-example.yml`) can be located `within`
+the `/opt/openrouteservice/config/` directory.
 
 ---
 **Example Usage**
 
-The following usage example showcases the execution of OpenRouteService with the recently installed `openrouteservice-jws5` package:
+The following usage example showcases the execution of OpenRouteService with the recently
+installed `openrouteservice-jws5` package:
 
 ```bash
 # Obtain a OSM file using curl
@@ -164,6 +180,7 @@ cp /opt/openrouteservice/config/config-example.yml /opt/openrouteservice/config/
 # Check the endpoint ors/v2/status, which should display "ready" once graph construction is complete.
 curl http://127.0.0.1:8080/ors/v2/status
 ```
+
 ---
 
 ## Other Resources
