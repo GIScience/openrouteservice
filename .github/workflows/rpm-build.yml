@@ -11,9 +11,10 @@ on:
     branches: [ releases/v7.2.* ]
 env:
   HEALTH_WAIT_TIME: 200
-  RPM_TESTING_REPO_WAIT_TIME: 60
+  RPM_REPO_INIT_WAIT_TIME: 60
   TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
   RPM_REPO_NAME: 'openrouteservice-rpm'
+  RPM_TESTING_REPO_NAME: 'openrouteservice-rpm-testing'
   RPM_REPO_TESTING_FOLDER: 'testing'
   RPM_REPO_SNAPSHOTS_FOLDER: 'snapshots'
   RPM_REPO_RELEASES_FOLDER: 'releases'
@@ -74,7 +75,7 @@ jobs:
         shell: bash
         run: |
           # Define the local urls
-          RPM_REPO_TESTING_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_TESTING_FOLDER }}'
+          RPM_REPO_TESTING_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_TESTING_REPO_NAME }}/${{ env.RPM_REPO_TESTING_FOLDER }}'
           RPM_REPO_RELEASES_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_RELEASES_FOLDER }}'
           RPM_REPO_SNAPSHOTS_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_SNAPSHOTS_FOLDER }}'
           
@@ -160,12 +161,12 @@ jobs:
             exit 1
           fi
 
-      - name: Prepare the RPM repository
+      - name: Prepare the RPM testing repository
         run: |
-          # Check that the RPM Nexus repository exists and fail completely if not.
-          .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
+          # Check that the RPM Nexus testing repository exists and fail completely if not.
+          .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_TESTING_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
           # Clean the testing repository
-          .github/utils/clean_nexus_repo_folder.sh '${{ secrets.NEXUS_URL }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_REPO_NAME }}' '${{ env.RPM_REPO_TESTING_FOLDER }}'
+          .github/utils/clean_nexus_repo_folder.sh '${{ secrets.NEXUS_URL }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_TESTING_REPO_NAME }}' '${{ env.RPM_REPO_TESTING_FOLDER }}'
 
       - name: Upload the testing RPM
         run: |
@@ -224,7 +225,7 @@ jobs:
           ##### Wait for the RPM repomd.xml to be initialized #####
           echo "Waiting for the RPM repomd.xml to be initialized"
           # Do a curl request to the testing repository and wait for 200 response
-          .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/repodata/repomd.xml' 200 ${{ env.RPM_TESTING_REPO_WAIT_TIME }}
+          .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/repodata/repomd.xml' 200 ${{ env.RPM_REPO_INIT_WAIT_TIME }}
 
       - name: Install the rpm package
         shell: bash
@@ -297,13 +298,23 @@ jobs:
       - name: Upload the RPM package to the nexus releases rpm registry
         if: github.event_name == 'release' && github.event.action == 'published'
         run: |
+          # Check that the RPM Nexus releases repository exists and fail completely if not.
+          .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
+          # Upload the RPM package to the nexus releases rpm registry
           .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/noarch/${{ env.RPM_NAME }}'
+          # Do a curl request to the releases repository and wait for the repomd.xml to be initialized to ensure a correct repository
+          .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/repodata/repomd.xml' 200 ${{ env.RPM_REPO_INIT_WAIT_TIME }}
 
       - name: Upload the snapshot RPM package to the nexus snapshots rpm registry
         # Only upload if this is a push on a release/v7.2.* branch
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/releases/v7.2.')
         run: |
+          # Check that the RPM Nexus snapshots repository exists and fail completely if not.
+          .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
+          # Upload the RPM package to the nexus snapshots rpm registry
           .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/noarch/${{ env.RPM_NAME }}'
+          # Do a curl request to the releases repository and wait for the repomd.xml to be initialized to ensure a correct repository
+          .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/repodata/repomd.xml' 200 ${{ env.RPM_REPO_INIT_WAIT_TIME }}
 
       - name: Clean the testing RPM repository
         run: |
