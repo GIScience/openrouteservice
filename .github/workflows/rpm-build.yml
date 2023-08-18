@@ -111,6 +111,7 @@ jobs:
           # Create the RPM build directory structure from scratch
           mkdir -p $RPM_BUILD_DIR/{BUILD,RPMS,SPECS,SRPMS}
           cp -f ${{ github.workspace }}/ors-api/target/ors.war $RPM_BUILD_DIR/BUILD/
+          cp -f ${{ github.workspace }}/.rpm-packaging/example-config.json $RPM_BUILD_DIR/BUILD/
           rpmbuild -bb ${{ github.workspace }}/.rpm-packaging/ors-war.spec
           
           # Save the RPM package name and path as an step output
@@ -204,11 +205,9 @@ jobs:
           # Run the pre-build docker image and mount the needed files
           # Mount the elevation file to avoid downloading it
           # Mount the osm pbf file for the graph build
-          # Mount the special ors-config.json file for the rpm container
           docker run -it -d -p 8080:8080 --name ${{ env.CONTAINER_NAME }} \
             -v $(pwd)/ors-api/src/test/files/elevation/srtm_38_03.gh:/opt/openrouteservice/.elevation-cache/srtm_38_03.gh \
             -v $(pwd)/ors-api/src/test/files/heidelberg.osm.gz:/opt/openrouteservice/files/osm-file.osm.gz  \
-            -v $(pwd)/.rpm-packaging/ors-config.json:/opt/openrouteservice/config/ors-config.json \
             -v $(pwd)/.rpm-packaging/example.repo:/etc/yum.repos.d/ors.repo \
             ${{ env.IMAGE_NAME }}
 
@@ -258,8 +257,11 @@ jobs:
 
       - name: Test the graph building
         shell: bash
-        run: |
+        run: |          
           ##### Start the graph building #####
+          # Copy the /opt/openrouteservice/config/example-config.json to /opt/openrouteservice/config/ors-config.json
+          docker exec -u jboss ${{ env.CONTAINER_NAME }} sh -c 'cp /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json'
+          
           # Restart the container to load the new configuration
           docker restart ${{ env.CONTAINER_NAME }}
           

@@ -19,7 +19,7 @@ echo "Checking the installation"
 # Check if the RPM package is installed
 check_rpm_installed 'openrouteservice-jws5' true || SUCCESSFUL=false
 # Check the correct directory and file structure
-check_file_exists '/opt/openrouteservice/config/ors-config.json' true || SUCCESSFUL=false
+check_file_exists '/opt/openrouteservice/config/example-config.json' true || SUCCESSFUL=false
 check_file_exists '/opt/openrouteservice/.elevation-cache/srtm_38_03.gh' true || SUCCESSFUL=false
 check_file_exists '/opt/openrouteservice/files/osm-file.osm.gz' true || SUCCESSFUL=false
 # shellcheck disable=SC2016
@@ -32,6 +32,8 @@ check_folder_exists '/opt/openrouteservice/.elevation-cache' true || SUCCESSFUL=
 check_folder_exists '/opt/openrouteservice/files' true || SUCCESSFUL=false
 check_folder_exists '/opt/openrouteservice/graphs' true || SUCCESSFUL=false
 check_file_exists "/opt/openrouteservice/.war-files/${ORS_VERSION}_ors.war" true || SUCCESSFUL=false
+check_file_exists '/opt/openrouteservice/config/example-config.json' true || SUCCESSFUL=false
+
 # shellcheck disable=SC2016
 check_folder_exists '${JWS_HOME}/webapps/ors' false || SUCCESSFUL=false
 # shellcheck disable=SC2016

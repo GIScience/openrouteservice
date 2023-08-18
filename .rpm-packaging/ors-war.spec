@@ -27,12 +27,17 @@ This rpm package looks for an installation of JBoss JWS and installs the WAR fil
 
 %install
 mkdir -p %{buildroot}%{ors_local_folder}/.war-files/
+mkdir -p %{buildroot}%{ors_local_folder}/config/
+# Copy the ors.war file to the .war-files folder
 cp -f ors.war %{buildroot}%{ors_local_folder}/.war-files/%{ors_version}_ors.war
+# Copy the example-config.json file to the config folder
+cp -f example-config.json %{buildroot}%{ors_local_folder}/config/example-config.json
 
 %files
 # Allow 770 for read and write for files for the ors group
 %defattr(770,%{ors_user},%{ors_group},-)
-"/opt/openrouteservice/.war-files/%{ors_version}_ors.war"
+"%{ors_local_folder}/.war-files/%{ors_version}_ors.war"
+"%{ors_local_folder}/config/example-config.json"
 
 %pre
 # Check for the JWS home ENV variable to be set and echo 'set'

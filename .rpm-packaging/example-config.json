@@ -324,6 +324,12 @@
           }
         }
       }
+    },
+    "logging": {
+      "enabled": true,
+      "level_file": "DEFAULT_LOGGING.json",
+      "location": "/opt/openrouteservice/logs",
+      "stdout": true
     }
   }
 }
