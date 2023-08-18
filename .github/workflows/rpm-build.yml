@@ -11,7 +11,13 @@ on:
     branches: [ releases/v7.2.* ]
 env:
   HEALTH_WAIT_TIME: 200
+  RPM_REPO_INIT_WAIT_TIME: 60
   TEST_IMAGE_NAME: 'local/rhel8-jboss-java17-webserver5'
+  RPM_REPO_NAME: 'openrouteservice-rpm'
+  RPM_TESTING_REPO_NAME: 'openrouteservice-rpm-testing'
+  RPM_REPO_TESTING_FOLDER: 'testing'
+  RPM_REPO_SNAPSHOTS_FOLDER: 'snapshots'
+  RPM_REPO_RELEASES_FOLDER: 'releases'
 
 jobs:
   prepare_docker_images:
@@ -23,7 +29,12 @@ jobs:
     env:
       CONTAINER_NAME: ${{ matrix.docker_file }}
       IMAGE_NAME: local/${{ matrix.docker_file }}:latest
+
     steps:
+      - name: Print Workflow Run ID
+        run: |
+          echo "Workflow Run ID: ${{ github.run_id }}"
+
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
@@ -59,7 +70,36 @@ jobs:
           projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT/.SNAPSHOT/g')
           echo "ORS_VERSION=$projectVersion" >> "$GITHUB_ENV"
 
-      - name: RPMBuild
+      - name: Extract branch name and set the jobs environment variables
+        id: job_environment_variables
+        shell: bash
+        run: |
+          # Define the local urls
+          RPM_REPO_TESTING_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_TESTING_REPO_NAME }}/${{ env.RPM_REPO_TESTING_FOLDER }}'
+          RPM_REPO_RELEASES_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_RELEASES_FOLDER }}'
+          RPM_REPO_SNAPSHOTS_URL='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_REPO_NAME }}/${{ env.RPM_REPO_SNAPSHOTS_FOLDER }}'
+          
+          # Get the branch name
+          branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          
+          # Replace all slashes and underscores with dashes
+          branch=${branch//[\/_]/-}
+          
+          # Remove all characters except underscores and alphanumeric characters 
+          branch=${branch//[^a-zA-Z0-9_-]/}
+          
+          # Add the github run ID to the branch name
+          branch=$branch-${{ github.run_id }}
+          
+          # Save the branch name to the environment
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+          
+          # Set the testing and snapshot repository url to the job output
+          echo "rpm_repo_testing_url=$RPM_REPO_TESTING_URL/$branch" >> $GITHUB_OUTPUT
+          echo "rpm_repo_snapshots_url=$RPM_REPO_SNAPSHOTS_URL/$branch" >> $GITHUB_OUTPUT
+          echo "rpm_repo_releases_url=$RPM_REPO_RELEASES_URL/openrouteservice-jws" >> $GITHUB_OUTPUT
+
+      - name: Build the RPM package
         id: rpmbuild
         run: |
           # Define the RPM build directory
@@ -72,6 +112,7 @@ jobs:
           # Create the RPM build directory structure from scratch
           mkdir -p $RPM_BUILD_DIR/{BUILD,RPMS,SPECS,SRPMS}
           cp -f ${{ github.workspace }}/ors-api/target/ors.war $RPM_BUILD_DIR/BUILD/
+          cp -f ${{ github.workspace }}/.rpm-packaging/example-config.json $RPM_BUILD_DIR/BUILD/
           rpmbuild -bb ${{ github.workspace }}/.rpm-packaging/ors-war.spec
           
           # Save the RPM package name and path as an step output
@@ -82,7 +123,6 @@ jobs:
           
           # Copy the RPM package to the workspace
           cp -f $RPM_BUILD_DIR/RPMS/noarch/*.rpm $rpm_path
-
 
       - name: Import the GPG key
         uses: MichaelsJP/ghaction-import-gpg@v1.0
@@ -120,10 +160,18 @@ jobs:
             echo "RPM signature is not valid"
             exit 1
           fi
-      - name: Prepare the graph environment
+
+      - name: Prepare the RPM testing repository
         run: |
-          cp ors-api/src/test/files/elevation/srtm_38_03.gh .rpm-packaging/
-          cp ors-api/src/test/files/heidelberg.osm.gz .rpm-packaging/
+          # Check that the RPM Nexus testing repository exists and fail completely if not.
+          .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_TESTING_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
+          # Clean the testing repository
+          .github/utils/clean_nexus_repo_folder.sh '${{ secrets.NEXUS_URL }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_TESTING_REPO_NAME }}' '${{ env.RPM_REPO_TESTING_FOLDER }}'
+
+      - name: Upload the testing RPM
+        run: |
+          # Upload the RPM package to the testing repository
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/noarch/${{ env.RPM_NAME }}'
 
       - name: Login to RedHat Container Registry
         uses: docker/login-action@v2
@@ -132,21 +180,7 @@ jobs:
           username: ${{ secrets.REDHAT_REGISTRY_LOGIN }}
           password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
 
-      - name: Build rpm image for dockerfile ${{ matrix.docker_file }}
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: .rpm-packaging/${{ matrix.docker_file }}
-          push: false
-          load: false
-          tags: ${{ env.IMAGE_NAME }}
-          build-args: |
-            REDHAT_ORG=${{ secrets.REDHAT_ORG }}
-            REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Load the rpm test image from cache ${{ matrix.docker_file }}
+      - name: Build and load the rpm image for dockerfile ${{ matrix.docker_file }}
         uses: docker/build-push-action@v4
         with:
           context: .
@@ -158,6 +192,12 @@ jobs:
             REDHAT_ORG=${{ secrets.REDHAT_ORG }}
             REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
           cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Prepare the example.repo file
+        run: |
+          # Replace the baseurl line with the testing repository url
+          sed -i "s|baseurl=.*|baseurl=${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}|g" .rpm-packaging/example.repo
 
       - name: Setup the docker container
         shell: bash
@@ -166,13 +206,10 @@ jobs:
           # Run the pre-build docker image and mount the needed files
           # Mount the elevation file to avoid downloading it
           # Mount the osm pbf file for the graph build
-          # Mount the special ors-config.json file for the rpm container
           docker run -it -d -p 8080:8080 --name ${{ env.CONTAINER_NAME }} \
             -v $(pwd)/ors-api/src/test/files/elevation/srtm_38_03.gh:/opt/openrouteservice/.elevation-cache/srtm_38_03.gh \
             -v $(pwd)/ors-api/src/test/files/heidelberg.osm.gz:/opt/openrouteservice/files/osm-file.osm.gz  \
-            -v $(pwd)/.rpm-packaging/ors-config.json:/opt/openrouteservice/config/ors-config.json \
-            -v ${{ env.RPM_PATH }}:/tmp/ors.rpm \
-            -v ${{ env.GPG_KEY_PATH }}:/tmp/public_key.asc \
+            -v $(pwd)/.rpm-packaging/example.repo:/etc/yum.repos.d/ors.repo \
             ${{ env.IMAGE_NAME }}
 
       - name: Check the pre-install environment
@@ -182,24 +219,33 @@ jobs:
           echo "Checking the pre install environment"
           bash ${{ github.workspace }}/.rpm-packaging/rhel8_pre_install_check.sh
 
+      - name: Wait for the RPM repo to initialize the repodata folder
+        shell: bash
+        run: |
+          ##### Wait for the RPM repomd.xml to be initialized #####
+          echo "Waiting for the RPM repomd.xml to be initialized"
+          # Do a curl request to the testing repository and wait for 200 response
+          .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/repodata/repomd.xml' 200 ${{ env.RPM_REPO_INIT_WAIT_TIME }}
+
       - name: Install the rpm package
         shell: bash
         run: |
           ##### Import the GPG key #####
           echo "Importing the GPG key inside the docker container"
-          docker exec -u root ${{ env.CONTAINER_NAME }} rpm --import /tmp/public_key.asc
+          # docker exec -u root ${{ env.CONTAINER_NAME }} rpm --import /tmp/public_key.asc
 
           ##### Install the rpm package #####
+          # Update the yum repository
+          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum update -y'
+
           echo "Installing the rpm package"
           # Create the missing jws5* rpm packages with fakeprovide
           docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-runtime
           docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat
           docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-native
           docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-selinux
-          # List the fakeprovide packages
-          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c "ls -sahlS | grep fakeprovide"
           # Install the rpm package as root with the fakeprovide packages
-          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum install -y fakeprovide-jws5-* /tmp/ors.rpm'
+          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum install -y fakeprovide-jws5-* openrouteservice-jws5'
           
           ##### Check the post install environment #####
           echo "Checking the post install environment"
@@ -207,13 +253,16 @@ jobs:
 
       - name: Test the graph building
         shell: bash
-        run: |
+        run: |          
           ##### Start the graph building #####
+          # Copy the /opt/openrouteservice/config/example-config.json to /opt/openrouteservice/config/ors-config.json
+          docker exec -u jboss ${{ env.CONTAINER_NAME }} sh -c 'cp /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json'
+          
           # Restart the container to load the new configuration
           docker restart ${{ env.CONTAINER_NAME }}
           
           # echo "Waiting for the docker container to build graphs and return 200"
-          .github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
+          .github/utils/url_check.sh '127.0.0.1:8080/ors/v2/health' 200 ${{ env.HEALTH_WAIT_TIME }}
       - name: Print the container logs for debugging
         if: runner.debug == '1'
         shell: bash
@@ -249,24 +298,25 @@ jobs:
       - name: Upload the RPM package to the nexus releases rpm registry
         if: github.event_name == 'release' && github.event.action == 'published'
         run: |
-          curl -v -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
-              --upload-file '${{ env.RPM_PATH }}' \
-              '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/releases/noarch/${{ env.RPM_NAME }}'
-          res=$?
-          if test "$res" != "0"; then
-            echo "RPM package upload to the nexus rpm registry failed"
-            exit 1
-          fi
+          # Check that the RPM Nexus releases repository exists and fail completely if not.
+          .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
+          # Upload the RPM package to the nexus releases rpm registry
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/noarch/${{ env.RPM_NAME }}'
+          # Do a curl request to the releases repository and wait for the repomd.xml to be initialized to ensure a correct repository
+          .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/repodata/repomd.xml' 200 ${{ env.RPM_REPO_INIT_WAIT_TIME }}
+
       - name: Upload the snapshot RPM package to the nexus snapshots rpm registry
         # Only upload if this is a push on a release/v7.2.* branch
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/releases/v7.2.')
         run: |
-          # Upload it to a subfolder with the name of the branch
-          curl -v -u '${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }}' \
-              --upload-file '${{ env.RPM_PATH }}' \
-              '${{ secrets.NEXUS_URL }}/repository/openrouteservice-rpm/snapshots/noarch/${{ env.RPM_NAME }}'
-          res=$?
-          if test "$res" != "0"; then
-            echo "RPM package upload to the nexus rpm registry failed"
-            exit 1
-          fi
+          # Check that the RPM Nexus snapshots repository exists and fail completely if not.
+          .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
+          # Upload the RPM package to the nexus snapshots rpm registry
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/noarch/${{ env.RPM_NAME }}'
+          # Do a curl request to the releases repository and wait for the repomd.xml to be initialized to ensure a correct repository
+          .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/repodata/repomd.xml' 200 ${{ env.RPM_REPO_INIT_WAIT_TIME }}
+
+      - name: Clean the testing RPM repository
+        run: |
+          # Clean the testing repository
+          .github/utils/clean_nexus_repo_folder.sh '${{ secrets.NEXUS_URL }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_REPO_NAME }}' '${{ env.RPM_REPO_TESTING_FOLDER }}/${{ steps.job_environment_variables.outputs.branch }}'

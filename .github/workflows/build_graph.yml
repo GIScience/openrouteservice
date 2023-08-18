@@ -108,13 +108,13 @@ jobs:
           -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
           ors-local
       - name: Wait 2 days for healthcheck, report every 15 Minutes
-        run: ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 172800 10 90
+        run: ./.github/utils/url_check.sh '127.0.0.1:8080/ors/v2/health' 200 172800 10 90
       - name: Restart docker to check for correcty built graphs
         run: |
           docker stop ors-graph-build-${{secrets.ENV_NAME }}
           docker start ors-graph-build-${{secrets.ENV_NAME }}
       - name: Wait 5 minutes for healthcheck, report every 30 seconds
-        run: ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 300 10 3
+        run: ./.github/utils/url_check.sh '127.0.0.1:8080/ors/v2/health' 200 300 10 3
       - name: change permission of files in container
         run: |
           docker exec -t ors-graph-build-${{secrets.ENV_NAME }} chown -R ${UID}:${GID} /home/ors/ors-core/data/graphs
