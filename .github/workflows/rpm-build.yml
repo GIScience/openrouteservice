@@ -67,7 +67,8 @@ jobs:
 
       - name: Get mvn project.version
         run: |
-          projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT/.SNAPSHOT/g')
+          # Get the project version from the pom.xml file and replace the dashes with dots
+          projectVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-/./g')
           echo "ORS_VERSION=$projectVersion" >> "$GITHUB_ENV"
 
       - name: Extract branch name and set the jobs environment variables
@@ -96,7 +97,7 @@ jobs:
           
           # Set the testing and snapshot repository url to the job output
           echo "rpm_repo_testing_url=$RPM_REPO_TESTING_URL/$branch" >> $GITHUB_OUTPUT
-          echo "rpm_repo_snapshots_url=$RPM_REPO_SNAPSHOTS_URL/$branch" >> $GITHUB_OUTPUT
+          echo "rpm_repo_snapshots_url=$RPM_REPO_SNAPSHOTS_URL/openrouteservice-jws" >> $GITHUB_OUTPUT
           echo "rpm_repo_releases_url=$RPM_REPO_RELEASES_URL/openrouteservice-jws" >> $GITHUB_OUTPUT
 
       - name: Build the RPM package
