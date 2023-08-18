@@ -173,9 +173,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
 
         String hash = createProfileHash();
-        String localDirectory = extendGhLocation(hash);
+        String vehicleDirAbsPath = getGraphHopperLocation();
+        String hashDirAbsPath = extendGraphhopperLocation(hash);
 
-        orsGraphManager = new ORSGraphManager(routeProfileName, hash, localDirectory);
+        orsGraphManager = new ORSGraphManager(routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
         orsGraphManager.downloadGraphIfNecessary();
 
         GraphHopper gh = super.importOrLoad();
@@ -216,7 +217,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return gh;
     }
 
-    public String extendGhLocation(String hash) {
+    public String extendGraphhopperLocation(String hash) {
         String extendedPath = String.join("/", getGraphHopperLocation(), hash);
         this.setGraphHopperLocation(extendedPath);
         LOGGER.info("Extended graphHopperLocation with hash: %s".formatted(hash));

@@ -1263,11 +1263,12 @@ public class RoutingProfile {
         return mGraphHopper.getGraphHopperStorage().getDirectory().getLocation().hashCode();
     }
 
+    //jh: alternative for hashing ORSGraphHopper TODO remove if hashing ORSGraphHopper is correct
     void addProfileHash(RouteProfileConfiguration routeProfileConfiguration){
         String profileHash = computeProfileHash(routeProfileConfiguration);
         routeProfileConfiguration.setGraphPath(routeProfileConfiguration.getGraphPath() + "/" + profileHash);
     }
-
+    //jh: alternative for hashing ORSGraphHopper TODO remove if hashing ORSGraphHopper is correct
     String computeProfileHash(RouteProfileConfiguration routeProfileConfiguration){
         RoutingProfileHashBuilder hashBuilder = RoutingProfileHashBuilder.builder()
                 .withString(routeProfileConfiguration.getName())
