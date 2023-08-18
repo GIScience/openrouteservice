@@ -1,6 +1,14 @@
-[openrouteservice-rpm]
+[openrouteservice-rpm-snapshots]
 name=openrouteservice RPM repository
-baseurl=https://test-repo.openrouteservice.org/repository/openrouteservice-rpm/releases/openrouteservice-jws5/
+baseurl=https://test-repo.openrouteservice.org/repository/openrouteservice-rpm/snapshots/openrouteservice-jws
 enabled=1
 gpgcheck=1
 gpgkey=https://keys.openpgp.org/vks/v1/by-fingerprint/825F57B756C0B5851C398478585E8FA82AFB5B55
+
+# The releases repository is not yet available
+#[openrouteservice-rpm-releases]
+#name=openrouteservice RPM repository
+#baseurl=https://test-repo.openrouteservice.org/repository/openrouteservice-rpm/realeases/openrouteservice-jws
+#enabled=1
+#gpgcheck=1
+#gpgkey=https://keys.openpgp.org/vks/v1/by-fingerprint/825F57B756C0B5851C398478585E8FA82AFB5B55
