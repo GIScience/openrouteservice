@@ -46,15 +46,16 @@ A failure to do so will result in the inability to install the `openrouteservice
 ---
 **Required environment variables**
 
-During the installation of the `openrouteservice-jws` package, specific environment variables are essential:
+During the installation of the `openrouteservice-jws` package, specific environment variables are essential and the
+installation will fail if they are not present:
 
 - `JWS_HOME` - The `tomcat` installation directory of the JBoss Web Server 5, e.g. `/opt/jws5/tomcat`
 
-Upon the successful installation of the `jws5-*` packages, 
-the `JWS_HOME` environment variable will be automatically set, 
-directing to the tomcat installation directory of JBoss Web Server 5.
+Please ensure that the `JWS_HOME` environment variable is set and points to the `tomcat` installation directory of JBoss
+Web Server 5, e.g. `/opt/jws5/tomcat`.
+If the `JWS_HOME` environment variable is not set, the installation process will fail.
 
-To verify whether the `JWS_HOME` environment variable is correctly configured, run the following command:
+To check if the `JWS_HOME` environment variable is set, run the following command:
 
 ```bash
 echo $JWS_HOME
