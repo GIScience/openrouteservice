@@ -302,14 +302,12 @@ jobs:
       - name: Upload the RPM package to the nexus releases rpm registry
         if: github.event_name == 'release' && github.event.action == 'published'
         run: |
-          # Only upload with verbose mode if debug is enabled
           .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/noarch/${{ env.RPM_NAME }}'
 
       - name: Upload the snapshot RPM package to the nexus snapshots rpm registry
         # Only upload if this is a push on a release/v7.2.* branch
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/releases/v7.2.')
         run: |
-          # Only upload with verbose mode if debug is enabled
           .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/noarch/${{ env.RPM_NAME }}'
 
       - name: Clean the testing RPM repository
