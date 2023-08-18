@@ -243,11 +243,6 @@ jobs:
           docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat
           docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-native
           docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-selinux
-          # If in debug mode, list the fakeprovide packages
-          if [ "${{ github.debug }}" == "true" ]; then
-              echo "List the fakeprovide packages"
-              docker exec -u root ${{ env.CONTAINER_NAME }} sh -c "ls -sahlS | grep fakeprovide"
-          fi
           # Install the rpm package as root with the fakeprovide packages
           docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum install -y fakeprovide-jws5-* openrouteservice-jws5'
           
