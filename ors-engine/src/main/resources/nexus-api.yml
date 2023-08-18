@@ -7249,6 +7249,9 @@ definitions:
       fileSize:
         type: "integer"
         format: "int64"
+      blobCreated:
+        type: "string"
+        format: "date-time"
   PageAssetXO:
     type: "object"
     properties:
