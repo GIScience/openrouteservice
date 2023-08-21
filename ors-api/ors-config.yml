@@ -19,6 +19,8 @@ ors:
     #source_file: ./src/test/files/heidelberg.osm.gz
     source_file: ./ors-core/data/osm_file.pbf
     graphs_root_path: ./ors-core/data/graphs
+    graphs_repo_name: test-graphs
+    graphs_repo_url: https://test-repo.openrouteservice.org/service/rest
     elevation:
       cache_path: ./ors-core/data/elevation_cache
 

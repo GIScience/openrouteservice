@@ -97,10 +97,28 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
     private String routeProfileName;
+    private String graphsRepoBaseUrl;
+    private String graphsRepoName;
     private ORSGraphManager orsGraphManager;
 
     public ORSGraphManager getOrsGraphManager(){
         return this.orsGraphManager;
+    }
+
+    public String getGraphsRepoBaseUrl() {
+        return graphsRepoBaseUrl;
+    }
+
+    public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
+        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
+    }
+
+    public String getGraphsRepoName() {
+        return graphsRepoName;
+    }
+
+    public void setGraphsRepoName(String graphsRepoName) {
+        this.graphsRepoName = graphsRepoName;
     }
 
     public void setRouteProfileName(String routeProfileName) {
@@ -176,7 +194,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         String vehicleDirAbsPath = getGraphHopperLocation();
         String hashDirAbsPath = extendGraphhopperLocation(hash);
 
-        orsGraphManager = new ORSGraphManager(routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
+        orsGraphManager = new ORSGraphManager(graphsRepoBaseUrl, graphsRepoName, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
         orsGraphManager.downloadGraphIfNecessary();
 
         GraphHopper gh = super.importOrLoad();

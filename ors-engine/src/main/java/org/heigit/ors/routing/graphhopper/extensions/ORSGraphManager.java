@@ -25,12 +25,18 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
+    private static final String GRAPH_DOWNLOAD_FILE_EXTENSION = "ghz";
+    private final String graphsRepoBaseUrl;
+    private final String graphsRepoName;
     private final String hash;
     private final String hashDirAbsPath;
     private final String vehicleGraphDirAbsPath;
     private final String routeProfileName;
 
-    public ORSGraphManager(String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
+    public ORSGraphManager(String graphsRepoBaseUrl, String graphsRepoName,
+                           String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
+        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
+        this.graphsRepoName = graphsRepoName;
         this.hash = hash;
         this.hashDirAbsPath = localPath;
         this.routeProfileName = routeProfileName;
@@ -182,7 +188,7 @@ public class ORSGraphManager {
     }
 
     private String createDynamicGraphDownloadFileName(String basename) {
-        return basename + ".ghz";
+        return basename + "." + GRAPH_DOWNLOAD_FILE_EXTENSION;
     }
 
     public GraphInfo getLocalGraphInfo() {
@@ -253,7 +259,7 @@ public class ORSGraphManager {
             do {
                 LOGGER.info("trying to call nexus api");
                 PageAssetXO assets = assetsApi.getAssets(graphRepoName, continuationToken);
-                LOGGER.info("received assets: %s".formatted(assets.toString()));
+//                LOGGER.info("received assets: %s".formatted(assets.toString()));
                 if (assets.getItems() != null) {
                     items.addAll(assets.getItems());
                 }
@@ -283,17 +289,14 @@ public class ORSGraphManager {
     @Deprecated
     public void findLatestGraphComponent() {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        String graphRepoBaseUrl = "https://test-repo.openrouteservice.org/service/rest";
-        String graphRepoName = "test-graph";
-        defaultClient.setBasePath(graphRepoBaseUrl);
+        defaultClient.setBasePath(graphsRepoBaseUrl);
 
         ComponentsApi componentsApi = new ComponentsApi(defaultClient);
-        AssetsApi assetsApi = new AssetsApi(defaultClient);
 
         try {
             LOGGER.info("trying to call nexus api");
 
-            PageComponentXO components = componentsApi.getComponents(graphRepoName, null);
+            PageComponentXO components = componentsApi.getComponents(graphsRepoName, null);
             LOGGER.info("received components: %s".formatted(components.toString()));
 
             List<ComponentXO> collect = Objects.requireNonNull(components.getItems()).stream()
