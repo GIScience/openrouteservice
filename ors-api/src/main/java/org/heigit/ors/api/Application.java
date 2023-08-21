@@ -11,9 +11,11 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @ServletComponentScan("org.heigit.ors.api.servlet.listeners")
 @SpringBootApplication
+//@EnableScheduling
 public class Application extends SpringBootServletInitializer {
 
     static {
