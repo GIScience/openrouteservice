@@ -244,14 +244,14 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     String createProfileHash() {
         RoutingProfileHashBuilder builder = RoutingProfileHashBuilder.builder()
-                .withString(config.getProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()))
-                .withString(config.getCHProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
-                .withString(config.getLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
+                .withNamedString("profiles", config.getProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()))
+                .withNamedString("chProfiles", config.getCHProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
+                .withNamedString("lmProfiles", config.getLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
                 .withMapStringObject(config.asPMap().toMap(), "pMap");
         if (config instanceof ORSGraphHopperConfig orsConfig){
-            builder.withString(orsConfig.getCoreProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
-                    .withString(orsConfig.getCoreLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
-                    .withString(orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));
+            builder.withNamedString("coreProfiles", orsConfig.getCoreProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
+                    .withNamedString("coreLMProfiles", orsConfig.getCoreLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
+                    .withNamedString("fastisochroneProfiles", orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));
         }
         return builder.build();
         //jh: TODO    IMPORTANT    Handle file names: Remove path, only keep name. Or use file hash.
