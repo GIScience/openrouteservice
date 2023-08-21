@@ -136,6 +136,8 @@ public class RoutingProfile {
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc);
         gh.setRouteProfileName(config.getName());
+        gh.setGraphsRepoName(engineConfig.getGraphsRepoName());
+        gh.setGraphsRepoBaseUrl(engineConfig.getGraphsRepoUrl());
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 

@@ -12,6 +12,8 @@ public class EngineConfig {
     private final boolean preparationMode;
     private final String sourceFile;
     private final String graphsRootPath;
+    private final String graphsRepoName;
+    private final String graphsRepoUrl;
     private final boolean elevationPreprocessed;
     private final RouteProfileConfiguration[] profiles;
 
@@ -31,6 +33,14 @@ public class EngineConfig {
         return graphsRootPath;
     }
 
+    public String getGraphsRepoName() {
+        return graphsRepoName;
+    }
+
+    public String getGraphsRepoUrl() {
+        return graphsRepoUrl;
+    }
+
     public boolean isElevationPreprocessed() {
         return elevationPreprocessed;
     }
@@ -45,6 +55,8 @@ public class EngineConfig {
         this.sourceFile = builder.sourceFile;
         this.elevationPreprocessed = builder.elevationPreprocessed;
         this.graphsRootPath = builder.graphsRootPath;
+        this.graphsRepoName = builder.graphsRepoName;
+        this.graphsRepoUrl = builder.graphsRepoUrl;
         this.profiles = builder.profiles;
     }
 
@@ -55,6 +67,8 @@ public class EngineConfig {
         private boolean preparationMode;
         private String sourceFile;
         private String graphsRootPath;
+        private String graphsRepoName;
+        private String graphsRepoUrl;
         private boolean elevationPreprocessed;
         private RouteProfileConfiguration[] profiles;
 
@@ -81,6 +95,24 @@ public class EngineConfig {
         public EngineConfigBuilder setGraphsRootPath(String graphsRootPath) {
             this.graphsRootPath = graphsRootPath;
             return this;
+        }
+
+        public EngineConfigBuilder setGraphsRepoName(String repoName) {
+            this.graphsRepoName = repoName;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphsRepoUrl(String url) {
+            this.graphsRepoUrl = url;
+            return this;
+        }
+
+        public String getGraphsRepoName() {
+            return graphsRepoName;
+        }
+
+        public String getGraphsRepoUrl() {
+            return graphsRepoUrl;
         }
 
         public EngineConfigBuilder setElevationPreprocessed(boolean elevationPreprocessed) {
