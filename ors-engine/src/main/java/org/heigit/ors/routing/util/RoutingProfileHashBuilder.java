@@ -27,6 +27,10 @@ public class RoutingProfileHashBuilder {
         return String.join(",", propertyValues);
     }
 
+    public RoutingProfileHashBuilder withNamedString(String name, String value) {
+        propertyValues.add("%s<%s>".formatted(name, valueOfString(value)));
+        return this;
+    }
     public RoutingProfileHashBuilder withString(String value) {
         String notnullValue = valueOfString(value);
         propertyValues.add(notnullValue);
