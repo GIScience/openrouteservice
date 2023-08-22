@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -120,6 +121,9 @@ public class ORSGraphManager {
     }
 
     public void downloadGraphIfNecessary() {
+        if (Strings.isNullOrEmpty(graphsRepoBaseUrl) || Strings.isNullOrEmpty(graphsRepoName))
+            return;
+
         LOGGER.info("Checking for possible graph update for %s/%s from remote repository...".formatted(routeProfileName, hash));
         GraphInfo localGraphInfo = getLocalGraphInfo();
         GraphInfo remoteGraphInfo = findLatestGraphInfoInRepository();
@@ -281,7 +285,6 @@ public class ORSGraphManager {
             LOGGER.error("Status code: " + e.getCode());
             LOGGER.error("Reason: " + e.getResponseBody());
             LOGGER.error("Response headers: " + e.getResponseHeaders());
-//            e.printStackTrace();
         }
         return null;
     }
@@ -317,16 +320,15 @@ public class ORSGraphManager {
                                 200000);
                         LOGGER.info("downloaded file from repo: %s".formatted(file.getAbsolutePath()));
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        throw new IllegalArgumentException(e);
                     }
                 }
             }
         } catch (ApiException e) {
-            System.err.println("Exception when calling AssetsApi#deleteAsset");
-            System.err.println("Status code: " + e.getCode());
-            System.err.println("Reason: " + e.getResponseBody());
-            System.err.println("Response headers: " + e.getResponseHeaders());
-            e.printStackTrace();
+            LOGGER.error("Exception when calling AssetsApi#deleteAsset");
+            LOGGER.error("Status code: " + e.getCode());
+            LOGGER.error("Reason: " + e.getResponseBody());
+            LOGGER.error("Response headers: " + e.getResponseHeaders());
         }
     }
 
@@ -340,7 +342,7 @@ public class ORSGraphManager {
                         2000,
                         200000);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new IllegalArgumentException(e);
             }
         }
     }
