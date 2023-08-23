@@ -275,6 +275,10 @@ jobs:
       - name: Uninstall the rpm package
         shell: bash
         run: |
+          ##### Check the pre uninstall environment #####
+          echo "Checking the pre uninstall environment"
+          bash ${{ github.workspace }}/.rpm-packaging/rhel8_pre_uninstall_check.sh
+
           ##### Uninstall the rpm package #####
           echo "Uninstalling the rpm package"
           docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum remove -y openrouteservice-jws5'

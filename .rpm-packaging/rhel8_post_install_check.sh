@@ -48,6 +48,8 @@ check_user_in_group 'openrouteservice' 'openrouteservice' || SUCCESSFUL=false
 # Check environment variables
 # shellcheck disable=SC2016
 check_line_in_file 'export ORS_CONFIG=/opt/openrouteservice/config/ors-config.json' '${JWS_HOME}/bin/setenv.sh' true || SUCCESSFUL=false
+# shellcheck disable=SC2016
+check_line_in_file 'export ORS_LOG_LOCATION=/opt/openrouteservice/logs/' '${JWS_HOME}/bin/setenv.sh' true || SUCCESSFUL=false
 # Check Java version
 check_java_version '17.' || SUCCESSFUL=false
 # Check for owned content
