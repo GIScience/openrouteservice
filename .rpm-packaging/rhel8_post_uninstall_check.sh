@@ -2,7 +2,7 @@
 
 # Define the ENV SCRIPT_NAME
 # shellcheck disable=SC2034
-SCRIPT_NAME=rhel8_post_install_check
+SCRIPT_NAME=rhel8_post_uninstall_check
 
 START_DIRECTORY="$(
   cd "$(dirname "$0")" >/dev/null 2>&1 || exit 1
@@ -48,6 +48,8 @@ check_user_exists 'openrouteservice' false || SUCCESSFUL=false
 check_user_exists 'jboss' true || SUCCESSFUL=false
 # shellcheck disable=SC2016
 check_line_in_file 'export ORS_CONFIG=' '${JWS_HOME}/bin/setenv.sh' false || SUCCESSFUL=false
+# shellcheck disable=SC2016
+check_line_in_file 'export ORS_LOG_LOCATION=' '${JWS_HOME}/bin/setenv.sh' false || SUCCESSFUL=false
 # Check for owned content
 find_owned_content "/opt/openrouteservice/*" "openrouteservice" "" 0 || SUCCESSFUL=false
 find_owned_content "/opt/openrouteservice/*" "" "openrouteservice" 0 || SUCCESSFUL=false
