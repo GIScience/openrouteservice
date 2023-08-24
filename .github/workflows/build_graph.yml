@@ -23,7 +23,7 @@ on:
 
 jobs:
   build-graph:
-    runs-on: [self-hosted, graph]
+    runs-on: [arc-runner-set]
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout repository
