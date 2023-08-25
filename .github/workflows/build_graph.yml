@@ -50,7 +50,20 @@ jobs:
             fi
           fi
           echo "NEEDS_CLONE=$NEEDS_CLONE" >> "$GITHUB_OUTPUT"
-
+      - name: Print runner specs
+        run: |
+          uname -a
+          cat /etc/os-release
+          cat /proc/cpuinfo
+          cat /proc/meminfo
+          df -h#
+      - name: List all installed software
+        run: |
+          apt list --installed
+      - name: Install runner deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
       - name: Clone config repository
         if: ${{ steps.needs_clone.outputs.NEEDS_CLONE == 1 }}
         run: |
