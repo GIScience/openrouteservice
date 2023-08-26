@@ -20,10 +20,19 @@ on:
         required: false
         type: boolean
         default: true
+      runner-scale-set:
+        description: "Chose the runer scale set to use"
+        required: true
+        type: choice
+        default: graph-builder-small
+        options:
+          - graph-builder-small
+          - graph-builder-medium
+          - graph-builder-large
 
 jobs:
   build-graph:
-    runs-on: ["graph-builder-small*"]
+    runs-on: ${{ github.event.inputs.runner-scale-set }}
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout repository
@@ -56,7 +65,7 @@ jobs:
           cat /etc/os-release
           cat /proc/cpuinfo
           cat /proc/meminfo
-          df -h#
+          df -h
       - name: List all installed software
         run: |
           apt list --installed
