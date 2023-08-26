@@ -23,7 +23,7 @@ on:
 
 jobs:
   build-graph:
-    runs-on: [arc-runner-set]
+    runs-on: ["graph-builder-small*"]
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout repository
