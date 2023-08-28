@@ -59,20 +59,46 @@ jobs:
             fi
           fi
           echo "NEEDS_CLONE=$NEEDS_CLONE" >> "$GITHUB_OUTPUT"
-      - name: Print runner specs
-        run: |
-          uname -a
-          cat /etc/os-release
-          cat /proc/cpuinfo
-          cat /proc/meminfo
-          df -h
+#      - name: Print runner specs
+#        run: |
+#          uname -a
+#          cat /etc/os-release
+#          cat /proc/cpuinfo
+#          cat /proc/meminfo
+#          df -h
       - name: List all installed software
         run: |
           apt list --installed
       - name: Install runner deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y git
+          sudo apt-get install -y git wget curl gnupg ca-certificates
+      - name: Install docker
+        run: |
+          set -x
+#          sudo install -m 0755 -d /etc/apt/keyrings
+#          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+#          sudo chmod a+r /etc/apt/keyrings/docker.gpg
+#          echo \
+#            "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+#            "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+#            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+#          sudo apt-get update
+#          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+#          sudo systemctl enable --now docker.service
+#          sudo systemctl enable --now containerd.service
+          docker --version
+          docker run hello-world
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        id: buildx
+        with:
+          install: true
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       - name: Clone config repository
         if: ${{ steps.needs_clone.outputs.NEEDS_CLONE == 1 }}
         run: |
