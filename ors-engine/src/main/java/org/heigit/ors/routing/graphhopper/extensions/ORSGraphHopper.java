@@ -243,6 +243,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     String createProfileHash() {
+        // File name or hash should not be contained in the hash, same hast should map to different graphs built off different files for the same region/profile pair.
         Map configWithoutFilePath = config.asPMap().toMap();
         configWithoutFilePath.remove("datareader.file");
         RoutingProfileHashBuilder builder = RoutingProfileHashBuilder.builder()
@@ -256,8 +257,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                     .withNamedString("fastisochroneProfiles", orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));
         }
         return builder.build();
-        //jh: TODO    IMPORTANT    Handle file names: Remove path, only keep name. Or use file hash.
-        // Because graphs calculated on other machine have different path, but should have same profile hash.
 
 // name=pedestrian_ors_fastest|vehicle=pedestrian_ors|weighting=fastest|turnCosts=false|hints={}name=pedestrian_ors_recommended|vehicle=pedestrian_ors|weighting=recommended|turnCosts=false|hints={}name=pedestrian_ors_shortest|vehicle=pedestrian_ors|weighting=shortest|turnCosts=false|hints={}
 // pedestrian_ors_recommended|preparation_profile=this|maximum_lm_weight=-1.0pedestrian_ors_shortest|preparation_profile=this|maximum_lm_weight=-1.0
