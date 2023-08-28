@@ -72,9 +72,11 @@ public class ORSInitContextListener implements ServletContextListener {
             try {
                 LOGGER.info("Initializing ORS...");
                 RoutingProfileManager routingProfileManager = new RoutingProfileManager(config);
-                for (RoutingProfile profile : routingProfileManager.getProfiles().getUniqueProfiles()){
-                    ORSGraphHopper orsGraphHopper = profile.getGraphhopper();
-                    graphService.addGraphhopperLocation(orsGraphHopper.getOrsGraphManager());
+                if (routingProfileManager.getProfiles() != null) {
+                    for (RoutingProfile profile : routingProfileManager.getProfiles().getUniqueProfiles()) {
+                        ORSGraphHopper orsGraphHopper = profile.getGraphhopper();
+                        graphService.addGraphhopperLocation(orsGraphHopper.getOrsGraphManager());
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exeception: " + e);
