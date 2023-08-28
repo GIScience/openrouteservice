@@ -173,7 +173,9 @@ installed `openrouteservice-jws5` package:
 
 ```bash
 # Obtain a OSM file using curl
-curl https://download.geofabrik.de/europe/andorra-latest.osm.pbf -o /opt/openrouteservice/files/osm-file.osm.pbf
+curl https://download.geofabrik.de/europe/andorra-latest.osm.pbf -o /opt/openrouteservice/files/osm-file.osm.gz
+# Set ownership to the openrouteservice user and group
+sudo chown -R openrouteservice:openrouteservice /opt/openrouteservice
 # Utilize the default configuration file
 cp /opt/openrouteservice/config/config-example.yml /opt/openrouteservice/config/ors-config.yml
 # Restart the tomcat server and await graph construction
