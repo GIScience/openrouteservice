@@ -243,11 +243,13 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     String createProfileHash() {
+        Map configWithoutFilePath = config.asPMap().toMap();
+        configWithoutFilePath.remove("datareader.file");
         RoutingProfileHashBuilder builder = RoutingProfileHashBuilder.builder()
                 .withNamedString("profiles", config.getProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()))
                 .withNamedString("chProfiles", config.getCHProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
                 .withNamedString("lmProfiles", config.getLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
-                .withMapStringObject(config.asPMap().toMap(), "pMap");
+                .withMapStringObject(configWithoutFilePath, "pMap");
         if (config instanceof ORSGraphHopperConfig orsConfig){
             builder.withNamedString("coreProfiles", orsConfig.getCoreProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
                     .withNamedString("coreLMProfiles", orsConfig.getCoreLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
