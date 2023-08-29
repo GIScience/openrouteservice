@@ -78,11 +78,6 @@ jobs:
           set -x
           docker --version
           docker ps -a
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        id: buildx
-        with:
-          install: true
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
