@@ -59,13 +59,13 @@ jobs:
             fi
           fi
           echo "NEEDS_CLONE=$NEEDS_CLONE" >> "$GITHUB_OUTPUT"
-#      - name: Print runner specs
-#        run: |
-#          uname -a
-#          cat /etc/os-release
-#          cat /proc/cpuinfo
-#          cat /proc/meminfo
-#          df -h
+      - name: Print runner specs
+        run: |
+          uname -a
+          cat /etc/os-release
+          cat /proc/cpuinfo
+          cat /proc/meminfo
+          df -h
       - name: List all installed software
         run: |
           apt list --installed
@@ -77,7 +77,7 @@ jobs:
         run: |
           set -x
           docker --version
-          docker run hello-world
+          docker ps -a
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         id: buildx
