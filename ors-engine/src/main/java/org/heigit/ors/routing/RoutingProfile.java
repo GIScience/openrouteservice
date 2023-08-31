@@ -272,7 +272,7 @@ public class RoutingProfile {
                 if (fastisochroneOpts.hasPath(KEY_THREADS))
                     ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getInt(KEY_THREADS));
                 if (fastisochroneOpts.hasPath(KEY_MAXCELLNODES))
-                    ghConfig.putObject("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_MAXCELLNODES)));
+                    ghConfig.putObject("prepare.fastisochrone.maxcellnodes", fastisochroneOpts.getInt(KEY_MAXCELLNODES));
                 if (fastisochroneOpts.hasPath(KEY_WEIGHTINGS)) {
                     List<Profile> fastisochronesProfiles = new ArrayList<>();
                     String fastisochronesWeightingsString = StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_WEIGHTINGS));
