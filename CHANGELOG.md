@@ -57,6 +57,7 @@ RELEASING:
 - from springdoc-openapi-ui package to springdoc-openapi-starter-webmvc-ui ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - increase edge splitting threshold for generating isochrones ([#1508](https://github.com/GIScience/openrouteservice/pull/1508))
 - refactor RoutingProfile (part of [#1520](https://github.com/GIScience/openrouteservice/issues/1520))
+- update maven repository for dependencies ([#1536](https://github.com/GIScience/openrouteservice/pull/1536))
 
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
