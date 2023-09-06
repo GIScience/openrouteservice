@@ -22,6 +22,7 @@ import com.graphhopper.storage.Graph;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.Parameters;
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
 
 import java.util.PriorityQueue;
 
@@ -35,10 +36,17 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
     private IntObjectMap<SPTEntry> targets;
     private int targetsCount = 0;
 
+    private boolean failOnMaxVisitedNodesExceeded = false;
+
     public DijkstraOneToManyAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode) {
+        this(graph, weighting, tMode, false);
+    }
+
+    public DijkstraOneToManyAlgorithm(Graph graph, Weighting weighting, TraversalMode tMode, boolean failOnMaxVisitedNodesExceeded) {
         super(graph, weighting, tMode);
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
         initCollections(size);
+        this.failOnMaxVisitedNodesExceeded = failOnMaxVisitedNodesExceeded;
     }
 
     protected void initCollections(int size) {
@@ -99,7 +107,12 @@ public class DijkstraOneToManyAlgorithm extends AbstractOneToManyRoutingAlgorith
         EdgeExplorer explorer = outEdgeExplorer;
         while (true) {
             visitedNodes++;
-            if (isMaxVisitedNodesExceeded() || finished())
+            if (this.failOnMaxVisitedNodesExceeded && isMaxVisitedNodesExceeded())
+                // Fail only if necessary for the matrix api endpoint
+                throw new MaxVisitedNodesExceededException();
+            else if (isMaxVisitedNodesExceeded() || finished())
+                // Do not fail but quit the search if the max visited nodes are exceeded
+                // Important for the fast-isochrones cell nodes calculation
                 break;
 
             int startNode = currEdge.adjNode;

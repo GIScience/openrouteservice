@@ -82,6 +82,7 @@ RELEASING:
 - Java17 style issues ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - defaultValue for matrix 'metrics' parameter ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - schema type for parameters of type Duration ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
+- Fix the max visited nodes bug for fast-isochrones ([#1538](https://github.com/GIScience/openrouteservice/pull/1538))
 
 ## [7.1.0] - 2023-06-13
 ### Added
