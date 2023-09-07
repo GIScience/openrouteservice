@@ -63,6 +63,7 @@ RELEASING:
 - update spring-boot from 2.7.10 to 2.7.12 ([#1474](https://github.com/GIScience/openrouteservice/issues/1474))
 - Upgrade org.geotools.gt-epsg-hsql to version 29.1. ([#1479](https://github.com/GIScience/openrouteservice/issues/1479))
 - various style and low level code problems ([#1489](https://github.com/GIScience/openrouteservice/pull/1489))
+- Fix the max visited nodes bug for fast-isochrones ([#1538](https://github.com/GIScience/openrouteservice/pull/1538))
 
 ## [7.1.0] - 2023-06-13
 ### Added

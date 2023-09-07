@@ -171,6 +171,7 @@ public class Eccentricity extends AbstractEccentricity {
             DijkstraOneToManyAlgorithm algorithm = new DijkstraOneToManyAlgorithm(graph, weighting, TraversalMode.NODE_BASED);
             algorithm.setEdgeFilter(edgeFilterSequence);
             algorithm.prepare(new int[]{borderNode}, cellBorderNodes);
+            algorithm.setMaxVisitedNodes(getMaxCellNodesNumber() * 20);
             SPTEntry[] targets = algorithm.calcPaths(borderNode, cellBorderNodes);
             int[] ids = new int[targets.length - 1];
             double[] distances = new double[targets.length - 1];
