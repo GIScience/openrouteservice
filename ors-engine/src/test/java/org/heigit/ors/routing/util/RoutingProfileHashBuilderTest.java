@@ -68,6 +68,18 @@ class RoutingProfileHashBuilderTest {
     }
 
     @Test
+    public void withNamedString(){
+        assertEquals("aName<EMPTY>", RoutingProfileHashBuilder.builder().withNamedString("aName", "").getConcatenatedValues());
+        assertEquals("aName<aString>", RoutingProfileHashBuilder.builder().withNamedString("aName", String.valueOf("aString")).getConcatenatedValues());
+        assertEquals("aName< >", RoutingProfileHashBuilder.builder().withNamedString("aName", String.valueOf(" ")).getConcatenatedValues());
+        assertEquals("aName<null>", RoutingProfileHashBuilder.builder().withNamedString("aName", null).getConcatenatedValues());
+
+        assertThrows(IllegalArgumentException.class, () -> RoutingProfileHashBuilder.builder().withNamedString(BLANK, String.valueOf("aString")).getConcatenatedValues());
+        assertThrows(IllegalArgumentException.class, () -> RoutingProfileHashBuilder.builder().withNamedString(EMPTY, String.valueOf("aString")).getConcatenatedValues());
+        assertThrows(IllegalArgumentException.class, () -> RoutingProfileHashBuilder.builder().withNamedString(null, String.valueOf("aString")).getConcatenatedValues());
+    }
+
+    @Test
     public void withMap(){
         assertEquals("testmap()", RoutingProfileHashBuilder.builder().withMapStringString(null, "testmap").getConcatenatedValues());
 
