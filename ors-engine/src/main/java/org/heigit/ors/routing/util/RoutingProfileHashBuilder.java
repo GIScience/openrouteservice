@@ -28,6 +28,9 @@ public class RoutingProfileHashBuilder {
     }
 
     public RoutingProfileHashBuilder withNamedString(String name, String value) {
+        if (StringUtils.isBlank(name)){
+            throw new IllegalArgumentException("first argument 'name' must not be blank");
+        }
         propertyValues.add("%s<%s>".formatted(name, valueOfString(value)));
         return this;
     }
