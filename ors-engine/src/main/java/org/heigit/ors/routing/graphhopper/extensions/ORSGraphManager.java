@@ -200,6 +200,7 @@ public class ORSGraphManager {
         File localDir = new File(hashDirAbsPath);
 
         if (!localDir.exists()) {
+            LOGGER.debug("No local graph directory for %s found.".formatted(routeProfileName));
             return new GraphInfo().withLocalDirectory(localDir);
         }
 
@@ -214,6 +215,7 @@ public class ORSGraphManager {
         }
 
         ORSGraphInfoV1 graphInfoV1 = readOrsGraphInfoV1(graphInfoFile);
+        LOGGER.debug("Found local graph info for %s with osmDate=%s".formatted(routeProfileName, graphInfoV1.osmDate));
         return new GraphInfo().withLocalDirectory(localDir).withPersistedInfo(graphInfoV1);
     }
 
@@ -239,6 +241,7 @@ public class ORSGraphManager {
             return false;
         }
         if (!localGraphInfo.exists()) {
+            LOGGER.info("There is no local graph for %s/%s - should be downloaded.".formatted(routeProfileName, hash));
             return true;
         }
         if (!remoteGraphInfo.getPersistedGraphInfo().getOsmDate().after(localGraphInfo.getPersistedGraphInfo().getOsmDate())) {
@@ -261,15 +264,15 @@ public class ORSGraphManager {
             List<AssetXO> items = new ArrayList<>();
             String continuationToken = null;
             do {
-                LOGGER.info("trying to call nexus api");
+                LOGGER.debug("trying to call nexus api");
                 PageAssetXO assets = assetsApi.getAssets(graphRepoName, continuationToken);
-//                LOGGER.info("received assets: %s".formatted(assets.toString()));
+                LOGGER.debug("received assets: %s".formatted(assets.toString()));
                 if (assets.getItems() != null) {
                     items.addAll(assets.getItems());
                 }
                 continuationToken = assets.getContinuationToken();
             } while (!isBlank(continuationToken));
-            LOGGER.info("found %d items".formatted(items.size()));
+            LOGGER.debug("found %d items".formatted(items.size()));
 
             Optional<AssetXO> first = items.stream()
                     .filter(assetXO -> assetXO.getPath().endsWith(fileName))
@@ -335,7 +338,7 @@ public class ORSGraphManager {
     void downloadAsset(String downloadUrl, File outputFile) {
         if (StringUtils.isNotBlank(downloadUrl)) {
             try {
-                LOGGER.info("downloading %s to file %s".formatted(downloadUrl, outputFile.getAbsolutePath()));
+                LOGGER.info("Downloading %s to file %s".formatted(downloadUrl, outputFile.getAbsolutePath()));
                 FileUtils.copyURLToFile(
                         new URL(downloadUrl),
                         outputFile,
