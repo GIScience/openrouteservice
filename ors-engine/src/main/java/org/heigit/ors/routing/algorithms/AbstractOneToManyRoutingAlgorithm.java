@@ -80,8 +80,6 @@ public abstract class AbstractOneToManyRoutingAlgorithm implements OneToManyRout
     }
 
     protected boolean isMaxVisitedNodesExceeded() {
-        if (getVisitedNodes() > maxVisitedNodes)
-            throw new MaxVisitedNodesExceededException();
-        return false;
+        return maxVisitedNodes < getVisitedNodes();
     }
 }
