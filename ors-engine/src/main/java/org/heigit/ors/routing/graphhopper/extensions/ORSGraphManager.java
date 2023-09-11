@@ -27,12 +27,17 @@ public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
     private static final String GRAPH_DOWNLOAD_FILE_EXTENSION = "ghz";
-    private final String graphsRepoBaseUrl;
-    private final String graphsRepoName;
-    private final String hash;
-    private final String hashDirAbsPath;
-    private final String vehicleGraphDirAbsPath;
-    private final String routeProfileName;
+    private String graphsRepoBaseUrl;
+    private String graphsRepoName;
+    private int connectionTimeoutMillis = 2000;
+    private int readTimeoutMillis = 200000;
+    private String hash;
+    private String hashDirAbsPath;
+    private String vehicleGraphDirAbsPath;
+    private String routeProfileName;
+
+    public ORSGraphManager() {
+    }
 
     public ORSGraphManager(String graphsRepoBaseUrl, String graphsRepoName,
                            String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
@@ -42,6 +47,30 @@ public class ORSGraphManager {
         this.hashDirAbsPath = localPath;
         this.routeProfileName = routeProfileName;
         this.vehicleGraphDirAbsPath = vehicleGraphDirAbsPath;
+    }
+
+    public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
+        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
+    }
+
+    public void setGraphsRepoName(String graphsRepoName) {
+        this.graphsRepoName = graphsRepoName;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public void setHashDirAbsPath(String hashDirAbsPath) {
+        this.hashDirAbsPath = hashDirAbsPath;
+    }
+
+    public void setVehicleGraphDirAbsPath(String vehicleGraphDirAbsPath) {
+        this.vehicleGraphDirAbsPath = vehicleGraphDirAbsPath;
+    }
+
+    public void setRouteProfileName(String routeProfileName) {
+        this.routeProfileName = routeProfileName;
     }
 
     public static class GraphInfo {
@@ -156,7 +185,7 @@ public class ORSGraphManager {
         return createDynamicGraphDownloadFileName(urlWithoutExtension);
     }
 
-    public GraphInfo findLatestGraphInfoInRepository() {
+    GraphInfo findLatestGraphInfoInRepository() {
         GraphInfo latestGraphInfoInRepo = new GraphInfo();
         LOGGER.debug("Checking latest graph for %s in remote repository...".formatted(routeProfileName));
 
@@ -195,7 +224,7 @@ public class ORSGraphManager {
         return basename + "." + GRAPH_DOWNLOAD_FILE_EXTENSION;
     }
 
-    public GraphInfo getLocalGraphInfo() {
+    GraphInfo getLocalGraphInfo() {
         LOGGER.debug("Checking local graph info for %s...".formatted(routeProfileName));
         File localDir = new File(hashDirAbsPath);
 
@@ -227,7 +256,7 @@ public class ORSGraphManager {
         }
     }
 
-    private static ORSGraphInfoV1 readOrsGraphInfoV1(File inputFile) {
+    ORSGraphInfoV1 readOrsGraphInfoV1(File inputFile) {
         try {
             return new ObjectMapper().readValue(inputFile, ORSGraphInfoV1.class);
         } catch (IOException e) {
@@ -252,11 +281,9 @@ public class ORSGraphManager {
         return true;
     }
 
-    public AssetXO findLatestGraphInfoAsset(String fileName) {
+    AssetXO findLatestGraphInfoAsset(String fileName) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        String graphRepoBaseUrl = "https://test-repo.openrouteservice.org/service/rest";
-        String graphRepoName = "test-graph";
-        defaultClient.setBasePath(graphRepoBaseUrl);
+        defaultClient.setBasePath(graphsRepoBaseUrl);
 
         AssetsApi assetsApi = new AssetsApi(defaultClient);
 
@@ -265,7 +292,7 @@ public class ORSGraphManager {
             String continuationToken = null;
             do {
                 LOGGER.debug("trying to call nexus api");
-                PageAssetXO assets = assetsApi.getAssets(graphRepoName, continuationToken);
+                PageAssetXO assets = assetsApi.getAssets(graphsRepoName, continuationToken);
                 LOGGER.debug("received assets: %s".formatted(assets.toString()));
                 if (assets.getItems() != null) {
                     items.addAll(assets.getItems());
@@ -284,55 +311,12 @@ public class ORSGraphManager {
             return first.orElse(null);
 
         } catch (ApiException e) {
-            LOGGER.error("Exception when calling AssetsApi#deleteAsset");
+            LOGGER.error("Exception when calling AssetsApi#getAssets");
             LOGGER.error("Status code: " + e.getCode());
             LOGGER.error("Reason: " + e.getResponseBody());
             LOGGER.error("Response headers: " + e.getResponseHeaders());
         }
         return null;
-    }
-
-    @Deprecated
-    public void findLatestGraphComponent() {
-        ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath(graphsRepoBaseUrl);
-
-        ComponentsApi componentsApi = new ComponentsApi(defaultClient);
-
-        try {
-            LOGGER.info("trying to call nexus api");
-
-            PageComponentXO components = componentsApi.getComponents(graphsRepoName, null);
-            LOGGER.info("received components: %s".formatted(components.toString()));
-
-            List<ComponentXO> collect = Objects.requireNonNull(components.getItems()).stream()
-                    .filter(componentXO -> Objects.requireNonNull(componentXO.getName()).contains(hash + ".info"))
-                    .toList();
-            LOGGER.info("found %d components with %s".formatted(collect.size(), hash));
-
-            if (!collect.isEmpty()) {
-                ComponentXO componentXO = collect.get(0);
-                String downloadUrl = componentXO.getAssets().get(0).getDownloadUrl();
-                if (StringUtils.isNotBlank(downloadUrl)) {
-                    try {
-                        File file = new File("from-repo");
-                        FileUtils.copyURLToFile(
-                                new URL(downloadUrl),
-                                file,
-                                2000,
-                                200000);
-                        LOGGER.info("downloaded file from repo: %s".formatted(file.getAbsolutePath()));
-                    } catch (IOException e) {
-                        throw new IllegalArgumentException(e);
-                    }
-                }
-            }
-        } catch (ApiException e) {
-            LOGGER.error("Exception when calling AssetsApi#deleteAsset");
-            LOGGER.error("Status code: " + e.getCode());
-            LOGGER.error("Reason: " + e.getResponseBody());
-            LOGGER.error("Response headers: " + e.getResponseHeaders());
-        }
     }
 
     void downloadAsset(String downloadUrl, File outputFile) {
@@ -342,8 +326,8 @@ public class ORSGraphManager {
                 FileUtils.copyURLToFile(
                         new URL(downloadUrl),
                         outputFile,
-                        2000,
-                        200000);
+                        connectionTimeoutMillis,
+                        readTimeoutMillis);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }

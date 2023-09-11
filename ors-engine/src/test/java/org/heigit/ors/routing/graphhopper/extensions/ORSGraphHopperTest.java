@@ -147,6 +147,18 @@ class ORSGraphHopperTest {
             System.out.println(profileHash);
         }
     }
+
+    @Test
+    public void importOrLoad_orsGraphManagerCreated() throws Exception {
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
+        ORSGraphHopper gh = createORSGraphHopper(ghConfig);
+
+        gh.importOrLoad();
+
+        ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
+        assertNotNull(orsGraphManager);
+    }
+
     @Test
     public void createProfileHash() throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
