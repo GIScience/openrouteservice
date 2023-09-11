@@ -52,13 +52,15 @@ A failure to do so will result in the inability to install the `openrouteservice
 During the installation of the `openrouteservice-jws` package, specific environment variables are essential and the
 installation will fail if they are not present:
 
-- `JWS_HOME` - The `tomcat` installation directory of the JBoss Web Server 5, e.g. `/opt/jws5/tomcat`
+- `JWS_HOME` - The global variable showing the`tomcat` installation directory of the JBoss Web Server 5, e.g. `/opt/jws5/tomcat`
 
-Please ensure that the `JWS_HOME` environment variable is set and points to the `tomcat` installation directory of JBoss
+A description for the variable can be found in the [official Red Hat documentation](https://access.redhat.com/documentation/de-de/red_hat_jboss_web_server/5.7/html/installation_guide/assembly_installing-jws-on-rhel-from-rpm-packages_jboss_web_server_installation_guide#installing_from_rpm).
+
+Please ensure that the **global** `JWS_HOME` environment variable is set and points to the `tomcat` installation directory of JBoss
 Web Server 5, e.g. `/opt/jws5/tomcat`.
 If the `JWS_HOME` environment variable is not set, the installation process will fail.
 
-To check if the `JWS_HOME` environment variable is set, run the following command:
+To check if the **global** `JWS_HOME` environment variable is set, run the following command:
 
 ```bash
 echo $JWS_HOME
@@ -113,7 +115,7 @@ while the `releases channel` holds the latest release builds (though it is not y
 To install the latest snapshot build of the `openrouteservice-jws5` package, run the following command:
 
 ```bash
-yum update && yum install openrouteservice-jws5
+sudo yum update && sudo yum install openrouteservice-jws5
 ``` 
 
 ---
