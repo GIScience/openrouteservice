@@ -6,6 +6,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.client.model.AssetXO;
@@ -13,9 +16,9 @@ import org.openapitools.client.model.AssetXO;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -31,21 +34,24 @@ class ORSGraphManagerTest {
     private static final String VEHICLE = "car";
     private static final String LOCAL_PATH = "src/test/resources/graphs";
     private static final long EARLIER_DATE = 1692373000111L;
-    private static final long LATER_DATE = 1692373000222L;
+    private static final long MIDDLE_DATE = 1692373000222L;
+    private static final long LATER_DATE = 1692373000333L;
 
     String vehicleDirAbsPath, hashDirAbsPath;
-    File hashDir, downloadedGraphInfoV1File, localGraphInfoV1File;
+    File localDir, vehicleDir, hashDir, downloadedGraphInfoV1File, localGraphInfoV1File;
+
 
     @BeforeEach
     void setUp() {
-        File localDir = new File(LOCAL_PATH);
+        localDir = new File(LOCAL_PATH);
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
-        new File(vehicleDirAbsPath).mkdir();
+        vehicleDir = new File(vehicleDirAbsPath);
+        vehicleDir.mkdir();
     }
 
     @AfterEach
     void deleteFiles() throws IOException {
-        FileUtils.deleteDirectory(new File(vehicleDirAbsPath));
+        FileUtils.deleteDirectory(vehicleDir);
     }
 
     void setupORSGraphManager(String hash) {
@@ -60,7 +66,7 @@ class ORSGraphManagerTest {
         orsGraphManager.setHashDirAbsPath(hashDirAbsPath);
     }
 
-    void setupLocalFiles(String hash, Long osmDateLocal) throws IOException {
+    void setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
         if (hash == null) return;
         hashDir = new File(hashDirAbsPath);
         hashDir.mkdir();
@@ -73,7 +79,7 @@ class ORSGraphManagerTest {
         doReturn(null).when(orsGraphManager).findLatestGraphInfoAsset(anyString());
     }
 
-    void setupRemoteFiles(String hash, Long osmDateRemote) throws IOException {
+    void simulateFindLatestGraphInfoAsset(String hash, Long osmDateRemote) throws IOException {
         String graphInfoAssetName = hash + ".json";
         String graphInfoAssetUrl = String.join("/", GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, VEHICLE, graphInfoAssetName);
 
@@ -92,7 +98,7 @@ class ORSGraphManagerTest {
     void downloadGraphIfNecessary_localDataExists_noRemoteData() throws IOException {
         String hash = "abc123";
         setupORSGraphManager(hash);
-        setupLocalFiles(hash, EARLIER_DATE);
+        setupLocalGraphDirectory(hash, EARLIER_DATE);
         setupNoRemoteFiles();
 
         orsGraphManager.downloadGraphIfNecessary();
@@ -104,7 +110,7 @@ class ORSGraphManagerTest {
     void downloadGraphIfNecessary_noLocalData_remoteDataExists() throws IOException {
         String hash = "abc123";
         setupORSGraphManager(hash);
-        setupRemoteFiles(hash, EARLIER_DATE);
+        simulateFindLatestGraphInfoAsset(hash, EARLIER_DATE);
 
         orsGraphManager.downloadGraphIfNecessary();
 
@@ -115,8 +121,8 @@ class ORSGraphManagerTest {
     void downloadGraphIfNecessary_localDate1_remoteDate2() throws IOException {
         String hash = "xyz111";
         setupORSGraphManager(hash);
-        setupLocalFiles(hash, EARLIER_DATE);
-        setupRemoteFiles(hash, LATER_DATE);
+        setupLocalGraphDirectory(hash, EARLIER_DATE);
+        simulateFindLatestGraphInfoAsset(hash, LATER_DATE);
 
         orsGraphManager.downloadGraphIfNecessary();
 
@@ -132,8 +138,8 @@ class ORSGraphManagerTest {
     void downloadGraphIfNecessary_localDate1_remoteDate1() throws IOException {
         String hash = "xyz222";
         setupORSGraphManager(hash);
-        setupLocalFiles(hash, EARLIER_DATE);
-        setupRemoteFiles(hash, EARLIER_DATE);
+        setupLocalGraphDirectory(hash, EARLIER_DATE);
+        simulateFindLatestGraphInfoAsset(hash, EARLIER_DATE);
 
         orsGraphManager.downloadGraphIfNecessary();
 
@@ -144,8 +150,8 @@ class ORSGraphManagerTest {
     void downloadGraphIfNecessary_localDate2_remoteDate1() throws IOException {
         String hash = "xyz333";
         setupORSGraphManager(hash);
-        setupLocalFiles(hash, LATER_DATE);
-        setupRemoteFiles(hash, EARLIER_DATE);
+        setupLocalGraphDirectory(hash, LATER_DATE);
+        simulateFindLatestGraphInfoAsset(hash, EARLIER_DATE);
 
         orsGraphManager.downloadGraphIfNecessary();
 
@@ -156,7 +162,7 @@ class ORSGraphManagerTest {
     void backupExistingGraph_noPreviousBackup() throws IOException {
         String hash = "1a2b3c";
         setupORSGraphManager(hash);
-        setupLocalFiles(hash, LATER_DATE);
+        setupLocalGraphDirectory(hash, LATER_DATE);
 
         File localGraphDir = new File(hashDirAbsPath);
         assertTrue(localGraphDir.isDirectory());
@@ -174,7 +180,7 @@ class ORSGraphManagerTest {
     void backupExistingGraph_previousBackupDirIsOverridden() throws IOException {
         String hash = "1a2b3c";
         setupORSGraphManager(hash);
-        setupLocalFiles(hash, LATER_DATE);
+        setupLocalGraphDirectory(hash, LATER_DATE);
 
         File localGraphDir = new File(hashDirAbsPath);
         assertTrue(localGraphDir.isDirectory());
@@ -194,10 +200,76 @@ class ORSGraphManagerTest {
     void findLatestGraphInfoInRepository() {
     }
 
-    @Test
-    void shouldDownloadGraph() {
+    @ParameterizedTest
+    @MethodSource("shouldDownloadGraphMethodSource")
+    void shouldDownloadGraph(ORSGraphManager.GraphInfo remoteGraphInfo, ORSGraphManager.GraphInfo localGraphInfo, File persistedDownloadFile, ORSGraphManager.ORSGraphInfoV1 persistedRemoteGraphInfo, boolean expected) {
+        assertEquals(expected, orsGraphManager.shouldDownloadGraph(remoteGraphInfo, localGraphInfo, persistedDownloadFile, persistedRemoteGraphInfo));
     }
 
+    public static Stream<Arguments> shouldDownloadGraphMethodSource() {
+        ORSGraphManager.ORSGraphInfoV1 earlierOrsGraphInfoV1 = new ORSGraphManager.ORSGraphInfoV1(new Date(EARLIER_DATE));
+        ORSGraphManager.ORSGraphInfoV1 middleOrsGraphInfoV1 = new ORSGraphManager.ORSGraphInfoV1(new Date(MIDDLE_DATE));
+        ORSGraphManager.ORSGraphInfoV1 laterOrsGraphInfoV1 = new ORSGraphManager.ORSGraphInfoV1(new Date(LATER_DATE));
+        ORSGraphManager.GraphInfo missingGraphInfo = new ORSGraphManager.GraphInfo();
+        ORSGraphManager.GraphInfo existingGraphInfoEarlier = new ORSGraphManager.GraphInfo().withPersistedInfo(earlierOrsGraphInfoV1);
+        ORSGraphManager.GraphInfo existingGraphInfoMiddle = new ORSGraphManager.GraphInfo().withPersistedInfo(middleOrsGraphInfoV1);
+        ORSGraphManager.GraphInfo existingGraphInfoLater = new ORSGraphManager.GraphInfo().withPersistedInfo(laterOrsGraphInfoV1);
+
+        File resourcesDir = new File(LOCAL_PATH).getParentFile();
+        File nonexistingFile = new File(resourcesDir, "missing.ghz");
+        File existingFile = new File(resourcesDir, "some.ghz");
+
+        return Stream.of(
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, existingFile, earlierOrsGraphInfoV1, true),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, existingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, existingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, existingFile, null, true),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, nonexistingFile, earlierOrsGraphInfoV1, true),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, nonexistingFile, laterOrsGraphInfoV1, true),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, nonexistingFile, middleOrsGraphInfoV1, true),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, nonexistingFile, null, true),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, existingFile, earlierOrsGraphInfoV1, true),    //unlikely to happen
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, existingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, existingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, existingFile, null, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, nonexistingFile, earlierOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, nonexistingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, nonexistingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, nonexistingFile, null, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, existingFile, earlierOrsGraphInfoV1, true),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, existingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, existingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, existingFile, null, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, nonexistingFile, earlierOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, nonexistingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, nonexistingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, nonexistingFile, null, false),
+                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, existingFile, earlierOrsGraphInfoV1, true),
+                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, existingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, existingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, existingFile, null, true),
+                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, nonexistingFile, earlierOrsGraphInfoV1, true),
+                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, nonexistingFile, laterOrsGraphInfoV1, true),
+                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, nonexistingFile, middleOrsGraphInfoV1, true),
+                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, nonexistingFile, null, true),
+                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, existingFile, earlierOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, existingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, existingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, existingFile, null, false),
+                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, nonexistingFile, earlierOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, nonexistingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, nonexistingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, nonexistingFile, null, false),
+                Arguments.of(missingGraphInfo, missingGraphInfo, existingFile, earlierOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, missingGraphInfo, existingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, missingGraphInfo, existingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, missingGraphInfo, existingFile, null, false),
+                Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, earlierOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, laterOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, middleOrsGraphInfoV1, false),
+                Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, null, false)
+        );
+    }
     @Test
     void findLatestGraphComponent() {
     }
