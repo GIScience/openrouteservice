@@ -17,6 +17,7 @@ import org.openapitools.client.model.PageComponentXO;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -47,6 +48,16 @@ public class ORSGraphManager {
         this.hashDirAbsPath = localPath;
         this.routeProfileName = routeProfileName;
         this.vehicleGraphDirAbsPath = vehicleGraphDirAbsPath;
+
+        //TODO: find a proper place for the following code
+        Properties prop = new Properties();
+        String graphVersion = "0.0";
+        try (InputStream in = this.getClass().getResourceAsStream("/engine.properties")) {
+            prop.load(in);
+            graphVersion = prop.getProperty("graphVersion", "0.0");
+        } catch (Exception e) {
+            LOGGER.error("Initialization ERROR: cannot read graph version. " + e.getMessage());
+        }
     }
 
     public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
