@@ -38,6 +38,7 @@ import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.fastisochrones.Contour;
@@ -194,8 +195,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         String vehicleDirAbsPath = getGraphHopperLocation();
         String hashDirAbsPath = extendGraphhopperLocation(hash);
 
-        orsGraphManager = new ORSGraphManager(graphsRepoBaseUrl, graphsRepoName, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
-        orsGraphManager.downloadGraphIfNecessary();
+        if (useGraphRepository()) {
+            orsGraphManager = new ORSGraphManager(graphsRepoBaseUrl, graphsRepoName, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
+            orsGraphManager.downloadGraphIfNecessary();
+        }
 
         GraphHopper gh = super.importOrLoad();
 
@@ -233,6 +236,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
 
         return gh;
+    }
+
+    boolean useGraphRepository() {
+        return StringUtils.isBlank(getOSMFile());
     }
 
     public String extendGraphhopperLocation(String hash) {
