@@ -150,8 +150,9 @@ public class ORSGraphManager {
     }
 
     public void downloadGraphIfNecessary() {
-        if (Strings.isNullOrEmpty(graphsRepoBaseUrl) || Strings.isNullOrEmpty(graphsRepoName))
+        if (Strings.isNullOrEmpty(graphsRepoBaseUrl) || Strings.isNullOrEmpty(graphsRepoName)) {
             return;
+        }
 
         LOGGER.info("Checking for possible graph update for %s/%s from remote repository...".formatted(routeProfileName, hash));
         GraphInfo localGraphInfo = getLocalGraphInfo();
@@ -162,20 +163,23 @@ public class ORSGraphManager {
         }
 
         File localDirectory = localGraphInfo.getLocalDirectory();
-        String origAbsPath = localDirectory.getAbsolutePath();
         if (localDirectory.exists()) {
-            boolean isMoved = false;
-            String newName;
-            int copy = 1;
-            do {
-                newName = localDirectory.getAbsolutePath() + "_%d".formatted(copy++);
-                isMoved = localDirectory.renameTo(new File(newName));
-            } while (!isMoved);
-            LOGGER.info("renamed old local graph directory %s to %s".formatted(origAbsPath, newName));
+            backupExistingGraph(localDirectory);
         }
+
         String downloadFileName = createDynamicGraphDownloadFileName();
         String downloadUrl = createGraphUrlFromGraphInfoUrl(remoteGraphInfo);
         downloadAsset(downloadUrl, new File(vehicleGraphDirAbsPath, downloadFileName));
+    }
+
+    void backupExistingGraph(File hashDirectory) {
+        String origAbsPath = hashDirectory.getAbsolutePath();
+        String newAbsPath = hashDirectory.getAbsolutePath() + "_bak";
+        if (hashDirectory.renameTo(new File(newAbsPath))) {
+            LOGGER.info("renamed old local graph directory %s to %s".formatted(origAbsPath, newAbsPath));
+        } else {
+            LOGGER.error("could not backup local graph directory %s to %s".formatted(origAbsPath, newAbsPath));
+        }
     }
 
     private String createGraphUrlFromGraphInfoUrl(GraphInfo remoteGraphInfo) {

@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -119,6 +121,11 @@ class ORSGraphManagerTest {
         orsGraphManager.downloadGraphIfNecessary();
 
         verify(orsGraphManager, times(2)).downloadAsset(anyString(), any());
+        File localGraphDir = new File(hashDirAbsPath);
+        File backupDir = new File(hashDirAbsPath + "_bak");
+        assertFalse(localGraphDir.exists());
+        assertTrue(backupDir.exists());
+        assertTrue(backupDir.isDirectory());
     }
 
     @Test
@@ -143,6 +150,44 @@ class ORSGraphManagerTest {
         orsGraphManager.downloadGraphIfNecessary();
 
         verify(orsGraphManager, times(1)).downloadAsset(anyString(), any());
+    }
+
+    @Test
+    void backupExistingGraph_noPreviousBackup() throws IOException {
+        String hash = "1a2b3c";
+        setupORSGraphManager(hash);
+        setupLocalFiles(hash, LATER_DATE);
+
+        File localGraphDir = new File(hashDirAbsPath);
+        assertTrue(localGraphDir.isDirectory());
+        File backupDir = new File(hashDirAbsPath + "_bak");
+        assertFalse(backupDir.exists());
+
+        orsGraphManager.backupExistingGraph(localGraphDir);
+
+        assertFalse(localGraphDir.exists());
+        assertTrue(backupDir.isDirectory());
+        assertTrue(new File(backupDir, hash+".json").exists());
+    }
+
+    @Test
+    void backupExistingGraph_previousBackupDirIsOverridden() throws IOException {
+        String hash = "1a2b3c";
+        setupORSGraphManager(hash);
+        setupLocalFiles(hash, LATER_DATE);
+
+        File localGraphDir = new File(hashDirAbsPath);
+        assertTrue(localGraphDir.isDirectory());
+        File backupDir = new File(hashDirAbsPath + "_bak");
+        backupDir.mkdir();
+        assertTrue(backupDir.exists());
+
+        orsGraphManager.backupExistingGraph(localGraphDir);
+
+        assertFalse(localGraphDir.exists());
+        assertTrue(backupDir.exists());
+        assertTrue(backupDir.isDirectory());
+        assertTrue(new File(backupDir, hash+".json").exists());
     }
 
     @Test
