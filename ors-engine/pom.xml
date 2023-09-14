@@ -37,6 +37,10 @@
     <artifactId>ors-engine</artifactId>
     <name>ors-engine</name>
 
+    <properties>
+        <project.graphVersion>1.0</project.graphVersion>
+    </properties>
+
     <build>
         <finalName>ors</finalName>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -47,6 +51,7 @@
                     <include>resources/locales/*.resources</include>
                     <include>resources/services/routing/speed_limits/*.*</include>
                     <include>META-INF/services/*.*</include>
+                    <include>*.properties</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
