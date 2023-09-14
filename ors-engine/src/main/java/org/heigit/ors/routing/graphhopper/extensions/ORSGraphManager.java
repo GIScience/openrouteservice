@@ -169,7 +169,7 @@ public class ORSGraphManager {
         GraphInfo localGraphInfo = getLocalGraphInfo();
         GraphInfo remoteGraphInfo = downloadLatestGraphInfoFromRepository();
 
-        if (!shouldDownloadGraph(localGraphInfo, remoteGraphInfo, persistedRemoteGraphInfo, downloadFile)) {
+        if (!shouldDownloadGraph(remoteGraphInfo, localGraphInfo, downloadFile, persistedRemoteGraphInfo)) {
             return;
         }
 
@@ -288,7 +288,7 @@ public class ORSGraphManager {
         }
     }
 
-    public boolean shouldDownloadGraph(GraphInfo localGraphInfo, GraphInfo remoteGraphInfo, ORSGraphInfoV1 persistedRemoteGraphInfo, File persistedDownloadFile) {
+    public boolean shouldDownloadGraph(GraphInfo remoteGraphInfo, GraphInfo localGraphInfo, File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo) {
         if (!remoteGraphInfo.exists()) {
             LOGGER.info("There is no graph for %s/%s in remote repository - nothing to download.".formatted(routeProfileName, hash));
             return false;
