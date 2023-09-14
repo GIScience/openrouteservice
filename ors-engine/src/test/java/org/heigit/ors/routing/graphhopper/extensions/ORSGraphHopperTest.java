@@ -150,7 +150,7 @@ class ORSGraphHopperTest {
 
     @Test
     public void importOrLoad_orsGraphManagerCreated() throws Exception {
-        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
         ORSGraphHopper gh = createORSGraphHopper(ghConfig);
 
         gh.importOrLoad();
@@ -250,10 +250,15 @@ class ORSGraphHopperTest {
     }
 
     private static ORSGraphHopperConfig createORSGraphHopperConfig() {
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
+        ghConfig.putObject("datareader.file", "src/test/files/preprocessed_osm_data.pbf");
+        return ghConfig;
+    }
+
+    private static ORSGraphHopperConfig createORSGraphHopperConfigWithoutOsmFile() {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
         ghConfig.putObject("graph.dataaccess", "RAM");
         ghConfig.putObject("graph.location", "unittest.testgraph");
-        ghConfig.putObject("datareader.file", "src/test/files/preprocessed_osm_data.pbf");
         ghConfig.setProfiles(List.of(new Profile("blah").setVehicle("car").setWeighting("fastest").setTurnCosts(true)));
         return ghConfig;
     }

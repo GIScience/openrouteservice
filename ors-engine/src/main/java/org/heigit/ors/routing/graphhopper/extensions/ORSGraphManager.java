@@ -9,11 +9,8 @@ import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.Configuration;
 import org.openapitools.client.api.AssetsApi;
-import org.openapitools.client.api.ComponentsApi;
 import org.openapitools.client.model.AssetXO;
-import org.openapitools.client.model.ComponentXO;
 import org.openapitools.client.model.PageAssetXO;
-import org.openapitools.client.model.PageComponentXO;
 
 import java.io.File;
 import java.io.IOException;
@@ -166,10 +163,13 @@ public class ORSGraphManager {
         }
 
         LOGGER.info("Checking for possible graph update for %s/%s from remote repository...".formatted(routeProfileName, hash));
+        ORSGraphInfoV1 persistedRemoteGraphInfo = getPreviouslyDownloadedRemoteGraphInfo();
+        String downloadFileName = createDynamicGraphDownloadFileName();
+        File downloadFile = new File(vehicleGraphDirAbsPath, downloadFileName);
         GraphInfo localGraphInfo = getLocalGraphInfo();
-        GraphInfo remoteGraphInfo = findLatestGraphInfoInRepository();
+        GraphInfo remoteGraphInfo = downloadLatestGraphInfoFromRepository();
 
-        if (!shouldDownloadGraph(localGraphInfo, remoteGraphInfo)) {
+        if (!shouldDownloadGraph(localGraphInfo, remoteGraphInfo, persistedRemoteGraphInfo, downloadFile)) {
             return;
         }
 
@@ -178,9 +178,8 @@ public class ORSGraphManager {
             backupExistingGraph(localDirectory);
         }
 
-        String downloadFileName = createDynamicGraphDownloadFileName();
         String downloadUrl = createGraphUrlFromGraphInfoUrl(remoteGraphInfo);
-        downloadAsset(downloadUrl, new File(vehicleGraphDirAbsPath, downloadFileName));
+        downloadAsset(downloadUrl, downloadFile);
     }
 
     void backupExistingGraph(File hashDirectory) {
@@ -200,7 +199,7 @@ public class ORSGraphManager {
         return createDynamicGraphDownloadFileName(urlWithoutExtension);
     }
 
-    GraphInfo findLatestGraphInfoInRepository() {
+    GraphInfo downloadLatestGraphInfoFromRepository() {
         GraphInfo latestGraphInfoInRepo = new GraphInfo();
         LOGGER.debug("Checking latest graph for %s in remote repository...".formatted(routeProfileName));
 
@@ -263,6 +262,16 @@ public class ORSGraphManager {
         return new GraphInfo().withLocalDirectory(localDir).withPersistedInfo(graphInfoV1);
     }
 
+    ORSGraphInfoV1 getPreviouslyDownloadedRemoteGraphInfo() {
+        LOGGER.debug("Checking graph info for %s of previous check ...".formatted(routeProfileName));
+        String fileName = createDynamicGraphInfoFileName();
+        File persistedGraphInfoFile = new File(vehicleGraphDirAbsPath, fileName);
+        if (persistedGraphInfoFile.exists()) {
+            return readOrsGraphInfoV1(persistedGraphInfoFile);
+        }
+        return null;
+    }
+
     private void writeOrsGraphInfoV1(ORSGraphInfoV1 orsGraphInfoV1, File outputFile) {
         try {
             new ObjectMapper().writeValue(outputFile, orsGraphInfoV1);
@@ -279,10 +288,19 @@ public class ORSGraphManager {
         }
     }
 
-    public boolean shouldDownloadGraph(GraphInfo localGraphInfo, GraphInfo remoteGraphInfo) {
+    public boolean shouldDownloadGraph(GraphInfo localGraphInfo, GraphInfo remoteGraphInfo, ORSGraphInfoV1 persistedRemoteGraphInfo, File persistedDownloadFile) {
         if (!remoteGraphInfo.exists()) {
-            LOGGER.info("There is no graph for %s/%s in remote repository.".formatted(routeProfileName, hash));
+            LOGGER.info("There is no graph for %s/%s in remote repository - nothing to download.".formatted(routeProfileName, hash));
             return false;
+        }
+        if (persistedDownloadFile.exists() && persistedRemoteGraphInfo != null) {
+            if (remoteGraphInfo.getPersistedGraphInfo().getOsmDate().after(persistedRemoteGraphInfo.getOsmDate())) {
+                LOGGER.info("Found local file %s from previous download but downloading newer version from repository.".formatted(persistedDownloadFile.getAbsolutePath()));
+                return true;
+            } else {
+                LOGGER.info("Found local file %s from previous download, there is no newer version in the repository.".formatted(persistedDownloadFile.getAbsolutePath()));
+                return false;
+            }
         }
         if (!localGraphInfo.exists()) {
             LOGGER.info("There is no local graph for %s/%s - should be downloaded.".formatted(routeProfileName, hash));
