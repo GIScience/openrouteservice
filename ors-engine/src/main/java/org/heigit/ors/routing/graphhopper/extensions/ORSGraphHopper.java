@@ -100,6 +100,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private String routeProfileName;
     private String graphsRepoBaseUrl;
     private String graphsRepoName;
+    private String graphsRepoCoverage;
     private ORSGraphManager orsGraphManager;
 
     public ORSGraphManager getOrsGraphManager(){
@@ -120,6 +121,14 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     public void setGraphsRepoName(String graphsRepoName) {
         this.graphsRepoName = graphsRepoName;
+    }
+
+    public String getGraphsRepoCoverage() {
+        return graphsRepoCoverage;
+    }
+
+    public void setGraphsRepoCoverage(String graphsRepoCoverage) {
+        this.graphsRepoCoverage = graphsRepoCoverage;
     }
 
     public void setRouteProfileName(String routeProfileName) {
@@ -196,7 +205,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         String hashDirAbsPath = extendGraphhopperLocation(hash);
 
         if (useGraphRepository()) {
-            orsGraphManager = new ORSGraphManager(graphsRepoBaseUrl, graphsRepoName, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
+            orsGraphManager = new ORSGraphManager(graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, "1", routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
             orsGraphManager.downloadGraphIfNecessary();
         }
 

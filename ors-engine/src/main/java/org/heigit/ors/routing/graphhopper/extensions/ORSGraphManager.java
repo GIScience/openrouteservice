@@ -27,6 +27,8 @@ public class ORSGraphManager {
     private static final String GRAPH_DOWNLOAD_FILE_EXTENSION = "ghz";
     private String graphsRepoBaseUrl;
     private String graphsRepoName;
+    private String graphsRepoCoverage;
+    private String graphsRepoGraphVersion;
     private int connectionTimeoutMillis = 2000;
     private int readTimeoutMillis = 200000;
     private String hash;
@@ -37,10 +39,12 @@ public class ORSGraphManager {
     public ORSGraphManager() {
     }
 
-    public ORSGraphManager(String graphsRepoBaseUrl, String graphsRepoName,
+    public ORSGraphManager(String graphsRepoBaseUrl, String graphsRepoName, String graphsRepoCoverage, String graphsRepoGraphVersion,
                            String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
         this.graphsRepoBaseUrl = graphsRepoBaseUrl;
         this.graphsRepoName = graphsRepoName;
+        this.graphsRepoCoverage = graphsRepoCoverage;
+        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
         this.hash = hash;
         this.hashDirAbsPath = localPath;
         this.routeProfileName = routeProfileName;
@@ -79,6 +83,22 @@ public class ORSGraphManager {
 
     public void setRouteProfileName(String routeProfileName) {
         this.routeProfileName = routeProfileName;
+    }
+
+    public String getGraphsRepoCoverage() {
+        return graphsRepoCoverage;
+    }
+
+    public void setGraphsRepoCoverage(String graphsRepoCoverage) {
+        this.graphsRepoCoverage = graphsRepoCoverage;
+    }
+
+    public String getGraphsRepoGraphVersion() {
+        return graphsRepoGraphVersion;
+    }
+
+    public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {
+        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
     }
 
     public static class GraphInfo {
@@ -194,7 +214,6 @@ public class ORSGraphManager {
 
     private String createGraphUrlFromGraphInfoUrl(GraphInfo remoteGraphInfo) {
         String url = remoteGraphInfo.getRemoteUrl().toString();
-//        String urlWithoutExtension = url.replaceAll("\\.[a-zA-Z]*$", "");
         String urlWithoutExtension = url.substring(0, url.lastIndexOf('.'));
         return createDynamicGraphDownloadFileName(urlWithoutExtension);
     }
@@ -314,6 +333,10 @@ public class ORSGraphManager {
         return true;
     }
 
+    String createDownloadPathFilterPattern(){
+        return ".*/%s/%s/%s/%s/[0-9]{12}/.*".formatted(graphsRepoCoverage, graphsRepoGraphVersion, routeProfileName, hash);
+    }
+
     AssetXO findLatestGraphInfoAsset(String fileName) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
         defaultClient.setBasePath(graphsRepoBaseUrl);
@@ -334,14 +357,7 @@ public class ORSGraphManager {
             } while (!isBlank(continuationToken));
             LOGGER.debug("found %d items".formatted(items.size()));
 
-            Optional<AssetXO> first = items.stream()
-                    .filter(assetXO -> assetXO.getPath().endsWith(fileName))
-//TODO filter other parts of the path
-// https://repo.heigit.org/ors-graphs-traffic/planet-latest/1.2.3.3/2023-07-02/car/5a5af307fbb8019bfb69d4916f55ddeb
-                    .sorted(Comparator.comparing(AssetXO::getLastModified))
-                    .findFirst();
-
-            return first.orElse(null);
+            return filterLatestAsset(fileName, items);
 
         } catch (ApiException e) {
             LOGGER.error("Exception when calling AssetsApi#getAssets");
@@ -350,6 +366,20 @@ public class ORSGraphManager {
             LOGGER.error("Response headers: " + e.getResponseHeaders());
         }
         return null;
+    }
+
+    AssetXO filterLatestAsset(String fileName, List<AssetXO> items) {
+        String downloadPathFilterPattern = createDownloadPathFilterPattern();
+        LOGGER.debug("filtering assets for %s".formatted(items.size(), downloadPathFilterPattern));
+
+        // paths like https://repo.heigit.org/ors-graphs-traffic/planet/3/car/5a5af307fbb8019bfb69d4916f55ddeb/202212312359/5a5af307fbb8019bfb69d4916f55ddeb.json
+        Optional<AssetXO> first = items.stream()
+                .filter(assetXO -> assetXO.getPath().matches(downloadPathFilterPattern))
+                .filter(assetXO -> assetXO.getPath().endsWith(fileName))
+                .sorted((a1, a2) -> a2.getPath().compareTo(a1.getPath()))//sort reverse: latest date (path parameter) first
+                .findFirst();
+
+        return first.orElse(null);
     }
 
     void downloadAsset(String downloadUrl, File outputFile) {

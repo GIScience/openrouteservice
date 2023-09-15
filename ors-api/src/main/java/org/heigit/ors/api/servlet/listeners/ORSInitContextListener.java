@@ -35,6 +35,9 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_ENV;
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY;
 
@@ -58,14 +61,16 @@ public class ORSInitContextListener implements ServletContextListener {
                 LOGGER.debug("Configuration loaded by ARG, location: " + System.getProperty(ORS_CONFIG_LOCATION_PROPERTY));
             }
         }
+        SourceFileElements sourceFileElements = extractSourceFileElements(engineProperties.getSourceFile());
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
             .setInitializationThreads(engineProperties.getInitThreads())
             .setPreparationMode(engineProperties.isPreparationMode())
             .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
-            .setSourceFile(engineProperties.getSourceFile())
             .setGraphsRootPath(engineProperties.getGraphsRootPath())
-            .setGraphsRepoName(engineProperties.getGraphsRepoName())
-            .setGraphsRepoUrl(engineProperties.getGraphsRepoUrl())
+            .setSourceFile(sourceFileElements.localOsmFilePath)
+            .setGraphsRepoUrl(sourceFileElements.repoBaseUrlString)
+            .setGraphsRepoUrl(sourceFileElements.repoName)
+            .setGraphsRepoUrl(sourceFileElements.repoCoverage)
             .setProfiles(engineProperties.getConvertedProfiles())
             .buildWithAppConfigOverride();
         Runnable runnable = () -> {
@@ -85,6 +90,30 @@ public class ORSInitContextListener implements ServletContextListener {
         Thread thread = new Thread(runnable);
         thread.setName("ORS-Init");
         thread.start();
+    }
+
+    record SourceFileElements(String repoBaseUrlString, String repoName, String repoCoverage, String localOsmFilePath) {}
+
+    SourceFileElements extractSourceFileElements(String sourceFilePropertyValue){
+        String repoBaseUrlString = null;
+        String repoName = null;
+        String repoCoverage = null;
+        String localOsmFilePath = null;
+        try {
+            new URL(sourceFilePropertyValue);
+            LOGGER.debug("source_file contains repo URL");
+            sourceFilePropertyValue = sourceFilePropertyValue.trim().replaceAll("/$", "");
+            String protocol = sourceFilePropertyValue.replaceFirst(":.*", "");
+            String[] urlElements = sourceFilePropertyValue.split("/");
+
+            repoCoverage = urlElements[urlElements.length-1];
+            repoName = urlElements[urlElements.length-2];
+            repoBaseUrlString = sourceFilePropertyValue.replaceAll("/%s/%s$".formatted(repoName, repoCoverage), "");
+        } catch (MalformedURLException e) {
+            LOGGER.debug("source_file does not contain a repo URL, using it as local osm file path");
+            localOsmFilePath = sourceFilePropertyValue;
+        }
+        return new SourceFileElements(repoBaseUrlString, repoName, repoCoverage, localOsmFilePath);
     }
 
     @Override

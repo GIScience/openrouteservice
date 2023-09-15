@@ -138,6 +138,7 @@ public class RoutingProfile {
         gh.setRouteProfileName(config.getName());
         gh.setGraphsRepoName(engineConfig.getGraphsRepoName());
         gh.setGraphsRepoBaseUrl(engineConfig.getGraphsRepoUrl());
+        gh.setGraphsRepoCoverage(engineConfig.getGraphsRepoCoverage());
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 

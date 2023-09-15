@@ -15,7 +15,9 @@ import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,8 +31,10 @@ class ORSGraphManagerTest {
     @Spy
     ORSGraphManager orsGraphManager;
 
-    private static final String GRAPHS_REPO_BASE_URL = "https://example.com/";
+    private static final String GRAPHS_REPO_BASE_URL = "https://example.com";
     private static final String GRAPHS_REPO_NAME = "test-repo";
+    private static final String GRAPHS_COVERAGE = "planet";
+    private static final String GRAPHS_VERSION = "1";
     private static final String VEHICLE = "car";
     private static final String LOCAL_PATH = "src/test/resources/graphs";
     private static final long EARLIER_DATE = 1692373000111L;
@@ -59,6 +63,8 @@ class ORSGraphManagerTest {
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         orsGraphManager.setGraphsRepoBaseUrl(GRAPHS_REPO_BASE_URL);
         orsGraphManager.setGraphsRepoName(GRAPHS_REPO_NAME);
+        orsGraphManager.setGraphsRepoCoverage(GRAPHS_COVERAGE);
+        orsGraphManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
         orsGraphManager.setRouteProfileName(VEHICLE);
         orsGraphManager.setHash(hash);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
@@ -198,6 +204,30 @@ class ORSGraphManagerTest {
 
     @Test
     void findLatestGraphInfoInRepository() {
+    }
+
+    @Test
+    void filterLatestAsset() {
+        String hash = "abc123";
+        setupORSGraphManager(hash);
+        List<AssetXO> items = Arrays.asList(
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202201011200/abc123.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202201011200/abc123.json"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202301011200/abc123.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202301011200/abc123.json"),//this one
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202301011200/wrong.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202301011200/wrong.json"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/wrong/202301011200/abc123.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/wrong/202301011200/abc123.json"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/wrong/abc123/202301011200/abc123.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/wrong/abc123/202301011200/abc123.json"),
+                new AssetXO().path("https://example.com/test-repo/planet/wrong/car/abc123/202301011200/abc123.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/wrong/car/abc123/202301011200/abc123.json"),
+                new AssetXO().path("https://example.com/test-repo/wrong/1/car/abc123/202301011200/abc123.ghz"),
+                new AssetXO().path("https://example.com/test-repo/wrong/1/car/abc123/202301011200/abc123.json")
+                );
+        AssetXO filtered = orsGraphManager.filterLatestAsset("abc123.json", items);
+        assertEquals("https://example.com/test-repo/planet/1/car/abc123/202301011200/abc123.json", filtered.getPath());
     }
 
     @ParameterizedTest

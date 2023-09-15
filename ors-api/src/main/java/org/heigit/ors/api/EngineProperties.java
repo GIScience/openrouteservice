@@ -22,8 +22,6 @@ public class EngineProperties {
     private boolean preparationMode;
     private String sourceFile;
     private String graphsRootPath;
-    private String graphsRepoName;
-    private String graphsRepoUrl;
     private ElevationProperties elevation;
     private ProfileProperties profileDefault;
     private Map<String, ProfileProperties> profiles;
@@ -58,22 +56,6 @@ public class EngineProperties {
 
     public void setGraphsRootPath(String graphsRootPath) {
         this.graphsRootPath = graphsRootPath;
-    }
-
-    public String getGraphsRepoName() {
-        return graphsRepoName;
-    }
-
-    public void setGraphsRepoName(String graphsRepoName) {
-        this.graphsRepoName = graphsRepoName;
-    }
-
-    public String getGraphsRepoUrl() {
-        return graphsRepoUrl;
-    }
-
-    public void setGraphsRepoUrl(String graphsRepoUrl) {
-        this.graphsRepoUrl = graphsRepoUrl;
     }
 
     public ElevationProperties getElevation() {
