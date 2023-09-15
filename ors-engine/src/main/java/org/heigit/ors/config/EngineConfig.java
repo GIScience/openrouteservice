@@ -14,6 +14,7 @@ public class EngineConfig {
     private final String graphsRootPath;
     private final String graphsRepoName;
     private final String graphsRepoUrl;
+    private final String graphsRepoCoverage;
     private final boolean elevationPreprocessed;
     private final RouteProfileConfiguration[] profiles;
 
@@ -41,6 +42,10 @@ public class EngineConfig {
         return graphsRepoUrl;
     }
 
+    public String getGraphsRepoCoverage() {
+        return graphsRepoCoverage;
+    }
+
     public boolean isElevationPreprocessed() {
         return elevationPreprocessed;
     }
@@ -55,8 +60,9 @@ public class EngineConfig {
         this.sourceFile = builder.sourceFile;
         this.elevationPreprocessed = builder.elevationPreprocessed;
         this.graphsRootPath = builder.graphsRootPath;
-        this.graphsRepoName = builder.graphsRepoName;
         this.graphsRepoUrl = builder.graphsRepoUrl;
+        this.graphsRepoName = builder.graphsRepoName;
+        this.graphsRepoCoverage = builder.graphsRepoCoverage;
         this.profiles = builder.profiles;
     }
 
@@ -67,8 +73,9 @@ public class EngineConfig {
         private boolean preparationMode;
         private String sourceFile;
         private String graphsRootPath;
-        private String graphsRepoName;
         private String graphsRepoUrl;
+        private String graphsRepoName;
+        private String graphsRepoCoverage;
         private boolean elevationPreprocessed;
         private RouteProfileConfiguration[] profiles;
 
@@ -102,6 +109,11 @@ public class EngineConfig {
             return this;
         }
 
+        public EngineConfigBuilder setGraphsRepoCoverage(String repoCoverage) {
+            this.graphsRepoCoverage = repoCoverage;
+            return this;
+        }
+
         public EngineConfigBuilder setGraphsRepoUrl(String url) {
             this.graphsRepoUrl = url;
             return this;
@@ -109,6 +121,10 @@ public class EngineConfig {
 
         public String getGraphsRepoName() {
             return graphsRepoName;
+        }
+
+        public String getGraphsRepoCoverage() {
+            return graphsRepoCoverage;
         }
 
         public String getGraphsRepoUrl() {
