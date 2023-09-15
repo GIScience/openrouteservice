@@ -98,7 +98,7 @@ public class ORSInitContextListener implements ServletContextListener {
         String repoBaseUrlString = null;
         String repoName = null;
         String repoCoverage = null;
-        String localOsmFilePath = null;
+        String localOsmFilePath = "";
         try {
             new URL(sourceFilePropertyValue);
             LOGGER.debug("source_file contains repo URL");
