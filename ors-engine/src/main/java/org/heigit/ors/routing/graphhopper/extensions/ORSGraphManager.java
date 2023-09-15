@@ -50,17 +50,6 @@ public class ORSGraphManager {
         this.hashDirAbsPath = localPath;
         this.routeProfileName = routeProfileName;
         this.vehicleGraphDirAbsPath = vehicleGraphDirAbsPath;
-
-        //TODO: move the following code to a proper place
-        Properties prop = new Properties();
-        String graphVersion = "0";
-        try (InputStream in = this.getClass().getResourceAsStream("/engine.properties")) {
-            prop.load(in);
-            String engineVersion = prop.getProperty("engineVersion", "0.0");
-            graphVersion = engineVersion.split("\\.")[0];
-        } catch (Exception e) {
-            LOGGER.error("Initialization ERROR: cannot read graph version. " + e.getMessage());
-        }
     }
 
     public boolean isActive() {

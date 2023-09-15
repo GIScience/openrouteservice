@@ -101,6 +101,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private String graphsRepoBaseUrl;
     private String graphsRepoName;
     private String graphsRepoCoverage;
+    private String graphVersion;
     private ORSGraphManager orsGraphManager;
 
     public ORSGraphManager getOrsGraphManager(){
@@ -165,7 +166,22 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
         minOneWayNetworkSize = ghConfig.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
         config = ghConfig;
+        graphVersion = extractGraphVersionFromEngineVersion();
+
         return ret;
+    }
+
+    private String extractGraphVersionFromEngineVersion() {
+        Properties prop = new Properties();
+        String graphVersion = "0";
+        try (InputStream in = this.getClass().getResourceAsStream("/engine.properties")) {
+            prop.load(in);
+            String engineVersion = prop.getProperty("engineVersion", "0.0");
+            graphVersion = engineVersion.split("\\.")[0];
+        } catch (Exception e) {
+            LOGGER.error("Initialization ERROR: cannot read graph version. " + e.getMessage());
+        }
+        return graphVersion;
     }
 
     @Override
@@ -205,7 +221,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         String hashDirAbsPath = extendGraphhopperLocation(hash);
 
         if (useGraphRepository()) {
-            orsGraphManager = new ORSGraphManager(graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, "1", routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
+            orsGraphManager = new ORSGraphManager(graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, graphVersion, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
             orsGraphManager.downloadGraphIfNecessary();
         }
 
