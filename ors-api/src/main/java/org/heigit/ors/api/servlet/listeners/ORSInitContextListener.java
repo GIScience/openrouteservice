@@ -69,8 +69,8 @@ public class ORSInitContextListener implements ServletContextListener {
             .setGraphsRootPath(engineProperties.getGraphsRootPath())
             .setSourceFile(sourceFileElements.localOsmFilePath)
             .setGraphsRepoUrl(sourceFileElements.repoBaseUrlString)
-            .setGraphsRepoUrl(sourceFileElements.repoName)
-            .setGraphsRepoUrl(sourceFileElements.repoCoverage)
+            .setGraphsRepoName(sourceFileElements.repoName)
+            .setGraphsRepoCoverage(sourceFileElements.repoCoverage)
             .setProfiles(engineProperties.getConvertedProfiles())
             .buildWithAppConfigOverride();
         Runnable runnable = () -> {
@@ -103,7 +103,6 @@ public class ORSInitContextListener implements ServletContextListener {
             new URL(sourceFilePropertyValue);
             LOGGER.debug("source_file contains repo URL");
             sourceFilePropertyValue = sourceFilePropertyValue.trim().replaceAll("/$", "");
-            String protocol = sourceFilePropertyValue.replaceFirst(":.*", "");
             String[] urlElements = sourceFilePropertyValue.split("/");
 
             repoCoverage = urlElements[urlElements.length-1];
