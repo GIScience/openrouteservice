@@ -17,13 +17,18 @@ ors:
   engine:
     ### use the following line for development setup using test OSM file for Heidelberg
     #source_file: ./src/test/files/heidelberg.osm.gz
-    source_file: ./ors-core/data/osm_file.pbf
+    # we have currently no test repo! this was the former URL:
+    source_file: https://test-repo.openrouteservice.org/service/rest/test-graph/ors-graphs-traffic/planet
     graphs_root_path: ./ors-core/data/graphs
-    graphs_repo_name: test-graph
-    graphs_repo_url: https://test-repo.openrouteservice.org/service/rest
     elevation:
       cache_path: ./ors-core/data/elevation_cache
-
+    graphservice:
+      schedule:
+        # HINT default is never (there is no Feb 31)
+        download:
+          cron: 0 0 * 31 2 *
+        activate:
+          cron: 0 0 * 31 2 *
     profiles:
       car:
         profile: driving-car

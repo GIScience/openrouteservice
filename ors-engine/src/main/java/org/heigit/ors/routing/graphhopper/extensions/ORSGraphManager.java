@@ -1,7 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Strings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -19,12 +18,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
     private static final String GRAPH_DOWNLOAD_FILE_EXTENSION = "ghz";
+    private boolean active = false;
     private String graphsRepoBaseUrl;
     private String graphsRepoName;
     private String graphsRepoCoverage;
@@ -62,6 +63,10 @@ public class ORSGraphManager {
         }
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
     public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
         this.graphsRepoBaseUrl = graphsRepoBaseUrl;
     }
@@ -92,6 +97,10 @@ public class ORSGraphManager {
 
     public void setGraphsRepoCoverage(String graphsRepoCoverage) {
         this.graphsRepoCoverage = graphsRepoCoverage;
+    }
+
+    public String getRouteProfileName() {
+        return routeProfileName;
     }
 
     public String getGraphsRepoGraphVersion() {
@@ -179,28 +188,49 @@ public class ORSGraphManager {
     }
 
     public void downloadGraphIfNecessary() {
-        if (Strings.isNullOrEmpty(graphsRepoBaseUrl) || Strings.isNullOrEmpty(graphsRepoName)) {
+        if (isNullOrEmpty(graphsRepoBaseUrl) || isNullOrEmpty(graphsRepoName) || isNullOrEmpty(graphsRepoCoverage) || isNullOrEmpty(graphsRepoGraphVersion)) {
+            LOGGER.debug("ORSGraphManager for %s is not configured - skipping check".formatted(routeProfileName));
+            return;
+        }
+        if (active) {
+            LOGGER.info("ORSGraphManager for %s is active - skipping download".formatted(routeProfileName));
             return;
         }
 
+        active = true;
         LOGGER.info("Checking for possible graph update for %s/%s from remote repository...".formatted(routeProfileName, hash));
-        ORSGraphInfoV1 persistedRemoteGraphInfo = getPreviouslyDownloadedRemoteGraphInfo();
+        try {
+            ORSGraphInfoV1 persistedRemoteGraphInfo = getPreviouslyDownloadedRemoteGraphInfo();
+            File graphDownloadFile = getGraphDownloadFile();
+            GraphInfo localGraphInfo = getLocalGraphInfo();
+            GraphInfo remoteGraphInfo = downloadLatestGraphInfoFromRepository();
+
+            if (!shouldDownloadGraph(remoteGraphInfo, localGraphInfo, graphDownloadFile, persistedRemoteGraphInfo)) {
+                active = false;
+                return;
+            }
+
+            File localDirectory = localGraphInfo.getLocalDirectory();
+            if (localDirectory.exists()) {
+                backupExistingGraph(localDirectory);
+            }
+
+            String downloadUrl = createGraphUrlFromGraphInfoUrl(remoteGraphInfo);
+            downloadAsset(downloadUrl, graphDownloadFile);
+        } catch (Exception e) {
+        } finally {
+            active = false;
+        }
+    }
+
+    private File getGraphDownloadFile() {
         String downloadFileName = createDynamicGraphDownloadFileName();
         File downloadFile = new File(vehicleGraphDirAbsPath, downloadFileName);
-        GraphInfo localGraphInfo = getLocalGraphInfo();
-        GraphInfo remoteGraphInfo = downloadLatestGraphInfoFromRepository();
+        return downloadFile;
+    }
 
-        if (!shouldDownloadGraph(remoteGraphInfo, localGraphInfo, downloadFile, persistedRemoteGraphInfo)) {
-            return;
-        }
-
-        File localDirectory = localGraphInfo.getLocalDirectory();
-        if (localDirectory.exists()) {
-            backupExistingGraph(localDirectory);
-        }
-
-        String downloadUrl = createGraphUrlFromGraphInfoUrl(remoteGraphInfo);
-        downloadAsset(downloadUrl, downloadFile);
+    public boolean isGraphDownloadFileAvailable() {
+        return getGraphDownloadFile().exists();
     }
 
     void backupExistingGraph(File hashDirectory) {
@@ -221,12 +251,12 @@ public class ORSGraphManager {
 
     GraphInfo downloadLatestGraphInfoFromRepository() {
         GraphInfo latestGraphInfoInRepo = new GraphInfo();
-        LOGGER.debug("Checking latest graph for %s in remote repository...".formatted(routeProfileName));
+        LOGGER.debug("Checking latest graphInfo for %s in remote repository...".formatted(routeProfileName));
 
         String fileName = createDynamicGraphInfoFileName();
         AssetXO latestGraphInfoAsset = findLatestGraphInfoAsset(fileName);
         if (latestGraphInfoAsset == null) {
-            LOGGER.debug("No graph for %s found in remote repository".formatted(routeProfileName));
+            LOGGER.debug("No graphInfo for %s found in remote repository".formatted(routeProfileName));
             return latestGraphInfoInRepo;
         }
 
@@ -334,7 +364,7 @@ public class ORSGraphManager {
         return true;
     }
 
-    String createDownloadPathFilterPattern(){
+    String createDownloadPathFilterPattern() {
         return ".*/%s/%s/%s/%s/[0-9]{12}/.*".formatted(graphsRepoCoverage, graphsRepoGraphVersion, routeProfileName, hash);
     }
 

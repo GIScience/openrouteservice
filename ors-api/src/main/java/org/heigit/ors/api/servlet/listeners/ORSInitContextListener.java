@@ -32,6 +32,7 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphManager;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
 
@@ -80,7 +81,10 @@ public class ORSInitContextListener implements ServletContextListener {
                 if (routingProfileManager.getProfiles() != null) {
                     for (RoutingProfile profile : routingProfileManager.getProfiles().getUniqueProfiles()) {
                         ORSGraphHopper orsGraphHopper = profile.getGraphhopper();
-                        graphService.addGraphhopperLocation(orsGraphHopper.getOrsGraphManager());
+                        ORSGraphManager orsGraphManager = orsGraphHopper.getOrsGraphManager();
+                        if (orsGraphManager != null) {
+                            graphService.addGraphhopperLocation(orsGraphManager);
+                        }
                     }
                 }
             } catch (Exception e) {
