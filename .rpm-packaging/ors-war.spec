@@ -121,8 +121,8 @@ else
 fi
 
 # Set environment variable in Tomcat startup script to pick up the correct config file
-echo 'export ORS_CONFIG=%{ors_local_folder}/config/ors-config.json' >> ${JWS_HOME}/bin/setenv.sh
-echo 'export ORS_LOG_LOCATION=%{ors_local_folder}/logs/' >> ${JWS_HOME}/bin/setenv.sh
+echo 'export ORS_CONFIG=%{ors_local_folder}/config/ors-config.json' >> /etc/environment
+echo 'export ORS_LOG_LOCATION=%{ors_local_folder}/logs/' >> /etc/environment
 
 # Switch to the installed java version
 alternatives --set java $(readlink -f /etc/alternatives/jre_%{java_version})/bin/java
@@ -138,8 +138,8 @@ chmod -R 770 %{ors_local_folder}
 if [ "$1" = "0" ]; then
     echo "Uninstalling openrouteservice"
     # Remove environment variable from Tomcat startup script on uninstall
-    sed -i '/export ORS_CONFIG=/d' ${JWS_HOME}/bin/setenv.sh
-    sed -i '/export ORS_LOG_LOCATION=/d' ${JWS_HOME}/bin/setenv.sh
+    sed -i '/export ORS_CONFIG=/d' /etc/environment
+    sed -i '/export ORS_LOG_LOCATION=/d' /etc/environment
     # Remove the ors folder and war file from the webapps folder
     rm -rf ${JWS_HOME}/webapps/ors
     rm -rf ${JWS_HOME}/webapps/ors.war

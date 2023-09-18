@@ -24,7 +24,9 @@ check_file_exists '/etc/yum.repos.d/ors.repo' true || SUCCESSFUL=false
 check_file_exists '/opt/openrouteservice/config/example-config.json' false || SUCCESSFUL=false
 check_rpm_installed 'openrouteservice-jws5' false || SUCCESSFUL=false
 # shellcheck disable=SC2016
-check_line_in_file 'export ORS_CONFIG=' '${JWS_HOME}/bin/setenv.sh' false || SUCCESSFUL=false
+check_line_in_file 'export ORS_CONFIG=' '/etc/environment' false || SUCCESSFUL=false
+# shellcheck disable=SC2016
+check_line_in_file 'export ORS_LOG_LOCATION=' '/etc/environment' false || SUCCESSFUL=false
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then

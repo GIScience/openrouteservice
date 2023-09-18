@@ -47,9 +47,9 @@ check_user_exists 'openrouteservice' false || SUCCESSFUL=false
 # The jboss user should still exist
 check_user_exists 'jboss' true || SUCCESSFUL=false
 # shellcheck disable=SC2016
-check_line_in_file 'export ORS_CONFIG=' '${JWS_HOME}/bin/setenv.sh' false || SUCCESSFUL=false
+check_line_in_file 'export ORS_CONFIG=' '/etc/environment' false || SUCCESSFUL=false
 # shellcheck disable=SC2016
-check_line_in_file 'export ORS_LOG_LOCATION=' '${JWS_HOME}/bin/setenv.sh' false || SUCCESSFUL=false
+check_line_in_file 'export ORS_LOG_LOCATION=' '/etc/environment' false || SUCCESSFUL=false
 # Check for owned content
 find_owned_content "/opt/openrouteservice/*" "openrouteservice" "" 0 || SUCCESSFUL=false
 find_owned_content "/opt/openrouteservice/*" "" "openrouteservice" 0 || SUCCESSFUL=false
