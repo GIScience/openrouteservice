@@ -31,7 +31,8 @@ public class HeatStressWeighting extends FastestWeighting {
     public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
         if (heatStressStorage != null) {
             int stressLevel = heatStressStorage.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), columnIndex, buffer);
-            return stressLevel * weightingFactor / 100;
+            // Convert value range from [0,100] to [1,2] to avoid large detours and multiply by user weighting in API request
+            return (stressLevel * 0.01 * weightingFactor) + 1;
         }
 
         return 1.0;
