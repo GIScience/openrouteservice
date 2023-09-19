@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        docker_file: [ dockerfile-jboss-java17-rhel8 ]
+        docker_file: [ dockerfile-ubi8-java17-jws57 ]
     env:
       CONTAINER_NAME: ${{ matrix.docker_file }}
       IMAGE_NAME: local/${{ matrix.docker_file }}:latest
@@ -175,39 +175,38 @@ jobs:
           .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/noarch/${{ env.RPM_NAME }}'
 
       - name: Login to RedHat Container Registry
-        uses: docker/login-action@v2
+        uses: redhat-actions/podman-login@v1
         with:
           registry: registry.redhat.io
           username: ${{ secrets.REDHAT_REGISTRY_LOGIN }}
           password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
 
-      - name: Build and load the rpm image for dockerfile ${{ matrix.docker_file }}
-        uses: docker/build-push-action@v4
+      - name: Build the docker image with podman
+        uses: redhat-actions/buildah-build@v2
         with:
-          context: .
-          file: .rpm-packaging/${{ matrix.docker_file }}
-          push: false
-          load: true
+          containerfile: .rpm-packaging/${{ matrix.docker_file }}
           tags: ${{ env.IMAGE_NAME }}
           build-args: |
             REDHAT_ORG=${{ secrets.REDHAT_ORG }}
             REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          layers: true
+#          extra-args:
+#            cache-from: type=gha
+#            cache-to: type=gha,mode=max
 
       - name: Prepare the example.repo file
         run: |
           # Replace the baseurl line with the testing repository url
           sed -i "s|baseurl=.*|baseurl=${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}|g" .rpm-packaging/example.repo
 
-      - name: Setup the docker container
+      - name: Run the container with podman
         shell: bash
         run: |
-          echo "Waiting for the docker container to start"
+          echo "Waiting for the container to start"
           # Run the pre-build docker image and mount the needed files
           # Mount the elevation file to avoid downloading it
           # Mount the osm pbf file for the graph build
-          docker run -it -d -p 8080:8080 --name ${{ env.CONTAINER_NAME }} \
+          podman run -it -d -p 8080:8080 --systemd true --name ${{ env.CONTAINER_NAME }} \
             -v $(pwd)/ors-api/src/test/files/elevation/srtm_38_03.gh:/opt/openrouteservice/.elevation-cache/srtm_38_03.gh \
             -v $(pwd)/ors-api/src/test/files/heidelberg.osm.gz:/opt/openrouteservice/files/osm-file.osm.gz  \
             -v $(pwd)/.rpm-packaging/example.repo:/etc/yum.repos.d/ors.repo \
@@ -232,21 +231,21 @@ jobs:
         shell: bash
         run: |
           ##### Import the GPG key #####
-          echo "Importing the GPG key inside the docker container"
-          # docker exec -u root ${{ env.CONTAINER_NAME }} rpm --import /tmp/public_key.asc
+          echo "Importing the GPG key inside the container"
+          # podman exec -u root ${{ env.CONTAINER_NAME }} rpm --import /tmp/public_key.asc
 
           ##### Install the rpm package #####
           # Update the yum repository
-          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum update -y'
+          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum update -y'
 
           echo "Installing the rpm package"
           # Create the missing jws5* rpm packages with fakeprovide
-          docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-runtime
-          docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat
-          docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-native
-          docker exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-selinux
+          podman exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-runtime
+          podman exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat
+          podman exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-native
+          podman exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-selinux
           # Install the rpm package as root with the fakeprovide packages
-          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum install -y fakeprovide-jws5-* openrouteservice-jws5'
+          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum install -y fakeprovide-jws5-* openrouteservice-jws5'
           
           ##### Check the post install environment #####
           echo "Checking the post install environment"
@@ -257,20 +256,20 @@ jobs:
         run: |          
           ##### Start the graph building #####
           # Copy the /opt/openrouteservice/config/example-config.json to /opt/openrouteservice/config/ors-config.json
-          docker exec -u jboss ${{ env.CONTAINER_NAME }} sh -c 'cp /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json'
+          podman exec -u jboss ${{ env.CONTAINER_NAME }} sh -c 'cp /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json'
           
           # Restart the container to load the new configuration
-          docker restart ${{ env.CONTAINER_NAME }}
+          podman restart ${{ env.CONTAINER_NAME }}
           
-          # echo "Waiting for the docker container to build graphs and return 200"
+          # echo "Waiting for the podman container to build graphs and return 200"
           .github/utils/url_check.sh '127.0.0.1:8080/ors/v2/health' 200 ${{ env.HEALTH_WAIT_TIME }}
       - name: Print the container logs for debugging
         if: runner.debug == '1'
         shell: bash
         run: |
           ##### Print the container logs for debugging #####
-          echo "Print docker logs"
-          docker logs ${{ env.CONTAINER_NAME }}
+          echo "Print container logs"
+          podman logs ${{ env.CONTAINER_NAME }}
 
       - name: Uninstall the rpm package
         shell: bash
@@ -281,7 +280,7 @@ jobs:
 
           ##### Uninstall the rpm package #####
           echo "Uninstalling the rpm package"
-          docker exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum remove -y openrouteservice-jws5'
+          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum remove -y openrouteservice-jws5'
           
           ##### Check the post uninstall environment #####
           echo "Checking the post uninstall environment"
