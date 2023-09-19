@@ -1,5 +1,6 @@
 package org.heigit.ors.api;
 
+import com.google.common.base.Strings;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
@@ -27,11 +28,25 @@ import java.util.List;
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
 
+    private static final String ORS_HOME_ENV = "ORS_HOME";
+    private static final String ORS_LOG_LOCATION_ENV = "ORS_LOG_LOCATION";
+
     static {
         System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
     }
 
     public static void main(String[] args) {
+        String orsHome = System.getenv(ORS_HOME_ENV);
+        if (!Strings.isNullOrEmpty(orsHome)) {
+            System.setProperty("ors_config", orsHome + "/config/ors-config.json");
+            System.setProperty("logPath", orsHome + "/logs/");
+        }
+        String logPathEnv = System.getenv(ORS_LOG_LOCATION_ENV);
+        if (!Strings.isNullOrEmpty(logPathEnv)) {
+            System.setProperty("logPath", logPathEnv);
+        } else {
+            System.setProperty("logPath", "./logs/");
+        }
         SpringApplication.run(Application.class, args);
     }
 
