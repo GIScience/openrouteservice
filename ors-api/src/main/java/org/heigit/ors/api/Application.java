@@ -30,6 +30,7 @@ public class Application extends SpringBootServletInitializer {
 
     private static final String ORS_HOME_ENV = "ORS_HOME";
     private static final String ORS_LOG_LOCATION_ENV = "ORS_LOG_LOCATION";
+    public static final String LOG_PATH_SYS = "logPath";
 
     static {
         System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
@@ -38,14 +39,15 @@ public class Application extends SpringBootServletInitializer {
     public static void main(String[] args) {
         String orsHome = System.getenv(ORS_HOME_ENV);
         if (!Strings.isNullOrEmpty(orsHome)) {
-            System.setProperty("ors_config", orsHome + "/config/ors-config.json");
-            System.setProperty("logPath", orsHome + "/logs/");
+            if (Strings.isNullOrEmpty(System.getenv("ORS_CONFIG")))
+                System.setProperty("ors_config", orsHome + "/config/ors-config.json");
+            System.setProperty(LOG_PATH_SYS, orsHome + "/logs/");
+        } else {
+            System.setProperty(LOG_PATH_SYS, "./logs/");
         }
         String logPathEnv = System.getenv(ORS_LOG_LOCATION_ENV);
         if (!Strings.isNullOrEmpty(logPathEnv)) {
-            System.setProperty("logPath", logPathEnv);
-        } else {
-            System.setProperty("logPath", "./logs/");
+            System.setProperty(LOG_PATH_SYS, logPathEnv);
         }
         SpringApplication.run(Application.class, args);
     }
