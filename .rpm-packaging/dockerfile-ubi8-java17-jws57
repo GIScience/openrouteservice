@@ -1,4 +1,4 @@
-FROM registry.redhat.io/jboss-webserver-5/jws57-openjdk17-openshift-rhel8 as base
+FROM registry.access.redhat.com/ubi8/ubi:latest as base
 
 # Become root
 USER root
@@ -15,7 +15,9 @@ RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*
     # Attach to the rhel8 repositories of the access key and unregister if it fails
     #subscription-manager attach || subscription-manager unregister && \
     # Update the system and unregister if it fails
-    yum update -y && yum install -y git make && \
+    yum update -y && yum install -y git make rpm-build java-17-openjdk-headless wget unzip systemd && \
+    # give user root the passwort "root"
+    echo "root:root" | chpasswd && \
     # Clone fakeprovide and install it \
     git clone https://github.com/MichaelsJP/fakeprovide.git && cd fakeprovide && make install && \
     # Unregister from redhat in any case in the end to avoid too many registered systems
@@ -23,15 +25,23 @@ RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*
     echo "Done"
 
 
-from base as final
+FROM base
 
 # Copy /usr/bin/fakeprovide from the base image
 COPY --from=base /usr/bin/fakeprovide /usr/bin/fakeprovide
 
-# Install rpm-build with yum as needed for fakeprovide and remove the yum cache
-RUN yum install -y rpm-build && yum clean all && \
-    # give user root the passwort "root"
-    echo "root:root" | chpasswd
+# Download and install tomcat
+RUN mkdir -p /var/opt/rh; cd /var/opt/rh/ && \
+    wget 'https://access.redhat.com/cspdownload/8f48cf7a8c897851a468eddbeef9d3fc/6509a054/JWS-5.7.0/jws-5.7.0-application-server.zip' && \
+    wget 'https://access.redhat.com/cspdownload/8ae72f3a4c9316eaba621855cc349d64/65099fab/JWS-5.7.0/jws-5.7.0-application-server-RHEL8-x86_64.zip' && \
+    unzip jws-5.7.0-application-server.zip -d /var/opt/rh/ && unzip jws-5.7.0-application-server-RHEL8-x86_64.zip -d /var/opt/rh/ && \
+    mv /var/opt/rh/jws-5.7 /var/opt/rh/jws5 && rm -f jws-5.7.0-application-server.zip jws-5.7.0-application-server-RHEL8-x86_64.zip && \
+    cd /var/opt/rh/jws5/tomcat/ &&  \
+    ./.postinstall.systemd && systemctl enable jws5-tomcat.service && \
+    chown -R tomcat:tomcat /var/opt/rh
 
-# Become the jboss user again
-USER jboss
+EXPOSE 8080
+# Become tomcat that was created by the postinstall script
+USER tomcat
+CMD ["/usr/sbin/init"]
+
