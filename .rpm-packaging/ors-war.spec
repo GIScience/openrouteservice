@@ -15,7 +15,7 @@ Requires:  jws5-runtime
 Requires:  jws5-tomcat
 Requires:  jws5-tomcat-native
 Requires:  jws5-tomcat-selinux
-Requires:  java-%{java_version}-openjdk
+Requires:  java-%{java_version}-openjdk-headless
 Vendor: HeiGIT gGmbH
 
 # For a detailed step explanation see: https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
