@@ -184,7 +184,7 @@ jobs:
       - name: Build the docker image with podman
         uses: redhat-actions/buildah-build@v2
         with:
-          containerfile: .rpm-packaging/${{ matrix.docker_file }}
+          containerfiles: .rpm-packaging/${{ matrix.docker_file }}
           tags: ${{ env.IMAGE_NAME }}
           build-args: |
             REDHAT_ORG=${{ secrets.REDHAT_ORG }}
