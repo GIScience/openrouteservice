@@ -18,41 +18,37 @@ echo "Checking the environment after uninstallation"
 # Check if the RPM package is installed
 check_rpm_installed 'openrouteservice-jws5' false || SUCCESSFUL=false
 # Check the correct directory and file structure
-check_file_exists '/opt/openrouteservice/config/example-config.json' false || SUCCESSFUL=false
-check_file_exists '/opt/openrouteservice/config/ors-config.json' true || SUCCESSFUL=false
-check_file_exists '/opt/openrouteservice/.elevation-cache/srtm_38_03.gh' true || SUCCESSFUL=false
-check_file_exists '/opt/openrouteservice/files/osm-file.osm.gz' true || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/config/example-config.json' false || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/config/ors-config.json' true || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/.elevation-cache/srtm_38_03.gh' true || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/files/osm-file.osm.gz' true || SUCCESSFUL=false
 # shellcheck disable=SC2016
 # The webapps folder belongs to JWS and shouldn't be removed
-check_folder_exists '${JWS_HOME}/webapps' true || SUCCESSFUL=false
+check_folder_exists '/var/opt/rh/jws5/tomcat/webapps' true || SUCCESSFUL=false
 # We leave the folder structure in place. No personal data will be removed
-check_folder_exists '/opt/openrouteservice' true || SUCCESSFUL=false
-check_folder_exists '/opt/openrouteservice/config' true || SUCCESSFUL=false
-check_folder_exists '/opt/openrouteservice/logs' true || SUCCESSFUL=false
-check_folder_exists '/opt/openrouteservice/.war-files' true || SUCCESSFUL=false
-check_folder_exists '/opt/openrouteservice/.elevation-cache' true || SUCCESSFUL=false
-check_folder_exists '/opt/openrouteservice/files' true || SUCCESSFUL=false
-check_folder_exists '/opt/openrouteservice/graphs' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/config' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/logs' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/.war-files' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/.elevation-cache' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/files' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/graphs' true || SUCCESSFUL=false
 # Check that the war file is deleted
-check_file_exists "/opt/openrouteservice/.war-files/${ORS_VERSION}_ors.war" false || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/.war-files/'"${ORS_VERSION}"'_ors.war' false || SUCCESSFUL=false
 # The webapps/ors folder and the ors.war should not exist. Else ors would still be deployed
 # shellcheck disable=SC2016
-check_folder_exists '${JWS_HOME}/webapps/ors' false || SUCCESSFUL=false
+check_folder_exists '/var/opt/rh/jws5/tomcat/webapps/ors' false || SUCCESSFUL=false
 # shellcheck disable=SC2016
 # Check symlink ors.war to webapps folder
-check_file_is_symlink '${JWS_HOME}/webapps/ors.war' false || SUCCESSFUL=false
+check_file_is_symlink '/var/opt/rh/jws5/tomcat/webapps/ors.war' false || SUCCESSFUL=false
 # openrouteservice user and group should be removed
 check_group_exists 'openrouteservice' false || SUCCESSFUL=false
 check_user_exists 'openrouteservice' false || SUCCESSFUL=false
-# The jboss user should still exist
-check_user_exists 'jboss' true || SUCCESSFUL=false
-# shellcheck disable=SC2016
-check_line_in_file 'export ORS_CONFIG=' '/etc/environment' false || SUCCESSFUL=false
-# shellcheck disable=SC2016
-check_line_in_file 'export ORS_LOG_LOCATION=' '/etc/environment' false || SUCCESSFUL=false
+# The tomcat user should still exist
+check_user_exists 'tomcat' true || SUCCESSFUL=false
 # Check for owned content
-find_owned_content "/opt/openrouteservice/*" "openrouteservice" "" 0 || SUCCESSFUL=false
-find_owned_content "/opt/openrouteservice/*" "" "openrouteservice" 0 || SUCCESSFUL=false
+find_owned_content '${ORS_HOME}/*' "openrouteservice" "" 0 || SUCCESSFUL=false
+find_owned_content '${ORS_HOME}/*' "" "openrouteservice" 0 || SUCCESSFUL=false
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then

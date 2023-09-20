@@ -214,7 +214,10 @@ jobs:
             -v $(pwd)/ors-api/src/test/files/elevation/srtm_38_03.gh:/opt/openrouteservice/.elevation-cache/srtm_38_03.gh \
             -v $(pwd)/ors-api/src/test/files/heidelberg.osm.gz:/opt/openrouteservice/files/osm-file.osm.gz  \
             -v $(pwd)/.rpm-packaging/example.repo:/etc/yum.repos.d/ors.repo \
+            -e ORS_HOME=/opt/openrouteservice \
             ${{ env.IMAGE_NAME }}
+#          podman exec -u root ${{ env.CONTAINER_NAME }} bash -c "echo 'ORS_HOME=/opt/openrouteservice' >> /etc/environment"
+ #         podman restart ${{ env.CONTAINER_NAME }}
 
       - name: Check the pre-install environment
         shell: bash
@@ -264,7 +267,7 @@ jobs:
         run: |
           ##### Start the graph building #####
           # Copy the /opt/openrouteservice/config/example-config.json to /opt/openrouteservice/config/ors-config.json
-          podman exec -u jboss ${{ env.CONTAINER_NAME }} sh -c 'cp /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json'
+          podman exec -u openrouteservice ${{ env.CONTAINER_NAME }} sh -c 'cp /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json'
           
           # Restart the container to load the new configuration
           podman restart ${{ env.CONTAINER_NAME }}

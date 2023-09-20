@@ -16,7 +16,7 @@ SUCCESSFUL=true
 
 echo "Checking the environment before uninstallation"
 # Check the log file has been created in the correct location
-check_file_exists '/opt/openrouteservice/logs/ors.log' true || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/logs/ors.log' true || SUCCESSFUL=false
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then
