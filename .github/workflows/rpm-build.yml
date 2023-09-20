@@ -222,6 +222,8 @@ jobs:
           ##### Check the pre install environment #####
           echo "Checking the pre install environment"
           bash ${{ github.workspace }}/.rpm-packaging/rhel8_pre_install_check.sh
+        env:
+          CONTAINER_ENGINE: podman
 
       - name: Wait for the RPM repo to initialize the repodata folder
         shell: bash
@@ -254,10 +256,12 @@ jobs:
           ##### Check the post install environment #####
           echo "Checking the post install environment"
           bash ${{ github.workspace }}/.rpm-packaging/rhel8_post_install_check.sh
+        env:
+          CONTAINER_ENGINE: podman
 
       - name: Test the graph building
         shell: bash
-        run: |          
+        run: |
           ##### Start the graph building #####
           # Copy the /opt/openrouteservice/config/example-config.json to /opt/openrouteservice/config/ors-config.json
           podman exec -u jboss ${{ env.CONTAINER_NAME }} sh -c 'cp /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json'
@@ -289,6 +293,8 @@ jobs:
           ##### Check the post uninstall environment #####
           echo "Checking the post uninstall environment"
           bash ${{ github.workspace }}/.rpm-packaging/rhel8_post_uninstall_check.sh
+        env:
+          CONTAINER_ENGINE: podman
 
       - name: Clean the public GPG key
         run: |
