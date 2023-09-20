@@ -32,7 +32,7 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private CsvGraphStorage storage;
     private final Map<Long, Integer[]> id2Value = new HashMap<>();
     private static final int MAX_VALUE = 100;
-    private final byte defaultValue = 0; // TODO: make configurable
+    private final byte defaultValue = 50; // TODO: make configurable
     private String[] columnNames;
 
     @Override
