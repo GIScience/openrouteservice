@@ -22,6 +22,16 @@ log_success() {
     echo -e "\e[32m($(get_date_time) | $SCRIPT_NAME | SUCCESS ): ${message}\e[0m"
 }
 
+##### Variables #####
+# Define the container engine to use with default to docker
+CONTAINER_ENGINE=${CONTAINER_ENGINE:-docker}
+
+# Fail if CONTAINER_NAME is empty or not one of podman or docker
+if [ -z "$CONTAINER_ENGINE" ] || [ "$CONTAINER_ENGINE" != "podman" ] && [ "$CONTAINER_ENGINE" != "docker" ]; then
+    log_error "Please set the CONTAINER_ENGINE variable to either podman or docker."
+    return 1
+fi
+
 ##### Test functions #####
 # Function to check the version of the installed and activated java package.
 # Usage: check_java_version <java_version>
@@ -29,7 +39,7 @@ check_java_version() {
     local java_version="$1"
 
     local result
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "java -version 2>&1 | grep \"openjdk version \\\"$java_version.\"")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "java -version 2>&1 | grep \"openjdk version \\\"$java_version.\"")
     if [[ -z "$result" ]]; then
         log_error "Java version should be $java_version but is not."
         return 1
@@ -46,7 +56,7 @@ check_line_in_file() {
 
     local result
     local exit_code
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "grep -Fx '$line' $path_to_file")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "grep -Fx '$line' $path_to_file")
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
         log_error "Line '$line' should exist in file $path_to_file but does not."
@@ -71,7 +81,7 @@ check_folder_exists() {
 
     local result
     local exit_code
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "test -d $path_to_folder")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "test -d $path_to_folder")
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
         log_error "Folder at $path_to_folder should exist but does not."
@@ -96,7 +106,7 @@ check_file_exists() {
 
     local result
     local exit_code
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "test -f $path_to_file")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "test -f $path_to_file")
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
             log_error "File or folder at $path_to_file should exist but does not."
@@ -122,7 +132,7 @@ check_file_is_symlink() {
     # Check if file exists. Else the symlink will fail if it doesn't exist
     local _
     local exit_code
-    _=$(docker exec -u root "$CONTAINER_NAME" bash -c "test -f $path_to_file")
+    _=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "test -f $path_to_file")
     exit_code=$?
     if [ "$should_exist" = true ] && [ $exit_code -ne 0 ]; then
         log_error "Symlink at $path_to_file does not exist but should. Exit code was: $exit_code."
@@ -131,7 +141,7 @@ check_file_is_symlink() {
 
     # Check if file is a symlink
     local result
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "find $path_to_file -type l -xtype f | wc -l")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "find $path_to_file -type l -xtype f | wc -l")
     if [[ "$should_exist" = true && $result -ne 1 ]]; then
         log_error "A file exists at $path_to_file but it is no symlink."
         return 1
@@ -150,7 +160,7 @@ check_group_exists() {
 
     local result
     local exit_code
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "getent group $group_name")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "getent group $group_name")
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
         log_error "Group $group_name should exist but does not."
@@ -175,7 +185,7 @@ check_user_exists() {
 
     local result
     local exit_code
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "getent passwd $user_name")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "getent passwd $user_name")
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
       log_error "User $user_name should exist but does not."
@@ -200,7 +210,7 @@ check_user_in_group() {
 
     local result
     local exit_code
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "getent group $group_name | grep $user_name")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "getent group $group_name | grep $user_name")
     exit_code=$?
     if [[ $exit_code -ne 0 ]]; then
         log_error "User $user_name should be in group $group_name but is not."
@@ -229,7 +239,7 @@ find_owned_content() {
     fi
 
     local result
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "find $folder $user_option $group_option | wc -l")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "find $folder $user_option $group_option | wc -l")
     if [ "$result" != "$count" ]; then
         log_error "Expected $count owned items in $folder but found $result"
         return 1
@@ -245,7 +255,7 @@ check_rpm_installed() {
 
     local result
     local exit_code
-    result=$(docker exec -u root "$CONTAINER_NAME" bash -c "rpm -q $package")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "rpm -q $package")
     exit_code=$?
     if [[ "$should_be_installed" = "true" && $exit_code -ne 0 ]]; then
         log_error "Package $package should be installed but is not. Message was: $result"
