@@ -30,12 +30,18 @@ FROM base
 # Copy /usr/bin/fakeprovide from the base image
 COPY --from=base /usr/bin/fakeprovide /usr/bin/fakeprovide
 
+# Download jws files from private repository
+ARG JWS57_APPLICATION_SERVER_URL
+ARG JWS57_APPLICATION_SERVER_RHEL8_PLATTFORM_URL
+ARG USERNAME
+ARG PASSWORD
+
 # Download and install tomcat
 RUN mkdir -p /var/opt/rh; cd /var/opt/rh/ && \
-    wget 'https://access.redhat.com/cspdownload/8f48cf7a8c897851a468eddbeef9d3fc/6509a054/JWS-5.7.0/jws-5.7.0-application-server.zip' && \
-    wget 'https://access.redhat.com/cspdownload/8ae72f3a4c9316eaba621855cc349d64/65099fab/JWS-5.7.0/jws-5.7.0-application-server-RHEL8-x86_64.zip' && \
-    unzip jws-5.7.0-application-server.zip -d /var/opt/rh/ && unzip jws-5.7.0-application-server-RHEL8-x86_64.zip -d /var/opt/rh/ && \
-    mv /var/opt/rh/jws-5.7 /var/opt/rh/jws5 && rm -f jws-5.7.0-application-server.zip jws-5.7.0-application-server-RHEL8-x86_64.zip && \
+    wget --user=$USERNAME --password=$PASSWORD -O jws-5.7-application-server.zip $JWS57_APPLICATION_SERVER_URL && \
+    wget --user=$USERNAME --password=$PASSWORD -O jws-5.7-application-server-RHEL8-x86_64.zip $JWS57_APPLICATION_SERVER_RHEL8_PLATTFORM_URL && \
+    unzip jws-5.7-application-server.zip -d /var/opt/rh/ && unzip jws-5.7-application-server-RHEL8-x86_64.zip -d /var/opt/rh/ && \
+    mv /var/opt/rh/jws-5.7 /var/opt/rh/jws5 && rm -f *.zip && \
     cd /var/opt/rh/jws5/tomcat/ &&  \
     ./.postinstall.systemd && systemctl enable jws5-tomcat.service && \
     chown -R tomcat:tomcat /var/opt/rh

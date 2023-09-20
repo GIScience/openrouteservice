@@ -175,24 +175,29 @@ jobs:
           .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/noarch/${{ env.RPM_NAME }}'
 
       - name: Login to RedHat Container Registry
-        uses: redhat-actions/podman-login@v1
+        uses: docker/login-action@v2
         with:
           registry: registry.redhat.io
           username: ${{ secrets.REDHAT_REGISTRY_LOGIN }}
           password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
 
-      - name: Build the docker image with podman
-        uses: redhat-actions/buildah-build@v2
+      - name: Build and load the rpm image for dockerfile ${{ matrix.docker_file }}
+        uses: docker/build-push-action@v4
         with:
-          containerfiles: .rpm-packaging/${{ matrix.docker_file }}
+          context: .
+          file: .rpm-packaging/${{ matrix.docker_file }}
+          push: false
+          load: true
           tags: ${{ env.IMAGE_NAME }}
           build-args: |
-            REDHAT_ORG=${{ secrets.REDHAT_ORG }}
-            REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
-          layers: true
-#          extra-args:
-#            cache-from: type=gha
-#            cache-to: type=gha,mode=max
+#            REDHAT_ORG=${{ secrets.REDHAT_ORG }}
+#            REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
+            JWS57_APPLICATION_SERVER_URL=${{ secrets.PRIVATE_FILE_STORAGE_URL }}/jws57/jws-5.7.0-application-server.zip
+            JWS57_APPLICATION_SERVER_RHEL8_PLATTFORM_URL=${{ secrets.PRIVATE_FILE_STORAGE_URL }}/jws57/jws-5.7.0-application-server-RHEL8-x86_64.zip
+            USERNAME=${{ secrets.PRIVATE_FILE_STORAGE_USERNAME }}
+            PASSWORD=${{ secrets.PRIVATE_FILE_STORAGE_PASSWORD }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Prepare the example.repo file
         run: |
@@ -203,7 +208,8 @@ jobs:
         shell: bash
         run: |
           echo "Waiting for the container to start"
-          # Run the pre-build docker image and mount the needed files
+          # Pull the pre-build docker image into podman
+          podman pull docker-daemon:${{ env.IMAGE_NAME }}
           # Mount the elevation file to avoid downloading it
           # Mount the osm pbf file for the graph build
           podman run -it -d -p 8080:8080 --systemd true --name ${{ env.CONTAINER_NAME }} \
