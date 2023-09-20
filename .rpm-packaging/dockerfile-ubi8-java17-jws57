@@ -15,7 +15,7 @@ RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*
     # Attach to the rhel8 repositories of the access key and unregister if it fails
     #subscription-manager attach || subscription-manager unregister && \
     # Update the system and unregister if it fails
-    yum update -y && yum install -y git make rpm-build java-17-openjdk-headless wget unzip systemd && \
+    yum update -y && yum install -y git make rpm-build java-17-openjdk-headless wget unzip systemd apr-util && \
     # give user root the passwort "root"
     echo "root:root" | chpasswd && \
     # Clone fakeprovide and install it \
