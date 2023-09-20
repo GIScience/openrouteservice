@@ -190,8 +190,6 @@ jobs:
           load: true
           tags: ${{ env.IMAGE_NAME }}
           build-args: |
-#            REDHAT_ORG=${{ secrets.REDHAT_ORG }}
-#            REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
             JWS57_APPLICATION_SERVER_URL=${{ secrets.PRIVATE_FILE_STORAGE_URL }}/jws57/jws-5.7.0-application-server.zip
             JWS57_APPLICATION_SERVER_RHEL8_PLATTFORM_URL=${{ secrets.PRIVATE_FILE_STORAGE_URL }}/jws57/jws-5.7.0-application-server-RHEL8-x86_64.zip
             USERNAME=${{ secrets.PRIVATE_FILE_STORAGE_USERNAME }}
