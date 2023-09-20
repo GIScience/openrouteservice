@@ -13,10 +13,12 @@
  */
 package org.heigit.ors.config;
 
+import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
@@ -165,6 +167,21 @@ public class AppConfig {
             String logsFolder = System.getenv("LOGS_FOLDER");
             Config newConfig = ConfigFactory.parseString("ors.logging.location=".concat(logsFolder));
             baseConfig = newConfig.withFallback(baseConfig);
+        }
+        String orsHome = System.getenv("ORS_HOME");
+        if (!Strings.isNullOrEmpty(orsHome)) {
+            String graphsFolderPath = baseConfig.getString("ors.services.routing.profiles.default_params.graphs_root_path");
+            if (Strings.isNullOrEmpty(graphsFolderPath))
+                graphsFolderPath = "graphs";
+            baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.graphs_root_path=".concat(FilenameUtils.concat(orsHome, graphsFolderPath))).withFallback(baseConfig);
+            String elevationCachePath = baseConfig.getString("ors.services.routing.profiles.default_params.elevation_cache_path");
+            if (Strings.isNullOrEmpty(elevationCachePath))
+                elevationCachePath = ".elevation_cache";
+            baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.elevation_cache_path=".concat(FilenameUtils.concat(orsHome, elevationCachePath))).withFallback(baseConfig);
+            String pbfPath = baseConfig.getString("ors.services.routing.profiles.default_params.elevation_cache_path");
+            if (Strings.isNullOrEmpty(pbfPath))
+                pbfPath = "files/osm-file.osm.gz";
+            baseConfig = ConfigFactory.parseString("ors.services.routing.sources=[".concat(FilenameUtils.concat(orsHome, pbfPath)).concat("]")).withFallback(baseConfig);
         }
         return baseConfig;
     }

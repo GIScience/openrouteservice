@@ -1,6 +1,7 @@
 package org.heigit.ors.api;
 
 import com.google.common.base.Strings;
+import org.apache.commons.io.FilenameUtils;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.CorsEndpointProperties;
@@ -40,8 +41,8 @@ public class Application extends SpringBootServletInitializer {
         String orsHome = System.getenv(ORS_HOME_ENV);
         if (!Strings.isNullOrEmpty(orsHome)) {
             if (Strings.isNullOrEmpty(System.getenv("ORS_CONFIG")))
-                System.setProperty("ors_config", orsHome + "/config/ors-config.json");
-            System.setProperty(LOG_PATH_SYS, orsHome + "/logs/");
+                System.setProperty("ors_config", FilenameUtils.concat(orsHome, "config/ors-config.json"));
+            System.setProperty(LOG_PATH_SYS, FilenameUtils.concat(orsHome, "logs/"));
         } else {
             System.setProperty(LOG_PATH_SYS, "./logs/");
         }

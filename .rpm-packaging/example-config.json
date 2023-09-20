@@ -69,7 +69,7 @@
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "openrouteservice routing",
         "sources": [
-          "/opt/openrouteservice/files/osm-file.osm.gz"
+          "files/osm-file.osm.gz"
         ],
         "init_threads": 1,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",
@@ -80,9 +80,9 @@
           ],
           "default_params": {
             "encoder_flags_size": 8,
-            "graphs_root_path": "/opt/openrouteservice/graphs",
+            "graphs_root_path": "graphs",
             "elevation_provider": "multi",
-            "elevation_cache_path": "/opt/openrouteservice/.elevation-cache",
+            "elevation_cache_path": ".elevation-cache",
             "elevation_cache_clear": false,
             "instructions": true,
             "maximum_distance": 100000,
