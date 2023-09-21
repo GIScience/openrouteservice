@@ -4,7 +4,9 @@
 %define tomcat_user tomcat
 %define ors_group openrouteservice
 %define ors_user  openrouteservice
-%define jws_webapps /var/opt/rh/jws5/tomcat/webapps/
+%define jws_home /var/opt/rh/jws5/tomcat
+%define jws_webapps %{jws_home}/webapps/
+%define jws_config_location %{jws_home}/conf/jws5-tomcat.conf
 Name: openrouteservice-jws5
 Version: %{ors_version}
 Release: 1
@@ -49,12 +51,23 @@ else
     exit 1
 fi
 
-echo "Create the webapps folder in ${JWS_HOME} if it does not exist."
 if [ -d %{jws_webapps} ]; then
     echo "JWS webapps dir found at %{jws_webapps}"
 else
     echo "No webapps folder found. Exiting installation."
     # Exit the rpm installation with an error
+    exit 1
+fi
+
+if [ -f %{jws_config_location} ]; then
+    echo "Tomcat config found at %{jws_config_location}"
+    echo "Permanently saving the given ORS_HOME=${ORS_HOME} location in the tomcat config."
+    # Remove any line that starts with ORS_HOME=
+    sed -i '/^ORS_HOME=/d' %{jws_config_location}
+    # Add the ORS_HOME variable to the tomcat config
+    echo "ORS_HOME=${ORS_HOME}" >> %{jws_config_location}
+else
+    echo "No tomcat config found at %{jws_config_location}. Exiting installation."
     exit 1
 fi
 
