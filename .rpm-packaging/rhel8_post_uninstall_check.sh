@@ -48,6 +48,10 @@ check_user_exists 'tomcat' true || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "openrouteservice" "" 0 || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "" "openrouteservice" 0 || SUCCESSFUL=false
 
+# Check environment variables are removed
+# shellcheck disable=SC2016
+check_line_in_file 'ORS_HOME=/opt/openrouteservice' '/var/opt/rh/jws5/tomcat/conf/jws5-tomcat.conf' false || SUCCESSFUL=false
+
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then
   log_error "Post-install check failed. Please check the log for more details."

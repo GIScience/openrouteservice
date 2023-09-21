@@ -45,7 +45,9 @@ check_user_exists 'openrouteservice' true || SUCCESSFUL=false
 check_user_exists 'tomcat' true || SUCCESSFUL=false
 check_user_in_group 'tomcat' 'openrouteservice' || SUCCESSFUL=false
 check_user_in_group 'openrouteservice' 'openrouteservice' || SUCCESSFUL=false
-
+# Check environment variables
+# shellcheck disable=SC2016
+check_line_in_file 'ORS_HOME=/opt/openrouteservice' '/var/opt/rh/jws5/tomcat/conf/jws5-tomcat.conf' true || SUCCESSFUL=false
 # Check Java version
 check_java_version '17.' || SUCCESSFUL=false
 # Check for owned content
