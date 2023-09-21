@@ -30,7 +30,7 @@ check_folder_exists '${ORS_HOME}/logs' true || SUCCESSFUL=false
 check_folder_exists '/tmp/openrouteservice/.war-files' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/.elevation-cache' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/files' true || SUCCESSFUL=false
-check_folder_exists '${ORS_HOME}/graphs' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/.graphs' true || SUCCESSFUL=false
 check_file_exists "/tmp/openrouteservice/.war-files/${ORS_VERSION}_ors.war" true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/config/example-config.json' true || SUCCESSFUL=false
 
@@ -49,9 +49,9 @@ check_user_in_group 'openrouteservice' 'openrouteservice' || SUCCESSFUL=false
 # Check Java version
 check_java_version '17.' || SUCCESSFUL=false
 # Check for owned content
-find_owned_content '${ORS_HOME}/*' "openrouteservice" "" 6 || SUCCESSFUL=false
-find_owned_content '${ORS_HOME}/*' "" "openrouteservice" 6 || SUCCESSFUL=false
-find_owned_content '${ORS_HOME}/*' "openrouteservice" "openrouteservice" 6 || SUCCESSFUL=false
+find_owned_content '${ORS_HOME}/*' "openrouteservice" "" 5 || SUCCESSFUL=false
+find_owned_content '${ORS_HOME}/*' "" "openrouteservice" 5 || SUCCESSFUL=false
+find_owned_content '${ORS_HOME}/*' "openrouteservice" "openrouteservice" 5 || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "" "root" 0 || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "root" "" 0 || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "tomcat" "" 0 || SUCCESSFUL=false

@@ -26,21 +26,19 @@ check_file_exists '${ORS_HOME}/files/osm-file.osm.gz' true || SUCCESSFUL=false
 # The webapps folder belongs to JWS and shouldn't be removed
 check_folder_exists '/var/opt/rh/jws5/tomcat/webapps' true || SUCCESSFUL=false
 # We leave the folder structure in place. No personal data will be removed
-check_folder_exists '${ORS_HOME}' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/config' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/logs' true || SUCCESSFUL=false
-check_folder_exists '${ORS_HOME}/.war-files' true || SUCCESSFUL=false
-check_folder_exists '${ORS_HOME}/.elevation-cache' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/files' true || SUCCESSFUL=false
-check_folder_exists '${ORS_HOME}/graphs' true || SUCCESSFUL=false
-# Check that the war file is deleted
-check_file_exists '${ORS_HOME}/.war-files/'"${ORS_VERSION}"'_ors.war' false || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/.elevation-cache' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/.graphs' true || SUCCESSFUL=false
 # The webapps/ors folder and the ors.war should not exist. Else ors would still be deployed
 # shellcheck disable=SC2016
 check_folder_exists '/var/opt/rh/jws5/tomcat/webapps/ors' false || SUCCESSFUL=false
 # shellcheck disable=SC2016
 # Check symlink ors.war to webapps folder
 check_file_is_symlink '/var/opt/rh/jws5/tomcat/webapps/ors.war' false || SUCCESSFUL=false
+# Check that the temp folder is deleted
+check_folder_exists '/tmp/openrouteservice' false || SUCCESSFUL=false
 # openrouteservice user and group should be removed
 check_group_exists 'openrouteservice' false || SUCCESSFUL=false
 check_user_exists 'openrouteservice' false || SUCCESSFUL=false

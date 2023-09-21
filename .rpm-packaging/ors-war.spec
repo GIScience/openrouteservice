@@ -128,10 +128,6 @@ chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
 # Set recursive 770 permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
 chmod -R 770 ${ORS_HOME}
 
-%posttrans
-# Clean the ors_local_folder as the last step of the installation
-rm -rf %{ors_local_folder}
-
 %postun
 # Uninstall routine if $1 is 0 but leave the opt folder
 # For explanation check https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
@@ -140,6 +136,7 @@ if [ "$1" = "0" ]; then
     # Remove the ors folder and war file from the webapps folder
     rm -rf %{jws_webapps}/ors
     rm -rf %{jws_webapps}/ors.war
+    rm -rf %{ors_local_folder}
     # Remove the ors user
     userdel %{ors_user}
     # Remove the ors group
