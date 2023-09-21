@@ -107,12 +107,11 @@ fi
 
 
 # Setup openrouteservice opt folder
-mkdir -p "${ORS_HOME}/graphs"
+mkdir -p "${ORS_HOME}/.graphs"
 mkdir -p "${ORS_HOME}/logs"
 mkdir -p "${ORS_HOME}/config"
 mkdir -p "${ORS_HOME}/files"
 mkdir -p "${ORS_HOME}/.elevation-cache"
-mkdir -p "${ORS_HOME}/.war-files"
 
 %post
 echo "Copy %{ors_version}_ors.war to %{jws_webapps}"
@@ -128,6 +127,10 @@ chmod 740 %{jws_webapps}/ors.war
 chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
 # Set recursive 770 permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
 chmod -R 770 ${ORS_HOME}
+
+%posttrans
+# Clean the ors_local_folder as the last step of the installation
+rm -rf %{ors_local_folder}
 
 %postun
 # Uninstall routine if $1 is 0 but leave the opt folder

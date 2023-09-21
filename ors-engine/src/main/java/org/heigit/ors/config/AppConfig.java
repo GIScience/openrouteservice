@@ -14,10 +14,7 @@
 package org.heigit.ors.config;
 
 import com.google.common.base.Strings;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
+import com.typesafe.config.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.util.FileUtility;
@@ -144,6 +141,18 @@ public class AppConfig {
     }
 
     private Config overrideFromEnvVariables(Config baseConfig) {
+        String orsHome = System.getenv("ORS_HOME");
+        if (!Strings.isNullOrEmpty(orsHome)) {
+            LOGGER.debug("Environment variable 'ORS_HOME' used as base path");
+            LOGGER.debug("ORS_HOME: " + orsHome);
+            // Print info about the baseConfig
+            baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.graphs_root_path=".concat(FilenameUtils.concat(orsHome, ".graphs"))).withFallback(baseConfig);
+            baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.elevation_cache_path=".concat(FilenameUtils.concat(orsHome, ".elevation_cache"))).withFallback(baseConfig);
+            // Find a better solution to this. For now, we hard code the path to the osm file and its file name
+            baseConfig = ConfigFactory.parseString("ors.services.routing.sources=[".concat(FilenameUtils.concat(orsHome, "files/osm-file.osm.gz")).concat("]")).withFallback(baseConfig);
+            // Adjust the logging path
+            baseConfig = ConfigFactory.parseString("ors.logging.location=".concat(FilenameUtils.concat(orsHome, "logs"))).withFallback(baseConfig);
+        }
         if (System.getenv("GRAPHS_FOLDER") != null) {
             LOGGER.info("Environment variable 'GRAPHS_FOLDER' used as graphs folder path");
             String graphsFolderPath = System.getenv("GRAPHS_FOLDER");
@@ -167,26 +176,6 @@ public class AppConfig {
             String logsFolder = System.getenv("LOGS_FOLDER");
             Config newConfig = ConfigFactory.parseString("ors.logging.location=".concat(logsFolder));
             baseConfig = newConfig.withFallback(baseConfig);
-        }
-        String orsHome = System.getenv("ORS_HOME");
-        if (!Strings.isNullOrEmpty(orsHome)) {
-            LOGGER.info("Printing from overrideFromEnvVariables");
-            LOGGER.info("Environment variable 'ORS_HOME' used as base path");
-            LOGGER.info("ORS_HOME: " + orsHome);
-            // Print info about the baseConfig
-            LOGGER.info("baseConfig: " + baseConfig.toString());
-            String graphsFolderPath = baseConfig.getString("ors.services.routing.profiles.default_params.graphs_root_path");
-            if (Strings.isNullOrEmpty(graphsFolderPath))
-                graphsFolderPath = "graphs";
-            baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.graphs_root_path=".concat(FilenameUtils.concat(orsHome, graphsFolderPath))).withFallback(baseConfig);
-            String elevationCachePath = baseConfig.getString("ors.services.routing.profiles.default_params.elevation_cache_path");
-            if (Strings.isNullOrEmpty(elevationCachePath))
-                elevationCachePath = ".elevation_cache";
-            baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.elevation_cache_path=".concat(FilenameUtils.concat(orsHome, elevationCachePath))).withFallback(baseConfig);
-            String pbfPath = baseConfig.getString("ors.services.routing.profiles.default_params.elevation_cache_path");
-            if (Strings.isNullOrEmpty(pbfPath))
-                pbfPath = "files/osm-file.osm.gz";
-            baseConfig = ConfigFactory.parseString("ors.services.routing.sources=[".concat(FilenameUtils.concat(orsHome, pbfPath)).concat("]")).withFallback(baseConfig);
         }
         return baseConfig;
     }

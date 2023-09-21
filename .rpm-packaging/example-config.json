@@ -86,7 +86,7 @@
           ],
           "default_params": {
             "encoder_flags_size": 8,
-            "graphs_root_path": "graphs",
+            "graphs_root_path": ".graphs",
             "elevation_provider": "multi",
             "elevation_cache_path": ".elevation-cache",
             "elevation_cache_clear": false,
@@ -334,7 +334,7 @@
     "logging": {
       "enabled": true,
       "level_file": "DEFAULT_LOGGING.json",
-      "location": "/opt/openrouteservice/logs",
+      "location": "logs",
       "stdout": true
     }
   }
