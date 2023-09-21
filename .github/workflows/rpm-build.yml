@@ -269,13 +269,8 @@ jobs:
           # Copy the /opt/openrouteservice/config/example-config.json to /opt/openrouteservice/config/ors-config.json
           podman exec -u openrouteservice ${{ env.CONTAINER_NAME }} sh -c 'cp /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json'
           
-          # Restart the container to load the new configuration
-          podman stop ${{ env.CONTAINER_NAME }}
-          
-          # Sleep to wait for the container to stop and release the port
-          sleep 5
-          
-          podman start ${{ env.CONTAINER_NAME }}
+          # Restart the systemd service
+          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'systemctl restart jws5-tomcat.service'
           
           # echo "Waiting for the podman container to build graphs and return 200"
           .github/utils/url_check.sh '127.0.0.1:8080/ors/v2/health' 200 ${{ env.HEALTH_WAIT_TIME }}
