@@ -170,6 +170,11 @@ public class AppConfig {
         }
         String orsHome = System.getenv("ORS_HOME");
         if (!Strings.isNullOrEmpty(orsHome)) {
+            LOGGER.info("Printing from overrideFromEnvVariables");
+            LOGGER.info("Environment variable 'ORS_HOME' used as base path");
+            LOGGER.info("ORS_HOME: " + orsHome);
+            // Print info about the baseConfig
+            LOGGER.info("baseConfig: " + baseConfig.toString());
             String graphsFolderPath = baseConfig.getString("ors.services.routing.profiles.default_params.graphs_root_path");
             if (Strings.isNullOrEmpty(graphsFolderPath))
                 graphsFolderPath = "graphs";

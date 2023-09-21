@@ -1,5 +1,11 @@
 {
   "ors": {
+    "info": {
+      "base_url": "https://openrouteservice.org/",
+      "support_mail": "support@openrouteservice.heigit.org",
+      "author_tag": "openrouteservice",
+      "content_licence": "LGPL 3.0"
+    },
     "services": {
       "isochrones": {
         "enabled": true,
