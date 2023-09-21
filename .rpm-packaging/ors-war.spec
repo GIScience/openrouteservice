@@ -133,6 +133,8 @@ chmod -R 770 ${ORS_HOME}
 # For explanation check https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
 if [ "$1" = "0" ]; then
     echo "Uninstalling openrouteservice"
+    # Remove any line that starts with ORS_HOME=
+    sed -i '/^ORS_HOME=/d' %{jws_config_location}
     # Remove the ors folder and war file from the webapps folder
     rm -rf %{jws_webapps}/ors
     rm -rf %{jws_webapps}/ors.war

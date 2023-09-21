@@ -18,7 +18,7 @@ echo "Checking the environment after uninstallation"
 # Check if the RPM package is installed
 check_rpm_installed 'openrouteservice-jws5' false || SUCCESSFUL=false
 # Check the correct directory and file structure
-check_file_exists '${ORS_HOME}/config/example-config.json' false || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/config/example-config.json' true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/config/ors-config.json' true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/.elevation-cache/srtm_38_03.gh' true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/files/osm-file.osm.gz' true || SUCCESSFUL=false
