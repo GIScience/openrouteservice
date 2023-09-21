@@ -12,8 +12,8 @@
       },
       "RollingFile": {
         "name": "orslogfile",
-        "fileName": "${sys:logPath}ors.log",
-        "filePattern": "${sys:logPath}ors.%d{yyyy-MM-dd}.log.gz",
+        "fileName": "${sys:logPath:-logs/}ors.log",
+        "filePattern": "${sys:logPath:-logs/}ors.%d{yyyy-MM-dd}.log.gz",
         "PatternLayout": {
           "pattern": "%d %p [%c{2}] - %m%n"
         },
