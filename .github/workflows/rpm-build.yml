@@ -275,19 +275,7 @@ jobs:
           
           podman start ${{ env.CONTAINER_NAME }}
           
-          # Sleep and wait for the container to start
-          sleep 10
-          
-          # Check the container logs
-          podman logs ${{ env.CONTAINER_NAME }}
-          
-          # Check the ors logs
-          podman exec -u root ${{ env.CONTAINER_NAME }} bash -c 'ls -sahlS ${ORS_HOME}/**/**'
-          
-          # Check the catalina logs
-          podman exec -u root ${{ env.CONTAINER_NAME }} bash -c "ls -sahlS /var/opt/rh/jws5/tomcat/logs/**"
-          
-          # echo "Waiting for the podman container to build graphs and return 200"
+          echo "Waiting for the podman container to build graphs and return 200"
           .github/utils/url_check.sh '127.0.0.1:8080/ors/v2/health' 200 ${{ env.HEALTH_WAIT_TIME }}
       - name: Print the container logs for debugging
         if: runner.debug == '1'
