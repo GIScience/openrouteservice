@@ -43,7 +43,7 @@ public class TrafficEdgeFilter implements EdgeFilter {
     }
 
     public void higherFunctionalClass() {
-        if (hereFunctionalClass > TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && hereFunctionalClass <= TrafficRelevantWayType.RelevantWayTypes.CLASS1.value) {
+        if (hereFunctionalClass > TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && hereFunctionalClass <= TrafficRelevantWayType.RelevantWayTypes.CLASS4.value) {
             // We don't want to increase the functional class higher than CLASS1 and not lower than CLASS4 to not collide with non-links.
             this.hereFunctionalClass -= 1;
         } else if (hereFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS5.value) {
