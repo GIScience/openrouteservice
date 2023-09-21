@@ -26,7 +26,6 @@ import javax.servlet.ServletContextListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @ServletComponentScan("org.heigit.ors.api.servlet.listeners")
 @Configuration
@@ -43,14 +42,7 @@ public class Application extends SpringBootServletInitializer {
     }
 
     private static void setSystemProperties() {
-        System.out.println("Printing from setProperties");
-        String orsHome = System.getenv("ORS_HOME");
-        Map<String, String> test = System.getenv();
-        System.out.println("ORS_HOME: " + orsHome);
-        // Print all variables in test
-        for (Map.Entry<String, String> entry : test.entrySet()) {
-            System.out.println(entry.getKey() + " = " + entry.getValue());
-        }
+        String orsHome = System.getenv(ORS_HOME_ENV);
         if (!Strings.isNullOrEmpty(orsHome)) {
             if (Strings.isNullOrEmpty(System.getenv("ORS_CONFIG")))
                 System.setProperty("ors_config", FilenameUtils.concat(orsHome, "config/ors-config.json"));
@@ -65,14 +57,12 @@ public class Application extends SpringBootServletInitializer {
     }
 
     public static void main(String[] args) {
-        System.out.println("Starting ORS API from main");
         setSystemProperties();
         SpringApplication.run(applicationClass, args);
     }
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        System.out.println("Starting ORS API from configure");
         setSystemProperties();
         return application.sources(applicationClass);
     }
