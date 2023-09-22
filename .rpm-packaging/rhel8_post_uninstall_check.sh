@@ -40,7 +40,7 @@ check_folder_exists '${ORS_HOME}/.graphs' true || SUCCESSFUL=false
 check_folder_exists "$JWS_WEBAPPS_DIRECTORY/ors" false || SUCCESSFUL=false
 # shellcheck disable=SC2016
 # Check symlink ors.war to webapps folder
-check_file_is_symlink "$JWS_WEBAPPS_DIRECTORY/ors.war" false || SUCCESSFUL=false
+check_file_exists "$JWS_WEBAPPS_DIRECTORY/ors.war" false || SUCCESSFUL=false
 # Check that the temp folder is deleted
 check_folder_exists '/tmp/openrouteservice' false || SUCCESSFUL=false
 # openrouteservice user and group should be removed
@@ -54,8 +54,7 @@ find_owned_content '${ORS_HOME}/*' "" "openrouteservice" 0 || SUCCESSFUL=false
 
 # Check environment variables are removed
 # shellcheck disable=SC2016
-check_line_in_file 'ORS_HOME=/opt/openrouteservice' "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" false || SUCCESSFUL=false
-check_line_in_file 'CATALINA_OPTS=' "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" false || SUCCESSFUL=false
+check_file_exists "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" false || SUCCESSFUL=false
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then

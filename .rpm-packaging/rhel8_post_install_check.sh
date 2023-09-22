@@ -41,7 +41,7 @@ check_file_exists '${ORS_HOME}/config/example-config.json' true || SUCCESSFUL=fa
 # shellcheck disable=SC2016
 check_folder_exists "$JWS_WEBAPPS_DIRECTORY/ors" false || SUCCESSFUL=false
 # shellcheck disable=SC2016
-# Check symlink ors.war to webapps folder
+# Check ors.war in webapps folder
 check_file_exists "$JWS_WEBAPPS_DIRECTORY/ors.war" true || SUCCESSFUL=false
 # Check user and group setup
 check_group_exists 'openrouteservice' true || SUCCESSFUL=false
@@ -52,7 +52,7 @@ check_user_in_group 'openrouteservice' 'openrouteservice' || SUCCESSFUL=false
 # Check environment variables
 # shellcheck disable=SC2016
 check_line_in_file "ORS_HOME=/opt/openrouteservice" "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" true || SUCCESSFUL=false
-check_line_in_file 'CATALINA_OPTS=' "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" true || SUCCESSFUL=false
+check_line_in_file "CATALINA_OPTS=" "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" true || SUCCESSFUL=false
 
 # Check Java version
 check_java_version '17.' || SUCCESSFUL=false
