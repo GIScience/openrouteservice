@@ -14,6 +14,10 @@ START_DIRECTORY="$(
 # Assume successful at first
 SUCCESSFUL=true
 
+# Set variables
+JWS_WEBAPPS_DIRECTORY='/var/opt/rh/scls/jws5/lib/tomcat/webapps'
+JWS_CONFIGURATION_DIRECTORY='/etc/opt/rh/scls/jws5/tomcat/conf.d/'
+
 echo "Checking the environment after uninstallation"
 # Check if the RPM package is installed
 check_rpm_installed 'openrouteservice-jws5' false || SUCCESSFUL=false
@@ -24,7 +28,7 @@ check_file_exists '${ORS_HOME}/.elevation-cache/srtm_38_03.gh' true || SUCCESSFU
 check_file_exists '${ORS_HOME}/files/osm-file.osm.gz' true || SUCCESSFUL=false
 # shellcheck disable=SC2016
 # The webapps folder belongs to JWS and shouldn't be removed
-check_folder_exists '/var/opt/rh/jws5/tomcat/webapps' true || SUCCESSFUL=false
+check_folder_exists "$JWS_WEBAPPS_DIRECTORY" true || SUCCESSFUL=false
 # We leave the folder structure in place. No personal data will be removed
 check_folder_exists '${ORS_HOME}/config' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/logs' true || SUCCESSFUL=false
@@ -33,10 +37,10 @@ check_folder_exists '${ORS_HOME}/.elevation-cache' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/.graphs' true || SUCCESSFUL=false
 # The webapps/ors folder and the ors.war should not exist. Else ors would still be deployed
 # shellcheck disable=SC2016
-check_folder_exists '/var/opt/rh/jws5/tomcat/webapps/ors' false || SUCCESSFUL=false
+check_folder_exists "$JWS_WEBAPPS_DIRECTORY/ors" false || SUCCESSFUL=false
 # shellcheck disable=SC2016
 # Check symlink ors.war to webapps folder
-check_file_is_symlink '/var/opt/rh/jws5/tomcat/webapps/ors.war' false || SUCCESSFUL=false
+check_file_is_symlink "$JWS_WEBAPPS_DIRECTORY/ors.war" false || SUCCESSFUL=false
 # Check that the temp folder is deleted
 check_folder_exists '/tmp/openrouteservice' false || SUCCESSFUL=false
 # openrouteservice user and group should be removed
@@ -50,7 +54,8 @@ find_owned_content '${ORS_HOME}/*' "" "openrouteservice" 0 || SUCCESSFUL=false
 
 # Check environment variables are removed
 # shellcheck disable=SC2016
-check_line_in_file 'ORS_HOME=/opt/openrouteservice' '/var/opt/rh/jws5/tomcat/conf/jws5-tomcat.conf' false || SUCCESSFUL=false
+check_line_in_file 'ORS_HOME=/opt/openrouteservice' "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" false || SUCCESSFUL=false
+check_line_in_file 'CATALINA_OPTS=' "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" false || SUCCESSFUL=false
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then

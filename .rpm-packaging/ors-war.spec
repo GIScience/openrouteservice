@@ -4,9 +4,8 @@
 %define tomcat_user tomcat
 %define ors_group openrouteservice
 %define ors_user  openrouteservice
-%define jws_home /etc/opt/rh/scls/jws5/tomcat
-%define jws_webapps %{jws_home}/webapps/
-%define jws_config_location %{jws_home}/conf.d/openrouteservice.conf
+%define jws_config_folder /etc/opt/rh/scls/jws5/tomcat/conf.d/
+%define jws_webapps_folder /var/opt/rh/scls/jws5/lib/tomcat/webapps
 Name: openrouteservice-jws5
 Version: %{ors_version}
 Release: 1
@@ -42,6 +41,26 @@ cp -f example-config.json %{buildroot}%{ors_local_folder}/config/example-config.
 "%{ors_local_folder}/config/example-config.json"
 
 %pre
+
+# Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
+if [ -z "${JWS_CONF_FOLDER}" ]; then
+    echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
+    local jws_config_folder=%{jws_config_folder}
+else
+    local jws_config_folder=${JWS_CONF_FOLDER}
+fi
+
+# Do the same for the JWS_WEBAPPS_FOLDER
+if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
+    echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
+    local jws_webapps_folder=%{jws_webapps_folder}
+else
+    local jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
+fi
+
+# Set the remaining variables
+local jws_config_location=${jws_config_folder}/openrouteservice.conf
+
 # Check for the JWS home ENV variable to be set and echo 'set'
 if [ -n "${ORS_HOME}" ]; then
     echo "ORS_HOME found. Attempting ORS installation at ${ORS_HOME}"
@@ -51,27 +70,36 @@ else
     exit 1
 fi
 
-if [ -d %{jws_webapps} ]; then
-    echo "JWS webapps dir found at %{jws_webapps}"
+if [ -d ${jws_config_folder} ]; then
+    echo "JWS webapps dir found at ${jws_config_folder}"
 else
     echo "No webapps folder found. Exiting installation."
     # Exit the rpm installation with an error
     exit 1
 fi
 
-if [ -f %{jws_config_location} ]; then
-    echo "Custom Tomcat config found at %{jws_config_location}. "
+# Get the max amount of ram available on the system and store in a variable and deduct 4 GB from it if it is more than 4 GB
+local max_ram=$(free -m | awk '/^Mem:/{print $2}')
+if [ ${max_ram} -gt 4096 ]; then
+    local max_ram=$((${max_ram}-4096))
+fi
+# Set min_ram with half of max_ram and convert to GB
+local min_ram=$((${max_ram}/2))
+
+if [ -f ${jws_config_location} ]; then
+    echo "Custom Tomcat config found at ${jws_config_location}. Not overriding it."
 else
-    echo "Creating custom Tomcat config at %{jws_config_location}"
+    echo "Creating custom Tomcat config at ${jws_config_location}."
     echo "Permanently saving the given ORS_HOME=${ORS_HOME} location in the tomcat config."
-    echo "ORS_HOME=${ORS_HOME}" >> %{jws_config_location}
-    echo 'CATALINA_OPTS="$CATALINA_OPTS -Xms4g -Xmx4g"' >> %{jws_config_location}
+    echo "ORS_HOME=${ORS_HOME}" >> ${jws_config_location}
+    echo 'CATALINA_OPTS="$CATALINA_OPTS -Xms'"${min_ram}"'m -Xmx'"${max_ram}"'m"' >> ${jws_config_location}
 fi
 
+
 # Check for the existence of an old ors installation in the webapps folder and clean it.
-if [ -d %{jws_webapps}/ors ]; then
-    echo "JWS webapps dir found with old ors installation at /var/opt/rh/jws5/tomcat/webapps. Cleaning it."
-    rm -rf %{jws_webapps}/ors
+if [ -d ${jws_webapps_folder}/ors ]; then
+    echo "JWS webapps dir found with old ors installation at ${jws_webapps_folder}. Cleaning it."
+    rm -rf ${jws_webapps_folder}/ors
 fi
 
 # Create the correct group for the ors installation
@@ -111,15 +139,15 @@ mkdir -p "${ORS_HOME}/files"
 mkdir -p "${ORS_HOME}/.elevation-cache"
 
 %post
-echo "Copy %{ors_version}_ors.war to %{jws_webapps}"
+echo "Copy %{ors_version}_ors.war to ${jws_webapps_folder}"
 cp -f %{ors_local_folder}/config/example-config.json ${ORS_HOME}/config/example-config.json
-cp -f %{ors_local_folder}/.war-files/%{ors_version}_ors.war %{jws_webapps}/ors.war
+cp -f %{ors_local_folder}/.war-files/%{ors_version}_ors.war ${jws_webapps_folder}/ors.war
 
 # Switch to the installed java version
 alternatives --set java $(readlink -f /etc/alternatives/jre_%{java_version})/bin/java
 
-chown %{tomcat_user} %{jws_webapps}/ors.war
-chmod 740 %{jws_webapps}/ors.war
+chown %{tomcat_user} ${jws_webapps_folder}/ors.war
+chmod 740 ${jws_webapps_folder}/ors.war
 # Set the correct permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
 chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
 # Set recursive 770 permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
@@ -131,10 +159,10 @@ chmod -R 770 ${ORS_HOME}
 if [ "$1" = "0" ]; then
     echo "Uninstalling openrouteservice"
     # Remove custom tomcat config file
-    rm -rf %{jws_config_location}
+    rm -rf ${jws_config_location}
     # Remove the ors folder and war file from the webapps folder
-    rm -rf %{jws_webapps}/ors
-    rm -rf %{jws_webapps}/ors.war
+    rm -rf ${jws_webapps_folder}/ors
+    rm -rf ${jws_webapps_folder}/ors.war
     rm -rf %{ors_local_folder}
     # Remove the ors user
     userdel %{ors_user}
