@@ -4,9 +4,9 @@
 %define tomcat_user tomcat
 %define ors_group openrouteservice
 %define ors_user  openrouteservice
-%define jws_home /var/opt/rh/jws5/tomcat
+%define jws_home /etc/opt/rh/scls/jws5/tomcat
 %define jws_webapps %{jws_home}/webapps/
-%define jws_config_location %{jws_home}/conf/jws5-tomcat.conf
+%define jws_config_location %{jws_home}/conf.d/openrouteservice.conf
 Name: openrouteservice-jws5
 Version: %{ors_version}
 Release: 1
@@ -60,15 +60,12 @@ else
 fi
 
 if [ -f %{jws_config_location} ]; then
-    echo "Tomcat config found at %{jws_config_location}"
-    echo "Permanently saving the given ORS_HOME=${ORS_HOME} location in the tomcat config."
-    # Remove any line that starts with ORS_HOME=
-    sed -i '/^ORS_HOME=/d' %{jws_config_location}
-    # Add the ORS_HOME variable to the tomcat config
-    echo "ORS_HOME=${ORS_HOME}" >> %{jws_config_location}
+    echo "Custom Tomcat config found at %{jws_config_location}. "
 else
-    echo "No tomcat config found at %{jws_config_location}. Exiting installation."
-    exit 1
+    echo "Creating custom Tomcat config at %{jws_config_location}"
+    echo "Permanently saving the given ORS_HOME=${ORS_HOME} location in the tomcat config."
+    echo "ORS_HOME=${ORS_HOME}" >> %{jws_config_location}
+    echo 'CATALINA_OPTS="$CATALINA_OPTS -Xms4g -Xmx4g"' >> %{jws_config_location}
 fi
 
 # Check for the existence of an old ors installation in the webapps folder and clean it.
@@ -133,8 +130,8 @@ chmod -R 770 ${ORS_HOME}
 # For explanation check https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
 if [ "$1" = "0" ]; then
     echo "Uninstalling openrouteservice"
-    # Remove any line that starts with ORS_HOME=
-    sed -i '/^ORS_HOME=/d' %{jws_config_location}
+    # Remove custom tomcat config file
+    rm -rf %{jws_config_location}
     # Remove the ors folder and war file from the webapps folder
     rm -rf %{jws_webapps}/ors
     rm -rf %{jws_webapps}/ors.war
