@@ -101,7 +101,7 @@ else
     echo "Permanently saving the given ORS_HOME=${ORS_HOME} in ${jws_config_location}."
     echo "ORS_HOME=${ORS_HOME}" >> ${jws_config_location}
     echo "Permanently saving -Xms${min_ram}k and -Xmx${max_ram}k in ${jws_config_location}."
-    echo 'CATALINA_OPTS="$CATALINA_OPTS -Xms'"${min_ram}"'k -Xmx'"${max_ram}"'k"' >> ${jws_config_location}
+    echo 'CATALINA_OPTS="-Xms'"${min_ram}"'k -Xmx'"${max_ram}"'k"' >> ${jws_config_location}
 fi
 
 

@@ -50,6 +50,7 @@ RUN mkdir -p $JWS57_INSTALLATION_DIRECTORY && \
     mkdir -p /var/opt/rh/scls/jws5/lib/tomcat/ && \
     ln -s /etc/opt/rh/jws5/tomcat/conf.d /etc/opt/rh/scls/jws5/tomcat/conf.d && \
     ln -s $JWS57_INSTALLATION_DIRECTORY/jws5/tomcat/webapps /var/opt/rh/scls/jws5/lib/tomcat/webapps && \
+    sed -i '/EnvironmentFile=-/a \EnvironmentFile=-/etc/opt/rh/scls/jws5/tomcat/conf.d/*.conf\n ' services/jws5-tomcat.service.in && \
     ./.postinstall.systemd && systemctl enable jws5-tomcat.service && \
     chown -R tomcat:tomcat $JWS57_INSTALLATION_DIRECTORY/
 
@@ -58,3 +59,4 @@ EXPOSE 8080
 USER tomcat
 CMD ["/usr/sbin/init"]
 
+#EnvironmentFile=/etc/opt/rh/scls/jws5/tomcat/conf.d/*.conf
