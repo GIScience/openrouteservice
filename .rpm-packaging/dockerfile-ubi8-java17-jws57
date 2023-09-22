@@ -47,7 +47,7 @@ RUN mkdir -p $JWS57_INSTALLATION_DIRECTORY && \
     cd $JWS57_INSTALLATION_DIRECTORY/jws5/tomcat/ &&  \
     mkdir -p /etc/opt/rh/scls/jws5/tomcat/  && \
     mkdir -p /etc/opt/rh/jws5/tomcat/conf.d && \
-    mkdir -p /var/opt/rh/scls/jws5/lib/tomcat/webapps && \
+    mkdir -p /var/opt/rh/scls/jws5/lib/tomcat/ && \
     ln -s /etc/opt/rh/jws5/tomcat/conf.d /etc/opt/rh/scls/jws5/tomcat/conf.d && \
     ln -s $JWS57_INSTALLATION_DIRECTORY/jws5/tomcat/webapps /var/opt/rh/scls/jws5/lib/tomcat/webapps && \
     ./.postinstall.systemd && systemctl enable jws5-tomcat.service && \

@@ -40,26 +40,25 @@ cp -f example-config.json %{buildroot}%{ors_local_folder}/config/example-config.
 "%{ors_local_folder}/.war-files/%{ors_version}_ors.war"
 "%{ors_local_folder}/config/example-config.json"
 
-%pre
-
+%post
 # Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
 if [ -z "${JWS_CONF_FOLDER}" ]; then
     echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
-    jws_config_folder=%{jws_config_folder}
+    export jws_config_folder=%{jws_config_folder}
 else
-    jws_config_folder=${JWS_CONF_FOLDER}
+    export jws_config_folder=${JWS_CONF_FOLDER}
 fi
 
 # Do the same for the JWS_WEBAPPS_FOLDER
 if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
     echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
-    jws_webapps_folder=%{jws_webapps_folder}
+    export jws_webapps_folder=%{jws_webapps_folder}
 else
-    jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
+    export jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
 fi
 
 # Set the remaining variables
-jws_config_location=${jws_config_folder}/openrouteservice.conf
+export jws_config_location=${jws_config_folder}/openrouteservice.conf
 
 # Check for the JWS home ENV variable to be set and echo 'set'
 if [ -n "${ORS_HOME}" ]; then
@@ -70,10 +69,19 @@ else
     exit 1
 fi
 
-if [ -d ${jws_config_folder} ]; then
-    echo "JWS webapps dir found at ${jws_config_folder}"
+# Check if webapps folder exists
+if [ -d ${jws_webapps_folder} ]; then
+    echo "JWS webapps dir found at ${jws_webapps_folder}"
 else
     echo "No webapps folder found. Exiting installation."
+    # Exit the rpm installation with an error
+    exit 1
+fi
+
+if [ -d ${jws_config_folder} ]; then
+    echo "JWS conf.d dir found at ${jws_config_folder}"
+else
+    echo "No conf.d folder found. Exiting installation."
     # Exit the rpm installation with an error
     exit 1
 fi
@@ -139,7 +147,6 @@ mkdir -p "${ORS_HOME}/config"
 mkdir -p "${ORS_HOME}/files"
 mkdir -p "${ORS_HOME}/.elevation-cache"
 
-%post
 echo "Copy %{ors_version}_ors.war to ${jws_webapps_folder}"
 cp -f %{ors_local_folder}/config/example-config.json ${ORS_HOME}/config/example-config.json
 cp -f %{ors_local_folder}/.war-files/%{ors_version}_ors.war ${jws_webapps_folder}/ors.war
