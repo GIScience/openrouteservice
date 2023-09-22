@@ -4,7 +4,7 @@
 %define tomcat_user tomcat
 %define ors_group openrouteservice
 %define ors_user  openrouteservice
-%define jws_config_folder /etc/opt/rh/scls/jws5/tomcat/conf.d/
+%define jws_config_folder /etc/opt/rh/scls/jws5/tomcat/conf.d
 %define jws_webapps_folder /var/opt/rh/scls/jws5/lib/tomcat/webapps
 Name: openrouteservice-jws5
 Version: %{ors_version}
@@ -45,21 +45,21 @@ cp -f example-config.json %{buildroot}%{ors_local_folder}/config/example-config.
 # Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
 if [ -z "${JWS_CONF_FOLDER}" ]; then
     echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
-    local jws_config_folder=%{jws_config_folder}
+    jws_config_folder=%{jws_config_folder}
 else
-    local jws_config_folder=${JWS_CONF_FOLDER}
+    jws_config_folder=${JWS_CONF_FOLDER}
 fi
 
 # Do the same for the JWS_WEBAPPS_FOLDER
 if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
     echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
-    local jws_webapps_folder=%{jws_webapps_folder}
+    jws_webapps_folder=%{jws_webapps_folder}
 else
-    local jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
+    jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
 fi
 
 # Set the remaining variables
-local jws_config_location=${jws_config_folder}/openrouteservice.conf
+jws_config_location=${jws_config_folder}/openrouteservice.conf
 
 # Check for the JWS home ENV variable to be set and echo 'set'
 if [ -n "${ORS_HOME}" ]; then
@@ -77,22 +77,23 @@ else
     # Exit the rpm installation with an error
     exit 1
 fi
-
-# Get the max amount of ram available on the system and store in a variable and deduct 4 GB from it if it is more than 4 GB
-local max_ram=$(free -m | awk '/^Mem:/{print $2}')
-if [ ${max_ram} -gt 4096 ]; then
-    local max_ram=$((${max_ram}-4096))
+# Get the max amount of ram available on the system with cat /proc/meminfo and store in a variable and deduct 4 GB from it if it is more than 4 GB
+max_ram=$(cat /proc/meminfo | awk '/^MemTotal:/{print $2}')
+if [ ${max_ram} -gt 4000000 ]; then
+    max_ram=$((${max_ram}-4000000))
 fi
-# Set min_ram with half of max_ram and convert to GB
-local min_ram=$((${max_ram}/2))
+# Set min_ram with half of max_ram
+min_ram=$((${max_ram}/2))
+
 
 if [ -f ${jws_config_location} ]; then
     echo "Custom Tomcat config found at ${jws_config_location}. Not overriding it."
 else
     echo "Creating custom Tomcat config at ${jws_config_location}."
-    echo "Permanently saving the given ORS_HOME=${ORS_HOME} location in the tomcat config."
+    echo "Permanently saving the given ORS_HOME=${ORS_HOME} in ${jws_config_location}."
     echo "ORS_HOME=${ORS_HOME}" >> ${jws_config_location}
-    echo 'CATALINA_OPTS="$CATALINA_OPTS -Xms'"${min_ram}"'m -Xmx'"${max_ram}"'m"' >> ${jws_config_location}
+    echo "Permanently saving -Xms${min_ram}k and -Xmx${max_ram}k in ${jws_config_location}."
+    echo 'CATALINA_OPTS="$CATALINA_OPTS -Xms'"${min_ram}"'k -Xmx'"${max_ram}"'k"' >> ${jws_config_location}
 fi
 
 

@@ -30,7 +30,7 @@ FROM base
 # Copy /usr/bin/fakeprovide from the base image
 COPY --from=base /usr/bin/fakeprovide /usr/bin/fakeprovide
 
-ARG JWS57_INSTALLATION_DIRECTORY=/var/opt/rh/scls/
+ARG JWS57_INSTALLATION_DIRECTORY=/var/opt/rh/scls
 
 # Download jws files from private repository
 ARG JWS57_APPLICATION_SERVER_URL
@@ -39,14 +39,15 @@ ARG USERNAME
 ARG PASSWORD
 
 # Download and install tomcat
-RUN mkdir -p $JWS57_INSTALLATION_DIRECTORY; cd $JWS57_INSTALLATION_DIRECTORY/ && \
-    mkdir -p /etc/opt/rh/scls/jws5/tomcat/  && \
-    mkdir -p /var/opt/rh/scls/jws5/lib/tomcat/webapps && \
+RUN mkdir -p $JWS57_INSTALLATION_DIRECTORY && \
     wget --user=$USERNAME --password=$PASSWORD -O jws-5.7-application-server.zip $JWS57_APPLICATION_SERVER_URL && \
     wget --user=$USERNAME --password=$PASSWORD -O jws-5.7-application-server-RHEL8-x86_64.zip $JWS57_APPLICATION_SERVER_RHEL8_PLATTFORM_URL && \
     unzip jws-5.7-application-server.zip -d $JWS57_INSTALLATION_DIRECTORY/ && unzip jws-5.7-application-server-RHEL8-x86_64.zip -d $JWS57_INSTALLATION_DIRECTORY/ && \
     mv $JWS57_INSTALLATION_DIRECTORY/jws-5.7 $JWS57_INSTALLATION_DIRECTORY/jws5 && rm -f *.zip && \
     cd $JWS57_INSTALLATION_DIRECTORY/jws5/tomcat/ &&  \
+    mkdir -p /etc/opt/rh/scls/jws5/tomcat/  && \
+    mkdir -p /etc/opt/rh/jws5/tomcat/conf.d && \
+    mkdir -p /var/opt/rh/scls/jws5/lib/tomcat/webapps && \
     ln -s /etc/opt/rh/jws5/tomcat/conf.d /etc/opt/rh/scls/jws5/tomcat/conf.d && \
     ln -s $JWS57_INSTALLATION_DIRECTORY/jws5/tomcat/webapps /var/opt/rh/scls/jws5/lib/tomcat/webapps && \
     ./.postinstall.systemd && systemctl enable jws5-tomcat.service && \
