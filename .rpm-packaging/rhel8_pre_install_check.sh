@@ -23,7 +23,6 @@ echo "Checking the clean environment"
 check_folder_exists "$JWS_WEBAPPS_DIRECTORY" true || SUCCESSFUL=false
 check_folder_exists "$JWS_WEBAPPS_DIRECTORY/ors" false || SUCCESSFUL=false
 check_file_exists "$JWS_WEBAPPS_DIRECTORY/ors.war" false || SUCCESSFUL=false
-check_folder_exists "$JWS_CONFIGURATION_DIRECTORY" false || SUCCESSFUL=false
 
 check_file_exists '/etc/yum.repos.d/ors.repo' true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/config/example-config.json' false || SUCCESSFUL=false
