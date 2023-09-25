@@ -25,26 +25,30 @@ More explanation about customization can be found in the [Advanced Docker Setup]
 
 ## Installation of `openrouteservice-jws5` via RPM Package
 
+The following explanation will guide you through the installation of the `openrouteservice-jws5` package
+on `RHEL 8.x` with `OpenJDK 17 headless` and `JBoss Web Server 5.x` for `ors version 7.2.x`.
+
 ### Prerequisites
 
 #### Installation via RedHat jws5 subscription
-Install the following packages via yum with a valid RedHat subscription for jws5:
+
+Install the following packages via dnf with a valid RedHat subscription for jws5:
 
 ```bash
-yum groupinstall jws5
-yum install -y java-17-openjdk-headless
+dnf groupinstall jws5
+dnf install -y java-17-openjdk-headless
 ```
 
-#### Set environment variable `ORS_HOME`
+#### Set environment variables
 
-The global variable showing the persistence directory of the OpenRouteService, e.g.
+For the installation, the variable `ORS_HOME` showing the persistence directory of the OpenRouteService needs to be set, e.g.
 
-    ORS_HOME=/opt/openrouteservice
+    export ORS_HOME=/opt/openrouteservice
 
-If JBoss Web Service is not installed as described above via yum groupinstall, some paths need to be specified additionally:
+Only if JBoss Web Service was installed _in a different way_ than described above, some paths need to be specified additionally:
 
-    JWS_CONF_FOLDER=<your custom path>
-    JWS_WEBAPPS_FOLDER=<your custom path>
+    export JWS_CONF_FOLDER=<your custom path>
+    export JWS_WEBAPPS_FOLDER=<your custom path>
 
 #### Yum .repo Configuration
 
@@ -74,16 +78,16 @@ This repository includes two channels: `snapshots` and `releases`.
 The `snapshots channel` contains the latest snapshot builds of the `openrouteservice-jws5` package,
 while the `releases channel` holds the latest release builds (though it is not yet operational).
 
-After adding the repository, update yum:
+After adding the repository, update dnf:
 
-    yum update -y
+    dnf update
 
 
 ### Installation
 
-No you can install the openrouteservice itself using the following command:
+Now you can install the openrouteservice itself using the following command:
 
-    yum install openrouteservice-jws5
+    dnf install openrouteservice-jws5
 
 This will install the openrouteservice WAR file into the jws5 webapps folder and generates the `ORS_HOME` working directory, which houses the
 subsequent subfolders:

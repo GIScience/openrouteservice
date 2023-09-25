@@ -243,7 +243,7 @@ jobs:
 
           ##### Install the rpm package #####
           # Update the yum repository
-          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum update -y'
+          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'dnf update -y'
 
           echo "Installing the rpm package"
           # Create the missing jws5* rpm packages with fakeprovide
@@ -252,7 +252,7 @@ jobs:
           podman exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-native
           podman exec -u root ${{ env.CONTAINER_NAME }} fakeprovide jws5-tomcat-selinux
           # Install the rpm package as root with the fakeprovide packages
-          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum install -y fakeprovide-jws5-* openrouteservice-jws5'
+          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'dnf install -y fakeprovide-jws5-* openrouteservice-jws5'
           
           ##### Check the post install environment #####
           echo "Checking the post install environment"
@@ -294,7 +294,7 @@ jobs:
 
           ##### Uninstall the rpm package #####
           echo "Uninstalling the rpm package"
-          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'yum remove -y openrouteservice-jws5'
+          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'dnf remove -y openrouteservice-jws5'
           
           ##### Check the post uninstall environment #####
           echo "Checking the post uninstall environment"
