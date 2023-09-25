@@ -46,14 +46,14 @@ cp -f example-config.json %{buildroot}%{ors_local_folder}/config/example-config.
 # This is the pre-installation scriptlet for the openrouteservice-jws5 rpm package.
 # It checks for the existence of the JWS_HOME environment variable and checks if the webapps folder exists.
 # It also checks if the JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER environment variables are set and if not, sets them to the default values.
-# All variables are saved in the %{rpm_state_dir}/openrouteservice-jws5-state file for later stages.
+# All variables are saved in the %{rpm_state_dir}/openrouteservice-jws5-temp-home-state file for later stages.
 ###############################################################################################################
 
 # Check for the JWS home ENV variable to be set and echo 'set'
 if [ -n "${ORS_HOME}" ]; then
     echo "ORS_HOME variable found. Attempting ORS installation at ${ORS_HOME}."
-    mkdir -p ${ORS_HOME}
-    echo "ORS_HOME=${ORS_HOME}" > %{rpm_state_dir}/openrouteservice-jws5-state
+    mkdir -p ${ORS_HOME} %{ors_local_folder}
+    echo "ORS_HOME=${ORS_HOME}" > %{rpm_state_dir}/openrouteservice-jws5-temp-home-state
 else
     echo "ORS_HOME is not set. Exiting installation."
     # Exit the rpm installation with an error
@@ -105,11 +105,11 @@ min_ram=$((${max_ram}/2))
 # Set the remaining variables
 jws_config_location=${jws_config_folder}/openrouteservice.conf
 
-# Save all variables in the ORS_HOME in a file called openrouteservice-jws5-state
-echo "jws_webapps_folder=${jws_webapps_folder}" > ${ORS_HOME}/.openrouteservice-jws5-state
-echo "jws_config_location=${jws_config_location}" >> ${ORS_HOME}/.openrouteservice-jws5-state
-echo "min_ram=${min_ram}" >> ${ORS_HOME}/.openrouteservice-jws5-state
-echo "max_ram=${max_ram}" >> ${ORS_HOME}/.openrouteservice-jws5-state
+# Save all variables in the ORS_HOME in a file called openrouteservice-jws5-permanent-state
+echo "jws_webapps_folder=${jws_webapps_folder}" > ${ORS_HOME}/.openrouteservice-jws5-permanent-state
+echo "jws_config_location=${jws_config_location}" >> ${ORS_HOME}/.openrouteservice-jws5-permanent-state
+echo "min_ram=${min_ram}" >> ${ORS_HOME}/.openrouteservice-jws5-permanent-state
+echo "max_ram=${max_ram}" >> ${ORS_HOME}/.openrouteservice-jws5-permanent-state
 
 # Do the same when uninstalling
 %preun
@@ -123,28 +123,29 @@ if [ $1 -eq 0 ]; then
     # Check for the JWS home ENV variable to be set and echo 'set'
     if [ -n "${ORS_HOME}" ]; then
         echo "ORS_HOME found. Uninstalling ORS from ${ORS_HOME}."
-        echo "ORS_HOME=${ORS_HOME}" > %{rpm_state_dir}/openrouteservice-jws5-state
+        mkdir -p %{ors_local_folder}
+        echo "ORS_HOME=${ORS_HOME}" > %{rpm_state_dir}/openrouteservice-jws5-temp-home-state
     else
         echo "ORS_HOME is not set. Exiting uninstall routine."
         # Exit the rpm installation with an error
         exit 1
     fi
-    . ${ORS_HOME}/.openrouteservice-jws5-state
+    . ${ORS_HOME}/.openrouteservice-jws5-permanent-state
 fi
 
 %post
 ###############################################################################################################
 # This is the post-installation scriptlet for the openrouteservice-jws5 rpm package.
-# It sources the %{rpm_state_dir}/openrouteservice-jws5-state file and uses the variables to install the ors.war file in the correct location.
+# It sources the %{rpm_state_dir}/openrouteservice-jws5-temp-home-state file and uses the variables to install the ors.war file in the correct location.
 # It also creates the correct user and group for the ors installation and sets the correct permissions for the ors home folder.
 # It also creates a custom tomcat config file at the correct location if it does not exist yet.
 # The webapps folder is filled with the ors.war file and the "new" example-config.json file is copied to the config folder.
 ###############################################################################################################
 
-# Source the openrouteservice-jws5-state file from %{rpm_state_dir}
-. %{rpm_state_dir}/openrouteservice-jws5-state
-# Source the openrouteservice-jws5-state file from ${ORS_HOME} to get the permanent variables
-. ${ORS_HOME}/.openrouteservice-jws5-state
+# Source the openrouteservice-jws5-permanent-state file from %{rpm_state_dir}
+. %{rpm_state_dir}/openrouteservice-jws5-temp-home-state
+# Source the openrouteservice-jws5-permanent-state file from ${ORS_HOME} to get the permanent variables
+. ${ORS_HOME}/.openrouteservice-jws5-permanent-state
 
 # Install routine
 if [ -f ${jws_config_location} ]; then
@@ -215,17 +216,17 @@ chmod -R 770 ${ORS_HOME}
 %postun
 ###############################################################################################################
 # This is the post-uninstallation scriptlet for the openrouteservice-jws5 rpm package.
-# It sources the %{rpm_state_dir}/openrouteservice-jws5-state file and uses the variables to uninstall the ors.war file in the correct location.
+# It sources the %{rpm_state_dir}/openrouteservice-jws5-temp-home-state file and uses the variables to uninstall the ors.war file in the correct location.
 # It also removes the custom tomcat config file at the correct location if it exists.
 # The webapps folder is cleaned from the ors.war file and the ors folder.
 # The rpm_state_dir is cleaned to clean the environment for the next time..
 ###############################################################################################################
 # Uninstall routine if $1 is 0 but leave the opt folder
 # For explanation check https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
-# Source the openrouteservice-jws5-state file from %{rpm_state_dir}
-. %{rpm_state_dir}/openrouteservice-jws5-state
-# Source the openrouteservice-jws5-state file from ${ORS_HOME} to get the permanent variables
-. ${ORS_HOME}/.openrouteservice-jws5-state
+# Source the openrouteservice-jws5-permanent-state file from %{rpm_state_dir}
+. %{rpm_state_dir}/openrouteservice-jws5-temp-home-state
+# Source the openrouteservice-jws5-permanent-state file from ${ORS_HOME} to get the permanent variables
+. ${ORS_HOME}/.openrouteservice-jws5-permanent-state
 
 if [ "$1" = "0" ]; then
     echo "Uninstalling openrouteservice"
@@ -241,5 +242,5 @@ if [ "$1" = "0" ]; then
     # Remove the ors group
     groupdel %{ors_group}
     # Remove the permanent variables
-    rm -rf ${ORS_HOME}/.openrouteservice-jws5-state
+    rm -rf ${ORS_HOME}/.openrouteservice-jws5-permanent-state
 fi

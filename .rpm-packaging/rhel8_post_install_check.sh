@@ -37,11 +37,11 @@ check_folder_exists '${ORS_HOME}/.graphs' true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/config/example-config.json' true || SUCCESSFUL=false
 
 # Check the state file is created and contains the correct variables
-check_file_exists '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
-check_line_in_file "jws_webapps_folder=" '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
-check_line_in_file "jws_config_location=" '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
-check_line_in_file "min_ram=" '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
-check_line_in_file "max_ram=" '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
+check_line_in_file "jws_webapps_folder=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
+check_line_in_file "jws_config_location=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
+check_line_in_file "min_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
+check_line_in_file "max_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
 
 # shellcheck disable=SC2016
 check_folder_exists "$JWS_WEBAPPS_DIRECTORY/ors" false || SUCCESSFUL=false

@@ -55,7 +55,7 @@ find_owned_content '${ORS_HOME}/*' "" "openrouteservice" 0 || SUCCESSFUL=false
 # Check environment variables are removed
 # shellcheck disable=SC2016
 check_file_exists "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" false || SUCCESSFUL=false
-check_file_exists '${ORS_HOME}/.openrouteservice-jws5-state' false || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/.openrouteservice-jws5-permanent-state' false || SUCCESSFUL=false
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then

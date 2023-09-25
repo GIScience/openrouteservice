@@ -29,7 +29,7 @@ check_file_exists '${ORS_HOME}/config/example-config.json' false || SUCCESSFUL=f
 check_rpm_installed 'openrouteservice-jws5' false || SUCCESSFUL=false
 
 # Check that the temp folder is not present
-check_file_exists '${ORS_HOME}/.openrouteservice-jws5-state' false || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/.openrouteservice-jws5-permanent-state' false || SUCCESSFUL=false
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then
