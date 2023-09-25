@@ -44,8 +44,6 @@ check_line_in_file "min_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-stat
 check_line_in_file "max_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
 
 # shellcheck disable=SC2016
-check_folder_exists "$JWS_WEBAPPS_DIRECTORY/ors" false || SUCCESSFUL=false
-# shellcheck disable=SC2016
 # Check ors.war in webapps folder
 check_file_exists "$JWS_WEBAPPS_DIRECTORY/ors.war" true || SUCCESSFUL=false
 # Check user and group setup

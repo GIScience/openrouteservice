@@ -244,6 +244,8 @@ jobs:
           ##### Install the rpm package #####
           # Update the yum repository
           podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'dnf update -y'
+          # Clean packages
+          podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'dnf clean packages'
 
           echo "Installing the rpm package"
           # Create the missing jws5* rpm packages with fakeprovide
