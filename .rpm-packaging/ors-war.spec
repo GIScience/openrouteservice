@@ -51,7 +51,9 @@ cp -f example-config.json %{buildroot}%{ors_local_folder}/config/example-config.
 
 # Check for the JWS home ENV variable to be set and echo 'set'
 if [ -n "${ORS_HOME}" ]; then
-    echo "ORS_HOME found. Attempting ORS installation at ${ORS_HOME}"
+    echo "ORS_HOME variable found. Attempting ORS installation at ${ORS_HOME}."
+    mkdir -p ${ORS_HOME}
+    echo "ORS_HOME=${ORS_HOME}" > %{rpm_state_dir}/openrouteservice-jws5-state
 else
     echo "ORS_HOME is not set. Exiting installation."
     # Exit the rpm installation with an error
@@ -92,11 +94,6 @@ else
 fi
 
 
-# Create the rpm_state_dir if it does not exist
-if [ ! -d %{rpm_state_dir} ]; then
-    mkdir -p %{ors_local_folder}
-fi
-
 # Get the max amount of ram available on the system with cat /proc/meminfo and store in a variable and deduct 4 GB from it if it is more than 4 GB
 max_ram=$(cat /proc/meminfo | awk '/^MemTotal:/{print $2}')
 if [ ${max_ram} -gt 4000000 ]; then
@@ -108,13 +105,32 @@ min_ram=$((${max_ram}/2))
 # Set the remaining variables
 jws_config_location=${jws_config_folder}/openrouteservice.conf
 
-# Save all variables in the rpm_state_dir in a file called openrouteservice-jws5-state
-echo "jws_config_folder=${jws_config_folder}" > %{rpm_state_dir}/openrouteservice-jws5-state
-echo "jws_webapps_folder=${jws_webapps_folder}" >> %{rpm_state_dir}/openrouteservice-jws5-state
-echo "jws_config_location=${jws_config_location}" >> %{rpm_state_dir}/openrouteservice-jws5-state
-echo "min_ram=${min_ram}" >> %{rpm_state_dir}/openrouteservice-jws5-state
-echo "max_ram=${max_ram}" >> %{rpm_state_dir}/openrouteservice-jws5-state
-echo "jws_config_location=${jws_config_location}" >> %{rpm_state_dir}/openrouteservice-jws5-state
+# Save all variables in the ORS_HOME in a file called openrouteservice-jws5-state
+echo "jws_webapps_folder=${jws_webapps_folder}" > ${ORS_HOME}/.openrouteservice-jws5-state
+echo "jws_config_location=${jws_config_location}" >> ${ORS_HOME}/.openrouteservice-jws5-state
+echo "min_ram=${min_ram}" >> ${ORS_HOME}/.openrouteservice-jws5-state
+echo "max_ram=${max_ram}" >> ${ORS_HOME}/.openrouteservice-jws5-state
+
+# Do the same when uninstalling
+%preun
+###############################################################################################################
+# This is the pre-uninstallation scriptlet for the openrouteservice-jws5 rpm package.
+# It does the same procedure as the pre-installation scriptlet since the %pre step isn't called when uninstalling.
+###############################################################################################################
+# Uninstall routine if $1 is 0 but leave the opt folder
+# For explanation check https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
+if [ $1 -eq 0 ]; then
+    # Check for the JWS home ENV variable to be set and echo 'set'
+    if [ -n "${ORS_HOME}" ]; then
+        echo "ORS_HOME found. Uninstalling ORS from ${ORS_HOME}."
+        echo "ORS_HOME=${ORS_HOME}" > %{rpm_state_dir}/openrouteservice-jws5-state
+    else
+        echo "ORS_HOME is not set. Exiting uninstall routine."
+        # Exit the rpm installation with an error
+        exit 1
+    fi
+    . ${ORS_HOME}/.openrouteservice-jws5-state
+fi
 
 %post
 ###############################################################################################################
@@ -125,8 +141,10 @@ echo "jws_config_location=${jws_config_location}" >> %{rpm_state_dir}/openroutes
 # The webapps folder is filled with the ors.war file and the "new" example-config.json file is copied to the config folder.
 ###############################################################################################################
 
-# Source the rpm_state_dir file
+# Source the openrouteservice-jws5-state file from %{rpm_state_dir}
 . %{rpm_state_dir}/openrouteservice-jws5-state
+# Source the openrouteservice-jws5-state file from ${ORS_HOME} to get the permanent variables
+. ${ORS_HOME}/.openrouteservice-jws5-state
 
 # Install routine
 if [ -f ${jws_config_location} ]; then
@@ -204,7 +222,10 @@ chmod -R 770 ${ORS_HOME}
 ###############################################################################################################
 # Uninstall routine if $1 is 0 but leave the opt folder
 # For explanation check https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
+# Source the openrouteservice-jws5-state file from %{rpm_state_dir}
 . %{rpm_state_dir}/openrouteservice-jws5-state
+# Source the openrouteservice-jws5-state file from ${ORS_HOME} to get the permanent variables
+. ${ORS_HOME}/.openrouteservice-jws5-state
 
 if [ "$1" = "0" ]; then
     echo "Uninstalling openrouteservice"
@@ -219,4 +240,6 @@ if [ "$1" = "0" ]; then
     userdel %{ors_user}
     # Remove the ors group
     groupdel %{ors_group}
+    # Remove the permanent variables
+    rm -rf ${ORS_HOME}/.openrouteservice-jws5-state
 fi

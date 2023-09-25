@@ -31,12 +31,17 @@ check_folder_exists "$JWS_WEBAPPS_DIRECTORY" true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/config' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/logs' true || SUCCESSFUL=false
-check_folder_exists '/tmp/openrouteservice/.war-files' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/.elevation-cache' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/files' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/.graphs' true || SUCCESSFUL=false
-check_file_exists "/tmp/openrouteservice/.war-files/${ORS_VERSION}_ors.war" true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/config/example-config.json' true || SUCCESSFUL=false
+
+# Check the state file is created and contains the correct variables
+check_file_exists '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
+check_line_in_file "jws_webapps_folder=" '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
+check_line_in_file "jws_config_location=" '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
+check_line_in_file "min_ram=" '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
+check_line_in_file "max_ram=" '${ORS_HOME}/.openrouteservice-jws5-state' true || SUCCESSFUL=false
 
 # shellcheck disable=SC2016
 check_folder_exists "$JWS_WEBAPPS_DIRECTORY/ors" false || SUCCESSFUL=false
