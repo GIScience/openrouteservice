@@ -130,7 +130,6 @@ if [ $1 -eq 0 ]; then
         # Exit the rpm installation with an error
         exit 1
     fi
-    . ${ORS_HOME}/.openrouteservice-jws5-permanent-state
 fi
 
 %post
