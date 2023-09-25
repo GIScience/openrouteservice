@@ -76,7 +76,7 @@ public class HereTrafficGraphStorage extends AbstractTrafficGraphStorage {
     private DataAccess orsEdgesTrafficLinkLookup; // RAMDataAccess
     private DataAccess orsSpeedPatternLookup; // RAMDataAccess
 
-    private ZoneId zoneId = ZoneId.of("Europe/Berlin");
+
 
     private int edgePropertyEntryBytes;
     private int edgeLinkLookupEntryBytes;
@@ -597,11 +597,5 @@ public class HereTrafficGraphStorage extends AbstractTrafficGraphStorage {
         }
     }
 
-    public void setZoneId(ZoneId zoneId) {
-        this.zoneId = zoneId;
-    }
 
-    public ZoneId getZoneId() {
-        return this.zoneId;
-    }
 }

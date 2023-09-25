@@ -23,7 +23,7 @@ import java.time.ZoneId;
 public abstract class AbstractTrafficGraphStorage implements GraphExtension {
 
     public enum Property {ROAD_TYPE}
-    private ZoneId zoneId;
+    private ZoneId zoneId = ZoneId.of("Europe/Berlin");
 
     public void setMatched() {
     }
@@ -61,5 +61,11 @@ public abstract class AbstractTrafficGraphStorage implements GraphExtension {
         return -1;
     }
 
-    public ZoneId getZoneId() {return this.zoneId;}
+    public void setZoneId(ZoneId zoneId) {
+        this.zoneId = zoneId;
+    }
+
+    public ZoneId getZoneId() {
+        return this.zoneId;
+    }
 }

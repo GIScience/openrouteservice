@@ -213,6 +213,12 @@
                 }
               },
               "ext_storages": {
+                "UberTraffic": {
+                  "enabled": true,
+                  "movement_data": "/home/ors/ors-core/data/uber_traffic.csv",
+                  "output_log": true,
+                  "timezone": "Africa/Addis_Ababa"
+                },
                 "WayCategory": {},
                 "HeavyVehicle": {},
                 "WaySurfaceType": {},

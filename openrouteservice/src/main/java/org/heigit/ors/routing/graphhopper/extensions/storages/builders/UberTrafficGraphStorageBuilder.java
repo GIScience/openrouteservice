@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,8 @@ public class UberTrafficGraphStorageBuilder extends TrafficGraphStorageBuilder{
 
     private static final String ENABLED = "enabled";
     private static final String PARAM_KEY_UBER_MOVEMENT = "movement_data";
+
+    private static final String PARAM_KEY_UBER_TIMEZONE = "timezone";
 
     private boolean enabled = false;
     String uberMovementFile = "";
@@ -102,6 +105,12 @@ public class UberTrafficGraphStorageBuilder extends TrafficGraphStorageBuilder{
             storage = new UberTrafficGraphStorage();
             osmNodeId2InternalIdMapping = new LongIntHashMap();
             UberTrafficReader hereTrafficReader = new UberTrafficReader(uberMovementFile);
+            if(parameters.containsKey(PARAM_KEY_UBER_TIMEZONE)) {
+                var timezone = parameters.get(PARAM_KEY_UBER_TIMEZONE);
+                try {
+                    storage.setZoneId(ZoneId.of(timezone));
+                } catch (Exception e ){LOGGER.info("Timezone not available. {}", e);}
+            }
             this.uberTrafficData = hereTrafficReader.readAndProcessData();
         } else {
             LOGGER.info("Uber traffic not enabled.");
