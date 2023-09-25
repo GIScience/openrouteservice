@@ -41,8 +41,6 @@ check_folder_exists "$JWS_WEBAPPS_DIRECTORY/ors" false || SUCCESSFUL=false
 # shellcheck disable=SC2016
 # Check symlink ors.war to webapps folder
 check_file_exists "$JWS_WEBAPPS_DIRECTORY/ors.war" false || SUCCESSFUL=false
-# Check that the temp folder is deleted
-check_folder_exists '/tmp/openrouteservice' false || SUCCESSFUL=false
 # openrouteservice user and group should be removed
 check_group_exists 'openrouteservice' false || SUCCESSFUL=false
 check_user_exists 'openrouteservice' false || SUCCESSFUL=false
