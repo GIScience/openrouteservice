@@ -137,7 +137,7 @@ For proper operation, the `openrouteservice-jws5` installation `necessitates` th
 configuration file within the `$ORS_HOME/config` directory.
 This configuration file effectively configures the openrouteservice backend.
 
-Upon installation, a sample configuration file (`config-example.yml`) can be located `within`
+Upon installation, a sample configuration file (`config-example.json`) can be located `within`
 the `$ORS_HOME/config` directory.
 
 ---
