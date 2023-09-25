@@ -23,10 +23,12 @@ You can also modify the configuration and source file settings to match your nee
 the [Running with Docker](Running-with-Docker)-Section.
 More explanation about customization can be found in the [Advanced Docker Setup](Advanced-Docker-Setup)
 
-## Installation of `openrouteservice-jws5` via RPM Package
+## Installation of `openrouteservice-jws5` via RPM Package for Enterprise Linux Environments
 
 The following explanation will guide you through the installation of the `openrouteservice-jws5` package
 on `RHEL 8.x` with `OpenJDK 17 headless` and `JBoss Web Server 5.x` for `ors version 7.2.x`.
+
+
 
 ### Prerequisites
 
@@ -43,12 +45,16 @@ dnf install -y java-17-openjdk-headless
 
 For the installation, the variable `ORS_HOME` showing the persistence directory of the OpenRouteService needs to be set, e.g.
 
-    export ORS_HOME=/opt/openrouteservice
+```bash
+echo "ORS_HOME=/opt/openrouteservice" >> /etc/environment
+```    
 
-Only if JBoss Web Service was installed _in a different way_ than described above, some paths need to be specified additionally:
+**Only if** JBoss Web Service was installed _in a different way_ than described above, some paths need to be specified additionally:
 
-    export JWS_CONF_FOLDER=<your custom path>
-    export JWS_WEBAPPS_FOLDER=<your custom path>
+```bash
+echo "JWS_CONF_FOLDER=<your custom path>" >> /etc/environment
+echo "JWS_WEBAPPS_FOLDER=<your custom path>" >> /etc/environment
+```
 
 #### Yum .repo Configuration
 
@@ -80,17 +86,40 @@ while the `releases channel` holds the latest release builds (though it is not y
 
 After adding the repository, update dnf:
 
-    dnf update
-
+```bash
+dnf update
+```
 
 ### Installation
 
 Now you can install the openrouteservice itself using the following command:
 
-    dnf install openrouteservice-jws5
+```bash
+sudo dnf clean all && sudo dnf check-update && sudo dnf install -y openrouteservice-jws5
+```
 
-This will install the openrouteservice WAR file into the jws5 webapps folder and generates the `ORS_HOME` working directory, which houses the
-subsequent subfolders:
+---
+**Default openrouteservice User and Group**
+
+The installation of `openrouteservice-jws5` establishes a `new openrouteservice user and group`.
+This `non-root`, `nologin` user is employed to securely manage RPM package files and directories during installation,
+upgrading, and removal of openrouteservice-jws5 packages.
+
+The `tomcat` user `is assigned membership` within the openrouteservice group,
+granting them access to manipulate files and folders within `ORS_HOME` and its subdirectories.
+
+Upon each execution of the openrouteservice-jws5 package's update routine, file and folder permissions
+within `ORS_HOME` are realigned to the openrouteservice user and group.
+
+This collaborative group setup prevents interference between the tomcat user permissions during installation,
+ensuring a smooth process.
+
+
+---
+**Default folder structure**
+
+Upon installation, `openrouteservice-jws5` generates the `ORS_HOME` working directory, which houses the
+subsequent subfolders (initially empty unless manually created):
 
 ```bash
 /opt/openrouteservice/
@@ -101,7 +130,15 @@ subsequent subfolders:
 └── logs # Contains the log files
 ```
 
-In the `config` folder a file `example-config.json` is extracted, which can be used as template for the file `ors-config.json` in the same directory. `ors-config.json` is your custom config file which is used by openrouteservice.
+---
+**Configuration**
+
+For proper operation, the `openrouteservice-jws5` installation `necessitates` the presence of the `ors-config.json`
+configuration file within the `$ORS_HOME/config` directory.
+This configuration file effectively configures the openrouteservice backend.
+
+Upon installation, a sample configuration file (`config-example.yml`) can be located `within`
+the `$ORS_HOME/config` directory.
 
 ---
 **Example Usage**
@@ -113,7 +150,7 @@ installed `openrouteservice-jws5` package:
 # Obtain a OSM file using curl
 curl https://download.geofabrik.de/europe/andorra-latest.osm.pbf -o /opt/openrouteservice/files/osm-file.osm.pbf
 # Utilize the default configuration file
-cp /opt/openrouteservice/config/config-example.yml /opt/openrouteservice/config/ors-config.yml
+cp /opt/openrouteservice/config/config-example.json /opt/openrouteservice/config/ors-config.json
 # Restart the tomcat server and await graph construction
 # Check the endpoint ors/v2/status, which should display "ready" once graph construction is complete.
 curl http://127.0.0.1:8080/ors/v2/status
