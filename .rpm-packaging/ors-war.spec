@@ -170,6 +170,24 @@ if [ -z "${JWS_CONF_FOLDER}" ]; then
 else
     export jws_config_folder=${JWS_CONF_FOLDER}
 fi
+export jws_config_location=${jws_config_folder}/openrouteservice.conf
+
+# Do the same for the JWS_WEBAPPS_FOLDER
+if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
+    echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
+    export jws_webapps_folder=%{jws_webapps_folder}
+else
+    export jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
+fi
+
+
+# Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
+if [ -z "${JWS_CONF_FOLDER}" ]; then
+    echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
+    export jws_config_folder=%{jws_config_folder}
+else
+    export jws_config_folder=${JWS_CONF_FOLDER}
+fi
 
 # Do the same for the JWS_WEBAPPS_FOLDER
 if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
