@@ -14,17 +14,23 @@ START_DIRECTORY="$(
 # Assume successful at first and assign false if any of the checks fails
 SUCCESSFUL=true
 
+# Set variables
+JWS_WEBAPPS_DIRECTORY='/var/opt/rh/scls/jws5/lib/tomcat/webapps'
+JWS_CONFIGURATION_DIRECTORY='/etc/opt/rh/scls/jws5/tomcat/conf.d'
+
 ##### Check clean environment #####
 echo "Checking the clean environment"
-# shellcheck disable=SC2016
-check_folder_exists '${JWS_HOME}/webapps/ors' false || SUCCESSFUL=false
-# shellcheck disable=SC2016
-check_file_exists '${JWS_HOME}/webapps/ors.war' false || SUCCESSFUL=false
+check_folder_exists "$JWS_WEBAPPS_DIRECTORY" true || SUCCESSFUL=false
+check_folder_exists "$JWS_WEBAPPS_DIRECTORY/ors" false || SUCCESSFUL=false
+check_file_exists "$JWS_WEBAPPS_DIRECTORY/ors.war" false || SUCCESSFUL=false
+
 check_file_exists '/etc/yum.repos.d/ors.repo' true || SUCCESSFUL=false
-check_file_exists '/opt/openrouteservice/config/example-config.json' false || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/config/example-config.json' false || SUCCESSFUL=false
+
 check_rpm_installed 'openrouteservice-jws5' false || SUCCESSFUL=false
-# shellcheck disable=SC2016
-check_line_in_file 'export ORS_CONFIG=' '${JWS_HOME}/bin/setenv.sh' false || SUCCESSFUL=false
+
+# Check that the temp folder is not present
+check_file_exists '${ORS_HOME}/.openrouteservice-jws5-permanent-state' false || SUCCESSFUL=false
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then

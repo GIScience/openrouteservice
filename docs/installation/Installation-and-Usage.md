@@ -23,65 +23,40 @@ You can also modify the configuration and source file settings to match your nee
 the [Running with Docker](Running-with-Docker)-Section.
 More explanation about customization can be found in the [Advanced Docker Setup](Advanced-Docker-Setup)
 
-## Installation of `openrouteservice-jws5` via RPM Package
+## Installation of `openrouteservice-jws5` via RPM Package for Enterprise Linux Environments
 
 The following explanation will guide you through the installation of the `openrouteservice-jws5` package
-on `RHEL8/CentOS 8` with `Java 17` and `JBoss Web Server 5` for `ors version 7.2.x`.
+on `RHEL 8.x` with `OpenJDK 17 headless` and `JBoss Web Server 5.x` for `ors version 7.2.x`.
 
----
-**Necessary Packages**
 
-To successfully install OpenRouteService via the RPM package,
-ensure that your RedHat Enterprise Linux 8 or CentOS 8 system has the following packages enabled through the
-subscription manager::
 
-```bash
-- jws5-runtime  
-- jws5-tomcat  
-- jws5-tomcat-native  
-- jws5-tomcat-selinux  
-- java-17-openjdk
-```
+### Prerequisites
 
-In case these packages are absent, the installation process will make an automatic attempt to install them.
-A failure to do so will result in the inability to install the `openrouteservice-jws5` package.
+#### Installation via RedHat jws5 subscription
 
----
-**Required environment variables**
-
-During the installation of the `openrouteservice-jws` package, specific environment variables are essential and the
-installation will fail if they are not present:
-
-- `JWS_HOME` - The global variable showing the`tomcat` installation directory of the JBoss Web Server 5, e.g. `/opt/jws5/tomcat`
-
-A description for the variable can be found in the [official Red Hat documentation](https://access.redhat.com/documentation/de-de/red_hat_jboss_web_server/5.7/html/installation_guide/assembly_installing-jws-on-rhel-from-rpm-packages_jboss_web_server_installation_guide#installing_from_rpm).
-
-Please ensure that the **global** `JWS_HOME` environment variable is set and points to the `tomcat` installation directory of JBoss
-Web Server 5, e.g. `/opt/jws5/tomcat`.
-If the `JWS_HOME` environment variable is not set, the installation process will fail.
-
-To check if the **global** `JWS_HOME` environment variable is set, run the following command:
+Install the following packages via dnf with a valid RedHat subscription for jws5:
 
 ```bash
-echo $JWS_HOME
+dnf groupinstall jws5
+dnf install -y java-17-openjdk-headless
 ```
 
-The expected output should be the `tomcat` installation directory of JBoss Web Server 5 (e.g., `/opt/jws5/tomcat`).
+#### Set environment variables
 
----
-**Required JWS5 User**
+For the installation, the variable `ORS_HOME` showing the persistence directory of the OpenRouteService needs to be set, e.g.
 
-The installation of `openrouteservice-jws5` anticipates one of the following users to be present and employed **as the
-execution user** by JBoss Web Server 5:
+```bash
+echo "ORS_HOME=/opt/openrouteservice" >> /etc/environment
+```    
 
-- `jboss` or
-- `tomcat`
+**Only if** JBoss Web Service was installed _in a different way_ than described above, some paths need to be specified additionally:
 
-The existence of either `jboss` **or** `tomcat` users is mandatory for the successful installation
-of `openrouteservice-jws5`.
+```bash
+echo "JWS_CONF_FOLDER=<your custom path>" >> /etc/environment
+echo "JWS_WEBAPPS_FOLDER=<your custom path>" >> /etc/environment
+```
 
----
-**Yum .repo Configuration**
+#### Yum .repo Configuration
 
 To access and install `openrouteservice` via RPM packages from our repository, set up the following .repo file
 within `/etc/yum.repos.d/`:
@@ -109,14 +84,19 @@ This repository includes two channels: `snapshots` and `releases`.
 The `snapshots channel` contains the latest snapshot builds of the `openrouteservice-jws5` package,
 while the `releases channel` holds the latest release builds (though it is not yet operational).
 
----
-**Yum installation**
-
-To install the latest snapshot build of the `openrouteservice-jws5` package, run the following command:
+After adding the repository, update dnf:
 
 ```bash
-sudo yum update && sudo yum install openrouteservice-jws5
-``` 
+dnf update
+```
+
+### Installation
+
+Now you can install the openrouteservice itself using the following command:
+
+```bash
+sudo dnf clean all && sudo dnf check-update && sudo dnf install -y openrouteservice-jws5
+```
 
 ---
 **Default openrouteservice User and Group**
@@ -125,47 +105,40 @@ The installation of `openrouteservice-jws5` establishes a `new openrouteservice 
 This `non-root`, `nologin` user is employed to securely manage RPM package files and directories during installation,
 upgrading, and removal of openrouteservice-jws5 packages.
 
-Both `jboss` and `tomcat` users `are assigned membership` within the openrouteservice group,
-granting them access to manipulate files and folders `within /opt/openrouteservice/` and its subdirectories.
+The `tomcat` user `is assigned membership` within the openrouteservice group,
+granting them access to manipulate files and folders within `ORS_HOME` and its subdirectories.
 
 Upon each execution of the openrouteservice-jws5 package's update routine, file and folder permissions
-within `/opt/openrouteservice` are realigned to the openrouteservice user and group.
+within `ORS_HOME` are realigned to the openrouteservice user and group.
 
-This collaborative group setup prevents interference between the jboss and tomcat user permissions during installation,
+This collaborative group setup prevents interference between the tomcat user permissions during installation,
 ensuring a smooth process.
+
 
 ---
 **Default folder structure**
 
-Upon installation, `openrouteservice-jws5` generates the `/opt/openrouteservice/ working directory`, which houses the
+Upon installation, `openrouteservice-jws5` generates the `ORS_HOME` working directory, which houses the
 subsequent subfolders (initially empty unless manually created):
 
 ```bash
 /opt/openrouteservice/
 ├── .elevation-cache # Contains the elevation data cache
-├── .war-files # Contains the versioned openrouteservice.war files
 ├── config # Should contain the configuration file
 ├── files # Should contain the osm.pbf source files
-├── graphs # Contains the graphhopper graph files when build
+├── .graphs # Contains the graph files when build
 └── logs # Contains the log files
 ```
 
-Of these folders, only `.war-files` houses the versioned `.war files`.
-The remaining folders are empty following the first installation.
-Always, `the .war-files folder retains all versioned .war files` from prior installations.
-The current `.war file` from the latest package installation is `linked` to the tomcat server `through a symbolic link`,
-as follows:
-
-> (symlink) ${JWS_HOME}/webapps/ors.war -> /opt/openrouteservice/.war-files/openrouteservice-{LATEST_VERSION}.war
 ---
 **Configuration**
 
-For proper operation, the `openrouteservice-jws5` installation `necessitates` the presence of the `ors-config.yml`
-configuration file within the `/opt/openrouteservice/config/` directory.
+For proper operation, the `openrouteservice-jws5` installation `necessitates` the presence of the `ors-config.json`
+configuration file within the `$ORS_HOME/config` directory.
 This configuration file effectively configures the openrouteservice backend.
 
-Upon installation, a sample configuration file (`config-example.yml`) can be located `within`
-the `/opt/openrouteservice/config/` directory.
+Upon installation, a sample configuration file (`config-example.json`) can be located `within`
+the `$ORS_HOME/config` directory.
 
 ---
 **Example Usage**
@@ -177,7 +150,7 @@ installed `openrouteservice-jws5` package:
 # Obtain a OSM file using curl
 curl https://download.geofabrik.de/europe/andorra-latest.osm.pbf -o /opt/openrouteservice/files/osm-file.osm.pbf
 # Utilize the default configuration file
-cp /opt/openrouteservice/config/config-example.yml /opt/openrouteservice/config/ors-config.yml
+cp /opt/openrouteservice/config/config-example.json /opt/openrouteservice/config/ors-config.json
 # Restart the tomcat server and await graph construction
 # Check the endpoint ors/v2/status, which should display "ready" once graph construction is complete.
 curl http://127.0.0.1:8080/ors/v2/status

@@ -16,7 +16,14 @@ SUCCESSFUL=true
 
 echo "Checking the environment before uninstallation"
 # Check the log file has been created in the correct location
-check_file_exists '/opt/openrouteservice/logs/ors.log' true || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/logs/ors.log' true || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
+# Check the state file is created and contains the correct variables
+check_file_exists '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
+check_line_in_file "jws_webapps_folder=${JWS_WEBAPPS_DIRECTORY}" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
+check_line_in_file "jws_config_location=${JWS_CONFIGURATION_DIRECTORY}" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
+check_line_in_file "min_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
+check_line_in_file "max_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then
