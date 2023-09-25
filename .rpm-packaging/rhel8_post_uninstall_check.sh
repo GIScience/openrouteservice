@@ -16,7 +16,7 @@ SUCCESSFUL=true
 
 # Set variables
 JWS_WEBAPPS_DIRECTORY='/var/opt/rh/scls/jws5/lib/tomcat/webapps'
-JWS_CONFIGURATION_DIRECTORY='/etc/opt/rh/scls/jws5/tomcat/conf.d/'
+JWS_CONFIGURATION_DIRECTORY='/etc/opt/rh/scls/jws5/tomcat/conf.d'
 
 echo "Checking the environment after uninstallation"
 # Check if the RPM package is installed
