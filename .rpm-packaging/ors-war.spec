@@ -62,7 +62,7 @@ fi
 
 # Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
 if [ -z "${JWS_CONF_FOLDER}" ]; then
-    echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
+    echo "JWS_CONF_FOLDER is not explicitly set. Setting default value to %{jws_config_folder}."
     jws_config_folder=%{jws_config_folder}
 else
     jws_config_folder=${JWS_CONF_FOLDER}
@@ -70,7 +70,7 @@ fi
 
 # Do the same for the JWS_WEBAPPS_FOLDER
 if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
-    echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
+    echo "JWS_WEBAPPS_FOLDER is not explicitly set. Setting default value to %{jws_webapps_folder}."
     jws_webapps_folder=%{jws_webapps_folder}
 else
     jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
