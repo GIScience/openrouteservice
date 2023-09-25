@@ -6,7 +6,7 @@
 %define jws_config_folder /etc/opt/rh/scls/jws5/tomcat/conf.d
 %define jws_webapps_folder /var/opt/rh/scls/jws5/lib/tomcat/webapps
 %define rpm_state_dir %{_localstatedir}/lib/rpm-state/openrouteservice
-%define ors_local_folder %{rpm_state_dir}/install
+%define ors_temporary_files_location %{rpm_state_dir}/install
 Name: openrouteservice-jws5
 Version: %{ors_version}
 Release: 1
@@ -28,18 +28,18 @@ It is highly customizable, performant and written in Java.
 This rpm package looks for an installation of JBoss JWS and installs the WAR file accordingly.
 
 %install
-mkdir -p %{buildroot}%{ors_local_folder}/.war-files/
-mkdir -p %{buildroot}%{ors_local_folder}/config/
+mkdir -p %{buildroot}%{ors_temporary_files_location}/.war-files/
+mkdir -p %{buildroot}%{ors_temporary_files_location}/config/
 # Copy the ors.war file to the .war-files folder
-cp -f ors.war %{buildroot}%{ors_local_folder}/.war-files/%{ors_version}_ors.war
+cp -f ors.war %{buildroot}%{ors_temporary_files_location}/.war-files/%{ors_version}_ors.war
 # Copy the example-config.json file to the config folder
-cp -f example-config.json %{buildroot}%{ors_local_folder}/config/example-config.json
+cp -f example-config.json %{buildroot}%{ors_temporary_files_location}/config/example-config.json
 
 %files
 # Allow 770 for read and write for files for the ors group
 %defattr(770,%{ors_user},%{ors_group},-)
-"%{ors_local_folder}/.war-files/%{ors_version}_ors.war"
-"%{ors_local_folder}/config/example-config.json"
+"%{ors_temporary_files_location}/.war-files/%{ors_version}_ors.war"
+"%{ors_temporary_files_location}/config/example-config.json"
 
 %pre
 ###############################################################################################################
@@ -52,7 +52,7 @@ cp -f example-config.json %{buildroot}%{ors_local_folder}/config/example-config.
 # Check for the JWS home ENV variable to be set and echo 'set'
 if [ -n "${ORS_HOME}" ]; then
     echo "ORS_HOME variable found. Attempting ORS installation at ${ORS_HOME}."
-    mkdir -p ${ORS_HOME} %{ors_local_folder}
+    mkdir -p ${ORS_HOME} %{ors_temporary_files_location}
     echo "ORS_HOME=${ORS_HOME}" > %{rpm_state_dir}/openrouteservice-jws5-temp-home-state
 else
     echo "ORS_HOME is not set. Exiting installation."
@@ -123,7 +123,7 @@ if [ $1 -eq 0 ]; then
     # Check for the JWS home ENV variable to be set and echo 'set'
     if [ -n "${ORS_HOME}" ]; then
         echo "ORS_HOME found. Uninstalling ORS from ${ORS_HOME}."
-        mkdir -p %{ors_local_folder}
+        mkdir -p %{ors_temporary_files_location}
         echo "ORS_HOME=${ORS_HOME}" > %{rpm_state_dir}/openrouteservice-jws5-temp-home-state
     else
         echo "ORS_HOME is not set. Exiting uninstall routine."
@@ -200,8 +200,8 @@ mkdir -p "${ORS_HOME}/files"
 mkdir -p "${ORS_HOME}/.elevation-cache"
 
 echo "Copy %{ors_version}_ors.war to ${jws_webapps_folder}"
-cp -f %{ors_local_folder}/config/example-config.json ${ORS_HOME}/config/example-config.json
-cp -f %{ors_local_folder}/.war-files/%{ors_version}_ors.war ${jws_webapps_folder}/ors.war
+cp -f %{ors_temporary_files_location}/config/example-config.json ${ORS_HOME}/config/example-config.json
+cp -f %{ors_temporary_files_location}/.war-files/%{ors_version}_ors.war ${jws_webapps_folder}/ors.war
 
 # Switch to the installed java version
 alternatives --set java $(readlink -f /etc/alternatives/jre_%{java_version})/bin/java
