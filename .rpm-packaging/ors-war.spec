@@ -1,11 +1,12 @@
 %define java_version 17
 %define ors_version %{getenv:ORS_VERSION}
-%define ors_local_folder /tmp/openrouteservice
 %define tomcat_user tomcat
 %define ors_group openrouteservice
 %define ors_user  openrouteservice
 %define jws_config_folder /etc/opt/rh/scls/jws5/tomcat/conf.d
 %define jws_webapps_folder /var/opt/rh/scls/jws5/lib/tomcat/webapps
+%define rpm_state_dir %{_localstatedir}/lib/rpm-state/openrouteservice
+%define ors_local_folder %{rpm_state_dir}/install
 Name: openrouteservice-jws5
 Version: %{ors_version}
 Release: 1
@@ -40,25 +41,13 @@ cp -f example-config.json %{buildroot}%{ors_local_folder}/config/example-config.
 "%{ors_local_folder}/.war-files/%{ors_version}_ors.war"
 "%{ors_local_folder}/config/example-config.json"
 
-%post
-# Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
-if [ -z "${JWS_CONF_FOLDER}" ]; then
-    echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
-    export jws_config_folder=%{jws_config_folder}
-else
-    export jws_config_folder=${JWS_CONF_FOLDER}
-fi
-
-# Do the same for the JWS_WEBAPPS_FOLDER
-if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
-    echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
-    export jws_webapps_folder=%{jws_webapps_folder}
-else
-    export jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
-fi
-
-# Set the remaining variables
-export jws_config_location=${jws_config_folder}/openrouteservice.conf
+%pre
+###############################################################################################################
+# This is the pre-installation scriptlet for the openrouteservice-jws5 rpm package.
+# It checks for the existence of the JWS_HOME environment variable and checks if the webapps folder exists.
+# It also checks if the JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER environment variables are set and if not, sets them to the default values.
+# All variables are saved in the %{rpm_state_dir}/openrouteservice-jws5-state file for later stages.
+###############################################################################################################
 
 # Check for the JWS home ENV variable to be set and echo 'set'
 if [ -n "${ORS_HOME}" ]; then
@@ -67,6 +56,22 @@ else
     echo "ORS_HOME is not set. Exiting installation."
     # Exit the rpm installation with an error
     exit 1
+fi
+
+# Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
+if [ -z "${JWS_CONF_FOLDER}" ]; then
+    echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
+    jws_config_folder=%{jws_config_folder}
+else
+    jws_config_folder=${JWS_CONF_FOLDER}
+fi
+
+# Do the same for the JWS_WEBAPPS_FOLDER
+if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
+    echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
+    jws_webapps_folder=%{jws_webapps_folder}
+else
+    jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
 fi
 
 # Check if webapps folder exists
@@ -85,6 +90,13 @@ else
     # Exit the rpm installation with an error
     exit 1
 fi
+
+
+# Create the rpm_state_dir if it does not exist
+if [ ! -d %{rpm_state_dir} ]; then
+    mkdir -p %{ors_local_folder}
+fi
+
 # Get the max amount of ram available on the system with cat /proc/meminfo and store in a variable and deduct 4 GB from it if it is more than 4 GB
 max_ram=$(cat /proc/meminfo | awk '/^MemTotal:/{print $2}')
 if [ ${max_ram} -gt 4000000 ]; then
@@ -93,7 +105,30 @@ fi
 # Set min_ram with half of max_ram
 min_ram=$((${max_ram}/2))
 
+# Set the remaining variables
+jws_config_location=${jws_config_folder}/openrouteservice.conf
 
+# Save all variables in the rpm_state_dir in a file called openrouteservice-jws5-state
+echo "jws_config_folder=${jws_config_folder}" > %{rpm_state_dir}/openrouteservice-jws5-state
+echo "jws_webapps_folder=${jws_webapps_folder}" >> %{rpm_state_dir}/openrouteservice-jws5-state
+echo "jws_config_location=${jws_config_location}" >> %{rpm_state_dir}/openrouteservice-jws5-state
+echo "min_ram=${min_ram}" >> %{rpm_state_dir}/openrouteservice-jws5-state
+echo "max_ram=${max_ram}" >> %{rpm_state_dir}/openrouteservice-jws5-state
+echo "jws_config_location=${jws_config_location}" >> %{rpm_state_dir}/openrouteservice-jws5-state
+
+%post
+###############################################################################################################
+# This is the post-installation scriptlet for the openrouteservice-jws5 rpm package.
+# It sources the %{rpm_state_dir}/openrouteservice-jws5-state file and uses the variables to install the ors.war file in the correct location.
+# It also creates the correct user and group for the ors installation and sets the correct permissions for the ors home folder.
+# It also creates a custom tomcat config file at the correct location if it does not exist yet.
+# The webapps folder is filled with the ors.war file and the "new" example-config.json file is copied to the config folder.
+###############################################################################################################
+
+# Source the rpm_state_dir file
+. %{rpm_state_dir}/openrouteservice-jws5-state
+
+# Install routine
 if [ -f ${jws_config_location} ]; then
     echo "Custom Tomcat config found at ${jws_config_location}. Not overriding it."
 else
@@ -103,7 +138,6 @@ else
     echo "Permanently saving -Xms${min_ram}k and -Xmx${max_ram}k in ${jws_config_location}."
     echo 'CATALINA_OPTS="-Xms'"${min_ram}"'k -Xmx'"${max_ram}"'k"' >> ${jws_config_location}
 fi
-
 
 # Check for the existence of an old ors installation in the webapps folder and clean it.
 if [ -d ${jws_webapps_folder}/ors ]; then
@@ -139,7 +173,6 @@ else
     useradd -r -g %{ors_group} -d ${ORS_HOME} -s /sbin/nologin %{ors_user}
 fi
 
-
 # Setup openrouteservice opt folder
 mkdir -p "${ORS_HOME}/.graphs"
 mkdir -p "${ORS_HOME}/logs"
@@ -162,43 +195,17 @@ chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
 chmod -R 770 ${ORS_HOME}
 
 %postun
-
-# Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
-if [ -z "${JWS_CONF_FOLDER}" ]; then
-    echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
-    export jws_config_folder=%{jws_config_folder}
-else
-    export jws_config_folder=${JWS_CONF_FOLDER}
-fi
-export jws_config_location=${jws_config_folder}/openrouteservice.conf
-
-# Do the same for the JWS_WEBAPPS_FOLDER
-if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
-    echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
-    export jws_webapps_folder=%{jws_webapps_folder}
-else
-    export jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
-fi
-
-
-# Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
-if [ -z "${JWS_CONF_FOLDER}" ]; then
-    echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
-    export jws_config_folder=%{jws_config_folder}
-else
-    export jws_config_folder=${JWS_CONF_FOLDER}
-fi
-
-# Do the same for the JWS_WEBAPPS_FOLDER
-if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
-    echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
-    export jws_webapps_folder=%{jws_webapps_folder}
-else
-    export jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
-fi
-
+###############################################################################################################
+# This is the post-uninstallation scriptlet for the openrouteservice-jws5 rpm package.
+# It sources the %{rpm_state_dir}/openrouteservice-jws5-state file and uses the variables to uninstall the ors.war file in the correct location.
+# It also removes the custom tomcat config file at the correct location if it exists.
+# The webapps folder is cleaned from the ors.war file and the ors folder.
+# The rpm_state_dir is cleaned to clean the environment for the next time..
+###############################################################################################################
 # Uninstall routine if $1 is 0 but leave the opt folder
 # For explanation check https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
+. %{rpm_state_dir}/openrouteservice-jws5-state
+
 if [ "$1" = "0" ]; then
     echo "Uninstalling openrouteservice"
     # Remove custom tomcat config file
@@ -206,7 +213,8 @@ if [ "$1" = "0" ]; then
     # Remove the ors folder and war file from the webapps folder
     rm -rf ${jws_webapps_folder}/ors
     rm -rf ${jws_webapps_folder}/ors.war
-    rm -rf %{ors_local_folder}
+    # Remove the rpm_state_dir
+    rm -rf %{rpm_state_dir}
     # Remove the ors user
     userdel %{ors_user}
     # Remove the ors group
