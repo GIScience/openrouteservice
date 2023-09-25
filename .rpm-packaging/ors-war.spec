@@ -162,6 +162,23 @@ chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
 chmod -R 770 ${ORS_HOME}
 
 %postun
+
+# Check if the environment variables are set for JWS_CONF_FOLDER and JWS_WEBAPPS_FOLDER if not, set the default values for them
+if [ -z "${JWS_CONF_FOLDER}" ]; then
+    echo "JWS_CONF_FOLDER is not set. Setting default value of %{jws_config_folder}."
+    export jws_config_folder=%{jws_config_folder}
+else
+    export jws_config_folder=${JWS_CONF_FOLDER}
+fi
+
+# Do the same for the JWS_WEBAPPS_FOLDER
+if [ -z "${JWS_WEBAPPS_FOLDER}" ]; then
+    echo "JWS_WEBAPPS_FOLDER is not set. Setting default value of %{jws_webapps_folder}."
+    export jws_webapps_folder=%{jws_webapps_folder}
+else
+    export jws_webapps_folder=${JWS_WEBAPPS_FOLDER}
+fi
+
 # Uninstall routine if $1 is 0 but leave the opt folder
 # For explanation check https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/#_syntax
 if [ "$1" = "0" ]; then
