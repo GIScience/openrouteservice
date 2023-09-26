@@ -281,6 +281,9 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <dataFile>${sonar.coverage.jacoco.xmlReportPaths}</dataFile>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
