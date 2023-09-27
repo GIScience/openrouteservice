@@ -54,8 +54,8 @@ check_user_in_group 'tomcat' 'openrouteservice' || SUCCESSFUL=false
 check_user_in_group 'openrouteservice' 'openrouteservice' || SUCCESSFUL=false
 # Check environment variables
 # shellcheck disable=SC2016
-check_line_in_file "ORS_HOME=/opt/openrouteservice" "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" true || SUCCESSFUL=false
-check_line_in_file "CATALINA_OPTS=" "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" true || SUCCESSFUL=false
+check_line_in_file "export ORS_HOME=/opt/openrouteservice" "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" true || SUCCESSFUL=false
+check_line_in_file 'export CATALINA_OPTS="-Xms[0-9]+k -Xmx[0-9]+k"' "$JWS_CONFIGURATION_DIRECTORY/openrouteservice.conf" true || SUCCESSFUL=false
 
 # Check Java version
 check_java_version '17.' || SUCCESSFUL=false

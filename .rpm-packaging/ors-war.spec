@@ -36,8 +36,6 @@ cp -f ors.war %{buildroot}%{ors_temporary_files_location}/.war-files/%{ors_versi
 cp -f example-config.json %{buildroot}%{ors_temporary_files_location}/config/example-config.json
 
 %files
-# Allow 770 for read and write for files for the ors group
-%defattr(770,%{ors_user},%{ors_group},-)
 "%{ors_temporary_files_location}/.war-files/%{ors_version}_ors.war"
 "%{ors_temporary_files_location}/config/example-config.json"
 
@@ -152,9 +150,9 @@ if [ -f ${jws_config_location} ]; then
 else
     echo "Creating custom Tomcat config at ${jws_config_location}."
     echo "Permanently saving the given ORS_HOME=${ORS_HOME} in ${jws_config_location}."
-    echo "ORS_HOME=${ORS_HOME}" >> ${jws_config_location}
+    echo "export ORS_HOME=${ORS_HOME}" >> ${jws_config_location}
     echo "Permanently saving -Xms${min_ram}k and -Xmx${max_ram}k in ${jws_config_location}."
-    echo 'CATALINA_OPTS="-Xms'"${min_ram}"'k -Xmx'"${max_ram}"'k"' >> ${jws_config_location}
+    echo 'export CATALINA_OPTS="-Xms'"${min_ram}"'k -Xmx'"${max_ram}"'k"' >> ${jws_config_location}
 fi
 
 # Check for the existence of an old ors installation in the webapps folder and clean it.
@@ -207,10 +205,10 @@ alternatives --set java $(readlink -f /etc/alternatives/jre_%{java_version})/bin
 
 chown %{tomcat_user} ${jws_webapps_folder}/ors.war
 chmod 740 ${jws_webapps_folder}/ors.war
-# Set the correct permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
-chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
 # Set recursive 770 permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
 chmod -R 770 ${ORS_HOME}
+# Set the correct ownership as well
+chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
 
 %postun
 ###############################################################################################################

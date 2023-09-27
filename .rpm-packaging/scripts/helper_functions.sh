@@ -56,7 +56,7 @@ check_line_in_file() {
 
     local result
     local exit_code
-    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "grep '$line' $path_to_file")
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "grep -Eq '$line' $path_to_file")
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
         log_error "Line '$line' should exist in file $path_to_file but does not."
