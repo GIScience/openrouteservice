@@ -99,7 +99,7 @@ There are some important directories one might want to preserve on the host mach
 - `/home/ors/ors-conf`: Contains the `ors-config.json` which is used to control ORS.
 - `/home/ors/ors-core/data/osm_file.pbf`: The OSM file being used to generate graphs.
 
-Look at the [`docker-compose.yml`](https://github.com/GIScience/openrouteservice/blob/master/docker/docker-compose.yml) for examples.
+Look at the [`docker-compose.yml`](https://github.com/GIScience/openrouteservice/blob/master/docker-compose.yml) for examples.
 
 **Environment variables**
 
