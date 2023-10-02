@@ -26,10 +26,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.api.responses.snapping.json.JsonSnappingResponse;
 import org.heigit.ors.api.services.SnappingService;
+import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.snapping.SnappingErrorCodes;
@@ -54,9 +57,13 @@ import org.springframework.web.bind.annotation.*;
 public class SnappingAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(SnappingErrorCodes.BASE);
 
+    private final EndpointsProperties endpointsProperties;
+    private final SystemMessageProperties systemMessageProperties;
     private final SnappingService snappingService;
 
-    public SnappingAPI(SnappingService snappingService) {
+    public SnappingAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, SnappingService snappingService) {
+        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+        this.systemMessageProperties = systemMessageProperties;
         this.snappingService = snappingService;
     }
 
@@ -126,7 +133,7 @@ public class SnappingAPI {
 
         SnappingResult result = snappingService.generateSnappingFromRequest(request);
 
-        return new JsonSnappingResponse(result);
+        return new JsonSnappingResponse(result, request, systemMessageProperties, endpointsProperties);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
