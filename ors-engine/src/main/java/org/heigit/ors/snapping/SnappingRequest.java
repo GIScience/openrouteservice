@@ -33,13 +33,13 @@ public class SnappingRequest extends ServiceRequest {
         ProfileTools.setWeighting(hintsMap, weightingMethod, profileType, false);
         String CHProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
         String profileName = CHProfileName;
+        String graphDate = gh.getGraphHopperStorage().getProperties().get("datareader.import.date");
 
         // TODO: replace usage of matrix search context by snapping-specific class
         RoutingCHGraph routingCHGraph = gh.getGraphHopperStorage().getRoutingCHGraph(profileName);
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), true);
         MatrixSearchContext mtxSearchCntx = builder.create(routingCHGraph.getBaseGraph(), routingCHGraph, routingCHGraph.getWeighting(), profileName, locations, locations, maximumSearchRadius);
-        SnappingResult mtxResult = new SnappingResult(mtxSearchCntx.getSources().getLocations());
-        return mtxResult;
+        return new SnappingResult(mtxSearchCntx.getSources().getLocations(), graphDate);
     }
 
     public int getProfileType() {
