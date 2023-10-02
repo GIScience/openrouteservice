@@ -96,6 +96,9 @@ ors:
         maximum_range_time:
           - profiles: driving-car, driving-hgv
             value: 10800
+    Snap:
+      enabled: true
+      attribution: openrouteservice.org, OpenStreetMap contributors
 
   ##### ORS engine settings #####
   engine:

@@ -48,8 +48,8 @@ public class SnappingResponseInfo {
         if (AppConfig.hasValidMD5Hash())
             osmFileMD5Hash = AppConfig.getMD5Hash();
 
-        if (!Helper.isEmpty(endpointsProperties.getMatrix().getAttribution()))
-            attribution = endpointsProperties.getMatrix().getAttribution();
+        if (!Helper.isEmpty(endpointsProperties.getSnap().getAttribution()))
+            attribution = endpointsProperties.getSnap().getAttribution();
 
         engineInfo = new EngineInfo(AppInfo.getEngineInfo());
 

@@ -17,7 +17,7 @@ public class EndpointsProperties {
     private EndpointRoutingProperties routing;
     private EndpointMatrixProperties matrix;
     private EndpointIsochroneProperties isochrone;
-
+    private EndpointSnapProperties snap;
     private String swaggerDocumentationUrl;
 
     public void setSwaggerDocumentationUrl(String swaggerDocumentationUrl) {
@@ -58,6 +58,14 @@ public class EndpointsProperties {
 
     public void setIsochrone(EndpointIsochroneProperties isochrone) {
         this.isochrone = isochrone;
+    }
+
+    public EndpointSnapProperties getSnap() {
+        return snap;
+    }
+
+    public void setSnap(EndpointSnapProperties snap) {
+        this.snap = snap;
     }
 
     public static class EndpointDefaultProperties {
@@ -432,5 +440,27 @@ public class EndpointsProperties {
                 this.attribution = attribution;
             }
         }
+    }
+
+    public static class EndpointSnapProperties {
+        private boolean enabled;
+        private String attribution;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getAttribution() {
+            return attribution;
+        }
+
+        public void setAttribution(String attribution) {
+            this.attribution = attribution;
+        }
+
     }
 }

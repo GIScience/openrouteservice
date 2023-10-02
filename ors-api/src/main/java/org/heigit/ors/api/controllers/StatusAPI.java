@@ -71,6 +71,8 @@ public class StatusAPI {
                     list.add("isochrones");
                 if (endpointsProperties.getMatrix().isEnabled())
                     list.add("matrix");
+                if (endpointsProperties.getSnap().isEnabled())
+                    list.add("snap");
                 jInfo.put("services", list);
                 jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
 
