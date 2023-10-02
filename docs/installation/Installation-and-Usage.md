@@ -46,7 +46,7 @@ dnf install -y java-17-openjdk-headless
 For the installation, the variable `ORS_HOME` showing the persistence directory of the OpenRouteService needs to be set, e.g.
 
 ```bash
-echo "ORS_HOME=/opt/openrouteservice" >> /etc/environment
+echo "export ORS_HOME=/opt/openrouteservice" >> /etc/environment
 ```    
 
 **Only if** JBoss Web Service was installed _in a different way_ than described above, some paths need to be specified additionally:
@@ -155,6 +155,52 @@ cp /opt/openrouteservice/config/config-example.json /opt/openrouteservice/config
 # Check the endpoint ors/v2/status, which should display "ready" once graph construction is complete.
 curl http://127.0.0.1:8080/ors/v2/status
 ```
+
+---
+
+## Custom settings for JWS 5.x
+
+In order to set custom settings for JAVA_OPTS, CATALINA_OPTS, e.g. you can use following commands:
+
+```bash
+sudo mkdir -p /etc/opt/rh/scls/jws5/tomcat/conf.d
+```
+
+```bash
+sudoedit /etc/opt/rh/scls/jws5/tomcat/conf.d/openrouteservice.conf
+```
+
+```bash
+export CATALINA_OPTS="$CATALINA_OPTS -Xms4g -Xmx4g"
+export ORS_HOME=/data/openrouteservice
+```
+
+After setting the values it is required to restart JWS 5.x
+
+## Starting OpenRouteService
+
+```bash
+sudo systemctl enable --now jws5-tomcat.service
+```
+
+## Usage
+
+Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help
+of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/ors-api/WebContent/WEB-INF/web.xml).
+By default you will be able to query the services with these addresses:
+
+- `http://127.0.0.1:8080/ors/v2/directions`
+- `http://127.0.0.1:8080/ors/v2/isochrones`
+- `http://127.0.0.1:8080/ors/v2/matrix`
+
+## Logging and debugging
+
+JWS 5.x uses RHEL's journald functionality.
+
+```bash
+sudo journalctl -f -u jws5-tomcat
+```
+
 
 ---
 
