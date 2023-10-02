@@ -1,5 +1,6 @@
 package org.heigit.ors.apitests.snapping;
 
+import io.restassured.response.ValidatableResponse;
 import org.hamcrest.Matchers;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
@@ -11,24 +12,28 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.FactoryBasedNavigableListAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
 import static org.heigit.ors.common.StatusCode.*;
 import static org.heigit.ors.snapping.SnappingErrorCodes.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @EndPointAnnotation(name = "snap")
 @VersionAnnotation(version = "v2")
 class ParamsTest extends ServiceTest {
 
     /**
-     * This function creates a {@link JSONArray} with fake coordinates.
-     * The size depends on maximumSize.
+     * Generates a JSONArray with fake locations for testing purposes.
      *
-     * @param maximumSize number of maximum coordinates in the {@link JSONArray}
-     * @return {@link JSONArray}
+     * @param maximumSize The maximum size of the JSONArray.
+     * @return A JSONArray containing fake locations with the specified size.
      */
     private static JSONArray fakeLocations(int maximumSize) {
         JSONArray overloadedLocations = new JSONArray();
@@ -41,7 +46,12 @@ class ParamsTest extends ServiceTest {
         return overloadedLocations;
     }
 
-    public ParamsTest() {
+    /**
+     * Generates a JSONArray with valid locations for testing purposes.
+     *
+     * @return A JSONArray containing valid coordinates for testing.
+     */
+    public static JSONArray validLocations() {
         JSONArray coordsShort = new JSONArray();
         JSONArray coord1 = new JSONArray();
         coord1.put(8.680916);
@@ -49,29 +59,104 @@ class ParamsTest extends ServiceTest {
         coordsShort.put(coord1);
         JSONArray coord2 = new JSONArray();
         coord2.put(8.687782);
-        coord2.put(49.424597);
+        coord2.put(49.4246);
         coordsShort.put(coord2);
-        addParameter("coordinates", coordsShort);
+        return coordsShort;
     }
 
-    @Test
-    void basicTest() {
-        JSONObject body = new JSONObject();
-        body.put("locations", getParameter("coordinates"));
-        body.put("maximum_search_radius", "300");
-        given()
+    /**
+     * Provides a stream of test arguments for testing successful scenarios in the Snapping Endpoint.
+     * <p>
+     * Each test case is represented as an instance of the Arguments class, containing the following parameters:
+     * - The request body (JSONObject).
+     * - Boolean flag indicating whether an empty result is expected.
+     * - Boolean flag indicating whether a partially empty result is expected.
+     * - The endpoint type (String).
+     * - The routing profile type (String).
+     *
+     * @return A stream of Arguments instances for testing successful scenarios in the Snapping Endpoint.
+     */
+    public static Stream<Arguments> snappingEndpointSuccessTestProvider() {
+        return Stream.of(
+                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "1"), true, false, "json", "driving-hgv"),
+                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "10"), false, true, "json", "driving-hgv"),
+                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "300"), false, false, "json", "driving-hgv"),
+                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "400"), false, false, "json", "driving-hgv"),
+                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "1000"), false, false, "json", "driving-hgv")
+        );
+    }
+
+    /**
+     * Parameterized test method for testing various scenarios in the Snapping Endpoint.
+     *
+     * @param body                 The request body (JSONObject).
+     * @param emptyResult          Boolean flag indicating whether an empty result is expected.
+     * @param partiallyEmptyResult Boolean flag indicating whether a partially empty result is expected.
+     * @param endPoint             The endpoint type (String).
+     * @param profile              The routing profile type (String).
+     */
+    @ParameterizedTest
+    @MethodSource("snappingEndpointSuccessTestProvider")
+    void testSnappingSuccess(JSONObject body, Boolean emptyResult, Boolean partiallyEmptyResult, String endPoint, String profile) {
+
+        ValidatableResponse result = given()
                 .headers(jsonContent)
-                .pathParam("profile", "driving-car")
+                .pathParam("profile", profile)
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath() + "/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/" + endPoint)
                 .then()
                 .log().ifValidationFails()
-                .body("any { it.key == 'locations' }", is(true))
                 .statusCode(200);
 
+        // Check if the response contains the expected keys
+        result.body("any { it.key == 'locations' }", is(true));
+        result.body("any { it.key == 'metadata' }", is(true));
+        result.body("metadata.containsKey('attribution')", is(true));
+        result.body("metadata.service", is("snap"));
+        result.body("metadata.containsKey('timestamp')", is(true));
+        result.body("metadata.containsKey('query')", is(true));
+        result.body("metadata.containsKey('engine')", is(true));
+        result.body("metadata.containsKey('system_message')", is(true));
+        result.body("metadata.query.locations.size()", is(2));
+        result.body("metadata.query.locations[0].size()", is(2));
+        result.body("metadata.query.locations[1].size()", is(2));
+        result.body("metadata.query.profile", is(profile));
+        result.body("metadata.query.format", is(endPoint));
+        result.body("metadata.query.maximum_search_radius", is(Float.parseFloat(body.get("maximum_search_radius").toString())));
+
+
+        boolean foundValidLocation = false;
+        boolean foundInvalidLocation = false;
+
+        // Iterate over the locations array and check the types of the values
+        ArrayList<Integer> locations = result.extract().jsonPath().get("locations");
+        for (int i = 0; i < locations.size(); i++) {
+            // if empty result is expected, check if the locations array is empty
+            if (emptyResult) {
+                assertNull(result.extract().jsonPath().get("locations[" + i + "].location[0]"));
+                foundValidLocation = true;
+                foundInvalidLocation = true;
+            } else if (partiallyEmptyResult && !foundInvalidLocation && result.extract().jsonPath().get("locations[" + i + "]") == null) {
+                foundInvalidLocation = true;
+            } else {
+                // Type expectations
+                assertEquals(Float.class, result.extract().jsonPath().get("locations[" + i + "].location[0]").getClass());
+                assertEquals(Float.class, result.extract().jsonPath().get("locations[" + i + "].location[1]").getClass());
+                assertEquals(Float.class, result.extract().jsonPath().get("locations[" + i + "].snapped_distance").getClass());
+                // If name is in the response, check the type
+                if (result.extract().jsonPath().get("locations[" + i + "].name") != null)
+                    assertEquals(String.class, result.extract().jsonPath().get("locations[" + i + "].name").getClass());
+                foundValidLocation = true;
+            }
+        }
+
+        assertTrue(foundValidLocation);
+        if (partiallyEmptyResult)
+            assertTrue(foundInvalidLocation);
     }
+
 
     /**
      * Provides a stream of test arguments for testing the Snapping Endpoint with various scenarios.
