@@ -137,7 +137,7 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
                     if (postgisVersion != null && Float.parseFloat(postgisVersion) > 2.4) {
                         sql = "SELECT ROUND((ST_SummaryStatsAgg(ST_Clip(" + geomColumn + ", poly), 1, TRUE, 1)).sum::numeric, 0) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 54009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
                     } else {
-                        sql = "SELECT ROUND(SUM((ST_SummaryStats(ST_Clip(" + geomColumn + ", poly))).sum)) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 54009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
+                        sql = "SELECT ROUND(SUM((ST_SummaryStats(ST_Clip(" + geomColumn + ", poly))).sum)) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 954009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
                     }
                 }
             }
