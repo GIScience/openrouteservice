@@ -63,4 +63,8 @@ public class JSONLocation {
     public Double[] getLocation() {
         return new Double[0];
     }
+
+    public String getName() {
+        return name;
+    }
 }
