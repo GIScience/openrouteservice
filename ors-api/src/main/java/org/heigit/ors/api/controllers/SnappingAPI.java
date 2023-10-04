@@ -30,6 +30,7 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
+import org.heigit.ors.api.responses.snapping.geojson.GeoJSONSnappingResponse;
 import org.heigit.ors.api.responses.snapping.json.JsonSnappingResponse;
 import org.heigit.ors.api.services.SnappingService;
 import org.heigit.ors.api.util.AppConfigMigration;
@@ -113,7 +114,7 @@ public class SnappingAPI {
     @Operation(
             description = """
                     Returns a list of points snapped to the nearest edge in the graph. In case an appropriate
-                    snapping point cannot be found within the specified search radius, \"null\" is returned.
+                    snapping point cannot be found within the specified search radius, "null" is returned.
                     """,
             summary = "Snapping Service JSON"
     )
@@ -134,6 +135,35 @@ public class SnappingAPI {
         SnappingResult result = snappingService.generateSnappingFromRequest(request);
 
         return new JsonSnappingResponse(result, request, systemMessageProperties, endpointsProperties);
+    }
+
+@PostMapping(value = "/{profile}/geojson", produces = {"application/json;charset=UTF-8"})
+    @Operation(
+            description = """
+                    Returns a GeoJSON FeatureCollection of points snapped to the nearest edge in the graph.
+                    In case an appropriate snapping point cannot be found within the specified search radius,
+                    it is omitted from the features array. The features provide the 'source_id' property, to match
+                    the results with the input location array (IDs start at 0).
+                    """,
+            summary = "Snapping Service GeoJSON"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "GeoJSON Response",
+            content = {@Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = GeoJSONSnappingResponse.class)
+            )
+            })
+    public GeoJSONSnappingResponse getGeoJSONSnapping(
+            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "The request payload", required = true) @RequestBody SnappingApiRequest request) throws StatusCodeException {
+        request.setProfile(profile);
+        request.setResponseType(APIEnums.SnappingResponseType.GEOJSON);
+
+        SnappingResult result = snappingService.generateSnappingFromRequest(request);
+
+        return new GeoJSONSnappingResponse(result, request, systemMessageProperties, endpointsProperties);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

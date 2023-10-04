@@ -174,7 +174,8 @@ public class APIEnums {
 
     @Schema(name = "Snapping response type", description = "Format of the snapping response.")
     public enum SnappingResponseType {
-        JSON("json");
+        JSON("json"),
+        GEOJSON("geojson");
 
         private final String value;
 
