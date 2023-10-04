@@ -91,11 +91,17 @@ All the above scenarios will:
 
 1. Pull the openrouteservice docker image from dockerhub and start a container named `ors-app`
 2. Launch the openrouteservice service on port `8080` within a tomcat running in that container, available at the address `http://localhost:8080/ors`.
-3. A local `./docker` folder containing the files used and produced by openrouteservice for easy access. Most relevant is `./docker/conf/ors-config.json` controlling ORS behaviour. If you map a local `your_osm.pbf` to the container's `/home/ors/ors-core/data/osm_file.pbf` (see comment in dockerfile or examples above), it will build a graph from that OSM file. Otherwise openrouteservice will use the provided OSM test file of Heidelberg and surroundings.
+3. A local `./docker` folder containing the files used and produced by openrouteservice for easy access. Most relevant is `./docker/conf/ors-config.yml` controlling ORS behaviour, and the test OSM data file  `/home/ors/ors-core/data/osm_file.pbf` of Heidelberg and surroundings.
 
-After container launch, modify the `./docker/conf/ors-config.json` to your needs, and restart the container. Alternatively you can map an existing `ors-config.json` which you have locally to the container's `/ors-conf/ors-config.json` to initialize ORS immediately. If you changed the OSM file after the first container start, don't forget to set the environment variable `BUILD_GRAPHS=True` (see comment in dockerfile or examples above) to force a rebuild of the graph(s) (or delete the `./docker/graphs` folder, which is the same thing).
+**Customization**
 
-**UID**
+Once you have a built image you can decide to start a container with different settings, e.g. changing the active profiles or other settings. To run ORS with a custom configuration, modify the `./docker/conf/ors-config.yml` to your needs, and restart the container. You can obviously also modify the volume mappings in the `docker-compose.yml` to your needs.
+
+Old ORS configuration files in JSON format are deprecated. If you have a custom `ors-config.json` file from a previous installation we strongly recommend to migrate to the new YAML format. For the transitional period ORS allows the use of old format JSON files placed at `./docker/conf/ors-config.json`. All settings in such a file, if present, will override settings in the proper YAML format.
+
+If you changed the OSM file after the first container start, don't forget to set the environment variable `BUILD_GRAPHS=True` (see comment in dockerfile or examples above) to force a rebuild of the graph(s) (or delete the contents of the `./docker/graphs` folder, which is the same thing).
+
+***UID***
 
 If you need to change the UID the ors is running with, you can use these variables:
 ```bash
@@ -106,8 +112,7 @@ ORS_UID=1001 ORS_GID=1001 docker compose up -d
 ORS_UID=${UID} ORS_GID=${GID} docker compose up -d
 ```
 
-
-**Volumes**
+***Volumes***
 
 There are some important directories one might want to preserve on the host machine, to survive container regeneration. These directories should be mapped as volumes. 
 
@@ -120,7 +125,7 @@ There are some important directories one might want to preserve on the host mach
 
 Look at the [`docker-compose.yml`](https://github.com/GIScience/openrouteservice/blob/master/docker-compose.yml) for examples.
 
-**Environment variables**
+***Environment variables***
 
 - `BUILD_GRAPHS`: Forces ORS to rebuild the routings graph(s) when set to `True`. Useful when another PBF is specified in the Docker volume mapping to `/home/ors/ors-core/data/osm_file.pbf`
 - `JAVA_OPTS`: Custom Java runtime options, such as `-Xms` or `-Xmx`
@@ -128,16 +133,12 @@ Look at the [`docker-compose.yml`](https://github.com/GIScience/openrouteservice
 
 Specify either during container startup or in `docker-compose.yml`.
 
-**Build arguments**
+***Build arguments***
 
 When building the image, the following arguments are customizable:
 
 - `ORS_CONFIG`: Can be changed to specify the location of a custom `ors-config.json` file. Default `./ors-api/src/main/resources/ors-config.json`.
 - `OSM_FILE`: Can be changed to point to a local custom OSM file. Default `./ors-api/src/test/files/heidelberg.osm.gz`.
-
-**Customization**
-
-Once you have a built image you can decide to start a container with different settings, e.g. changing the active profiles or other settings in the `ors-config.json`.
 
 **Different OSM file**
 
@@ -154,14 +155,6 @@ E.g.
 It should be mentioned that if your dataset is very large, it may be necessary to adjust the `-Xmx` parameter of `JAVA_OPTS` environment variable. A good rule of thumb is to give Java 2 x file size of the PBF **per profile**.
 
 Note, `.osm`, `.osm.gz`, `.osm.zip` and `.pbf` file format are supported as OSM files.
-
-**Customize ors configuration**
-
-Either you point the build argument `ORS_CONFIG` to your custom `ors-config.json` file.
-
-The `ors-config.json` which is used is also copied to the container's `/share` directory. By mapping a directory to that path, you will get access to the `ors-config.json`. After changing values in the `ors-config.json` just restart the container. Example:
-
-`docker run -d -p 8080:8080 -v ./conf:/ors-conf ors-app`
 
 **Checking**
 
