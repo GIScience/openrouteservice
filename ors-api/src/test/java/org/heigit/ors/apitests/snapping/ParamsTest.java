@@ -1,27 +1,27 @@
 package org.heigit.ors.apitests.snapping;
 
 import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matchers;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.FactoryBasedNavigableListAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
+import static org.hamcrest.Matchers.is;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
-import static org.heigit.ors.common.StatusCode.*;
+import static org.heigit.ors.common.StatusCode.BAD_REQUEST;
+import static org.heigit.ors.common.StatusCode.NOT_FOUND;
 import static org.heigit.ors.snapping.SnappingErrorCodes.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -78,11 +78,14 @@ class ParamsTest extends ServiceTest {
      */
     public static Stream<Arguments> snappingEndpointSuccessTestProvider() {
         return Stream.of(
+                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "-1"), true, false, "json", "driving-hgv"),
+                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "0"), true, false, "json", "driving-hgv"),
                 Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "1"), true, false, "json", "driving-hgv"),
                 Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "10"), false, true, "json", "driving-hgv"),
                 Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "300"), false, false, "json", "driving-hgv"),
                 Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "400"), false, false, "json", "driving-hgv"),
-                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "1000"), false, false, "json", "driving-hgv")
+                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "1000"), false, false, "json", "driving-hgv"),
+                Arguments.of(new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "1000"), false, false, null, "driving-hgv")
         );
     }
 
@@ -99,13 +102,24 @@ class ParamsTest extends ServiceTest {
     @MethodSource("snappingEndpointSuccessTestProvider")
     void testSnappingSuccess(JSONObject body, Boolean emptyResult, Boolean partiallyEmptyResult, String endPoint, String profile) {
 
-        ValidatableResponse result = given()
-                .headers(jsonContent)
-                .pathParam("profile", profile)
+        RequestSpecification requestSpecification = given()
+                .headers(jsonContent);
+
+        if (profile != null)
+            requestSpecification = requestSpecification.pathParam("profile", profile);
+
+        String url = getEndPointPath();
+        if (StringUtils.isNotBlank(profile))
+            url = url + "/{profile}";
+
+        if (StringUtils.isNotBlank(endPoint))
+            url = url + "/" + endPoint;
+
+        ValidatableResponse result = requestSpecification
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath() + "/{profile}/" + endPoint)
+                .post(url)
                 .then()
                 .log().ifValidationFails()
                 .statusCode(200);
@@ -123,8 +137,12 @@ class ParamsTest extends ServiceTest {
         result.body("metadata.query.locations[0].size()", is(2));
         result.body("metadata.query.locations[1].size()", is(2));
         result.body("metadata.query.profile", is(profile));
-        result.body("metadata.query.format", is(endPoint));
-        result.body("metadata.query.maximum_search_radius", is(Float.parseFloat(body.get("maximum_search_radius").toString())));
+
+        if (body.get("maximum_search_radius") != "0")
+            result.body("metadata.query.maximum_search_radius", is(Float.parseFloat(body.get("maximum_search_radius").toString())));
+
+        if (StringUtils.isNotBlank(endPoint))
+            result.body("metadata.query.format", is(endPoint));
 
 
         boolean foundValidLocation = false;
@@ -204,6 +222,15 @@ class ParamsTest extends ServiceTest {
         correctTestLocations.put(coord2);
         // Return a stream of test arguments
         return Stream.of(
+                //Check exception for missing profile and return type
+                Arguments.of(MISSING_PARAMETER, BAD_REQUEST, null, null, new JSONObject()
+                        .put("locations", correctTestLocations).put("maximum_search_radius", "300")),
+                //Check exception for missing profile - "json" is interpreted as profile
+                Arguments.of(INVALID_PARAMETER_VALUE, BAD_REQUEST, "json", null, new JSONObject()
+                        .put("locations", correctTestLocations).put("maximum_search_radius", "300")),
+                //Check exception for missing profile - "json" is interpreted as profile
+                Arguments.of(UNSUPPORTED_EXPORT_FORMAT, SC_NOT_ACCEPTABLE, "badExportFormat", "driving-car", new JSONObject()
+                        .put("locations", correctTestLocations).put("maximum_search_radius", "300")),
                 Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "json", "driving-car", new JSONObject()),
                 // Check exception for one fake location to ensure single locations are checked
                 Arguments.of(POINT_NOT_FOUND, NOT_FOUND, "json", "driving-car", new JSONObject()
@@ -247,13 +274,24 @@ class ParamsTest extends ServiceTest {
     @MethodSource("snappingEndpointExceptionTestProvider")
     void testSnappingExceptions(int expectedErrorCode, int expectedStatusCode, String endPoint, String profile, JSONObject body) {
 
-        given()
-                .headers(jsonContent)
-                .pathParam("profile", profile)
+        RequestSpecification requestSpecification = given()
+                .headers(jsonContent);
+
+        if (profile != null)
+                requestSpecification = requestSpecification.pathParam("profile", profile);
+
+        String url = getEndPointPath();
+        if (StringUtils.isNotBlank(profile))
+            url = url + "/{profile}";
+
+        if (StringUtils.isNotBlank(endPoint))
+            url = url + "/" + endPoint;
+
+        requestSpecification
                 .body(body.toString())
                 .when()
                 .log().ifValidationFails()
-                .post(getEndPointPath() + "/{profile}/" + endPoint)
+                .post(url)
                 .then()
                 .log().ifValidationFails()
                 .assertThat()
