@@ -5,7 +5,8 @@ services:
     ports:
       - "8080:8080"
       - "9001:9001"
-    image: openrouteservice/openrouteservice:latest
+    image: openrouteservice/openrouteservice:nightly
+    # For versioned images see https://giscience.github.io/openrouteservice/installation/Running-with-Docker.html
     user: "${UID:-0}:${GID:-0}"
 #    build:
 #      context: ./

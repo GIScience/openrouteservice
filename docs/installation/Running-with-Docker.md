@@ -17,14 +17,33 @@ Use [Dockerhub's hosted Openrouteservice image](https://hub.docker.com/r/openrou
 
 There are multiple ways with docker to quickly have a running instance.
 
-1. Run with `docker compose`
+1. Run with `docker compose` for nightly
 
 ```bash
+# For nightly builds
 wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/docker-compose.yml
 docker compose up -d
 ```
 
-2. `docker run` for ors versions >= 6.8.2
+2. Run with `docker compose` for a specific ors version
+
+```bash
+# For example for the latest release
+git clone https://github.com/GIScience/openrouteservice.git
+cd openrouteservice
+# Checkout latest version
+export LATEST_ORS_RELEASE=$(git describe --tags --abbrev=0); 
+git checkout $LATEST_ORS_RELEASE
+# If the docker folder exists cd into it
+cd docker || echo "No docker folder found. Continue with next step."
+# Now change the version the docker-compose.yml uses
+sed -i='' "s/openrouteservice\/openrouteservice:nightly/openrouteservice\/openrouteservice:$LATEST_ORS_RELEASE/g" docker-compose.yml
+sed -i='' "s/openrouteservice\/openrouteservice:latest/openrouteservice\/openrouteservice:$LATEST_ORS_RELEASE/g" docker-compose.yml
+# Run docker compose with
+docker compose up -d
+```
+
+3. `docker run` for ors versions >= 6.8.2
 
 ```bash
 # create directories for volumes to mount as local user
@@ -44,7 +63,7 @@ docker run -dt -u "${UID}:${GID}" \
   openrouteservice/openrouteservice:latest
 ```
 
-3. `docker run` for ors versions <= 6.8.1
+4. `docker run` for ors versions <= 6.8.1
 
 ```bash
 # create directories for volumes to mount as local user
