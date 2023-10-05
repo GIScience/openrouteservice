@@ -14,11 +14,11 @@ import org.heigit.ors.api.responses.matrix.json.JSON2DSources;
 import org.heigit.ors.api.responses.routing.json.JSONBoundingBox;
 import org.heigit.ors.api.responses.snapping.SnappingResponse;
 import org.heigit.ors.api.responses.snapping.SnappingResponseInfo;
+import org.heigit.ors.matrix.ResolvedLocation;
 import org.heigit.ors.snapping.SnappingResult;
 import org.heigit.ors.util.GeomUtility;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Schema(name = "GeoJSONSnappingResponse", description = "The GeoJSON Snapping Response contains the snapped coordinates in GeoJSON format.")
@@ -50,18 +50,17 @@ public class GeoJSONSnappingResponse extends SnappingResponse {
         super(result);
         this.features = new ArrayList<>();
         List<BBox> bBoxes = new ArrayList<>();
-        Arrays.stream(result.getLocations())
-                .forEach(resolvedLocation -> {
-                    if (resolvedLocation == null) {
-                        this.features.add(null);
-                    } else {
-                        // create BBox for each point to use existing generateBoundingFromMultiple function
-                        double x = resolvedLocation.getCoordinate().x;
-                        double y = resolvedLocation.getCoordinate().y;
-                        bBoxes.add(new BBox(x,x,y,y));
-                        this.features.add(new GeoJSONFeature(new JSON2DSources(resolvedLocation, true)));
-                    }
-                });
+        for (int sourceId = 0; sourceId < result.getLocations().length; sourceId++){
+            ResolvedLocation resolvedLocation = result.getLocations()[sourceId];
+            if (resolvedLocation != null) {
+                // create BBox for each point to use existing generateBoundingFromMultiple function
+                double x = resolvedLocation.getCoordinate().x;
+                double y = resolvedLocation.getCoordinate().y;
+                bBoxes.add(new BBox(x,x,y,y));
+                this.features.add(new GeoJSONFeature(sourceId, new JSON2DSources(resolvedLocation, true)));
+            }
+        }
+
         BBox[] boxes = bBoxes.toArray(new BBox[0]);
         if (boxes.length > 0) {
             this.bbox = new BoundingBoxBase(GeomUtility.generateBoundingFromMultiple(boxes));

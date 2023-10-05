@@ -13,9 +13,9 @@ public class GeoJSONFeature {
     @Schema(description = "Feature properties")
     public GeoJSONFeatureProperties props;
 
-    public GeoJSONFeature(JSON2DSources source) {
+    public GeoJSONFeature(int sourceId, JSON2DSources source) {
         this.geometry = new GeoJSONPointGeometry(source);
-        this.props = new GeoJSONFeatureProperties(source);
+        this.props = new GeoJSONFeatureProperties(sourceId, source);
     }
 
     @JsonProperty("geometry")

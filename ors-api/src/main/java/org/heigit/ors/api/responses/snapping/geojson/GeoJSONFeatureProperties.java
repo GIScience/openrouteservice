@@ -19,7 +19,13 @@ public class GeoJSONFeatureProperties {
     @Schema(description = "Distance between the `source/destination` Location and the used point on the routing graph in meters.",
     example = "0.02")
     public double dist;
-    public GeoJSONFeatureProperties(JSON2DSources source) {
+
+    @JsonProperty("source_id")
+    @Schema(description = "Index of the requested location")
+    public int sourceId;
+
+    public GeoJSONFeatureProperties(int sourceId, JSON2DSources source) {
+        this.sourceId = sourceId;
         this.dist = source.getSnappedDistance();
         this.name = source.getName();
     }
@@ -38,5 +44,13 @@ public class GeoJSONFeatureProperties {
 
     public void setDist(double dist) {
         this.dist = dist;
+    }
+
+    public int getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(int sourceId) {
+        this.sourceId = sourceId;
     }
 }

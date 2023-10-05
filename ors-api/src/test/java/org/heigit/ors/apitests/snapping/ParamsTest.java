@@ -14,16 +14,20 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
 import static org.heigit.ors.common.StatusCode.BAD_REQUEST;
 import static org.heigit.ors.common.StatusCode.NOT_FOUND;
 import static org.heigit.ors.snapping.SnappingErrorCodes.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @EndPointAnnotation(name = "snap")
 @VersionAnnotation(version = "v2")
@@ -38,12 +42,30 @@ class ParamsTest extends ServiceTest {
     private static JSONArray fakeLocations(int maximumSize) {
         JSONArray overloadedLocations = new JSONArray();
         for (int i = 0; i < maximumSize; i++) {
-            JSONArray location = new JSONArray();
-            location.put(0.0);
-            location.put(0.0);
-            overloadedLocations.put(location);
+            overloadedLocations.put(invalidLocation());
         }
         return overloadedLocations;
+    }
+
+    private static JSONArray location2m() {
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.687782);
+        coord2.put(49.424597);
+        return coord2;
+    }
+
+    private static JSONArray location94m() {
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.680916);
+        coord1.put(49.410973);
+        return coord1;
+    }
+
+    private static JSONArray invalidLocation() {
+        JSONArray coord1 = new JSONArray();
+        coord1.put(0.0);
+        coord1.put(0.0);
+        return coord1;
     }
 
     /**
@@ -51,26 +73,17 @@ class ParamsTest extends ServiceTest {
      *
      * @return A JSONArray containing valid coordinates for testing.
      */
-    private static JSONArray validLocations() {
-        // Create correct test locations with valid coordinates
+    private static JSONArray createLocations(JSONArray... locations) {
         JSONArray correctTestLocations = new JSONArray();
-        JSONArray coord1 = new JSONArray();
-        coord1.put(8.680916);
-        coord1.put(49.410973);
-        correctTestLocations.put(coord1);
-        JSONArray coord2 = new JSONArray();
-        coord2.put(8.687782);
-        coord2.put(49.424597);
-        correctTestLocations.put(coord2);
+        correctTestLocations.putAll(locations);
         return correctTestLocations;
     }
 
 
     private static JSONObject validBody() {
-        JSONObject body = new JSONObject()
-                .put("locations", validLocations())
+        return new JSONObject()
+                .put("locations", createLocations(location94m(), location2m()))
                 .put("maximum_search_radius", "300");
-        return body;
     }
 
     /**
@@ -87,55 +100,56 @@ class ParamsTest extends ServiceTest {
      */
     public static Stream<Arguments> snappingEndpointSuccessTestProvider() {
         return Stream.of(
-                Arguments.of(true, false, "driving-hgv", new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "-1")),
-                Arguments.of(true, false, "driving-hgv", new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "0")),
-                Arguments.of(true, false, "driving-hgv", new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "1")),
-                Arguments.of(false, true, "driving-hgv", new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "10")),
-                Arguments.of(false, false, "driving-hgv", new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "300")),
-                Arguments.of(false, false, "driving-hgv", new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "400")),
-                Arguments.of(false, false, "driving-hgv", new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "1000")),
-                Arguments.of(false, false, "driving-hgv", new JSONObject().put("locations", validLocations()).put("maximum_search_radius", "1000"))
+                Arguments.of(Arrays.asList(false, false), "driving-hgv", new JSONObject()
+                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "-1")),
+                Arguments.of(Arrays.asList(false, false), "driving-hgv", new JSONObject()
+                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "0")),
+                Arguments.of(Arrays.asList(false, false), "driving-hgv", new JSONObject()
+                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "1")),
+                Arguments.of(Arrays.asList(false, true), "driving-hgv", new JSONObject()
+                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "10")),
+                Arguments.of(Arrays.asList(true, true), "driving-hgv", new JSONObject()
+                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "300")),
+                Arguments.of(Arrays.asList(true, false, true), "driving-hgv", new JSONObject()
+                                .put("locations", createLocations(location2m(), location94m(), location2m())).put("maximum_search_radius", "10")),
+                Arguments.of(Arrays.asList(true, true), "driving-hgv", new JSONObject()
+                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "400")),
+                Arguments.of(Arrays.asList(true, true), "driving-hgv", new JSONObject()
+                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "1000"))
         );
     }
 
     /**
      * Parameterized test method for testing various scenarios in the Snapping Endpoint.
      *
-     * @param expectEmptyResult          Boolean flag indicating whether an empty result is expected.
-     * @param expectPartiallyEmptyResult Boolean flag indicating whether a partially empty result is expected.
-     * @param body                       The request body (JSONObject).
-     * @param profile                    The routing profile type (String).
+     * @param expectedSnapped Boolean flags indicating if the locations are expected to be snapped.
+     * @param body            The request body (JSONObject).
+     * @param profile         The routing profile type (String).
      */
     @ParameterizedTest
     @MethodSource("snappingEndpointSuccessTestProvider")
-    void testSnappingSuccessJson(Boolean expectEmptyResult, Boolean expectPartiallyEmptyResult, String profile, JSONObject body) {
+    void testSnappingSuccessJson(List<Boolean> expectedSnapped, String profile, JSONObject body) {
         String endPoint = "json";
         ValidatableResponse result = doRequestAndExceptSuccess(body, profile, endPoint);
-        validateJsonResponse(expectEmptyResult, expectPartiallyEmptyResult, result);
+        validateJsonResponse(expectedSnapped, result);
     }
 
     @Test
     void testMissingPathParameterFormat_defaultsToJson() {
-        ValidatableResponse result = doRequestAndExceptSuccess(validBody(), "driving-hgv", null);
-        validateJsonResponse(false, false, result);
+        JSONObject body = validBody();
+        ValidatableResponse result = doRequestAndExceptSuccess(body, "driving-hgv", null);
+        validateJsonResponse(Arrays.asList(true, true), result);
     }
 
-    private static void validateJsonResponse(Boolean expectEmptyResult, Boolean expectPartiallyEmptyResult, ValidatableResponse result) {
-        boolean foundValidLocation = false;
-        boolean foundInvalidLocation = false;
-
+    private static void validateJsonResponse(List<Boolean> expectedSnappedList, ValidatableResponse result) {
         result.body("any { it.key == 'locations' }", is(true));
 
-        // Iterate over the locations array and check the types of the values
-        ArrayList<Integer> locations = result.extract().jsonPath().get("locations");
-        for (int i = 0; i < locations.size(); i++) {
-            // if empty result is expected, check if the locations array is empty
-            if (expectEmptyResult) {
+        // Iterate over the snappedLocations array and check the types of the values
+        ArrayList<Integer> snappedLocations = result.extract().jsonPath().get("locations");
+        for (int i = 0; i < snappedLocations.size(); i++) {
+            boolean expectedSnapped = expectedSnappedList.get(i);
+            if (!expectedSnapped) {
                 assertNull(result.extract().jsonPath().get("locations[" + i + "].location[0]"));
-                foundValidLocation = true;
-                foundInvalidLocation = true;
-            } else if (expectPartiallyEmptyResult && !foundInvalidLocation && result.extract().jsonPath().get("locations[" + i + "]") == null) {
-                foundInvalidLocation = true;
             } else {
                 // Type expectations
                 assertEquals(Float.class, result.extract().jsonPath().get("locations[" + i + "].location[0]").getClass());
@@ -144,60 +158,44 @@ class ParamsTest extends ServiceTest {
                 // If name is in the response, check the type
                 if (result.extract().jsonPath().get("locations[" + i + "].name") != null)
                     assertEquals(String.class, result.extract().jsonPath().get("locations[" + i + "].name").getClass());
-                foundValidLocation = true;
             }
         }
-
-        assertTrue(foundValidLocation);
-        if (expectPartiallyEmptyResult)
-            assertTrue(foundInvalidLocation);
     }
 
     /**
      * Parameterized test method for testing various scenarios in the Snapping Endpoint.
      *
-     * @param expectEmptyResult          Boolean flag indicating whether an empty result is expected.
-     * @param expectPartiallyEmptyResult Boolean flag indicating whether a partially empty result is expected.
+     * @param expectedSnapped Boolean flags indicating if the locations are expected to be snapped.
      * @param body                       The request body (JSONObject).
      * @param profile                    The routing profile type (String).
      */
     @ParameterizedTest
     @MethodSource("snappingEndpointSuccessTestProvider")
-    void testSnappingSuccessGeojson(Boolean expectEmptyResult, Boolean expectPartiallyEmptyResult, String profile, JSONObject body) {
+    void testSnappingSuccessGeojson(List<Boolean> expectedSnapped, String profile, JSONObject body) {
         String endPoint = "geojson";
         ValidatableResponse result = doRequestAndExceptSuccess(body, profile, endPoint);
 
-        boolean foundValidLocation = false;
-        boolean foundInvalidLocation = false;
-
         result.body("any { it.key == 'features' }", is(true));
         result.body("any { it.key == 'type' }", is(true));
-
-        // Iterate over the features array and check the types of the values
-        ArrayList<Integer> features = result.extract().jsonPath().get("features");
-        for (int i = 0; i < features.size(); i++) {
-            // if empty result is expected, check if the features array is empty
-            if (expectEmptyResult) {
-                assertNull(result.extract().jsonPath().get("features[" + i + "].features[0]"));
-                foundValidLocation = true;
-                foundInvalidLocation = true;
-            } else if (expectPartiallyEmptyResult && !foundInvalidLocation && result.extract().jsonPath().get("features[" + i + "]") == null) {
-                foundInvalidLocation = true;
-            } else {
-                // Type expectations
-                assertEquals(Float.class, result.extract().jsonPath().get("features[" + i + "].geometry.coordinates[0]").getClass());
-                assertEquals(Float.class, result.extract().jsonPath().get("features[" + i + "].geometry.coordinates[1]").getClass());
-                assertEquals(Float.class, result.extract().jsonPath().get("features[" + i + "].properties.snapped_distance").getClass());
-                // If name is in the response, check the type
-                if (result.extract().jsonPath().get("features[" + i + "].properties.name") != null)
-                    assertEquals(String.class, result.extract().jsonPath().get("features[" + i + "].properties.name").getClass());
-                foundValidLocation = true;
+        List<Integer> expectedSourceIds = new ArrayList<>();
+        for (int i = 0; i < expectedSnapped.size(); i++) {
+            if (expectedSnapped.get(i)) {
+                expectedSourceIds.add(i);
             }
         }
 
-        assertTrue(foundValidLocation);
-        if (expectPartiallyEmptyResult)
-            assertTrue(foundInvalidLocation);
+        ArrayList<JSONArray> features = result.extract().jsonPath().get("features");
+        assertThat(features).hasSize(expectedSourceIds.size());
+        for (int i = 0; i < features.size(); i++) {
+            assertEquals(Float.class, result.extract().jsonPath().get("features[" + i + "].geometry.coordinates[0]").getClass());
+            assertEquals(Float.class, result.extract().jsonPath().get("features[" + i + "].geometry.coordinates[1]").getClass());
+            assertEquals(Float.class, result.extract().jsonPath().get("features[" + i + "].properties.snapped_distance").getClass());
+            assertEquals(Integer.class, result.extract().jsonPath().get("features[" + i + "].properties.source_id").getClass());
+            assertEquals(result.extract().jsonPath().get("features[" + i + "].properties.source_id"), expectedSourceIds.get(i));
+            // If name is in the response, check the type
+            if (result.extract().jsonPath().get("features[" + i + "].properties.name") != null)
+                assertEquals(String.class, result.extract().jsonPath().get("features[" + i + "].properties.name").getClass());
+        }
     }
 
     private ValidatableResponse doRequestAndExceptSuccess(JSONObject body, String profile, String endPoint) {
@@ -224,7 +222,7 @@ class ParamsTest extends ServiceTest {
         result.body("metadata.containsKey('query')", is(true));
         result.body("metadata.containsKey('engine')", is(true));
         result.body("metadata.containsKey('system_message')", is(true));
-        result.body("metadata.query.locations.size()", is(2));
+        result.body("metadata.query.locations.size()", is(((JSONArray) body.get("locations")).toList().size()));
         result.body("metadata.query.locations[0].size()", is(2));
         result.body("metadata.query.locations[1].size()", is(2));
         result.body("metadata.query.profile", is(profile));
@@ -273,7 +271,7 @@ class ParamsTest extends ServiceTest {
         invalidCoord1.put(8.680916);
         invalidCoords.put(invalidCoord1);
 
-        JSONArray correctTestLocations = validLocations();
+        JSONArray correctTestLocations = createLocations(location94m(), location2m());
         // Return a stream of test arguments
         return Stream.of(
                 Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "driving-car", new JSONObject()),
