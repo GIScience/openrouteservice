@@ -83,7 +83,7 @@ class ParamsTest extends ServiceTest {
     private static JSONObject validBody() {
         return new JSONObject()
                 .put("locations", createLocations(location94m(), location2m()))
-                .put("maximum_search_radius", "300");
+                .put("radius", "300");
     }
 
     /**
@@ -101,21 +101,21 @@ class ParamsTest extends ServiceTest {
     public static Stream<Arguments> snappingEndpointSuccessTestProvider() {
         return Stream.of(
                 Arguments.of(Arrays.asList(false, false), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "-1")),
+                        .put("locations", createLocations(location94m(), location2m())).put("radius", "-1")),
                 Arguments.of(Arrays.asList(false, false), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "0")),
+                        .put("locations", createLocations(location94m(), location2m())).put("radius", "0")),
                 Arguments.of(Arrays.asList(false, false), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "1")),
+                        .put("locations", createLocations(location94m(), location2m())).put("radius", "1")),
                 Arguments.of(Arrays.asList(false, true), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "10")),
+                        .put("locations", createLocations(location94m(), location2m())).put("radius", "10")),
                 Arguments.of(Arrays.asList(true, true), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "300")),
+                        .put("locations", createLocations(location94m(), location2m())).put("radius", "300")),
                 Arguments.of(Arrays.asList(true, false, true), "driving-hgv", new JSONObject()
-                                .put("locations", createLocations(location2m(), location94m(), location2m())).put("maximum_search_radius", "10")),
+                                .put("locations", createLocations(location2m(), location94m(), location2m())).put("radius", "10")),
                 Arguments.of(Arrays.asList(true, true), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "400")),
+                        .put("locations", createLocations(location94m(), location2m())).put("radius", "400")),
                 Arguments.of(Arrays.asList(true, true), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "1000"))
+                        .put("locations", createLocations(location94m(), location2m())).put("radius", "1000"))
         );
     }
 
@@ -230,8 +230,8 @@ class ParamsTest extends ServiceTest {
         if (StringUtils.isNotBlank(endPoint))
             result.body("metadata.query.format", is(endPoint));
 
-        if (body.get("maximum_search_radius") != "0") {
-            result.body("metadata.query.maximum_search_radius", is(Float.parseFloat(body.get("maximum_search_radius").toString())));
+        if (body.get("radius") != "0") {
+            result.body("metadata.query.radius", is(Float.parseFloat(body.get("radius").toString())));
         }
         return result;
     }
@@ -292,16 +292,16 @@ class ParamsTest extends ServiceTest {
                         .put("locations", correctTestLocations).put("unknown", "unknown")),
                 // Check exception for invalid locations parameter (only one ccordinate)
                 Arguments.of(INVALID_PARAMETER_VALUE, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("locations", invalidCoords).put("maximum_search_radius", "300")),
+                        .put("locations", invalidCoords).put("radius", "300")),
                 // Check exception for invalid locations parameter (only one ccordinate)
                 Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("locations", "noJsonArray").put("maximum_search_radius", "300")),
-                // Check exception for invalid maximum_search_radius
+                        .put("locations", "noJsonArray").put("radius", "300")),
+                // Check exception for invalid radius
                 Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("locations", correctTestLocations).put("maximum_search_radius", "notANumber")),
+                        .put("locations", correctTestLocations).put("radius", "notANumber")),
                 // Check exception for missing locations parameter
                 Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("maximum_search_radius", "300")
+                        .put("radius", "300")
                 ));
     }
 
