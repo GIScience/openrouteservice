@@ -17,6 +17,7 @@ import java.util.Map;
 @Configuration
 @ConfigurationProperties(prefix = "ors.engine")
 public class EngineProperties {
+
     private int initThreads;
     private boolean preparationMode;
     private String sourceFile;
@@ -127,8 +128,9 @@ public class EngineProperties {
                 Map<String, Object> preparation = profile.preparation != null ? profile.preparation : profileDefault.getPreparation();
                 if (preparation != null) {
                     convertedProfile.setPreparationOpts(ConfigFactory.parseMap(preparation));
-                    if (preparation.containsKey("methods") && preparation.get("methods") != null && ((Map<String, Object>) preparation.get("methods")).containsKey("fastisochrones")) {
-                        convertedProfile.setIsochronePreparationOpts(ConfigFactory.parseMap((Map<String, Object>) ((Map<String, Object>) preparation.get("methods")).get("fastisochrones")));
+                    String methodsKey = "methods";
+                    if (preparation.containsKey(methodsKey) && preparation.get(methodsKey) != null && ((Map<String, Object>) preparation.get(methodsKey)).containsKey("fastisochrones")) {
+                        convertedProfile.setIsochronePreparationOpts(ConfigFactory.parseMap((Map<String, Object>) ((Map<String, Object>) preparation.get(methodsKey)).get("fastisochrones")));
                     }
                 }
                 Map<String, Object> execution = profile.execution != null ? profile.execution : profileDefault.getExecution();

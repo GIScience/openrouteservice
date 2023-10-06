@@ -372,13 +372,14 @@ public class ApiService {
     }
 
     private ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) throws ParameterOutOfRangeException, ParameterValueException {
+        String factorKey = "factor";
         try {
             if (weightings.hasGreenIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("green");
                 Float greenFactor = weightings.getGreenIndex();
                 if (greenFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", greenFactor), "green factor", "1.0");
-                pw.addParameter("factor", greenFactor);
+                pw.addParameter(factorKey, greenFactor);
                 params.add(pw);
             }
 
@@ -387,7 +388,7 @@ public class ApiService {
                 Float quietFactor = weightings.getQuietIndex();
                 if (quietFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", quietFactor), "quiet factor", "1.0");
-                pw.addParameter("factor", quietFactor);
+                pw.addParameter(factorKey, quietFactor);
                 params.add(pw);
             }
 
@@ -396,7 +397,7 @@ public class ApiService {
                 Float shadowFactor = weightings.getShadowIndex();
                 if (shadowFactor > 1)
                     throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format(Locale.UK, "%.2f", shadowFactor), "shadow factor", "1.0");
-                pw.addParameter("factor", shadowFactor);
+                pw.addParameter(factorKey, shadowFactor);
                 params.add(pw);
             }
 
@@ -408,7 +409,7 @@ public class ApiService {
             if (weightings.hasCsv()) {
                 ProfileWeighting pw = new ProfileWeighting("csv");
                 pw.addParameter("column", weightings.getCsvColumn());
-                pw.addParameter("factor", weightings.getCsvFactor());
+                pw.addParameter(factorKey, weightings.getCsvFactor());
                 params.add(pw);
             }
         } catch (InternalServerException e) {

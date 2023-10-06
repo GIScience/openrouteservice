@@ -18,16 +18,18 @@ import org.heigit.ors.common.StatusCode;
 public class ParameterOutOfRangeException extends StatusCodeException {
     private static final long serialVersionUID = 7728944138955234463L;
 
+    private static final String PARAMETER_KEY = "Parameter";
+
     public ParameterOutOfRangeException(int errorCode, String paramName) {
-        super(StatusCode.BAD_REQUEST, errorCode, "Parameter '" + paramName + "' is out of range.");
+        super(StatusCode.BAD_REQUEST, errorCode, PARAMETER_KEY + " '" + paramName + "' is out of range.");
     }
 
     public ParameterOutOfRangeException(int errorCode, String paramName, String customMessage) {
-        super(StatusCode.BAD_REQUEST, errorCode, "Parameter '" + paramName + "' is out of range: " + customMessage);
+        super(StatusCode.BAD_REQUEST, errorCode, PARAMETER_KEY + " '" + paramName + "' is out of range: " + customMessage);
     }
 
     public ParameterOutOfRangeException(int errorCode, String paramName, String value, String maxRangeValue) {
-        super(StatusCode.BAD_REQUEST, errorCode, "Parameter '" + paramName + "=" + value + "' is out of range. Maximum possible value is " + maxRangeValue + ".");
+        super(StatusCode.BAD_REQUEST, errorCode, PARAMETER_KEY + " '" + paramName + "=" + value + "' is out of range. Maximum possible value is " + maxRangeValue + ".");
     }
 
     public ParameterOutOfRangeException(String paramName, String value, String maxRangeValue) {

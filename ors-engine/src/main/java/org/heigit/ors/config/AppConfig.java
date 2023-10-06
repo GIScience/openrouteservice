@@ -49,6 +49,7 @@ public class AppConfig {
     public AppConfig() {
         try {
             File configFile;
+            String appConfigResource = "app.config";
             if (System.getProperty("ors_config") != null) {
                 configFile = new FileSystemResource(System.getProperty("ors_config")).getFile();
                 LOGGER.info("System property 'ors_config' used as configuration path");
@@ -74,14 +75,14 @@ public class AppConfig {
             } else if (new ClassPathResource("ors-config.json").isFile()) {
                 configFile = new ClassPathResource("ors-config.json").getFile();
                 LOGGER.info("Default path of 'ors-config.json' used for configuration");
-                if (new ClassPathResource("app.config").isFile()) {
+                if (new ClassPathResource(appConfigResource).isFile()) {
                     LOGGER.warn("""
                             DEPRECATION NOTICE: You seem to have an unused 'app.config' file, which won't be \
                             supported in the future\
                             """);
                 }
-            } else if (new ClassPathResource("app.config").isFile()) {
-                configFile = new ClassPathResource("app.config").getFile();
+            } else if (new ClassPathResource(appConfigResource).isFile()) {
+                configFile = new ClassPathResource(appConfigResource).getFile();
                 LOGGER.info("Deprecated path of 'app.config' used");
                 LOGGER.warn("""
                         DEPRECATION NOTICE: The used 'app.config' configuration path will not be supported in the \
@@ -185,9 +186,9 @@ public class AppConfig {
             ConfigObject configObj = config.getObject(rootPath);
             for (String key : configObj.keySet()) {
                 if (key.startsWith("profile-")) {
-                    String profileName = getServiceParameter("routing", "profiles." + key + ".profiles");
+                    String profileName = getServiceParameter(SERVICE_NAME_ROUTING, "profiles." + key + ".profiles");
                     if (profile.equals(profileName)) {
-                        String profileValue = getServiceParameter("routing", "profiles." + key + ".parameters." + paramName);
+                        String profileValue = getServiceParameter(SERVICE_NAME_ROUTING, "profiles." + key + ".parameters." + paramName);
                         if (profileValue != null) {
                             return profileValue;
                         }

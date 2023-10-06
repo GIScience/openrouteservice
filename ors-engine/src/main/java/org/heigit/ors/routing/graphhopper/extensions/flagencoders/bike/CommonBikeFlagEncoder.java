@@ -763,14 +763,15 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     }
 
     protected void handleSpeed(IntsRef edgeFlags, ReaderWay way, double speed) {
+        String bicycleForwardTag = "bicycle:forward";
         avgSpeedEnc.setDecimal(false, edgeFlags, speed);
         // handle oneways
         boolean isOneway = way.hasTag("oneway", oneways)
                 || way.hasTag(KEY_ONEWAY_BICYCLE, oneways)
                 || way.hasTag("vehicle:backward")
                 || way.hasTag("vehicle:forward")
-                || way.hasTag("bicycle:forward", "yes")
-                || way.hasTag("bicycle:forward", "no");
+                || way.hasTag(bicycleForwardTag, "yes")
+                || way.hasTag(bicycleForwardTag, "no");
         //MARQ24 MOD START
         if (!way.hasTag(KEY_BICYCLE_ROAD, "yes") && (isOneway || way.hasTag(KEY_JUNCTION, "roundabout"))
                 //MARQ24 MOD END
@@ -782,7 +783,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             boolean isBackward = way.hasTag("oneway", "-1")
                     || way.hasTag(KEY_ONEWAY_BICYCLE, "-1")
                     || way.hasTag("vehicle:forward", "no")
-                    || way.hasTag("bicycle:forward", "no");
+                    || way.hasTag(bicycleForwardTag, "no");
             accessEnc.setBool(isBackward, edgeFlags, true);
         } else {
             accessEnc.setBool(false, edgeFlags, true);

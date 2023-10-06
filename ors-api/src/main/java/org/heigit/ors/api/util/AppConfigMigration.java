@@ -20,6 +20,12 @@ public class AppConfigMigration {
     public static final String PARAM_STATISTICS_PROVIDERS = "statistics_providers.";
     public static final String SERVICE_NAME_MATRIX = "matrix";
     public static final String SERVICE_NAME_ROUTING = "routing";
+    private static final String PARAM_ENABLED = "enabled";
+    private static final String PARAM_ATTRIBUTION = "attribution";
+    private static final String PARAM_MAXIMUM_RANGE_DISTANCE = "maximum_range_distance";
+    private static final String PARAM_MAXIMUM_RANGE_TIME = "maximum_range_time";
+
+
     private static final AppConfig config = AppConfig.getGlobal();
 
     private AppConfigMigration() {
@@ -76,7 +82,7 @@ public class AppConfigMigration {
 
 // ### Isochrones ###
         EndpointsProperties.EndpointIsochroneProperties isochrones = endpoints.getIsochrone();
-        String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "enabled");
+        String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_ENABLED);
         if (value != null)
             isochrones.setEnabled(Boolean.parseBoolean(value));
         value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
@@ -88,25 +94,25 @@ public class AppConfigMigration {
         value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_intervals");
         if (value != null)
             isochrones.setMaximumIntervals(Integer.parseInt(value));
-        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "attribution");
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_ATTRIBUTION);
         if (value != null)
             isochrones.setAttribution(value);
 
-        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_range_distance");
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_RANGE_DISTANCE);
         if (value != null)
             isochrones.setMaximumRangeDistanceDefault(Integer.parseInt(value));
         else {
-            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, "maximum_range_distance");
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_RANGE_DISTANCE);
             int def = parseProfileValues(params, isochrones.getProfileMaxRangeDistances());
             if (def != -1)
                 isochrones.setMaximumRangeDistanceDefault(def);
         }
 
-        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_range_time");
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_RANGE_TIME);
         if (value != null)
             isochrones.setMaximumRangeTimeDefault(Integer.parseInt(value));
         else {
-            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, "maximum_range_time");
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_RANGE_TIME);
             int def = parseProfileValues(params, isochrones.getProfileMaxRangeTimes());
             if (def != -1)
                 isochrones.setMaximumRangeTimeDefault(def);
@@ -114,21 +120,21 @@ public class AppConfigMigration {
 
         EndpointsProperties.MaximumRangeProperties fastisochrones = isochrones.getFastisochrones();
 
-        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + PARAM_MAXIMUM_RANGE_DISTANCE);
         if (value != null)
             fastisochrones.setMaximumRangeDistanceDefault(Integer.parseInt(value));
         else {
-            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_distance");
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + PARAM_MAXIMUM_RANGE_DISTANCE);
             int def = parseProfileValues(params, fastisochrones.getProfileMaxRangeDistances());
             if (def != -1)
                 fastisochrones.setMaximumRangeDistanceDefault(def);
         }
 
-        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_time");
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + PARAM_MAXIMUM_RANGE_TIME);
         if (value != null)
             fastisochrones.setMaximumRangeTimeDefault(Integer.parseInt(value));
         else {
-            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + "maximum_range_time");
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + PARAM_MAXIMUM_RANGE_TIME);
             int def = parseProfileValues(params, fastisochrones.getProfileMaxRangeTimes());
             if (def != -1)
                 fastisochrones.setMaximumRangeTimeDefault(def);
@@ -176,10 +182,10 @@ public class AppConfigMigration {
 
 // ### Matrix ###
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();
-        value = config.getServiceParameter(SERVICE_NAME_MATRIX, "enabled");
+        value = config.getServiceParameter(SERVICE_NAME_MATRIX, PARAM_ENABLED);
         if (value != null)
             matrix.setEnabled(Boolean.parseBoolean(value));
-        value = config.getServiceParameter(SERVICE_NAME_MATRIX, "attribution");
+        value = config.getServiceParameter(SERVICE_NAME_MATRIX, PARAM_ATTRIBUTION);
         if (value != null)
             matrix.setAttribution(value);
         value = config.getServiceParameter(SERVICE_NAME_MATRIX, "maximum_search_radius");
@@ -200,10 +206,10 @@ public class AppConfigMigration {
 
 // ### Routing ###
         EndpointsProperties.EndpointRoutingProperties routing = endpoints.getRouting();
-        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "enabled");
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, PARAM_ENABLED);
         if (value != null)
             routing.setEnabled(Boolean.parseBoolean(value));
-        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "attribution");
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, PARAM_ATTRIBUTION);
         if (value != null)
             routing.setAttribution(value);
         String baseUrl = config.getParameter("info", "base_url");
