@@ -165,6 +165,15 @@ public class AppConfigMigration {
         }
         isochrones.getStatisticsProviders().putAll(statisticsProviderPropertiesMap);
 
+// ### Snap ###
+        EndpointsProperties.EndpointSnapProperties snap = endpoints.getSnap();
+        value = config.getServiceParameter("snap", "enabled");
+        if (value != null)
+            snap.setEnabled(Boolean.parseBoolean(value));
+        value = config.getServiceParameter("snap", "attribution");
+        if (value != null)
+            snap.setAttribution(value);
+
 // ### Matrix ###
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();
         value = config.getServiceParameter(SERVICE_NAME_MATRIX, "enabled");

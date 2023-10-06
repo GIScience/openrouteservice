@@ -172,6 +172,33 @@ public class APIEnums {
         }
     }
 
+    @Schema(name = "Snapping response type", description = "Format of the snapping response.")
+    public enum SnappingResponseType {
+        JSON("json"),
+        GEOJSON("geojson");
+
+        private final String value;
+
+        SnappingResponseType(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static SnappingResponseType forValue(String v) throws ParameterValueException {
+            for (SnappingResponseType enumItem : SnappingResponseType.values()) {
+                if (enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, "format", v);
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return value;
+        }
+    }
+
     @Schema(name = "Vehicle type", description = "Definition of the vehicle type.")
     public enum VehicleType {
         HGV("hgv"),
