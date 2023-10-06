@@ -6,6 +6,7 @@ import org.hamcrest.Matchers;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @VersionAnnotation(version = "v2")
 class ParamsTest extends ServiceTest {
 
+    private static final String locationParameter = "locations";
+    private static final String radiusParameter = "radius";
+
     /**
+     * radiusParameter
      * Generates a JSONArray with fake locations for testing purposes.
      *
      * @param maximumSize The maximum size of the JSONArray.
@@ -82,8 +87,8 @@ class ParamsTest extends ServiceTest {
 
     private static JSONObject validBody() {
         return new JSONObject()
-                .put("locations", createLocations(location94m(), location2m()))
-                .put("maximum_search_radius", "300");
+                .put(locationParameter, createLocations(location94m(), location2m()))
+                .put(radiusParameter, "300");
     }
 
     /**
@@ -100,22 +105,22 @@ class ParamsTest extends ServiceTest {
      */
     public static Stream<Arguments> snappingEndpointSuccessTestProvider() {
         return Stream.of(
-                Arguments.of(Arrays.asList(false, false), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "-1")),
-                Arguments.of(Arrays.asList(false, false), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "0")),
-                Arguments.of(Arrays.asList(false, false), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "1")),
-                Arguments.of(Arrays.asList(false, true), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "10")),
-                Arguments.of(Arrays.asList(true, true), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "300")),
-                Arguments.of(Arrays.asList(true, false, true), "driving-hgv", new JSONObject()
-                                .put("locations", createLocations(location2m(), location94m(), location2m())).put("maximum_search_radius", "10")),
-                Arguments.of(Arrays.asList(true, true), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "400")),
-                Arguments.of(Arrays.asList(true, true), "driving-hgv", new JSONObject()
-                        .put("locations", createLocations(location94m(), location2m())).put("maximum_search_radius", "1000"))
+                Arguments.of(Arrays.asList(false, false), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                        .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "-1")),
+                Arguments.of(Arrays.asList(false, false), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                        .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "0")),
+                Arguments.of(Arrays.asList(false, false), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                        .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "1")),
+                Arguments.of(Arrays.asList(false, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                        .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "10")),
+                Arguments.of(Arrays.asList(true, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                        .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "300")),
+                Arguments.of(Arrays.asList(true, false, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                        .put(locationParameter, createLocations(location2m(), location94m(), location2m())).put(radiusParameter, "10")),
+                Arguments.of(Arrays.asList(true, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                        .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "400")),
+                Arguments.of(Arrays.asList(true, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                        .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "1000"))
         );
     }
 
@@ -137,7 +142,7 @@ class ParamsTest extends ServiceTest {
     @Test
     void testMissingPathParameterFormat_defaultsToJson() {
         JSONObject body = validBody();
-        ValidatableResponse result = doRequestAndExceptSuccess(body, "driving-hgv", null);
+        ValidatableResponse result = doRequestAndExceptSuccess(body, RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), null);
         validateJsonResponse(Arrays.asList(true, true), result);
     }
 
@@ -145,7 +150,7 @@ class ParamsTest extends ServiceTest {
         result.body("any { it.key == 'locations' }", is(true));
 
         // Iterate over the snappedLocations array and check the types of the values
-        ArrayList<Integer> snappedLocations = result.extract().jsonPath().get("locations");
+        ArrayList<Integer> snappedLocations = result.extract().jsonPath().get(locationParameter);
         for (int i = 0; i < snappedLocations.size(); i++) {
             boolean expectedSnapped = expectedSnappedList.get(i);
             if (!expectedSnapped) {
@@ -166,8 +171,8 @@ class ParamsTest extends ServiceTest {
      * Parameterized test method for testing various scenarios in the Snapping Endpoint.
      *
      * @param expectedSnapped Boolean flags indicating if the locations are expected to be snapped.
-     * @param body                       The request body (JSONObject).
-     * @param profile                    The routing profile type (String).
+     * @param body            The request body (JSONObject).
+     * @param profile         The routing profile type (String).
      */
     @ParameterizedTest
     @MethodSource("snappingEndpointSuccessTestProvider")
@@ -222,7 +227,7 @@ class ParamsTest extends ServiceTest {
         result.body("metadata.containsKey('query')", is(true));
         result.body("metadata.containsKey('engine')", is(true));
         result.body("metadata.containsKey('system_message')", is(true));
-        result.body("metadata.query.locations.size()", is(((JSONArray) body.get("locations")).toList().size()));
+        result.body("metadata.query.locations.size()", is(((JSONArray) body.get(locationParameter)).toList().size()));
         result.body("metadata.query.locations[0].size()", is(2));
         result.body("metadata.query.locations[1].size()", is(2));
         result.body("metadata.query.profile", is(profile));
@@ -230,8 +235,8 @@ class ParamsTest extends ServiceTest {
         if (StringUtils.isNotBlank(endPoint))
             result.body("metadata.query.format", is(endPoint));
 
-        if (body.get("maximum_search_radius") != "0") {
-            result.body("metadata.query.maximum_search_radius", is(Float.parseFloat(body.get("maximum_search_radius").toString())));
+        if (body.get(radiusParameter) != "0") {
+            result.body("metadata.query.radius", is(Float.parseFloat(body.get(radiusParameter).toString())));
         }
         return result;
     }
@@ -274,34 +279,34 @@ class ParamsTest extends ServiceTest {
         JSONArray correctTestLocations = createLocations(location94m(), location2m());
         // Return a stream of test arguments
         return Stream.of(
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "driving-car", new JSONObject()),
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()),
                 // Check exception for one fake location to ensure single locations are checked
-                Arguments.of(POINT_NOT_FOUND, NOT_FOUND, "driving-car", new JSONObject()
-                        .put("locations", oneFakeLocation)),
+                Arguments.of(POINT_NOT_FOUND, NOT_FOUND, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                        .put(locationParameter, oneFakeLocation)),
                 // Check exception for ten fake locations to ensure multiple locations are checked
-                Arguments.of(POINT_NOT_FOUND, NOT_FOUND, "driving-car", new JSONObject()
-                        .put("locations", tenFakeLocations)),
+                Arguments.of(POINT_NOT_FOUND, NOT_FOUND, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                        .put(locationParameter, tenFakeLocations)),
                 // Check exception for broken location to ensure invalid locations are checked
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("locations", brokenFakeLocation)),
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                        .put(locationParameter, brokenFakeLocation)),
                 // Check exception for wrong profile to ensure invalid profiles are checked
                 Arguments.of(INVALID_PARAMETER_VALUE, BAD_REQUEST, "driving-foo", new JSONObject()
-                        .put("locations", correctTestLocations)),
+                        .put(locationParameter, correctTestLocations)),
                 // Check exception for unknown parameter to ensure unknown parameters are checked
-                Arguments.of(UNKNOWN_PARAMETER, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("locations", correctTestLocations).put("unknown", "unknown")),
+                Arguments.of(UNKNOWN_PARAMETER, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                        .put(locationParameter, correctTestLocations).put("unknown", "unknown")),
                 // Check exception for invalid locations parameter (only one ccordinate)
-                Arguments.of(INVALID_PARAMETER_VALUE, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("locations", invalidCoords).put("maximum_search_radius", "300")),
+                Arguments.of(INVALID_PARAMETER_VALUE, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                        .put(locationParameter, invalidCoords).put(radiusParameter, "300")),
                 // Check exception for invalid locations parameter (only one ccordinate)
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("locations", "noJsonArray").put("maximum_search_radius", "300")),
-                // Check exception for invalid maximum_search_radius
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("locations", correctTestLocations).put("maximum_search_radius", "notANumber")),
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                        .put(locationParameter, "noJsonArray").put(radiusParameter, "300")),
+                // Check exception for invalid radius
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                        .put(locationParameter, correctTestLocations).put(radiusParameter, "notANumber")),
                 // Check exception for missing locations parameter
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, "driving-car", new JSONObject()
-                        .put("maximum_search_radius", "300")
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                        .put(radiusParameter, "300")
                 ));
     }
 

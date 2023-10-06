@@ -14,7 +14,7 @@ import java.util.List;
 public class SnappingApiRequest extends APIRequest {
     public static final String PARAM_PROFILE = "profile";
     public static final String PARAM_LOCATIONS = "locations";
-    public static final String PARAM_MAXIMUM_SEARCH_RADIUS = "maximum_search_radius";
+    public static final String PARAM_MAXIMUM_SEARCH_RADIUS = "radius";
     public static final String PARAM_FORMAT = "format";
 
     @Schema(name = PARAM_PROFILE, hidden = true)
