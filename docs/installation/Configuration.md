@@ -62,11 +62,12 @@ descriptions of each block follows below.
 ### Properties in the `messages` block
 
 The messages property expects a list of elements where each has the following:
-| key | type | description | example value |
+
+| key       | type    | description                                                       | example value        |
 |-----------|---------|-------------------------------------------------------------------|----------------------|
-| active | boolean | Enables or disables this message | `true`               |
-| text | string | The message text | `"The message text"` |
-| condition | list | omittable; may contain any of the conditions from the table below | |
+| active    | boolean | Enables or disables this message                                  | `true`               |
+| text      | string  | The message text                                                  | `"The message text"` |
+| condition | list    | omittable; may contain any of the conditions from the table below |                      |
 
 | condition          | value                                                                                                                | description                                                         |
 |--------------------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
@@ -141,7 +142,7 @@ The top level element.
 | routing_name           | string  | Specifies the gpx `name` tag that is returned in a gpx response                                                                                                                                                         | `"openrouteservice"`                                 |
 | sources                | list    | the osm file to be used, formats supported are `.osm`, `.osm.gz`, `.osm.zip` and `.pbf`                                                                                                                                 | `["heidelberg.osm.gz"]`                              |
 | init_threads           | number  | The number of threads used to initialize (build/load) graphs. Higher numbers requires more RAM.                                                                                                                         | `2`                                                  |
-| attribution            | string  |                                                                                                                                                                                                                         | `"openrouteservice.org, OpenStreetMap contributors"` |
+| attribution            | string  | Attribution added to the response metadata                                                                                                                                                                              | `"openrouteservice.org, OpenStreetMap contributors"` |
 | elevation_preprocessed | boolean | Enables or disables reading ele tags for nodes. Default value is false. If enabled, GH's elevation lookup is prevented and all nodes without ele tag will default to 0. Experimental, for use with the ORS preprocessor | `false`                                              |
 | profiles               | object  |                                                                                                                                                                                                                         | [profiles](#orsservicesroutingprofiles)              |
 
@@ -359,7 +360,7 @@ The top level element.
 | maximum_search_radius   | number  | Maximum allowed distance between the requested coordinate and a point on the nearest road. The value is measured in meters  | `5000`                                               |
 | maximum_visited_nodes   | number  | Maximum allowed number of visited nodes in shortest path computation. This threshold is applied only for Dijkstra algorithm | `100000`                                             |
 | allow_resolve_locations | number  | Specifies whether the name of a nearest street to the location can be resolved or not. Default value is true                | `true`                                               |
-| attribution             | string  | Specifies whether the name of a nearest street to the location can be resolved or not. Default value is true                | `"openrouteservice.org, OpenStreetMap contributors"` |
+| attribution             | string  | Attribution added to the response metadata                                                                                  | `"openrouteservice.org, OpenStreetMap contributors"` |
 
 ---
 #### ors.services.snap
