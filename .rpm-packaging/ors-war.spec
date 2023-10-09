@@ -15,8 +15,7 @@ License: GPL 3
 BuildArch: noarch
 Requires:  jws5-runtime
 Requires:  jws5-tomcat
-Requires:  jws5-tomcat-native
-Requires:  jws5-tomcat-selinux
+Requires:  jws5-tomcat-webapps
 Requires:  java-%{java_version}-openjdk-headless
 Vendor: HeiGIT gGmbH
 
@@ -203,6 +202,7 @@ cp -f %{ors_temporary_files_location}/config/example-config.json ${ORS_HOME}/con
 cp -f %{ors_temporary_files_location}/.war-files/%{ors_version}_ors.war ${jws_webapps_folder}/ors.war
 
 # Switch to the installed java version
+echo "Switching to java %{java_version}"
 alternatives --set java $(readlink -f /etc/alternatives/jre_%{java_version})/bin/java
 
 chown %{tomcat_user} ${jws_webapps_folder}/ors.war
