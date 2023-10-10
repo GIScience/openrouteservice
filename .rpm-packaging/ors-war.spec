@@ -151,7 +151,7 @@ if [ -f ${jws_config_location} ]; then
 else
     echo "Creating custom Tomcat config at ${jws_config_location}."
     echo "Permanently saving the given ORS_HOME=${ORS_HOME} in ${jws_config_location}."
-    echo "ORS_HOME=${ORS_HOME}" >> ${jws_config_location}
+    echo "export ORS_HOME=${ORS_HOME}" >> ${jws_config_location}
     echo "Permanently saving -Xms${min_ram}k and -Xmx${max_ram}k in ${jws_config_location}."
     echo 'CATALINA_OPTS="-Xms'"${min_ram}"'k -Xmx'"${max_ram}"'k"' >> ${jws_config_location}
 fi
@@ -170,11 +170,6 @@ if id -u %{tomcat_user} >/dev/null 2>&1; then
     echo "tomcat user exists. Adding it to the ors group for data access."
     usermod -a -G %{ors_group} %{tomcat_user}
 else
-    echo "tomcat user does not exist. Skipping adding it to the ors group."
-fi
-
-# When tomcat user does not exist, exit with an error
-if ! id -u %{tomcat_user} >/dev/null 2>&1; then
     echo "tomcat user does not exist. Unknown tomcat setup. Exiting installation."
     # Exit the rpm installation with an error
     exit 1
@@ -203,6 +198,7 @@ cp -f %{ors_temporary_files_location}/.war-files/%{ors_version}_ors.war ${jws_we
 
 # Switch to the installed java version
 echo "Switching to java %{java_version}"
+alternatives --install /usr/bin/java java $(readlink -f /etc/alternatives/jre_%{java_version})/bin/java 1
 alternatives --set java $(readlink -f /etc/alternatives/jre_%{java_version})/bin/java
 
 chown %{tomcat_user} ${jws_webapps_folder}/ors.war
