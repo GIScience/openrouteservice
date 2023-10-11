@@ -22,11 +22,6 @@ RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*
     subscription-manager unregister && \
     echo "Done"
 
-
-FROM base
-
-
-
 ARG JWS57_INSTALLATION_DIRECTORY=/var/opt/rh/scls
 
 # Download and install tomcat
