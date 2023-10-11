@@ -174,5 +174,5 @@ By default you will be able to query the services with these addresses:
 - `http://localhost:8080/ors/v2/isochrones`
 - `http://localhost:8080/ors/v2/matrix`
 
-Note, that Tomcat running via maven will use port `8082` by default.
+Note, that Tomcat running via maven will use port `8080` by default.
 

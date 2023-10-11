@@ -3,56 +3,29 @@ FROM registry.access.redhat.com/ubi8/ubi:latest as base
 # Become root
 USER root
 
-# ARG REDHAT_ORG
-# ARG REDHAT_ACTIVATION_KEY_NAME
+ARG REDHAT_ORG
+ARG REDHAT_ACTIVATION_KEY_NAME
 
 # Allow container only redhat login. This process isn't the easiest and should stay commented out for now until we need it. For documentation purposes only.
 # Taken from here: https://serverfault.com/questions/1106847/rhel-9-in-docker-container-on-macos-subscription-manager-is-disabled-when-runni
 RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py && \
     # Login to redhat. Register returns a non-zero exit code, even if it succeeds, so we need to catch it.
     # This is only needed if we have special repositories that are not available in the base image, e.g. for jws5* \
-    #subscription-manager register --org=$REDHAT_ORG --activationkey=$REDHAT_ACTIVATION_KEY_NAME && \
+    subscription-manager register --org=$REDHAT_ORG --activationkey=$REDHAT_ACTIVATION_KEY_NAME && \
     # Attach to the rhel8 repositories of the access key and unregister if it fails
-    #subscription-manager attach || subscription-manager unregister && \
+    subscription-manager attach || subscription-manager unregister && \
     # Update the system and unregister if it fails
-    yum update -y && yum install -y git make rpm-build java-17-openjdk-headless wget unzip systemd apr-util && \
+    yum update -y && yum groupinstall jws5 -y || subscription-manager unregister && \
     # give user root the passwort "root"
     echo "root:root" | chpasswd && \
-    # Clone fakeprovide and install it \
-    git clone https://github.com/MichaelsJP/fakeprovide.git && cd fakeprovide && make install && \
     # Unregister from redhat in any case in the end to avoid too many registered systems
-    #subscription-manager unregister \
+    subscription-manager unregister && \
     echo "Done"
-
-
-FROM base
-
-# Copy /usr/bin/fakeprovide from the base image
-COPY --from=base /usr/bin/fakeprovide /usr/bin/fakeprovide
 
 ARG JWS57_INSTALLATION_DIRECTORY=/var/opt/rh/scls
 
-# Download jws files from private repository
-ARG JWS57_APPLICATION_SERVER_URL
-ARG JWS57_APPLICATION_SERVER_RHEL8_PLATTFORM_URL
-ARG USERNAME
-ARG PASSWORD
-
 # Download and install tomcat
-RUN mkdir -p $JWS57_INSTALLATION_DIRECTORY && \
-    wget --user=$USERNAME --password=$PASSWORD -O jws-5.7-application-server.zip $JWS57_APPLICATION_SERVER_URL && \
-    wget --user=$USERNAME --password=$PASSWORD -O jws-5.7-application-server-RHEL8-x86_64.zip $JWS57_APPLICATION_SERVER_RHEL8_PLATTFORM_URL && \
-    unzip jws-5.7-application-server.zip -d $JWS57_INSTALLATION_DIRECTORY/ && unzip jws-5.7-application-server-RHEL8-x86_64.zip -d $JWS57_INSTALLATION_DIRECTORY/ && \
-    mv $JWS57_INSTALLATION_DIRECTORY/jws-5.7 $JWS57_INSTALLATION_DIRECTORY/jws5 && rm -f *.zip && \
-    cd $JWS57_INSTALLATION_DIRECTORY/jws5/tomcat/ &&  \
-    mkdir -p /etc/opt/rh/scls/jws5/tomcat/  && \
-    mkdir -p /etc/opt/rh/jws5/tomcat/conf.d && \
-    mkdir -p /var/opt/rh/scls/jws5/lib/tomcat/ && \
-    ln -s /etc/opt/rh/jws5/tomcat/conf.d /etc/opt/rh/scls/jws5/tomcat/conf.d && \
-    ln -s $JWS57_INSTALLATION_DIRECTORY/jws5/tomcat/webapps /var/opt/rh/scls/jws5/lib/tomcat/webapps && \
-    sed -i '/EnvironmentFile=-/a \EnvironmentFile=-/etc/opt/rh/scls/jws5/tomcat/conf.d/*.conf\n ' services/jws5-tomcat.service.in && \
-    ./.postinstall.systemd && systemctl enable jws5-tomcat.service && \
-    chown -R tomcat:tomcat $JWS57_INSTALLATION_DIRECTORY/
+RUN chown -R tomcat:tomcat $JWS57_INSTALLATION_DIRECTORY/
 
 EXPOSE 8080
 # Become tomcat that was created by the postinstall script
