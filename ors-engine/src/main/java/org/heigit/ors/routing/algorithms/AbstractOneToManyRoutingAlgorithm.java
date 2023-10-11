@@ -1,18 +1,19 @@
 /*  This file is part of Openrouteservice.
  *
- *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the 
- *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 
+ *  Openrouteservice is free software; you can redistribute it and/or modify it under the terms of the
+ *  GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1
  *  of the License, or (at your option) any later version.
 
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *  See the GNU Lesser General Public License for more details.
 
- *  You should have received a copy of the GNU Lesser General Public License along with this library; 
- *  if not, see <https://www.gnu.org/licenses/>.  
+ *  You should have received a copy of the GNU Lesser General Public License along with this library;
+ *  if not, see <https://www.gnu.org/licenses/>.
  */
 package org.heigit.ors.routing.algorithms;
 
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -20,7 +21,6 @@ import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.EdgeExplorer;
 import com.graphhopper.util.EdgeIterator;
 import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
@@ -50,7 +50,7 @@ public abstract class AbstractOneToManyRoutingAlgorithm implements OneToManyRout
         outEdgeExplorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
         inEdgeExplorer = graph.createEdgeExplorer(AccessFilter.inEdges(flagEncoder.getAccessEnc()));
     }
-    
+
     @Override
     public void setMaxVisitedNodes(int numberOfNodes) {
         this.maxVisitedNodes = numberOfNodes;
@@ -80,8 +80,6 @@ public abstract class AbstractOneToManyRoutingAlgorithm implements OneToManyRout
     }
 
     protected boolean isMaxVisitedNodesExceeded() {
-        if (getVisitedNodes() > maxVisitedNodes)
-            throw new MaxVisitedNodesExceededException();
-        return false;
+        return maxVisitedNodes < getVisitedNodes();
     }
 }

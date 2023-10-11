@@ -26,9 +26,9 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.ShadowIndexGraphSt
 public class ShadowWeighting extends FastestWeighting {
 
     private static final Logger LOGGER = Logger.getLogger(ShadowWeighting.class.getName());
-    private ShadowIndexGraphStorage _shadowIndexStorage;
-    private byte[] _buffer = new byte[1];
-    private double _userWeighting;
+    private final ShadowIndexGraphStorage _shadowIndexStorage;
+    private final byte[] _buffer = new byte[1];
+    private final double _userWeighting;
 
     public ShadowWeighting(FlagEncoder encoder, PMap map, GraphHopperStorage graphStorage) {
         super(encoder, map);
@@ -47,7 +47,7 @@ public class ShadowWeighting extends FastestWeighting {
     @Override
     public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
         int shadowValue = _shadowIndexStorage
-            .getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
+                .getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
         return calShadowWeighting(shadowValue);
     }
 

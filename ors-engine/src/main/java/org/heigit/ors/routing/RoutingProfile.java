@@ -31,12 +31,13 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
-import org.heigit.ors.config.EngineConfig;
-import org.heigit.ors.exceptions.*;
-import org.locationtech.jts.geom.Coordinate;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.Pair;
-import org.heigit.ors.config.IsochronesServiceSettings;
+import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.exceptions.IncompatibleParameterException;
+import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
+import org.heigit.ors.exceptions.PointNotFoundException;
 import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.export.ExportWarning;
@@ -60,19 +61,17 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.DebugUtility;
+import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.*;
 
 /**
@@ -85,38 +84,11 @@ import java.util.*;
  */
 public class RoutingProfile {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfile.class);
-    private static final String KEY_CUSTOM_WEIGHTINGS = "custom_weightings";
-    private static final String VAL_SHORTEST = "shortest";
-    private static final String VAL_FASTEST = "fastest";
-    private static final String VAL_RECOMMENDED = "recommended";
-    private static final String KEY_WEIGHTING = "weighting";
-    private static final String KEY_WEIGHTING_METHOD = "weighting_method";
-    private static final String KEY_CH_DISABLE = "ch.disable";
-    private static final String KEY_LM_DISABLE = "lm.disable";
-    private static final String KEY_CORE_DISABLE = "core.disable";
-    private static final String KEY_PREPARE_CORE_WEIGHTINGS = "prepare.core.weightings";
-    private static final String KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS = "prepare.fastisochrone.weightings";
-    private static final String KEY_METHODS_CH = "methods.ch";
-    private static final String KEY_ENABLED = "enabled";
-    private static final String KEY_THREADS = "threads";
-    private static final String KEY_WEIGHTINGS = "weightings";
-    private static final String KEY_LMSETS = "lmsets";
-    private static final String KEY_MAXCELLNODES = "maxcellnodes";
-    private static final String KEY_METHODS_LM = "methods.lm";
-    private static final String KEY_LANDMARKS = "landmarks";
-    private static final String KEY_METHODS_CORE = "methods.core";
-    private static final String KEY_DISABLING_ALLOWED = "disabling_allowed";
-    private static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
-    private static final String KEY_TOTAL_POP = "total_pop";
-    private static final String KEY_TOTAL_AREA_KM = "total_area_km";
-    private static final int KEY_FLEX_STATIC = 0;
-    private static final int KEY_FLEX_PREPROCESSED = 1;
-    private static final int KEY_FLEX_FULLY = 2;
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
     private final Integer[] mRoutePrefs;
     private final RouteProfileConfiguration config;
-    private ORSGraphHopper mGraphHopper;
+    private final ORSGraphHopper mGraphHopper;
     private Integer mUseCounter;
     private String astarApproximation;
     private Double astarEpsilon;
@@ -244,38 +216,38 @@ public class RoutingProfile {
         boolean hasTurnCosts = config.isTurnCostEnabled();
 
         // TODO Future improvement : make this list of weightings configurable for each vehicle as in GH
-        String[] weightings = {VAL_FASTEST, VAL_SHORTEST, VAL_RECOMMENDED};
+        String[] weightings = {ProfileTools.VAL_FASTEST, ProfileTools.VAL_SHORTEST, ProfileTools.VAL_RECOMMENDED};
         for (String weighting : weightings) {
             if (hasTurnCosts) {
-                String profileName = makeProfileName(vehicle, weighting, true);
+                String profileName = ProfileTools.makeProfileName(vehicle, weighting, true);
                 profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(true));
             }
-            String profileName = makeProfileName(vehicle, weighting, false);
+            String profileName = ProfileTools.makeProfileName(vehicle, weighting, false);
             profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(false));
         }
 
-        ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, "no");
+        ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
 
         if (config.getIsochronePreparationOpts() != null) {
             Config fastisochroneOpts = config.getIsochronePreparationOpts();
             prepareFI = true;
-            if (fastisochroneOpts.hasPath(KEY_ENABLED) || fastisochroneOpts.getBoolean(KEY_ENABLED)) {
-                prepareFI = fastisochroneOpts.getBoolean(KEY_ENABLED);
+            if (fastisochroneOpts.hasPath(ProfileTools.KEY_ENABLED) || fastisochroneOpts.getBoolean(ProfileTools.KEY_ENABLED)) {
+                prepareFI = fastisochroneOpts.getBoolean(ProfileTools.KEY_ENABLED);
                 if (!prepareFI)
-                    ghConfig.putObject(KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
+                    ghConfig.putObject(ProfileTools.KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
                 else
                     ghConfig.putObject(ORSParameters.FastIsochrone.PROFILE, config.getProfiles());
             }
 
             if (prepareFI) {
                 //Copied from core
-                if (fastisochroneOpts.hasPath(KEY_THREADS))
-                    ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getInt(KEY_THREADS));
-                if (fastisochroneOpts.hasPath(KEY_MAXCELLNODES))
-                    ghConfig.putObject("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_MAXCELLNODES)));
-                if (fastisochroneOpts.hasPath(KEY_WEIGHTINGS)) {
+                if (fastisochroneOpts.hasPath(ProfileTools.KEY_THREADS))
+                    ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getInt(ProfileTools.KEY_THREADS));
+                if (fastisochroneOpts.hasPath(ProfileTools.KEY_MAXCELLNODES))
+                    ghConfig.putObject("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(ProfileTools.KEY_MAXCELLNODES)));
+                if (fastisochroneOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
                     List<Profile> fastisochronesProfiles = new ArrayList<>();
-                    String fastisochronesWeightingsString = StringUtility.trimQuotes(fastisochroneOpts.getString(KEY_WEIGHTINGS));
+                    String fastisochronesWeightingsString = StringUtility.trimQuotes(fastisochroneOpts.getString(ProfileTools.KEY_WEIGHTINGS));
                     for (String weighting : fastisochronesWeightingsString.split(",")) {
                         String configStr = "";
                         weighting = weighting.trim();
@@ -286,7 +258,7 @@ public class RoutingProfile {
                         PMap configMap = new PMap(configStr);
                         boolean considerTurnRestrictions = configMap.getBool("edge_based", hasTurnCosts);
 
-                        String profileName = makeProfileName(vehicle, weighting, considerTurnRestrictions);
+                        String profileName = ProfileTools.makeProfileName(vehicle, weighting, considerTurnRestrictions);
                         Profile profile = new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(considerTurnRestrictions);
                         profiles.put(profileName, profile);
                         fastisochronesProfiles.add(profile);
@@ -304,72 +276,72 @@ public class RoutingProfile {
                 ghConfig.putObject("prepare.min_one_way_network_size", opts.getInt("min_one_way_network_size"));
 
             if (opts.hasPath("methods")) {
-                if (opts.hasPath(KEY_METHODS_CH)) {
+                if (opts.hasPath(ProfileTools.KEY_METHODS_CH)) {
                     prepareCH = true;
-                    Config chOpts = opts.getConfig(KEY_METHODS_CH);
+                    Config chOpts = opts.getConfig(ProfileTools.KEY_METHODS_CH);
 
-                    if (chOpts.hasPath(KEY_ENABLED) || chOpts.getBoolean(KEY_ENABLED)) {
-                        prepareCH = chOpts.getBoolean(KEY_ENABLED);
+                    if (chOpts.hasPath(ProfileTools.KEY_ENABLED) || chOpts.getBoolean(ProfileTools.KEY_ENABLED)) {
+                        prepareCH = chOpts.getBoolean(ProfileTools.KEY_ENABLED);
                     }
 
                     if (prepareCH) {
-                        if (chOpts.hasPath(KEY_THREADS))
-                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(KEY_THREADS));
-                        if (chOpts.hasPath(KEY_WEIGHTINGS)) {
+                        if (chOpts.hasPath(ProfileTools.KEY_THREADS))
+                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(ProfileTools.KEY_THREADS));
+                        if (chOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
                             List<CHProfile> chProfiles = new ArrayList<>();
-                            String chWeightingsString = StringUtility.trimQuotes(chOpts.getString(KEY_WEIGHTINGS));
+                            String chWeightingsString = StringUtility.trimQuotes(chOpts.getString(ProfileTools.KEY_WEIGHTINGS));
                             for (String weighting : chWeightingsString.split(","))
-                                chProfiles.add(new CHProfile(makeProfileName(vehicle, weighting, false)));
+                                chProfiles.add(new CHProfile(ProfileTools.makeProfileName(vehicle, weighting, false)));
                             ghConfig.setCHProfiles(chProfiles);
                         }
                     }
                 }
 
-                if (opts.hasPath(KEY_METHODS_LM)) {
+                if (opts.hasPath(ProfileTools.KEY_METHODS_LM)) {
                     prepareLM = true;
-                    Config lmOpts = opts.getConfig(KEY_METHODS_LM);
+                    Config lmOpts = opts.getConfig(ProfileTools.KEY_METHODS_LM);
 
-                    if (lmOpts.hasPath(KEY_ENABLED) || lmOpts.getBoolean(KEY_ENABLED)) {
-                        prepareLM = lmOpts.getBoolean(KEY_ENABLED);
+                    if (lmOpts.hasPath(ProfileTools.KEY_ENABLED) || lmOpts.getBoolean(ProfileTools.KEY_ENABLED)) {
+                        prepareLM = lmOpts.getBoolean(ProfileTools.KEY_ENABLED);
                     }
 
                     if (prepareLM) {
-                        if (lmOpts.hasPath(KEY_THREADS))
-                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(KEY_THREADS));
-                        if (lmOpts.hasPath(KEY_WEIGHTINGS)) {
+                        if (lmOpts.hasPath(ProfileTools.KEY_THREADS))
+                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(ProfileTools.KEY_THREADS));
+                        if (lmOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
                             List<LMProfile> lmProfiles = new ArrayList<>();
-                            String lmWeightingsString = StringUtility.trimQuotes(lmOpts.getString(KEY_WEIGHTINGS));
+                            String lmWeightingsString = StringUtility.trimQuotes(lmOpts.getString(ProfileTools.KEY_WEIGHTINGS));
                             for (String weighting : lmWeightingsString.split(","))
-                                lmProfiles.add(new LMProfile(makeProfileName(vehicle, weighting, hasTurnCosts)));
+                                lmProfiles.add(new LMProfile(ProfileTools.makeProfileName(vehicle, weighting, hasTurnCosts)));
                             ghConfig.setLMProfiles(lmProfiles);
                         }
-                        if (lmOpts.hasPath(KEY_LANDMARKS))
-                            ghConfig.putObject("prepare.lm.landmarks", lmOpts.getInt(KEY_LANDMARKS));
+                        if (lmOpts.hasPath(ProfileTools.KEY_LANDMARKS))
+                            ghConfig.putObject("prepare.lm.landmarks", lmOpts.getInt(ProfileTools.KEY_LANDMARKS));
                     }
                 }
 
-                if (opts.hasPath(KEY_METHODS_CORE)) {
+                if (opts.hasPath(ProfileTools.KEY_METHODS_CORE)) {
                     prepareCore = true;
-                    Config coreOpts = opts.getConfig(KEY_METHODS_CORE);
+                    Config coreOpts = opts.getConfig(ProfileTools.KEY_METHODS_CORE);
 
-                    if (coreOpts.hasPath(KEY_ENABLED) || coreOpts.getBoolean(KEY_ENABLED)) {
-                        prepareCore = coreOpts.getBoolean(KEY_ENABLED);
+                    if (coreOpts.hasPath(ProfileTools.KEY_ENABLED) || coreOpts.getBoolean(ProfileTools.KEY_ENABLED)) {
+                        prepareCore = coreOpts.getBoolean(ProfileTools.KEY_ENABLED);
                         if (!prepareCore)
-                            ghConfig.putObject(KEY_PREPARE_CORE_WEIGHTINGS, "no");
+                            ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
                     }
 
                     if (prepareCore) {
-                        if (coreOpts.hasPath(KEY_THREADS)) {
-                            String [] threads = coreOpts.getString(KEY_THREADS).split(",");
+                        if (coreOpts.hasPath(ProfileTools.KEY_THREADS)) {
+                            String[] threads = coreOpts.getString(ProfileTools.KEY_THREADS).split(",");
                             int threadsCH = Integer.parseInt(threads[0]);
                             int threadsLM = threads.length > 1 ? Integer.parseInt(threads[1]) : threadsCH;
                             ghConfig.putObject("prepare.core.threads", threadsCH);
                             ghConfig.putObject("prepare.corelm.threads", threadsLM);
                         }
-                        if (coreOpts.hasPath(KEY_WEIGHTINGS)) {
+                        if (coreOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
                             List<CHProfile> coreProfiles = new ArrayList<>();
                             List<LMProfile> coreLMProfiles = new ArrayList<>();
-                            String coreWeightingsString = StringUtility.trimQuotes(coreOpts.getString(KEY_WEIGHTINGS));
+                            String coreWeightingsString = StringUtility.trimQuotes(coreOpts.getString(ProfileTools.KEY_WEIGHTINGS));
                             for (String weighting : coreWeightingsString.split(",")) {
                                 String configStr = "";
                                 if (weighting.contains("|")) {
@@ -379,7 +351,7 @@ public class RoutingProfile {
                                 PMap configMap = new PMap(configStr);
                                 boolean considerTurnRestrictions = configMap.getBool("edge_based", hasTurnCosts);
 
-                                String profileName = makeProfileName(vehicle, weighting, considerTurnRestrictions);
+                                String profileName = ProfileTools.makeProfileName(vehicle, weighting, considerTurnRestrictions);
                                 profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(considerTurnRestrictions));
                                 coreProfiles.add(new CHProfile(profileName));
                                 coreLMProfiles.add(new LMProfile(profileName));
@@ -387,10 +359,10 @@ public class RoutingProfile {
                             ghConfig.setCoreProfiles(coreProfiles);
                             ghConfig.setCoreLMProfiles(coreLMProfiles);
                         }
-                        if (coreOpts.hasPath(KEY_LMSETS))
-                            ghConfig.putObject("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString(KEY_LMSETS)));
-                        if (coreOpts.hasPath(KEY_LANDMARKS))
-                            ghConfig.putObject("prepare.corelm.landmarks", coreOpts.getInt(KEY_LANDMARKS));
+                        if (coreOpts.hasPath(ProfileTools.KEY_LMSETS))
+                            ghConfig.putObject("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString(ProfileTools.KEY_LMSETS)));
+                        if (coreOpts.hasPath(ProfileTools.KEY_LANDMARKS))
+                            ghConfig.putObject("prepare.corelm.landmarks", coreOpts.getInt(ProfileTools.KEY_LANDMARKS));
                     }
                 }
             }
@@ -398,18 +370,18 @@ public class RoutingProfile {
 
         if (config.getExecutionOpts() != null) {
             Config opts = config.getExecutionOpts();
-            if (opts.hasPath(KEY_METHODS_CORE)) {
-                Config coreOpts = opts.getConfig(KEY_METHODS_CORE);
-                if (coreOpts.hasPath(KEY_DISABLING_ALLOWED))
-                    ghConfig.putObject("routing.core.disabling_allowed", coreOpts.getBoolean(KEY_DISABLING_ALLOWED));
+            if (opts.hasPath(ProfileTools.KEY_METHODS_CORE)) {
+                Config coreOpts = opts.getConfig(ProfileTools.KEY_METHODS_CORE);
+                if (coreOpts.hasPath(ProfileTools.KEY_DISABLING_ALLOWED))
+                    ghConfig.putObject("routing.core.disabling_allowed", coreOpts.getBoolean(ProfileTools.KEY_DISABLING_ALLOWED));
 
-                if (coreOpts.hasPath(KEY_ACTIVE_LANDMARKS))
-                    ghConfig.putObject("routing.corelm.active_landmarks", coreOpts.getInt(KEY_ACTIVE_LANDMARKS));
+                if (coreOpts.hasPath(ProfileTools.KEY_ACTIVE_LANDMARKS))
+                    ghConfig.putObject("routing.corelm.active_landmarks", coreOpts.getInt(ProfileTools.KEY_ACTIVE_LANDMARKS));
             }
-            if (opts.hasPath(KEY_METHODS_LM)) {
-                Config lmOpts = opts.getConfig(KEY_METHODS_LM);
-                if (lmOpts.hasPath(KEY_ACTIVE_LANDMARKS))
-                    ghConfig.putObject("routing.lm.active_landmarks", lmOpts.getInt(KEY_ACTIVE_LANDMARKS));
+            if (opts.hasPath(ProfileTools.KEY_METHODS_LM)) {
+                Config lmOpts = opts.getConfig(ProfileTools.KEY_METHODS_LM);
+                if (lmOpts.hasPath(ProfileTools.KEY_ACTIVE_LANDMARKS))
+                    ghConfig.putObject("routing.lm.active_landmarks", lmOpts.getInt(ProfileTools.KEY_ACTIVE_LANDMARKS));
             }
         }
 
@@ -420,8 +392,8 @@ public class RoutingProfile {
             ghConfig.putObject("gtfs.file", config.getGtfsFile());
 
         String flagEncoder = vehicle;
-        if(!Helper.isEmpty(config.getEncoderOptions()))
-                flagEncoder += "|" + config.getEncoderOptions();
+        if (!Helper.isEmpty(config.getEncoderOptions()))
+            flagEncoder += "|" + config.getEncoderOptions();
 
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
@@ -429,13 +401,6 @@ public class RoutingProfile {
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
-    }
-
-    public static String makeProfileName(String vehicleName, String weightingName, boolean hasTurnCosts) {
-        String profileName = vehicleName + "_" + weightingName;
-        if (hasTurnCosts)
-            profileName += "_with_turn_costs";
-        return profileName;
     }
 
     private static boolean supportWeightingMethod(int profileType) {
@@ -525,7 +490,7 @@ public class RoutingProfile {
     public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception {
         // Checkup for pop_total. If the value is set, pop_area must always be set here, if not already done so by the user.
         String[] tempAttributes;
-        if (Arrays.toString(attributes).contains(KEY_TOTAL_POP.toLowerCase()) && !(Arrays.toString(attributes).contains(KEY_TOTAL_AREA_KM.toLowerCase()))) {
+        if (Arrays.toString(attributes).contains(ProfileTools.KEY_TOTAL_POP.toLowerCase()) && !(Arrays.toString(attributes).contains(ProfileTools.KEY_TOTAL_AREA_KM.toLowerCase()))) {
             tempAttributes = new String[attributes.length + 1];
             int i = 0;
             while (i < attributes.length) {
@@ -533,8 +498,8 @@ public class RoutingProfile {
                 tempAttributes[i] = attribute;
                 i++;
             }
-            tempAttributes[i] = KEY_TOTAL_AREA_KM;
-        } else if ((Arrays.toString(attributes).contains(KEY_TOTAL_AREA_KM.toLowerCase())) && (!Arrays.toString(attributes).contains(KEY_TOTAL_POP.toLowerCase()))) {
+            tempAttributes[i] = ProfileTools.KEY_TOTAL_AREA_KM;
+        } else if ((Arrays.toString(attributes).contains(ProfileTools.KEY_TOTAL_AREA_KM.toLowerCase())) && (!Arrays.toString(attributes).contains(ProfileTools.KEY_TOTAL_POP.toLowerCase()))) {
             tempAttributes = new String[attributes.length + 1];
             int i = 0;
             while (i < attributes.length) {
@@ -542,7 +507,7 @@ public class RoutingProfile {
                 tempAttributes[i] = attribute;
                 i++;
             }
-            tempAttributes[i] = KEY_TOTAL_POP;
+            tempAttributes[i] = ProfileTools.KEY_TOTAL_POP;
         } else {
             tempAttributes = attributes;
         }
@@ -571,7 +536,7 @@ public class RoutingProfile {
             try {
                 Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<>();
                 for (String attr : tempAttributes) {
-                    StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get(attr);
+                    StatisticsProviderConfiguration provConfig = parameters.getStatsProviders().get(attr);
 
                     if (provConfig != null) {
                         if (mapProviderToAttrs.containsKey(provConfig)) {
@@ -621,10 +586,10 @@ public class RoutingProfile {
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         PMap hintsMap = new PMap();
         int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
-        setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
-        setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-        String CHProfileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
-        String CoreProfileName = makeProfileName(encoderName, hintsMap.getString("weighting", ""), true);
+        ProfileTools.setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
+        ProfileTools.setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
+        String CHProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
+        String CoreProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), true);
 
         //TODO Refactoring : probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
         try {
@@ -712,7 +677,7 @@ public class RoutingProfile {
         return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
     }
 
-     public ExportResult computeExport(ExportRequest req) throws Exception {
+    public ExportResult computeExport(ExportRequest req) throws Exception {
         ExportResult res = new ExportResult();
 
         GraphHopper gh = getGraphhopper();
@@ -721,8 +686,8 @@ public class RoutingProfile {
 
         PMap hintsMap = new PMap();
         int weightingMethod = WeightingMethod.FASTEST;
-        setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
-        String profileName = makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
+        ProfileTools.setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
+        String profileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
         Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
 
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
@@ -856,7 +821,7 @@ public class RoutingProfile {
         }
 
         if (profileParams != null && profileParams.hasWeightings()) {
-            props.putObject(KEY_CUSTOM_WEIGHTINGS, true);
+            props.putObject(ProfileTools.KEY_CUSTOM_WEIGHTINGS, true);
             Iterator<ProfileWeighting> iterator = profileParams.getWeightings().getIterator();
             while (iterator.hasNext()) {
                 ProfileWeighting weighting = iterator.next();
@@ -869,8 +834,8 @@ public class RoutingProfile {
         }
 
         boolean useTurnCostProfile = config.isTurnCostEnabled();
-        String profileName = makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), useTurnCostProfile);
-        String profileNameCH = makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
+        String profileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), useTurnCostProfile);
+        String profileNameCH = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName, profileNameCH);
         searchCntx.setProperties(props);
 
@@ -915,7 +880,7 @@ public class RoutingProfile {
                 req.getHints().putAll(props);
 
             if (supportWeightingMethod(profileType))
-                setWeightingMethod(req.getHints(), weightingMethod, profileType, false);
+                ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, false);
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
@@ -967,7 +932,7 @@ public class RoutingProfile {
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = createSearchContext(searchParams);
 
-            int flexibleMode = searchParams.hasFlexibleMode() || config.isEnforceTurnCosts() ? KEY_FLEX_PREPROCESSED : KEY_FLEX_STATIC;
+            int flexibleMode = searchParams.hasFlexibleMode() || config.isEnforceTurnCosts() ? ProfileTools.KEY_FLEX_PREPROCESSED : ProfileTools.KEY_FLEX_STATIC;
             boolean optimized = searchParams.getOptimized();
 
             GHRequest req;
@@ -993,24 +958,24 @@ public class RoutingProfile {
                 req.getHints().putAll(props);
 
             if (supportWeightingMethod(profileType)) {
-                setWeightingMethod(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
+                ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
                 if (requiresTimeDependentWeighting(searchParams, searchCntx))
-                    flexibleMode = KEY_FLEX_PREPROCESSED;
+                    flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
                 flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
             } else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
-            if (flexibleMode == KEY_FLEX_STATIC)
+            if (flexibleMode == ProfileTools.KEY_FLEX_STATIC)
                 //Speedup order: useCH, useCore, useALT
                 // TODO Future improvement: profileNameCH is an ugly hack and is required because of the hard-coded turnCost=false for CH
                 setSpeedups(req, true, true, true, searchCntx.profileNameCH());
 
-            if (flexibleMode == KEY_FLEX_PREPROCESSED) {
+            if (flexibleMode == ProfileTools.KEY_FLEX_PREPROCESSED) {
                 setSpeedups(req, false, optimized, true, searchCntx.profileNameCH());
             }
 
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
-            if (flexibleMode == KEY_FLEX_FULLY)
+            if (flexibleMode == ProfileTools.KEY_FLEX_FULLY)
                 setSpeedups(req, false, false, true, searchCntx.profileNameCH());
 
             if (searchParams.isTimeDependent()) {
@@ -1021,8 +986,7 @@ public class RoutingProfile {
                 if (searchParams.hasDeparture()) {
                     key = RouteRequestParameterNames.PARAM_DEPARTURE;
                     time = searchParams.getDeparture();
-                }
-                else {
+                } else {
                     key = RouteRequestParameterNames.PARAM_ARRIVAL;
                     time = searchParams.getArrival();
                 }
@@ -1149,76 +1113,16 @@ public class RoutingProfile {
      */
     private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType) {
         if (searchParams.requiresDynamicPreprocessedWeights() || profileType == RoutingProfileType.WHEELCHAIR)
-            flexibleMode = KEY_FLEX_PREPROCESSED;
+            flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
 
         if (searchParams.requiresFullyDynamicWeights())
-            flexibleMode = KEY_FLEX_FULLY;
+            flexibleMode = ProfileTools.KEY_FLEX_FULLY;
         //If we have special weightings, we have to fall back to ALT with Beeline
         ProfileParameters profileParams = searchParams.getProfileParameters();
         if (profileParams != null && profileParams.hasWeightings())
-            flexibleMode = KEY_FLEX_FULLY;
+            flexibleMode = ProfileTools.KEY_FLEX_FULLY;
 
         return flexibleMode;
-    }
-
-    /**
-     * Set the weightingMethod for the request based on input weighting.
-     *
-     * @param map              Hints map for setting up the request
-     * @param requestWeighting Originally requested weighting
-     * @param profileType      Necessary for HGV
-     */
-    private void setWeightingMethod(PMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed) {
-        //Defaults
-        String weightingMethod = VAL_RECOMMENDED;
-
-        if (requestWeighting == WeightingMethod.SHORTEST)
-            weightingMethod = VAL_SHORTEST;
-
-        //For a requested recommended weighting, use recommended for bike, walking and hgv. Use fastest for car.
-        if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
-            if (profileType == RoutingProfileType.DRIVING_CAR) {
-                weightingMethod = VAL_FASTEST;
-            }
-            if (RoutingProfileType.isHeavyVehicle(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)) {
-                weightingMethod = VAL_RECOMMENDED;
-            }
-        }
-
-        map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
-
-        if (hasTimeDependentSpeed)
-            map.putObject(ORSParameters.Weighting.TIME_DEPENDENT_SPEED_OR_ACCESS, true);
-    }
-
-    /**
-     * Set the weighting for the request based on input weighting.
-     *
-     * @param map              Hints map for setting up the request
-     * @param requestWeighting Originally requested weighting
-     * @param profileType      Necessary for HGV
-     */
-    private void setWeighting(PMap map, int requestWeighting, int profileType, boolean hasTimeDependentSpeed) {
-        //Defaults
-        String weighting = VAL_RECOMMENDED;
-
-        if (requestWeighting == WeightingMethod.SHORTEST)
-            weighting = VAL_SHORTEST;
-
-        //For a requested recommended weighting, use recommended for bike, walking and hgv. Use fastest for car.
-        if (requestWeighting == WeightingMethod.RECOMMENDED || requestWeighting == WeightingMethod.FASTEST) {
-            if (profileType == RoutingProfileType.DRIVING_CAR) {
-                weighting = VAL_FASTEST;
-            }
-            if (RoutingProfileType.isHeavyVehicle(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isWalking(profileType)) {
-                weighting = VAL_RECOMMENDED;
-            }
-        }
-
-        map.putObject(KEY_WEIGHTING, weighting);
-
-        if (hasTimeDependentSpeed)
-            map.putObject(ORSParameters.Weighting.TIME_DEPENDENT_SPEED_OR_ACCESS, true);
     }
 
     /**
@@ -1240,9 +1144,9 @@ public class RoutingProfile {
         useCore = useCore && !useCH && (mGraphHopper.isCoreAvailable(profileName) || mGraphHopper.isCoreAvailable(profileNameNoTC));
         useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(profileName);
 
-        req.getHints().putObject(KEY_CH_DISABLE, !useCH);
-        req.getHints().putObject(KEY_CORE_DISABLE, !useCore);
-        req.getHints().putObject(KEY_LM_DISABLE, !useALT);
+        req.getHints().putObject(ProfileTools.KEY_CH_DISABLE, !useCH);
+        req.getHints().putObject(ProfileTools.KEY_CORE_DISABLE, !useCore);
+        req.getHints().putObject(ProfileTools.KEY_LM_DISABLE, !useALT);
 
         if (useCH) {
             req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
@@ -1298,13 +1202,13 @@ public class RoutingProfile {
         }
 
         if (result.getIsochronesCount() > 0) {
-            if (parameters.hasAttribute(KEY_TOTAL_POP)) {
+            if (parameters.hasAttribute(ProfileTools.KEY_TOTAL_POP)) {
                 try {
                     Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<>();
-                    StatisticsProviderConfiguration provConfig = IsochronesServiceSettings.getStatsProviders().get(KEY_TOTAL_POP);
+                    StatisticsProviderConfiguration provConfig = parameters.getStatsProviders().get(ProfileTools.KEY_TOTAL_POP);
                     if (provConfig != null) {
                         List<String> attrList = new ArrayList<>();
-                        attrList.add(KEY_TOTAL_POP);
+                        attrList.add(ProfileTools.KEY_TOTAL_POP);
                         mapProviderToAttrs.put(provConfig, attrList);
                     }
                     for (Map.Entry<StatisticsProviderConfiguration, List<String>> entry : mapProviderToAttrs.entrySet()) {

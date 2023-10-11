@@ -21,10 +21,10 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.EdgeExplorer;
-import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
-import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
+import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
+import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 
 /**
  * Calculates an isochrone using a partitioned and graph.
@@ -54,13 +54,13 @@ public abstract class AbstractIsochroneAlgorithm {
     private boolean alreadyRun;
 
     protected AbstractIsochroneAlgorithm(Graph graph,
-                                      Weighting weighting,
-                                      TraversalMode tMode,
-                                      CellStorage cellStorage,
-                                      IsochroneNodeStorage isochroneNodeStorage,
-                                      EccentricityStorage eccentricityStorage,
-                                      BorderNodeDistanceStorage borderNodeDistanceStorage,
-                                      EdgeFilter additionalEdgeFilter) {
+                                         Weighting weighting,
+                                         TraversalMode tMode,
+                                         CellStorage cellStorage,
+                                         IsochroneNodeStorage isochroneNodeStorage,
+                                         EccentricityStorage eccentricityStorage,
+                                         BorderNodeDistanceStorage borderNodeDistanceStorage,
+                                         EdgeFilter additionalEdgeFilter) {
         this.weighting = weighting;
         this.flagEncoder = weighting.getFlagEncoder();
         this.traversalMode = tMode;
@@ -150,7 +150,8 @@ public abstract class AbstractIsochroneAlgorithm {
 
     /**
      * Calculate nodes for a given set of (virtual) from node and non-virtual basenode. Necessary for precomputed information that cannot process virtual nodes.
-     * @param from virtual start node
+     *
+     * @param from           virtual start node
      * @param fromNonVirtual real node closest to virtual start node
      * @param isochroneLimit limit
      */

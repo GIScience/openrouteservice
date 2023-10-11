@@ -42,8 +42,8 @@ public class RequestProfileParamsRestrictions {
     public static final String PARAM_MAX_INCLINE = "maximum_incline";
     public static final String PARAM_MIN_WIDTH = "minimum_width";
 
-    @Schema(name= PARAM_LENGTH, description = "Length restriction in metres.",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_LENGTH, description = "Length restriction in metres.",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-hgv")}
             )}, example = "8.4")
@@ -51,8 +51,8 @@ public class RequestProfileParamsRestrictions {
     private Float length;
     private boolean hasLength = false;
 
-    @Schema(name= PARAM_WIDTH, description = "Width restriction in metres.",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_WIDTH, description = "Width restriction in metres.",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-hgv")}
             )}, example = "5.6")
@@ -61,8 +61,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasWidth = false;
 
-    @Schema(name= PARAM_HEIGHT, description = "Height restriction in metres. ",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_HEIGHT, description = "Height restriction in metres. ",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-hgv")}
             )}, example = "4.2")
@@ -71,8 +71,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasHeight = false;
 
-    @Schema(name= PARAM_AXLE_LOAD, description = "Axleload restriction in tons.",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_AXLE_LOAD, description = "Axleload restriction in tons.",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-hgv")}
             )}, example = "50")
@@ -81,8 +81,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasAxleLoad = false;
 
-    @Schema(name= PARAM_WEIGHT, description = "Weight restriction in tons. ",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_WEIGHT, description = "Weight restriction in tons. ",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-hgv")}
             )}, example = "40")
@@ -91,8 +91,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasWeight = false;
 
-    @Schema(name= PARAM_HAZMAT, description = "Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is `false`. ",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_HAZMAT, description = "Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is `false`. ",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "driving-hgv")}
             )},
@@ -102,8 +102,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasHazardousMaterial = false;
 
-    @Schema(name= PARAM_SURFACE_TYPE, description = "Specifies the minimum surface type. Default is `sett`. ",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_SURFACE_TYPE, description = "Specifies the minimum surface type. Default is `sett`. ",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "wheelchair")}
             )},
@@ -113,8 +113,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasSurfaceType = false;
 
-    @Schema(name= PARAM_TRACK_TYPE, description = "Specifies the minimum grade of the route. Default is `grade1`. ",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_TRACK_TYPE, description = "Specifies the minimum grade of the route. Default is `grade1`. ",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "wheelchair")}
             )},
@@ -124,8 +124,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasTrackType = false;
 
-    @Schema(name= PARAM_SMOOTHNESS_TYPE, description = "Specifies the minimum smoothness of the route. Default is `good`.",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_SMOOTHNESS_TYPE, description = "Specifies the minimum smoothness of the route. Default is `good`.",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "wheelchair")}
             )},
@@ -135,8 +135,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasSmoothnessType = false;
 
-    @Schema(name= PARAM_MAXIMUM_SLOPED_KERB, description = "Specifies the maximum height of the sloped curb in metres. Values are `0.03`, `0.06` (default), `0.1`.",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_MAXIMUM_SLOPED_KERB, description = "Specifies the maximum height of the sloped curb in metres. Values are `0.03`, `0.06` (default), `0.1`.",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "wheelchair")}
             )},
@@ -146,8 +146,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasMaxSlopedKerb = false;
 
-    @Schema(name= PARAM_MAX_INCLINE, description = "Specifies the maximum incline as a percentage. `3`, `6` (default), `10`, `15.",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_MAX_INCLINE, description = "Specifies the maximum incline as a percentage. `3`, `6` (default), `10`, `15.",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "wheelchair")}
             )},
@@ -157,8 +157,8 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     private boolean hasMaxIncline = false;
 
-    @Schema(name= PARAM_MIN_WIDTH, description = "Specifies the minimum width of the footway in metres.",
-            extensions = { @Extension(name = "validWhen", properties = {
+    @Schema(name = PARAM_MIN_WIDTH, description = "Specifies the minimum width of the footway in metres.",
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
                     @ExtensionProperty(name = "value", value = "wheelchair")}
             )},
@@ -327,29 +327,29 @@ public class RequestProfileParamsRestrictions {
     @JsonIgnore
     public List<String> getRestrictionsThatAreSet() {
         List<String> setRestrictions = new ArrayList<>();
-        if(hasLength)
+        if (hasLength)
             setRestrictions.add(PARAM_LENGTH);
-        if(hasWidth)
+        if (hasWidth)
             setRestrictions.add(PARAM_WIDTH);
-        if(hasHeight)
+        if (hasHeight)
             setRestrictions.add(PARAM_HEIGHT);
-        if(hasAxleLoad)
+        if (hasAxleLoad)
             setRestrictions.add(PARAM_AXLE_LOAD);
-        if(hasWeight)
+        if (hasWeight)
             setRestrictions.add(PARAM_WEIGHT);
-        if(hasHazardousMaterial)
+        if (hasHazardousMaterial)
             setRestrictions.add(PARAM_HAZMAT);
-        if(hasSurfaceType)
+        if (hasSurfaceType)
             setRestrictions.add(PARAM_SURFACE_TYPE);
-        if(hasTrackType)
+        if (hasTrackType)
             setRestrictions.add(PARAM_TRACK_TYPE);
-        if(hasSmoothnessType)
+        if (hasSmoothnessType)
             setRestrictions.add(PARAM_SMOOTHNESS_TYPE);
-        if(hasMaxSlopedKerb)
+        if (hasMaxSlopedKerb)
             setRestrictions.add(PARAM_MAXIMUM_SLOPED_KERB);
-        if(hasMaxIncline)
+        if (hasMaxIncline)
             setRestrictions.add(PARAM_MAX_INCLINE);
-        if(hasMinWidth)
+        if (hasMinWidth)
             setRestrictions.add(PARAM_MIN_WIDTH);
         return setRestrictions;
     }

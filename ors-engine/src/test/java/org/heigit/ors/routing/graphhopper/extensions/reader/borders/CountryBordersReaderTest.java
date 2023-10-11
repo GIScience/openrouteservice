@@ -13,8 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -27,32 +27,32 @@ class CountryBordersReaderTest {
 
     CountryBordersHierarchy[] hierarchies;
 
-    Coordinate[] country1Geom = new Coordinate[] {
-            new Coordinate(0,1),
-            new Coordinate(1,1),
-            new Coordinate(1,0),
-            new Coordinate(0,0),
-            new Coordinate(0,1)
+    Coordinate[] country1Geom = new Coordinate[]{
+            new Coordinate(0, 1),
+            new Coordinate(1, 1),
+            new Coordinate(1, 0),
+            new Coordinate(0, 0),
+            new Coordinate(0, 1)
     };
-    Coordinate[] country2Geom = new Coordinate[] {
-            new Coordinate(1,2),
-            new Coordinate(2,2),
-            new Coordinate(2,1),
-            new Coordinate(1,1),
-            new Coordinate(1,2)
+    Coordinate[] country2Geom = new Coordinate[]{
+            new Coordinate(1, 2),
+            new Coordinate(2, 2),
+            new Coordinate(2, 1),
+            new Coordinate(1, 1),
+            new Coordinate(1, 2)
     };
-    Coordinate[] country3Geom = new Coordinate[] {
-            new Coordinate(-1,0),
-            new Coordinate(0,-1),
-            new Coordinate(-1,-1),
-            new Coordinate(-1,0)
+    Coordinate[] country3Geom = new Coordinate[]{
+            new Coordinate(-1, 0),
+            new Coordinate(0, -1),
+            new Coordinate(-1, -1),
+            new Coordinate(-1, 0)
     };
-    Coordinate[] country4Geom = new Coordinate[] {
-            new Coordinate(-2,-1),
-            new Coordinate(-1,-1),
-            new Coordinate(-1,-2),
-            new Coordinate(-2,-2),
-            new Coordinate(-2,-1)
+    Coordinate[] country4Geom = new Coordinate[]{
+            new Coordinate(-2, -1),
+            new Coordinate(-1, -1),
+            new Coordinate(-1, -2),
+            new Coordinate(-2, -2),
+            new Coordinate(-2, -1)
     };
 
     GeometryFactory gf = new GeometryFactory();

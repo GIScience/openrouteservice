@@ -37,7 +37,7 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
 
     public JSONBasedIndividualRouteResponse(RouteResult result, RouteRequest request) throws StatusCodeException {
         super(result, request);
-        if(request.hasUseElevation() && request.getUseElevation())
+        if (request.hasUseElevation() && request.getUseElevation())
             includeElevation = true;
 
         bbox = BoundingBoxFactory.constructBoundingBox(result.getSummary().getBBox(), request);
@@ -45,7 +45,7 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
 
     protected List<JSONSegment> constructSegments(RouteResult routeResult, RouteRequest request) {
         List segments = new ArrayList<>();
-        for(RouteSegment routeSegment : routeResult.getSegments()) {
+        for (RouteSegment routeSegment : routeResult.getSegments()) {
             segments.add(new JSONSegment(routeSegment, request, routeResult.getSummary().getDistance()));
         }
 
@@ -54,7 +54,7 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
 
     protected List<JSONLeg> constructLegs(RouteResult routeResult) {
         List<JSONLeg> legs = new ArrayList<>();
-        for(RouteLeg routeLeg : routeResult.getLegs()) {
+        for (RouteLeg routeLeg : routeResult.getLegs()) {
             legs.add(new JSONLeg(routeLeg));
         }
         return legs;
@@ -63,7 +63,7 @@ public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
     protected Map<String, JSONExtra> constructExtras(RouteRequest routeRequest, RouteResult routeResult) throws StatusCodeException {
         Map<String, JSONExtra> extras = new HashMap<>();
         List<RouteExtraInfo> responseExtras = routeResult.getExtraInfo();
-        if(responseExtras != null) {
+        if (responseExtras != null) {
             double routeLength = routeResult.getSummary().getDistance();
             DistanceUnit units = DistanceUnit.METERS;
             if (routeRequest.hasUnits())

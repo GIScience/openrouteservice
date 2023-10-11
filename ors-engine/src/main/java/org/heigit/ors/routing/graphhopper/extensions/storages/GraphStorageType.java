@@ -16,36 +16,36 @@ package org.heigit.ors.routing.graphhopper.extensions.storages;
 import com.graphhopper.util.Helper;
 
 public class GraphStorageType {
-	private static final int VEHICLE_TYPE = 1;
-	private static final int RESTRICTIONS = 2;
-	private static final int WAY_CATEGORY = 4;
-	private static final int WAY_SURFACE_TYPE = 8;
-	private static final int HILL_INDEX = 16;
+    private static final int VEHICLE_TYPE = 1;
+    private static final int RESTRICTIONS = 2;
+    private static final int WAY_CATEGORY = 4;
+    private static final int WAY_SURFACE_TYPE = 8;
+    private static final int HILL_INDEX = 16;
 
-	private GraphStorageType() {}
+    private GraphStorageType() {
+    }
 
-	public static boolean isSet(int type, int value)
-	{
-		return (type & value) == value;
-	}
+    public static boolean isSet(int type, int value) {
+        return (type & value) == value;
+    }
 
-	public static int getFomString(String value) {
-		if (Helper.isEmpty(value))
-			return 0;
+    public static int getFomString(String value) {
+        if (Helper.isEmpty(value))
+            return 0;
 
-		int res = 0;
-		String[] values = value.split("\\|");
-		for (int i = 0; i < values.length; ++i) {
-			switch (values[i].toLowerCase()) {
-				case "vehicletype" -> res |= VEHICLE_TYPE;
-				case "restrictions" -> res |= RESTRICTIONS;
-				case "waycategory" -> res |= WAY_CATEGORY;
-				case "waysurfacetype" -> res |= WAY_SURFACE_TYPE;
-				case "hillindex" -> res |= HILL_INDEX;
-				default -> {
-				}
-			}
-		}
-		return res;
-	}
+        int res = 0;
+        String[] values = value.split("\\|");
+        for (int i = 0; i < values.length; ++i) {
+            switch (values[i].toLowerCase()) {
+                case "vehicletype" -> res |= VEHICLE_TYPE;
+                case "restrictions" -> res |= RESTRICTIONS;
+                case "waycategory" -> res |= WAY_CATEGORY;
+                case "waysurfacetype" -> res |= WAY_SURFACE_TYPE;
+                case "hillindex" -> res |= HILL_INDEX;
+                default -> {
+                }
+            }
+        }
+        return res;
+    }
 }

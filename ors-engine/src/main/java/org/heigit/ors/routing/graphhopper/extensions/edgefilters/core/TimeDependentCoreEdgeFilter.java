@@ -26,45 +26,45 @@ import java.util.List;
 
 
 public class TimeDependentCoreEdgeFilter implements EdgeFilter {
-	private BooleanEncodedValue[] conditionalEncoders;
-	private static String[] names = {ConditionalEdges.ACCESS, ConditionalEdges.SPEED};
+    private final BooleanEncodedValue[] conditionalEncoders;
+    private static final String[] names = {ConditionalEdges.ACCESS, ConditionalEdges.SPEED};
 
-	public TimeDependentCoreEdgeFilter(GraphHopperStorage graphStorage) {
-		EncodingManager encodingManager = graphStorage.getEncodingManager();
+    public TimeDependentCoreEdgeFilter(GraphHopperStorage graphStorage) {
+        EncodingManager encodingManager = graphStorage.getEncodingManager();
 
-		List<BooleanEncodedValue> conditionalEncodersList = new ArrayList<>();
+        List<BooleanEncodedValue> conditionalEncodersList = new ArrayList<>();
 
-		for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
-			for (String name : names) {
-				String encoderName = EncodingManager.getKey(encoder, name);
-				if (encodingManager.hasEncodedValue(encoderName)) {
-					conditionalEncodersList.add(encodingManager.getBooleanEncodedValue(encoderName));
-				}
-			}
-		}
+        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders()) {
+            for (String name : names) {
+                String encoderName = EncodingManager.getKey(encoder, name);
+                if (encodingManager.hasEncodedValue(encoderName)) {
+                    conditionalEncodersList.add(encodingManager.getBooleanEncodedValue(encoderName));
+                }
+            }
+        }
 
-		conditionalEncoders = conditionalEncodersList.toArray(new BooleanEncodedValue[0]);
-	}
+        conditionalEncoders = conditionalEncodersList.toArray(new BooleanEncodedValue[0]);
+    }
 
-	public static boolean hasConditionals(EncodingManager encodingManager) {
-		for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders())
-			for (String name : names) {
-				String encoderName = EncodingManager.getKey(encoder, name);
-				if (encodingManager.hasEncodedValue(encoderName)) {
-					return true;
-				}
-			}
-		return false;
-	}
+    public static boolean hasConditionals(EncodingManager encodingManager) {
+        for (FlagEncoder encoder : encodingManager.fetchEdgeEncoders())
+            for (String name : names) {
+                String encoderName = EncodingManager.getKey(encoder, name);
+                if (encodingManager.hasEncodedValue(encoderName)) {
+                    return true;
+                }
+            }
+        return false;
+    }
 
-	@Override
-	public final boolean accept(EdgeIteratorState iter) {
-		for (BooleanEncodedValue conditionalEncoder: conditionalEncoders) {
-			if (iter.get(conditionalEncoder)) {
-				return false;
-			}
-		}
-		return true;
-	}
+    @Override
+    public final boolean accept(EdgeIteratorState iter) {
+        for (BooleanEncodedValue conditionalEncoder : conditionalEncoders) {
+            if (iter.get(conditionalEncoder)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

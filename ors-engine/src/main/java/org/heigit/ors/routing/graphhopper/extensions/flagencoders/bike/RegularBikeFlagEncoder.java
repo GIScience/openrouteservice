@@ -1,14 +1,14 @@
 /*
  *  Licensed to GraphHopper GmbH under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
+ *  license agreements. See the NOTICE file distributed with this work for
  *  additional information regarding copyright ownership.
- * 
- *  GraphHopper GmbH licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
+ *
+ *  GraphHopper GmbH licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except in
  *  compliance with the License. You may obtain a copy of the License at
- * 
+ *
  *       http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,14 +33,14 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
 
     public RegularBikeFlagEncoder(PMap properties) {
         this(
-            // MARQ24 MOD START
-            properties.getInt("speed_bits", 4 + (properties.getBool("consider_elevation", false) ? 1 : 0)),
-            // MARQ24 MOD END
-            properties.getDouble("speed_factor", 2),
-            properties.getBool("turn_costs", false) ? 1 : 0
-            // MARQ24 MOD START
-            ,properties.getBool("consider_elevation", false)
-            // MARQ24 MOD END
+                // MARQ24 MOD START
+                properties.getInt("speed_bits", 4 + (properties.getBool("consider_elevation", false) ? 1 : 0)),
+                // MARQ24 MOD END
+                properties.getDouble("speed_factor", 2),
+                properties.getBool("turn_costs", false) ? 1 : 0
+                // MARQ24 MOD START
+                , properties.getBool("consider_elevation", false)
+                // MARQ24 MOD END
         );
         setProperties(properties);
     }
@@ -78,7 +78,7 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
         String highway = way.getTag("highway");
         String trackType = way.getTag("tracktype");
         return super.isPushingSection(way) || "track".equals(highway) && trackType != null
-        // MARQ24 MOD START - by Runge
+                // MARQ24 MOD START - by Runge
                 && !("grade1".equals(trackType) || "grade2".equals(trackType) || "grade3".equals(trackType));
         // MARQ24 MOD END
     }
@@ -92,8 +92,7 @@ public class RegularBikeFlagEncoder extends CommonBikeFlagEncoder {
 
     // MARQ24 MOD START
     @Override
-    protected double getDownhillMaxSpeed()
-    {
+    protected double getDownhillMaxSpeed() {
         return 50;
     }
     // MARQ24 MOD END

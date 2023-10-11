@@ -28,7 +28,7 @@ import java.util.Map;
  * This class does the preprocessing for the ALT algorithm (A* , landmark, triangle inequality) in the core.
  * <p>
  * http://www.siam.org/meetings/alenex05/papers/03agoldberg.pdf
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -45,16 +45,16 @@ public class PrepareCoreLandmarks extends PrepareLandmarks {
     }
 
     @Override
-    public LandmarkStorage createLandmarkStorage (Directory dir, GraphHopperStorage graph, LMConfig lmConfig, int landmarks) {
+    public LandmarkStorage createLandmarkStorage(Directory dir, GraphHopperStorage graph, LMConfig lmConfig, int landmarks) {
         if (!(lmConfig instanceof CoreLMConfig))
-            throw(new IllegalStateException("Expected instance of CoreLMConfig"));
+            throw (new IllegalStateException("Expected instance of CoreLMConfig"));
         if (!(graph instanceof ORSGraphHopperStorage))
-            throw(new IllegalStateException("Expected instance of ORSGraphHopperStorage"));
+            throw (new IllegalStateException("Expected instance of ORSGraphHopperStorage"));
 
         return new CoreLandmarkStorage(dir, (ORSGraphHopperStorage) graph, (CoreLMConfig) lmConfig, landmarks);
     }
 
-    public boolean matchesFilter(PMap pmap){
+    public boolean matchesFilter(PMap pmap) {
         //Returns true if the landmarkset is for the avoidables.
         //Also returns true if the query has no avoidables and the set has no avoidables
         return landmarksFilter.isFilter(pmap);

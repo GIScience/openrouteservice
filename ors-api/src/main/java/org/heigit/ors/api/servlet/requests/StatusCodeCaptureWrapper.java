@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  * Suppresses calls to sendError() and uses setStatus() instead to avoid sending a html error page.
  * See {@link jakarta.servlet.http.HttpServletResponse#sendError(int)}
  */
-public class StatusCodeCaptureWrapper extends HttpServletResponseWrapper  {
+public class StatusCodeCaptureWrapper extends HttpServletResponseWrapper {
 
     public StatusCodeCaptureWrapper(HttpServletResponse response) {
         super(response);

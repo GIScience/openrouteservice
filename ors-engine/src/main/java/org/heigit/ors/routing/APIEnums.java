@@ -23,6 +23,8 @@ import org.heigit.ors.exceptions.ParameterValueException;
 
 
 public class APIEnums {
+    private static final String FORMAT_KEY = "format";
+
     @Schema(name = "Avoid borders", description = "Specify which type of border crossing to avoid")
     public enum AvoidBorders {
         ALL("all"),
@@ -110,7 +112,7 @@ public class APIEnums {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, "format", v);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, FORMAT_KEY, v);
         }
 
         @Override
@@ -136,7 +138,7 @@ public class APIEnums {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, "format", v);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, FORMAT_KEY, v);
         }
 
         @Override
@@ -159,6 +161,33 @@ public class APIEnums {
         @JsonCreator
         public static ExportResponseType forValue(String v) throws ParameterValueException {
             for (ExportResponseType enumItem : ExportResponseType.values()) {
+                if (enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, FORMAT_KEY, v);
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return value;
+        }
+    }
+
+    @Schema(name = "Snapping response type", description = "Format of the snapping response.")
+    public enum SnappingResponseType {
+        JSON("json"),
+        GEOJSON("geojson");
+
+        private final String value;
+
+        SnappingResponseType(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        public static SnappingResponseType forValue(String v) throws ParameterValueException {
+            for (SnappingResponseType enumItem : SnappingResponseType.values()) {
                 if (enumItem.value.equals(v))
                     return enumItem;
             }

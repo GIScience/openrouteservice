@@ -32,6 +32,7 @@ public class CoreLMOptions {
 
     /**
      * Set the filters that are used while calculating landmarks and their distance
+     *
      * @param tmpCoreLMSets
      */
     public void setRestrictionFilters(List<String> tmpCoreLMSets) {
@@ -42,12 +43,10 @@ public class CoreLMOptions {
      * Creates all LMSet-Filters from the sets specified in the ors-config.json
      * The filter is an LMEdgeFilterSequence, consisting of at most ONE AvoidFeaturesFilter and ONE AvoidCountriesFilter
      * These can contain multiple avoidfeatures and avoidcountries
-     *
-     *
-     * */
-    public void createRestrictionFilters(GraphHopperStorage ghStorage){
+     */
+    public void createRestrictionFilters(GraphHopperStorage ghStorage) {
         //Create one edgefiltersequence for each lmset
-        for(String set : coreLMSets) {
+        for (String set : coreLMSets) {
             //Now iterate over all comma separated values in one lm set
             String[] tmpFilters = set.split(",");
             LMEdgeFilterSequence edgeFilterSequence = new LMEdgeFilterSequence();
@@ -79,9 +78,7 @@ public class CoreLMOptions {
                 if (filterType.matches(countryPattern)) {
                     try {
                         country = Integer.parseInt(filterType.replaceFirst(countryPattern, "$1"));
-                    }
-                    catch (NumberFormatException e)
-                    {
+                    } catch (NumberFormatException e) {
                         country = 0;
                     }
                     // todo check for valid country
@@ -92,12 +89,12 @@ public class CoreLMOptions {
                 }
             }
 
-            if(avoidFeatures != 0)
+            if (avoidFeatures != 0)
                 edgeFilterSequence.add(new AvoidFeaturesCoreEdgeFilter(ghStorage, -1, avoidFeatures));
 
-            if(!countries.isEmpty()){
+            if (!countries.isEmpty()) {
                 int[] avoidCountries = new int[countries.size()];
-                for(int i = 0; i < countries.size(); i++){
+                for (int i = 0; i < countries.size(); i++) {
                     avoidCountries[i] = countries.get(i);
                 }
                 //Only one avoidBordersCoreEdgeFilter per set
@@ -108,7 +105,7 @@ public class CoreLMOptions {
         }
     }
 
-    public List<LMEdgeFilterSequence> getFilters(){
+    public List<LMEdgeFilterSequence> getFilters() {
         return filters;
     }
 }

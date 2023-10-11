@@ -19,10 +19,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
-import org.locationtech.jts.geom.Coordinate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.matrix.ResolvedLocation;
 import org.heigit.ors.util.FormatUtility;
+import org.locationtech.jts.geom.Coordinate;
 
 public class JSONLocation {
     protected static final int COORDINATE_DECIMAL_PLACES = 6;
@@ -35,7 +35,7 @@ public class JSONLocation {
     protected Coordinate location;
 
     @Schema(description = "Name of the street the closest accessible point is situated on. Only for `resolve_locations=true` and only if name is available.",
-            extensions = { @Extension(name = "validWhen", properties = {
+            extensions = {@Extension(name = "validWhen", properties = {
                     @ExtensionProperty(name = "ref", value = "resolve_locations"),
                     @ExtensionProperty(name = "value", value = "true", parseValue = true)}
             )},
@@ -44,7 +44,7 @@ public class JSONLocation {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     protected String name;
 
-    @Schema(description = "Distance between the `source/destination` Location and the used point on the routing graph.", example = "1.2")
+    @Schema(description = "Distance between the `source/destination` Location and the used point on the routing graph in meters.", example = "1.2")
     @JsonProperty(value = "snapped_distance")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.2d")
     private final Double snappedDistance;
@@ -62,5 +62,9 @@ public class JSONLocation {
 
     public Double[] getLocation() {
         return new Double[0];
+    }
+
+    public String getName() {
+        return name;
     }
 }

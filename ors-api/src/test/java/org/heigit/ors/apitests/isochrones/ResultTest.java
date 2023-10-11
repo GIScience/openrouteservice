@@ -16,14 +16,13 @@ package org.heigit.ors.apitests.isochrones;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.CommonHeaders;
-import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
@@ -393,7 +392,7 @@ class ResultTest extends ServiceTest {
                 .body("features[2].type", is("Feature"))
                 .body("features[2].geometry.type", is("Polygon"))
                 //.body("features[2].geometry.coordinates[0].size()", is(26))
-                .body("features[2].geometry.coordinates[0].size()", is(both(greaterThan(38)).and(lessThan(40))))
+                .body("features[2].geometry.coordinates[0].size()", is(both(greaterThan(39)).and(lessThan(41))))
                 .body("features[2].properties.contours.size()", is(2))
                 .body("features[2].properties.containsKey('area')", is(true))
                 //.body("features[2].properties.area", is(5824280.5f))

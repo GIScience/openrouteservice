@@ -7,12 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 @Configuration
-@ConfigurationProperties
+@ConfigurationProperties(prefix = "ors")
 public class SystemMessageProperties {
     private List<MessageObject> messages;
+
     public List<MessageObject> getMessages() {
         return messages;
     }
+
     public void setMessages(List<MessageObject> messages) {
         this.messages = messages;
     }

@@ -32,7 +32,8 @@ public class CSVUtility {
     private static final char DEFAULT_QUOTE = '"';
     private static final boolean HAS_HEADER = true;
 
-    private CSVUtility() {}
+    private CSVUtility() {
+    }
 
     public static List<List<String>> readFile(String file) {
         return readFile(file, HAS_HEADER);
@@ -41,9 +42,9 @@ public class CSVUtility {
     /**
      * Read data from CSV file using the provided filename, seperator, quote character and whether there is a header
      *
-     * @param file          CSV file to read from
-     * @param header        Whether to ignore the first row of the CSV
-     * @return              An ArrayList (rows) of ArrayLists (columns values)
+     * @param file   CSV file to read from
+     * @param header Whether to ignore the first row of the CSV
+     * @return An ArrayList (rows) of ArrayLists (columns values)
      */
     public static List<List<String>> readFile(String file, boolean header) {
         // Open the CSV file
@@ -51,10 +52,10 @@ public class CSVUtility {
 
         List<List<String>> lines = new ArrayList<>();
         boolean headerRead = false;
-        try (BufferedReader br = new BufferedReader(new FileReader(file))){
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             while ((ln = br.readLine()) != null) {
-                if(header && lines.isEmpty() && !headerRead) {
-                    headerRead=true;
+                if (header && lines.isEmpty() && !headerRead) {
+                    headerRead = true;
                     continue;
                 }
 
@@ -74,9 +75,9 @@ public class CSVUtility {
     /**
      * Parse a line of text read from a CSV file. The line is split into values.
      *
-     * @param csvLine       The line of the CSV file
-     * @param separator     The seperator between values
-     * @param customQuote   The character enclosing strings
+     * @param csvLine     The line of the CSV file
+     * @param separator   The seperator between values
+     * @param customQuote The character enclosing strings
      * @return
      */
     private static ArrayList<String> parseLine(String csvLine, char separator, char customQuote) {

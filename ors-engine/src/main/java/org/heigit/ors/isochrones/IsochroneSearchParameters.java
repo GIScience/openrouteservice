@@ -13,10 +13,12 @@
  */
 package org.heigit.ors.isochrones;
 
+import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
+import org.heigit.ors.routing.RouteSearchParameters;
 import org.locationtech.jts.geom.Coordinate;
 
-import org.heigit.ors.common.TravelRangeType;
-import org.heigit.ors.routing.RouteSearchParameters;
+import java.util.Map;
 
 public class IsochroneSearchParameters {
     private final int travellerId;
@@ -30,6 +32,7 @@ public class IsochroneSearchParameters {
     private String[] attributes;
     private String units;
     private String areaUnits;
+    private Map<String, StatisticsProviderConfiguration> statsProviders;
 
     public boolean hasAttribute(String attr) {
         if (attributes == null || attr == null)
@@ -149,5 +152,13 @@ public class IsochroneSearchParameters {
 
     public boolean isTimeDependent() {
         return (getRouteParameters().isTimeDependent());
+    }
+
+    public Map<String, StatisticsProviderConfiguration> getStatsProviders() {
+        return statsProviders;
+    }
+
+    public void setStatsProviders(Map<String, StatisticsProviderConfiguration> statsProviders) {
+        this.statsProviders = statsProviders;
     }
 }

@@ -11,7 +11,7 @@ public class OSMAttachedSidewalkProcessor {
     public static final String VAL_RIGHT = "right";
     public static final String VAL_LEFT = "left";
 
-    protected enum Side { LEFT, RIGHT, BOTH, NONE }
+    protected enum Side {LEFT, RIGHT, BOTH, NONE}
 
     public boolean hasSidewalkInfo(ReaderWay way) {
         return identifySidesWhereSidewalkIsPresent(way) != Side.NONE;
@@ -27,8 +27,8 @@ public class OSMAttachedSidewalkProcessor {
         Set<String> sidewalkInfoKeys = new HashSet<>();
 
         Set<String> keys = way.getTags().keySet();
-        for(String k : keys) {
-            if(isSidewalkInfoKey(k)) {
+        for (String k : keys) {
+            if (isSidewalkInfoKey(k)) {
                 sidewalkInfoKeys.add(k);
             }
         }
@@ -54,7 +54,7 @@ public class OSMAttachedSidewalkProcessor {
      * @return
      */
     public ReaderWay attachSidewalkTag(ReaderWay way, Side side) {
-        switch(side) {
+        switch (side) {
             case LEFT:
                 way.setTag(KEY_ORS_SIDEWALK_SIDE, VAL_LEFT);
                 break;
@@ -62,7 +62,7 @@ public class OSMAttachedSidewalkProcessor {
                 way.setTag(KEY_ORS_SIDEWALK_SIDE, VAL_RIGHT);
                 break;
             case BOTH:
-                if(way.hasTag(KEY_ORS_SIDEWALK_SIDE) && way.getTag(KEY_ORS_SIDEWALK_SIDE).equalsIgnoreCase(VAL_LEFT)) {
+                if (way.hasTag(KEY_ORS_SIDEWALK_SIDE) && way.getTag(KEY_ORS_SIDEWALK_SIDE).equalsIgnoreCase(VAL_LEFT)) {
                     // The left side has been attached previously, so now attach the right side
                     way.setTag(KEY_ORS_SIDEWALK_SIDE, VAL_RIGHT);
                 } else {
@@ -71,7 +71,7 @@ public class OSMAttachedSidewalkProcessor {
                 }
                 break;
             case NONE:
-                if(way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
+                if (way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
                     way.removeTag(KEY_ORS_SIDEWALK_SIDE);
                 }
         }
@@ -86,12 +86,12 @@ public class OSMAttachedSidewalkProcessor {
      * @return
      */
     public Side getPreparedSide(ReaderWay way) {
-        if(way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
+        if (way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
             String preparedSide = way.getTag(KEY_ORS_SIDEWALK_SIDE);
-            if(preparedSide.equalsIgnoreCase(VAL_LEFT)) {
+            if (preparedSide.equalsIgnoreCase(VAL_LEFT)) {
                 return Side.LEFT;
             }
-            if(preparedSide.equalsIgnoreCase(VAL_RIGHT)) {
+            if (preparedSide.equalsIgnoreCase(VAL_RIGHT)) {
                 return Side.RIGHT;
             }
         }
@@ -110,7 +110,7 @@ public class OSMAttachedSidewalkProcessor {
         boolean sidewalkOnRightSide = false;
         boolean sidewalkOnBothSides = false;
 
-        if(osmWay.hasTag("sidewalk")) {
+        if (osmWay.hasTag("sidewalk")) {
             String side = osmWay.getTag("sidewalk");
             switch (side) {
                 case VAL_LEFT -> sidewalkOnLeftSide = true;
@@ -123,25 +123,25 @@ public class OSMAttachedSidewalkProcessor {
 
         Set<String> sidewalkProperties = getSidewalkKeys(osmWay);
 
-        for(String key : sidewalkProperties) {
-            if(key.startsWith("sidewalk:left") || key.startsWith("footway:left")) sidewalkOnLeftSide = true;
-            if(key.startsWith("sidewalk:right") || key.startsWith("footway:right")) sidewalkOnRightSide = true;
-            if(key.startsWith("sidewalk:both") || key.startsWith("footway:both")) sidewalkOnBothSides = true;
+        for (String key : sidewalkProperties) {
+            if (key.startsWith("sidewalk:left") || key.startsWith("footway:left")) sidewalkOnLeftSide = true;
+            if (key.startsWith("sidewalk:right") || key.startsWith("footway:right")) sidewalkOnRightSide = true;
+            if (key.startsWith("sidewalk:both") || key.startsWith("footway:both")) sidewalkOnBothSides = true;
         }
 
-        if(sidewalkOnLeftSide && sidewalkOnRightSide) {
+        if (sidewalkOnLeftSide && sidewalkOnRightSide) {
             sidewalkOnBothSides = true;
         }
 
-        if(sidewalkOnBothSides) {
+        if (sidewalkOnBothSides) {
             return Side.BOTH;
         }
 
-        if(sidewalkOnLeftSide) {
+        if (sidewalkOnLeftSide) {
             return Side.LEFT;
         }
 
-        if(sidewalkOnRightSide) {
+        if (sidewalkOnRightSide) {
             return Side.RIGHT;
         }
 

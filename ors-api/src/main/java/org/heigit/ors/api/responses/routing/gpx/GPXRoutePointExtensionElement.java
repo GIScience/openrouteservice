@@ -15,16 +15,15 @@
 
 package org.heigit.ors.api.responses.routing.gpx;
 
-import org.heigit.ors.routing.RouteStep;
-
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.heigit.ors.routing.RouteStep;
 
 @XmlRootElement(name = "extensions")
 public class GPXRoutePointExtensionElement {
     @XmlElement(name = "distance")
     private double distance;
-    @XmlElement(name="duration")
+    @XmlElement(name = "duration")
     private double duration;
     @XmlElement(name = "type")
     private int type;

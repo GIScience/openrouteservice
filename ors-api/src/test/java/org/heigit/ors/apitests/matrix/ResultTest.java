@@ -16,9 +16,9 @@ package org.heigit.ors.apitests.matrix;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
-import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
+import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.HelperFunctions;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,12 +28,13 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
-import static org.heigit.ors.matrix.MatrixErrorCodes.*;
+import static org.heigit.ors.matrix.MatrixErrorCodes.MAX_VISITED_NODES_EXCEEDED;
 
 @EndPointAnnotation(name = "matrix")
 @VersionAnnotation(version = "v2")
 class ResultTest extends ServiceTest {
     public static final RestAssuredConfig JSON_CONFIG_DOUBLE_NUMBERS = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.DOUBLE));
+
     public ResultTest() {
         // Three locations
         JSONArray locations3 = new JSONArray();
@@ -344,7 +345,7 @@ class ResultTest extends ServiceTest {
                 .body("distances[1][1]", is(closeTo(0.0, 0.001)))
                 .body("distances[1][2]", is(closeTo(479.08, 5)))
                 .body("distances[2][0]", is(closeTo(1274.4, 12)))
-                .body("distances[2][1]", is(closeTo(376.77,4)))
+                .body("distances[2][1]", is(closeTo(376.77, 4)))
                 .body("distances[2][2]", is(closeTo(0.0, 0.001)))
 
                 .statusCode(200);
@@ -770,7 +771,8 @@ class ResultTest extends ServiceTest {
 
     @Test
     void testIdInSummary() {
-        JSONObject body = new JSONObject();body.put("locations", getParameter("locations"));
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations"));
         body.put("id", "request123");
 
         given()
@@ -791,7 +793,7 @@ class ResultTest extends ServiceTest {
     void testDefinedSources() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("sources", new JSONArray(new int[] {1,2}));
+        body.put("sources", new JSONArray(new int[]{1, 2}));
         body.put("metrics", getParameter("metricsDuration"));
 
         given()
@@ -819,7 +821,7 @@ class ResultTest extends ServiceTest {
     void testDefinedDestinations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
-        body.put("destinations", new JSONArray(new int[] {1,2}));
+        body.put("destinations", new JSONArray(new int[]{1, 2}));
         body.put("metrics", getParameter("metricsDuration"));
 
         given()
@@ -849,8 +851,8 @@ class ResultTest extends ServiceTest {
         JSONObject body = new JSONObject();
 
         body.put("locations", getParameter("locations5"));
-        body.put("sources", new JSONArray(new int[] {0,1}));
-        body.put("destinations", new JSONArray(new int[] {2,3,4}));
+        body.put("sources", new JSONArray(new int[]{0, 1}));
+        body.put("destinations", new JSONArray(new int[]{2, 3, 4}));
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
@@ -926,19 +928,19 @@ class ResultTest extends ServiceTest {
                 .body("durations.size()", is(4))
                 .body("durations[0][0]", is(closeTo(0.0f, 0.1f)))
                 .body("durations[0][1]", is(closeTo(564.3f, 1.0f)))
-                .body("durations[0][2]", is(closeTo(1659.0f, 1.0f)))
-                .body("durations[0][3]", is(closeTo(1448.2f, 1.0f)))
+                .body("durations[0][2]", is(closeTo(1646.6f, 1.0f)))
+                .body("durations[0][3]", is(closeTo(1438.6f, 1.0f)))
                 .body("durations[1][0]", is(closeTo(513.8f, 1.0f)))
                 .body("durations[1][1]", is(closeTo(0.0f, 1.0f)))
-                .body("durations[1][2]", is(closeTo(1219.2, 1.0f)))
-                .body("durations[1][3]", is(closeTo(1008.3f, 1.0f)))
-                .body("durations[2][0]", is(closeTo(1631.7f, 1.0f)))
-                .body("durations[2][1]", is(closeTo(1212.6f, 1.0f)))
+                .body("durations[1][2]", is(closeTo(1206.56, 1.0f)))
+                .body("durations[1][3]", is(closeTo(998.59f, 1.0f)))
+                .body("durations[2][0]", is(closeTo(1619.28f, 1.0f)))
+                .body("durations[2][1]", is(closeTo(1200.08f, 1.0f)))
                 .body("durations[2][2]", is(closeTo(0.0f, 1.0f)))
-                .body("durations[2][3]", is(closeTo(210.5f, 1.0f)))
-                .body("durations[3][0]", is(closeTo(1420.9f, 1.0f)))
-                .body("durations[3][1]", is(closeTo(1001.8f, 1.0f)))
-                .body("durations[3][2]", is(closeTo(210.8f, 1.0f)))
+                .body("durations[2][3]", is(closeTo(207.97f, 1.0f)))
+                .body("durations[3][0]", is(closeTo(1411.31f, 1.0f)))
+                .body("durations[3][1]", is(closeTo(992.11f, 1.0f)))
+                .body("durations[3][2]", is(closeTo(207.97f, 1.0f)))
                 .body("durations[3][3]", is(closeTo(0.0f, 1.0f)))
                 .statusCode(200);
     }

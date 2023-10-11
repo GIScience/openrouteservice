@@ -13,8 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
-import org.locationtech.jts.geom.*;
 import org.apache.log4j.Logger;
+import org.locationtech.jts.geom.*;
 
 import java.io.InvalidObjectException;
 
@@ -32,17 +32,17 @@ public class CountryBordersPolygon {
     /**
      * Construct a CountryBordersPolygon object used for determining if a way crosses a country border
      *
-     * @param name                      The local name of the country
-     * @param boundary                  Geometry representing the boundary of the region
+     * @param name     The local name of the country
+     * @param boundary Geometry representing the boundary of the region
      * @throws InvalidObjectException
      */
     public CountryBordersPolygon(String name, Geometry boundary) throws InvalidObjectException {
         this.name = name;
         GeometryFactory gf = new GeometryFactory();
 
-        if(boundary.getGeometryType().equals("Polygon"))
-            this.boundary = gf.createMultiPolygon(new Polygon[] {(Polygon) boundary});
-        else if(boundary.getGeometryType().equals("MultiPolygon"))
+        if (boundary.getGeometryType().equals("Polygon"))
+            this.boundary = gf.createMultiPolygon(new Polygon[]{(Polygon) boundary});
+        else if (boundary.getGeometryType().equals("MultiPolygon"))
             this.boundary = (MultiPolygon) boundary;
         else {
             LOGGER.error("Invalid geometry - " + boundary.getGeometryType());
@@ -52,16 +52,16 @@ public class CountryBordersPolygon {
         this.area = this.boundary.getArea();
         // calculate lat and lon values
         Geometry bbox = boundary.getEnvelope();
-        for(Coordinate c : bbox.getCoordinates()) {
-            if(c.x < minLon) minLon = c.x;
-            if(c.x > maxLon) maxLon = c.x;
-            if(c.y < minLat) minLat = c.y;
-            if(c.y > maxLat) maxLat = c.y;
+        for (Coordinate c : bbox.getCoordinates()) {
+            if (c.x < minLon) minLon = c.x;
+            if (c.x > maxLon) maxLon = c.x;
+            if (c.y < minLat) minLat = c.y;
+            if (c.y > maxLat) maxLat = c.y;
         }
     }
 
     public double[] getBBox() {
-        return new double[] {minLon, maxLon, minLat, maxLat};
+        return new double[]{minLon, maxLon, minLat, maxLat};
     }
 
     public boolean shares(MultiPolygon other) {
@@ -88,7 +88,7 @@ public class CountryBordersPolygon {
     }
 
     public boolean inArea(Coordinate c) {
-        if(!Double.isNaN(c.x) && !Double.isNaN(c.y) && inBbox(c)) {
+        if (!Double.isNaN(c.x) && !Double.isNaN(c.y) && inBbox(c)) {
             GeometryFactory gf = new GeometryFactory();
 
             return boundary.contains(gf.createPoint(c));

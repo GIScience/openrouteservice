@@ -4,8 +4,8 @@ import com.graphhopper.config.Profile;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.GraphHopperStorage;
-import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
+import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ class FastIsochroneFactoryTest {
         List<Profile> fastisochronesProfiles = new ArrayList<>();
         String vehicle = "car";
         String weighting = "fastest";
-        String profileName = RoutingProfile.makeProfileName(vehicle, weighting, true);
+        String profileName = ProfileTools.makeProfileName(vehicle, weighting, true);
         Profile profile = new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(true);
         fastisochronesProfiles.add(profile);
 

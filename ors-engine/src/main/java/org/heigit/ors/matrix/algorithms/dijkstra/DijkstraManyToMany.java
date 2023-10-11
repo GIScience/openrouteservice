@@ -54,15 +54,15 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
     IntObjectMap<List<AveragedMultiTreeSPEntry>> bestWeightMapCore;
     IntObjectMap<AveragedMultiTreeSPEntry> targetMap;
     IntHashSet targetSet;
-    private RoutingCHGraph chGraph;
+    private final RoutingCHGraph chGraph;
     private IntHashSet coreExitPoints;
     private RoutingCHEdgeExplorer targetGraphExplorer;
     private MultiSourceStoppingCriterion stoppingCriterion;
     private int visitedNodes;
     private int treeEntrySize;
     private boolean hasTurnWeighting = false;
-    private int coreNodeLevel;
-    private int nodeCount;
+    private final int coreNodeLevel;
+    private final int nodeCount;
     private boolean swap = false;
 
     public DijkstraManyToMany(RoutingCHGraph chGraph, Weighting weighting, TraversalMode tMode) {

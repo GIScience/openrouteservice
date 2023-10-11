@@ -22,16 +22,17 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochronesResponse;
+import org.heigit.ors.api.services.IsochronesService;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
@@ -43,8 +44,6 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @Tag(name = "Isochrones Service", description = "Obtain areas of reachability from given locations")
@@ -60,10 +59,12 @@ public class IsochronesAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(IsochronesErrorCodes.BASE);
     private final EndpointsProperties endpointsProperties;
     private final SystemMessageProperties systemMessageProperties;
+    private final IsochronesService isochronesService;
 
-    public IsochronesAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties) {
+    public IsochronesAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, IsochronesService isochronesService) {
         this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
         this.systemMessageProperties = systemMessageProperties;
+        this.isochronesService = isochronesService;
     }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
@@ -90,10 +91,10 @@ public class IsochronesAPI {
     @PostMapping(value = "/{profile}", produces = "application/geo+json;charset=UTF-8")
     @Operation(
             description = """
-            The Isochrone Service supports time and distance analyses for one single or multiple locations.
-            You may also specify the isochrone interval or provide multiple exact isochrone range values.
-            This service allows the same range of profile options as the /directions endpoint,
-            which help you to further customize your request to obtain a more detailed reachability area response.""",
+                    The Isochrone Service supports time and distance analyses for one single or multiple locations.
+                    You may also specify the isochrone interval or provide multiple exact isochrone range values.
+                    This service allows the same range of profile options as the /directions endpoint,
+                    which help you to further customize your request to obtain a more detailed reachability area response.""",
             summary = "Isochrones Service"
     )
     @ApiResponse(
@@ -113,13 +114,14 @@ public class IsochronesAPI {
     @PostMapping(value = "/{profile}/geojson", produces = "application/geo+json;charset=UTF-8")
     @Operation(
             description = """
-            The Isochrone Service supports time and distance analyses for one single or multiple locations.
-            You may also specify the isochrone interval or provide multiple exact isochrone range values.
-            This service allows the same range of profile options as the /directions endpoint,
-            which help you to further customize your request to obtain a more detailed reachability area response.""",
+                    The Isochrone Service supports time and distance analyses for one single or multiple locations.
+                    You may also specify the isochrone interval or provide multiple exact isochrone range values.
+                    This service allows the same range of profile options as the /directions endpoint,
+                    which help you to further customize your request to obtain a more detailed reachability area response.""",
             summary = "Isochrones Service",
             hidden = true
     )
+
     @ApiResponse(
             responseCode = "200",
             description = "Standard response for successfully processed requests. Returns GeoJSON.",
@@ -134,7 +136,7 @@ public class IsochronesAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
-        request.generateIsochronesFromRequest(endpointsProperties);
+        isochronesService.generateIsochronesFromRequest(request);
         IsochroneMapCollection isoMaps = request.getIsoMaps();
         return new GeoJSONIsochronesResponse(request, isoMaps, systemMessageProperties, endpointsProperties);
     }

@@ -16,10 +16,10 @@ package org.heigit.ors.isochrones.statistics.postgresql;
 import com.graphhopper.util.Helper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
-import org.apache.log4j.Logger;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -44,6 +44,7 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
     private String geomColumn = null;
     private HikariDataSource dataSource;
     private String postgisVersion = null;
+
     /**
      * This function initializes the connection to the server according to the settings in the ors-config.json.
      * The connection is established using a {@link HikariDataSource} object with the configuration data from the ors-config.json.
@@ -136,7 +137,7 @@ public class PostgresSQLStatisticsProvider implements StatisticsProvider {
                     if (postgisVersion != null && Float.parseFloat(postgisVersion) > 2.4) {
                         sql = "SELECT ROUND((ST_SummaryStatsAgg(ST_Clip(" + geomColumn + ", poly), 1, TRUE, 1)).sum::numeric, 0) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 54009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
                     } else {
-                        sql = "SELECT ROUND(SUM((ST_SummaryStats(ST_Clip(" + geomColumn + ", poly))).sum)) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 54009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
+                        sql = "SELECT ROUND(SUM((ST_SummaryStats(ST_Clip(" + geomColumn + ", poly))).sum)) AS total_pop FROM " + tableName + ", ST_Transform(ST_GeomFromText('" + polyGeom + "', 4326), 954009) AS poly WHERE ST_Intersects(poly, " + geomColumn + ") GROUP BY poly;";
                     }
                 }
             }

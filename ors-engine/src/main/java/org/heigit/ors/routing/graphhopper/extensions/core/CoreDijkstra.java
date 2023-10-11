@@ -20,7 +20,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHEdgeExplorer;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.storage.RoutingCHGraph;
-import com.graphhopper.util.*;
+import com.graphhopper.util.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.PriorityQueue;
 
 /**
  * Calculates best path using core routing algorithm.
- *
+ * <p>
  * This code is based on that from GraphHopper GmbH.
  *
  * @author Peter Karich
@@ -105,8 +105,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
             if (considerTurnRestrictions(currFrom.adjNode))
                 initBestWeightMapEntryList(bestWeightMapFromCore, currFrom.adjNode).add(currFrom);
-        }
-        else {
+        } else {
             bestWeightMapOtherCH = bestWeightMapToCH;
             fillEdges(currFrom, fromPriorityQueueCH, bestWeightMapFromCH, null, outEdgeExplorer, false);
             visitedCountFrom1++;
@@ -128,8 +127,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
             // for regular CH Dijkstra we don't expect an entry to exist because the picked node is supposed to be already settled
             if (considerTurnRestrictions(currTo.adjNode))
                 initBestWeightMapEntryList(bestWeightMapToCore, currTo.adjNode).add(currTo);
-        }
-        else {
+        } else {
             bestWeightMapOtherCH = bestWeightMapFromCH;
             fillEdges(currTo, toPriorityQueueCH, bestWeightMapToCH, null, inEdgeExplorer, true);
             visitedCountTo1++;
@@ -264,8 +262,7 @@ public class CoreDijkstra extends AbstractCoreRoutingAlgorithm {
                 prioQueue.add(ee);
 
                 updateBestPathCore(ee, traversalId, reverse);
-            }
-            else {
+            } else {
                 CHEntry ee = bestWeightMap.get(traversalId);
                 if (ee == null) {
                     ee = new CHEntry(iter.getEdge(), getIncEdge(iter, reverse), iter.getAdjNode(), tmpWeight);

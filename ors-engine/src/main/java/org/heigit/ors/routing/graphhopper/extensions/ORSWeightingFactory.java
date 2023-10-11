@@ -22,7 +22,6 @@ import org.heigit.ors.routing.graphhopper.extensions.weighting.*;
 import org.heigit.ors.routing.traffic.RoutingTrafficSpeedCalculator;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -80,7 +79,7 @@ public class ORSWeightingFactory implements WeightingFactory {
             weightingStr = toLowerCase(profile.getWeighting());
         // ORS-GH MOD END
         if (weightingStr.isEmpty())
-                throw new IllegalArgumentException("You need to specify a weighting");
+            throw new IllegalArgumentException("You need to specify a weighting");
 
         Weighting weighting = null;
         if ("shortest".equalsIgnoreCase(weightingStr)) {
@@ -131,15 +130,12 @@ public class ORSWeightingFactory implements WeightingFactory {
         //Isochrones only support fastest or shortest as no path is found.
         //CalcWeight must be directly comparable to the isochrone limit
 
-        if ("shortest".equalsIgnoreCase(weightingStr))
-        {
+        if ("shortest".equalsIgnoreCase(weightingStr)) {
             result = new ShortestWeighting(encoder);
-        }
-        else if ("fastest".equalsIgnoreCase(weightingStr)
+        } else if ("fastest".equalsIgnoreCase(weightingStr)
                 || "priority".equalsIgnoreCase(weightingStr)
                 || "recommended_pref".equalsIgnoreCase(weightingStr)
-                || "recommended".equalsIgnoreCase(weightingStr))
-        {
+                || "recommended".equalsIgnoreCase(weightingStr)) {
             result = new FastestWeighting(encoder, requestHints);
         }
 
@@ -181,13 +177,11 @@ public class ORSWeightingFactory implements WeightingFactory {
     protected Weighting applySoftWeightings(PMap hints, FlagEncoder encoder, Weighting weighting) {
         // TODO (cleanup): The term "custom_weighting" is easily confused with GH's custom
         //                 weighting and should be renamed.
-        if (hints.getBool("custom_weightings", false))
-        {
+        if (hints.getBool("custom_weightings", false)) {
             Map<String, Object> map = hints.toMap();
 
             List<String> weightingNames = new ArrayList<>();
-            for (Map.Entry<String, Object> kv : map.entrySet())
-            {
+            for (Map.Entry<String, Object> kv : map.entrySet()) {
                 String name = ProfileWeighting.decodeName(kv.getKey());
                 if (name != null && !weightingNames.contains(name))
                     weightingNames.add(name);
@@ -221,15 +215,13 @@ public class ORSWeightingFactory implements WeightingFactory {
         return weighting;
     }
 
-    private PMap getWeightingProps(String weightingName, Map<String, Object> map)
-    {
+    private PMap getWeightingProps(String weightingName, Map<String, Object> map) {
         PMap res = new PMap();
 
         String prefix = "weighting_#" + weightingName;
         int n = prefix.length();
 
-        for (Map.Entry<String, Object> kv : map.entrySet())
-        {
+        for (Map.Entry<String, Object> kv : map.entrySet()) {
             String name = kv.getKey();
             int p = name.indexOf(prefix);
             if (p >= 0)
@@ -250,7 +242,7 @@ public class ORSWeightingFactory implements WeightingFactory {
         if (trafficGraphStorage != null) {
             RoutingTrafficSpeedCalculator routingTrafficSpeedCalculator = new RoutingTrafficSpeedCalculator(weighting.getSpeedCalculator(), ghStorage, weighting.getFlagEncoder());
 
-            if (time!=null) {
+            if (time != null) {
                 //Use fixed time zone because original implementation was for German traffic data
                 ZonedDateTime zdt = time.atZone(ZoneId.of("Europe/Berlin"));
                 routingTrafficSpeedCalculator.setZonedDateTime(zdt);

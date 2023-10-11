@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
@@ -32,6 +33,7 @@ import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.geojson.GeoJSONRouteResponse;
 import org.heigit.ors.api.responses.routing.gpx.GPXRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONRouteResponse;
+import org.heigit.ors.api.services.RoutingService;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.APIEnums;
@@ -44,8 +46,6 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @Tag(name = "Directions Service", description = "Get directions for different modes of transport")
@@ -62,10 +62,12 @@ public class RoutingAPI {
 
     private final EndpointsProperties endpointsProperties;
     private final SystemMessageProperties systemMessageProperties;
+    private final RoutingService routingService;
 
-    public RoutingAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties) {
+    public RoutingAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, RoutingService routingService) {
         this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
         this.systemMessageProperties = systemMessageProperties;
+        this.routingService = routingService;
     }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
@@ -94,9 +96,9 @@ public class RoutingAPI {
     @Operation(
             method = "GET",
             description = """
-            Get a basic route between two points with the profile provided. Returned response is in GeoJSON format. \
-            This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.\
-            """, summary = "Directions Service")
+                    Get a basic route between two points with the profile provided. Returned response is in GeoJSON format. \
+                    This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.\
+                    """, summary = "Directions Service")
     @ApiResponse(
             responseCode = "200",
             description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
@@ -111,7 +113,7 @@ public class RoutingAPI {
         RouteRequest request = new RouteRequest(start, end);
         request.setProfile(profile);
 
-        RouteResult[] result = request.generateRouteFromRequest();
+        RouteResult[] result = routingService.generateRouteFromRequest(request);
 
         return new GeoJSONRouteResponse(result, request, systemMessageProperties, endpointsProperties);
     }
@@ -152,7 +154,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
 
-        RouteResult[] result = request.generateRouteFromRequest();
+        RouteResult[] result = routingService.generateRouteFromRequest(request);
 
         return new JSONRouteResponse(result, request, systemMessageProperties, endpointsProperties);
     }
@@ -176,7 +178,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
 
-        RouteResult[] result = request.generateRouteFromRequest();
+        RouteResult[] result = routingService.generateRouteFromRequest(request);
 
         return new GPXRouteResponse(result, request, systemMessageProperties, endpointsProperties);
 
@@ -201,7 +203,7 @@ public class RoutingAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
-        RouteResult[] result = request.generateRouteFromRequest();
+        RouteResult[] result = routingService.generateRouteFromRequest(request);
 
         return new GeoJSONRouteResponse(result, request, systemMessageProperties, endpointsProperties);
     }
@@ -210,7 +212,6 @@ public class RoutingAPI {
     public ResponseEntity<Object> handleMissingParams(final MissingServletRequestParameterException e) {
         return errorHandler.handleStatusCodeException(new MissingParameterException(RoutingErrorCodes.MISSING_PARAMETER, e.getParameterName()));
     }
-
 
     @ExceptionHandler({HttpMessageNotReadableException.class, ConversionFailedException.class, HttpMessageConversionException.class, Exception.class})
     public ResponseEntity<Object> handleReadingBodyException(final Exception e) {

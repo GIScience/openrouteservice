@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.config;
 
+import com.graphhopper.util.Helper;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
@@ -37,6 +38,8 @@ public class AppConfig {
     private static AppConfig global;
     private static String osmMd5Hash = null;
     private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
+    private static final String SERVICE_NAME_ROUTING = "routing";
+    private static final String SERVICE_NAME_ISOCHRONES = "isochrones";
 
     public AppConfig(String path) {
         File file = new File(path);
@@ -46,6 +49,7 @@ public class AppConfig {
     public AppConfig() {
         try {
             File configFile;
+            String appConfigResource = "app.config";
             if (System.getProperty("ors_config") != null) {
                 configFile = new FileSystemResource(System.getProperty("ors_config")).getFile();
                 LOGGER.info("System property 'ors_config' used as configuration path");
@@ -58,7 +62,7 @@ public class AppConfig {
                         """);
                 LOGGER.warn("Use 'ors_config' instead");
             } else if (System.getenv("ORS_CONFIG") != null) {
-                configFile = new ClassPathResource(System.getenv("ORS_CONFIG")).getFile();
+                configFile = new FileSystemResource(System.getenv("ORS_CONFIG")).getFile();
                 LOGGER.info("Environment variable 'ORS_CONFIG' used as configuration path");
             } else if (System.getenv("ORS_APP_CONFIG") != null) {
                 configFile = new ClassPathResource(System.getenv("ORS_APP_CONFIG")).getFile();
@@ -71,14 +75,14 @@ public class AppConfig {
             } else if (new ClassPathResource("ors-config.json").isFile()) {
                 configFile = new ClassPathResource("ors-config.json").getFile();
                 LOGGER.info("Default path of 'ors-config.json' used for configuration");
-                if (new ClassPathResource("app.config").isFile()) {
+                if (new ClassPathResource(appConfigResource).isFile()) {
                     LOGGER.warn("""
                             DEPRECATION NOTICE: You seem to have an unused 'app.config' file, which won't be \
                             supported in the future\
                             """);
                 }
-            } else if (new ClassPathResource("app.config").isFile()) {
-                configFile = new ClassPathResource("app.config").getFile();
+            } else if (new ClassPathResource(appConfigResource).isFile()) {
+                configFile = new ClassPathResource(appConfigResource).getFile();
                 LOGGER.info("Deprecated path of 'app.config' used");
                 LOGGER.warn("""
                         DEPRECATION NOTICE: The used 'app.config' configuration path will not be supported in the \
@@ -95,9 +99,9 @@ public class AppConfig {
             config = ConfigFactory.parseFile(configFile);
             config = overrideFromEnvVariables(config);
 
+            LOGGER.warn("Deprecation notice: Old configuration method with JSON files is deprecated. Switch to ors-config.yml files!");
         } catch (IOException ioe) {
-            LOGGER.error("ORS can not run without a valid configuration, exiting. Message: " + ioe.getMessage());
-            System.exit(1);
+            // no deprecated JSON config found
         }
 
         //Modification by H Leuschner: Save md5 hash of map file in static String for access with every request
@@ -112,9 +116,6 @@ public class AppConfig {
                     LOGGER.error(e);
                 }
             }
-        } else {
-            LOGGER.error("ORS Configuration is invalid because 'graphs_root_path' is not set, exiting.");
-            System.exit(1);
         }
     }
 
@@ -185,9 +186,9 @@ public class AppConfig {
             ConfigObject configObj = config.getObject(rootPath);
             for (String key : configObj.keySet()) {
                 if (key.startsWith("profile-")) {
-                    String profileName = getServiceParameter("routing", "profiles." + key + ".profiles");
+                    String profileName = getServiceParameter(SERVICE_NAME_ROUTING, "profiles." + key + ".profiles");
                     if (profile.equals(profileName)) {
-                        String profileValue = getServiceParameter("routing", "profiles." + key + ".parameters." + paramName);
+                        String profileValue = getServiceParameter(SERVICE_NAME_ROUTING, "profiles." + key + ".parameters." + paramName);
                         if (profileValue != null) {
                             return profileValue;
                         }
@@ -299,5 +300,33 @@ public class AppConfig {
         }
 
         return result;
+    }
+
+    public static String getRoutingParameter(String paramName) {
+        return getGlobal().getServiceParameter(SERVICE_NAME_ROUTING, paramName);
+    }
+
+    public static String getRoutingParameter(String paramName, boolean notNull) {
+        String value = getGlobal().getServiceParameter(SERVICE_NAME_ROUTING, paramName);
+        if (notNull && Helper.isEmpty(value))
+            throw new IllegalArgumentException("Parameter '" + paramName + "' must not be null or empty.");
+
+        return value;
+    }
+
+    public static List<String> getRoutingParametersList(String paramName) {
+        return getGlobal().getServiceParametersList(SERVICE_NAME_ROUTING, paramName);
+    }
+
+    public static Map<String, Object> getRoutingParametersMap(String paramName, boolean quotedStrings) {
+        return getGlobal().getServiceParametersMap(SERVICE_NAME_ROUTING, paramName, quotedStrings);
+    }
+
+    public static List<String> getIsochronesParametersList(String paramName) {
+        return getGlobal().getServiceParametersList(SERVICE_NAME_ISOCHRONES, paramName);
+    }
+
+    public static Map<String, Object> getIsochronesParametersMap(String paramName, boolean quotedStrings) {
+        return getGlobal().getServiceParametersMap(SERVICE_NAME_ISOCHRONES, paramName, quotedStrings);
     }
 }

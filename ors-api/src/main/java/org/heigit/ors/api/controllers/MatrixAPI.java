@@ -26,11 +26,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.responses.matrix.json.JSONMatrixResponse;
+import org.heigit.ors.api.services.MatrixService;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
@@ -42,8 +44,6 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @Tag(name = "Matrix Service", description = "Obtain one-to-many, many-to-one and many-to-many matrices for time and distance")
@@ -59,10 +59,12 @@ public class MatrixAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(MatrixErrorCodes.BASE);
     private final EndpointsProperties endpointsProperties;
     private final SystemMessageProperties systemMessageProperties;
+    private final MatrixService matrixService;
 
-    public MatrixAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties) {
+    public MatrixAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, MatrixService matrixService) {
         this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
         this.systemMessageProperties = systemMessageProperties;
+        this.matrixService = matrixService;
     }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
@@ -90,9 +92,9 @@ public class MatrixAPI {
     @PostMapping(value = "/{profile}", produces = {"application/json;charset=UTF-8"})
     @Operation(
             description = """
-            Returns duration or distance matrix for multiple source and destination points.
-            By default a square duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.\
-            """,
+                    Returns duration or distance matrix for multiple source and destination points.
+                    By default a square duration matrix is returned where every point in locations is paired with each other. The result is null if a value can’t be determined.\
+                    """,
             summary = "Matrix Service"
     )
     @ApiResponse(
@@ -126,7 +128,7 @@ public class MatrixAPI {
             @Parameter(description = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
-        MatrixResult matrixResult = originalRequest.generateMatrixFromRequest(endpointsProperties);
+        MatrixResult matrixResult = matrixService.generateMatrixFromRequest(originalRequest);
 
         return new JSONMatrixResponse(matrixResult, originalRequest, systemMessageProperties, endpointsProperties);
     }

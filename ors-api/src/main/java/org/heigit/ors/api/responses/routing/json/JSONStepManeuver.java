@@ -41,7 +41,7 @@ public class JSONStepManeuver {
 
     public JSONStepManeuver(RouteStepManeuver maneuver) {
         Coordinate coordinate = maneuver.getLocation();
-        if(coordinate != null) {
+        if (coordinate != null) {
             if (!Double.isNaN(coordinate.z)) {
                 location = new Double[3];
                 location[2] = FormatUtility.roundToDecimals(coordinate.z, ELEVATION_DECIMAL_PLACES);

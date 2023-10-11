@@ -23,10 +23,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.responses.common.engineinfo.EngineInfo;
+import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.api.util.SystemMessage;
 import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.api.util.AppInfo;
-import org.json.JSONObject;
 
 @Schema(description = "Information about the request")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -38,13 +38,13 @@ public class RouteResponseInfo {
     @Schema(description = "Copyright and attribution information", example = "openrouteservice.org | OpenStreetMap contributors")
     @JsonProperty("attribution")
     private String attribution;
-    @Schema(description = "The MD5 hash of the OSM planet file that was used for generating graphs", example ="c0327ba6")
+    @Schema(description = "The MD5 hash of the OSM planet file that was used for generating graphs", example = "c0327ba6")
     @JsonProperty("osm_file_md5_hash")
     private String osmFileMD5Hash;
     @Schema(description = "The service that was requested", example = "routing")
     @JsonProperty("service")
     private final String service;
-    @Schema(description = "Time that the request was made (UNIX Epoch time)",example = "1549549847974")
+    @Schema(description = "Time that the request was made (UNIX Epoch time)", example = "1549549847974")
     @JsonProperty("timestamp")
     private final long timeStamp;
 
@@ -56,7 +56,7 @@ public class RouteResponseInfo {
     @JsonProperty("engine")
     private final EngineInfo engineInfo;
 
-    @Schema(description = "System message", example ="A message string configured in the service")
+    @Schema(description = "System message", example = "A message string configured in the service")
     @JsonProperty("system_message")
     private final String systemMessage;
 
@@ -64,11 +64,11 @@ public class RouteResponseInfo {
         service = "routing";
         timeStamp = System.currentTimeMillis();
 
-        if(AppConfig.hasValidMD5Hash())
+        if (AppConfig.hasValidMD5Hash())
             osmFileMD5Hash = AppConfig.getMD5Hash();
 
         if (!Helper.isEmpty(endpointsProperties.getRouting().getAttribution()))
-            attribution =  endpointsProperties.getRouting().getAttribution();
+            attribution = endpointsProperties.getRouting().getAttribution();
 
         if (request.hasId())
             id = request.getId();
@@ -85,34 +85,4 @@ public class RouteResponseInfo {
         engineInfo.setGraphDate(graphDate);
     }
 
-    @Schema(description = "Information about the version of the openrouteservice that was used to generate the route")
-    private static class EngineInfo {
-        @Schema(description = "The backend version of the openrouteservice that was queried", example = "5.0")
-        @JsonProperty("version")
-        private final String version;
-        @Schema(description = "The date that the service was last updated", example = "2019-02-07T14:28:11Z")
-        @JsonProperty("build_date")
-        private final String buildDate;
-        @Schema(description = "The date that the graph data was last updated", example = "2019-02-07T14:28:11Z")
-        @JsonProperty("graph_date")
-        private String graphDate;
-
-        public EngineInfo(JSONObject infoIn) {
-            version = infoIn.getString("version");
-            buildDate = infoIn.getString("build_date");
-            graphDate = "0000-00-00T00:00:00Z";
-        }
-
-        public void setGraphDate(String graphDate) {
-            this.graphDate = graphDate;
-        }
-
-        public String getVersion() {
-            return version;
-        }
-
-        public String getBuildDate() {
-            return buildDate;
-        }
-    }
 }

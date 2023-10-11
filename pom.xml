@@ -29,6 +29,7 @@
     <modules>
         <module>ors-engine</module>
         <module>ors-api</module>
+        <module>ors-report-aggregation</module>
     </modules>
 
     <properties>
@@ -56,16 +57,15 @@
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.organization>giscience</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml
+        <sonar.coverage.jacoco.xmlReportPaths>ors-report-aggregation/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <repositories>
         <repository>
-            <!--This will resolve special artifact through our own reopository (https://www.jfrog.com/confluence/display/RTF/Maven+Repository#MavenRepository-ResolvingArtifactsthroughArtifactory).-->
-            <id>HeiGIT main</id>
-            <name>Central repository for HeiGIT service dependency related artefacts</name>
-            <url>https://repo.heigit.org/artifactory/main</url>
+            <id>heigit-nexus-public</id>
+            <name>HeiGIT maven repositories</name>
+            <url>https://repo.heigit.org/repository/maven-public/</url>
         </repository>
         <repository>
             <id>osgeo</id>
@@ -241,6 +241,14 @@
             </plugin>
 
             <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
@@ -264,13 +272,12 @@
                             <goal>prepare-agent</goal>
                         </goals>
                         <configuration>
-                            <destFile>${sonar.coverage.jacoco.xmlReportPaths}</destFile>
                             <propertyName>surefireArgLine</propertyName>
                         </configuration>
                     </execution>
                     <execution>
                         <id>report</id>
-                        <phase>prepare-package</phase>
+                        <phase>test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>

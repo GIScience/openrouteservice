@@ -33,5 +33,7 @@ public class MatrixErrorCodes {
     public static final int UNKNOWN_PARAMETER = 6011;
     public static final int MAX_VISITED_NODES_EXCEEDED = 6020;
     public static final int UNKNOWN = 6099;
-    private MatrixErrorCodes() {}
+
+    private MatrixErrorCodes() {
+    }
 }

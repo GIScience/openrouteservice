@@ -11,9 +11,9 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 
 public class HeatStressWeighting extends FastestWeighting {
 
-    private CsvGraphStorage heatStressStorage;
-    private byte[] buffer;
-    private double weightingFactor;
+    private final CsvGraphStorage heatStressStorage;
+    private final byte[] buffer;
+    private final double weightingFactor;
     private final String columnName;
     private final int columnIndex; // Caches index of columnName for performance reasons
 
@@ -31,7 +31,8 @@ public class HeatStressWeighting extends FastestWeighting {
     public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
         if (heatStressStorage != null) {
             int stressLevel = heatStressStorage.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), columnIndex, buffer);
-            return stressLevel * weightingFactor / 100;
+            // Convert value range from [0,100] to [1,2] to avoid large detours and multiply by user weighting in API request
+            return (stressLevel * 0.01 * weightingFactor) + 1;
         }
 
         return 1.0;

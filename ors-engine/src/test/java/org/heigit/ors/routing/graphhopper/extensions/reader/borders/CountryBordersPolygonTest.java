@@ -25,12 +25,12 @@ class CountryBordersPolygonTest {
     GeometryFactory gf = new GeometryFactory();
 
     CountryBordersPolygon cbp;
-    Coordinate[] country1Geom = new Coordinate[] {
-            new Coordinate(0,0),
-            new Coordinate(-1,1),
-            new Coordinate(1,2),
-            new Coordinate(1,-1),
-            new Coordinate(0,0)
+    Coordinate[] country1Geom = new Coordinate[]{
+            new Coordinate(0, 0),
+            new Coordinate(-1, 1),
+            new Coordinate(1, 2),
+            new Coordinate(1, -1),
+            new Coordinate(0, 0)
     };
 
     public CountryBordersPolygonTest() {
@@ -58,7 +58,7 @@ class CountryBordersPolygonTest {
         Coordinate[] cbpCoords = boundary.getCoordinates();
         assertEquals(country1Geom.length, cbpCoords.length);
         assertEquals(country1Geom[0].x, cbpCoords[0].x, 0.0);
-        assertEquals(country1Geom[3].y, cbpCoords[3].y,0.0);
+        assertEquals(country1Geom[3].y, cbpCoords[3].y, 0.0);
     }
 
     /**
@@ -78,14 +78,14 @@ class CountryBordersPolygonTest {
      */
     @Test
     void TestIntersection() {
-        LineString ls = gf.createLineString(new Coordinate[] {
+        LineString ls = gf.createLineString(new Coordinate[]{
                 new Coordinate(0.5, 0.5),
                 new Coordinate(-10.5, -10.5)
         });
 
         assertTrue(cbp.crossesBoundary(ls));
 
-        ls = gf.createLineString(new Coordinate[] {
+        ls = gf.createLineString(new Coordinate[]{
                 new Coordinate(0.5, 0.5),
                 new Coordinate(0.25, 0.25)
         });

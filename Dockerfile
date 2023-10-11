@@ -28,7 +28,6 @@ RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOM
     mv /tmp/apache-tomcat-${TOMCAT_VERSION}/ /tmp/tomcat && \
     echo "org.apache.catalina.level = WARNING" >> /tmp/tomcat/conf/logging.properties
 
-
 FROM base as build
 
 # hadolint ignore=DL3002
@@ -37,29 +36,15 @@ USER root
 ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
-ARG ORS_CONFIG=ors-api/src/main/resources/ors-config-sample.json
-
 WORKDIR /ors-core
 
 COPY ors-api /ors-core/ors-api
 COPY ors-engine /ors-core/ors-engine
 COPY pom.xml /ors-core/pom.xml
-COPY $ORS_CONFIG /ors-core/ors-api/src/main/resources/ors-config.json
+COPY ors-report-aggregation /ors-core/ors-report-aggregation
 
-# Configure ors config:
-# Fist set pipefail to -c to allow intermediate pipes to throw errors
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-# - Replace paths in ors-config.json to match docker setup
-# - init_threads = 1, > 1 been reported some issues
-# - Delete all profiles but car
-RUN jq '.ors.services.routing.sources[0] = "/home/ors/ors-core/data/osm_file.pbf"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
-    jq '.ors.logging.location = "/home/ors/ors-core/logs/ors"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
-    jq '.ors.services.routing.profiles.default_params.elevation_cache_path = "/home/ors/ors-core/data/elevation_cache"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
-    jq '.ors.services.routing.profiles.default_params.graphs_root_path = "/home/ors/ors-core/data/graphs"' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
-    jq '.ors.services.routing.init_threads = 1' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json && \
-    jq 'del(.ors.services.routing.profiles.active[1,2,3,4,5,6,7,8])' /ors-core/ors-api/src/main/resources/ors-config.json | sponge /ors-core/ors-api/src/main/resources/ors-config.json
-
-RUN mvn package -DskipTests
+# Build the project and ignore the report aggregation module as not needed for the API
+RUN mvn package -DskipTests -pl '!ors-report-aggregation'
 
 # build final image, just copying stuff inside
 FROM amazoncorretto:17.0.7-alpine3.17 as publish
@@ -82,23 +67,24 @@ ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 RUN apk add --no-cache bash=~'5' openssl=~'3' && \
     addgroup -g ${GID} ors && \
     adduser -D -h ${BASE_FOLDER} -u ${UID} -G ors ors &&  \
-    mkdir -p ${BASE_FOLDER}/ors-core/logs/ors ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/tomcat/logs &&  \
-    chown -R ors ${BASE_FOLDER}/tomcat ${BASE_FOLDER}/ors-core/logs/ors ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/tomcat/logs
+    mkdir -p ${BASE_FOLDER}/ors-core/logs ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/ors-core/data ${BASE_FOLDER}/tomcat/logs &&  \
+    chown -R ors ${BASE_FOLDER}/tomcat ${BASE_FOLDER}/ors-core/logs ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/ors-core/data ${BASE_FOLDER}/tomcat/logs
 
 WORKDIR ${BASE_FOLDER}
 
 # Copy over the needed bits and pieces from the other stages.
-COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/ors-core/ors.war
-COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/ors-config.json ${BASE_FOLDER}/ors-core/ors-config.json
 COPY --chown=ors:ors --from=tomcat /tmp/tomcat ${BASE_FOLDER}/tomcat
-COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/lib/log4j.properties
-COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/ors-core/docker-entrypoint.sh
-COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/ors-core/data/osm_file.pbf
+COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/tomcat/webapps/ors.war
+COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/conf/logging.properties
+COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/docker-entrypoint.sh
+COPY --chown=ors:ors ./ors-api/ors-config.yml ${BASE_FOLDER}/tmp/ors-config.yml
+COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/tmp/osm_file.pbf
 
 USER ${UID}:${GID}
 
 ENV BUILD_GRAPHS="False"
+ENV ORS_CONFIG_LOCATION=ors-conf/ors-config.yml
 
 # Start the container
-ENTRYPOINT ["/home/ors/ors-core/docker-entrypoint.sh"]
+ENTRYPOINT ["/home/ors/docker-entrypoint.sh"]
 CMD ["/home/ors"]

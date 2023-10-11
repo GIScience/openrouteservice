@@ -36,6 +36,7 @@ RELEASING:
 ## [Unreleased]
 
 ### Added
+- snapping service endpoints for returning nearest points on the graph ([#1519](https://github.com/GIScience/openrouteservice/issues/1519))
 - workflow for RPM packaging ([#1490](https://github.com/GIScience/openrouteservice/pull/1490))
 - workflow for graph building with GitHub environments ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
 - environment variables for adjusting folders and paths during graph build using docker: ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
@@ -46,6 +47,7 @@ RELEASING:
 - add .editorconfig to streamline IDE code styling ([#1493](https://github.com/GIScience/openrouteservice/pull/1493))
 - info on duration format in parameter description ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - maven profile buildFatJar to build a fatJar (appliction with embedded tomcat, can be started with java -jar ors.jar) instead of a war file
+- YML configuration ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
 
 ### Changed
 - url_check.sh to support custom sleep and reporting intervals ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
@@ -55,6 +57,12 @@ RELEASING:
 - cleanup StatusCodeCaptureWrapper class ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - spring-boot-starter-parent to v3.1.1 ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - from springdoc-openapi-ui package to springdoc-openapi-starter-webmvc-ui ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
+- increase edge splitting threshold for generating isochrones ([#1508](https://github.com/GIScience/openrouteservice/pull/1508))
+- refactor RoutingProfile (part of [#1520](https://github.com/GIScience/openrouteservice/issues/1520))
+- update maven repository for dependencies ([#1536](https://github.com/GIScience/openrouteservice/pull/1536))
+
+### Deprecated
+- JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
 
 ### Removed
 - dependency on apache-curator ([#1496](https://github.com/GIScience/openrouteservice/issues/1496))
@@ -64,6 +72,7 @@ RELEASING:
 - Centrality API and implementation (use export API and external centrality tools instead)
 - workaround for springfox-swagger package & GroupedOpenApi builders ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - wrong instanceof checks/casts for RoutingCHGraph ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
+- Fix the ElevationSmoother ([#1511](https://github.com/GIScience/openrouteservice/pull/1511))
 
 ### Fixed
 - GTFS issues with old jts-core version used in GH ([#1501](https://github.com/GIScience/openrouteservice/pull/1501))
@@ -75,6 +84,8 @@ RELEASING:
 - Java17 style issues ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - defaultValue for matrix 'metrics' parameter ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - schema type for parameters of type Duration ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
+- Fix the max visited nodes bug for fast-isochrones ([#1538](https://github.com/GIScience/openrouteservice/pull/1538))
+- adjust weighting of heat stress routing to avoid large detours
 
 ## [7.1.0] - 2023-06-13
 ### Added

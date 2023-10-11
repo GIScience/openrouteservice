@@ -13,34 +13,14 @@
  */
 package org.heigit.ors.routing;
 
-import com.graphhopper.util.Helper;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Polygon;
-import org.heigit.ors.common.StatusCode;
-import org.heigit.ors.config.AppConfig;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.exceptions.UnknownParameterValueException;
-import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
-import org.heigit.ors.routing.parameters.WheelchairParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.heigit.ors.util.GeomUtility;
-import org.heigit.ors.util.StringUtility;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.locationtech.jts.geom.Polygon;
 
-import java.text.ParseException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Iterator;
 
 /**
  * This class is used to store the search/calculation Parameters to calculate the desired Route/Isochrones etc…
@@ -48,13 +28,6 @@ import java.util.Iterator;
  */
 public class RouteSearchParameters {
 
-    public static final String KEY_AVOID_COUNTRIES = "avoid_countries";
-    public static final String KEY_AVOID_BORDERS = "avoid_borders";
-    public static final String KEY_PROFILE_PARAMS = "profile_params";
-    public static final String KEY_AVOID_FEATURES = "avoid_features";
-    public static final String KEY_AVOID_POLYGONS = "avoid_polygons";
-    public static final String KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR = "alternative_routes_weight_factor";
-    public static final String KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR = "alternative_routes_share_factor";
     public static final int DEFAULT_HGV_VEHICLE_TYPE = HeavyVehicleAttributes.HGV;
     private int profileType;
     private int weightingMethod = WeightingMethod.RECOMMENDED;
@@ -84,9 +57,6 @@ public class RouteSearchParameters {
 
     private double maximumSpeed;
     private boolean hasMaximumSpeed = false;
-
-    private String options;
-
     private LocalDateTime departure;
     private LocalDateTime arrival;
     private int scheduleRows;
@@ -224,259 +194,6 @@ public class RouteSearchParameters {
         this.suppressWarnings = suppressWarnings;
     }
 
-    public String getOptions() {
-        return options;
-    }
-
-    public void setOptions(String options) throws Exception {
-        if (options == null)
-            return;
-
-        this.options = StringUtility.trim(options, '\"');
-        JSONObject json;
-        try {
-            json = new JSONObject(this.options);
-        } catch (Exception ex) {
-            throw new ParseException(ex.getMessage(), 0);
-        }
-
-        if (json.has(KEY_AVOID_FEATURES)) {
-            String keyValue = json.getString(KEY_AVOID_FEATURES);
-            if (!Helper.isEmpty(keyValue)) {
-                String[] avoidFeatures = keyValue.split("\\|");
-                if (avoidFeatures.length > 0) {
-                    int flags = 0;
-                    for (String featName : avoidFeatures) {
-                        if (featName != null) {
-                            int flag = AvoidFeatureFlags.getFromString(featName);
-                            if (flag == 0)
-                                throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_FEATURES, featName);
-
-                            if (!AvoidFeatureFlags.isValid(profileType, flag))
-                                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_FEATURES, featName);
-
-                            flags |= flag;
-                        }
-                    }
-                    if (flags != 0)
-                        avoidFeaturesTypes = flags;
-                }
-            }
-        }
-
-        if (json.has(KEY_AVOID_COUNTRIES)) {
-            String keyValue = json.getString(KEY_AVOID_COUNTRIES);
-            if (!Helper.isEmpty(keyValue)) {
-                String[] countries = keyValue.split("\\|");
-                if (countries.length > 0) {
-                    this.avoidCountries = new int[countries.length];
-                    for (int i = 0; i < countries.length; i++) {
-                        try {
-                            this.avoidCountries[i] = Integer.parseInt(countries[i]);
-                        } catch (NumberFormatException nfe) {
-                            // Check if ISO-3166-1 Alpha-2 / Alpha-3 code
-                            int countryId = CountryBordersReader.getCountryIdByISOCode(countries[i]);
-                            if (countryId > 0) {
-                                this.avoidCountries[i] = countryId;
-                            } else {
-                                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_COUNTRIES, countries[i]);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (json.has(KEY_AVOID_BORDERS)) {
-            String keyValue = json.getString(KEY_AVOID_BORDERS);
-            if (!Helper.isEmpty(keyValue)) {
-                if (keyValue.equals("controlled")) {
-                    avoidBorders = BordersExtractor.Avoid.CONTROLLED;
-                } else if (keyValue.equals("all")) {
-                    avoidBorders = BordersExtractor.Avoid.ALL;
-                } else {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_BORDERS, keyValue);
-                }
-            }
-        }
-
-        if (json.has(KEY_PROFILE_PARAMS) && profileType == RoutingProfileType.DRIVING_CAR) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_PROFILE_PARAMS);
-        } else if (json.has(KEY_PROFILE_PARAMS)) {
-            JSONObject jProfileParams = json.getJSONObject(KEY_PROFILE_PARAMS);
-            JSONObject jRestrictions = null;
-
-            if (jProfileParams.has("restrictions"))
-                jRestrictions = jProfileParams.getJSONObject("restrictions");
-
-            if (RoutingProfileType.isHeavyVehicle(profileType)) {
-                VehicleParameters vehicleParams = new VehicleParameters();
-
-                if (json.has("vehicle_type")) {
-                    String type = json.getString("vehicle_type");
-                    setVehicleType(HeavyVehicleAttributes.getFromString(type));
-                }
-
-                // Since 4.2, all restrictions are packed in its own element
-                if (jRestrictions == null)
-                    jRestrictions = jProfileParams;
-
-                if (jRestrictions.has("length"))
-                    vehicleParams.setLength(jRestrictions.getDouble("length"));
-
-                if (jRestrictions.has("width"))
-                    vehicleParams.setWidth(jRestrictions.getDouble("width"));
-
-                if (jRestrictions.has("height"))
-                    vehicleParams.setHeight(jRestrictions.getDouble("height"));
-
-                if (jRestrictions.has("weight"))
-                    vehicleParams.setWeight(jRestrictions.getDouble("weight"));
-
-                if (jRestrictions.has("axleload"))
-                    vehicleParams.setAxleload(jRestrictions.getDouble("axleload"));
-
-                int loadCharacteristics = 0;
-                if (jRestrictions.has("hazmat") && jRestrictions.getBoolean("hazmat"))
-                    loadCharacteristics |= VehicleLoadCharacteristicsFlags.HAZMAT;
-
-                if (loadCharacteristics != 0)
-                    vehicleParams.setLoadCharacteristics(loadCharacteristics);
-
-                profileParams = vehicleParams;
-            } else if (profileType == RoutingProfileType.WHEELCHAIR) {
-                WheelchairParameters wheelchairParams = new WheelchairParameters();
-
-                // Since 4.2, all restrictions are packed in its own element
-                if (jRestrictions == null)
-                    jRestrictions = jProfileParams;
-
-                if (jRestrictions.has("surface_type"))
-                    wheelchairParams.setSurfaceType(WheelchairTypesEncoder.getSurfaceType(jRestrictions.getString("surface_type")));
-
-                if (jRestrictions.has("track_type"))
-                    wheelchairParams.setTrackType(WheelchairTypesEncoder.getTrackType(jRestrictions.getString("track_type")));
-
-                if (jRestrictions.has("smoothness_type"))
-                    wheelchairParams.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.forValue(jRestrictions.getString("smoothness_type"))));
-
-                if (jRestrictions.has("maximum_sloped_kerb"))
-                    wheelchairParams.setMaximumSlopedKerb((float) jRestrictions.getDouble("maximum_sloped_kerb"));
-
-                if (jRestrictions.has("maximum_incline"))
-                    wheelchairParams.setMaximumIncline((float) jRestrictions.getDouble("maximum_incline"));
-
-                if (jRestrictions.has("minimum_width")) {
-                    wheelchairParams.setMinimumWidth((float) jRestrictions.getDouble("minimum_width"));
-                }
-
-                if (jRestrictions.has("surface_quality_known")) {
-                    wheelchairParams.setSurfaceQualityKnown(jRestrictions.getBoolean("surface_quality_known"));
-                }
-
-                profileParams = wheelchairParams;
-            } else
-                profileParams = new ProfileParameters();
-
-            processWeightings(jProfileParams, profileParams);
-        }
-
-        if (json.has(KEY_AVOID_POLYGONS)) {
-            JSONObject jFeature = (JSONObject) json.get(KEY_AVOID_POLYGONS);
-
-            Geometry geom = null;
-            try {
-                geom = GeometryJSON.parse(jFeature);
-            } catch (Exception ex) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_JSON_FORMAT, KEY_AVOID_POLYGONS);
-            }
-
-            if (geom instanceof Polygon polygon) {
-                avoidAreas = new Polygon[]{polygon};
-            } else if (geom instanceof MultiPolygon multiPoly) {
-                avoidAreas = new Polygon[multiPoly.getNumGeometries()];
-                for (int i = 0; i < multiPoly.getNumGeometries(); i++)
-                    avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
-            } else {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, KEY_AVOID_POLYGONS);
-            }
-
-            String paramMaxAvoidPolygonArea = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_area");
-            String paramMaxAvoidPolygonExtent = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_avoid_polygon_extent");
-            double areaLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonArea) ? 0 : Double.parseDouble(paramMaxAvoidPolygonArea);
-            double extentLimit = StringUtility.isNullOrEmpty(paramMaxAvoidPolygonExtent) ? 0 : Double.parseDouble(paramMaxAvoidPolygonExtent);
-            for (Polygon avoidArea : avoidAreas) {
-                try {
-                    if (areaLimit > 0) {
-                        long area = Math.round(GeomUtility.getArea(avoidArea, true));
-                        if (area > areaLimit) {
-                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "The area of a polygon to avoid must not exceed %s square meters.".formatted(areaLimit));
-                        }
-                    }
-                    if (extentLimit > 0) {
-                        long extent = Math.round(GeomUtility.calculateMaxExtent(avoidArea));
-                        if (extent > extentLimit) {
-                            throw new StatusCodeException(StatusCode.BAD_REQUEST, RoutingErrorCodes.INVALID_PARAMETER_VALUE, "The extent of a polygon to avoid must not exceed %s meters.".formatted(extentLimit));
-                        }
-                    }
-                } catch (InternalServerException e) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_AVOID_POLYGONS);
-                }
-            }
-        }
-
-        if (json.has("alternative_routes_count")) {
-            try {
-                alternativeRoutesCount = json.getInt("alternative_routes_count");
-            } catch (Exception ex) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, "alternative_routes", json.getString("alternative_routes"));
-            }
-            String paramMaxAlternativeRoutesCount = AppConfig.getGlobal().getRoutingProfileParameter(RoutingProfileType.getName(profileType), "maximum_alternative_routes");
-            int countLimit = StringUtility.isNullOrEmpty(paramMaxAlternativeRoutesCount) ? 0 : Integer.parseInt(paramMaxAlternativeRoutesCount);
-            if (countLimit > 0 && alternativeRoutesCount > countLimit) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_ALTERNATIVE_ROUTES, Integer.toString(alternativeRoutesCount), "The target alternative routes count has to be equal to or less than " + paramMaxAlternativeRoutesCount);
-            }
-            if (json.has(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR)) {
-                try {
-                    alternativeRoutesWeightFactor = json.getDouble(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR);
-                } catch (Exception ex) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR, json.getString(KEY_ALTERNATIVE_ROUTES_WEIGHT_FACTOR));
-                }
-            }
-            if (json.has(KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR)) {
-                try {
-                    alternativeRoutesShareFactor = json.getDouble(KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR);
-                } catch (Exception ex) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR, json.getString(KEY_ALTERNATIVE_ROUTES_SHARE_FACTOR));
-                }
-            }
-        }
-    }
-
-    private void processWeightings(JSONObject json, ProfileParameters profileParams) throws Exception {
-        if (json != null && json.has("weightings")) {
-            JSONObject jWeightings = json.getJSONObject("weightings");
-            JSONArray jNames = jWeightings.names();
-
-            if (jNames == null)
-                return;
-
-            for (int i = 0; i < jNames.length(); i++) {
-                String name = jNames.getString(i);
-                ProfileWeighting pw = new ProfileWeighting(name);
-
-                JSONObject jw = jWeightings.getJSONObject(name);
-                Iterator<String> keys = jw.keys();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    pw.addParameter(key, jw.optString(key));
-                }
-
-                profileParams.add(pw);
-            }
-        }
-    }
-
     public boolean hasParameters(Class<?> value) {
         if (profileParams == null)
             return false;
@@ -587,14 +304,14 @@ public class RouteSearchParameters {
 
     public boolean requiresDynamicPreprocessedWeights() {
         return hasAvoidAreas()
-            || hasAvoidFeatures()
-            || hasAvoidBorders()
-            || hasAvoidCountries()
-            || getConsiderTurnRestrictions()
-            || hasNonDefaultVehicleType()
-            || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
-            || hasMaximumSpeed()
-            || hasFlexibleMode();
+                || hasAvoidFeatures()
+                || hasAvoidBorders()
+                || hasAvoidCountries()
+                || getConsiderTurnRestrictions()
+                || hasNonDefaultVehicleType()
+                || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
+                || hasMaximumSpeed()
+                || hasFlexibleMode();
     }
 
     /**
@@ -602,10 +319,10 @@ public class RouteSearchParameters {
      */
     public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
-            || hasBearings()
-            || hasContinueStraight()
-            || (getProfileParameters() != null && getProfileParameters().hasWeightings())
-            || getAlternativeRoutesCount() > 0;
+                || hasBearings()
+                || hasContinueStraight()
+                || (getProfileParameters() != null && getProfileParameters().hasWeightings())
+                || getAlternativeRoutesCount() > 0;
     }
 
     // time-dependent stuff
@@ -618,7 +335,7 @@ public class RouteSearchParameters {
     }
 
     public boolean hasDeparture() {
-        return departure!=null;
+        return departure != null;
     }
 
     public LocalDateTime getArrival() {
@@ -629,7 +346,9 @@ public class RouteSearchParameters {
         this.arrival = arrival;
     }
 
-    public boolean hasArrival() { return arrival!=null; }
+    public boolean hasArrival() {
+        return arrival != null;
+    }
 
     public boolean isTimeDependent() {
         return (hasDeparture() || hasArrival());

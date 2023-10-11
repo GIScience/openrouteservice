@@ -25,11 +25,11 @@
 
 package org.heigit.ors.util.mockuputil;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.routing.RouteInstructionsFormat;
 import org.heigit.ors.routing.RoutingRequest;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
+import org.locationtech.jts.geom.Coordinate;
 
 /**
  * This is a {@link org.heigit.ors.routing.RoutingRequest} Mockup-Class, used in junit tests and wherever needed.
@@ -40,6 +40,7 @@ import org.heigit.ors.routing.pathprocessors.BordersExtractor;
  *
  * @author Julian Psotta, julian@openrouteservice.org
  */
+// TODO Refactoring: check why this is not in use and still here
 public class RoutingRequestMockup {
 
     private final RoutingRequest routingRequest;
@@ -135,7 +136,6 @@ public class RoutingRequestMockup {
             routingRequest.getSearchParameters().setConsiderTurnRestrictions(false);
             routingRequest.getSearchParameters().setFlexibleMode(false);
             routingRequest.getSearchParameters().setMaximumRadiuses(null);
-            routingRequest.getSearchParameters().setOptions(null);
             routingRequest.getSearchParameters().setProfileType(1);
             routingRequest.getSearchParameters().setVehicleType(0);
             routingRequest.getSearchParameters().setWeightingMethod(1);

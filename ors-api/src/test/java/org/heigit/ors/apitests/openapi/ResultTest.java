@@ -59,6 +59,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'tags' }", is(true))
                 .body("any { it.key == 'paths' }", is(true))
                 .body("any { it.key == 'components' }", is(true))
+                .body("info", hasKey("x-ors-version"))
                 .body("servers", hasSize(2))
                 .body("servers[0].url", hasToString("https://api.openrouteservice.org"))
                 .body("servers[1].url", hasToString("http://localhost:{port}{basePath}"))

@@ -33,7 +33,7 @@ public class OsmIdGraphStorage implements GraphExtension {
      * at the time tests are run
      */
     public void init() {
-        if(edgesCount > 0)
+        if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
         Directory d = new RAMDirectory();
         this.orsEdges = d.find("");
@@ -65,7 +65,7 @@ public class OsmIdGraphStorage implements GraphExtension {
 
     public boolean loadExisting() {
         if (!orsEdges.loadExisting())
-            throw new IllegalStateException("Unable to load storage 'ext_osmids'. corrupt file or directory? " );
+            throw new IllegalStateException("Unable to load storage 'ext_osmids'. corrupt file or directory? ");
 
         edgeEntryBytes = orsEdges.getHeader(0);
         edgesCount = orsEdges.getHeader(4);
@@ -78,8 +78,9 @@ public class OsmIdGraphStorage implements GraphExtension {
 
     /**
      * Set the osm id of an edge to the spcified value.
-     * @param edgeId    The internal id of the edge in the graph
-     * @param osmId     The osm idto be assigned ot the edge
+     *
+     * @param edgeId The internal id of the edge in the graph
+     * @param osmId  The osm idto be assigned ot the edge
      */
     public void setEdgeValue(int edgeId, long osmId) {
         edgesCount++;
@@ -97,8 +98,9 @@ public class OsmIdGraphStorage implements GraphExtension {
 
     /**
      * Get the OSM id of the edge specified
-     * @param edgeId    The internal graph id of the edge that the OSM way ID is required for
-     * @return          The OSM ID that was stored for the edge (normally the OSM ID of the way the edge was created from)
+     *
+     * @param edgeId The internal graph id of the edge that the OSM way ID is required for
+     * @return The OSM ID that was stored for the edge (normally the OSM ID of the way the edge was created from)
      */
     public long getEdgeValue(int edgeId) {
         byte[] buffer = new byte[4];

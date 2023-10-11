@@ -5,17 +5,28 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.api.CorsProperties;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.config.AppConfig;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.util.StringUtility;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AppConfigMigration {
     private static final Logger LOGGER = Logger.getLogger(AppConfigMigration.class.getName());
     public static final String SERVICE_NAME_ISOCHRONES = "isochrones";
+    public static final String SERVICE_NAME_FASTISOCHRONES = "fastisochrones.";
+    public static final String PARAM_STATISTICS_PROVIDERS = "statistics_providers.";
     public static final String SERVICE_NAME_MATRIX = "matrix";
     public static final String SERVICE_NAME_ROUTING = "routing";
-    private static AppConfig config = AppConfig.getGlobal();
+    private static final String PARAM_ENABLED = "enabled";
+    private static final String PARAM_ATTRIBUTION = "attribution";
+    private static final String PARAM_MAXIMUM_RANGE_DISTANCE = "maximum_range_distance";
+    private static final String PARAM_MAXIMUM_RANGE_TIME = "maximum_range_time";
+
+
+    private static final AppConfig config = AppConfig.getGlobal();
 
     private AppConfigMigration() {
     }
@@ -69,8 +80,9 @@ public class AppConfigMigration {
         if (!StringUtility.isNullOrEmpty(swaggerDocumentationUrl))
             endpoints.setSwaggerDocumentationUrl(swaggerDocumentationUrl);
 
+// ### Isochrones ###
         EndpointsProperties.EndpointIsochroneProperties isochrones = endpoints.getIsochrone();
-        String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "enabled");
+        String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_ENABLED);
         if (value != null)
             isochrones.setEnabled(Boolean.parseBoolean(value));
         value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
@@ -82,15 +94,98 @@ public class AppConfigMigration {
         value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_intervals");
         if (value != null)
             isochrones.setMaximumIntervals(Integer.parseInt(value));
-        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "attribution");
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_ATTRIBUTION);
         if (value != null)
             isochrones.setAttribution(value);
 
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_RANGE_DISTANCE);
+        if (value != null)
+            isochrones.setMaximumRangeDistanceDefault(Integer.parseInt(value));
+        else {
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_RANGE_DISTANCE);
+            int def = parseProfileValues(params, isochrones.getProfileMaxRangeDistances());
+            if (def != -1)
+                isochrones.setMaximumRangeDistanceDefault(def);
+        }
+
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_RANGE_TIME);
+        if (value != null)
+            isochrones.setMaximumRangeTimeDefault(Integer.parseInt(value));
+        else {
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_RANGE_TIME);
+            int def = parseProfileValues(params, isochrones.getProfileMaxRangeTimes());
+            if (def != -1)
+                isochrones.setMaximumRangeTimeDefault(def);
+        }
+
+        EndpointsProperties.MaximumRangeProperties fastisochrones = isochrones.getFastisochrones();
+
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + PARAM_MAXIMUM_RANGE_DISTANCE);
+        if (value != null)
+            fastisochrones.setMaximumRangeDistanceDefault(Integer.parseInt(value));
+        else {
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + PARAM_MAXIMUM_RANGE_DISTANCE);
+            int def = parseProfileValues(params, fastisochrones.getProfileMaxRangeDistances());
+            if (def != -1)
+                fastisochrones.setMaximumRangeDistanceDefault(def);
+        }
+
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + PARAM_MAXIMUM_RANGE_TIME);
+        if (value != null)
+            fastisochrones.setMaximumRangeTimeDefault(Integer.parseInt(value));
+        else {
+            List<? extends ConfigObject> params = config.getObjectList(SERVICE_NAME_ISOCHRONES, SERVICE_NAME_FASTISOCHRONES + PARAM_MAXIMUM_RANGE_TIME);
+            int def = parseProfileValues(params, fastisochrones.getProfileMaxRangeTimes());
+            if (def != -1)
+                fastisochrones.setMaximumRangeTimeDefault(def);
+        }
+
+        Map<String, EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties> statisticsProviderPropertiesMap = new HashMap<>();
+        Map<String, Object> providers = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, "statistics_providers", false);
+        if (providers != null) {
+            for (Map.Entry<String, Object> entry : providers.entrySet()) {
+
+                Map<String, Object> provider = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey(), false);
+
+                if (provider.containsKey("provider_name") && provider.containsKey("provider_parameters") && provider.containsKey("property_mapping")) {
+                    EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties statisticsProviderProperties = new EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties();
+                    statisticsProviderProperties.setProviderName(provider.get("provider_name").toString());
+                    Map<String, Object> providerParams = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".provider_parameters", false);
+                    statisticsProviderProperties.setProviderParameters(providerParams);
+                    Map<String, Object> map = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".property_mapping", false);
+                    Map<String, String> propMapping = new HashMap<>();
+                    for (Map.Entry<String, Object> propEntry : map.entrySet())
+                        propMapping.put(propEntry.getKey(), propEntry.getValue().toString());
+                    statisticsProviderProperties.setPropertyMapping(propMapping);
+
+                    value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".enabled");
+                    if (value != null)
+                        statisticsProviderProperties.setEnabled(Boolean.parseBoolean(value));
+                    value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".attribution");
+                    if (value != null)
+                        statisticsProviderProperties.setAttribution(value);
+
+                    statisticsProviderPropertiesMap.put(entry.getKey(), statisticsProviderProperties);
+                }
+            }
+        }
+        isochrones.getStatisticsProviders().putAll(statisticsProviderPropertiesMap);
+
+// ### Snap ###
+        EndpointsProperties.EndpointSnapProperties snap = endpoints.getSnap();
+        value = config.getServiceParameter("snap", "enabled");
+        if (value != null)
+            snap.setEnabled(Boolean.parseBoolean(value));
+        value = config.getServiceParameter("snap", "attribution");
+        if (value != null)
+            snap.setAttribution(value);
+
+// ### Matrix ###
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();
-        value = config.getServiceParameter(SERVICE_NAME_MATRIX, "enabled");
+        value = config.getServiceParameter(SERVICE_NAME_MATRIX, PARAM_ENABLED);
         if (value != null)
             matrix.setEnabled(Boolean.parseBoolean(value));
-        value = config.getServiceParameter(SERVICE_NAME_MATRIX, "attribution");
+        value = config.getServiceParameter(SERVICE_NAME_MATRIX, PARAM_ATTRIBUTION);
         if (value != null)
             matrix.setAttribution(value);
         value = config.getServiceParameter(SERVICE_NAME_MATRIX, "maximum_search_radius");
@@ -109,11 +204,12 @@ public class AppConfigMigration {
         if (value != null)
             matrix.setMaximumRoutesFlexible(Math.max(1, Integer.parseInt(value)));
 
+// ### Routing ###
         EndpointsProperties.EndpointRoutingProperties routing = endpoints.getRouting();
-        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "enabled");
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, PARAM_ENABLED);
         if (value != null)
             routing.setEnabled(Boolean.parseBoolean(value));
-        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "attribution");
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, PARAM_ATTRIBUTION);
         if (value != null)
             routing.setAttribution(value);
         String baseUrl = config.getParameter("info", "base_url");
@@ -131,7 +227,37 @@ public class AppConfigMigration {
         value = config.getServiceParameter(SERVICE_NAME_ROUTING, "routing_name");
         if (value != null)
             routing.setGpxName(value);
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "maximum_avoid_polygon_area");
+        if (value != null)
+            routing.setMaximumAvoidPolygonArea(Math.max(1, Double.parseDouble(value)));
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "maximum_avoid_polygon_extent");
+        if (value != null)
+            routing.setMaximumAvoidPolygonArea(Math.max(1, Double.parseDouble(value)));
+        value = config.getServiceParameter(SERVICE_NAME_ROUTING, "profiles.default_params.maximum_alternative_routes");
+        if (value != null)
+            routing.setMaximumAlternativeRoutes(Math.max(1, Integer.parseInt(value)));
 
         return endpoints;
+    }
+
+    private static int parseProfileValues(List<? extends ConfigObject> params, Map<Integer, Integer> map) {
+        int def = -1;
+        for (ConfigObject cfgObj : params) {
+            if (cfgObj.containsKey("profiles") && cfgObj.containsKey("value")) {
+                String[] profiles = cfgObj.toConfig().getString("profiles").split(",");
+                int value = cfgObj.toConfig().getInt("value");
+                for (String profileStr : profiles) {
+                    profileStr = profileStr.trim();
+                    if ("any".equalsIgnoreCase(profileStr)) {
+                        def = value;
+                    } else {
+                        Integer profile = RoutingProfileType.getFromString(profileStr);
+                        if (profile != RoutingProfileType.UNKNOWN)
+                            map.put(profile, value);
+                    }
+                }
+            }
+        }
+        return def;
     }
 }

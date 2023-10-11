@@ -17,7 +17,7 @@ public class WheelchairWayFilter implements OSMFeatureFilter {
 
     @Override
     public void assignFeatureForFiltering(ReaderElement element) throws InvalidObjectException {
-        if(element instanceof ReaderWay way) {
+        if (element instanceof ReaderWay way) {
 
             if (osmAttachedSidewalkProcessor.hasSidewalkInfo(way)) {
                 this.osmWay = new WheelchairSidewalkWay(way);

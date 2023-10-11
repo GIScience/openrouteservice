@@ -13,14 +13,15 @@
  */
 package org.heigit.ors.apitests.routing;
 
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.HelperFunctions;
-import org.heigit.ors.apitests.common.EndPointAnnotation;
-import org.heigit.ors.config.AppConfig;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +35,9 @@ import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
 class ParamsTest extends ServiceTest {
+
+    @Autowired
+    EndpointsProperties endpointsProperties;
 
     public ParamsTest() {
         JSONArray coordsShort = new JSONArray();
@@ -701,7 +705,7 @@ class ParamsTest extends ServiceTest {
         options.put("avoid_polygons", avoidGeom);
         body.put("options", options);
 
-        double maximumAvoidPolygonExtent = Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_extent"));
+        double maximumAvoidPolygonExtent = endpointsProperties.getRouting().getMaximumAvoidPolygonExtent();
         given()
                 .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
@@ -723,7 +727,7 @@ class ParamsTest extends ServiceTest {
         options.put("avoid_polygons", avoidGeom);
         body.put("options", options);
 
-        double maximumAvoidPolygonArea = Double.parseDouble(AppConfig.getGlobal().getServiceParameter("routing", "profiles.default_params.maximum_avoid_polygon_area"));
+        double maximumAvoidPolygonArea = endpointsProperties.getRouting().getMaximumAvoidPolygonArea();
         given()
                 .headers(jsonContent)
                 .pathParam("profile", getParameter("carProfile"))

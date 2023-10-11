@@ -17,35 +17,36 @@ import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
 
 public class DistanceUnitUtil {
-	private DistanceUnitUtil() {}
+    private DistanceUnitUtil() {
+    }
 
-	public static DistanceUnit getFromString(String value, DistanceUnit defaultValue) {
-		return switch (value) {
-			case "m", "meters" -> DistanceUnit.METERS;
-			case "km", "kilometers" -> DistanceUnit.KILOMETERS;
-			case "mi", "miles" -> DistanceUnit.MILES;
-			default -> defaultValue;
-		};
-	}
+    public static DistanceUnit getFromString(String value, DistanceUnit defaultValue) {
+        return switch (value) {
+            case "m", "meters" -> DistanceUnit.METERS;
+            case "km", "kilometers" -> DistanceUnit.KILOMETERS;
+            case "mi", "miles" -> DistanceUnit.MILES;
+            default -> defaultValue;
+        };
+    }
 
-	public static String toString( DistanceUnit unit) {
-		return switch (unit) {
-			case METERS -> "m";
-			case KILOMETERS -> "km";
-			case MILES -> "mi";
-			default -> "";
-		};
-	}
+    public static String toString(DistanceUnit unit) {
+        return switch (unit) {
+            case METERS -> "m";
+            case KILOMETERS -> "km";
+            case MILES -> "mi";
+            default -> "";
+        };
+    }
 
-	public static double convert(double value, DistanceUnit unitsFrom, DistanceUnit unitsTo) throws StatusCodeException {
-		if (unitsFrom == DistanceUnit.METERS) {
-			return switch (unitsTo) {
-				case KILOMETERS -> value / 1000.0;
-				case MILES -> value * 0.000621371192;
-				case METERS -> value;
-				default -> value;
-			};
-		}
-		throw new StatusCodeException(501, "Conversion not implemented.");
-	}
+    public static double convert(double value, DistanceUnit unitsFrom, DistanceUnit unitsTo) throws StatusCodeException {
+        if (unitsFrom == DistanceUnit.METERS) {
+            return switch (unitsTo) {
+                case KILOMETERS -> value / 1000.0;
+                case MILES -> value * 0.000621371192;
+                case METERS -> value;
+                default -> value;
+            };
+        }
+        throw new StatusCodeException(501, "Conversion not implemented.");
+    }
 }

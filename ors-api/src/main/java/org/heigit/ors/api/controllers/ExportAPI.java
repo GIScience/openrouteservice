@@ -21,25 +21,24 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import org.heigit.ors.routing.APIEnums;
 import org.heigit.ors.api.requests.export.ExportRequest;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
+import org.heigit.ors.api.services.ExportService;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportResult;
+import org.heigit.ors.routing.APIEnums;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @Tag(name = "Export Service", description = "Export the base graph for different modes of transport")
@@ -53,6 +52,12 @@ import jakarta.servlet.http.HttpServletResponse;
 @ApiResponse(responseCode = "503", description = "The server is currently unavailable due to overload or maintenance.")
 public class ExportAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(ExportErrorCodes.BASE);
+
+    private final ExportService exportService;
+
+    public ExportAPI(ExportService exportService) {
+        this.exportService = exportService;
+    }
 
     // generic catch methods - when extra info is provided in the url, the other methods are accessed.
     @GetMapping
@@ -68,7 +73,7 @@ public class ExportAPI {
     }
 
     // Matches any response type that has not been defined
-    @PostMapping(value="/{profile}/*")
+    @PostMapping(value = "/{profile}/*")
     @Operation(hidden = true)
     public void getInvalidResponseType() throws StatusCodeException {
         throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
@@ -78,9 +83,9 @@ public class ExportAPI {
     @PostMapping(value = "/{profile}")
     @Operation(
             description = """
-            Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. \
-            This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.\
-            """,
+                    Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON. \
+                    This method does not accept any request body or parameters other than profile, start coordinate, and end coordinate.\
+                    """,
             summary = "Export Service"
     )
     @ApiResponse(
@@ -92,7 +97,7 @@ public class ExportAPI {
             )
             })
     public JsonExportResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-                                             @Parameter(description = "The request payload", required = true) @RequestBody ExportRequest request) throws StatusCodeException {
+                                         @Parameter(description = "The request payload", required = true) @RequestBody ExportRequest request) throws StatusCodeException {
         return getJsonExport(profile, request);
     }
 
@@ -115,7 +120,7 @@ public class ExportAPI {
         request.setProfile(profile);
         request.setResponseType(APIEnums.ExportResponseType.JSON);
 
-        ExportResult result = request.generateExportFromRequest();
+        ExportResult result = exportService.generateExportFromRequest(request);
 
         return new JsonExportResponse(result);
     }
@@ -124,7 +129,6 @@ public class ExportAPI {
     public ResponseEntity<Object> handleMissingParams(final MissingServletRequestParameterException e) {
         return errorHandler.handleStatusCodeException(new MissingParameterException(ExportErrorCodes.MISSING_PARAMETER, e.getParameterName()));
     }
-
 
     @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageConversionException.class, Exception.class})
     public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
