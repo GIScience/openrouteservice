@@ -30,7 +30,7 @@ jobs:
           - docker_file: dockerfile-ubi8-java17-jws57
             DOCKER_HUB_IMAGE_NAME: heigit/ubi8-java17-jws57
             CONTAINER_NAME: ubi8-java17-jws57
-            PUSH_TO_DOCKER_HUB: false
+            PUSH_TO_DOCKER_HUB: true
     steps:
       - name: Print Workflow Run ID
         run: |
