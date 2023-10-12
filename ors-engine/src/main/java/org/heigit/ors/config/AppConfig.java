@@ -14,10 +14,9 @@
 package org.heigit.ors.config;
 
 import com.graphhopper.util.Helper;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
+import com.google.common.base.Strings;
+import com.typesafe.config.*;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.StringUtility;
@@ -153,6 +152,18 @@ public class AppConfig {
     }
 
     private Config overrideFromEnvVariables(Config baseConfig) {
+        String orsHome = System.getenv("ORS_HOME");
+        if (!Strings.isNullOrEmpty(orsHome)) {
+            LOGGER.debug("Environment variable 'ORS_HOME' used as base path");
+            LOGGER.debug("ORS_HOME: " + orsHome);
+            // Print info about the baseConfig
+            baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.graphs_root_path=".concat(FilenameUtils.concat(orsHome, ".graphs"))).withFallback(baseConfig);
+            baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.elevation_cache_path=".concat(FilenameUtils.concat(orsHome, ".elevation_cache"))).withFallback(baseConfig);
+            // Find a better solution to this. For now, we hard code the path to the osm file and its file name
+            baseConfig = ConfigFactory.parseString("ors.services.routing.sources=[".concat(FilenameUtils.concat(orsHome, "files/osm-file.osm.gz")).concat("]")).withFallback(baseConfig);
+            // Adjust the logging path
+            baseConfig = ConfigFactory.parseString("ors.logging.location=".concat(FilenameUtils.concat(orsHome, "logs"))).withFallback(baseConfig);
+        }
         if (System.getenv("GRAPHS_FOLDER") != null) {
             LOGGER.info("Environment variable 'GRAPHS_FOLDER' used as graphs folder path");
             String graphsFolderPath = System.getenv("GRAPHS_FOLDER");

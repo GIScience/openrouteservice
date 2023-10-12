@@ -12,15 +12,12 @@
       },
       "RollingFile": {
         "name": "orslogfile",
-        "fileName": "${env:ORS_LOG_LOCATION:-logs/}ors.log",
-        "filePattern": "${env:ORS_LOG_LOCATION:-logs/}ors.%d{yyyy-MM-dd}.log.gz",
+        "fileName": "${sys:logPath:-logs/}ors.log",
+        "filePattern": "${sys:logPath:-logs/}ors.%d{yyyy-MM-dd}.log.gz",
         "PatternLayout": {
           "pattern": "%d %p [%c{2}] - %m%n"
         },
-        "TimeBasedTriggeringPolicy": {
-          "interval": "1",
-          "modulate": "true"
-        }
+        "TimeBasedTriggeringPolicy": { "interval": "1", "modulate": "true" }
       }
     },
     "loggers": {
