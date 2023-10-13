@@ -372,7 +372,11 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          file: .rpm-packaging/${{ matrix.docker_file }}
           push: true
           tags: ${{ env.IMAGE_NAME }}
+          build-args: |
+            REDHAT_ORG=${{ secrets.REDHAT_ORG }}
+            REDHAT_ACTIVATION_KEY_NAME=${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
