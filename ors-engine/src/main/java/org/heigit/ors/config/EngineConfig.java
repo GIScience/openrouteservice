@@ -1,5 +1,8 @@
 package org.heigit.ors.config;
 
+import com.google.common.base.Strings;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.util.StringUtility;
 
@@ -14,6 +17,7 @@ public class EngineConfig {
     private final String graphsRootPath;
     private final boolean elevationPreprocessed;
     private final RouteProfileConfiguration[] profiles;
+    private static final Logger LOGGER = Logger.getLogger(AppConfig.class.getName());
 
     public int getInitializationThreads() {
         return initializationThreads;
@@ -121,6 +125,15 @@ public class EngineConfig {
             Map<String, Object> defaultParams = deprecatedAppConfig.getServiceParametersMap(SERVICE_NAME_ROUTING, "profiles.default_params", true);
             if (defaultParams != null && defaultParams.containsKey("graphs_root_path"))
                 graphsRootPath = StringUtility.trim(defaultParams.get("graphs_root_path").toString(), '"');
+
+            String orsHome = System.getenv("ORS_HOME");
+            if (!Strings.isNullOrEmpty(orsHome)) {
+                LOGGER.info("Using ORS_HOME: " + orsHome);
+                this.graphsRootPath = FilenameUtils.concat(orsHome, "graphs");
+                LOGGER.info("Using graphsRootPath: " + graphsRootPath);
+                this.sourceFile = FilenameUtils.concat(orsHome, "files/osm-file.osm.gz");
+                LOGGER.info("Using sourceFile: " + sourceFile);
+            }
 
             return new EngineConfig(this);
         }

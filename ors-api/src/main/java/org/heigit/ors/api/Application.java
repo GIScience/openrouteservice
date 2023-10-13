@@ -45,7 +45,7 @@ public class Application extends SpringBootServletInitializer {
         String orsHome = System.getenv(ORS_HOME_ENV);
         if (!Strings.isNullOrEmpty(orsHome)) {
             if (Strings.isNullOrEmpty(System.getenv("ORS_CONFIG")))
-                System.setProperty("ors_config", FilenameUtils.concat(orsHome, "config/ors-config.json"));
+                System.setProperty("ors_config", FilenameUtils.concat(orsHome, "config/ors-config.yml"));
             System.setProperty(LOG_PATH_SYS, FilenameUtils.concat(orsHome, "logs/"));
         } else {
             System.setProperty(LOG_PATH_SYS, "./logs/");
