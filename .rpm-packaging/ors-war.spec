@@ -15,7 +15,6 @@ License: GPL 3
 BuildArch: noarch
 Requires:  jws5-runtime
 Requires:  jws5-tomcat
-Requires:  jws5-tomcat-webapps
 Requires:  java-%{java_version}-openjdk-headless
 Vendor: HeiGIT gGmbH
 
