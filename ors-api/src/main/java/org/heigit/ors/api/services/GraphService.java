@@ -1,8 +1,10 @@
 package org.heigit.ors.api.services;
 
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.Application;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphManager;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,18 +21,20 @@ public class GraphService {
         graphManagers.add(orsGraphManager);
     }
 
+    @Async
     @Scheduled(cron = "${ors.engine.graphservice.schedule.download.cron:0 0 0 31 2 *}")//Default is "never"
     public void checkForUpdatesInRepo() {
-        LOGGER.info("Scheduled check for updates in graph repository...");
+        LOGGER.debug("Scheduled check for updates in graph repository...");
         for (ORSGraphManager orsGraphManager : graphManagers) {
             orsGraphManager.downloadGraphIfNecessary();
         }
-        LOGGER.info("Scheduled check for updates in graph repository done");
+        LOGGER.debug("Scheduled check for updates in graph repository done");
     }
 
+    @Async
     @Scheduled(cron = "${ors.engine.graphservice.schedule.activate.cron:0 0 0 31 2 *}")//Default is "never"
     public void checkForDownloadedGraphsToActivate() {
-        LOGGER.info("Scheduled check for downloaded graphs...");
+        LOGGER.debug("Scheduled check for downloaded graphs...");
         boolean restartNeeded = false;
         boolean restartAllowed = true;
         for (ORSGraphManager orsGraphManager : graphManagers) {
@@ -47,13 +51,12 @@ public class GraphService {
             restartApplication();
         } else {
             LOGGER.info("Scheduled check for downloaded graphs done -> restarting openrouteservice is %s".formatted(
-                    !restartNeeded ? "not needed" : restartAllowed ? "needed and allowed" : "needed but not allowed")
+                    !restartNeeded ? "not needed" : restartAllowed ? "needed and allowed" : "needed but not allowed (one or more graph managers are active)")
             );
         }
     }
 
     private void restartApplication() {
-        LOGGER.info("Scheduled check for downloaded graphs done -> \n\n\n     /!\\ HINT: You can restart openrouteservice to activate downloaded graphs!\n\n");
-//        Application.restart();
+        Application.restart();
     }
 }

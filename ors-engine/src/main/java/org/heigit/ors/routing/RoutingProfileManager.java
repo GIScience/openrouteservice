@@ -46,10 +46,8 @@ public class RoutingProfileManager {
     private RoutingProfilesCollection routingProfiles;
     private static RoutingProfileManager instance;
     public RoutingProfileManager(EngineConfig config) {
-        if (instance == null) {
-            instance = this;
-            initialize(config);
-        }
+        instance = this;
+        initialize(config);
     }
 
     public static synchronized RoutingProfileManager getInstance() {
