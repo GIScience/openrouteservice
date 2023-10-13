@@ -37,3 +37,4 @@ docs/
 Dockerfile
 envs/
 .jqwik-database
+.rpm-packaging

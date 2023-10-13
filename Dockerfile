@@ -19,19 +19,17 @@ RUN mvn clean package -DskipTests -pl '!ors-report-aggregation' -P buildFatJar
 FROM docker.io/amazoncorretto:17.0.8-alpine3.18 as publish
 
 # Build ARGS
-ARG UID=1234
-ARG GID=1234
 ARG OSM_FILE=./ors-api/src/test/files/heidelberg.osm.gz
-ARG BASE_FOLDER=/opt/openrouteservice
+ARG BASE_FOLDER=/var/lib/openrouteservice-state
 
 # Set the default language
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 
 # Setup the target system with the right user and folders.
 RUN apk add --no-cache bash=~'5' openssl=~'3' && \
-    addgroup -g ${GID} ors && \
-    adduser -D -h ${BASE_FOLDER} -u ${UID} -G ors ors &&  \
-    mkdir -p ${BASE_FOLDER}/logs ${BASE_FOLDER}/conf ${BASE_FOLDER}/data ${BASE_FOLDER}/graphs && \
+    addgroup ors && \
+    adduser -D -h ${BASE_FOLDER} --system -G ors ors  && \
+    mkdir -p ${BASE_FOLDER}/logs ${BASE_FOLDER}/conf ${BASE_FOLDER}/files ${BASE_FOLDER}/.graphs ${BASE_FOLDER}.elevation_cache && \
     chown -R ors ${BASE_FOLDER}
 
 WORKDIR ${BASE_FOLDER}
@@ -42,16 +40,13 @@ COPY --chown=ors:ors --from=build /tmp/ors/ors-api/target/ors.jar ${BASE_FOLDER}
 COPY --chown=ors:ors ./ors-api/ors-config.yml ${BASE_FOLDER}/config/example-ors-config.yml
 COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/files/example_osm_file.pbf
 
-# Install libxext, clean up and set permissions
-RUN apk add --no-cache libxext=~'1.3' && \
-    rm -rf /var/cache/apk/* && \
-    chmod +x ${BASE_FOLDER}/lib/ors.jar && chown -R ors:ors ${BASE_FOLDER}
-
-USER ors
+# Set permissions
+RUN chmod +x ${BASE_FOLDER}/lib/ors.jar && chown -R ors:ors ${BASE_FOLDER}
 
 ENV BUILD_GRAPHS="False"
 ENV BASE_FOLDER=${BASE_FOLDER}
 ENV ORS_CONFIG_LOCATION=${BASE_FOLDER}/config/example-ors-config.yml
 
+USER root
 # Start the container
 ENTRYPOINT ["/entrypoint.sh"]
