@@ -83,6 +83,7 @@ public class ORSInitContextListener implements ServletContextListener {
                         ORSGraphHopper orsGraphHopper = profile.getGraphhopper();
                         ORSGraphManager orsGraphManager = orsGraphHopper.getOrsGraphManager();
                         if (orsGraphManager != null) {
+                            LOGGER.debug("Adding orsGraphManager for profile %s to GraphService".formatted(profile.getConfiguration().getName()));
                             graphService.addGraphhopperLocation(orsGraphManager);
                         }
                     }
@@ -105,7 +106,7 @@ public class ORSInitContextListener implements ServletContextListener {
         String localOsmFilePath = "";
         try {
             new URL(sourceFilePropertyValue);
-            LOGGER.debug("source_file contains repo URL");
+            LOGGER.debug("configuration property 'source_file' contains a URL, using value as URL for a graphs repository");
             sourceFilePropertyValue = sourceFilePropertyValue.trim().replaceAll("/$", "");
             String[] urlElements = sourceFilePropertyValue.split("/");
 
@@ -113,7 +114,7 @@ public class ORSInitContextListener implements ServletContextListener {
             repoName = urlElements[urlElements.length-2];
             repoBaseUrlString = sourceFilePropertyValue.replaceAll("/%s/%s$".formatted(repoName, repoCoverage), "");
         } catch (MalformedURLException e) {
-            LOGGER.debug("source_file does not contain a repo URL, using it as local osm file path");
+            LOGGER.debug("configuration property 'source_file' does not contain a URL, using value as local osm file path");
             localOsmFilePath = sourceFilePropertyValue;
         }
         return new SourceFileElements(repoBaseUrlString, repoName, repoCoverage, localOsmFilePath);

@@ -13,7 +13,6 @@ import org.openapitools.client.model.PageAssetXO;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -25,6 +24,7 @@ public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
     private static final String GRAPH_DOWNLOAD_FILE_EXTENSION = "ghz";
+    private static final String INCOMPLETE_EXTENSION = "incomplete";
     private boolean active = false;
     private String graphsRepoBaseUrl;
     private String graphsRepoName;
@@ -205,8 +205,10 @@ public class ORSGraphManager {
             }
 
             String downloadUrl = createGraphUrlFromGraphInfoUrl(remoteGraphInfo);
+            LOGGER.info("Downloading %s to file %s".formatted(downloadUrl, graphDownloadFile.getAbsolutePath()));
             downloadAsset(downloadUrl, graphDownloadFile);
         } catch (Exception e) {
+            LOGGER.error("Caught an exception during graph download check or graph download:", e);
         } finally {
             active = false;
         }
@@ -222,10 +224,16 @@ public class ORSGraphManager {
         return getGraphDownloadFile().exists();
     }
 
-    void backupExistingGraph(File hashDirectory) {
+    void backupExistingGraph(File hashDirectory) throws IOException {
         String origAbsPath = hashDirectory.getAbsolutePath();
         String newAbsPath = hashDirectory.getAbsolutePath() + "_bak";
-        if (hashDirectory.renameTo(new File(newAbsPath))) {
+        File backupFile = new File(newAbsPath);
+        if (backupFile.exists()){
+            LOGGER.debug("deleting old backup directory %s".formatted(newAbsPath));
+            FileUtils.deleteDirectory(backupFile);
+            backupFile = new File(newAbsPath);
+        }
+        if (hashDirectory.renameTo(backupFile)) {
             LOGGER.info("renamed old local graph directory %s to %s".formatted(origAbsPath, newAbsPath));
         } else {
             LOGGER.error("could not backup local graph directory %s to %s".formatted(origAbsPath, newAbsPath));
@@ -235,7 +243,7 @@ public class ORSGraphManager {
     private String createGraphUrlFromGraphInfoUrl(GraphInfo remoteGraphInfo) {
         String url = remoteGraphInfo.getRemoteUrl().toString();
         String urlWithoutExtension = url.substring(0, url.lastIndexOf('.'));
-        return createDynamicGraphDownloadFileName(urlWithoutExtension);
+        return urlWithoutExtension + "." + GRAPH_DOWNLOAD_FILE_EXTENSION;
     }
 
     GraphInfo downloadLatestGraphInfoFromRepository() {
@@ -245,7 +253,7 @@ public class ORSGraphManager {
         String fileName = createDynamicGraphInfoFileName();
         AssetXO latestGraphInfoAsset = findLatestGraphInfoAsset(fileName);
         if (latestGraphInfoAsset == null) {
-            LOGGER.debug("No graphInfo for %s found in remote repository".formatted(routeProfileName));
+            LOGGER.warn("No graphInfo found in remote repository for %s".formatted(routeProfileName));
             return latestGraphInfoInRepo;
         }
 
@@ -259,7 +267,7 @@ public class ORSGraphManager {
             ORSGraphInfoV1 orsGraphInfoV1 = readOrsGraphInfoV1(downloadedFile);
             latestGraphInfoInRepo.withPersistedInfo(orsGraphInfoV1);
         } catch (MalformedURLException e) {
-            LOGGER.error("invalid URL in asset");
+            LOGGER.error("Invalid download URL for graphInfo asset %s".formatted(routeProfileName));
         }
 
         return latestGraphInfoInRepo;
@@ -346,15 +354,15 @@ public class ORSGraphManager {
             return true;
         }
         if (!remoteGraphInfo.getPersistedGraphInfo().getOsmDate().after(localGraphInfo.getPersistedGraphInfo().getOsmDate())) {
-            LOGGER.info("OSM date of graph for %s/%s in remote repository is not newer than local graph - keeping local graph".formatted(routeProfileName, hash));
+            LOGGER.info("Graph for %s/%s in remote repository is not newer than local graph - keeping local graph".formatted(routeProfileName, hash));
             return false;
         }
-        LOGGER.info("OSM date of graph for %s/%s in remote repository is newer than local graph - should be downloaded".formatted(routeProfileName, hash));
+        LOGGER.info("Graph for %s/%s in remote repository is newer than local graph - should be downloaded".formatted(routeProfileName, hash));
         return true;
     }
 
     String createDownloadPathFilterPattern() {
-        return ".*/%s/%s/%s/%s/[0-9]{12}/.*".formatted(graphsRepoCoverage, graphsRepoGraphVersion, routeProfileName, hash);
+        return ".*%s/%s/%s/%s/[0-9]{12,}/.*".formatted(graphsRepoCoverage, graphsRepoGraphVersion, routeProfileName, hash);
     }
 
     AssetXO findLatestGraphInfoAsset(String fileName) {
@@ -367,30 +375,35 @@ public class ORSGraphManager {
             List<AssetXO> items = new ArrayList<>();
             String continuationToken = null;
             do {
-                LOGGER.debug("trying to call nexus api");
+                LOGGER.debug("trying to call nexus api with graphsRepoBaseUrl=%s graphsRepoName=%s graphsRepoCoverage=%s, graphsRepoGraphVersion=%s".formatted(
+                        graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, graphsRepoGraphVersion));
                 PageAssetXO assets = assetsApi.getAssets(graphsRepoName, continuationToken);
-                LOGGER.debug("received assets: %s".formatted(assets.toString()));
+                LOGGER.trace("received assets: %s".formatted(assets.toString()));
                 if (assets.getItems() != null) {
                     items.addAll(assets.getItems());
                 }
                 continuationToken = assets.getContinuationToken();
             } while (!isBlank(continuationToken));
-            LOGGER.debug("found %d items".formatted(items.size()));
+            LOGGER.debug("found %d items total".formatted(items.size()));
 
             return filterLatestAsset(fileName, items);
 
         } catch (ApiException e) {
             LOGGER.error("Exception when calling AssetsApi#getAssets");
-            LOGGER.error("Status code: " + e.getCode());
-            LOGGER.error("Reason: " + e.getResponseBody());
-            LOGGER.error("Response headers: " + e.getResponseHeaders());
+            LOGGER.error("    - Status code           : " + e.getCode());
+            LOGGER.error("    - Reason                : " + e.getResponseBody());
+            LOGGER.error("    - Response headers      : " + e.getResponseHeaders());
+            LOGGER.error("    - graphsRepoBaseUrl     : " + graphsRepoBaseUrl);
+            LOGGER.error("    - graphsRepoName        : " + graphsRepoName);
+            LOGGER.error("    - graphsRepoCoverage    : " + graphsRepoCoverage);
+            LOGGER.error("    - graphsRepoGraphVersion: " + graphsRepoGraphVersion);
         }
         return null;
     }
 
     AssetXO filterLatestAsset(String fileName, List<AssetXO> items) {
         String downloadPathFilterPattern = createDownloadPathFilterPattern();
-        LOGGER.debug("filtering assets for %s".formatted(items.size(), downloadPathFilterPattern));
+        LOGGER.debug("filtering %d assets for pattern '%s' and fileName=%s".formatted(items.size(), downloadPathFilterPattern, fileName));
 
         // paths like https://repo.heigit.org/ors-graphs-traffic/planet/3/car/5a5af307fbb8019bfb69d4916f55ddeb/202212312359/5a5af307fbb8019bfb69d4916f55ddeb.json
         Optional<AssetXO> first = items.stream()
@@ -403,16 +416,19 @@ public class ORSGraphManager {
     }
 
     void downloadAsset(String downloadUrl, File outputFile) {
+        File tempDownloadFile = new File(outputFile.getAbsolutePath() + "." + INCOMPLETE_EXTENSION);
         if (StringUtils.isNotBlank(downloadUrl)) {
             try {
-                LOGGER.info("Downloading %s to file %s".formatted(downloadUrl, outputFile.getAbsolutePath()));
                 FileUtils.copyURLToFile(
                         new URL(downloadUrl),
-                        outputFile,
+                        tempDownloadFile,
                         connectionTimeoutMillis,
                         readTimeoutMillis);
+                tempDownloadFile.renameTo(outputFile);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
+            } finally {
+                tempDownloadFile.delete();
             }
         }
     }
