@@ -3,7 +3,7 @@ package org.heigit.ors.api.services;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.Application;
 import org.heigit.ors.api.util.AppConfigMigration;
-import org.heigit.ors.routing.graphhopper.extensions.ORSGraphManager;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class GraphService {
     public void checkForUpdatesInRepo() {
         LOGGER.debug("Scheduled check for updates in graph repository...");
         for (ORSGraphManager orsGraphManager : graphManagers) {
-            orsGraphManager.downloadGraphIfNecessary();
+            orsGraphManager.downloadAndExtractLatestGraphIfNecessary();
         }
         LOGGER.debug("Scheduled check for updates in graph repository done");
     }

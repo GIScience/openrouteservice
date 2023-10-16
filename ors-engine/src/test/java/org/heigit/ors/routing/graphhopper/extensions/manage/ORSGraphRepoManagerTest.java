@@ -1,4 +1,4 @@
-package org.heigit.ors.routing.graphhopper.extensions;
+package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
@@ -26,11 +26,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ORSGraphManagerTest {
+class ORSGraphRepoManagerTest {
 
     @Spy
-    ORSGraphManager orsGraphManager;
-
+    ORSGraphRepoManager orsGraphRepoManager;
+    ORSGraphFileManager orsGraphFileManager;
     private static final String GRAPHS_REPO_BASE_URL = "https://example.com";
     private static final String GRAPHS_REPO_NAME = "test-repo";
     private static final String GRAPHS_COVERAGE = "planet";
@@ -61,43 +61,46 @@ class ORSGraphManagerTest {
     void setupORSGraphManager(String hash) {
         File localDir = new File(LOCAL_PATH);
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
-        orsGraphManager.setGraphsRepoBaseUrl(GRAPHS_REPO_BASE_URL);
-        orsGraphManager.setGraphsRepoName(GRAPHS_REPO_NAME);
-        orsGraphManager.setGraphsRepoCoverage(GRAPHS_COVERAGE);
-        orsGraphManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
-        orsGraphManager.setRouteProfileName(VEHICLE);
-        orsGraphManager.setHash(hash);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
-        orsGraphManager.setVehicleGraphDirAbsPath(vehicleDirAbsPath);
-        orsGraphManager.setHashDirAbsPath(hashDirAbsPath);
+
+        orsGraphFileManager = new ORSGraphFileManager(hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
+//        orsGraphFileManager.setVehicleGraphDirAbsPath(vehicleDirAbsPath);
+//        orsGraphFileManager.setHashDirAbsPath(hashDirAbsPath);
+
+        orsGraphRepoManager.setGraphsRepoBaseUrl(GRAPHS_REPO_BASE_URL);
+        orsGraphRepoManager.setGraphsRepoName(GRAPHS_REPO_NAME);
+        orsGraphRepoManager.setGraphsRepoCoverage(GRAPHS_COVERAGE);
+        orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
+        orsGraphRepoManager.setRouteProfileName(VEHICLE);
+        orsGraphRepoManager.setFileManager(orsGraphFileManager);
     }
 
     void setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
         if (hash == null) return;
         hashDir = new File(hashDirAbsPath);
         hashDir.mkdir();
-        ORSGraphManager.ORSGraphInfoV1 localOrsGraphInfoV1Object = new ORSGraphManager.ORSGraphInfoV1(new Date(osmDateLocal));
+        ORSGraphInfoV1 localOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateLocal));
         localGraphInfoV1File = new File(hashDir, hash + ".json");
         new ObjectMapper().writeValue(localGraphInfoV1File, localOrsGraphInfoV1Object);
     }
 
     void setupNoRemoteFiles() {
-        doReturn(null).when(orsGraphManager).findLatestGraphInfoAsset(anyString());
+        doReturn(null).when(orsGraphRepoManager).findLatestGraphInfoAsset(anyString());
     }
 
     void simulateFindLatestGraphInfoAsset(String hash, Long osmDateRemote) throws IOException {
         String graphInfoAssetName = hash + ".json";
         String graphInfoAssetUrl = String.join("/", GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, VEHICLE, graphInfoAssetName);
 
-        ORSGraphManager.ORSGraphInfoV1 downloadedOrsGraphInfoV1Object = new ORSGraphManager.ORSGraphInfoV1(new Date(osmDateRemote));
+        ORSGraphInfoV1 downloadedOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateRemote));
         downloadedGraphInfoV1File = new File(vehicleDirAbsPath + "/" + graphInfoAssetName);
         new ObjectMapper().writeValue(downloadedGraphInfoV1File, downloadedOrsGraphInfoV1Object);
 
         AssetXO assetXO = new AssetXO();
         assetXO.setDownloadUrl(graphInfoAssetUrl);
 
-        doReturn(assetXO).when(orsGraphManager).findLatestGraphInfoAsset(graphInfoAssetName);
-        lenient().doNothing().when(orsGraphManager).downloadAsset(anyString(), any());
+        doReturn(assetXO).when(orsGraphRepoManager).findLatestGraphInfoAsset(graphInfoAssetName);
+        lenient().doNothing().when(orsGraphRepoManager).downloadAsset(anyString(), any());
     }
 
     @Test
@@ -107,9 +110,9 @@ class ORSGraphManagerTest {
         setupLocalGraphDirectory(hash, EARLIER_DATE);
         setupNoRemoteFiles();
 
-        orsGraphManager.downloadGraphIfNecessary();
+        orsGraphRepoManager.downloadGraphIfNecessary();
 
-        verify(orsGraphManager, never()).downloadAsset(anyString(), any());
+        verify(orsGraphRepoManager, never()).downloadAsset(anyString(), any());
     }
 
     @Test
@@ -118,9 +121,9 @@ class ORSGraphManagerTest {
         setupORSGraphManager(hash);
         simulateFindLatestGraphInfoAsset(hash, EARLIER_DATE);
 
-        orsGraphManager.downloadGraphIfNecessary();
+        orsGraphRepoManager.downloadGraphIfNecessary();
 
-        verify(orsGraphManager, times(2)).downloadAsset(anyString(), any());
+        verify(orsGraphRepoManager, times(2)).downloadAsset(anyString(), any());
     }
 
     @Test
@@ -130,9 +133,9 @@ class ORSGraphManagerTest {
         setupLocalGraphDirectory(hash, EARLIER_DATE);
         simulateFindLatestGraphInfoAsset(hash, LATER_DATE);
 
-        orsGraphManager.downloadGraphIfNecessary();
+        orsGraphRepoManager.downloadGraphIfNecessary();
 
-        verify(orsGraphManager, times(2)).downloadAsset(anyString(), any());
+        verify(orsGraphRepoManager, times(2)).downloadAsset(anyString(), any());
         File localGraphDir = new File(hashDirAbsPath);
         File backupDir = new File(hashDirAbsPath + "_bak");
         assertFalse(localGraphDir.exists());
@@ -147,9 +150,9 @@ class ORSGraphManagerTest {
         setupLocalGraphDirectory(hash, EARLIER_DATE);
         simulateFindLatestGraphInfoAsset(hash, EARLIER_DATE);
 
-        orsGraphManager.downloadGraphIfNecessary();
+        orsGraphRepoManager.downloadGraphIfNecessary();
 
-        verify(orsGraphManager, times(1)).downloadAsset(anyString(), any());
+        verify(orsGraphRepoManager, times(1)).downloadAsset(anyString(), any());
     }
 
     @Test
@@ -159,47 +162,9 @@ class ORSGraphManagerTest {
         setupLocalGraphDirectory(hash, LATER_DATE);
         simulateFindLatestGraphInfoAsset(hash, EARLIER_DATE);
 
-        orsGraphManager.downloadGraphIfNecessary();
+        orsGraphRepoManager.downloadGraphIfNecessary();
 
-        verify(orsGraphManager, times(1)).downloadAsset(anyString(), any());
-    }
-
-    @Test
-    void backupExistingGraph_noPreviousBackup() throws IOException {
-        String hash = "1a2b3c";
-        setupORSGraphManager(hash);
-        setupLocalGraphDirectory(hash, LATER_DATE);
-
-        File localGraphDir = new File(hashDirAbsPath);
-        assertTrue(localGraphDir.isDirectory());
-        File backupDir = new File(hashDirAbsPath + "_bak");
-        assertFalse(backupDir.exists());
-
-        orsGraphManager.backupExistingGraph(localGraphDir);
-
-        assertFalse(localGraphDir.exists());
-        assertTrue(backupDir.isDirectory());
-        assertTrue(new File(backupDir, hash+".json").exists());
-    }
-
-    @Test
-    void backupExistingGraph_previousBackupDirIsOverridden() throws IOException {
-        String hash = "1a2b3c";
-        setupORSGraphManager(hash);
-        setupLocalGraphDirectory(hash, LATER_DATE);
-
-        File localGraphDir = new File(hashDirAbsPath);
-        assertTrue(localGraphDir.isDirectory());
-        File backupDir = new File(hashDirAbsPath + "_bak");
-        backupDir.mkdir();
-        assertTrue(backupDir.exists());
-
-        orsGraphManager.backupExistingGraph(localGraphDir);
-
-        assertFalse(localGraphDir.exists());
-        assertTrue(backupDir.exists());
-        assertTrue(backupDir.isDirectory());
-        assertTrue(new File(backupDir, hash+".json").exists());
+        verify(orsGraphRepoManager, times(1)).downloadAsset(anyString(), any());
     }
 
     @Test
@@ -226,24 +191,25 @@ class ORSGraphManagerTest {
                 new AssetXO().path("https://example.com/test-repo/wrong/1/car/abc123/202301011200/abc123.ghz"),
                 new AssetXO().path("https://example.com/test-repo/wrong/1/car/abc123/202301011200/abc123.json")
                 );
-        AssetXO filtered = orsGraphManager.filterLatestAsset("abc123.json", items);
+        AssetXO filtered = orsGraphRepoManager.filterLatestAsset("abc123.json", items);
         assertEquals("https://example.com/test-repo/planet/1/car/abc123/202301011200/abc123.json", filtered.getPath());
     }
 
     @ParameterizedTest
     @MethodSource("shouldDownloadGraphMethodSource")
-    void shouldDownloadGraph(ORSGraphManager.GraphInfo remoteGraphInfo, ORSGraphManager.GraphInfo localGraphInfo, File persistedDownloadFile, ORSGraphManager.ORSGraphInfoV1 persistedRemoteGraphInfo, boolean expected) {
-        assertEquals(expected, orsGraphManager.shouldDownloadGraph(remoteGraphInfo, localGraphInfo, persistedDownloadFile, persistedRemoteGraphInfo));
+    void shouldDownloadGraph(GraphInfo remoteGraphInfo, GraphInfo localGraphInfo, File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo, boolean expected) {
+        setupORSGraphManager("1243abc");
+        assertEquals(expected, orsGraphRepoManager.shouldDownloadGraph(remoteGraphInfo, localGraphInfo, persistedDownloadFile, persistedRemoteGraphInfo));
     }
 
     public static Stream<Arguments> shouldDownloadGraphMethodSource() {
-        ORSGraphManager.ORSGraphInfoV1 earlierOrsGraphInfoV1 = new ORSGraphManager.ORSGraphInfoV1(new Date(EARLIER_DATE));
-        ORSGraphManager.ORSGraphInfoV1 middleOrsGraphInfoV1 = new ORSGraphManager.ORSGraphInfoV1(new Date(MIDDLE_DATE));
-        ORSGraphManager.ORSGraphInfoV1 laterOrsGraphInfoV1 = new ORSGraphManager.ORSGraphInfoV1(new Date(LATER_DATE));
-        ORSGraphManager.GraphInfo missingGraphInfo = new ORSGraphManager.GraphInfo();
-        ORSGraphManager.GraphInfo existingGraphInfoEarlier = new ORSGraphManager.GraphInfo().withPersistedInfo(earlierOrsGraphInfoV1);
-        ORSGraphManager.GraphInfo existingGraphInfoMiddle = new ORSGraphManager.GraphInfo().withPersistedInfo(middleOrsGraphInfoV1);
-        ORSGraphManager.GraphInfo existingGraphInfoLater = new ORSGraphManager.GraphInfo().withPersistedInfo(laterOrsGraphInfoV1);
+        ORSGraphInfoV1 earlierOrsGraphInfoV1 = new ORSGraphInfoV1(new Date(EARLIER_DATE));
+        ORSGraphInfoV1 middleOrsGraphInfoV1 = new ORSGraphInfoV1(new Date(MIDDLE_DATE));
+        ORSGraphInfoV1 laterOrsGraphInfoV1 = new ORSGraphInfoV1(new Date(LATER_DATE));
+        GraphInfo missingGraphInfo = new GraphInfo();
+        GraphInfo existingGraphInfoEarlier = new GraphInfo().withPersistedInfo(earlierOrsGraphInfoV1);
+        GraphInfo existingGraphInfoMiddle = new GraphInfo().withPersistedInfo(middleOrsGraphInfoV1);
+        GraphInfo existingGraphInfoLater = new GraphInfo().withPersistedInfo(laterOrsGraphInfoV1);
 
         File resourcesDir = new File(LOCAL_PATH).getParentFile();
         File nonexistingFile = new File(resourcesDir, "missing.ghz");
