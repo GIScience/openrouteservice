@@ -55,6 +55,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
@@ -222,7 +223,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         if (useGraphRepository()) {
             orsGraphManager = new ORSGraphManager(graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, graphVersion, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
-            orsGraphManager.downloadGraphIfNecessary();
+            orsGraphManager.manageStartup();
         }
 
         GraphHopper gh = super.importOrLoad();

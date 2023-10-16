@@ -32,7 +32,7 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
-import org.heigit.ors.routing.graphhopper.extensions.ORSGraphManager;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
 

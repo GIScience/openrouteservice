@@ -11,6 +11,7 @@ import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
