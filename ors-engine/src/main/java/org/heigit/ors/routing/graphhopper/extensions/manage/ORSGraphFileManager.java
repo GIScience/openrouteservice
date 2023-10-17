@@ -31,59 +31,53 @@ public class ORSGraphFileManager {
         return hash;
     }
 
-    public String getHashDirAbsPath() {
-        return hashDirAbsPath;
+    private File getHashDirectory() {
+        return new File(hashDirAbsPath);
     }
 
     public String getVehicleGraphDirAbsPath() {
         return vehicleGraphDirAbsPath;
     }
 
-    public String getRouteProfileName() {
-        return routeProfileName;
-    }
-
-    String createDynamicGraphInfoFileName() {
+    String createGraphInfoFileName() {
         return hash + "." + GRAPH_INFO_FILE_EXTENSION;
     }
 
-    String createDynamicGraphDownloadFileName() {
+    String createGraphDownloadFileName() {
         return hash + "." + GRAPH_DOWNLOAD_FILE_EXTENSION;
     }
 
-    String createDynamicGraphDownloadFileName(String basename) {
-        return basename + "." + GRAPH_DOWNLOAD_FILE_EXTENSION;
+    String createGraphExtractionDirectoryName() {
+        return hash + "_new";
     }
 
-    String createExtractionDirectoryName() {
-        return hash + "_new";//jh: TODO: use date value instead of "new"?
-    }
-
-    File getExractionDirectory() {
-        String extractionDirectoryName = createExtractionDirectoryName();
-        return new File(vehicleGraphDirAbsPath, extractionDirectoryName);
-    }
-
-    File getGraphDownloadFile() {
-        String downloadFileName = createDynamicGraphDownloadFileName();
-        return new File(vehicleGraphDirAbsPath, downloadFileName);
-    }
+    String getProfileWithHash() {return routeProfileName + "/" + hash;}
 
     File getGraphInfoDownloadFile() {
-        String infoFileName = createDynamicGraphInfoFileName();
+        String infoFileName = createGraphInfoFileName();
         return new File(vehicleGraphDirAbsPath, infoFileName);
     }
 
-    private File getHashDirectory() {
-        return new File(hashDirAbsPath);
+    File getGraphDownloadFile() {
+        String downloadFileName = createGraphDownloadFileName();
+        return new File(vehicleGraphDirAbsPath, downloadFileName);
+    }
+
+    File getGraphExractionDirectory() {
+        String graphExtractionDirectoryName = createGraphExtractionDirectoryName();
+        return new File(vehicleGraphDirAbsPath, graphExtractionDirectoryName);
     }
 
     boolean hasLocalGraph() {
         return getHashDirectory().exists() && getHashDirectory().isDirectory();
     }
 
+    boolean hasGraphDownloadFile() {
+        return getGraphDownloadFile().exists();
+    }
+
     public boolean hasDownloadedExtractedGraph() {
-        return getExractionDirectory().exists() && getExractionDirectory().isDirectory();
+        return getGraphExractionDirectory().exists() && getGraphExractionDirectory().isDirectory();
     }
 
     File asIncompleteFile(File file){
@@ -94,20 +88,39 @@ public class ORSGraphFileManager {
         return new File(directory.getAbsolutePath() + "_" + INCOMPLETE_EXTENSION);
     }
 
+    public boolean isActive() {
+        return asIncompleteFile(getGraphDownloadFile()).exists() ||
+                asIncompleteFile(getGraphInfoDownloadFile()).exists() ||
+                asIncompleteFile(getGraphExractionDirectory()).exists();
+    }
+
     void cleanupIncompleteFiles() {
         File incompleteDownloadFile = asIncompleteFile(getGraphDownloadFile());
         if (incompleteDownloadFile.exists()) {
+            LOGGER.info("[%s] Deleted incomplete graph download file from previous application run: %s".formatted(getProfileWithHash(), incompleteDownloadFile.getAbsolutePath()));
             incompleteDownloadFile.delete();
         }
 
         File graphInfoDownloadFile = getGraphInfoDownloadFile();
         if (graphInfoDownloadFile.exists()) {
+            LOGGER.info("[%s] Deleted graph-info download file from previous application run: %s".formatted(getProfileWithHash(), graphInfoDownloadFile.getAbsolutePath()));
             graphInfoDownloadFile.delete();
         }
 
         File incompleteGraphInfoDownloadFile = asIncompleteFile(getGraphInfoDownloadFile());
         if (incompleteGraphInfoDownloadFile.exists()) {
+            LOGGER.info("[%s] Deleted incomplete graph download file from previous application run: %s".formatted(getProfileWithHash(), incompleteGraphInfoDownloadFile.getAbsolutePath()));
             incompleteGraphInfoDownloadFile.delete();
+        }
+
+        File incompleteExtractionFolder = asIncompleteDirectory(getGraphExractionDirectory());
+        if (incompleteExtractionFolder.exists() && incompleteExtractionFolder.isDirectory()) {
+            try {
+                FileUtils.deleteDirectory(incompleteExtractionFolder);
+                LOGGER.info("[%s] Deleted incomplete graph graph extraction folder from previous application run: %s".formatted(getProfileWithHash(), incompleteExtractionFolder.getAbsolutePath()));
+            } catch (IOException e) {
+                LOGGER.error("[%s] Could not delete incomplete graph extraction folder from previous application run: %s".formatted(getProfileWithHash(), incompleteExtractionFolder.getAbsolutePath()));
+            }
         }
     }
 
@@ -118,54 +131,46 @@ public class ORSGraphFileManager {
     }
 
     void backupExistingGraph() {
-        backupExistingGraph(getHashDirectory());
-    }
-
-
-    void backupExistingGraph(File hashDirectory) {
+        File hashDirectory = getHashDirectory();
         String origAbsPath = hashDirectory.getAbsolutePath();
         String newAbsPath = hashDirectory.getAbsolutePath() + "_bak";
         File backupFile = new File(newAbsPath);
 
         if (backupFile.exists()){
-            LOGGER.debug("deleting old backup directory %s".formatted(newAbsPath));
+            LOGGER.debug("[%s] Deleting old backup directory %s".formatted(getProfileWithHash(), newAbsPath));
             try {
                 FileUtils.deleteDirectory(backupFile);
                 backupFile = new File(newAbsPath);
             } catch (IOException e) {
-                LOGGER.warn("old backup directory %s could not be deleted, caught %s".formatted(newAbsPath, e.getMessage()));
+                LOGGER.warn("[%s] Old backup directory %s could not be deleted, caught %s".formatted(getProfileWithHash(), newAbsPath, e.getMessage()));
             }
         }
 
         if (hashDirectory.renameTo(backupFile)) {
-            LOGGER.info("renamed old local graph directory %s to %s".formatted(origAbsPath, newAbsPath));
+            LOGGER.info("[%s] Renamed old local graph directory %s to %s".formatted(getProfileWithHash(), origAbsPath, newAbsPath));
         } else {
-            LOGGER.error("could not backup local graph directory %s to %s".formatted(origAbsPath, newAbsPath));
+            LOGGER.error("[%s] Could not backup local graph directory %s to %s".formatted(getProfileWithHash(), origAbsPath, newAbsPath));
         }
     }
 
     GraphInfo getLocalGraphInfo() {
-        LOGGER.debug("Checking local graph info for %s...".formatted(routeProfileName));
-        File localDir = new File(hashDirAbsPath);
+        LOGGER.debug("[%s] Checking local graph info...".formatted(getProfileWithHash()));
+        File hashDirectory = getHashDirectory();
 
-        if (!localDir.exists()) {
-            LOGGER.debug("No local graph directory for %s found.".formatted(routeProfileName));
-            return new GraphInfo().withLocalDirectory(localDir);
+        if (!hasLocalGraph()) {
+            LOGGER.debug("[%s] No local graph directory found".formatted(getProfileWithHash()));
+            return new GraphInfo().withLocalDirectory(hashDirectory);
         }
 
-        if (!localDir.isDirectory()) {
-            throw new IllegalArgumentException("GraphHopperLocation cannot be an existing file. Has to be either non-existing or a folder.");
-        }
-
-        File graphInfoFile = new File(localDir, createDynamicGraphInfoFileName());
+        File graphInfoFile = new File(hashDirectory, createGraphInfoFileName());
         if (!graphInfoFile.exists() || !graphInfoFile.isFile()) {
-            LOGGER.debug("No %s found in %s".formatted(graphInfoFile.getName(), hashDirAbsPath));
-            return new GraphInfo().withLocalDirectory(localDir);
+            LOGGER.debug("[%s] No graph info file %s found in %s".formatted(getProfileWithHash(), graphInfoFile.getName(), hashDirAbsPath));
+            return new GraphInfo().withLocalDirectory(hashDirectory);
         }
 
         ORSGraphInfoV1 graphInfoV1 = readOrsGraphInfoV1(graphInfoFile);
-        LOGGER.debug("Found local graph info for %s with osmDate=%s".formatted(routeProfileName, graphInfoV1.getOsmDate()));
-        return new GraphInfo().withLocalDirectory(localDir).withPersistedInfo(graphInfoV1);
+        LOGGER.debug("[%s] Found local graph info with osmDate=%s".formatted(getProfileWithHash(), graphInfoV1.getOsmDate()));
+        return new GraphInfo().withLocalDirectory(hashDirectory).withPersistedInfo(graphInfoV1);
     }
 
     ORSGraphInfoV1 readOrsGraphInfoV1(File inputFile) {
@@ -185,8 +190,8 @@ public class ORSGraphFileManager {
     }
 
     ORSGraphInfoV1 getPreviouslyDownloadedRemoteGraphInfo() {
-        LOGGER.debug("Checking graph info for %s of previous check ...".formatted(routeProfileName));
-        String fileName = createDynamicGraphInfoFileName();
+        LOGGER.debug("[%s] Checking graph info for of previous check ...".formatted(getProfileWithHash()));
+        String fileName = createGraphInfoFileName();
         File persistedGraphInfoFile = new File(vehicleGraphDirAbsPath, fileName);
         if (persistedGraphInfoFile.exists()) {
             return readOrsGraphInfoV1(persistedGraphInfoFile);
@@ -195,21 +200,27 @@ public class ORSGraphFileManager {
     }
 
     public void activateNewGraph() {
-        getExractionDirectory().renameTo(getHashDirectory());
-    }
-
-    public boolean isActive() {
-        return asIncompleteFile(getGraphDownloadFile()).exists() ||
-                asIncompleteFile(getExractionDirectory()).exists();
+        LOGGER.info("[%s] Activating extracted downloaded graph".formatted(getProfileWithHash()));
+        getGraphExractionDirectory().renameTo(getHashDirectory());
     }
 
     public void extractDownloadedGraph() {
         try {
-            (new Unzipper()).unzip(getGraphDownloadFile().getAbsolutePath(), getExractionDirectory().getAbsolutePath(), true);
-        } catch (IOException ioException) {
-            throw new RuntimeException("Couldn't extract file " + getGraphDownloadFile().getAbsolutePath() + " to " + getExractionDirectory().getAbsolutePath(), ioException);
-        }
+            File incompleteDirectory = asIncompleteDirectory(getGraphExractionDirectory());
+            String incompleteDirPath = incompleteDirectory.getAbsolutePath();
 
+            LOGGER.info("[%s] Extracting downloaded graph file to %s".formatted(getProfileWithHash(), incompleteDirPath));
+            (new Unzipper()).unzip(getGraphDownloadFile().getAbsolutePath(), incompleteDirPath, true);
+
+            LOGGER.info("[%s] Extraction of downloaded graph file done, renaming directory to %s".formatted(
+                    getProfileWithHash(),
+                    getGraphExractionDirectory().getAbsolutePath()));
+            incompleteDirectory.renameTo(getGraphExractionDirectory());
+
+        } catch (IOException ioException) {
+            LOGGER.error("[%s] Couldn't extract file %s to %s".formatted(getProfileWithHash(), getGraphDownloadFile().getAbsolutePath(), getGraphExractionDirectory().getAbsolutePath()));
+            throw new RuntimeException("Couldn't extract file " + getGraphDownloadFile().getAbsolutePath() + " to " + getGraphExractionDirectory().getAbsolutePath(), ioException);
+        }
     }
 }
 

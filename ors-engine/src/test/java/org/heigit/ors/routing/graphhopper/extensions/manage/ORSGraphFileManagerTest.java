@@ -110,7 +110,7 @@ class ORSGraphFileManagerTest {
         File backupDir = new File(hashDirAbsPath + "_bak");
         assertFalse(backupDir.exists());
 
-        orsGraphFileManager.backupExistingGraph(localGraphDir);
+        orsGraphFileManager.backupExistingGraph();
 
         assertFalse(localGraphDir.exists());
         assertTrue(backupDir.isDirectory());
@@ -129,7 +129,7 @@ class ORSGraphFileManagerTest {
         backupDir.mkdir();
         assertTrue(backupDir.exists());
 
-        orsGraphFileManager.backupExistingGraph(localGraphDir);
+        orsGraphFileManager.backupExistingGraph();
 
         assertFalse(localGraphDir.exists());
         assertTrue(backupDir.exists());

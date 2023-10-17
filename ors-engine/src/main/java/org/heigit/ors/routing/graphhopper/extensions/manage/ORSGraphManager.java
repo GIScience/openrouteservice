@@ -37,8 +37,22 @@ public class ORSGraphManager {
         repoManager = new ORSGraphRepoManager(fileManager, routeProfileName, graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, graphsRepoGraphVersion);
     }
 
+    String getProfileWithHash() {return fileManager.getProfileWithHash();}
+
     public boolean isActive() {
         return fileManager.isActive();
+    }
+
+    boolean hasLocalGraph() {
+        return fileManager.hasLocalGraph();
+    }
+
+    boolean hasGraphDownloadFile() {
+        return fileManager.hasGraphDownloadFile();
+    }
+
+    public boolean hasDownloadedExtractedGraph() {
+        return fileManager.hasDownloadedExtractedGraph();
     }
 
     public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
@@ -90,28 +104,32 @@ public class ORSGraphManager {
 
         boolean hasLocalGraph = fileManager.hasLocalGraph();
         boolean hasDownloadedExtractedGraph = fileManager.hasDownloadedExtractedGraph();
+
         if (!hasLocalGraph && !hasDownloadedExtractedGraph) {
+            LOGGER.info("[%s] No local graph or extracted downloaded graph found - trying to download and extract graph from repository".formatted(getProfileWithHash()));
             downloadAndExtractLatestGraphIfNecessary();
+            fileManager.activateNewGraph();
         }
         if (!hasLocalGraph && hasDownloadedExtractedGraph) {
+            LOGGER.info("[%s] Found extracted downloaded graph only".formatted(getProfileWithHash()));
             fileManager.activateNewGraph();
         }
         if (hasLocalGraph && hasDownloadedExtractedGraph) {
+            LOGGER.info("[%s] Found local graph and extracted downloaded graph".formatted(getProfileWithHash()));
             fileManager.backupExistingGraph();
             fileManager.activateNewGraph();
         }
         if (hasLocalGraph && !hasDownloadedExtractedGraph) {
-            LOGGER.info("found local graph %s/%s".formatted(routeProfileName, hash));
+            LOGGER.info("[%s] Found local graph only".formatted(getProfileWithHash()));
         }
     }
 
     public void downloadAndExtractLatestGraphIfNecessary() {
+        if (fileManager.isActive()) {
+            LOGGER.info("[%s] ORSGraphManager is active - skipping download".formatted(getProfileWithHash()));
+            return;
+        }
         repoManager.downloadGraphIfNecessary();
         fileManager.extractDownloadedGraph();
     }
-
-    public boolean isGraphDownloadFileAvailable() {
-        return fileManager.getGraphDownloadFile().exists();
-    }
-
 }
