@@ -138,9 +138,8 @@ class ORSGraphRepoManagerTest {
         verify(orsGraphRepoManager, times(2)).downloadAsset(anyString(), any());
         File localGraphDir = new File(hashDirAbsPath);
         File backupDir = new File(hashDirAbsPath + "_bak");
-        assertFalse(localGraphDir.exists());
-        assertTrue(backupDir.exists());
-        assertTrue(backupDir.isDirectory());
+        assertTrue(localGraphDir.exists());
+        assertFalse(backupDir.exists());
     }
 
     @Test

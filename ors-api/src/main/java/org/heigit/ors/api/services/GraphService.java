@@ -26,7 +26,13 @@ public class GraphService {
     public void checkForUpdatesInRepo() {
         LOGGER.debug("Scheduled check for updates in graph repository...");
         for (ORSGraphManager orsGraphManager : graphManagers) {
-            orsGraphManager.downloadAndExtractLatestGraphIfNecessary();
+            if (orsGraphManager.isActive()) {
+                LOGGER.info("[%s] Scheduled check for updates in graph repository: Download or extraction in progress".formatted(orsGraphManager.getRouteProfileName()));
+            } else if (orsGraphManager.hasDownloadedExtractedGraph()) {
+                LOGGER.info("[%s] A newer graph was already downloaded and extracted".formatted(orsGraphManager.getRouteProfileName()));
+            } else {
+                orsGraphManager.downloadAndExtractLatestGraphIfNecessary();
+            }
         }
         LOGGER.debug("Scheduled check for updates in graph repository done");
     }
@@ -39,11 +45,11 @@ public class GraphService {
         boolean restartAllowed = true;
         for (ORSGraphManager orsGraphManager : graphManagers) {
             if (orsGraphManager.isActive()) {
-                LOGGER.info("Scheduled check for downloaded graphs: Download in progress for %s".formatted(orsGraphManager.getRouteProfileName()));
+                LOGGER.info("[%s] Scheduled check for downloaded graphs: Download in progress".formatted(orsGraphManager.getRouteProfileName()));
                 restartAllowed = false;
             }
-            if (orsGraphManager.isGraphDownloadFileAvailable()) {
-                LOGGER.info("Scheduled check for downloaded graphs: Downloaded graph available for %s".formatted(orsGraphManager.getRouteProfileName()));
+            if (orsGraphManager.hasDownloadedExtractedGraph()) {
+                LOGGER.info("[%s] Scheduled check for downloaded graphs: Downloaded extracted graph available".formatted(orsGraphManager.getRouteProfileName()));
                 restartNeeded = true;
             }
         }
