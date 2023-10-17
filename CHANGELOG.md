@@ -65,6 +65,7 @@ RELEASING:
 - various style and low level code problems ([#1489](https://github.com/GIScience/openrouteservice/pull/1489))
 - Fix the max visited nodes bug for fast-isochrones ([#1538](https://github.com/GIScience/openrouteservice/pull/1538))
 - fix isochrones snapping ([#1568](https://github.com/GIScience/openrouteservice/pull/1568))
+- fix fast-isochrones snapping ([#1570](https://github.com/GIScience/openrouteservice/pull/1570))
 
 ## [7.1.0] - 2023-06-13
 ### Added
