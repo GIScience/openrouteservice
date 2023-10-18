@@ -115,9 +115,9 @@ public class RoutingProfile {
         }
     }
 
-    public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
+    public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration routeProfileConfiguration, RoutingProfileLoadContext loadCntx) throws Exception {
         String osmFile = engineConfig.getSourceFile();
-        ORSGraphHopperConfig args = createGHSettings(osmFile, config);
+        ORSGraphHopperConfig args = createGHSettings(osmFile, routeProfileConfiguration);
 
         int profileId;
         synchronized (lockObj) {
@@ -128,17 +128,14 @@ public class RoutingProfile {
         long startTime = System.currentTimeMillis();
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, config.getProfiles(), config.getGraphPath()));
+            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, routeProfileConfiguration.getProfiles(), routeProfileConfiguration.getGraphPath()));
         }
 
-        GraphProcessContext gpc = new GraphProcessContext(config);
+        GraphProcessContext gpc = new GraphProcessContext(routeProfileConfiguration);
         gpc.setGetElevationFromPreprocessedData(engineConfig.isElevationPreprocessed());
 
-        ORSGraphHopper gh = new ORSGraphHopper(gpc);
-        gh.setRouteProfileName(config.getName());
-        gh.setGraphsRepoName(engineConfig.getGraphsRepoName());
-        gh.setGraphsRepoBaseUrl(engineConfig.getGraphsRepoUrl());
-        gh.setGraphsRepoCoverage(engineConfig.getGraphsRepoCoverage());
+        ORSGraphHopper gh = new ORSGraphHopper(gpc, engineConfig);
+        gh.setRouteProfileName(routeProfileConfiguration.getName());
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
