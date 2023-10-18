@@ -2,6 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
+import org.heigit.ors.config.EngineConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,10 +13,11 @@ import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -55,29 +57,47 @@ class ORSGraphFileManagerTest {
     }
 
     void setupORSGraphManager(String hash) {
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
+                .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .setMaxNumberOfGraphBackups(3)
+                .buildWithAppConfigOverride();
+        setupORSGraphManager(hash, engineConfig);
+    }
+
+    private File createBackupDirectory(String hash, String dateString) throws IOException {
+        File oldBackupDir = setupLocalGraphDirectory(hash, EARLIER_DATE);
+        oldBackupDir.renameTo(new File(oldBackupDir.getAbsolutePath()+"_"+dateString));
+        return oldBackupDir;
+    }
+
+    private void assertCorrectBackupDir(File backupDir, String hash) {
+        assertTrue(backupDir.isDirectory());
+        assertTrue(new File(backupDir, hash+".json").exists());
+    }
+
+    void setupORSGraphManager(String hash, EngineConfig engineConfig) {
         File localDir = new File(LOCAL_PATH);
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
-        orsGraphFileManager = new ORSGraphFileManager(hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
-//        orsGraphFileManager.setVehicleGraphDirAbsPath(vehicleDirAbsPath);
-//        orsGraphFileManager.setHashDirAbsPath(hashDirAbsPath);
-
-        orsGraphRepoManager.setGraphsRepoBaseUrl(GRAPHS_REPO_BASE_URL);
-        orsGraphRepoManager.setGraphsRepoName(GRAPHS_REPO_NAME);
-        orsGraphRepoManager.setGraphsRepoCoverage(GRAPHS_COVERAGE);
+        orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
+        orsGraphRepoManager.initialize(engineConfig);
         orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
         orsGraphRepoManager.setRouteProfileName(VEHICLE);
         orsGraphRepoManager.setFileManager(orsGraphFileManager);
     }
 
-    void setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
-        if (hash == null) return;
+    File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
+        if (hash == null) return null;
         hashDir = new File(hashDirAbsPath);
         hashDir.mkdir();
         ORSGraphInfoV1 localOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateLocal));
         localGraphInfoV1File = new File(hashDir, hash + ".json");
         new ObjectMapper().writeValue(localGraphInfoV1File, localOrsGraphInfoV1Object);
+
+        return hashDir;
     }
 
     void setupNoRemoteFiles() {
@@ -107,34 +127,126 @@ class ORSGraphFileManagerTest {
 
         File localGraphDir = new File(hashDirAbsPath);
         assertTrue(localGraphDir.isDirectory());
-        File backupDir = new File(hashDirAbsPath + "_bak");
-        assertFalse(backupDir.exists());
+        assertEquals(0, orsGraphFileManager.findGraphBackupsSortedByName().size());
 
         orsGraphFileManager.backupExistingGraph();
 
         assertFalse(localGraphDir.exists());
-        assertTrue(backupDir.isDirectory());
-        assertTrue(new File(backupDir, hash+".json").exists());
+        assertEquals(1, orsGraphFileManager.findGraphBackupsSortedByName().size());
+        orsGraphFileManager.findGraphBackupsSortedByName().forEach(dir -> assertCorrectBackupDir(dir, hash));
     }
 
     @Test
-    void backupExistingGraph_previousBackupDirIsOverridden() throws IOException {
-        String hash = "1a2b3c";
+    void backupExistingGraph_withPreviousBackup() throws IOException {
+        String hash = "2a2b3c";
         setupORSGraphManager(hash);
-        setupLocalGraphDirectory(hash, LATER_DATE);
+        createBackupDirectory(hash, "2022-12-31_235959");
+        File localGraphDir = setupLocalGraphDirectory(hash, MIDDLE_DATE);
 
-        File localGraphDir = new File(hashDirAbsPath);
-        assertTrue(localGraphDir.isDirectory());
-        File backupDir = new File(hashDirAbsPath + "_bak");
-        backupDir.mkdir();
-        assertTrue(backupDir.exists());
+        assertTrue(localGraphDir.exists());
+        assertEquals(1, orsGraphFileManager.findGraphBackupsSortedByName().size());
 
         orsGraphFileManager.backupExistingGraph();
 
         assertFalse(localGraphDir.exists());
-        assertTrue(backupDir.exists());
-        assertTrue(backupDir.isDirectory());
-        assertTrue(new File(backupDir, hash+".json").exists());
+        assertEquals(2, orsGraphFileManager.findGraphBackupsSortedByName().size());
+        orsGraphFileManager.findGraphBackupsSortedByName().forEach(dir -> assertCorrectBackupDir(dir, hash));
     }
+
+    @Test
+    void backupExistingGraph_withMaxNumOfPreviousBackups() throws IOException {
+        String hash = "2a2b3c";
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
+                .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .setMaxNumberOfGraphBackups(2)
+                .buildWithAppConfigOverride();
+
+        setupORSGraphManager(hash, engineConfig);
+        createBackupDirectory(hash, "2022-12-31_235959");
+        createBackupDirectory(hash, "2023-01-01_060000");
+        File localGraphDir = setupLocalGraphDirectory(hash, MIDDLE_DATE);
+
+        assertTrue(localGraphDir.exists());
+        assertEquals(2, orsGraphFileManager.findGraphBackupsSortedByName().size());
+
+        orsGraphFileManager.backupExistingGraph();
+
+        assertFalse(localGraphDir.exists());
+        List<File> backups = orsGraphFileManager.findGraphBackupsSortedByName();
+        assertEquals(2, backups.size());
+        backups.forEach(dir -> assertCorrectBackupDir(dir, hash));
+        assertEquals("2a2b3c_2023-01-01_060000", backups.get(0).getName());
+        assertNotEquals("2a2b3c_2022-12-31_235959", backups.get(1).getName());
+    }
+
+    @Test
+    public void deleteOldestBackups() throws IOException {
+        String hash = "2a2b3c";
+        setupORSGraphManager(hash);
+        createBackupDirectory(hash, "2023-01-01_060000");
+        createBackupDirectory(hash, "2023-01-02_060000");
+        createBackupDirectory(hash, "2023-01-03_060000");
+        createBackupDirectory(hash, "2023-01-04_060000");
+        createBackupDirectory(hash, "2023-01-05_060000");
+        assertEquals(5, orsGraphFileManager.findGraphBackupsSortedByName().size());
+
+        orsGraphFileManager.deleteOldestBackups();
+
+        List<File> backups = orsGraphFileManager.findGraphBackupsSortedByName();
+        assertEquals(3, backups.size());
+        backups.forEach(dir -> assertCorrectBackupDir(dir, hash));
+        assertEquals(Arrays.asList("2a2b3c_2023-01-03_060000","2a2b3c_2023-01-04_060000","2a2b3c_2023-01-05_060000"), backups.stream().map(File::getName).toList());
+    }
+
+    @Test
+    public void deleteOldestBackups_maxNumberOfGraphBackupsIsZero() throws IOException {
+        String hash = "2a2b3c";
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
+                .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .setMaxNumberOfGraphBackups(0)
+                .buildWithAppConfigOverride();
+
+        setupORSGraphManager(hash, engineConfig);
+        createBackupDirectory(hash, "2023-01-01_060000");
+        createBackupDirectory(hash, "2023-01-02_060000");
+        createBackupDirectory(hash, "2023-01-03_060000");
+        createBackupDirectory(hash, "2023-01-04_060000");
+        createBackupDirectory(hash, "2023-01-05_060000");
+        assertEquals(5, orsGraphFileManager.findGraphBackupsSortedByName().size());
+
+        orsGraphFileManager.deleteOldestBackups();
+
+        List<File> backups = orsGraphFileManager.findGraphBackupsSortedByName();
+        assertEquals(0, backups.size());
+    }
+
+    @Test
+    public void deleteOldestBackups_maxNumberOfGraphBackupsIsNegative() throws IOException {
+        String hash = "2a2b3c";
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
+                .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .setMaxNumberOfGraphBackups(-5)
+                .buildWithAppConfigOverride();
+
+        setupORSGraphManager(hash, engineConfig);
+        createBackupDirectory(hash, "2023-01-01_060000");
+        createBackupDirectory(hash, "2023-01-02_060000");
+        createBackupDirectory(hash, "2023-01-03_060000");
+        createBackupDirectory(hash, "2023-01-04_060000");
+        createBackupDirectory(hash, "2023-01-05_060000");
+        assertEquals(5, orsGraphFileManager.findGraphBackupsSortedByName().size());
+
+        orsGraphFileManager.deleteOldestBackups();
+
+        List<File> backups = orsGraphFileManager.findGraphBackupsSortedByName();
+        assertEquals(0, backups.size());
+    }
+
 
 }

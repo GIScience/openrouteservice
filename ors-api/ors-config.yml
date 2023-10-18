@@ -20,6 +20,7 @@ ors:
     # we have currently no test repo! this was the former URL:
     source_file: https://test-repo.openrouteservice.org/service/rest/test-graph/ors-graphs-traffic/planet
     graphs_root_path: ./ors-core/data/graphs
+    max_number_of_graph_backups: 0
     elevation:
       cache_path: ./ors-core/data/elevation_cache
     graphservice:

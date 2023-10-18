@@ -3,10 +3,16 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.util.Unzipper;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.EngineConfig;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class ORSGraphFileManager {
 
@@ -18,13 +24,15 @@ public class ORSGraphFileManager {
     private String hashDirAbsPath;
     private String vehicleGraphDirAbsPath;
     private String routeProfileName;
+    private int maxNumberOfGraphBackups;
 
-
-    public ORSGraphFileManager(String hash, String hashDirAbsPath, String vehicleGraphDirAbsPath, String routeProfileName) {
+    public ORSGraphFileManager(EngineConfig engineConfig, String hash, String hashDirAbsPath, String vehicleGraphDirAbsPath, String routeProfileName) {
         this.hash = hash;
         this.hashDirAbsPath = hashDirAbsPath;
         this.vehicleGraphDirAbsPath = vehicleGraphDirAbsPath;
         this.routeProfileName = routeProfileName;
+        int maxBak = engineConfig.getMaxNumberOfGraphBackups();
+        this.maxNumberOfGraphBackups = Math.max(maxBak, 0);
     }
 
     public String getHash() {
@@ -131,9 +139,14 @@ public class ORSGraphFileManager {
     }
 
     void backupExistingGraph() {
+        if (!hasLocalGraph()) {
+            deleteOldestBackups();
+            return;
+        }
         File hashDirectory = getHashDirectory();
         String origAbsPath = hashDirectory.getAbsolutePath();
-        String newAbsPath = hashDirectory.getAbsolutePath() + "_bak";
+        String dateString = DateTimeFormatter.ofPattern("uuuu-MM-dd_HHmmss", Locale.getDefault()).format(LocalDateTime.now());
+        String newAbsPath = hashDirectory.getAbsolutePath() + "_" + dateString;
         File backupFile = new File(newAbsPath);
 
         if (backupFile.exists()){
@@ -151,6 +164,34 @@ public class ORSGraphFileManager {
         } else {
             LOGGER.error("[%s] Could not backup local graph directory %s to %s".formatted(getProfileWithHash(), origAbsPath, newAbsPath));
         }
+        deleteOldestBackups();
+    }
+
+    void deleteOldestBackups() {
+        List<File> existingBackups = findGraphBackupsSortedByName();
+        int numBackupsToDelete = existingBackups.size() - Math.max(maxNumberOfGraphBackups, 0);
+        if (numBackupsToDelete < 1) {
+            return;
+        }
+        List<File> backupsToDelete = existingBackups.subList(0, numBackupsToDelete);
+        for (File backupFile : backupsToDelete) {
+            try {
+                LOGGER.debug("[%s] Deleting old backup directory %s".formatted(getProfileWithHash(), backupFile.getAbsolutePath()));
+                FileUtils.deleteDirectory(backupFile);
+            } catch (IOException e) {
+                LOGGER.warn("[%s] Old backup directory %s could not be deleted, caught %s".formatted(getProfileWithHash(), backupFile.getAbsolutePath(), e.getMessage()));
+            }
+        }
+    }
+
+    List<File> findGraphBackupsSortedByName() {
+        File vehicleDir = new File(getVehicleGraphDirAbsPath());
+        FilenameFilter filter = new RegexFileFilter("^%s_\\d{4}-\\d{2}-\\d{2}_\\d{6}$".formatted(hash));
+        File[] obj = vehicleDir.listFiles(filter);
+        if (obj == null)
+            return Collections.emptyList();
+
+        return Arrays.asList(Objects.requireNonNull(obj)).stream().sorted(Comparator.comparing(File::getName)).toList();
     }
 
     GraphInfo getLocalGraphInfo() {

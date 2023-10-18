@@ -22,6 +22,7 @@ public class EngineProperties {
     private boolean preparationMode;
     private String sourceFile;
     private String graphsRootPath;
+    private int maxNumberOfGraphBackups;
     private ElevationProperties elevation;
     private ProfileProperties profileDefault;
     private Map<String, ProfileProperties> profiles;
@@ -56,6 +57,14 @@ public class EngineProperties {
 
     public void setGraphsRootPath(String graphsRootPath) {
         this.graphsRootPath = graphsRootPath;
+    }
+
+    public int getMaxNumberOfGraphBackups() {
+        return maxNumberOfGraphBackups;
+    }
+
+    public void setMaxNumberOfGraphBackups(int maxNumberOfGraphBackups) {
+        this.maxNumberOfGraphBackups = maxNumberOfGraphBackups;
     }
 
     public ElevationProperties getElevation() {
