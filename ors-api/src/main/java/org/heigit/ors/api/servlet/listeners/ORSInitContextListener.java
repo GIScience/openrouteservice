@@ -68,6 +68,7 @@ public class ORSInitContextListener implements ServletContextListener {
             .setPreparationMode(engineProperties.isPreparationMode())
             .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
             .setGraphsRootPath(engineProperties.getGraphsRootPath())
+            .setMaxNumberOfGraphBackups(engineProperties.getMaxNumberOfGraphBackups())
             .setSourceFile(sourceFileElements.localOsmFilePath)
             .setGraphsRepoUrl(sourceFileElements.repoBaseUrlString)
             .setGraphsRepoName(sourceFileElements.repoName)

@@ -102,6 +102,7 @@ ors:
     init_threads: 1
     preparation_mode: false
     source_file:
+    max_number_of_graph_backups: 0
     graphs_root_path: ./graphs
     elevation:
       preprocessed: false

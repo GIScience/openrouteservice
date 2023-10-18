@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import org.apache.commons.io.FileUtils;
+import org.heigit.ors.config.EngineConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,16 +49,19 @@ class ORSGraphManagerTest {
         File localDir = new File(LOCAL_PATH);
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
 
-        orsGraphManager.setGraphsRepoBaseUrl(GRAPHS_REPO_BASE_URL);
-        orsGraphManager.setGraphsRepoName(GRAPHS_REPO_NAME);
-        orsGraphManager.setGraphsRepoCoverage(GRAPHS_COVERAGE);
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
+                .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .buildWithAppConfigOverride();
+
         orsGraphManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
         orsGraphManager.setRouteProfileName(VEHICLE);
         orsGraphManager.setHash(hash);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
         orsGraphManager.setVehicleGraphDirAbsPath(vehicleDirAbsPath);
         orsGraphManager.setHashDirAbsPath(hashDirAbsPath);
-        orsGraphManager.initialize();
+        orsGraphManager.initialize(engineConfig);
     }
 
     @Test

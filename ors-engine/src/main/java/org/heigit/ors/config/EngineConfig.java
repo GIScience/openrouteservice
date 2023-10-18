@@ -11,6 +11,7 @@ public class EngineConfig {
     private final int initializationThreads;
     private final boolean preparationMode;
     private final String sourceFile;
+    private final int maxNumberOfGraphBackups;
     private final String graphsRootPath;
     private final String graphsRepoName;
     private final String graphsRepoUrl;
@@ -28,6 +29,10 @@ public class EngineConfig {
 
     public String getSourceFile() {
         return sourceFile;
+    }
+
+    public int getMaxNumberOfGraphBackups() {
+        return maxNumberOfGraphBackups;
     }
 
     public String getGraphsRootPath() {
@@ -58,6 +63,7 @@ public class EngineConfig {
         this.initializationThreads = builder.initializationThreads;
         this.preparationMode = builder.preparationMode;
         this.sourceFile = builder.sourceFile;
+        this.maxNumberOfGraphBackups = builder.maxNumberOfGraphBackups;
         this.elevationPreprocessed = builder.elevationPreprocessed;
         this.graphsRootPath = builder.graphsRootPath;
         this.graphsRepoUrl = builder.graphsRepoUrl;
@@ -72,6 +78,7 @@ public class EngineConfig {
         private int initializationThreads = 1;
         private boolean preparationMode;
         private String sourceFile;
+        private int maxNumberOfGraphBackups;
         private String graphsRootPath;
         private String graphsRepoUrl;
         private String graphsRepoName;
@@ -99,6 +106,11 @@ public class EngineConfig {
             return this;
         }
 
+        public EngineConfigBuilder setMaxNumberOfGraphBackups(int maxNumberOfGraphBackups) {
+            this.maxNumberOfGraphBackups = maxNumberOfGraphBackups;
+            return this;
+        }
+
         public EngineConfigBuilder setGraphsRootPath(String graphsRootPath) {
             this.graphsRootPath = graphsRootPath;
             return this;
@@ -117,18 +129,6 @@ public class EngineConfig {
         public EngineConfigBuilder setGraphsRepoUrl(String url) {
             this.graphsRepoUrl = url;
             return this;
-        }
-
-        public String getGraphsRepoName() {
-            return graphsRepoName;
-        }
-
-        public String getGraphsRepoCoverage() {
-            return graphsRepoCoverage;
-        }
-
-        public String getGraphsRepoUrl() {
-            return graphsRepoUrl;
         }
 
         public EngineConfigBuilder setElevationPreprocessed(boolean elevationPreprocessed) {

@@ -3,6 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.EngineConfig;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.Configuration;
@@ -36,25 +37,17 @@ public class ORSGraphRepoManager {
 
     public ORSGraphRepoManager() {}
 
-    public ORSGraphRepoManager(ORSGraphFileManager fileManager, String routeProfileName, String graphsRepoBaseUrl, String graphsRepoName, String graphsRepoCoverage, String graphsRepoGraphVersion) {
+    public ORSGraphRepoManager(EngineConfig engineConfig, ORSGraphFileManager fileManager, String routeProfileName, String graphsRepoGraphVersion) {
         this.fileManager = fileManager;
         this.routeProfileName = routeProfileName;
-        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
-        this.graphsRepoName = graphsRepoName;
-        this.graphsRepoCoverage = graphsRepoCoverage;
         this.graphsRepoGraphVersion = graphsRepoGraphVersion;
+        initialize(engineConfig);
     }
 
-    public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
-        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
-    }
-
-    public void setGraphsRepoName(String graphsRepoName) {
-        this.graphsRepoName = graphsRepoName;
-    }
-
-    public void setGraphsRepoCoverage(String graphsRepoCoverage) {
-        this.graphsRepoCoverage = graphsRepoCoverage;
+    void initialize(EngineConfig engineConfig) {
+        this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
+        this.graphsRepoName = engineConfig.getGraphsRepoName();
+        this.graphsRepoCoverage = engineConfig.getGraphsRepoCoverage();
     }
 
     public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {

@@ -6,9 +6,6 @@ import org.heigit.ors.config.EngineConfig;
 public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
-    private String graphsRepoBaseUrl;
-    private String graphsRepoName;
-    private String graphsRepoCoverage;
     private String graphsRepoGraphVersion;
     private String hash;
     private String hashDirAbsPath;
@@ -22,20 +19,17 @@ public class ORSGraphManager {
 
     public ORSGraphManager(EngineConfig engineConfig, String graphsRepoGraphVersion,
                            String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
-        this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
-        this.graphsRepoName = engineConfig.getGraphsRepoName();
-        this.graphsRepoCoverage = engineConfig.getGraphsRepoCoverage();
         this.graphsRepoGraphVersion = graphsRepoGraphVersion;
         this.hash = hash;
         this.hashDirAbsPath = localPath;
         this.routeProfileName = routeProfileName;
         this.vehicleGraphDirAbsPath = vehicleGraphDirAbsPath;
-        initialize();
+        initialize(engineConfig);
     }
 
-    void initialize() {
-        fileManager = new ORSGraphFileManager(hash, hashDirAbsPath, vehicleGraphDirAbsPath, routeProfileName);
-        repoManager = new ORSGraphRepoManager(fileManager, routeProfileName, graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, graphsRepoGraphVersion);
+    void initialize(EngineConfig engineConfig) {
+        fileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleGraphDirAbsPath, routeProfileName);
+        repoManager = new ORSGraphRepoManager(engineConfig, fileManager, routeProfileName, graphsRepoGraphVersion);
     }
 
     String getProfileWithHash() {return fileManager.getProfileWithHash();}
@@ -56,14 +50,6 @@ public class ORSGraphManager {
         return fileManager.hasDownloadedExtractedGraph();
     }
 
-    public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
-        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
-    }
-
-    public void setGraphsRepoName(String graphsRepoName) {
-        this.graphsRepoName = graphsRepoName;
-    }
-
     public void setHash(String hash) {
         this.hash = hash;
     }
@@ -80,20 +66,8 @@ public class ORSGraphManager {
         this.routeProfileName = routeProfileName;
     }
 
-    public String getGraphsRepoCoverage() {
-        return graphsRepoCoverage;
-    }
-
-    public void setGraphsRepoCoverage(String graphsRepoCoverage) {
-        this.graphsRepoCoverage = graphsRepoCoverage;
-    }
-
     public String getRouteProfileName() {
         return routeProfileName;
-    }
-
-    public String getGraphsRepoGraphVersion() {
-        return graphsRepoGraphVersion;
     }
 
     public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {
