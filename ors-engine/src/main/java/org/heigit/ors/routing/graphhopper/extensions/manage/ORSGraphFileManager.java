@@ -205,14 +205,18 @@ public class ORSGraphFileManager {
     }
 
     public void extractDownloadedGraph() {
+        if (!hasGraphDownloadFile()){
+            LOGGER.debug("[%s] No downloaded graph to extract");
+            return;
+        }
         try {
             File incompleteDirectory = asIncompleteDirectory(getGraphExractionDirectory());
             String incompleteDirPath = incompleteDirectory.getAbsolutePath();
 
-            LOGGER.info("[%s] Extracting downloaded graph file to %s".formatted(getProfileWithHash(), incompleteDirPath));
+            LOGGER.debug("[%s] Extracting downloaded graph file to %s".formatted(getProfileWithHash(), incompleteDirPath));
             (new Unzipper()).unzip(getGraphDownloadFile().getAbsolutePath(), incompleteDirPath, true);
 
-            LOGGER.info("[%s] Extraction of downloaded graph file done, renaming directory to %s".formatted(
+            LOGGER.debug("[%s] Extraction of downloaded graph file done, renaming directory to %s".formatted(
                     getProfileWithHash(),
                     getGraphExractionDirectory().getAbsolutePath()));
             incompleteDirectory.renameTo(getGraphExractionDirectory());
@@ -223,4 +227,3 @@ public class ORSGraphFileManager {
         }
     }
 }
-
