@@ -41,6 +41,7 @@ import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
@@ -87,6 +88,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     public static final String KEY_ARRIVAL = "arrival";
 
     private GraphProcessContext processContext;
+    private EngineConfig engineConfig;
     private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
     private HashMap<Integer, Long> tmcEdges;
     private Eccentricity eccentricity;
@@ -99,38 +101,11 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
     private String routeProfileName;
-    private String graphsRepoBaseUrl;
-    private String graphsRepoName;
-    private String graphsRepoCoverage;
     private String graphVersion;
     private ORSGraphManager orsGraphManager;
 
     public ORSGraphManager getOrsGraphManager(){
         return this.orsGraphManager;
-    }
-
-    public String getGraphsRepoBaseUrl() {
-        return graphsRepoBaseUrl;
-    }
-
-    public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
-        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
-    }
-
-    public String getGraphsRepoName() {
-        return graphsRepoName;
-    }
-
-    public void setGraphsRepoName(String graphsRepoName) {
-        this.graphsRepoName = graphsRepoName;
-    }
-
-    public String getGraphsRepoCoverage() {
-        return graphsRepoCoverage;
-    }
-
-    public void setGraphsRepoCoverage(String graphsRepoCoverage) {
-        this.graphsRepoCoverage = graphsRepoCoverage;
     }
 
     public void setRouteProfileName(String routeProfileName) {
@@ -143,8 +118,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     private GraphHopperConfig config;
 
-    public ORSGraphHopper(GraphProcessContext procCntx) {
-        processContext = procCntx;
+    public ORSGraphHopper(GraphProcessContext processContext, EngineConfig engineConfig) {
+        this.engineConfig = engineConfig;
+        this.processContext = processContext;
         processContext.init(this);
     }
 
@@ -222,7 +198,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         String hashDirAbsPath = extendGraphhopperLocation(hash);
 
         if (useGraphRepository()) {
-            orsGraphManager = new ORSGraphManager(graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, graphVersion, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
+            orsGraphManager = new ORSGraphManager(engineConfig, graphVersion, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
             orsGraphManager.manageStartup();
         }
 

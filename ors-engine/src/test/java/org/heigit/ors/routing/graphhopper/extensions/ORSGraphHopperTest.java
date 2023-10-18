@@ -10,6 +10,7 @@ import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
+import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.junit.jupiter.api.Test;
@@ -244,7 +245,10 @@ class ORSGraphHopperTest {
         rpc.setProfiles("driving-car");
         GraphProcessContext gpc = new GraphProcessContext(rpc);
         gpc.setGetElevationFromPreprocessedData(true);
-        ORSGraphHopper gh = new ORSGraphHopper(gpc);
+
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init().buildWithAppConfigOverride();
+
+        ORSGraphHopper gh = new ORSGraphHopper(gpc, engineConfig);
         gh.init(ghConfig);
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
         return gh;

@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.EngineConfig;
 
 public class ORSGraphManager {
 
@@ -19,11 +20,11 @@ public class ORSGraphManager {
 
     public ORSGraphManager() {}
 
-    public ORSGraphManager(String graphsRepoBaseUrl, String graphsRepoName, String graphsRepoCoverage, String graphsRepoGraphVersion,
+    public ORSGraphManager(EngineConfig engineConfig, String graphsRepoGraphVersion,
                            String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
-        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
-        this.graphsRepoName = graphsRepoName;
-        this.graphsRepoCoverage = graphsRepoCoverage;
+        this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
+        this.graphsRepoName = engineConfig.getGraphsRepoName();
+        this.graphsRepoCoverage = engineConfig.getGraphsRepoCoverage();
         this.graphsRepoGraphVersion = graphsRepoGraphVersion;
         this.hash = hash;
         this.hashDirAbsPath = localPath;
