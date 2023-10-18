@@ -2,11 +2,31 @@ package org.heigit.ors.config;
 
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.util.StringUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class EngineConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EngineConfig.class);
+    public static final String GRAPH_VERSION;
+
+    static {
+        Properties prop = new Properties();
+        String graphVersion = "0";
+        try (InputStream in = new ClassPathResource("engine.properties").getInputStream()) {
+            prop.load(in);
+            graphVersion = prop.getProperty("graphVersion", "0");
+        } catch (Exception e) {
+            LOGGER.error("Initialization ERROR: cannot read engineVersion. {}", e.getMessage());
+        }
+        GRAPH_VERSION = graphVersion;
+    }
+
     // Migration guide: 1. add field and getter, assign in constructor
     private final int initializationThreads;
     private final boolean preparationMode;

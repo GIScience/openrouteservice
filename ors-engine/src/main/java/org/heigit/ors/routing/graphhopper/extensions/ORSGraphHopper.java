@@ -101,10 +101,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
     private String routeProfileName;
-    private String graphVersion;
     private ORSGraphManager orsGraphManager;
 
-    public ORSGraphManager getOrsGraphManager(){
+    public ORSGraphManager getOrsGraphManager() {
         return this.orsGraphManager;
     }
 
@@ -143,22 +142,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
         minOneWayNetworkSize = ghConfig.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
         config = ghConfig;
-        graphVersion = extractGraphVersionFromEngineVersion();
 
         return ret;
-    }
-
-    private String extractGraphVersionFromEngineVersion() {
-        Properties prop = new Properties();
-        String graphVersion = "0";
-        try (InputStream in = this.getClass().getResourceAsStream("/engine.properties")) {
-            prop.load(in);
-            String engineVersion = prop.getProperty("engineVersion", "0.0");
-            graphVersion = engineVersion.split("\\.")[0];
-        } catch (Exception e) {
-            LOGGER.error("Initialization ERROR: cannot read graph version. " + e.getMessage());
-        }
-        return graphVersion;
     }
 
     @Override
@@ -198,7 +183,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         String hashDirAbsPath = extendGraphhopperLocation(hash);
 
         if (useGraphRepository()) {
-            orsGraphManager = new ORSGraphManager(engineConfig, graphVersion, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
+            orsGraphManager = new ORSGraphManager(engineConfig, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
             orsGraphManager.manageStartup();
         }
 
@@ -260,7 +245,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                 .withNamedString("chProfiles", config.getCHProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
                 .withNamedString("lmProfiles", config.getLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
                 .withMapStringObject(configWithoutFilePath, "pMap");
-        if (config instanceof ORSGraphHopperConfig orsConfig){
+        if (config instanceof ORSGraphHopperConfig orsConfig) {
             builder.withNamedString("coreProfiles", orsConfig.getCoreProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
                     .withNamedString("coreLMProfiles", orsConfig.getCoreLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
                     .withNamedString("fastisochroneProfiles", orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));

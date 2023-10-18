@@ -15,11 +15,8 @@ public class ORSGraphManager {
     private ORSGraphFileManager fileManager;
     private ORSGraphRepoManager repoManager;
 
-    public ORSGraphManager() {}
-
-    public ORSGraphManager(EngineConfig engineConfig, String graphsRepoGraphVersion,
-                           String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
-        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
+    public ORSGraphManager(EngineConfig engineConfig, String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
+        this.graphsRepoGraphVersion = EngineConfig.GRAPH_VERSION;
         this.hash = hash;
         this.hashDirAbsPath = localPath;
         this.routeProfileName = routeProfileName;
@@ -32,7 +29,9 @@ public class ORSGraphManager {
         repoManager = new ORSGraphRepoManager(engineConfig, fileManager, routeProfileName, graphsRepoGraphVersion);
     }
 
-    String getProfileWithHash() {return fileManager.getProfileWithHash();}
+    String getProfileWithHash() {
+        return fileManager.getProfileWithHash();
+    }
 
     public boolean isActive() {
         return fileManager.isActive();
