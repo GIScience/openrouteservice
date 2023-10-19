@@ -107,14 +107,14 @@ public class ORSInitContextListener implements ServletContextListener {
         String localOsmFilePath = "";
         try {
             new URL(sourceFilePropertyValue);
-            LOGGER.debug("configuration property 'source_file' contains a URL, using value as URL for a graphs repository");
+            LOGGER.debug("Configuration property 'source_file' contains a URL, using value as URL for a graphs repository");
             sourceFilePropertyValue = sourceFilePropertyValue.trim().replaceAll("/$", "");
             String[] urlElements = sourceFilePropertyValue.split("/");
 
             repoName = urlElements[urlElements.length - 1];
             repoBaseUrlString = sourceFilePropertyValue.replaceAll("/%s$".formatted(repoName), "");
         } catch (MalformedURLException e) {
-            LOGGER.debug("configuration property 'source_file' does not contain a URL, using value as local osm file path");
+            LOGGER.debug("Configuration property 'source_file' does not contain a URL, using value as local osm file path");
             localOsmFilePath = sourceFilePropertyValue;
         }
         return new SourceFileElements(repoBaseUrlString, repoName, localOsmFilePath);
