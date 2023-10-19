@@ -18,13 +18,14 @@ car
 ```
 
 Since version TODO-Version, the structure was extended by one directory level. 
-For each profile, a hash value is generated and the graph files for this graph configuration is located in a directory named with this hash value.
+For each profile, a hash value is generated and the graph files for this graph configuration is located in a subdirectory named with this hash value.
 
 ```commandline
 car
-├── 8250b2498273af0908682e2d660f279a                    # Active graph of the active profile. The graph will be backed up when a new one is activated.
-    ├── 8250b2498273af0908682e2d660f279a.json           # Metadata about the graph and the profile configuration that was used for generating it 
-    ├── ...                                             # Graphhopper graph files
+└── 8250b2498273af0908682e2d660f279a                    # Active graph of the active profile. The graph will be backed up when a new one is activated.
+    ├── geometry
+    ├── ...
+    └── turn_costs
 ```
 
 The hash value is based on all configuration properties that are relevant for a graph.
@@ -34,11 +35,13 @@ openrouteservice will generate a new graph in a new hash-directory:
 ```commandline
 car
 ├── 8250b2498273af0908682e2d660f279a                    # Graph of the initial profile configuration
-│   ├── 8250b2498273af0908682e2d660f279a.json           #  
-│   ├── ...                                             # 
-├── d4d43791efac62e0bf75322ef17ed92c                    # Graph of the changed profile configuration
-    ├── d4d43791efac62e0bf75322ef17ed92c.json           #  
-    ├── ...                                             # 
+│   ├── geometry
+│   ├── ...
+│   └── turn_costs
+└── d4d43791efac62e0bf75322ef17ed92c                    # Graph of the changed profile configuration
+    ├── geometry
+    ├── ...
+    └── turn_costs
 ```
 
 
@@ -48,16 +51,15 @@ car
 car
 ├── 8250b2498273af0908682e2d660f279a                    # Active graph of the active profile. The graph will be backed up when a new one is activated.
 │   ├── 8250b2498273af0908682e2d660f279a.json           # Metadata about the graph and the profile configuration that was used for generating it 
-│   ├── ...                                             # Graphhopper graph files
+│   ├── ...                                             # Graphhopper graph files and extensions
 ├── 8250b2498273af0908682e2d660f279a_new_incomplete     # Extraction folder for a downloaded graph. When extraction is done, it "_incomplete" will be removed from the folder name.  
 │   ├── ...                                             
 ├── 8250b2498273af0908682e2d660f279a_new                # Extracted downloaded graph from the graph repository. This graph will be activated on the next system start.  
 │   ├── 8250b2498273af0908682e2d660f279a.json           # Metadata
-│   ├── ...                                             # Graphhopper graph files
+│   ├── ...                                             # Graphhopper graph files and extensions
 ├── 8250b2498273af0908682e2d660f279a_2023-10-18_152345  # Backup of a previous graph. The timestamp is the date when the graph was replaced by a new one. 
 │   ├── 8250b2498273af0908682e2d660f279a.json           # Metadata
-│   ├── ...                                             # Graphhopper graph files
-│   └── turn_costs
+│   ├── ...                                             # Graphhopper graph files and extensions
 ├── 8250b2498273af0908682e2d660f279a.json               # Downloaded metadata of the newest graph for this profile in the repository 
 ├── 8250b2498273af0908682e2d660f279a.json.incomplete    #      first the file is downloaded with extension `incomplete`, which is removed when the download (of this file) is finished
 ├── 8250b2498273af0908682e2d660f279a.ghz                # Downloaded graph of this profile 
