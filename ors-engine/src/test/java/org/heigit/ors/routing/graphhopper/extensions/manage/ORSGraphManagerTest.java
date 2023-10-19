@@ -55,6 +55,7 @@ class ORSGraphManagerTest {
                 .setGraphsRepoCoverage(GRAPHS_COVERAGE)
                 .buildWithAppConfigOverride();
 
+        orsGraphManager = new ORSGraphManager();
         orsGraphManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
         orsGraphManager.setRouteProfileName(VEHICLE);
         orsGraphManager.setHash(hash);

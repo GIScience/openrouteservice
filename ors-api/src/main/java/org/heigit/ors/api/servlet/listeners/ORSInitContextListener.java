@@ -72,7 +72,7 @@ public class ORSInitContextListener implements ServletContextListener {
                 .setSourceFile(sourceFileElements.localOsmFilePath)
                 .setGraphsRepoUrl(sourceFileElements.repoBaseUrlString)
                 .setGraphsRepoName(sourceFileElements.repoName)
-                .setGraphsRepoCoverage(sourceFileElements.repoCoverage)
+                .setGraphsExtent(engineProperties.getGraphsExtent())
                 .setProfiles(engineProperties.getConvertedProfiles())
                 .buildWithAppConfigOverride();
         Runnable runnable = () -> {
@@ -98,13 +98,12 @@ public class ORSInitContextListener implements ServletContextListener {
         thread.start();
     }
 
-    record SourceFileElements(String repoBaseUrlString, String repoName, String repoCoverage, String localOsmFilePath) {
+    record SourceFileElements(String repoBaseUrlString, String repoName, String localOsmFilePath) {
     }
 
     SourceFileElements extractSourceFileElements(String sourceFilePropertyValue) {
         String repoBaseUrlString = null;
         String repoName = null;
-        String repoCoverage = null;
         String localOsmFilePath = "";
         try {
             new URL(sourceFilePropertyValue);
@@ -112,15 +111,13 @@ public class ORSInitContextListener implements ServletContextListener {
             sourceFilePropertyValue = sourceFilePropertyValue.trim().replaceAll("/$", "");
             String[] urlElements = sourceFilePropertyValue.split("/");
 
-            repoCoverage = urlElements[urlElements.length - 1];
-            repoName = urlElements[urlElements.length - 2];
-            repoBaseUrlString = sourceFilePropertyValue.replaceAll("/%s/%s$".formatted(repoName, repoCoverage), "");
-            localOsmFilePath = sourceFilePropertyValue;
+            repoName = urlElements[urlElements.length - 1];
+            repoBaseUrlString = sourceFilePropertyValue.replaceAll("/%s$".formatted(repoName), "");
         } catch (MalformedURLException e) {
             LOGGER.debug("configuration property 'source_file' does not contain a URL, using value as local osm file path");
             localOsmFilePath = sourceFilePropertyValue;
         }
-        return new SourceFileElements(repoBaseUrlString, repoName, repoCoverage, localOsmFilePath);
+        return new SourceFileElements(repoBaseUrlString, repoName, localOsmFilePath);
     }
 
     @Override

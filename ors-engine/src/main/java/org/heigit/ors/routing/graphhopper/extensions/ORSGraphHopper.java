@@ -239,6 +239,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     String createProfileHash() {
         // File name or hash should not be contained in the hash, same hast should map to different graphs built off different files for the same region/profile pair.
         Map<String, Object> configWithoutFilePath = config.asPMap().toMap();
+        configWithoutFilePath.remove("datareader.file");
         configWithoutFilePath.remove("graph.dataaccess");
         configWithoutFilePath.remove("graph.location");
         configWithoutFilePath.remove("graph.elevation.provider");

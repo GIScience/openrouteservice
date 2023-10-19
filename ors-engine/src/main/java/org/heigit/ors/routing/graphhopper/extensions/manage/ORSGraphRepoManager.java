@@ -47,7 +47,7 @@ public class ORSGraphRepoManager {
     void initialize(EngineConfig engineConfig) {
         this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
         this.graphsRepoName = engineConfig.getGraphsRepoName();
-        this.graphsRepoCoverage = engineConfig.getGraphsRepoCoverage();
+        this.graphsRepoCoverage = engineConfig.getGraphsExtent();
     }
 
     public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {

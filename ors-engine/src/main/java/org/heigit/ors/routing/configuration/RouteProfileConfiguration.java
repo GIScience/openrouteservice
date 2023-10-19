@@ -26,6 +26,7 @@ public class RouteProfileConfiguration {
     private boolean enabled = true;
     private String profiles = ""; // comma separated
     private String graphPath;
+    private String graphsExtent = "";
     private Map<String, Map<String, String>> extStorages;
     private Map<String, Map<String, String>> graphBuilders;
     private Double maximumDistance = 0.0;
@@ -128,6 +129,14 @@ public class RouteProfileConfiguration {
 
     public String getGraphPath() {
         return graphPath;
+    }
+
+    public String getGraphsExtent() {
+        return graphsExtent;
+    }
+
+    public void setGraphsExtent(String graphsExtent) {
+        this.graphsExtent = graphsExtent;
     }
 
     public void setExtStorages(Map<String, Map<String, String>> value) {
