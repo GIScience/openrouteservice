@@ -247,7 +247,7 @@ public class ORSGraphFileManager {
 
     public void extractDownloadedGraph() {
         if (!hasGraphDownloadFile()){
-            LOGGER.debug("[%s] No downloaded graph to extract");
+            LOGGER.debug("[%s] No downloaded graph to extract".formatted(getProfileWithHash()));
             return;
         }
         try {
