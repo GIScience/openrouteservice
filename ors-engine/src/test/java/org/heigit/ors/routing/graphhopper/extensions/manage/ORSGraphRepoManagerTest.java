@@ -7,6 +7,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.CleanupMode;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,6 +18,7 @@ import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +40,8 @@ class ORSGraphRepoManagerTest {
     private static final String GRAPHS_COVERAGE = "planet";
     private static final String GRAPHS_VERSION = "1";
     private static final String VEHICLE = "car";
-    private static final String LOCAL_PATH = "src/test/resources/graphs";
+    @TempDir(cleanup = CleanupMode.ON_SUCCESS)
+    private static Path TEMP_DIR;
     private static final long EARLIER_DATE = 1692373000111L;
     private static final long MIDDLE_DATE = 1692373000222L;
     private static final long LATER_DATE = 1692373000333L;
@@ -48,7 +52,7 @@ class ORSGraphRepoManagerTest {
 
     @BeforeEach
     void setUp() {
-        localDir = new File(LOCAL_PATH);
+        localDir = TEMP_DIR.toFile();
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         vehicleDir = new File(vehicleDirAbsPath);
         vehicleDir.mkdir();
@@ -60,7 +64,7 @@ class ORSGraphRepoManagerTest {
     }
 
     void setupORSGraphManager(String hash) {
-        File localDir = new File(LOCAL_PATH);
+        File localDir = TEMP_DIR.toFile();
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
@@ -212,7 +216,7 @@ class ORSGraphRepoManagerTest {
         GraphInfo existingGraphInfoMiddle = new GraphInfo().withPersistedInfo(middleOrsGraphInfoV1);
         GraphInfo existingGraphInfoLater = new GraphInfo().withPersistedInfo(laterOrsGraphInfoV1);
 
-        File resourcesDir = new File(LOCAL_PATH).getParentFile();
+        File resourcesDir = TEMP_DIR.toFile().getParentFile();
         File nonexistingFile = new File(resourcesDir, "missing.ghz");
         File existingFile = new File(resourcesDir, "some.ghz");
 
