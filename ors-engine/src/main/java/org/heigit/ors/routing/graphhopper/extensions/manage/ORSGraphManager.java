@@ -28,6 +28,7 @@ public class ORSGraphManager {
 
     void initialize(EngineConfig engineConfig) {
         fileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleGraphDirAbsPath, routeProfileName);
+        fileManager.initialize();
         repoManager = new ORSGraphRepoManager(engineConfig, fileManager, routeProfileName, graphsRepoGraphVersion);
     }
 

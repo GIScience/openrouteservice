@@ -80,7 +80,7 @@ class ORSGraphRepoManagerTest {
     void setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
         if (hash == null) return;
         hashDir = new File(hashDirAbsPath);
-        hashDir.mkdir();
+        hashDir.mkdirs();
         ORSGraphInfoV1 localOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateLocal));
         localGraphInfoV1File = new File(hashDir, hash + ".json");
         new ObjectMapper().writeValue(localGraphInfoV1File, localOrsGraphInfoV1Object);
@@ -191,7 +191,7 @@ class ORSGraphRepoManagerTest {
                 new AssetXO().path("https://example.com/test-repo/planet/wrong/car/abc123/202301011200/abc123.json"),
                 new AssetXO().path("https://example.com/test-repo/wrong/1/car/abc123/202301011200/abc123.ghz"),
                 new AssetXO().path("https://example.com/test-repo/wrong/1/car/abc123/202301011200/abc123.json")
-                );
+        );
         AssetXO filtered = orsGraphRepoManager.filterLatestAsset("abc123.json", items);
         assertEquals("https://example.com/test-repo/planet/1/car/abc123/202301011200/abc123.json", filtered.getPath());
     }
@@ -267,6 +267,7 @@ class ORSGraphRepoManagerTest {
                 Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, null, false)
         );
     }
+
     @Test
     void findLatestGraphComponent() {
     }

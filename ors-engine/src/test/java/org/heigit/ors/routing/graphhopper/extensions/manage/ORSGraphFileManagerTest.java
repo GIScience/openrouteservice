@@ -7,15 +7,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.CleanupMode;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,7 +37,9 @@ class ORSGraphFileManagerTest {
     private static final String GRAPHS_COVERAGE = "planet";
     private static final String GRAPHS_VERSION = "1";
     private static final String VEHICLE = "car";
-    private static final String LOCAL_PATH = "src/test/resources/graphs";
+    private static String LOCAL_PATH = "src/test/resources/graphs";
+    @TempDir(cleanup = CleanupMode.ON_SUCCESS)
+    Path tempDir;
     private static final long EARLIER_DATE = 1692373000111L;
     private static final long MIDDLE_DATE = 1692373000222L;
     private static final long LATER_DATE = 1692373000333L;
@@ -48,7 +53,7 @@ class ORSGraphFileManagerTest {
         localDir = new File(LOCAL_PATH);
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         vehicleDir = new File(vehicleDirAbsPath);
-        vehicleDir.mkdir();
+        vehicleDir.mkdirs();
     }
 
     @AfterEach
@@ -83,6 +88,7 @@ class ORSGraphFileManagerTest {
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
         orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
+        orsGraphFileManager.initialize();
         orsGraphRepoManager.initialize(engineConfig);
         orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
         orsGraphRepoManager.setRouteProfileName(VEHICLE);
@@ -92,7 +98,7 @@ class ORSGraphFileManagerTest {
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
         if (hash == null) return null;
         hashDir = new File(hashDirAbsPath);
-        hashDir.mkdir();
+        hashDir.mkdirs();
         ORSGraphInfoV1 localOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateLocal));
         localGraphInfoV1File = new File(hashDir, hash + ".json");
         new ObjectMapper().writeValue(localGraphInfoV1File, localOrsGraphInfoV1Object);
@@ -248,5 +254,31 @@ class ORSGraphFileManagerTest {
         assertEquals(0, backups.size());
     }
 
+    @Test
+    void testInitialize() throws IOException {
+        Path testFolder = Files.createDirectory(tempDir.resolve("noWritePermissionFolder"));
+        LOCAL_PATH = testFolder.toString();
 
+        // This code to remove write permissions is POSIX-specific (Unix-like OSes)
+        Set<PosixFilePermission> perms = new HashSet<>();
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        Files.setPosixFilePermissions(testFolder, perms);
+
+        setupORSGraphManager("foo");
+        assertTrue(orsGraphFileManager.getVehicleGraphDirAbsPath().contains(LOCAL_PATH));
+
+        // Assert that the folder has no write permissions
+        assertFalse(testFolder.toFile().canWrite());
+        assertFalse(orsGraphFileManager.hasLocalGraph());
+
+        // Set write permissions
+        perms.add(PosixFilePermission.OWNER_WRITE);
+        Files.setPosixFilePermissions(testFolder, perms);
+
+        // Initialize again
+        orsGraphFileManager.initialize();
+        assertTrue(testFolder.toFile().canWrite());
+        assertTrue(orsGraphFileManager.hasLocalGraph());
+    }
 }
