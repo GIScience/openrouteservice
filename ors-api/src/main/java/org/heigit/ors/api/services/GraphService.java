@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 public class GraphService {
-    private static final Logger LOGGER = Logger.getLogger(AppConfigMigration.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GraphService.class.getName());
 
     public List<ORSGraphManager> graphManagers = new ArrayList<>();
 
@@ -24,36 +24,45 @@ public class GraphService {
     @Async
     @Scheduled(cron = "${ors.engine.graphservice.schedule.download.cron:0 0 0 31 2 *}")//Default is "never"
     public void checkForUpdatesInRepo() {
+
         LOGGER.debug("Scheduled check for updates in graph repository...");
+
         for (ORSGraphManager orsGraphManager : graphManagers) {
             if (orsGraphManager.isActive()) {
-                LOGGER.info("[%s] Scheduled check for updates in graph repository: Download or extraction in progress".formatted(orsGraphManager.getRouteProfileName()));
+                LOGGER.info("Scheduled check for updates in graph repository: [%s] Download or extraction in progress".formatted(orsGraphManager.getProfileWithHash()));
             } else if (orsGraphManager.hasDownloadedExtractedGraph()) {
-                LOGGER.info("[%s] A newer graph was already downloaded and extracted".formatted(orsGraphManager.getRouteProfileName()));
+                LOGGER.info("Scheduled check for updates in graph repository: [%s] A newer graph was already downloaded and extracted".formatted(orsGraphManager.getProfileWithHash()));
             } else {
+                LOGGER.info("Scheduled check for updates in graph repository: [%s] Checking for update.".formatted(orsGraphManager.getProfileWithHash()));
                 orsGraphManager.downloadAndExtractLatestGraphIfNecessary();
             }
         }
+
         LOGGER.debug("Scheduled check for updates in graph repository done");
     }
 
     @Async
     @Scheduled(cron = "${ors.engine.graphservice.schedule.activate.cron:0 0 0 31 2 *}")//Default is "never"
     public void checkForDownloadedGraphsToActivate() {
+
         LOGGER.debug("Scheduled check for downloaded graphs...");
+
         boolean restartNeeded = false;
         boolean restartAllowed = true;
+
         for (ORSGraphManager orsGraphManager : graphManagers) {
-            if (orsGraphManager.isActive()) {
-                LOGGER.info("[%s] Scheduled check for downloaded graphs: Download in progress".formatted(orsGraphManager.getRouteProfileName()));
+            if (orsGraphManager.isActive() || orsGraphManager.hasGraphDownloadFile()) {
+                LOGGER.info("Scheduled check for downloaded graphs: [%s] Download or extraction in progress".formatted(orsGraphManager.getProfileWithHash()));
                 restartAllowed = false;
             }
             if (orsGraphManager.hasDownloadedExtractedGraph()) {
-                LOGGER.info("[%s] Scheduled check for downloaded graphs: Downloaded extracted graph available".formatted(orsGraphManager.getRouteProfileName()));
+                LOGGER.info("Scheduled check for downloaded graphs: [%s] Downloaded extracted graph available".formatted(orsGraphManager.getProfileWithHash()));
                 restartNeeded = true;
             }
         }
+
         if (restartNeeded && restartAllowed) {
+            LOGGER.info("Scheduled check for downloaded graphs done -> restarting openrouteservice");
             restartApplication();
         } else {
             LOGGER.info("Scheduled check for downloaded graphs done -> restarting openrouteservice is %s".formatted(

@@ -74,11 +74,11 @@ public class ORSGraphRepoManager {
             return;
         }
         if (fileManager.isActive()) {
-            LOGGER.info("[%s] ORSGraphManager is active - skipping download".formatted(getProfileWithHash()));
+            LOGGER.debug("[%s] ORSGraphManager is active - skipping download".formatted(getProfileWithHash()));
             return;
         }
 
-        LOGGER.info("[%s] Checking for possible graph update from remote repository...".formatted(getProfileWithHash()));
+        LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileWithHash()));
         try {
             ORSGraphInfoV1 persistedRemoteGraphInfo = fileManager.getPreviouslyDownloadedRemoteGraphInfo();
             File graphDownloadFile = fileManager.getGraphDownloadFile();
@@ -91,7 +91,11 @@ public class ORSGraphRepoManager {
 
             String downloadUrl = fileManager.createGraphUrlFromGraphInfoUrl(remoteGraphInfo);
             LOGGER.info("[%s] Downloading %s to file %s".formatted(getProfileWithHash(), downloadUrl, graphDownloadFile.getAbsolutePath()));
+
+            long start = System.currentTimeMillis();
             downloadAsset(downloadUrl, graphDownloadFile);
+            long end = System.currentTimeMillis();
+            LOGGER.info("[%s] Download finished after %d ms".formatted(getProfileWithHash(), end-start));
         } catch (Exception e) {
             LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileWithHash()), e);
         }

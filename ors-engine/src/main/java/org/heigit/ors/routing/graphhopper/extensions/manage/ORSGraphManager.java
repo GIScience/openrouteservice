@@ -31,7 +31,7 @@ public class ORSGraphManager {
         repoManager = new ORSGraphRepoManager(engineConfig, fileManager, routeProfileName, graphsRepoGraphVersion);
     }
 
-    String getProfileWithHash() {
+    public String getProfileWithHash() {
         return fileManager.getProfileWithHash();
     }
 
@@ -39,11 +39,11 @@ public class ORSGraphManager {
         return fileManager.isActive();
     }
 
-    boolean hasLocalGraph() {
+    public boolean hasLocalGraph() {
         return fileManager.hasLocalGraph();
     }
 
-    boolean hasGraphDownloadFile() {
+    public boolean hasGraphDownloadFile() {
         return fileManager.hasGraphDownloadFile();
     }
 
