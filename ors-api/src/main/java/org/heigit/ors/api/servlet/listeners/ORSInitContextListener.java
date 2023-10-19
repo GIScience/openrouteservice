@@ -64,17 +64,17 @@ public class ORSInitContextListener implements ServletContextListener {
         }
         SourceFileElements sourceFileElements = extractSourceFileElements(engineProperties.getSourceFile());
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
-            .setInitializationThreads(engineProperties.getInitThreads())
-            .setPreparationMode(engineProperties.isPreparationMode())
-            .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
-            .setGraphsRootPath(engineProperties.getGraphsRootPath())
-            .setMaxNumberOfGraphBackups(engineProperties.getMaxNumberOfGraphBackups())
-            .setSourceFile(sourceFileElements.localOsmFilePath)
-            .setGraphsRepoUrl(sourceFileElements.repoBaseUrlString)
-            .setGraphsRepoName(sourceFileElements.repoName)
-            .setGraphsRepoCoverage(sourceFileElements.repoCoverage)
-            .setProfiles(engineProperties.getConvertedProfiles())
-            .buildWithAppConfigOverride();
+                .setInitializationThreads(engineProperties.getInitThreads())
+                .setPreparationMode(engineProperties.isPreparationMode())
+                .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
+                .setGraphsRootPath(engineProperties.getGraphsRootPath())
+                .setMaxNumberOfGraphBackups(engineProperties.getMaxNumberOfGraphBackups())
+                .setSourceFile(sourceFileElements.localOsmFilePath)
+                .setGraphsRepoUrl(sourceFileElements.repoBaseUrlString)
+                .setGraphsRepoName(sourceFileElements.repoName)
+                .setGraphsRepoCoverage(sourceFileElements.repoCoverage)
+                .setProfiles(engineProperties.getConvertedProfiles())
+                .buildWithAppConfigOverride();
         Runnable runnable = () -> {
             try {
                 LOGGER.info("Initializing ORS...");
@@ -98,9 +98,10 @@ public class ORSInitContextListener implements ServletContextListener {
         thread.start();
     }
 
-    record SourceFileElements(String repoBaseUrlString, String repoName, String repoCoverage, String localOsmFilePath) {}
+    record SourceFileElements(String repoBaseUrlString, String repoName, String repoCoverage, String localOsmFilePath) {
+    }
 
-    SourceFileElements extractSourceFileElements(String sourceFilePropertyValue){
+    SourceFileElements extractSourceFileElements(String sourceFilePropertyValue) {
         String repoBaseUrlString = null;
         String repoName = null;
         String repoCoverage = null;
@@ -111,9 +112,10 @@ public class ORSInitContextListener implements ServletContextListener {
             sourceFilePropertyValue = sourceFilePropertyValue.trim().replaceAll("/$", "");
             String[] urlElements = sourceFilePropertyValue.split("/");
 
-            repoCoverage = urlElements[urlElements.length-1];
-            repoName = urlElements[urlElements.length-2];
+            repoCoverage = urlElements[urlElements.length - 1];
+            repoName = urlElements[urlElements.length - 2];
             repoBaseUrlString = sourceFilePropertyValue.replaceAll("/%s/%s$".formatted(repoName, repoCoverage), "");
+            localOsmFilePath = sourceFilePropertyValue;
         } catch (MalformedURLException e) {
             LOGGER.debug("configuration property 'source_file' does not contain a URL, using value as local osm file path");
             localOsmFilePath = sourceFilePropertyValue;

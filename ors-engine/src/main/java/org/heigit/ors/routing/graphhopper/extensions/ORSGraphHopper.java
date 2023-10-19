@@ -232,14 +232,19 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     public String extendGraphhopperLocation(String hash) {
         String extendedPath = String.join("/", getGraphHopperLocation(), hash);
         this.setGraphHopperLocation(extendedPath);
-        LOGGER.info("Extended graphHopperLocation with hash: %s".formatted(hash));
+        LOGGER.info("Extended graphHopperLocation with hash: {}", hash);
         return extendedPath;
     }
 
     String createProfileHash() {
         // File name or hash should not be contained in the hash, same hast should map to different graphs built off different files for the same region/profile pair.
-        Map configWithoutFilePath = config.asPMap().toMap();
-        configWithoutFilePath.remove("datareader.file");
+        Map<String, Object> configWithoutFilePath = config.asPMap().toMap();
+        configWithoutFilePath.remove("graph.dataaccess");
+        configWithoutFilePath.remove("graph.location");
+        configWithoutFilePath.remove("graph.elevation.provider");
+        configWithoutFilePath.remove("graph.elevation.cache_dir");
+        configWithoutFilePath.remove("graph.elevation.dataaccess");
+        configWithoutFilePath.remove("graph.elevation.clear");
         RoutingProfileHashBuilder builder = RoutingProfileHashBuilder.builder()
                 .withNamedString("profiles", config.getProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()))
                 .withNamedString("chProfiles", config.getCHProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
@@ -251,10 +256,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                     .withNamedString("fastisochroneProfiles", orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));
         }
         return builder.build();
-
-// name=pedestrian_ors_fastest|vehicle=pedestrian_ors|weighting=fastest|turnCosts=false|hints={}name=pedestrian_ors_recommended|vehicle=pedestrian_ors|weighting=recommended|turnCosts=false|hints={}name=pedestrian_ors_shortest|vehicle=pedestrian_ors|weighting=shortest|turnCosts=false|hints={}
-// pedestrian_ors_recommended|preparation_profile=this|maximum_lm_weight=-1.0pedestrian_ors_shortest|preparation_profile=this|maximum_lm_weight=-1.0
-// pMap(datareader.file=/home/jh/data/osm/andorra-latest.osm.pbf,graph.bytes_for_flags=8,graph.dataaccess=RAM_STORE,graph.elevation.cache_dir=elevation-cache,graph.elevation.clear=false,graph.elevation.dataaccess=MMAP,graph.elevation.provider=multi,graph.elevation.smoothing=true,graph.encoded_values=road_environment,graph.flag_encoders=pedestrian_ors|block_fords=false,graph.location=graphs/walking,index.high_resolution=500,index.max_region_search=4,prepare.core.weightings=no,prepare.fastisochrone.weightings=no,prepare.lm.landmarks=16,prepare.lm.threads=1,prepare.min_network_size=200,prepare.min_one_way_network_size=200,routing.lm.active_landmarks=8)
     }
 
     @Override
