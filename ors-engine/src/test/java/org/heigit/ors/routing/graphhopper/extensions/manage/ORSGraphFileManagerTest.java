@@ -7,12 +7,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.CleanupMode;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +38,9 @@ class ORSGraphFileManagerTest {
     private static final String GRAPHS_COVERAGE = "planet";
     private static final String GRAPHS_VERSION = "1";
     private static final String VEHICLE = "car";
-    private static final String LOCAL_PATH = "src/test/resources/graphs";
+    @TempDir(cleanup = CleanupMode.ON_SUCCESS)
+    private static Path TEMP_DIR;
+
     private static final long EARLIER_DATE = 1692373000111L;
     private static final long MIDDLE_DATE = 1692373000222L;
     private static final long LATER_DATE = 1692373000333L;
@@ -45,7 +51,7 @@ class ORSGraphFileManagerTest {
 
     @BeforeEach
     void setUp() {
-        localDir = new File(LOCAL_PATH);
+        localDir = TEMP_DIR.toFile();
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         vehicleDir = new File(vehicleDirAbsPath);
         vehicleDir.mkdir();
@@ -78,7 +84,7 @@ class ORSGraphFileManagerTest {
     }
 
     void setupORSGraphManager(String hash, EngineConfig engineConfig) {
-        File localDir = new File(LOCAL_PATH);
+        File localDir = TEMP_DIR.toFile();
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
