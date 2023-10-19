@@ -21,6 +21,7 @@ public class EngineProperties {
     private int initThreads;
     private boolean preparationMode;
     private String sourceFile;
+    private String graphsExtent;
     private String graphsRootPath;
     private int maxNumberOfGraphBackups;
     private ElevationProperties elevation;
@@ -49,6 +50,14 @@ public class EngineProperties {
 
     public void setSourceFile(String sourceFile) {
         this.sourceFile = sourceFile;
+    }
+
+    public String getGraphsExtent() {
+        return graphsExtent;
+    }
+
+    public void setGraphsExtent(String graphsExtent) {
+        this.graphsExtent = graphsExtent;
     }
 
     public String getGraphsRootPath() {
@@ -109,6 +118,7 @@ public class EngineProperties {
                         graphPath = Paths.get(rootGraphsPath, graphPath).toString();
                 }
                 convertedProfile.setGraphPath(graphPath);
+                convertedProfile.setGraphsExtent(graphsExtent);
                 convertedProfile.setEncoderOptions(profile.getEncoderOptionsString());
                 convertedProfile.setOptimize(profile.optimize != null ? profile.optimize : profileDefault.getOptimize());
                 convertedProfile.setEncoderFlagsSize(profile.encoderFlagsSize != null ? profile.encoderFlagsSize : profileDefault.getEncoderFlagsSize());

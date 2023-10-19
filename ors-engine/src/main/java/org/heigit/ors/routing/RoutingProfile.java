@@ -403,6 +403,7 @@ public class RoutingProfile {
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
+        ghConfig.putObject("graphs_extent", config.getGraphsExtent());
         ghConfig.putObject("ext_storages", config.getExtStorages());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 

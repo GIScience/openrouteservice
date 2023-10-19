@@ -35,7 +35,7 @@ public class EngineConfig {
     private final String graphsRootPath;
     private final String graphsRepoName;
     private final String graphsRepoUrl;
-    private final String graphsRepoCoverage;
+    private final String graphsExtent;
     private final boolean elevationPreprocessed;
     private final RouteProfileConfiguration[] profiles;
 
@@ -67,8 +67,8 @@ public class EngineConfig {
         return graphsRepoUrl;
     }
 
-    public String getGraphsRepoCoverage() {
-        return graphsRepoCoverage;
+    public String getGraphsExtent() {
+        return graphsExtent;
     }
 
     public boolean isElevationPreprocessed() {
@@ -88,10 +88,9 @@ public class EngineConfig {
         this.graphsRootPath = builder.graphsRootPath;
         this.graphsRepoUrl = builder.graphsRepoUrl;
         this.graphsRepoName = builder.graphsRepoName;
-        this.graphsRepoCoverage = builder.graphsRepoCoverage;
+        this.graphsExtent = builder.graphsExtent;
         this.profiles = builder.profiles;
     }
-
 
     public static class EngineConfigBuilder {
         // Migration guide: 2. add corresponding field (without final)
@@ -102,7 +101,7 @@ public class EngineConfig {
         private String graphsRootPath;
         private String graphsRepoUrl;
         private String graphsRepoName;
-        private String graphsRepoCoverage;
+        private String graphsExtent;
         private boolean elevationPreprocessed;
         private RouteProfileConfiguration[] profiles;
 
@@ -141,13 +140,13 @@ public class EngineConfig {
             return this;
         }
 
-        public EngineConfigBuilder setGraphsRepoCoverage(String repoCoverage) {
-            this.graphsRepoCoverage = repoCoverage;
+        public EngineConfigBuilder setGraphsRepoUrl(String url) {
+            this.graphsRepoUrl = url;
             return this;
         }
 
-        public EngineConfigBuilder setGraphsRepoUrl(String url) {
-            this.graphsRepoUrl = url;
+        public EngineConfigBuilder setGraphsExtent(String extent) {
+            this.graphsExtent = extent;
             return this;
         }
 

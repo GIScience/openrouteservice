@@ -15,6 +15,8 @@ public class ORSGraphManager {
     private ORSGraphFileManager fileManager;
     private ORSGraphRepoManager repoManager;
 
+    public ORSGraphManager() {}
+
     public ORSGraphManager(EngineConfig engineConfig, String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
         this.graphsRepoGraphVersion = EngineConfig.GRAPH_VERSION;
         this.hash = hash;

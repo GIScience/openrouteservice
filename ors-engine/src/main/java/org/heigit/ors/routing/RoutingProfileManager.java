@@ -45,6 +45,7 @@ public class RoutingProfileManager {
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
     private RoutingProfilesCollection routingProfiles;
     private static RoutingProfileManager instance;
+
     public RoutingProfileManager(EngineConfig config) {
         instance = this;
         initialize(config);
@@ -108,11 +109,12 @@ public class RoutingProfileManager {
                     if (!routingProfiles.add(rp))
                         LOGGER.warn("Routing profile has already been added.");
                 } catch (ExecutionException e) {
-                    LOGGER.error(e);
+                    LOGGER.debug(e);
                     throw e;
                 } catch (InterruptedException e) {
-                    LOGGER.error(e);
+                    LOGGER.debug(e);
                     Thread.currentThread().interrupt();
+                    throw e;
                 }
             }
 
