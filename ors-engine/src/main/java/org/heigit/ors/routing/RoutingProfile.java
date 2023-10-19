@@ -403,6 +403,7 @@ public class RoutingProfile {
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
+        ghConfig.putObject("ext_storages", config.getExtStorages());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
@@ -1264,12 +1265,13 @@ public class RoutingProfile {
     }
 
     //jh: alternative for hashing ORSGraphHopper TODO remove if hashing ORSGraphHopper is correct
-    void addProfileHash(RouteProfileConfiguration routeProfileConfiguration){
+    void addProfileHash(RouteProfileConfiguration routeProfileConfiguration) {
         String profileHash = computeProfileHash(routeProfileConfiguration);
         routeProfileConfiguration.setGraphPath(routeProfileConfiguration.getGraphPath() + "/" + profileHash);
     }
+
     //jh: alternative for hashing ORSGraphHopper TODO remove if hashing ORSGraphHopper is correct
-    String computeProfileHash(RouteProfileConfiguration routeProfileConfiguration){
+    String computeProfileHash(RouteProfileConfiguration routeProfileConfiguration) {
         RoutingProfileHashBuilder hashBuilder = RoutingProfileHashBuilder.builder()
                 .withString(routeProfileConfiguration.getName())
                 .withBoolean(routeProfileConfiguration.getEnabled())
@@ -1306,10 +1308,9 @@ public class RoutingProfile {
 //                .withInteger(routeProfileConfiguration.getTrafficExpirationMin())
                 .withInteger(routeProfileConfiguration.getMaximumVisitedNodesPT())
                 .withBoolean(routeProfileConfiguration.isTurnCostEnabled())
-                .withBoolean(routeProfileConfiguration.isEnforceTurnCosts())
-                ;
+                .withBoolean(routeProfileConfiguration.isEnforceTurnCosts());
 
-                return hashBuilder.build();
+        return hashBuilder.build();
     }
 
 }
