@@ -86,6 +86,7 @@ RELEASING:
 - Fix the max visited nodes bug for fast-isochrones ([#1538](https://github.com/GIScience/openrouteservice/pull/1538))
 - adjust weighting of heat stress routing to avoid large detours
 - fix isochrones snapping ([#1566](https://github.com/GIScience/openrouteservice/pull/1566))
+- fix fast-isochrones snapping ([#1572](https://github.com/GIScience/openrouteservice/pull/1572))
 
 ## [7.1.0] - 2023-06-13
 ### Added

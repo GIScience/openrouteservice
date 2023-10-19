@@ -16,18 +16,22 @@ package org.heigit.ors.isochrones.builders.fast;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.graphhopper.GraphHopper;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.SPTEntry;
+import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.querygraph.QueryGraph;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.HikeFlagEncoder;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
+import org.heigit.ors.util.ProfileTools;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.index.quadtree.Quadtree;
+import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.exceptions.InternalServerException;
@@ -135,8 +139,15 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         Weighting weighting = ORSWeightingFactory.createIsochroneWeighting(searchcontext, parameters.getRangeType());
 
         Coordinate loc = parameters.getLocation();
+
+        FlagEncoder encoder = searchcontext.getEncoder();
+        String profileName = ProfileTools.makeProfileName(encoder.toString(), weighting.getName(), false);
+        GraphHopper gh = searchcontext.getGraphHopper();
+        GraphHopperStorage graphHopperStorage = gh.getGraphHopperStorage();
+        EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, graphHopperStorage.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(profileName)));
+
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
-        EdgeFilterSequence edgeFilterSequence = getEdgeFilterSequence(edgeFilterFactory);
+        EdgeFilterSequence edgeFilterSequence = getEdgeFilterSequence(edgeFilterFactory, defaultSnapFilter);
         Snap res = searchcontext.getGraphHopper().getLocationIndex().findClosest(loc.y, loc.x, edgeFilterSequence);
         List<Snap> snaps = new ArrayList<>(1);
         snaps.add(res);
@@ -255,9 +266,9 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         return isochroneMap;
     }
 
-    private EdgeFilterSequence getEdgeFilterSequence(ORSEdgeFilterFactory edgeFilterFactory) throws Exception {
+    private EdgeFilterSequence getEdgeFilterSequence(ORSEdgeFilterFactory edgeFilterFactory, EdgeFilter prependFilter) throws Exception {
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
-        EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchcontext.getProperties(), searchcontext.getEncoder(), searchcontext.getGraphHopper().getGraphHopperStorage());
+        EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchcontext.getProperties(), searchcontext.getEncoder(), searchcontext.getGraphHopper().getGraphHopperStorage(), prependFilter);
         edgeFilterSequence.add(edgeFilter);
         edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, searchcontext.getGraphHopper().getGraphHopperStorage()));
         return edgeFilterSequence;
