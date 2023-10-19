@@ -60,7 +60,7 @@ class ORSGraphFileManagerTest {
         EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
                 .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
-                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .setGraphsExtent(GRAPHS_COVERAGE)
                 .setMaxNumberOfGraphBackups(3)
                 .buildWithAppConfigOverride();
         setupORSGraphManager(hash, engineConfig);
@@ -159,7 +159,7 @@ class ORSGraphFileManagerTest {
         EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
                 .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
-                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .setGraphsExtent(GRAPHS_COVERAGE)
                 .setMaxNumberOfGraphBackups(2)
                 .buildWithAppConfigOverride();
 
@@ -206,7 +206,7 @@ class ORSGraphFileManagerTest {
         EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
                 .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
-                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .setGraphsExtent(GRAPHS_COVERAGE)
                 .setMaxNumberOfGraphBackups(0)
                 .buildWithAppConfigOverride();
 
@@ -230,7 +230,7 @@ class ORSGraphFileManagerTest {
         EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
                 .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
-                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .setGraphsExtent(GRAPHS_COVERAGE)
                 .setMaxNumberOfGraphBackups(-5)
                 .buildWithAppConfigOverride();
 

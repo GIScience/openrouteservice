@@ -67,7 +67,7 @@ class ORSGraphRepoManagerTest {
         EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
                 .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
-                .setGraphsRepoCoverage(GRAPHS_COVERAGE)
+                .setGraphsExtent(GRAPHS_COVERAGE)
                 .buildWithAppConfigOverride();
 
         orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
