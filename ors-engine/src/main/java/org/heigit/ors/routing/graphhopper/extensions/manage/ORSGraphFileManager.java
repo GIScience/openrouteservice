@@ -250,21 +250,44 @@ public class ORSGraphFileManager {
             LOGGER.debug("[%s] No downloaded graph to extract".formatted(getProfileWithHash()));
             return;
         }
+
+        File graphDownloadFile = getGraphDownloadFile();
+        String graphDownloadFileAbsPath = graphDownloadFile.getAbsolutePath();
+        File targetDirectory = getGraphExractionDirectory();
+        String targetDirectoryAbsPath = targetDirectory.getAbsolutePath();
+        File extractionDirectory = asIncompleteDirectory(targetDirectory);
+        String extractionDirectoryAbsPath = extractionDirectory.getAbsolutePath();
+
+        if (extractionDirectory.exists()){
+            LOGGER.debug("[%s] Extraction already started".formatted(getProfileWithHash()));
+            return;
+        }
+
         try {
-            File incompleteDirectory = asIncompleteDirectory(getGraphExractionDirectory());
-            String incompleteDirPath = incompleteDirectory.getAbsolutePath();
 
-            LOGGER.debug("[%s] Extracting downloaded graph file to %s".formatted(getProfileWithHash(), incompleteDirPath));
-            (new Unzipper()).unzip(getGraphDownloadFile().getAbsolutePath(), incompleteDirPath, true);
+            LOGGER.debug("[%s] Extracting downloaded graph file to %s".formatted(getProfileWithHash(), extractionDirectoryAbsPath));
+            long start = System.currentTimeMillis();
+            (new Unzipper()).unzip(graphDownloadFileAbsPath, extractionDirectoryAbsPath, true);
+            long end = System.currentTimeMillis();
 
-            LOGGER.debug("[%s] Extraction of downloaded graph file done, renaming directory to %s".formatted(
+            LOGGER.debug("[%s] Extraction of downloaded graph file finished after %d ms, deleting downloaded graph file %s".formatted(
                     getProfileWithHash(),
-                    getGraphExractionDirectory().getAbsolutePath()));
-            incompleteDirectory.renameTo(getGraphExractionDirectory());
+                    end-start,
+                    graphDownloadFileAbsPath));
+            graphDownloadFile.delete();
+
+            LOGGER.debug("[%s] Renaming extraction directory to %s".formatted(
+                    getProfileWithHash(),
+                    targetDirectoryAbsPath));
+            extractionDirectory.renameTo(targetDirectory);
 
         } catch (IOException ioException) {
-            LOGGER.error("[%s] Couldn't extract file %s to %s".formatted(getProfileWithHash(), getGraphDownloadFile().getAbsolutePath(), getGraphExractionDirectory().getAbsolutePath()));
-            throw new RuntimeException("Couldn't extract file " + getGraphDownloadFile().getAbsolutePath() + " to " + getGraphExractionDirectory().getAbsolutePath(), ioException);
+            LOGGER.error("[%s] Error during extraction of %s to %s -> %s".formatted(
+                    getProfileWithHash(),
+                    graphDownloadFileAbsPath,
+                    extractionDirectoryAbsPath,
+                    targetDirectoryAbsPath));
+            throw new RuntimeException("Caught ", ioException);
         }
     }
 }
