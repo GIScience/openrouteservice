@@ -17,7 +17,7 @@ class ORSInitContextListenerTest {
     }
     @ParameterizedTest
     @CsvSource(value = {
-            "https://example.com/foo1/foo2/foo3/test-repo,      https://example.com, test-repo, true",
+            "https://example.com/service/rest/test-repo,      https://example.com/service/rest, test-repo, true",
             "https://example.com/test-repo/,     https://example.com, test-repo, true",
             "https://example.com/test-repo,  https://example.com, test-repo, true",
             "' https://example.com/test-repo ',  https://example.com, test-repo, true",

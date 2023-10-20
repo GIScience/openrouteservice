@@ -104,7 +104,9 @@ public class ORSInitContextListener implements ServletContextListener {
     }
 
     SourceFileElements extractSourceFileElements(String sourceFilePropertyValue) {
-        String accessScheme = null, repoBaseUrlString = null, repoName = null;
+        String accessScheme;
+        String repoBaseUrlString = null;
+        String repoName = null;
         sourceFilePropertyValue = sourceFilePropertyValue.trim();
         try {
             URI uri = new URI(sourceFilePropertyValue);
@@ -119,7 +121,16 @@ public class ORSInitContextListener implements ServletContextListener {
             if (pathElements.length == 0) {
                 throw new URISyntaxException(sourceFilePropertyValue, "URI does not contain a path");
             }
-            repoName = pathElements[pathElements.length - 1];
+            // Append all path elements except the last one to the repoBaseUrlString. The last one is the repoName.
+            for (int i = 0; i < pathElements.length; i++) {
+                if (i == pathElements.length - 1) {
+                    repoName = pathElements[i];
+                    break;
+                } else if (pathElements[i].isBlank()) {
+                    continue;
+                }
+                repoBaseUrlString += "/" + pathElements[i];
+            }
         } catch (URISyntaxException e) {
             LOGGER.debug("Configuration property 'source_file' does not contain a URL, using value as local osm file path");
             return new SourceFileElements(repoBaseUrlString, repoName, sourceFilePropertyValue);
