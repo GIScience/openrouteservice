@@ -18,6 +18,7 @@ import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
@@ -207,7 +208,7 @@ class ORSGraphRepoManagerTest {
         assertEquals(expected, orsGraphRepoManager.shouldDownloadGraph(remoteGraphInfo, localGraphInfo, persistedDownloadFile, persistedRemoteGraphInfo));
     }
 
-    public static Stream<Arguments> shouldDownloadGraphMethodSource() {
+    public static Stream<Arguments> shouldDownloadGraphMethodSource() throws IOException {
         ORSGraphInfoV1 earlierOrsGraphInfoV1 = new ORSGraphInfoV1(new Date(EARLIER_DATE));
         ORSGraphInfoV1 middleOrsGraphInfoV1 = new ORSGraphInfoV1(new Date(MIDDLE_DATE));
         ORSGraphInfoV1 laterOrsGraphInfoV1 = new ORSGraphInfoV1(new Date(LATER_DATE));
@@ -216,9 +217,10 @@ class ORSGraphRepoManagerTest {
         GraphInfo existingGraphInfoMiddle = new GraphInfo().withPersistedInfo(middleOrsGraphInfoV1);
         GraphInfo existingGraphInfoLater = new GraphInfo().withPersistedInfo(laterOrsGraphInfoV1);
 
-        File resourcesDir = TEMP_DIR.toFile().getParentFile();
-        File nonexistingFile = new File(resourcesDir, "missing.ghz");
-        File existingFile = new File(resourcesDir, "some.ghz");
+        Path resourcesDir = Files.createTempDirectory(TEMP_DIR, "ghz");
+
+        File nonexistingFile = new File(resourcesDir.toAbsolutePath().toFile(), "missing.ghz");
+        File existingFile = Files.createTempFile(resourcesDir, "some", ".ghz").toFile();
 
         return Stream.of(
                 Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, existingFile, earlierOrsGraphInfoV1, true),

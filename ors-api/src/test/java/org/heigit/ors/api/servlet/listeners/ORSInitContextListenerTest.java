@@ -16,17 +16,16 @@ class ORSInitContextListenerTest {
     }
     @ParameterizedTest
     @CsvSource(value = {
-            "https://example.com/test-repo/planet,      https://example.com, test-repo, planet",
-            "https://example.com/test-repo/planet/,     https://example.com, test-repo, planet",
-            "' https://example.com/test-repo/planet ',  https://example.com, test-repo, planet",
-            "' https://example.com/test-repo/planet/ ', https://example.com, test-repo, planet",
-            "' http://example.com/test-repo/planet/ ',  http://example.com, test-repo, planet"
+            "https://example.com/foo1/foo2/foo3/test-repo,      https://example.com, test-repo",
+            "https://example.com/test-repo/,     https://example.com, test-repo",
+            "https://example.com/test-repo,  https://example.com, test-repo",
+            "' https://example.com/test-repo ',  https://example.com, test-repo",
+            "https://example.com/test-repos/, https://example.com, test-repos",
+            "http://example.com/test-repo/,  http://example.com, test-repo"
     })
-    void extractSourceFileElements_withURL(String url, String expectedBaseUrl, String expectedRepoName, String expectedCoverage){
+    void extractSourceFileElements_withURL(String url, String expectedBaseUrl, String expectedRepoName){
         ORSInitContextListener.SourceFileElements elements = orsInitContextListener.extractSourceFileElements(url);
         assertEquals(expectedBaseUrl, elements.repoBaseUrlString());
         assertEquals(expectedRepoName, elements.repoName());
-        // TODO fix this function
-        // assertEquals(expectedCoverage, elements.repoCoverage());
     }
 }

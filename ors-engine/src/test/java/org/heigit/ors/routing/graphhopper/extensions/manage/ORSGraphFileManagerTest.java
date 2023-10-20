@@ -17,9 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -62,16 +61,6 @@ class ORSGraphFileManagerTest {
         FileUtils.deleteDirectory(vehicleDir);
     }
 
-    void setupORSGraphManager(String hash) {
-        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
-                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
-                .setGraphsRepoName(GRAPHS_REPO_NAME)
-                .setGraphsExtent(GRAPHS_COVERAGE)
-                .setMaxNumberOfGraphBackups(3)
-                .buildWithAppConfigOverride();
-        setupORSGraphManager(hash, engineConfig);
-    }
-
     private File createBackupDirectory(String hash, String dateString) throws IOException {
         File oldBackupDir = setupLocalGraphDirectory(hash, EARLIER_DATE);
         oldBackupDir.renameTo(new File(oldBackupDir.getAbsolutePath()+"_"+dateString));
@@ -83,9 +72,39 @@ class ORSGraphFileManagerTest {
         assertTrue(new File(backupDir, hash+".json").exists());
     }
 
+    void setupORSGraphManager(String hash) {
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
+                .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsExtent(GRAPHS_COVERAGE)
+                .setMaxNumberOfGraphBackups(3)
+                .buildWithAppConfigOverride();
+        setupORSGraphManager(hash, engineConfig);
+    }
+
     void setupORSGraphManager(String hash, EngineConfig engineConfig) {
         File localDir = TEMP_DIR.toFile();
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
+        hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
+
+        orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
+        orsGraphFileManager.initialize();
+        orsGraphRepoManager.initialize(engineConfig);
+        orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
+        orsGraphRepoManager.setRouteProfileName(VEHICLE);
+        orsGraphRepoManager.setFileManager(orsGraphFileManager);
+    }
+
+    void setupORSGraphManager(String hash, String customGraphFolder) {
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
+                .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsExtent(GRAPHS_COVERAGE)
+                .setMaxNumberOfGraphBackups(3)
+                .buildWithAppConfigOverride();
+        Path localDir = Path.of(customGraphFolder);
+
+        vehicleDirAbsPath = String.join("/", localDir.toAbsolutePath().toString(), VEHICLE);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
         orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
@@ -257,8 +276,7 @@ class ORSGraphFileManagerTest {
 
     @Test
     void testInitialize() throws IOException {
-        Path testFolder = Files.createDirectory(tempDir.resolve("noWritePermissionFolder"));
-        LOCAL_PATH = testFolder.toString();
+        Path testFolder = Files.createDirectory(TEMP_DIR.resolve("noWritePermissionFolder"));
 
         // This code to remove write permissions is POSIX-specific (Unix-like OSes)
         Set<PosixFilePermission> perms = new HashSet<>();
@@ -266,8 +284,8 @@ class ORSGraphFileManagerTest {
         perms.add(PosixFilePermission.OWNER_EXECUTE);
         Files.setPosixFilePermissions(testFolder, perms);
 
-        setupORSGraphManager("foo");
-        assertTrue(orsGraphFileManager.getVehicleGraphDirAbsPath().contains(LOCAL_PATH));
+        setupORSGraphManager("foo", testFolder.toString());
+        assertTrue(orsGraphFileManager.getVehicleGraphDirAbsPath().contains(testFolder.toString()));
 
         // Assert that the folder has no write permissions
         assertFalse(testFolder.toFile().canWrite());
