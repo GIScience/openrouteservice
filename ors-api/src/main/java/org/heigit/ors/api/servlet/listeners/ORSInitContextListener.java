@@ -36,8 +36,8 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_ENV;
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY;
@@ -102,22 +102,37 @@ public class ORSInitContextListener implements ServletContextListener {
     }
 
     SourceFileElements extractSourceFileElements(String sourceFilePropertyValue) {
+        String accessScheme;
         String repoBaseUrlString = null;
         String repoName = null;
-        String localOsmFilePath = "";
+        sourceFilePropertyValue = sourceFilePropertyValue.trim();
         try {
-            new URL(sourceFilePropertyValue);
-            LOGGER.debug("Configuration property 'source_file' contains a URL, using value as URL for a graphs repository");
-            sourceFilePropertyValue = sourceFilePropertyValue.trim().replaceAll("/$", "");
-            String[] urlElements = sourceFilePropertyValue.split("/");
+            URI uri = new URI(sourceFilePropertyValue);
+            accessScheme = uri.getScheme();
+            repoBaseUrlString = uri.getHost();
+            if (accessScheme == null || repoBaseUrlString == null) {
+                throw new URISyntaxException(sourceFilePropertyValue, "URI does not contain a valid schema or host");
+            }
+            repoBaseUrlString = accessScheme + "://" + repoBaseUrlString;
 
-            repoName = urlElements[urlElements.length - 1];
-            repoBaseUrlString = sourceFilePropertyValue.replaceAll("/%s$".formatted(repoName), "");
-        } catch (MalformedURLException e) {
+            String[] pathElements = uri.getPath().split("/");
+            if (pathElements.length == 0) {
+                throw new URISyntaxException(sourceFilePropertyValue, "URI does not contain a path");
+            }
+            // Append all path elements except the last one to the repoBaseUrlString. The last one is the repoName.
+            for (int i = 0; i < pathElements.length; i++) {
+                if (i == pathElements.length - 1) {
+                    repoName = pathElements[i];
+                    break;
+                } else if (!pathElements[i].isBlank()) {
+                    repoBaseUrlString += "/" + pathElements[i];
+                }
+            }
+        } catch (URISyntaxException e) {
             LOGGER.debug("Configuration property 'source_file' does not contain a URL, using value as local osm file path");
-            localOsmFilePath = sourceFilePropertyValue;
+            return new SourceFileElements(repoBaseUrlString, repoName, sourceFilePropertyValue);
         }
-        return new SourceFileElements(repoBaseUrlString, repoName, localOsmFilePath);
+        return new SourceFileElements(repoBaseUrlString, repoName, "");
     }
 
     @Override

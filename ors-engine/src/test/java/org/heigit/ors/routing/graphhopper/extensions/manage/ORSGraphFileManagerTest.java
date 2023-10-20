@@ -37,9 +37,9 @@ class ORSGraphFileManagerTest {
     private static final String GRAPHS_COVERAGE = "planet";
     private static final String GRAPHS_VERSION = "1";
     private static final String VEHICLE = "car";
-    private static String LOCAL_PATH = "src/test/resources/graphs";
     @TempDir(cleanup = CleanupMode.ON_SUCCESS)
-    Path tempDir;
+    private static Path TEMP_DIR;
+
     private static final long EARLIER_DATE = 1692373000111L;
     private static final long MIDDLE_DATE = 1692373000222L;
     private static final long LATER_DATE = 1692373000333L;
@@ -50,7 +50,7 @@ class ORSGraphFileManagerTest {
 
     @BeforeEach
     void setUp() {
-        localDir = new File(LOCAL_PATH);
+        localDir = TEMP_DIR.toFile();
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         vehicleDir = new File(vehicleDirAbsPath);
         vehicleDir.mkdirs();
@@ -59,16 +59,6 @@ class ORSGraphFileManagerTest {
     @AfterEach
     void deleteFiles() throws IOException {
         FileUtils.deleteDirectory(vehicleDir);
-    }
-
-    void setupORSGraphManager(String hash) {
-        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
-                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
-                .setGraphsRepoName(GRAPHS_REPO_NAME)
-                .setGraphsExtent(GRAPHS_COVERAGE)
-                .setMaxNumberOfGraphBackups(3)
-                .buildWithAppConfigOverride();
-        setupORSGraphManager(hash, engineConfig);
     }
 
     private File createBackupDirectory(String hash, String dateString) throws IOException {
@@ -82,8 +72,25 @@ class ORSGraphFileManagerTest {
         assertTrue(new File(backupDir, hash+".json").exists());
     }
 
-    void setupORSGraphManager(String hash, EngineConfig engineConfig) {
-        File localDir = new File(LOCAL_PATH);
+    EngineConfig getEngineConfig() {
+        return EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
+                .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsExtent(GRAPHS_COVERAGE)
+                .setMaxNumberOfGraphBackups(3)
+                .buildWithAppConfigOverride();
+    }
+
+    void setupORSGraphManager(String hash) {
+        EngineConfig engineConfig = getEngineConfig();
+        setupORSGraphManager(hash, engineConfig, null);
+    }
+
+    void setupORSGraphManager(String hash, EngineConfig engineConfig, String customGraphFolder) {
+        File localDir = TEMP_DIR.toFile();
+        if (customGraphFolder != null) {
+            localDir = Path.of(customGraphFolder).toFile();
+        }
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
@@ -169,7 +176,7 @@ class ORSGraphFileManagerTest {
                 .setMaxNumberOfGraphBackups(2)
                 .buildWithAppConfigOverride();
 
-        setupORSGraphManager(hash, engineConfig);
+        setupORSGraphManager(hash, engineConfig, null);
         createBackupDirectory(hash, "2022-12-31_235959");
         createBackupDirectory(hash, "2023-01-01_060000");
         File localGraphDir = setupLocalGraphDirectory(hash, MIDDLE_DATE);
@@ -216,7 +223,7 @@ class ORSGraphFileManagerTest {
                 .setMaxNumberOfGraphBackups(0)
                 .buildWithAppConfigOverride();
 
-        setupORSGraphManager(hash, engineConfig);
+        setupORSGraphManager(hash, engineConfig, null);
         createBackupDirectory(hash, "2023-01-01_060000");
         createBackupDirectory(hash, "2023-01-02_060000");
         createBackupDirectory(hash, "2023-01-03_060000");
@@ -240,7 +247,7 @@ class ORSGraphFileManagerTest {
                 .setMaxNumberOfGraphBackups(-5)
                 .buildWithAppConfigOverride();
 
-        setupORSGraphManager(hash, engineConfig);
+        setupORSGraphManager(hash, engineConfig, null);
         createBackupDirectory(hash, "2023-01-01_060000");
         createBackupDirectory(hash, "2023-01-02_060000");
         createBackupDirectory(hash, "2023-01-03_060000");
@@ -256,8 +263,7 @@ class ORSGraphFileManagerTest {
 
     @Test
     void testInitialize() throws IOException {
-        Path testFolder = Files.createDirectory(tempDir.resolve("noWritePermissionFolder"));
-        LOCAL_PATH = testFolder.toString();
+        Path testFolder = Files.createDirectory(TEMP_DIR.resolve("noWritePermissionFolder"));
 
         // This code to remove write permissions is POSIX-specific (Unix-like OSes)
         Set<PosixFilePermission> perms = new HashSet<>();
@@ -265,8 +271,8 @@ class ORSGraphFileManagerTest {
         perms.add(PosixFilePermission.OWNER_EXECUTE);
         Files.setPosixFilePermissions(testFolder, perms);
 
-        setupORSGraphManager("foo");
-        assertTrue(orsGraphFileManager.getVehicleGraphDirAbsPath().contains(LOCAL_PATH));
+        setupORSGraphManager("foo", getEngineConfig(), testFolder.toString());
+        assertTrue(orsGraphFileManager.getVehicleGraphDirAbsPath().contains(testFolder.toString()));
 
         // Assert that the folder has no write permissions
         assertFalse(testFolder.toFile().canWrite());
