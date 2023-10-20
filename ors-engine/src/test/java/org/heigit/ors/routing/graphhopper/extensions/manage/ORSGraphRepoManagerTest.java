@@ -13,6 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mapdb.Engine;
 import org.mockito.*;
 import org.mockito.internal.stubbing.answers.DoesNothing;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +38,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ORSGraphRepoManagerTest {
 
-    @Spy
     ORSGraphRepoManager orsGraphRepoManager;
     ORSGraphFileManager orsGraphFileManager;
     private static final String GRAPHS_REPO_BASE_URL = "https://example.com";
@@ -80,10 +81,7 @@ class ORSGraphRepoManagerTest {
                 .buildWithAppConfigOverride();
 
         orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
-        orsGraphRepoManager.initialize(engineConfig);
-        orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
-        orsGraphRepoManager.setRouteProfileName(VEHICLE);
-        orsGraphRepoManager.setFileManager(orsGraphFileManager);
+        orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, orsGraphFileManager, VEHICLE, GRAPHS_VERSION);
     }
 
     void setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
@@ -96,6 +94,7 @@ class ORSGraphRepoManagerTest {
     }
 
     void setupNoRemoteFiles() {
+        orsGraphRepoManager = spy(orsGraphRepoManager);
         doReturn(null).when(orsGraphRepoManager).findLatestGraphInfoAsset(anyString());
     }
 
@@ -109,9 +108,74 @@ class ORSGraphRepoManagerTest {
 
         AssetXO assetXO = new AssetXO();
         assetXO.setDownloadUrl(graphInfoAssetUrl);
-
+        orsGraphRepoManager = spy(orsGraphRepoManager);
         doReturn(assetXO).when(orsGraphRepoManager).findLatestGraphInfoAsset(graphInfoAssetName);
         lenient().doNothing().when(orsGraphRepoManager).downloadAsset(anyString(), any());
+    }
+
+    @ParameterizedTest
+    @MethodSource("initializeMethodSource")
+    void ORSGraphRepoManager_initialize(EngineConfig engineConfig, ORSGraphFileManager orsGraphFileManager, String routeProfileName, String graphsRepoGraphVersion, boolean isValid) {
+        ORSGraphRepoManager localOrsGraphRepoManager = new ORSGraphRepoManager(engineConfig, orsGraphFileManager, routeProfileName, graphsRepoGraphVersion);
+        assertEquals(engineConfig.getGraphsRepoUrl() == null ? "" : engineConfig.getGraphsRepoUrl(), localOrsGraphRepoManager.getGraphsRepoUrl());
+        assertEquals(engineConfig.getGraphsRepoName() == null ? "" : engineConfig.getGraphsRepoName(), localOrsGraphRepoManager.getGraphsRepoName());
+        assertEquals(engineConfig.getGraphsExtent() == null ? "" : engineConfig.getGraphsExtent(), localOrsGraphRepoManager.getGraphsRepoCoverage());
+        assertEquals(routeProfileName == null ? "" : routeProfileName, localOrsGraphRepoManager.getRouteProfileName());
+        assertEquals(graphsRepoGraphVersion == null ? "" : graphsRepoGraphVersion, localOrsGraphRepoManager.getGraphsRepoGraphVersion());
+        assertEquals(isValid, localOrsGraphRepoManager.isValid());
+    }
+
+    /**
+     * Provides a set of test cases for parametrized tests.
+     * This method source will generate test arguments by creating permutations
+     * of provided URLs, names, and coverages, combined with several hard-coded test cases.
+     *
+     * <p>Each argument set includes:
+     * 1. An instance of EngineConfig.
+     * 2. An instance of ORSGraphFileManager or null.
+     * 3. A string representing a car name or null.
+     * 4. A string representing an id or null.
+     * 5. A boolean indicating if the case is expected to be a "perfect" one.
+     * </p>
+     *
+     * @return A stream of {@link Arguments} instances for parameterized testing.
+     */
+    public static Stream<Arguments> initializeMethodSource() {
+        List<String> urls = Arrays.asList("", null);
+        List<String> names = Arrays.asList("", null);
+        List<String> coverages = Arrays.asList("", null);
+
+        List<Arguments> argsList = new ArrayList<>();
+
+        for (String url : urls) {
+            for (String name : names) {
+                for (String coverage : coverages) {
+                    EngineConfig localEngineConfig = EngineConfig.EngineConfigBuilder.init()
+                            .setGraphsRepoUrl(url)
+                            .setGraphsRepoName(name)
+                            .setGraphsExtent(coverage)
+                            .buildWithAppConfigOverride();
+                    argsList.add(Arguments.of(localEngineConfig, null, null, null, false));
+                    argsList.add(Arguments.of(localEngineConfig, null, "car", null, false));
+                    argsList.add(Arguments.of(localEngineConfig, null, null, "1", false));
+                    argsList.add(Arguments.of(localEngineConfig, null, "car", "1", false));
+                    argsList.add(Arguments.of(localEngineConfig, new ORSGraphFileManager(localEngineConfig, "abc123", "abc123", "abc123", "car"), null, null, false));
+                    argsList.add(Arguments.of(localEngineConfig, new ORSGraphFileManager(localEngineConfig, "abc123", "abc123", "abc123", "car"), "car", null, false));
+                    argsList.add(Arguments.of(localEngineConfig, new ORSGraphFileManager(localEngineConfig, "abc123", "abc123", "abc123", "car"), null, "1", false));
+                    argsList.add(Arguments.of(localEngineConfig, new ORSGraphFileManager(localEngineConfig, "abc123", "abc123", "abc123", "car"), "car", "1", false));
+                }
+            }
+        }
+        // Perfect case
+        EngineConfig perfectEngineConfig = EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
+                .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsExtent(GRAPHS_COVERAGE)
+                .buildWithAppConfigOverride();
+        ORSGraphFileManager perfectOrsGraphFileManager = new ORSGraphFileManager(perfectEngineConfig, "abc123", "abc123", "abc123", "car");
+
+        argsList.add(Arguments.of(perfectEngineConfig, perfectOrsGraphFileManager, "bar", "1", true));
+        return argsList.stream();
     }
 
     @Test

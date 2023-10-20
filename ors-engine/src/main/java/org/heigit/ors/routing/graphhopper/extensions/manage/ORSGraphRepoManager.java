@@ -29,7 +29,7 @@ public class ORSGraphRepoManager {
     private static final Logger LOGGER = Logger.getLogger(ORSGraphRepoManager.class.getName());
     private int connectionTimeoutMillis = 2000;
     private int readTimeoutMillis = 200000;
-    private String graphsRepoBaseUrl;
+    private URI graphsRepoBaseUrl;
     private String graphsRepoName;
     private String graphsRepoCoverage;
     private String graphsRepoGraphVersion;
@@ -41,19 +41,38 @@ public class ORSGraphRepoManager {
 
     public ORSGraphRepoManager(EngineConfig engineConfig, ORSGraphFileManager fileManager, String routeProfileName, String graphsRepoGraphVersion) {
         this.fileManager = fileManager;
-        this.routeProfileName = routeProfileName;
-        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
+        this.routeProfileName = Objects.requireNonNullElse(routeProfileName, "");
+        this.graphsRepoGraphVersion = Objects.requireNonNullElse(graphsRepoGraphVersion, "");
         initialize(engineConfig);
     }
 
-    void initialize(EngineConfig engineConfig) {
-        this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
-        this.graphsRepoName = engineConfig.getGraphsRepoName();
-        this.graphsRepoCoverage = engineConfig.getGraphsExtent();
+    private void initialize(EngineConfig engineConfig) {
+        try {
+            this.graphsRepoBaseUrl = new URI(engineConfig.getGraphsRepoUrl());
+        } catch (URISyntaxException | NullPointerException e) {
+            LOGGER.error("Invalid graphsRepoUrl: " + engineConfig.getGraphsRepoUrl());
+        }
+        this.graphsRepoName = Objects.requireNonNullElse(engineConfig.getGraphsRepoName(), "");
+        this.graphsRepoCoverage = Objects.requireNonNullElse(engineConfig.getGraphsExtent(), "");
     }
 
     public boolean isValid() {
-        return !isNullOrEmpty(graphsRepoBaseUrl.toString()) && !isNullOrEmpty(graphsRepoName) && !isNullOrEmpty(graphsRepoCoverage) && !isNullOrEmpty(graphsRepoGraphVersion) && fileManager != null;
+        return !isNullOrEmpty(getGraphsRepoUrl()) && !isNullOrEmpty(getGraphsRepoName()) && !isNullOrEmpty(getGraphsRepoCoverage()) && !isNullOrEmpty(getGraphsRepoGraphVersion()) && fileManager != null;
+    }
+
+    public String getGraphsRepoUrl() {
+        if (graphsRepoBaseUrl == null) {
+            return "";
+        }
+        return graphsRepoBaseUrl.toString();
+    }
+
+    public String getGraphsRepoName() {
+        return graphsRepoName;
+    }
+
+    public String getGraphsRepoCoverage() {
+        return graphsRepoCoverage;
     }
 
 
@@ -65,6 +84,13 @@ public class ORSGraphRepoManager {
         return readTimeoutMillis;
     }
 
+    public String getGraphsRepoGraphVersion() {
+        return graphsRepoGraphVersion;
+    }
+
+    public String getRouteProfileName() {
+        return routeProfileName;
+    }
 
     public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {
         this.graphsRepoGraphVersion = graphsRepoGraphVersion;
@@ -85,7 +111,7 @@ public class ORSGraphRepoManager {
     }
 
     public void downloadGraphIfNecessary() {
-        if (isValid()) {
+        if (!isValid()) {
             LOGGER.debug("[%s] ORSGraphManager is not configured - skipping check".formatted(getProfileWithHash()));
             return;
         }
@@ -146,7 +172,7 @@ public class ORSGraphRepoManager {
 
     AssetXO findLatestGraphInfoAsset(String fileName) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
-        defaultClient.setBasePath(graphsRepoBaseUrl);
+        defaultClient.setBasePath(graphsRepoBaseUrl.toString());
 
         AssetsApi assetsApi = new AssetsApi(defaultClient);
 
@@ -155,7 +181,7 @@ public class ORSGraphRepoManager {
             String continuationToken = null;
             do {
                 LOGGER.debug("[%s] Trying to call nexus api with graphsRepoBaseUrl=%s graphsRepoName=%s graphsRepoCoverage=%s, graphsRepoGraphVersion=%s, continuationToken=%s".formatted(
-                        getProfileWithHash(), graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, graphsRepoGraphVersion, continuationToken));
+                        getProfileWithHash(), graphsRepoBaseUrl.toString(), graphsRepoName, graphsRepoCoverage, graphsRepoGraphVersion, continuationToken));
                 PageAssetXO assets = assetsApi.getAssets(graphsRepoName, continuationToken);
                 LOGGER.trace("[%s] Received assets: %s".formatted(getProfileWithHash(), assets.toString()));
                 if (assets.getItems() != null) {
@@ -172,7 +198,7 @@ public class ORSGraphRepoManager {
             LOGGER.error("    - Status code           : " + e.getCode());
             LOGGER.error("    - Reason                : " + e.getResponseBody());
             LOGGER.error("    - Response headers      : " + e.getResponseHeaders());
-            LOGGER.error("    - graphsRepoBaseUrl     : " + graphsRepoBaseUrl);
+            LOGGER.error("    - graphsRepoBaseUrl     : " + graphsRepoBaseUrl.toString());
             LOGGER.error("    - graphsRepoName        : " + graphsRepoName);
             LOGGER.error("    - graphsRepoCoverage    : " + graphsRepoCoverage);
             LOGGER.error("    - graphsRepoGraphVersion: " + graphsRepoGraphVersion);
@@ -290,5 +316,6 @@ public class ORSGraphRepoManager {
             throw new IllegalArgumentException(String.format("Could not rename %s to %s", tempDownloadFile.getAbsolutePath(), outputFile.getAbsolutePath()));
         }
     }
+
 }
 

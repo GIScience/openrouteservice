@@ -96,10 +96,7 @@ class ORSGraphFileManagerTest {
 
         orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
         orsGraphFileManager.initialize();
-        orsGraphRepoManager.initialize(engineConfig);
-        orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
-        orsGraphRepoManager.setRouteProfileName(VEHICLE);
-        orsGraphRepoManager.setFileManager(orsGraphFileManager);
+        orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, orsGraphFileManager, VEHICLE, GRAPHS_VERSION);
     }
 
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
