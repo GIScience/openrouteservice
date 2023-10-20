@@ -95,7 +95,7 @@ class ORSGraphFileManagerTest {
         orsGraphRepoManager.setFileManager(orsGraphFileManager);
     }
 
-    void setupORSGraphManager(String hash, String customGraphFolder) {
+    void setupORSGraphManager(String hash, EngineConfig engineConfig, String customGraphFolder)
         EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
                 .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
