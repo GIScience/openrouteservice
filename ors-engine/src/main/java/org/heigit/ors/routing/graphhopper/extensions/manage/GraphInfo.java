@@ -2,6 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Date;
 import java.util.Objects;
 
 public class GraphInfo {

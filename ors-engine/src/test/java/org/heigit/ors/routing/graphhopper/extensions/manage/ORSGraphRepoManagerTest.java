@@ -174,10 +174,6 @@ class ORSGraphRepoManagerTest {
     }
 
     @Test
-    void findLatestGraphInfoInRepository() {
-    }
-
-    @Test
     void filterLatestAsset() {
         String hash = "abc123";
         setupORSGraphManager(hash);
@@ -203,78 +199,73 @@ class ORSGraphRepoManagerTest {
 
     @ParameterizedTest
     @MethodSource("shouldDownloadGraphMethodSource")
-    void shouldDownloadGraph(GraphInfo remoteGraphInfo, GraphInfo localGraphInfo, File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo, boolean expected) {
+    void shouldDownloadGraph(Date remoteDate, Date activeDate, Date downloadedExtractedDate, Date downloadedCompressedDate, boolean expected) {
         setupORSGraphManager("1243abc");
-        assertEquals(expected, orsGraphRepoManager.shouldDownloadGraph(remoteGraphInfo, localGraphInfo, persistedDownloadFile, persistedRemoteGraphInfo));
+        assertEquals(expected, orsGraphRepoManager.shouldDownloadGraph(remoteDate, activeDate, downloadedExtractedDate, downloadedCompressedDate));
     }
 
-    public static Stream<Arguments> shouldDownloadGraphMethodSource() throws IOException {
-        ORSGraphInfoV1 earlierOrsGraphInfoV1 = new ORSGraphInfoV1(new Date(EARLIER_DATE));
-        ORSGraphInfoV1 middleOrsGraphInfoV1 = new ORSGraphInfoV1(new Date(MIDDLE_DATE));
-        ORSGraphInfoV1 laterOrsGraphInfoV1 = new ORSGraphInfoV1(new Date(LATER_DATE));
-        GraphInfo missingGraphInfo = new GraphInfo();
-        GraphInfo existingGraphInfoEarlier = new GraphInfo().withPersistedInfo(earlierOrsGraphInfoV1);
-        GraphInfo existingGraphInfoMiddle = new GraphInfo().withPersistedInfo(middleOrsGraphInfoV1);
-        GraphInfo existingGraphInfoLater = new GraphInfo().withPersistedInfo(laterOrsGraphInfoV1);
+    public static Stream<Arguments> shouldDownloadGraphMethodSource() {
+        Date earlierDate = new Date(EARLIER_DATE);
+        Date laterDate = new Date(LATER_DATE);
 
-        Path resourcesDir = Files.createTempDirectory(TEMP_DIR, "ghz");
+        return Stream.of(           //  downloaded        remote                   active
+                Arguments.of(laterDate, earlierDate, earlierDate, earlierDate, true),
+                Arguments.of(earlierDate, laterDate, earlierDate, earlierDate, false),
+                Arguments.of(earlierDate, earlierDate, laterDate, earlierDate, false),
+                Arguments.of(earlierDate, earlierDate, earlierDate, laterDate, false),
+                Arguments.of(earlierDate, earlierDate, earlierDate, earlierDate, false)
+        );
+    }
 
-        File nonexistingFile = new File(resourcesDir.toAbsolutePath().toFile(), "missing.ghz");
-        File existingFile = Files.createTempFile(resourcesDir, "some", ".ghz").toFile();
+    @ParameterizedTest
+    @MethodSource("comparisonDates")
+    public void comparisonDate(Date expectedDate, GraphInfo graphInfo) {
+        assertEquals(expectedDate, orsGraphRepoManager.comparisonDate(graphInfo));
+    }
 
+    public static Stream<Arguments> comparisonDates() throws MalformedURLException {
+        Date osmDate = new Date();
         return Stream.of(
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, existingFile, earlierOrsGraphInfoV1, true),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, existingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, existingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, existingFile, null, true),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, nonexistingFile, earlierOrsGraphInfoV1, true),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, nonexistingFile, laterOrsGraphInfoV1, true),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, nonexistingFile, middleOrsGraphInfoV1, true),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoEarlier, nonexistingFile, null, true),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, existingFile, earlierOrsGraphInfoV1, true),    //unlikely to happen
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, existingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, existingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, existingFile, null, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, nonexistingFile, earlierOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, nonexistingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, nonexistingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoLater, nonexistingFile, null, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, existingFile, earlierOrsGraphInfoV1, true),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, existingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, existingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, existingFile, null, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, nonexistingFile, earlierOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, nonexistingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, nonexistingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, existingGraphInfoMiddle, nonexistingFile, null, false),
-                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, existingFile, earlierOrsGraphInfoV1, true),
-                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, existingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, existingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, existingFile, null, true),
-                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, nonexistingFile, earlierOrsGraphInfoV1, true),
-                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, nonexistingFile, laterOrsGraphInfoV1, true),
-                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, nonexistingFile, middleOrsGraphInfoV1, true),
-                Arguments.of(existingGraphInfoMiddle, missingGraphInfo, nonexistingFile, null, true),
-                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, existingFile, earlierOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, existingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, existingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, existingFile, null, false),
-                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, nonexistingFile, earlierOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, nonexistingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, nonexistingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, existingGraphInfoMiddle, nonexistingFile, null, false),
-                Arguments.of(missingGraphInfo, missingGraphInfo, existingFile, earlierOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, missingGraphInfo, existingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, missingGraphInfo, existingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, missingGraphInfo, existingFile, null, false),
-                Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, earlierOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, laterOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, middleOrsGraphInfoV1, false),
-                Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, null, false)
+                Arguments.of(new Date(0), null),
+                Arguments.of(new Date(0), new GraphInfo()),
+                Arguments.of(new Date(0), new GraphInfo().withLocalDirectory(new File(LOCAL_PATH))),
+                Arguments.of(new Date(0), new GraphInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
+                Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(null)),
+                Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(new ORSGraphInfoV1())),
+                Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(new ORSGraphInfoV1(null))),
+                Arguments.of(osmDate, new GraphInfo().withPersistedInfo(new ORSGraphInfoV1(osmDate)))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("comparisonDatesForDownloadFiles")
+    public void comaprisonDate(Date expectedDate, File downloadFile, ORSGraphInfoV1 orsGraphInfoV1) {
+        assertEquals(expectedDate, orsGraphRepoManager.comparisonDate(downloadFile, orsGraphInfoV1));
+    }
+
+    public static Stream<Arguments> comparisonDatesForDownloadFiles() throws MalformedURLException {
+        Date osmDate = new Date();
+        File resourcesDir = new File(LOCAL_PATH).getParentFile();
+        File nonexistingFile = new File(resourcesDir, "missing.ghz");
+        File existingFile = new File(resourcesDir, "some.ghz");
+        return Stream.of(
+                Arguments.of(new Date(0), null, null),
+                Arguments.of(new Date(0), null, new ORSGraphInfoV1()),
+                Arguments.of(new Date(0), null, new ORSGraphInfoV1(null)),
+                Arguments.of(new Date(0), null, new ORSGraphInfoV1(osmDate)),
+                Arguments.of(new Date(0), nonexistingFile, null),
+                Arguments.of(new Date(0), nonexistingFile, new ORSGraphInfoV1()),
+                Arguments.of(new Date(0), nonexistingFile, new ORSGraphInfoV1(null)),
+                Arguments.of(new Date(0), nonexistingFile, new ORSGraphInfoV1(osmDate)),
+                Arguments.of(new Date(0), existingFile, null),
+                Arguments.of(new Date(0), existingFile, new ORSGraphInfoV1()),
+                Arguments.of(new Date(0), existingFile, new ORSGraphInfoV1(null)),
+                Arguments.of(osmDate, existingFile, new ORSGraphInfoV1(osmDate))
         );
     }
 
     @Test
-    void findLatestGraphComponent() {
+    void newestDate() {
+
     }
 }
