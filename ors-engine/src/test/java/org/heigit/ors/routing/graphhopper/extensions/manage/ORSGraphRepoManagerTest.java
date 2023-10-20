@@ -11,13 +11,16 @@ import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Spy;
+import org.mockito.*;
+import org.mockito.internal.stubbing.answers.DoesNothing;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -53,6 +56,7 @@ class ORSGraphRepoManagerTest {
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
         localDir = TEMP_DIR.toFile();
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         vehicleDir = new File(vehicleDirAbsPath);
@@ -271,6 +275,92 @@ class ORSGraphRepoManagerTest {
                 Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, laterOrsGraphInfoV1, false),
                 Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, middleOrsGraphInfoV1, false),
                 Arguments.of(missingGraphInfo, missingGraphInfo, nonexistingFile, null, false)
+        );
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "https://example.com/file.jpg",
+            "http://example.com//file.jpg",
+            "http://example.com/test/file.jpg",
+            "'  http://example.com/test/file.jpg'"
+    })
+    void testCopyFromUrlToTempFile_ValidUrl_ShouldNotThrow(String validUrl) throws IOException {
+        setupORSGraphManager("1243abc");
+        Path downloadAssetScenarios = TEMP_DIR.resolve("downloadAssetScenarios");
+        downloadAssetScenarios.toFile().mkdirs();
+
+        File outputFile = Files.createTempFile(downloadAssetScenarios, "outputFile", ".jpg").toFile();
+
+        // Test that the method returns true and not an exception
+        try (MockedStatic<FileUtils> mockedFileUtils = mockStatic(FileUtils.class)) {
+            // Mock the static method
+            mockedFileUtils.when(() -> FileUtils.copyURLToFile(
+                    new URI(validUrl.trim()).toURL(),
+                    outputFile,
+                    orsGraphRepoManager.getConnectionTimeoutMillis(),
+                    orsGraphRepoManager.getReadTimeoutMillis()
+            )).thenAnswer(DoesNothing.doesNothing());
+
+            assertDoesNotThrow(() -> orsGraphRepoManager.copyFromUrlToFile(validUrl, outputFile));
+            assertTrue(outputFile.exists());
+        }
+
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "invalid_url",
+            "example.com/test/file.jpg",
+            "htp://example.com/test/file.jpg",
+            "https://example.com/tes#t/file.jpg"
+    })
+    void testCopyFromUrlToTempFile_InvalidUrl_ShouldThrowURISyntaxException(String invalidUrl) {
+        setupORSGraphManager("1243abc");
+        File tempFile = new File("temp.txt");
+
+        assertThrows(IllegalArgumentException.class, () -> orsGraphRepoManager.copyFromUrlToFile(invalidUrl, tempFile));
+    }
+
+    @Test
+    void testRenameTempFileToOutputFile_SuccessfulRename() throws IOException {
+        setupORSGraphManager("1243abc");
+        Path downloadAssetScenarios = TEMP_DIR.resolve("downloadAssetScenarios");
+        downloadAssetScenarios.toFile().mkdirs();
+        File tempFile = Files.createTempFile(downloadAssetScenarios, "tempFile", ".jpg").toFile();
+        File outputFile = downloadAssetScenarios.resolve("outputFile.jpg").toFile();
+
+        assertFalse(outputFile.exists());
+        assertDoesNotThrow(() -> orsGraphRepoManager.renameTempFileToOutputFile(tempFile, outputFile));
+        assertTrue(outputFile.exists());
+    }
+
+    @Test
+    void testRenameTempFileToOutputFile_FailedRename() {
+        setupORSGraphManager("1243abc");
+
+        File tempFile = mock(File.class);
+        File outputFile = new File("output.txt");
+        when(tempFile.renameTo(outputFile)).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> orsGraphRepoManager.renameTempFileToOutputFile(tempFile, outputFile));
+    }
+
+    @ParameterizedTest
+    @MethodSource("downloadAssetTestCases")
+    void testDownloadAsset_ExceptionCases(String downloadUrl, File outputFile, Class<? extends Throwable> expectedException) {
+        setupORSGraphManager("1243abc");
+        assertThrows(expectedException, () -> orsGraphRepoManager.downloadAsset(downloadUrl, outputFile));
+    }
+
+    private static Stream<Arguments> downloadAssetTestCases() throws IOException {
+        Path downloadAssetScenarios = TEMP_DIR.resolve("downloadAssetScenarios");
+        downloadAssetScenarios.toFile().mkdirs();
+        return Stream.of(
+                Arguments.of(null, new File("output.txt"), IllegalArgumentException.class),
+                Arguments.of("http://valid.url", null, IllegalArgumentException.class),
+                Arguments.of("   ", new File("output.txt"), IllegalArgumentException.class),
+                Arguments.of("http://valid.url", new File("output.txt"), IllegalArgumentException.class)
         );
     }
 

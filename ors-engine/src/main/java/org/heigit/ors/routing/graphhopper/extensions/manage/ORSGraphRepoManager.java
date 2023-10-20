@@ -1,7 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
 import org.openapitools.client.ApiClient;
@@ -14,9 +13,12 @@ import org.openapitools.client.model.PageAssetXO;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -50,6 +52,20 @@ public class ORSGraphRepoManager {
         this.graphsRepoCoverage = engineConfig.getGraphsExtent();
     }
 
+    public boolean isValid() {
+        return !isNullOrEmpty(graphsRepoBaseUrl.toString()) && !isNullOrEmpty(graphsRepoName) && !isNullOrEmpty(graphsRepoCoverage) && !isNullOrEmpty(graphsRepoGraphVersion) && fileManager != null;
+    }
+
+
+    public int getConnectionTimeoutMillis() {
+        return connectionTimeoutMillis;
+    }
+
+    public int getReadTimeoutMillis() {
+        return readTimeoutMillis;
+    }
+
+
     public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {
         this.graphsRepoGraphVersion = graphsRepoGraphVersion;
     }
@@ -69,7 +85,7 @@ public class ORSGraphRepoManager {
     }
 
     public void downloadGraphIfNecessary() {
-        if (isNullOrEmpty(graphsRepoBaseUrl) || isNullOrEmpty(graphsRepoName) || isNullOrEmpty(graphsRepoCoverage) || isNullOrEmpty(graphsRepoGraphVersion)) {
+        if (isValid()) {
             LOGGER.debug("[%s] ORSGraphManager is not configured - skipping check".formatted(getProfileWithHash()));
             return;
         }
@@ -205,21 +221,74 @@ public class ORSGraphRepoManager {
         return first.orElse(null);
     }
 
+
+//    void downloadAsset(String downloadUrl, File outputFile) {
+//        File tempDownloadFile = fileManager.asIncompleteFile(outputFile);
+//        try {
+//            if (downloadUrl == null || downloadUrl.isBlank()) {
+//                LOGGER.error("[%s] Download URL cannot be empty".formatted(getProfileWithHash()));
+//                throw new IllegalArgumentException("Download URL cannot be empty");
+//            }
+//            FileUtils.copyURLToFile(
+//                    new URI(downloadUrl).toURL(),
+//                    tempDownloadFile,
+//                    connectionTimeoutMillis,
+//                    readTimeoutMillis);
+//            if (tempDownloadFile.renameTo(outputFile))
+//                LOGGER.debug("[%s] Successfully renamed %s to %s".formatted(getProfileWithHash(), tempDownloadFile.getAbsolutePath(), outputFile.getAbsolutePath()));
+//            else {
+//                LOGGER.error("[%s] Could not rename %s to %s".formatted(getProfileWithHash(), tempDownloadFile.getAbsolutePath(), outputFile.getAbsolutePath()));
+//                throw new IllegalArgumentException("Could not rename %s to %s".formatted(tempDownloadFile.getAbsolutePath(), outputFile.getAbsolutePath()));
+//            }
+//        } catch (IllegalArgumentException | URISyntaxException | IOException e) {
+//            LOGGER.error("[%s] Could not download file from %s to %s".formatted(getProfileWithHash(), downloadUrl, outputFile.getAbsolutePath()), e);
+//            throw new IllegalArgumentException("Could not download file from %s to %s".formatted(downloadUrl, outputFile.getAbsolutePath()), e);
+//        } finally {
+//            if (tempDownloadFile.exists())
+//                tempDownloadFile.delete();
+//        }
+//    }
+
     void downloadAsset(String downloadUrl, File outputFile) {
+        downloadUrl = Objects.requireNonNullElse(downloadUrl, "");
+        outputFile = Objects.requireNonNullElse(outputFile, new File(""));
+
+        if (downloadUrl.isBlank()) {
+            LOGGER.error("[%s] Download URL cannot be empty".formatted(getProfileWithHash()));
+            throw new IllegalArgumentException("Download URL cannot be empty");
+        }
         File tempDownloadFile = fileManager.asIncompleteFile(outputFile);
-        if (StringUtils.isNotBlank(downloadUrl)) {
-            try {
-                FileUtils.copyURLToFile(
-                        new URL(downloadUrl),
-                        tempDownloadFile,
-                        connectionTimeoutMillis,
-                        readTimeoutMillis);
-                tempDownloadFile.renameTo(outputFile);
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            } finally {
+        try {
+            copyFromUrlToFile(downloadUrl, tempDownloadFile);
+            renameTempFileToOutputFile(tempDownloadFile, outputFile);
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("[%s] Could not download file from %s to %s".formatted(getProfileWithHash(), downloadUrl, outputFile.getAbsolutePath()));
+            throw new IllegalArgumentException(String.format("Could not download file from %s to %s", downloadUrl, outputFile.getAbsolutePath()), e);
+        }
+    }
+
+    protected boolean copyFromUrlToFile(String downloadUrl, File tempDownloadFile) {
+        try {
+            downloadUrl = downloadUrl.trim();
+            FileUtils.copyURLToFile(
+                    new URI(downloadUrl).toURL(),
+                    tempDownloadFile,
+                    connectionTimeoutMillis,
+                    readTimeoutMillis);
+        } catch (IllegalArgumentException | URISyntaxException | IOException e) {
+            if (tempDownloadFile.exists())
                 tempDownloadFile.delete();
-            }
+            LOGGER.error("[%s] Could not download file from %s to %s".formatted(getProfileWithHash(), downloadUrl, tempDownloadFile.getAbsolutePath()));
+            throw new IllegalArgumentException(String.format("Could not download file from %s to %s", downloadUrl, tempDownloadFile.getAbsolutePath()), e);
+        }
+        return tempDownloadFile.exists();
+    }
+
+    protected void renameTempFileToOutputFile(File tempDownloadFile, File outputFile) {
+        if (!tempDownloadFile.renameTo(outputFile)) {
+            LOGGER.error("[%s] Could not rename %s to %s".formatted(getProfileWithHash(), tempDownloadFile.getAbsolutePath(), outputFile.getAbsolutePath()));
+            throw new IllegalArgumentException(String.format("Could not rename %s to %s", tempDownloadFile.getAbsolutePath(), outputFile.getAbsolutePath()));
         }
     }
 }
+
