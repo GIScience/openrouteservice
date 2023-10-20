@@ -126,10 +126,9 @@ public class ORSInitContextListener implements ServletContextListener {
                 if (i == pathElements.length - 1) {
                     repoName = pathElements[i];
                     break;
-                } else if (pathElements[i].isBlank()) {
-                    continue;
+                } else if (!pathElements[i].isBlank()) {
+                    repoBaseUrlString += "/" + pathElements[i];
                 }
-                repoBaseUrlString += "/" + pathElements[i];
             }
         } catch (URISyntaxException e) {
             LOGGER.debug("Configuration property 'source_file' does not contain a URL, using value as local osm file path");
