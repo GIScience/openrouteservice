@@ -35,6 +35,16 @@ public class ORSGraphFileManager {
         this.maxNumberOfGraphBackups = Math.max(maxBak, 0);
     }
 
+    public void initialize() {
+        File vehicleGraphDir = new File(hashDirAbsPath);
+        if (!vehicleGraphDir.exists()) {
+            LOGGER.info("[%s] Creating vehicle graph directory %s".formatted(getProfileWithHash(), hashDirAbsPath));
+            if (!vehicleGraphDir.mkdirs()) {
+                LOGGER.error("[%s] Could not create vehicle graph directory %s".formatted(getProfileWithHash(), hashDirAbsPath));
+            }
+        }
+    }
+
     public String getHash() {
         return hash;
     }

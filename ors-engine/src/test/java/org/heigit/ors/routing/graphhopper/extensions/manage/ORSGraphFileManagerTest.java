@@ -54,7 +54,7 @@ class ORSGraphFileManagerTest {
         localDir = TEMP_DIR.toFile();
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         vehicleDir = new File(vehicleDirAbsPath);
-        vehicleDir.mkdir();
+        vehicleDir.mkdirs();
     }
 
     @AfterEach
@@ -89,6 +89,7 @@ class ORSGraphFileManagerTest {
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
         orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
+        orsGraphFileManager.initialize();
         orsGraphRepoManager.initialize(engineConfig);
         orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
         orsGraphRepoManager.setRouteProfileName(VEHICLE);
@@ -98,7 +99,7 @@ class ORSGraphFileManagerTest {
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
         if (hash == null) return null;
         hashDir = new File(hashDirAbsPath);
-        hashDir.mkdir();
+        hashDir.mkdirs();
         ORSGraphInfoV1 localOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateLocal));
         localGraphInfoV1File = new File(hashDir, hash + ".json");
         new ObjectMapper().writeValue(localGraphInfoV1File, localOrsGraphInfoV1Object);
@@ -254,5 +255,31 @@ class ORSGraphFileManagerTest {
         assertEquals(0, backups.size());
     }
 
+    @Test
+    void testInitialize() throws IOException {
+        Path testFolder = Files.createDirectory(tempDir.resolve("noWritePermissionFolder"));
+        LOCAL_PATH = testFolder.toString();
 
+        // This code to remove write permissions is POSIX-specific (Unix-like OSes)
+        Set<PosixFilePermission> perms = new HashSet<>();
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+        Files.setPosixFilePermissions(testFolder, perms);
+
+        setupORSGraphManager("foo");
+        assertTrue(orsGraphFileManager.getVehicleGraphDirAbsPath().contains(LOCAL_PATH));
+
+        // Assert that the folder has no write permissions
+        assertFalse(testFolder.toFile().canWrite());
+        assertFalse(orsGraphFileManager.hasLocalGraph());
+
+        // Set write permissions
+        perms.add(PosixFilePermission.OWNER_WRITE);
+        Files.setPosixFilePermissions(testFolder, perms);
+
+        // Initialize again
+        orsGraphFileManager.initialize();
+        assertTrue(testFolder.toFile().canWrite());
+        assertTrue(orsGraphFileManager.hasLocalGraph());
+    }
 }
