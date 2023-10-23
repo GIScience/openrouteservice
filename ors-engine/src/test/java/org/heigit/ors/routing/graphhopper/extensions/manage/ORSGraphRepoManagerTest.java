@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
@@ -222,7 +221,7 @@ class ORSGraphRepoManagerTest {
     @ParameterizedTest
     @MethodSource("comparisonDates")
     public void comparisonDate(Date expectedDate, GraphInfo graphInfo) {
-        assertEquals(expectedDate, orsGraphRepoManager.comparisonDate(graphInfo));
+        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(graphInfo));
     }
 
     public static Stream<Arguments> comparisonDates() throws MalformedURLException {
@@ -242,7 +241,7 @@ class ORSGraphRepoManagerTest {
     @ParameterizedTest
     @MethodSource("comparisonDatesForDownloadFiles")
     public void comaprisonDate(Date expectedDate, File downloadFile, ORSGraphInfoV1 orsGraphInfoV1) throws IOException {
-        assertEquals(expectedDate, orsGraphRepoManager.comparisonDate(downloadFile, orsGraphInfoV1));
+        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(downloadFile, orsGraphInfoV1));
     }
 
     public static Stream<Arguments> comparisonDatesForDownloadFiles() throws IOException {

@@ -1,6 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
-import com.graphhopper.storage.Graph;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -90,10 +88,10 @@ public class ORSGraphRepoManager {
             GraphInfo remoteGraphInfo = downloadLatestGraphInfoFromRepository();
 
             if (!shouldDownloadGraph(
-                    comparisonDate(remoteGraphInfo),
-                    comparisonDate(activeGraphInfo),
-                    comparisonDate(downloadedGraphInfo),
-                    comparisonDate(graphDownloadFile, persistedRemoteGraphInfo))) {
+                    getDateOrEpocStart(remoteGraphInfo),
+                    getDateOrEpocStart(activeGraphInfo),
+                    getDateOrEpocStart(downloadedGraphInfo),
+                    getDateOrEpocStart(graphDownloadFile, persistedRemoteGraphInfo))) {
                 return;
             }
 
@@ -114,14 +112,14 @@ public class ORSGraphRepoManager {
         return remoteDate.after(newestLocalDate);
     }
 
-    Date comparisonDate(GraphInfo graphInfo) {
+    Date getDateOrEpocStart(GraphInfo graphInfo) {
         return Optional.ofNullable(graphInfo)
                 .map(GraphInfo::getPersistedGraphInfo)
                 .map(ORSGraphInfoV1::getOsmDate)
                 .orElse(new Date(0L));
     }
 
-    Date comparisonDate(File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo) {
+    Date getDateOrEpocStart(File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo) {
         if (persistedDownloadFile==null) {
             return new Date(0L);
         }
