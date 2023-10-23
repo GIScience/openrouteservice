@@ -18,6 +18,8 @@ import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -228,7 +230,7 @@ class ORSGraphRepoManagerTest {
         return Stream.of(
                 Arguments.of(new Date(0), null),
                 Arguments.of(new Date(0), new GraphInfo()),
-                Arguments.of(new Date(0), new GraphInfo().withLocalDirectory(new File(LOCAL_PATH))),
+                Arguments.of(new Date(0), new GraphInfo().withLocalDirectory(TEMP_DIR.toFile())),
                 Arguments.of(new Date(0), new GraphInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
                 Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(null)),
                 Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(new ORSGraphInfoV1())),
@@ -239,15 +241,16 @@ class ORSGraphRepoManagerTest {
 
     @ParameterizedTest
     @MethodSource("comparisonDatesForDownloadFiles")
-    public void comaprisonDate(Date expectedDate, File downloadFile, ORSGraphInfoV1 orsGraphInfoV1) {
+    public void comaprisonDate(Date expectedDate, File downloadFile, ORSGraphInfoV1 orsGraphInfoV1) throws IOException {
         assertEquals(expectedDate, orsGraphRepoManager.comparisonDate(downloadFile, orsGraphInfoV1));
     }
 
-    public static Stream<Arguments> comparisonDatesForDownloadFiles() throws MalformedURLException {
+    public static Stream<Arguments> comparisonDatesForDownloadFiles() throws IOException {
         Date osmDate = new Date();
-        File resourcesDir = new File(LOCAL_PATH).getParentFile();
+        File resourcesDir = TEMP_DIR.toFile();
         File nonexistingFile = new File(resourcesDir, "missing.ghz");
         File existingFile = new File(resourcesDir, "some.ghz");
+        existingFile.createNewFile();
         return Stream.of(
                 Arguments.of(new Date(0), null, null),
                 Arguments.of(new Date(0), null, new ORSGraphInfoV1()),
