@@ -36,10 +36,23 @@ The [sourcespy dashboard](https://sourcespy.com/github/giscienceopenrouteservice
 
 ## Installation
 
-We suggest using docker to install and launch openrouteservice backend. In short, on a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) running the following commands will get everything done. 
+We suggest using docker to install and launch openrouteservice backend. In short, a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) will get everything done for you. 
+
+Only use nightly (master branch) if you know what you do. We recommend running docker compose with the latest release version:
 
 ```bash
-wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/docker-compose.yml
+# For example for the latest release
+git clone https://github.com/GIScience/openrouteservice.git
+cd openrouteservice
+# Checkout latest version
+export LATEST_ORS_RELEASE=$(git describe --tags --abbrev=0); 
+git checkout $LATEST_ORS_RELEASE
+# If the docker folder exists cd into it
+cd docker || echo "No docker folder found. Continue with next step."
+# Now change the version the docker-compose.yml uses
+sed -i='' "s/openrouteservice\/openrouteservice:nightly/openrouteservice\/openrouteservice:$LATEST_ORS_RELEASE/g" docker-compose.yml
+sed -i='' "s/openrouteservice\/openrouteservice:latest/openrouteservice\/openrouteservice:$LATEST_ORS_RELEASE/g" docker-compose.yml
+# Run docker compose with
 docker compose up -d
 ```
 
