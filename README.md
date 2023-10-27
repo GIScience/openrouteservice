@@ -36,7 +36,9 @@ The [sourcespy dashboard](https://sourcespy.com/github/giscienceopenrouteservice
 
 ## Installation
 
-We suggest using docker to install and launch openrouteservice backend. In short, a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) will get everything done for you. We recommend running docker compose with the latest release version:
+We suggest using docker to install and launch openrouteservice backend. In short, a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) will get everything done for you. 
+
+Only use nightly (master branch) if you know what you do. We recommend running docker compose with the latest release version:
 
 ```bash
 # For example for the latest release
