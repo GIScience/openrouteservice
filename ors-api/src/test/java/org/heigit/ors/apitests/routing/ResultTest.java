@@ -107,7 +107,7 @@ class ResultTest extends ServiceTest {
         coordFootBridge1.put(49.415036);
         coordsFootBridge.put(coordFootBridge1);
         JSONArray coordFootBridge2 = new JSONArray();
-        coordFootBridge2.put( 8.692765);
+        coordFootBridge2.put(8.692765);
         coordFootBridge2.put(49.410540);
         coordsFootBridge.put(coordFootBridge2);
 
@@ -816,6 +816,29 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testNoLegsIfNotPT() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesLong"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].containsKey('legs')", is(false))
+                .statusCode(200);
+    }
+
+    @Test
     void testWaypoints() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
@@ -854,7 +877,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(closeTo(8.678615,0.1), closeTo(49.388405,0.5), closeTo(106.83,1), closeTo(8.719662,0.1), closeTo(49.424603,0.5), closeTo(411.73,4)))
+                .body("routes[0].bbox", hasItems(closeTo(8.678615, 0.1), closeTo(49.388405, 0.5), closeTo(106.83, 1), closeTo(8.719662, 0.1), closeTo(49.424603, 0.5), closeTo(411.73, 4)))
                 .statusCode(200);
     }
 
@@ -877,7 +900,7 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(closeTo(8.678615,0.1), closeTo(49.388405f,0.5), closeTo(106.83f, 1), closeTo(8.719662f, 0.1), closeTo(49.424603f,0.5), closeTo(411.73f, 4)))
+                .body("routes[0].bbox", hasItems(closeTo(8.678615, 0.1), closeTo(49.388405f, 0.5), closeTo(106.83f, 1), closeTo(8.719662f, 0.1), closeTo(49.424603f, 0.5), closeTo(411.73f, 4)))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(175))
                 .body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
@@ -3697,7 +3720,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(497.5f,4)))
+                .body("routes[0].summary.distance", is(closeTo(497.5f, 4)))
                 .body("routes[0].summary.duration", is(closeTo(61.9f, 0.6)))
                 .statusCode(200);
 
@@ -3711,8 +3734,8 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(497.5f,4)))
-                .body("routes[0].summary.duration", is(closeTo(81.1f,0.8)))
+                .body("routes[0].summary.distance", is(closeTo(497.5f, 4)))
+                .body("routes[0].summary.duration", is(closeTo(81.1f, 0.8)))
                 .statusCode(200);
     }
 
