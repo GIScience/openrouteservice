@@ -107,7 +107,7 @@ class ResultTest extends ServiceTest {
         coordFootBridge1.put(49.415036);
         coordsFootBridge.put(coordFootBridge1);
         JSONArray coordFootBridge2 = new JSONArray();
-        coordFootBridge2.put( 8.692765);
+        coordFootBridge2.put(8.692765);
         coordFootBridge2.put(49.410540);
         coordsFootBridge.put(coordFootBridge2);
 
@@ -652,6 +652,8 @@ class ResultTest extends ServiceTest {
                 .body("features[0].containsKey('properties')", is(true))
                 .body("features[0].properties.containsKey('summary')", is(true))
                 .body("features[0].containsKey('bbox')", is(true))
+                .body("features[0].properties.containsKey('transfers')", is(false))
+                .body("features[0].properties.containsKey('fare')", is(false))
                 .body("features[0].properties.containsKey('way_points')", is(true))
                 .body("features[0].properties.containsKey('segments')", is(true))
                 .body("features[0].properties.containsKey('extras')", is(true))
@@ -780,6 +782,8 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
                 .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.containsKey('transfers')", is(false))
+                .body("routes[0].summary.containsKey('fare')", is(false))
                 .body("routes[0].summary.containsKey('distance')", is(true))
                 .body("routes[0].summary.containsKey('duration')", is(true))
                 .body("routes[0].summary.containsKey('ascent')", is(true))
@@ -854,7 +858,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(closeTo(8.678615,0.1), closeTo(49.388405,0.5), closeTo(106.83,1), closeTo(8.719662,0.1), closeTo(49.424603,0.5), closeTo(411.73,4)))
+                .body("routes[0].bbox", hasItems(closeTo(8.678615, 0.1), closeTo(49.388405, 0.5), closeTo(106.83, 1), closeTo(8.719662, 0.1), closeTo(49.424603, 0.5), closeTo(411.73, 4)))
                 .statusCode(200);
     }
 
@@ -877,7 +881,7 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(closeTo(8.678615,0.1), closeTo(49.388405f,0.5), closeTo(106.83f, 1), closeTo(8.719662f, 0.1), closeTo(49.424603f,0.5), closeTo(411.73f, 4)))
+                .body("routes[0].bbox", hasItems(closeTo(8.678615, 0.1), closeTo(49.388405f, 0.5), closeTo(106.83f, 1), closeTo(8.719662f, 0.1), closeTo(49.424603f, 0.5), closeTo(411.73f, 4)))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(175))
                 .body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
@@ -3697,7 +3701,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(497.5f,4)))
+                .body("routes[0].summary.distance", is(closeTo(497.5f, 4)))
                 .body("routes[0].summary.duration", is(closeTo(61.9f, 0.6)))
                 .statusCode(200);
 
@@ -3711,8 +3715,8 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(497.5f,4)))
-                .body("routes[0].summary.duration", is(closeTo(81.1f,0.8)))
+                .body("routes[0].summary.distance", is(closeTo(497.5f, 4)))
+                .body("routes[0].summary.duration", is(closeTo(81.1f, 0.8)))
                 .statusCode(200);
     }
 
@@ -3745,6 +3749,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(3))
                 .body("routes[0].summary.transfers", is(2))
+                .body("routes[0].summary.containsKey('fare')", is(true))
                 .body("routes[0].legs.size()", is(6))
                 .body("routes[0].legs[0].containsKey('arrival')", is(true))
                 .body("routes[0].legs[0].containsKey('departure')", is(true))
@@ -3788,6 +3793,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'features' }", is(true))
                 .body("features.size()", is(3))
                 .body("features[0].properties.transfers", is(2))
+                .body("features[0].properties.containsKey('fare')", is(true))
                 .body("features[0].properties.legs.size()", is(6))
                 .body("features[0].properties.legs[0].containsKey('arrival')", is(true))
                 .body("features[0].properties.legs[0].containsKey('departure')", is(true))
