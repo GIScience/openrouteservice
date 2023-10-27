@@ -36,7 +36,7 @@ sed -i='' "s/openrouteservice\/openrouteservice:latest/openrouteservice\/openrou
 docker compose up -d
 ```
 
-2. Run with `docker compose` for nightly
+2. Run nightly using `docker compose`
 
 ```bash
 # For nightly builds
