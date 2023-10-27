@@ -15,9 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -35,7 +33,8 @@ public class ORSGraphRepoManager {
     private ORSGraphFileManager fileManager;
 
 
-    public ORSGraphRepoManager() {}
+    public ORSGraphRepoManager() {
+    }
 
     public ORSGraphRepoManager(EngineConfig engineConfig, ORSGraphFileManager fileManager, String routeProfileName, String graphsRepoGraphVersion) {
         this.fileManager = fileManager;
@@ -62,7 +61,9 @@ public class ORSGraphRepoManager {
         this.fileManager = fileManager;
     }
 
-    String getProfileWithHash() {return fileManager.getProfileWithHash();}
+    String getProfileWithHash() {
+        return fileManager.getProfileWithHash();
+    }
 
     String createDownloadPathFilterPattern() {
         return ".*%s/%s/%s/%s/[0-9]{12,}/.*".formatted(graphsRepoCoverage, graphsRepoGraphVersion, routeProfileName, fileManager.getHash());
@@ -74,7 +75,7 @@ public class ORSGraphRepoManager {
             return;
         }
         if (fileManager.isActive()) {
-            LOGGER.debug("[%s] ORSGraphManager is active - skipping download".formatted(getProfileWithHash()));
+            LOGGER.debug("[%s] ORSGraphManager is active - skipping check".formatted(getProfileWithHash()));
             return;
         }
 
@@ -82,10 +83,15 @@ public class ORSGraphRepoManager {
         try {
             ORSGraphInfoV1 persistedRemoteGraphInfo = fileManager.getPreviouslyDownloadedRemoteGraphInfo();
             File graphDownloadFile = fileManager.getGraphDownloadFile();
-            GraphInfo localGraphInfo = fileManager.getLocalGraphInfo();
+            GraphInfo activeGraphInfo = fileManager.getActiveGraphInfo();
+            GraphInfo downloadedGraphInfo = fileManager.getDownloadedGraphInfo();
             GraphInfo remoteGraphInfo = downloadLatestGraphInfoFromRepository();
 
-            if (!shouldDownloadGraph(remoteGraphInfo, localGraphInfo, graphDownloadFile, persistedRemoteGraphInfo)) {
+            if (!shouldDownloadGraph(
+                    getDateOrEpocStart(remoteGraphInfo),
+                    getDateOrEpocStart(activeGraphInfo),
+                    getDateOrEpocStart(downloadedGraphInfo),
+                    getDateOrEpocStart(graphDownloadFile, persistedRemoteGraphInfo))) {
                 return;
             }
 
@@ -95,38 +101,41 @@ public class ORSGraphRepoManager {
             long start = System.currentTimeMillis();
             downloadAsset(downloadUrl, graphDownloadFile);
             long end = System.currentTimeMillis();
-            LOGGER.info("[%s] Download finished after %d ms".formatted(getProfileWithHash(), end-start));
+            LOGGER.info("[%s] Download finished after %d ms".formatted(getProfileWithHash(), end - start));
         } catch (Exception e) {
             LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileWithHash()), e);
         }
     }
 
-    public boolean shouldDownloadGraph(GraphInfo remoteGraphInfo, GraphInfo localGraphInfo, File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo) {
-        if (!remoteGraphInfo.exists()) {
-            LOGGER.info("[%s] There is no graph in remote repository - nothing to download.".formatted(getProfileWithHash()));
-            return false;
-        }
-        if (persistedDownloadFile.exists() && persistedRemoteGraphInfo != null) {
-            if (remoteGraphInfo.getPersistedGraphInfo().getOsmDate().after(persistedRemoteGraphInfo.getOsmDate())) {
-                LOGGER.info("[%s] Found local file %s from previous download but downloading newer version from repository.".formatted(getProfileWithHash(), persistedDownloadFile.getAbsolutePath()));
-                return true;
-            } else {
-                LOGGER.info("[%s] Found local file %s from previous download, there is no newer version in the repository.".formatted(getProfileWithHash(), persistedDownloadFile.getAbsolutePath()));
-                return false;
-            }
-        }
-        if (!localGraphInfo.exists()) {
-            LOGGER.info("[%s] There is no local graph - should be downloaded.".formatted(getProfileWithHash()));
-            return true;
-        }
-        if (!remoteGraphInfo.getPersistedGraphInfo().getOsmDate().after(localGraphInfo.getPersistedGraphInfo().getOsmDate())) {
-            LOGGER.info("[%s] Graph in remote repository is not newer than local graph - keeping local graph".formatted(getProfileWithHash()));
-            return false;
-        }
-        LOGGER.info("[%s] Graph in remote repository is newer than local graph - should be downloaded".formatted(getProfileWithHash()));
-        return true;
+    public boolean shouldDownloadGraph(Date remoteDate, Date activeDate, Date downloadedExtractedDate, Date downloadedCompressedDate) {
+        Date newestLocalDate = newestDate(activeDate, downloadedExtractedDate, downloadedCompressedDate);
+        return remoteDate.after(newestLocalDate);
     }
 
+    Date getDateOrEpocStart(GraphInfo graphInfo) {
+        return Optional.ofNullable(graphInfo)
+                .map(GraphInfo::getPersistedGraphInfo)
+                .map(ORSGraphInfoV1::getOsmDate)
+                .orElse(new Date(0L));
+    }
+
+    Date getDateOrEpocStart(File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo) {
+        if (persistedDownloadFile==null) {
+            return new Date(0L);
+        }
+
+        if (persistedDownloadFile.exists()) {
+            return Optional.ofNullable(persistedRemoteGraphInfo)
+                    .map(ORSGraphInfoV1::getOsmDate)
+                    .orElse(new Date(0L));
+        }
+
+        return new Date(0L);
+    }
+
+    Date newestDate(Date... dates) {
+        return Arrays.stream(dates).max(Date::compareTo).orElse(new Date(0L));
+    }
 
     AssetXO findLatestGraphInfoAsset(String fileName) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();

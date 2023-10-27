@@ -67,5 +67,63 @@ car
 ```
 
 
-```commandline
+## Scheduled updates of graphs
+
+The update of graphs is split into two independent steps:
+
+* Download of new graphs from the repository
+* Activation of downloaded graphs
+
+The schedule for both steps can be configured separately, see the following subchapters.
+
+### Graph Download
+
+There is a configuration property where the schedule of lookups for new graphs in the repository can be defined:
+
+```yaml
+ors:
+  engine:
+    graphservice:
+        schedule:
+            download:
+                cron: 0 0 * * * *
 ```
+
+The value is a cron pattern with 6 positions. The fields read from left to right are interpreted as follows:
+
+* second
+* minute
+* hour
+* day of month
+* month
+* day of week
+
+For more information see [org.springframework.scheduling.annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/scheduling/annotation/Scheduled.html#cron())
+
+If the property is not set, the default is "never".
+
+When openrouteservice detects new compressed graphs in the repository, 
+these are downloaded and extracted, but not yet activated (see next section).
+In theory, it is possible, that a downloaded graph is outdated before it was activated. 
+In this case, the newer graph is downloaded from the repository and will be the next graph to be activated. 
+
+
+### Graph Activation
+
+An independent process checks on a regular basis, if there are downloaded graphs that can be activated.
+If this is the case, the service loads the new graphs which causes a short downtime of the service.
+
+The schedule of the activation process can be configured with a separate configuration property, 
+e.g. it is independent from the download process. Activation can be scheduled to a time outside the "rush hour".
+
+```yaml
+ors:
+  engine:
+    graphservice:
+        schedule:
+            activate:
+                cron: 0 30 2 * * *
+```
+
+If openrouteservice is still busy with downloading or extracting a graph at activation time,
+new activation attempts are done every minute and activation happens as soon as possible.

@@ -204,24 +204,40 @@ public class ORSGraphFileManager {
         return Arrays.asList(Objects.requireNonNull(obj)).stream().sorted(Comparator.comparing(File::getName)).toList();
     }
 
-    GraphInfo getLocalGraphInfo() {
-        LOGGER.debug("[%s] Checking local graph info...".formatted(getProfileWithHash()));
-        File hashDirectory = getHashDirectory();
+    GraphInfo getActiveGraphInfo() {
+        LOGGER.trace("[%s] Checking active graph info...".formatted(getProfileWithHash()));
+        File activeGraphDirectory = getHashDirectory();
 
         if (!hasLocalGraph()) {
-            LOGGER.debug("[%s] No local graph directory found".formatted(getProfileWithHash()));
-            return new GraphInfo().withLocalDirectory(hashDirectory);
+            LOGGER.trace("[%s] No active graph directory found".formatted(getProfileWithHash()));
+            return new GraphInfo().withLocalDirectory(activeGraphDirectory);
         }
 
-        File graphInfoFile = new File(hashDirectory, createGraphInfoFileName());
+        return getGraphInfo(activeGraphDirectory);
+    }
+
+    GraphInfo getDownloadedGraphInfo() {
+        LOGGER.trace("[%s] Checking downloaded graph info...".formatted(getProfileWithHash()));
+        File downloadedGraphDirectory = getGraphExractionDirectory();
+
+        if (!hasDownloadedExtractedGraph()) {
+            LOGGER.trace("[%s] No downloaded graph directory found".formatted(getProfileWithHash()));
+            return new GraphInfo().withLocalDirectory(downloadedGraphDirectory);
+        }
+
+        return getGraphInfo(downloadedGraphDirectory);
+    }
+
+    private GraphInfo getGraphInfo(File graphDirectory) {
+        File graphInfoFile = new File(graphDirectory, createGraphInfoFileName());
         if (!graphInfoFile.exists() || !graphInfoFile.isFile()) {
-            LOGGER.debug("[%s] No graph info file %s found in %s".formatted(getProfileWithHash(), graphInfoFile.getName(), hashDirAbsPath));
-            return new GraphInfo().withLocalDirectory(hashDirectory);
+            LOGGER.trace("[%s] No graph info file %s found in %s".formatted(getProfileWithHash(), graphInfoFile.getName(), hashDirAbsPath));
+            return new GraphInfo().withLocalDirectory(graphDirectory);
         }
 
         ORSGraphInfoV1 graphInfoV1 = readOrsGraphInfoV1(graphInfoFile);
-        LOGGER.debug("[%s] Found local graph info with osmDate=%s".formatted(getProfileWithHash(), graphInfoV1.getOsmDate()));
-        return new GraphInfo().withLocalDirectory(hashDirectory).withPersistedInfo(graphInfoV1);
+        LOGGER.trace("[%s] Found local graph info with osmDate=%s".formatted(getProfileWithHash(), graphInfoV1.getOsmDate()));
+        return new GraphInfo().withLocalDirectory(graphDirectory).withPersistedInfo(graphInfoV1);
     }
 
     ORSGraphInfoV1 readOrsGraphInfoV1(File inputFile) {
@@ -241,7 +257,7 @@ public class ORSGraphFileManager {
     }
 
     ORSGraphInfoV1 getPreviouslyDownloadedRemoteGraphInfo() {
-        LOGGER.debug("[%s] Checking graph info for of previous check ...".formatted(getProfileWithHash()));
+        LOGGER.trace("[%s] Checking graph info for of previous check ...".formatted(getProfileWithHash()));
         String fileName = createGraphInfoFileName();
         File persistedGraphInfoFile = new File(vehicleGraphDirAbsPath, fileName);
         if (persistedGraphInfoFile.exists()) {
@@ -274,7 +290,6 @@ public class ORSGraphFileManager {
         }
 
         try {
-
             LOGGER.debug("[%s] Extracting downloaded graph file to %s".formatted(getProfileWithHash(), extractionDirectoryAbsPath));
             long start = System.currentTimeMillis();
             (new Unzipper()).unzip(graphDownloadFileAbsPath, extractionDirectoryAbsPath, true);
@@ -289,7 +304,12 @@ public class ORSGraphFileManager {
             LOGGER.debug("[%s] Renaming extraction directory to %s".formatted(
                     getProfileWithHash(),
                     targetDirectoryAbsPath));
-            extractionDirectory.renameTo(targetDirectory);
+            if (targetDirectory.exists()) {
+                FileUtils.deleteDirectory(targetDirectory);
+            }
+            if (!extractionDirectory.renameTo(targetDirectory)) {
+                LOGGER.error("[%s] Could not rename extraction directory to %s".formatted(getProfileWithHash(), targetDirectoryAbsPath));
+            }
 
         } catch (IOException ioException) {
             LOGGER.error("[%s] Error during extraction of %s to %s -> %s".formatted(
