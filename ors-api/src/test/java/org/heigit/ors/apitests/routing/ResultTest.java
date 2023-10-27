@@ -820,6 +820,29 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testNoLegsIfNotPT() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesLong"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].containsKey('legs')", is(false))
+                .statusCode(200);
+    }
+
+    @Test
     void testWaypoints() {
         JSONObject body = new JSONObject();
         body.put("coordinates", getParameter("coordinatesLong"));
