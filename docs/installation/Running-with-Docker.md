@@ -18,7 +18,7 @@ Use [Dockerhub's hosted Openrouteservice image](https://hub.docker.com/r/openrou
 There are multiple ways with docker to quickly have a running instance.
 
 
-1. Recommended: Run with `docker compose` for a specific ors version
+1. Recommended: Run a specific ors version using `docker compose`
 
 ```bash
 # For example for the latest release
