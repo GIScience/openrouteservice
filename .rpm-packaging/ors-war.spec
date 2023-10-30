@@ -181,7 +181,7 @@ if id -u %{ors_user} >/dev/null 2>&1; then
     usermod -a -G %{ors_group} %{ors_user}
 else
     echo "openrouteservice user does not exist. Creating it and adding it to the ors group."
-    useradd -r -g %{ors_group} -d ${ORS_HOME}  %{ors_user}
+    useradd -r -g %{ors_group} -d ${ORS_HOME}  -s /sbin/nologin %{ors_user}
 fi
 
 # Setup openrouteservice opt folder
