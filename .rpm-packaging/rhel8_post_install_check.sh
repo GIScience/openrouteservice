@@ -47,8 +47,6 @@ check_user_group_permissions '${ORS_HOME}/' "openrouteservice" "openrouteservice
 check_user_group_permissions '${ORS_HOME}/.elevation-cache' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
 check_user_group_permissions '${ORS_HOME}/.graphs' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
 check_user_group_permissions '${ORS_HOME}/logs' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
-
-# Check 640 permissions
 check_user_group_permissions '${ORS_HOME}/config' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
 check_user_group_permissions '${ORS_HOME}/files' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
 

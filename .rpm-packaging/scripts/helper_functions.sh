@@ -286,8 +286,7 @@ check_user_group_permissions() {
         return 1
     fi
 
-    local result
-    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "stat -c '%a %U %G' $path_to_file")
+    local result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "stat -c '%a %U %G' $path_to_file")
     if [[ "$result" != "$permissions $user $group" ]]; then
         log_error "Permissions for $path_to_file should be $permissions $user $group but are $result"
         return 1

@@ -125,7 +125,7 @@ subsequent subfolders (initially empty unless manually created):
 /opt/openrouteservice/ # Ownership: 770 openrouteservice:openrouteservice | Desc: Base for $ORS_HOME
 ├── .elevation-cache   # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the elevation cache
 ├── logs               # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the log files
-├── .graphs            # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the graph files when build
+├── .graphs            # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the graph files when built
 ├── files              # Ownership: 770 openrouteservice:openrouteservice | Desc: Should contain the OSM file(s)
 ├── config             # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the example-config.json configuration file
 ├── config/example-config.json # Ownership: 440 openrouteservice:openrouteservice | Desc: Contains the example-config.json configuration file
