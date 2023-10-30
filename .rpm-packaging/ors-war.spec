@@ -207,8 +207,6 @@ chmod 750 ${jws_webapps_folder}/ors.war
 chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
 # Make everything 770 for Owner read+write and Group read+write and the ability to create folders.
 chmod -R 770 ${ORS_HOME}/
-# Make exceptions for config, files with owner read+write and group read permissions
-chmod -R 770 ${ORS_HOME}/files
 # Make exceptions for example-config.json and the permanent state file with only read access on the files
 chmod 440 ${ORS_HOME}/config/example-config.json
 chmod 440 ${ORS_HOME}/.openrouteservice-jws5-permanent-state
