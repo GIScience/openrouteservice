@@ -42,7 +42,7 @@ check_line_in_file "jws_config_location=${JWS_CONFIGURATION_DIRECTORY}" '${ORS_H
 check_line_in_file "min_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
 check_line_in_file "max_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
 
-# Check 660 permissions
+# Check 770 permissions
 check_user_group_permissions '${ORS_HOME}/' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
 check_user_group_permissions '${ORS_HOME}/.elevation-cache' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
 check_user_group_permissions '${ORS_HOME}/.graphs' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
