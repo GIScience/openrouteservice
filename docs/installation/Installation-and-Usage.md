@@ -122,13 +122,27 @@ Upon installation, `openrouteservice-jws5` generates the `ORS_HOME` working dire
 subsequent subfolders (initially empty unless manually created):
 
 ```bash
-/opt/openrouteservice/
-├── .elevation-cache # Contains the elevation data cache
-├── config # Should contain the configuration file
-├── files # Should contain the osm.pbf source files
-├── .graphs # Contains the graph files when build
-└── logs # Contains the log files
+/opt/openrouteservice/ # Ownership: 770 openrouteservice:openrouteservice | Desc: Base for $ORS_HOME
+├── .elevation-cache   # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the elevation cache
+├── logs               # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the log files
+├── .graphs            # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the graph files when build
+├── files              # Ownership: 770 openrouteservice:openrouteservice | Desc: Should contain the OSM file(s)
+├── config             # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the example-config.json configuration file
+├── config/example-config.json # Ownership: 440 openrouteservice:openrouteservice | Desc: Contains the example-config.json configuration file
+└──.openrouteservice-jws5-permanent-state # Ownership: 440 openrouteservice:openrouteservice | Desc: Contains the permanent state of the openrouteservice installation
 ```
+
+The directory structure at `$ORS_HOME` is configured with specific permissions to maintain security and access control.
+In general, it follows the `770` permission scheme, allowing both the Owner and Group to read and write to the necessary
+folders and have the search bit enabled to create files.
+
+In instances where write access is unnecessary, permissions are set to `640`, restricting write privileges for
+user `openrouteservice` and group members to read only.
+This arrangement ensures that the 'tomcat' user can access and read the files without the ability to make changes.
+
+Notably, the `.openrouteservice-jws5-permanent-state` file and the `config/example-config.json` are assigned `440`
+permissions, ensuring that only the
+installation processes can write to it, while access for others is restricted.
 
 ---
 **Configuration**

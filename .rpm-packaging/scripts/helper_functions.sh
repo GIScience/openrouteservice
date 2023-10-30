@@ -272,6 +272,28 @@ check_rpm_installed() {
     fi
 }
 
+# Function to check user and group permissions on a file or folder
+# Usage: check_user_group_permissions <path_to_file> <user> <group> <permissions>
+check_user_group_permissions() {
+    local path_to_file="$1"
+    local user="$2"
+    local group="$3"
+    local permissions="$4"
+
+    # Fail if any of the variables are empty
+    if [ -z "$path_to_file" ] || [ -z "$permissions" ] || [ -z "$user" ] || [ -z "$group" ]; then
+        log_error "Please provide all variables to the check_user_group_permissions function."
+        return 1
+    fi
+
+    local result
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "stat -c '%a %U %G' $path_to_file")
+    if [[ "$result" != "$permissions $user $group" ]]; then
+        log_error "Permissions for $path_to_file should be $permissions $user $group but are $result"
+        return 1
+    fi
+    log_success "Permissions for $path_to_file are $permissions $user $group as expected."
+}
 # Check that the CONTAINER_NAME variables are set
 if [ -z "$CONTAINER_NAME" ]; then
     log_error "Please set the CONTAINER_NAME variable."

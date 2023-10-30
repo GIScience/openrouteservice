@@ -34,7 +34,6 @@ check_folder_exists '${ORS_HOME}/logs' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/.elevation-cache' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/files' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/.graphs' true || SUCCESSFUL=false
-check_file_exists '${ORS_HOME}/config/example-config.json' true || SUCCESSFUL=false
 
 # Check the state file is created and contains the correct variables
 check_file_exists '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
@@ -43,9 +42,26 @@ check_line_in_file "jws_config_location=${JWS_CONFIGURATION_DIRECTORY}" '${ORS_H
 check_line_in_file "min_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
 check_line_in_file "max_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-state' true || SUCCESSFUL=false
 
+# Check 660 permissions
+check_user_group_permissions '${ORS_HOME}/' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
+check_user_group_permissions '${ORS_HOME}/.elevation-cache' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
+check_user_group_permissions '${ORS_HOME}/.graphs' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
+check_user_group_permissions '${ORS_HOME}/logs' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
+
+# Check 640 permissions
+check_user_group_permissions '${ORS_HOME}/config' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
+check_user_group_permissions '${ORS_HOME}/files' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
+
+# Check 440 permissions
+check_user_group_permissions '${ORS_HOME}/config/example-config.json' "openrouteservice" "openrouteservice" "440" || SUCCESSFUL=false
+check_user_group_permissions '${ORS_HOME}/.openrouteservice-jws5-permanent-state' "openrouteservice" "openrouteservice" "440" || SUCCESSFUL=false
+
 # shellcheck disable=SC2016
 # Check ors.war in webapps folder
 check_file_exists "$JWS_WEBAPPS_DIRECTORY/ors.war" true || SUCCESSFUL=false
+# Check the ownership of the file
+find_owned_content "$JWS_WEBAPPS_DIRECTORY/ors.war" "tomcat" "" 1 || SUCCESSFUL=false
+
 # Check user and group setup
 check_group_exists 'openrouteservice' true || SUCCESSFUL=false
 check_user_exists 'openrouteservice' true || SUCCESSFUL=false
