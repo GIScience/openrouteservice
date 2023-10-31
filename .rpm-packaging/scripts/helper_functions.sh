@@ -47,7 +47,7 @@ check_java_version() {
     log_success "Java version is $java_version as expected"
 }
 
-# Function to check for a line in a file
+# Function to check for a line in a directory
 # Usage: check_line_in_file <line> <path_to_file> <should_exist>
 check_line_in_file() {
     local line="$1"
@@ -59,17 +59,17 @@ check_line_in_file() {
     result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "grep '$line' $path_to_file")
     exit_code=$?
     if [[ "$should_exist" = true && $exit_code -ne 0 ]]; then
-        log_error "Line '$line' should exist in file $path_to_file but does not."
+        log_error "Line '$line' should exist in directory $path_to_file but does not."
         return 1
     elif [[ "$should_exist" = false && $exit_code -eq 0 ]]; then
-        log_error "Line '$line' should not exist in file $path_to_file but does."
+        log_error "Line '$line' should not exist in directory $path_to_file but does."
         return 1
     fi
     # If should exist is true, the logging should be different
     if [[ "$should_exist" = true ]]; then
-        log_success "Line '$line' exists in file $path_to_file as expected."
+        log_success "Line '$line' exists in directory $path_to_file as expected."
     else
-        log_success "Line '$line' does not exist in file $path_to_file as expected."
+        log_success "Line '$line' does not exist in directory $path_to_file as expected."
     fi
 }
 
@@ -98,7 +98,7 @@ check_folder_exists() {
     fi
 }
 
-# Function to check if a file exists
+# Function to check if a directory exists
 # Usage: check_file_exists <path_to_file> <should_exist>
 check_file_exists() {
     local path_to_file="$1"
@@ -129,7 +129,7 @@ check_file_is_symlink() {
     local path_to_file="$1"
     local should_exist="$2"
 
-    # Check if file exists. Else the symlink will fail if it doesn't exist
+    # Check if directory exists. Else the symlink will fail if it doesn't exist
     local _
     local exit_code
     _=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "test -f $path_to_file")
@@ -139,11 +139,11 @@ check_file_is_symlink() {
         return 1
     fi
 
-    # Check if file is a symlink
+    # Check if directory is a symlink
     local result
     result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "find $path_to_file -type l -xtype f | wc -l")
     if [[ "$should_exist" = true && $result -ne 1 ]]; then
-        log_error "A file exists at $path_to_file but it is no symlink."
+        log_error "A directory exists at $path_to_file but it is no symlink."
         return 1
     elif [[ "$should_exist" = false && $result -ne 0 ]]; then
         log_error "The Symlink at $path_to_file shouldn't exist but does."
@@ -217,6 +217,39 @@ check_user_in_group() {
         return 1
     fi
     log_success "User $user_name is in group $group_name as expected."
+}
+
+# Function to check the selinux label
+check_selinux_label() {
+  local fileOrDir="$1"
+  local seUser="$2"
+  local seRole="$3"
+  local seType="$4"
+  local seLevel="$5"
+
+  local any="[a-z0-9_]+"
+  [ "$seUser"  == "*" ] && seUser=$any
+  [ "$seRole"  == "*" ] && seRole=$any
+  [ "$seType"  == "*" ] && seType=$any
+  [ "$seLevel" == "*" ] && seLevel=$any
+  local label="${seUser}:${seRole}:${seType}:${seLevel}"
+  [[ "$label" =~ :::.* ]] && label="\?"
+
+  local result=$(${CONTAINER_ENGINE} exec -u root "${CONTAINER_NAME}" bash -c "ls -AZ $fileOrDir")
+
+  local allGood=1
+  IFS=$'\n'
+  for line in $result; do
+    if ! [[ "$line" =~ ^${label}" ".* ]]; then
+      echo "$line has not the expected label $label"
+      allGood=0
+    fi
+  done
+
+  (($allGood)) && echo "All files in $fileOrDir have the expected selinux label $label" && return 0
+
+  echo "Not all files in $fileOrDir have the expected selinux label $label"
+  return 1
 }
 
 # Function to check if owned content count matches expected count
