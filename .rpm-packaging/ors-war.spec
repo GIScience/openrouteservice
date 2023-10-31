@@ -34,7 +34,7 @@ cp -f ors.war %{buildroot}%{ors_temporary_files_location}/.war-files/%{ors_versi
 cp -f example-config.json %{buildroot}%{ors_temporary_files_location}/config/example-config.json
 
 %files
-# Allow 770 for read and write for files for the ors group
+# 770 for all permissions for owner and group
 %defattr(770,%{ors_user},%{ors_group},-)
 "%{ors_temporary_files_location}/.war-files/%{ors_version}_ors.war"
 "%{ors_temporary_files_location}/config/example-config.json"
@@ -181,7 +181,7 @@ if id -u %{ors_user} >/dev/null 2>&1; then
     usermod -a -G %{ors_group} %{ors_user}
 else
     echo "openrouteservice user does not exist. Creating it and adding it to the ors group."
-    useradd -r -g %{ors_group} -d ${ORS_HOME} -s /sbin/nologin %{ors_user}
+    useradd -r -g %{ors_group} -d ${ORS_HOME}  -s /sbin/nologin %{ors_user}
 fi
 
 # Setup openrouteservice opt folder
@@ -200,12 +200,16 @@ echo "Switching the default java to version %{java_version}"
 alternatives --install /usr/bin/java java $(readlink -f /etc/alternatives/jre_%{java_version})/bin/java 1
 alternatives --set java $(readlink -f /etc/alternatives/jre_%{java_version})/bin/java
 
+# chown to the tomcat user and ors group and give owner read and write permissions and group read and execute permissions
 chown %{tomcat_user} ${jws_webapps_folder}/ors.war
-chmod 740 ${jws_webapps_folder}/ors.war
-# Set the correct permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
+chmod 750 ${jws_webapps_folder}/ors.war
+# Set ownership of the ors home folder to the ors user and ors group
 chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
-# Set recursive 770 permissions for the /opt/openrouteservice folder so that the ${ors_group} can read and write to it
-chmod -R 770 ${ORS_HOME}
+# Make everything 770 for Owner read+write and Group read+write and the ability to create folders.
+chmod -R 770 ${ORS_HOME}/
+# Make exceptions for example-config.json and the permanent state file with only read access on the files
+chmod 440 ${ORS_HOME}/config/example-config.json
+chmod 440 ${ORS_HOME}/.openrouteservice-jws5-permanent-state
 
 %postun
 ###############################################################################################################
