@@ -15,7 +15,7 @@ RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*
     # Attach to the rhel8 repositories of the access key and unregister if it fails
     subscription-manager attach || subscription-manager unregister && \
     # Update the system and unregister if it fails
-    yum update -y && yum groupinstall jws5 -y || subscription-manager unregister && \
+    yum update -y && yum groupinstall jws5 -y && yum install policycoreutils-python-utils -y && yum install jws5-tomcat-selinux -y || subscription-manager unregister && \
     # give user root the passwort "root"
     echo "root:root" | chpasswd && \
     # Unregister from redhat in any case in the end to avoid too many registered systems
