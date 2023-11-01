@@ -25,12 +25,19 @@ import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.EngineProperties;
+import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
+import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_ENV;
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY;
@@ -38,9 +45,11 @@ import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
     private final EngineProperties engineProperties;
+    private final GraphService graphService;
 
-    public ORSInitContextListener(EngineProperties engineProperties) {
+    public ORSInitContextListener(EngineProperties engineProperties, GraphService graphService) {
         this.engineProperties = engineProperties;
+        this.graphService = graphService;
     }
 
     @Override
@@ -53,18 +62,33 @@ public class ORSInitContextListener implements ServletContextListener {
                 LOGGER.debug("Configuration loaded by ARG, location: " + System.getProperty(ORS_CONFIG_LOCATION_PROPERTY));
             }
         }
+        SourceFileElements sourceFileElements = extractSourceFileElements(engineProperties.getSourceFile());
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
-            .setInitializationThreads(engineProperties.getInitThreads())
-            .setPreparationMode(engineProperties.isPreparationMode())
-            .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
-            .setSourceFile(engineProperties.getSourceFile())
-            .setGraphsRootPath(engineProperties.getGraphsRootPath())
-            .setProfiles(engineProperties.getConvertedProfiles())
-            .buildWithAppConfigOverride();
+                .setInitializationThreads(engineProperties.getInitThreads())
+                .setPreparationMode(engineProperties.isPreparationMode())
+                .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
+                .setGraphsRootPath(engineProperties.getGraphsRootPath())
+                .setMaxNumberOfGraphBackups(engineProperties.getMaxNumberOfGraphBackups())
+                .setSourceFile(sourceFileElements.localOsmFilePath)
+                .setGraphsRepoUrl(sourceFileElements.repoBaseUrlString)
+                .setGraphsRepoName(sourceFileElements.repoName)
+                .setGraphsExtent(engineProperties.getGraphsExtent())
+                .setProfiles(engineProperties.getConvertedProfiles())
+                .buildWithAppConfigOverride();
         Runnable runnable = () -> {
             try {
                 LOGGER.info("Initializing ORS...");
-                new RoutingProfileManager(config);
+                RoutingProfileManager routingProfileManager = new RoutingProfileManager(config);
+                if (routingProfileManager.getProfiles() != null) {
+                    for (RoutingProfile profile : routingProfileManager.getProfiles().getUniqueProfiles()) {
+                        ORSGraphHopper orsGraphHopper = profile.getGraphhopper();
+                        ORSGraphManager orsGraphManager = orsGraphHopper.getOrsGraphManager();
+                        if (orsGraphManager != null) {
+                            LOGGER.debug("Adding orsGraphManager for profile %s to GraphService".formatted(profile.getConfiguration().getName()));
+                            graphService.addGraphhopperLocation(orsGraphManager);
+                        }
+                    }
+                }
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exeception: " + e);
             }
@@ -72,6 +96,43 @@ public class ORSInitContextListener implements ServletContextListener {
         Thread thread = new Thread(runnable);
         thread.setName("ORS-Init");
         thread.start();
+    }
+
+    record SourceFileElements(String repoBaseUrlString, String repoName, String localOsmFilePath) {
+    }
+
+    SourceFileElements extractSourceFileElements(String sourceFilePropertyValue) {
+        String accessScheme;
+        String repoBaseUrlString = null;
+        String repoName = null;
+        sourceFilePropertyValue = sourceFilePropertyValue.trim();
+        try {
+            URI uri = new URI(sourceFilePropertyValue);
+            accessScheme = uri.getScheme();
+            repoBaseUrlString = uri.getHost();
+            if (accessScheme == null || repoBaseUrlString == null) {
+                throw new URISyntaxException(sourceFilePropertyValue, "URI does not contain a valid schema or host");
+            }
+            repoBaseUrlString = accessScheme + "://" + repoBaseUrlString;
+
+            String[] pathElements = uri.getPath().split("/");
+            if (pathElements.length == 0) {
+                throw new URISyntaxException(sourceFilePropertyValue, "URI does not contain a path");
+            }
+            // Append all path elements except the last one to the repoBaseUrlString. The last one is the repoName.
+            for (int i = 0; i < pathElements.length; i++) {
+                if (i == pathElements.length - 1) {
+                    repoName = pathElements[i];
+                    break;
+                } else if (!pathElements[i].isBlank()) {
+                    repoBaseUrlString += "/" + pathElements[i];
+                }
+            }
+        } catch (URISyntaxException e) {
+            LOGGER.debug("Configuration property 'source_file' does not contain a URL, using value as local osm file path");
+            return new SourceFileElements(repoBaseUrlString, repoName, sourceFilePropertyValue);
+        }
+        return new SourceFileElements(repoBaseUrlString, repoName, "");
     }
 
     @Override

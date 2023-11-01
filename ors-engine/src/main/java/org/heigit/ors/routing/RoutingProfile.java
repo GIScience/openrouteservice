@@ -60,6 +60,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStor
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
+import org.heigit.ors.routing.util.RoutingProfileHashBuilder;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.StringUtility;
@@ -73,6 +74,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.*;
+
 
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
@@ -94,6 +96,9 @@ public class RoutingProfile {
     private Double astarEpsilon;
 
     public RoutingProfile(EngineConfig engineConfig, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) throws Exception {
+        //jh: TODO remove if hashing ORSGraphHopper is correct
+        //        addProfileHash(rpc);
+
         mRoutePrefs = rpc.getProfilesTypes();
         mUseCounter = 0;
 
@@ -110,9 +115,9 @@ public class RoutingProfile {
         }
     }
 
-    public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
+    public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration routeProfileConfiguration, RoutingProfileLoadContext loadCntx) throws Exception {
         String osmFile = engineConfig.getSourceFile();
-        ORSGraphHopperConfig args = createGHSettings(osmFile, config);
+        ORSGraphHopperConfig args = createGHSettings(osmFile, routeProfileConfiguration);
 
         int profileId;
         synchronized (lockObj) {
@@ -123,14 +128,14 @@ public class RoutingProfile {
         long startTime = System.currentTimeMillis();
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, config.getProfiles(), config.getGraphPath()));
+            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, routeProfileConfiguration.getProfiles(), routeProfileConfiguration.getGraphPath()));
         }
 
-        GraphProcessContext gpc = new GraphProcessContext(config);
+        GraphProcessContext gpc = new GraphProcessContext(routeProfileConfiguration);
         gpc.setGetElevationFromPreprocessedData(engineConfig.isElevationPreprocessed());
 
-        ORSGraphHopper gh = new ORSGraphHopper(gpc);
-
+        ORSGraphHopper gh = new ORSGraphHopper(gpc, engineConfig);
+        gh.setRouteProfileName(routeProfileConfiguration.getName());
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
@@ -168,7 +173,7 @@ public class RoutingProfile {
 
         // Make a stamp which help tracking any changes in the size of OSM file.
         File file = new File(osmFile);
-        Path pathTimestamp = Paths.get(config.getGraphPath(), "stamp.txt");
+        Path pathTimestamp = Paths.get(gh.getGraphHopperLocation(), "stamp.txt");
         File file2 = pathTimestamp.toFile();
         if (!file2.exists())
             Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
@@ -398,6 +403,8 @@ public class RoutingProfile {
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
+        ghConfig.putObject("graphs_extent", config.getGraphsExtent());
+        ghConfig.putObject("ext_storages", config.getExtStorages());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
@@ -1257,4 +1264,54 @@ public class RoutingProfile {
     public int hashCode() {
         return mGraphHopper.getGraphHopperStorage().getDirectory().getLocation().hashCode();
     }
+
+    //jh: alternative for hashing ORSGraphHopper TODO remove if hashing ORSGraphHopper is correct
+    void addProfileHash(RouteProfileConfiguration routeProfileConfiguration) {
+        String profileHash = computeProfileHash(routeProfileConfiguration);
+        routeProfileConfiguration.setGraphPath(routeProfileConfiguration.getGraphPath() + "/" + profileHash);
+    }
+
+    //jh: alternative for hashing ORSGraphHopper TODO remove if hashing ORSGraphHopper is correct
+    String computeProfileHash(RouteProfileConfiguration routeProfileConfiguration) {
+        RoutingProfileHashBuilder hashBuilder = RoutingProfileHashBuilder.builder()
+                .withString(routeProfileConfiguration.getName())
+                .withBoolean(routeProfileConfiguration.getEnabled())
+                .withString(routeProfileConfiguration.getProfiles())
+//                .withString(routeProfileConfiguration.getGraphPath())
+                .withMapOfMaps(routeProfileConfiguration.getExtStorages(), "extStorages")
+                .withMapOfMaps(routeProfileConfiguration.getGraphBuilders(), "graphBuilders")
+                .withDouble(routeProfileConfiguration.getMaximumDistance())
+                .withDouble(routeProfileConfiguration.getMaximumDistanceDynamicWeights())
+                .withDouble(routeProfileConfiguration.getMaximumDistanceAvoidAreas())
+                .withDouble(routeProfileConfiguration.getMaximumDistanceAlternativeRoutes())
+                .withDouble(routeProfileConfiguration.getMaximumDistanceRoundTripRoutes())
+                .withDouble(routeProfileConfiguration.getMaximumWayPoints())
+                .withBoolean(routeProfileConfiguration.getInstructions())
+                .withBoolean(routeProfileConfiguration.getOptimize())
+                .withInteger(routeProfileConfiguration.getEncoderFlagsSize())
+                .withString(routeProfileConfiguration.getEncoderOptions())
+                .withString(routeProfileConfiguration.getGtfsFile())
+                .withObject(routeProfileConfiguration.getIsochronePreparationOpts())
+                .withObject(routeProfileConfiguration.getPreparationOpts())
+                .withObject(routeProfileConfiguration.getExecutionOpts())
+                .withString(routeProfileConfiguration.getElevationProvider())
+                .withString(routeProfileConfiguration.getElevationCachePath())
+                .withString(routeProfileConfiguration.getElevationDataAccess())
+                .withBoolean(routeProfileConfiguration.getElevationCacheClear())
+                .withBoolean(routeProfileConfiguration.getElevationSmoothing())
+                .withBoolean(routeProfileConfiguration.getInterpolateBridgesAndTunnels())
+                .withInteger(routeProfileConfiguration.getMaximumSnappingRadius())
+//                .withObject(routeProfileConfiguration.getExtent())
+                .withBoolean(routeProfileConfiguration.hasMaximumSnappingRadius())
+                .withInteger(routeProfileConfiguration.getLocationIndexResolution())
+                .withInteger(routeProfileConfiguration.getLocationIndexSearchIterations())
+                .withDouble(routeProfileConfiguration.getMaximumSpeedLowerBound())
+//                .withInteger(routeProfileConfiguration.getTrafficExpirationMin())
+                .withInteger(routeProfileConfiguration.getMaximumVisitedNodesPT())
+                .withBoolean(routeProfileConfiguration.isTurnCostEnabled())
+                .withBoolean(routeProfileConfiguration.isEnforceTurnCosts());
+
+        return hashBuilder.build();
+    }
+
 }

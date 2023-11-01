@@ -2,16 +2,40 @@ package org.heigit.ors.config;
 
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.util.StringUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class EngineConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EngineConfig.class);
+    public static final String GRAPH_VERSION;
+
+    static {
+        Properties prop = new Properties();
+        String graphVersion = "0";
+        try (InputStream in = new ClassPathResource("engine.properties").getInputStream()) {
+            prop.load(in);
+            graphVersion = prop.getProperty("graphVersion", "0");
+        } catch (Exception e) {
+            LOGGER.error("Initialization ERROR: cannot read engineVersion. {}", e.getMessage());
+        }
+        GRAPH_VERSION = graphVersion;
+    }
+
     // Migration guide: 1. add field and getter, assign in constructor
     private final int initializationThreads;
     private final boolean preparationMode;
     private final String sourceFile;
+    private final int maxNumberOfGraphBackups;
     private final String graphsRootPath;
+    private final String graphsRepoName;
+    private final String graphsRepoUrl;
+    private final String graphsExtent;
     private final boolean elevationPreprocessed;
     private final RouteProfileConfiguration[] profiles;
 
@@ -27,8 +51,24 @@ public class EngineConfig {
         return sourceFile;
     }
 
+    public int getMaxNumberOfGraphBackups() {
+        return maxNumberOfGraphBackups;
+    }
+
     public String getGraphsRootPath() {
         return graphsRootPath;
+    }
+
+    public String getGraphsRepoName() {
+        return graphsRepoName;
+    }
+
+    public String getGraphsRepoUrl() {
+        return graphsRepoUrl;
+    }
+
+    public String getGraphsExtent() {
+        return graphsExtent;
     }
 
     public boolean isElevationPreprocessed() {
@@ -43,18 +83,25 @@ public class EngineConfig {
         this.initializationThreads = builder.initializationThreads;
         this.preparationMode = builder.preparationMode;
         this.sourceFile = builder.sourceFile;
+        this.maxNumberOfGraphBackups = builder.maxNumberOfGraphBackups;
         this.elevationPreprocessed = builder.elevationPreprocessed;
         this.graphsRootPath = builder.graphsRootPath;
+        this.graphsRepoUrl = builder.graphsRepoUrl;
+        this.graphsRepoName = builder.graphsRepoName;
+        this.graphsExtent = builder.graphsExtent;
         this.profiles = builder.profiles;
     }
-
 
     public static class EngineConfigBuilder {
         // Migration guide: 2. add corresponding field (without final)
         private int initializationThreads = 1;
         private boolean preparationMode;
         private String sourceFile;
+        private int maxNumberOfGraphBackups;
         private String graphsRootPath;
+        private String graphsRepoUrl;
+        private String graphsRepoName;
+        private String graphsExtent;
         private boolean elevationPreprocessed;
         private RouteProfileConfiguration[] profiles;
 
@@ -78,8 +125,28 @@ public class EngineConfig {
             return this;
         }
 
+        public EngineConfigBuilder setMaxNumberOfGraphBackups(int maxNumberOfGraphBackups) {
+            this.maxNumberOfGraphBackups = maxNumberOfGraphBackups;
+            return this;
+        }
+
         public EngineConfigBuilder setGraphsRootPath(String graphsRootPath) {
             this.graphsRootPath = graphsRootPath;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphsRepoName(String repoName) {
+            this.graphsRepoName = repoName;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphsRepoUrl(String url) {
+            this.graphsRepoUrl = url;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphsExtent(String extent) {
+            this.graphsExtent = extent;
             return this;
         }
 

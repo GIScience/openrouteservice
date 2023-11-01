@@ -21,7 +21,9 @@ public class EngineProperties {
     private int initThreads;
     private boolean preparationMode;
     private String sourceFile;
+    private String graphsExtent;
     private String graphsRootPath;
+    private int maxNumberOfGraphBackups;
     private ElevationProperties elevation;
     private ProfileProperties profileDefault;
     private Map<String, ProfileProperties> profiles;
@@ -50,12 +52,28 @@ public class EngineProperties {
         this.sourceFile = sourceFile;
     }
 
+    public String getGraphsExtent() {
+        return graphsExtent;
+    }
+
+    public void setGraphsExtent(String graphsExtent) {
+        this.graphsExtent = graphsExtent;
+    }
+
     public String getGraphsRootPath() {
         return graphsRootPath;
     }
 
     public void setGraphsRootPath(String graphsRootPath) {
         this.graphsRootPath = graphsRootPath;
+    }
+
+    public int getMaxNumberOfGraphBackups() {
+        return maxNumberOfGraphBackups;
+    }
+
+    public void setMaxNumberOfGraphBackups(int maxNumberOfGraphBackups) {
+        this.maxNumberOfGraphBackups = maxNumberOfGraphBackups;
     }
 
     public ElevationProperties getElevation() {
@@ -100,6 +118,7 @@ public class EngineProperties {
                         graphPath = Paths.get(rootGraphsPath, graphPath).toString();
                 }
                 convertedProfile.setGraphPath(graphPath);
+                convertedProfile.setGraphsExtent(graphsExtent);
                 convertedProfile.setEncoderOptions(profile.getEncoderOptionsString());
                 convertedProfile.setOptimize(profile.optimize != null ? profile.optimize : profileDefault.getOptimize());
                 convertedProfile.setEncoderFlagsSize(profile.encoderFlagsSize != null ? profile.encoderFlagsSize : profileDefault.getEncoderFlagsSize());
