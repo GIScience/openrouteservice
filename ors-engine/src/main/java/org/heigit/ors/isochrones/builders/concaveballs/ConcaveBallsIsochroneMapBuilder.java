@@ -17,8 +17,6 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.SPTEntry;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.*;
@@ -29,15 +27,8 @@ import org.heigit.ors.isochrones.GraphEdgeMapFinder;
 import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
-import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
-import org.heigit.ors.routing.RouteSearchContext;
-import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBikeFlagEncoder;
-import org.heigit.ors.util.GeomUtility;
-import org.locationtech.jts.geom.*;
+import org.heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
+import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;import org.locationtech.jts.geom.*;
 import org.locationtech.jts.index.quadtree.Quadtree;
 import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
@@ -45,59 +36,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
+public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
-    private static final boolean BUFFERED_OUTPUT = true;
-    private static final DistanceCalc dcFast = new DistancePlaneProjection();
-    private double searchWidth = 0.0007;
-    private double pointWidth = 0.0005;
-    private double visitorThreshold = 0.0013;
-    private final Envelope searchEnv = new Envelope();
-    private GeometryFactory geometryFactory;
-    private PointItemVisitor visitor = null;
+    private boolean logDetails = LOGGER.isDebugEnabled();
     private List<Coordinate> prevIsoPoints = null;
-    private TreeSet<Coordinate> treeSet;
 
-    private RouteSearchContext searchContext;
-
-    public void initialize(RouteSearchContext searchContext) {
-        geometryFactory = new GeometryFactory();
-        this.searchContext = searchContext;
-    }
-
+    @Override
     public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
         StopWatch swTotal = null;
         StopWatch sw = null;
-        if (LOGGER.isDebugEnabled()) {
+        if (logDetails) {
             swTotal = new StopWatch();
             swTotal.start();
             sw = new StopWatch();
             sw.start();
         }
+        double maxSpeed = determineMaxSpeed();
 
-        GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
-        String graphdate = graph.getProperties().get("datareader.import.date");
+        double meanSpeed = determineMeanSpeed(maxSpeed);
 
-        // 1. Find all graph edges for a given cost.
-        FlagEncoder encoder = searchContext.getEncoder();
-        double maxSpeed = encoder.getMaxSpeed();
-
-        if (encoder instanceof FootFlagEncoder || encoder instanceof HikeFlagEncoder) {
-            // in the GH FootFlagEncoder, the maximum speed is set to 15km/h which is way too high
-            maxSpeed = 4;
-        }
-
-        if (encoder instanceof WheelchairFlagEncoder) {
-            maxSpeed = WheelchairFlagEncoder.MEAN_SPEED;
-        }
-
-        double meanSpeed = maxSpeed;
-        if (encoder instanceof ORSAbstractFlagEncoder flagEncoder) {
-            meanSpeed = flagEncoder.getMeanSpeed();
-        }
-        if (encoder instanceof CommonBikeFlagEncoder flagEncoder) {
-            meanSpeed = flagEncoder.getMeanSpeed();
-        }
+        double metersPerSecond = maxSpeed / 3.6;
+        // only needed for reachfactor property
+        double meanMetersPerSecond = meanSpeed / 3.6;
 
         AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(searchContext, parameters);
 
@@ -107,9 +67,10 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
         IsochroneMap isochroneMap = new IsochroneMap(parameters.getTravellerId(), loc);
 
+        String graphdate = searchContext.getGraphHopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
         isochroneMap.setGraphDate(graphdate);
 
-        if (LOGGER.isDebugEnabled()) {
+        if (logDetails) {
             sw.stop();
 
             LOGGER.debug("Find edges: " + sw.getSeconds());
@@ -122,23 +83,19 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
         List<Coordinate> isoPoints = new ArrayList<>((int) (1.2 * edgeMap.getMap().size()));
 
-        if (LOGGER.isDebugEnabled()) {
+        if (logDetails) {
             sw = new StopWatch();
             sw.start();
         }
 
         markDeadEndEdges(edgeMap);
 
-        if (LOGGER.isDebugEnabled()) {
+        if (logDetails) {
             sw.stop();
             LOGGER.debug("Mark dead ends: " + sw.getSeconds());
         }
 
         int nRanges = parameters.getRanges().length;
-
-        double metersPerSecond = maxSpeed / 3.6;
-        // only needed for reachfactor property
-        double meanMetersPerSecond = meanSpeed / 3.6;
 
         double prevCost = 0;
         for (int i = 0; i < nRanges; i++) {
@@ -150,7 +107,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             float smoothingFactor = parameters.getSmoothingFactor();
             TravelRangeType isochroneType = parameters.getRangeType();
 
-            if (LOGGER.isDebugEnabled()) {
+            if (logDetails) {
                 sw = new StopWatch();
                 sw.start();
             }
@@ -168,7 +125,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
             Coordinate[] points = buildIsochrone(edgeMap, isoPoints, loc.x, loc.y, isoValue, prevCost, isochronesDifference, 0.85);
 
-            if (LOGGER.isDebugEnabled()) {
+            if (logDetails) {
                 sw.stop();
                 LOGGER.debug(i + " Find points: " + sw.getSeconds() + " " + points.length);
 
@@ -178,47 +135,16 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
             addIsochrone(isochroneMap, points, isoValue, maxRadius, meanRadius, smoothingFactor);
 
-            if (LOGGER.isDebugEnabled())
+            if (logDetails)
                 LOGGER.debug("Build concave hull total: " + sw.stop().getSeconds());
 
             prevCost = isoValue;
         }
 
-        if (LOGGER.isDebugEnabled())
+        if (logDetails)
             LOGGER.debug("Total time: " + swTotal.stop().getSeconds());
 
         return isochroneMap;
-    }
-
-    /**
-     * Converts the smoothing factor into a distance (which can be used in algorithms for generating isochrone polygons).
-     * The distance value returned is dependent on the radius and smoothing factor.
-     *
-     * @param smoothingFactor A factor that should be used in the smoothing process. Lower numbers produce a smaller
-     *                        distance (and so likely a more detailed polygon)
-     * @param maxRadius       The maximum radius of the isochrone (in metres)
-     * @return
-     */
-    private double convertSmoothingFactorToDistance(float smoothingFactor, double maxRadius) {
-        final double MINIMUM_DISTANCE = 0.006;
-
-        if (smoothingFactor == -1) {
-            // No user defined smoothing factor, so use defaults
-
-            // For shorter isochrones, we want to use a smaller minimum distance else we get inaccurate results
-            if (maxRadius < 5000)
-                return MINIMUM_DISTANCE;
-
-            // Use a default length (~1333m)
-            return 0.012;
-        }
-
-        double intervalDegrees = GeomUtility.metresToDegrees(maxRadius);
-        double maxLength = (intervalDegrees / 100f) * smoothingFactor;
-
-        if (maxLength < MINIMUM_DISTANCE)
-            maxLength = MINIMUM_DISTANCE;
-        return maxLength;
     }
 
     private void addIsochrone(IsochroneMap isochroneMap, Coordinate[] points, double isoValue, double maxRadius, double meanRadius, float smoothingFactor) {
@@ -232,7 +158,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         if (points.length == 0)
             return;
         StopWatch sw = new StopWatch();
-        if (LOGGER.isDebugEnabled()) {
+        if (logDetails) {
             sw = new StopWatch();
             sw.start();
         }
@@ -245,7 +171,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         Polygon polyShell = (Polygon) shellGeometry;
         copyConvexHullPoints(polyShell);
 
-        if (LOGGER.isDebugEnabled()) {
+        if (logDetails) {
             sw.stop();
             LOGGER.debug("Build shell concave hull " + sw.getSeconds());
 
@@ -254,7 +180,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         }
         isochroneMap.addIsochrone(new Isochrone(polyShell, isoValue, meanRadius));
 
-        if (LOGGER.isDebugEnabled()) {
+        if (logDetails) {
             sw.stop();
             LOGGER.debug("Adding holes " + sw.getSeconds());
 
@@ -282,63 +208,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
             if (!result.containsKey(edge.originalEdge))
                 edge.edge = -2;
-        }
-    }
-
-    public Boolean addPoint(List<Coordinate> points, Quadtree tree, double lon, double lat, boolean checkNeighbours) {
-        if (checkNeighbours) {
-            visitor.setPoint(lon, lat);
-            searchEnv.init(lon - searchWidth, lon + searchWidth, lat - searchWidth, lat + searchWidth);
-            tree.query(searchEnv, visitor);
-            if (!visitor.isNeighbourFound()) {
-                Coordinate p = new Coordinate(lon, lat);
-
-                if (!treeSet.contains(p)) {
-                    Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-                    tree.insert(env, p);
-                    points.add(p);
-                    treeSet.add(p);
-
-                    return true;
-                }
-            }
-        } else {
-            Coordinate p = new Coordinate(lon, lat);
-            if (!treeSet.contains(p)) {
-                Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-                tree.insert(env, p);
-                points.add(p);
-                treeSet.add(p);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private void addBufferPoints(List<Coordinate> points, Quadtree tree, double lon0, double lat0, double lon1,
-                                 double lat1, boolean addLast, boolean checkNeighbours, double bufferSize) {
-        double dx = (lon0 - lon1);
-        double dy = (lat0 - lat1);
-        double normLength = Math.sqrt((dx * dx) + (dy * dy));
-        double scale = bufferSize / normLength;
-
-        double dx2 = -dy * scale;
-        double dy2 = dx * scale;
-
-        addPoint(points, tree, lon0 + dx2, lat0 + dy2, checkNeighbours);
-        addPoint(points, tree, lon0 - dx2, lat0 - dy2, checkNeighbours);
-
-        // add a middle point if two points are too far from each other
-        if (normLength > 2 * bufferSize) {
-            addPoint(points, tree, (lon0 + lon1) / 2.0 + dx2, (lat0 + lat1) / 2.0 + dy2, checkNeighbours);
-            addPoint(points, tree, (lon0 + lon1) / 2.0 - dx2, (lat0 + lat1) / 2.0 - dy2, checkNeighbours);
-        }
-
-        if (addLast) {
-            addPoint(points, tree, lon1 + dx2, lat1 + dy2, checkNeighbours);
-            addPoint(points, tree, lon1 - dx2, lat1 - dy2, checkNeighbours);
         }
     }
 
@@ -422,7 +291,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                         // always use mode=3, since other ones do not provide correct results
                         PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
 
-                        if (LOGGER.isDebugEnabled()) {
+                        if (logDetails) {
                             sw.start();
                         }
                         PointList expandedPoints = new PointList(pl.size(), pl.is3D());
@@ -430,7 +299,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                         for (int i = 0; i < pl.size() - 1; i++)
                             splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, maxSplitLength);
                         pl.add(expandedPoints);
-                        if (LOGGER.isDebugEnabled()) {
+                        if (logDetails) {
                             sw.stop();
                         }
                         int size = pl.size();
@@ -474,13 +343,13 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                     PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
 
                     PointList expandedPoints = new PointList(pl.size(), pl.is3D());
-                    if (LOGGER.isDebugEnabled()) {
+                    if (logDetails) {
                         sw.start();
                     }
                     for (int i = 0; i < pl.size() - 1; i++)
                         splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, maxSplitLength);
                     pl.add(expandedPoints);
-                    if (LOGGER.isDebugEnabled()) {
+                    if (logDetails) {
                         sw.stop();
                     }
                     int size = pl.size();
@@ -526,7 +395,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                 }
             }
         }
-        if (LOGGER.isDebugEnabled())
+        if (logDetails)
             LOGGER.debug("Expanding edges " + sw.getSeconds());
 
         Coordinate[] coordinates = new Coordinate[points.size()];
