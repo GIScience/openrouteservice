@@ -59,6 +59,8 @@ check_user_group_permissions '${ORS_HOME}/.openrouteservice-jws5-permanent-state
 check_file_exists "$JWS_WEBAPPS_DIRECTORY/ors.war" true || SUCCESSFUL=false
 # Check the ownership of the file
 find_owned_content "$JWS_WEBAPPS_DIRECTORY/ors.war" "tomcat" "" 1 || SUCCESSFUL=false
+# Check the permissions
+check_user_group_permissions "$JWS_WEBAPPS_DIRECTORY/ors.war" "tomcat" "" "440" || SUCCESSFUL=false
 
 # Check user and group setup
 check_group_exists 'openrouteservice' true || SUCCESSFUL=false

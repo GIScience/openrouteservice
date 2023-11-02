@@ -281,15 +281,46 @@ check_user_group_permissions() {
     local permissions="$4"
 
     # Fail if any of the variables are empty
-    if [ -z "$path_to_file" ] || [ -z "$permissions" ] || [ -z "$user" ] || [ -z "$group" ]; then
+    if [ -z "$path_to_file" ] || [ -z "$permissions" ]; then
         log_error "Please provide all variables to the check_user_group_permissions function."
         return 1
     fi
 
-    local result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "stat -c '%a %U %G' $path_to_file")
-    if [[ "$result" != "$permissions $user $group" ]]; then
-        log_error "Permissions for $path_to_file should be $permissions $user $group but are $result"
+    # Fail if neither user nor group are set
+    if [ -z "$user" ] && [ -z "$group" ]; then
+        log_error "Please provide at least one of user or group to the check_user_group_permissions function."
         return 1
+    fi
+
+    if [ -n "$user" ] && [ -z "$group" ]; then
+      # Set group to empty string
+      group=""
+      # If only user is set, get stats without group
+      local result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "stat -c '%a %U' $path_to_file")
+      if [[ "$result" != "$permissions $user" ]]; then
+          log_error "Permissions for $path_to_file should be $permissions $user but are $result"
+          return 1
+      fi
+      log_success "Permissions for $path_to_file are $permissions $user as expected."
+      return 0
+    elif [ -z "$user" ] && [ -n "$group" ]; then
+      # Check for group only
+      # Set user to empty string
+      user=""
+      local result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "stat -c '%a %G' $path_to_file")
+      if [[ "$result" != "$permissions $group" ]]; then
+          log_error "Permissions for $path_to_file should be $permissions $group but are $result"
+          return 1
+      fi
+      log_success "Permissions for $path_to_file are $permissions $group as expected."
+      return 0
+    else
+      # Check for user and group
+      local result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "stat -c '%a %U %G' $path_to_file")
+      if [[ "$result" != "$permissions $user $group" ]]; then
+          log_error "Permissions for $path_to_file should be $permissions $user $group but are $result"
+          return 1
+      fi
     fi
     log_success "Permissions for $path_to_file are $permissions $user $group as expected."
 }
