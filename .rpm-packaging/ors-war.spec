@@ -202,7 +202,7 @@ alternatives --set java $(readlink -f /etc/alternatives/jre_%{java_version})/bin
 
 # chown to the tomcat user and ors group and give owner read and write permissions and group read and execute permissions
 chown %{tomcat_user} ${jws_webapps_folder}/ors.war
-chmod 750 ${jws_webapps_folder}/ors.war
+chmod 440 ${jws_webapps_folder}/ors.war
 # Set ownership of the ors home folder to the ors user and ors group
 chown -R %{ors_user}:%{ors_group} ${ORS_HOME}
 # Make everything 770 for Owner read+write and Group read+write and the ability to create folders.
