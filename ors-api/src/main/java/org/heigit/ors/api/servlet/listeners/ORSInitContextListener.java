@@ -25,6 +25,7 @@ import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.EngineProperties;
+import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
@@ -77,7 +78,7 @@ public class ORSInitContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent contextEvent) {
         try {
-            LOGGER.info("Shutting down ORS and releasing resources.");
+            LOGGER.info("Shutting down openrouteservice %s and releasing resources.".formatted(AppInfo.getEngineInfo()));
             FormatUtility.unload();
             if (RoutingProfileManagerStatus.isReady())
                 RoutingProfileManager.getInstance().destroy();
