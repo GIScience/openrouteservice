@@ -153,6 +153,7 @@ else
     echo "export ORS_HOME=${ORS_HOME}" >> ${jws_config_location}
     echo "Permanently saving -Xms${min_ram}k and -Xmx${max_ram}k in ${jws_config_location}."
     echo 'CATALINA_OPTS="-Xms'"${min_ram}"'k -Xmx'"${max_ram}"'k"' >> ${jws_config_location}
+    echo "export ORS_LOG_ROTATION='0 0 0 * * ?'" >> ${jws_config_location}
 fi
 
 # Check for the existence of an old ors installation in the webapps folder and clean it.
