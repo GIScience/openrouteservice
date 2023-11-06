@@ -13,7 +13,7 @@ Release: 1
 Summary: Apply SELinux rules for openrouteservice-jws5
 License: GPL 3
 BuildArch: noarch
-Requires:  openrouteservice-jws5
+Requires:  openrouteservice-jws5 = %{ors_version}
 Requires:  jws5-tomcat-selinux
 Vendor: HeiGIT gGmbH
 
@@ -94,11 +94,8 @@ echo "jws_config_location=${jws_config_location}" >> ${ORS_HOME}/.openrouteservi
 # Source the openrouteservice-jws5-permanent-state file from ${ORS_HOME} to get the permanent variables
 . ${ORS_HOME}/.openrouteservice-jws5-permanent-state
 
-
 # copy permissions of jws tomcat folder to openrouteservice home folder
 semanage fcontext -a -t jws5_tomcat_var_lib_t ${ORS_HOME}
 restorecon -vvRF /opt/openrouteservice
-
-
 
 %postun
