@@ -7,17 +7,22 @@
       "Console": {
         "name": "stdout",
         "PatternLayout": {
-          "pattern": "%d{dd MMM HH:mm:ss} %highlight{%-7p} %style{%50t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
+          "pattern": "%d{yyyy-MM-dd HH:mm:ss,SSS} %highlight{%-7p} %style{%50t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
         }
       },
       "RollingFile": {
         "name": "orslogfile",
         "fileName": "${sys:logPath:-logs/}ors.log",
-        "filePattern": "${sys:logPath:-logs/}ors.%d{yyyy-MM-dd}.log.gz",
+        "filePattern": "${sys:logPath:-logs/}ors.%d{yyyy-MM-dd-HH-mm-ss}.log.gz",
         "PatternLayout": {
           "pattern": "%d %p [%c{2}] - %m%n"
         },
-        "TimeBasedTriggeringPolicy": { "interval": "7", "modulate": "true" }
+        "Policies": {
+          "CronTriggeringPolicy": {
+            "schedule": "${env:ORS_LOG_PATTERN:-0 0 0 * * ?}",
+            "evaluateOnStartup": "true"
+          }
+        }
       }
     },
     "loggers": {
