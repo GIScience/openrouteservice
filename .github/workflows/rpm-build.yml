@@ -150,18 +150,18 @@ jobs:
           rpmbuild -bb ${{ github.workspace }}/.rpm-packaging/ors-selinux.spec
           
           # Save the RPM package name and path as an step output
-          export RPM_ORS_NAME=openrouteservice-${{ env.ORS_VERSION }}-jws5-el8-noarch.rpm
-          export RPM_ORS_PATH=${{ github.workspace }}/$RPM_ORS_NAME
-          echo "RPM_ORS_NAME=$RPM_ORS_NAME" >> "$GITHUB_ENV"
-          echo "RPM_ORS_PATH=$RPM_ORS_PATH" >> "$GITHUB_ENV"
+          export rpm_ors_name=openrouteservice-${{ env.ORS_VERSION }}-jws5-el8-noarch.rpm
+          export rpm_ors_path=${{ github.workspace }}/$rpm_ors_name
+          echo "RPM_ORS_NAME=$rpm_ors_name" >> "$GITHUB_ENV"
+          echo "RPM_ORS_PATH=$rpm_ors_path" >> "$GITHUB_ENV"
           export rpm_selinux_name=openrouteservice-${{ env.ORS_VERSION }}-jws5-selinux-el8-noarch.rpm
           export rpm_selinux_path=${{ github.workspace }}/$rpm_selinux_name
           echo "RPM_SELINUX_NAME=$rpm_selinux_name" >> "$GITHUB_ENV"
           echo "RPM_SELINUX_PATH=$rpm_selinux_path" >> "$GITHUB_ENV"
           
           # Copy the RPM package to the workspace
-          cp -f $RPM_BUILD_DIR/RPMS/noarch/openrouteservice-jws5-${{ env.ORS_VERSION }}.noarch.rpm $RPM_ORS_PATH
-          cp -f $RPM_BUILD_DIR/RPMS/noarch/openrouteservice-jws5-selinux-${{ env.ORS_VERSION }}.noarch.rpm $RPM_ORS_PATH
+          cp -f $RPM_BUILD_DIR/RPMS/noarch/openrouteservice-jws5-${{ env.ORS_VERSION }}-1.noarch.rpm $rpm_ors_path
+          cp -f $RPM_BUILD_DIR/RPMS/noarch/openrouteservice-jws5-selinux-${{ env.ORS_VERSION }}-1.noarch.rpm $rpm_selinux_path
 
       - name: Import the GPG key
         uses: MichaelsJP/ghaction-import-gpg@v1.0
@@ -314,9 +314,13 @@ jobs:
           
           # Restart the systemd service
           podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'systemctl restart jws5-tomcat.service'
+
+          echo "Print container logs"
+          podman logs ${{ env.CONTAINER_NAME }}
           
           echo "Waiting for the podman container to build graphs and return 200"
           .github/utils/url_check.sh '127.0.0.1:8080/ors/v2/health' 200 ${{ env.HEALTH_WAIT_TIME }}
+
       - name: Print the container logs for debugging
         if: runner.debug == '1'
         shell: bash
