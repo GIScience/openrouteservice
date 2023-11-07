@@ -187,3 +187,13 @@ echo "# ssh -o \"StrictHostKeyChecking=no\" -o \"PasswordAuthentication=yes\" ro
 # Show the pure lxc connect command
 echo "# lxc exec $container_name -- bash"
 echo "####################################################"
+
+lxc file push ../ors-api/src/test/files/heidelberg.osm.gz "$container_name/opt/openrouteservice/files/osm-file.osm.gz"
+lxc exec "$container_name" -- bash -c "chown openrouteservice:openrouteservice /opt/openrouteservice/files/osm-file.osm.gz"
+
+lxc exec "$container_name" -- bash -c "cp -f /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json"
+lxc exec "$container_name" -- bash -c "chown openrouteservice:openrouteservice /opt/openrouteservice/config/ors-config.json"
+lxc exec "$container_name" -- bash -c "systemctl start jws5-tomcat.service"
+
+
+#lxc exec "$container_name" -- bash -c "curl -X POST 'http://10.5.184.222:8080/v2/directions/driving-car' -H 'Content-Type: application/json; charset=utf-8' -d '{\"coordinates\":[[8.680916, 49.410973], [8.687782, 49.424597]]}'"

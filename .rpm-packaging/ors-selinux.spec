@@ -99,3 +99,6 @@ semanage fcontext -a -t jws5_tomcat_var_lib_t ${ORS_HOME}
 restorecon -vvRF /opt/openrouteservice
 
 %postun
+
+semanage fcontext -a -t unlabeled_t ${ORS_HOME}
+restorecon -vvRF /opt/openrouteservice
