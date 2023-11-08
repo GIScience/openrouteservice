@@ -83,7 +83,13 @@ find_owned_content '${ORS_HOME}/*' "" "root" 0 || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "root" "" 0 || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "tomcat" "" 0 || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "" "tomcat" 0 || SUCCESSFUL=false
-
+# Check selinux labels
+check_selinux_label '${ORS_HOME}/.elevation-cache'                        "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
+check_selinux_label '${ORS_HOME}/.graphs'                                 "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
+check_selinux_label '${ORS_HOME}/.openrouteservice-jws5-permanent-state'  "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
+check_selinux_label '${ORS_HOME}/config'                                  "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
+check_selinux_label '${ORS_HOME}/files'                                   "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
+check_selinux_label '${ORS_HOME}/logs'                                    "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
 
 # Fail if any of the checks failed
 if [[ "$SUCCESSFUL" == false ]]; then

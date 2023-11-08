@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AppConfig {
 
@@ -82,6 +83,12 @@ public class AppConfig {
             }
             LOGGER.info("Loading configuration from " + configFile);
             config = ConfigFactory.parseFile(configFile);
+
+            try {
+                config.getConfig("ors");
+            } catch (ConfigException e) {
+                throw new IOException("Configuration file could not be read.");
+            }
             config = overrideFromEnvVariables(config);
 
         } catch (IOException ioe) {
@@ -148,8 +155,19 @@ public class AppConfig {
             // Print info about the baseConfig
             baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.graphs_root_path=".concat(FilenameUtils.concat(orsHome, ".graphs"))).withFallback(baseConfig);
             baseConfig = ConfigFactory.parseString("ors.services.routing.profiles.default_params.elevation_cache_path=".concat(FilenameUtils.concat(orsHome, ".elevation_cache"))).withFallback(baseConfig);
-            // Find a better solution to this. For now, we hard code the path to the osm file and its file name
-            baseConfig = ConfigFactory.parseString("ors.services.routing.sources=[".concat(FilenameUtils.concat(orsHome, "files/osm-file.osm.gz")).concat("]")).withFallback(baseConfig);
+
+            // Find a better solution to this. For now, we prepend ORS_HOME to any given file paths
+            List<String> sources = baseConfig.getStringList("ors.services.routing.sources");
+            if (sources.isEmpty()) {
+                baseConfig = ConfigFactory.parseString("ors.services.routing.sources=[".concat(FilenameUtils.concat(orsHome, "files/osm-file.osm.gz")).concat("]")).withFallback(baseConfig);
+            } else {
+                List<String> adjustedSources = new ArrayList<>();
+                for (String src : sources) {
+                    adjustedSources.add(FilenameUtils.concat(orsHome, src));
+                }
+                baseConfig = ConfigFactory.parseString("ors.services.routing.sources=[".concat(adjustedSources.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", "))).concat("]")).withFallback(baseConfig);
+            }
+
             // Adjust the logging path
             baseConfig = ConfigFactory.parseString("ors.logging.location=".concat(FilenameUtils.concat(orsHome, "logs"))).withFallback(baseConfig);
         }

@@ -91,13 +91,13 @@ jobs:
           cleaned_branch=${branch//[^a-zA-Z0-9_-]/}
           
           # Add the github run ID to the branch name
-          cleaned_branch=cleaned_branch-${{ github.run_id }}
+          cleaned_branch=$cleaned_branch-${{ github.run_id }}
           
           # Save the branch name to the environment
           echo "branch=$cleaned_branch" >> $GITHUB_OUTPUT
           
           # Set the testing and snapshot repository url to the job output
-          echo "rpm_repo_testing_url=$RPM_REPO_TESTING_URL/$branch" >> $GITHUB_OUTPUT
+          echo "rpm_repo_testing_url=$RPM_REPO_TESTING_URL/$cleaned_branch" >> $GITHUB_OUTPUT
           echo "rpm_repo_snapshots_url=$RPM_REPO_SNAPSHOTS_URL/openrouteservice-jws" >> $GITHUB_OUTPUT
           echo "rpm_repo_releases_url=$RPM_REPO_RELEASES_URL/openrouteservice-jws" >> $GITHUB_OUTPUT
           
@@ -132,7 +132,7 @@ jobs:
           echo "CONTAINER_NAME=$CONTAINER_NAME" >> "$GITHUB_ENV"
           echo "PUSH_TO_DOCKER_HUB=$PUSH_TO_DOCKER_HUB" >> "$GITHUB_ENV"
 
-      - name: Build the RPM package
+      - name: Build the RPM packages
         id: rpmbuild
         run: |
           # Define the RPM build directory
@@ -147,15 +147,21 @@ jobs:
           cp -f ${{ github.workspace }}/ors-api/target/ors.war $RPM_BUILD_DIR/BUILD/
           cp -f ${{ github.workspace }}/.rpm-packaging/example-config.json $RPM_BUILD_DIR/BUILD/
           rpmbuild -bb ${{ github.workspace }}/.rpm-packaging/ors-war.spec
+          rpmbuild -bb ${{ github.workspace }}/.rpm-packaging/ors-selinux.spec
           
           # Save the RPM package name and path as an step output
-          export rpm_name=openrouteservice-${{ env.ORS_VERSION }}-jws5-el8-noarch.rpm
-          export rpm_path=${{ github.workspace }}/$rpm_name
-          echo "RPM_NAME=$rpm_name" >> "$GITHUB_ENV"
-          echo "RPM_PATH=$rpm_path" >> "$GITHUB_ENV"
+          export rpm_ors_name=openrouteservice-${{ env.ORS_VERSION }}-jws5-el8-noarch.rpm
+          export rpm_ors_path=${{ github.workspace }}/$rpm_ors_name
+          echo "RPM_ORS_NAME=$rpm_ors_name" >> "$GITHUB_ENV"
+          echo "RPM_ORS_PATH=$rpm_ors_path" >> "$GITHUB_ENV"
+          export rpm_selinux_name=openrouteservice-${{ env.ORS_VERSION }}-jws5-selinux-el8-noarch.rpm
+          export rpm_selinux_path=${{ github.workspace }}/$rpm_selinux_name
+          echo "RPM_SELINUX_NAME=$rpm_selinux_name" >> "$GITHUB_ENV"
+          echo "RPM_SELINUX_PATH=$rpm_selinux_path" >> "$GITHUB_ENV"
           
           # Copy the RPM package to the workspace
-          cp -f $RPM_BUILD_DIR/RPMS/noarch/*.rpm $rpm_path
+          cp -f $RPM_BUILD_DIR/RPMS/noarch/openrouteservice-jws5-${{ env.ORS_VERSION }}-1.noarch.rpm $rpm_ors_path
+          cp -f $RPM_BUILD_DIR/RPMS/noarch/openrouteservice-jws5-selinux-${{ env.ORS_VERSION }}-1.noarch.rpm $rpm_selinux_path
 
       - name: Import the GPG key
         uses: MichaelsJP/ghaction-import-gpg@v1.0
@@ -184,13 +190,20 @@ jobs:
 
       - name: Sign the RPM package
         run: |
-          rpm --addsign ${{ env.RPM_PATH }}
+          rpm --addsign ${{ env.RPM_ORS_PATH }}
+          rpm --addsign ${{ env.RPM_SELINUX_PATH }}
           # Print signature details
-          rpm --query -pi ${{ env.RPM_PATH }}
+          rpm --query -pi ${{ env.RPM_ORS_PATH }}
+          rpm --query -pi ${{ env.RPM_SELINUX_PATH }}
           # Verify the signature and fail if it is not valid
-          rpm --checksig ${{ env.RPM_PATH }}
+          rpm --checksig ${{ env.RPM_ORS_PATH }}
           if [ $? -ne 0 ]; then
             echo "RPM signature is not valid"
+            exit 1
+          fi
+          rpm --checksig ${{ env.RPM_SELINUX_PATH }}
+          if [ $? -ne 0 ]; then
+            echo "RPM_SELINUX signature is not valid"
             exit 1
           fi
 
@@ -204,7 +217,8 @@ jobs:
       - name: Upload the testing RPM
         run: |
           # Upload the RPM package to the testing repository
-          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/noarch/${{ env.RPM_NAME }}'
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_ORS_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/noarch/${{ env.RPM_ORS_NAME }}'
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_SELINUX_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_testing_url }}/noarch/${{ env.RPM_SELINUX_NAME }}'
 
       - name: Login to Docker registry
         uses: docker/login-action@v2
@@ -300,9 +314,10 @@ jobs:
           
           # Restart the systemd service
           podman exec -u root ${{ env.CONTAINER_NAME }} sh -c 'systemctl restart jws5-tomcat.service'
-          
+
           echo "Waiting for the podman container to build graphs and return 200"
           .github/utils/url_check.sh '127.0.0.1:8080/ors/v2/health' 200 ${{ env.HEALTH_WAIT_TIME }}
+
       - name: Print the container logs for debugging
         if: runner.debug == '1'
         shell: bash
@@ -337,8 +352,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ env.RPM_PATH }}
-          asset_name: ${{ env.RPM_NAME }}
+          asset_path: ${{ env.RPM_ORS_PATH }}
+          asset_name: ${{ env.RPM_ORS_NAME }}
           asset_content_type: application/x-rpm
 
       - name: Upload the RPM package to the nexus releases rpm registry
@@ -347,7 +362,8 @@ jobs:
           # Check that the RPM Nexus releases repository exists and fail completely if not.
           .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
           # Upload the RPM package to the nexus releases rpm registry
-          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/noarch/${{ env.RPM_NAME }}'
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_ORS_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/noarch/${{ env.RPM_ORS_NAME }}'
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_SELINUX_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/noarch/${{ env.RPM_SELINUX_NAME }}'
           # Do a curl request to the releases repository and wait for the repomd.xml to be initialized to ensure a correct repository
           .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_releases_url }}/repodata/repomd.xml' 200 ${{ env.RPM_REPO_INIT_WAIT_TIME }}
 
@@ -358,7 +374,8 @@ jobs:
           # Check that the RPM Nexus snapshots repository exists and fail completely if not.
           .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
           # Upload the RPM package to the nexus snapshots rpm registry
-          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/noarch/${{ env.RPM_NAME }}'
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_ORS_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/noarch/${{ env.RPM_ORS_NAME }}'
+          .github/utils/upload_rpm_package.sh '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' '${{ env.RPM_SELINUX_PATH }}' '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/noarch/${{ env.RPM_SELINUX_NAME }}'
           # Do a curl request to the releases repository and wait for the repomd.xml to be initialized to ensure a correct repository
           .github/utils/url_check.sh '${{ steps.job_environment_variables.outputs.rpm_repo_snapshots_url }}/repodata/repomd.xml' 200 ${{ env.RPM_REPO_INIT_WAIT_TIME }}
 
