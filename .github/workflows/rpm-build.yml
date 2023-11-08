@@ -91,7 +91,7 @@ jobs:
           cleaned_branch=${branch//[^a-zA-Z0-9_-]/}
           
           # Add the github run ID to the branch name
-          cleaned_branch=cleaned_branch-${{ github.run_id }}
+          cleaned_branch=$cleaned_branch-${{ github.run_id }}
           
           # Save the branch name to the environment
           echo "branch=$cleaned_branch" >> $GITHUB_OUTPUT
