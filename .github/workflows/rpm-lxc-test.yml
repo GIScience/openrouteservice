@@ -1,0 +1,122 @@
+name: Package Java WAR into RPM with JBoss Web Server 5
+
+on:
+  release:
+    types: [ created ]
+    branches: [ releases/v7.2.* ]
+  workflow_dispatch:
+  pull_request:
+    branches: [ releases/v7.2.* ]
+  push:
+    branches: [ releases/v7.2.* ]
+env:
+  HEALTH_WAIT_TIME: 200
+  RPM_TESTING_REPO_NAME: 'openrouteservice-rpm-testing'
+  RPM_REPO_TESTING_FOLDER: 'testing'
+  LXD_VERSION: 'latest/stable'
+  LXD_IMAGE: 'images:rockylinux/8/amd64'
+  LXD_CONTAINER: 'ors-rhel-selinux'
+
+jobs:
+  lxc-test:
+    name: Build lxc image to test selinux rpm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.2.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup LXD
+        uses: whywaita/setup-lxd@v1
+        with:
+          lxd_version: ${{ env.LXD_VERSION }}
+
+      - name: Check container cache
+        id: get-cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.LXD_CONTAINER }}.tar.xz
+          key: ${{ env.LXD_CONTAINER }}-${{ hashFiles('${{ env.LXD_CONTAINER }}.tar.xz') }}
+
+      - name: Import container on cache hit
+        shell: bash
+        if: steps.get-cache.outputs.cache-hit == 'true'
+        run: |
+          echo "Start importing container " `date`
+          lxc import rhel-container.tar.xz
+          lxc start ${{ env.LXD_CONTAINER }}
+          echo "Done importing container " `date`
+
+      - name: Prepare RHEL image on cache miss
+        shell: bash
+        if: steps.get-cache.outputs.cache-hit != 'true'
+        run: |
+          echo "Start creating container " `date`
+          lxc launch  ${{ env.LXD_IMAGE }} ${{ env.LXD_CONTAINER }} --vm -c security.secureboot=false -c limits.cpu=4 -c limits.memory=5GiB
+        
+          echo "Prepare the container for convert2rhel"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "curl -o /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release https://www.redhat.com/security/data/fd431d51.txt && curl -o /etc/yum.repos.d/convert2rhel.repo https://ftp.redhat.com/redhat/convert2rhel/8/convert2rhel.repo && \
+          dnf -y update && dnf -y install convert2rhel &&  echo org = ${{ secrets.REDHAT_ORG }} >> /etc/convert2rhel.ini && echo activation_key = ${{ secrets.REDHAT_ACTIVATION_KEY_NAME }} >> /etc/convert2rhel.ini"
+          lxc restart ${{ env.LXD_CONTAINER }}
+          echo "Convert the container to RHEL"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "convert2rhel -y"
+          lxc restart ${{ env.LXD_CONTAINER }}
+          echo "Subscribe"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "subscription-manager register --force --org ${{ secrets.REDHAT_ORG }} --activationkey ${{ secrets.REDHAT_ACTIVATION_KEY_NAME }}"
+      
+          echo "Installing additional packages"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "dnf -y update && dnf -y install htop vim less audit setroubleshoot-server selinux-policy-targeted policycoreutils policycoreutils-python-utils setools setools-console setroubleshoot openssh-server openssh-clients"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "dnf group install -y jws5"
+      
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "sudo systemctl enable --now sshd"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "echo \"root:root\" | chpasswd"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "dnf clean all"
+
+          echo "Enable selinux"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "echo SELINUX=permissive > /etc/selinux/config"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "setenforce 0"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "sestatus"
+      
+          echo "Set the ORS_HOME env variable"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "mkdir -p /opt/openrouteservice"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "echo \"export ORS_HOME=/opt/openrouteservice\" >> /etc/profile"
+
+          lxc export ${{ env.LXD_CONTAINER }} ${{ env.LXD_CONTAINER }}.tar.xz
+          echo "Done creating container " `date`
+
+      - name: Install and test ORS
+        shell: bash
+        if: steps.get-cache.outputs.cache-hit == 'true'
+        run: |
+          echo "Setting up test repo"
+          rpm_repo_testing_url='${{ secrets.NEXUS_URL }}/repository/${{ env.RPM_TESTING_REPO_NAME }}/${{ env.RPM_REPO_TESTING_FOLDER }}/releases-v72x-6798669689'
+          sed -i "s|baseurl=.*|baseurl=$rpm_repo_testing_url |g" .rpm-packaging/example.repo
+          lxc file push .rpm-packaging/example.repo "${{ env.LXD_CONTAINER }}//etc/yum.repos.d/ors.repo"
+
+          echo "Installing ORS"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c 'dnf update -y'
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c 'dnf clean packages'
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "dnf install -y openrouteservice-jws5-selinux"
+
+          echo "Pushing required files"
+          lxc file push ors-api/src/test/files/heidelberg.osm.gz "${{ env.LXD_CONTAINER }}/opt/openrouteservice/files/osm-file.osm.gz"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "chown openrouteservice:openrouteservice /opt/openrouteservice/files/osm-file.osm.gz"
+
+          lxc file push ors-api/src/test/files/elevation/srtm_38_03.gh "${{ env.LXD_CONTAINER }}/opt/openrouteservice/.elevation-cache/srtm_38_03.gh"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "chown openrouteservice:openrouteservice /opt/openrouteservice/.elevation-cache/srtm_38_03.gh"
+          
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "cp -f /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json"
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "chown openrouteservice:openrouteservice /opt/openrouteservice/config/ors-config.json"
+          
+          lxc exec ${{ env.LXD_CONTAINER }} -- bash -c "systemctl start jws5-tomcat.service"
+
+          echo "Checking the post install environment"
+          bash ${{ github.workspace }}/.rpm-packaging/rhel8_post_install_check.sh
+
+          ip_address=$(lxc exec ${{ env.LXD_CONTAINER }} -- ip addr show enp5s0 | grep -w inet | awk '{print $2}' | awk -F'/' '{print $1}')
+          echo "LXC container running with IP $ip_address"
+          
+          echo "Waiting for the LXC container to build graphs and return 200"
+          .github/utils/url_check.sh '$ip_address:8080/ors/v2/health' 200 ${{ env.HEALTH_WAIT_TIME }}
