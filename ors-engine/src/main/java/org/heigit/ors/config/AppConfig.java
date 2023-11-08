@@ -14,10 +14,7 @@
 package org.heigit.ors.config;
 
 import com.google.common.base.Strings;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValue;
+import com.typesafe.config.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.util.FileUtility;
@@ -86,6 +83,12 @@ public class AppConfig {
             }
             LOGGER.info("Loading configuration from " + configFile);
             config = ConfigFactory.parseFile(configFile);
+
+            try {
+                config.getConfig("ors");
+            } catch (ConfigException e) {
+                throw new IOException("Configuration file could not be read.");
+            }
             config = overrideFromEnvVariables(config);
 
         } catch (IOException ioe) {
