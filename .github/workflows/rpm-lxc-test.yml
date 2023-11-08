@@ -1,4 +1,4 @@
-name: Package Java WAR into RPM with JBoss Web Server 5
+name: LXD test
 
 on:
   release:
@@ -22,15 +22,34 @@ jobs:
     name: Build lxc image to test selinux rpm
     runs-on: ubuntu-latest
     steps:
+      - name: Check cpuinfo
+        shell: bash
+        run: |
+          cat /proc/cpuinfo
+
       - name: Checkout
         uses: actions/checkout@v2.2.0
         with:
           fetch-depth: 0
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+
+#          sudo apt-get -y install snapd
+#          sudo systemctl start snapd.service
+
       - name: Setup LXD
         uses: whywaita/setup-lxd@v1
         with:
           lxd_version: ${{ env.LXD_VERSION }}
+
+      - name: Init LXD
+        shell: bash
+        run: |
+          lxd init --auto
+          lxd init --dump
+          sudo systemctl status snap.lxd.daemon.service
 
       - name: Check container cache
         id: get-cache
