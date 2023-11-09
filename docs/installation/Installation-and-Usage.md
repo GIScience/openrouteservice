@@ -123,7 +123,7 @@ subsequent subfolders (initially empty unless manually created):
 
 ```bash
 /opt/openrouteservice/ # Ownership: 770 openrouteservice:openrouteservice | Desc: Base for $ORS_HOME
-├── .elevation-cache   # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the elevation cache
+├── .elevation_cache   # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the elevation cache
 ├── logs               # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the log files
 ├── .graphs            # Ownership: 770 openrouteservice:openrouteservice | Desc: Contains the graph files when built
 ├── files              # Ownership: 770 openrouteservice:openrouteservice | Desc: Should contain the OSM file(s)

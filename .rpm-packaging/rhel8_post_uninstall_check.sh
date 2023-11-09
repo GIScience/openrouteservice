@@ -24,7 +24,7 @@ check_rpm_installed 'openrouteservice-jws5' false || SUCCESSFUL=false
 # Check the correct directory and file structure
 check_file_exists '${ORS_HOME}/config/example-config.json' true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/config/ors-config.json' true || SUCCESSFUL=false
-check_file_exists '${ORS_HOME}/.elevation-cache/srtm_38_03.gh' true || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/.elevation_cache/srtm_38_03.gh' true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/files/osm-file.osm.gz' true || SUCCESSFUL=false
 # shellcheck disable=SC2016
 # The webapps folder belongs to JWS and shouldn't be removed
@@ -33,7 +33,7 @@ check_folder_exists "$JWS_WEBAPPS_DIRECTORY" true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/config' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/logs' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/files' true || SUCCESSFUL=false
-check_folder_exists '${ORS_HOME}/.elevation-cache' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/.elevation_cache' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/.graphs' true || SUCCESSFUL=false
 # The webapps/ors folder and the ors.war should not exist. Else ors would still be deployed
 # shellcheck disable=SC2016
