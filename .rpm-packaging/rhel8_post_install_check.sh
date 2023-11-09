@@ -24,14 +24,14 @@ echo "Checking the installation"
 check_rpm_installed 'openrouteservice-jws5' true || SUCCESSFUL=false
 # Check the correct directory and file structure
 check_file_exists '${ORS_HOME}/config/example-config.json' true || SUCCESSFUL=false
-check_file_exists '${ORS_HOME}/.elevation-cache/srtm_38_03.gh' true || SUCCESSFUL=false
+check_file_exists '${ORS_HOME}/.elevation_cache/srtm_38_03.gh' true || SUCCESSFUL=false
 check_file_exists '${ORS_HOME}/files/osm-file.osm.gz' true || SUCCESSFUL=false
 # shellcheck disable=SC2016
 check_folder_exists "$JWS_WEBAPPS_DIRECTORY" true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/config' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/logs' true || SUCCESSFUL=false
-check_folder_exists '${ORS_HOME}/.elevation-cache' true || SUCCESSFUL=false
+check_folder_exists '${ORS_HOME}/.elevation_cache' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/files' true || SUCCESSFUL=false
 check_folder_exists '${ORS_HOME}/.graphs' true || SUCCESSFUL=false
 
@@ -44,7 +44,7 @@ check_line_in_file "max_ram=" '${ORS_HOME}/.openrouteservice-jws5-permanent-stat
 
 # Check 770 permissions
 check_user_group_permissions '${ORS_HOME}/' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
-check_user_group_permissions '${ORS_HOME}/.elevation-cache' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
+check_user_group_permissions '${ORS_HOME}/.elevation_cache' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
 check_user_group_permissions '${ORS_HOME}/.graphs' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
 check_user_group_permissions '${ORS_HOME}/logs' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
 check_user_group_permissions '${ORS_HOME}/config' "openrouteservice" "openrouteservice" "770" || SUCCESSFUL=false
@@ -84,7 +84,7 @@ find_owned_content '${ORS_HOME}/*' "root" "" 0 || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "tomcat" "" 0 || SUCCESSFUL=false
 find_owned_content '${ORS_HOME}/*' "" "tomcat" 0 || SUCCESSFUL=false
 # Check selinux labels
-check_selinux_label '${ORS_HOME}/.elevation-cache'                        "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
+check_selinux_label '${ORS_HOME}/.elevation_cache'                        "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
 check_selinux_label '${ORS_HOME}/.graphs'                                 "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
 check_selinux_label '${ORS_HOME}/.openrouteservice-jws5-permanent-state'  "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled
 check_selinux_label '${ORS_HOME}/config'                                  "" "" "" "" 0 || SUCCESSFUL=false # change to "*" "*" "jws5_var_lib_t" "*" when container has selinux enabled

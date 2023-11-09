@@ -259,7 +259,7 @@ jobs:
           # Mount the elevation file to avoid downloading it
           # Mount the osm pbf file for the graph build
           podman run -it -d -p 8080:8080 -u root --systemd true --name ${{ env.CONTAINER_NAME }} \
-            -v $(pwd)/ors-api/src/test/files/elevation/srtm_38_03.gh:/opt/openrouteservice/.elevation-cache/srtm_38_03.gh \
+            -v $(pwd)/ors-api/src/test/files/elevation/srtm_38_03.gh:/opt/openrouteservice/.elevation_cache/srtm_38_03.gh \
             -v $(pwd)/ors-api/src/test/files/heidelberg.osm.gz:/opt/openrouteservice/files/osm-file.osm.gz  \
             -v $(pwd)/.rpm-packaging/example.repo:/etc/yum.repos.d/ors.repo \
             -e ORS_HOME=/opt/openrouteservice \

@@ -190,7 +190,7 @@ mkdir -p "${ORS_HOME}/.graphs"
 mkdir -p "${ORS_HOME}/logs"
 mkdir -p "${ORS_HOME}/config"
 mkdir -p "${ORS_HOME}/files"
-mkdir -p "${ORS_HOME}/.elevation-cache"
+mkdir -p "${ORS_HOME}/.elevation_cache"
 
 echo "Copy %{ors_version}_ors.war to ${jws_webapps_folder}"
 cp -f %{ors_temporary_files_location}/config/example-config.json ${ORS_HOME}/config/example-config.json

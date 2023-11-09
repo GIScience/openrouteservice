@@ -88,7 +88,7 @@
             "encoder_flags_size": 8,
             "graphs_root_path": ".graphs",
             "elevation_provider": "multi",
-            "elevation_cache_path": ".elevation-cache",
+            "elevation_cache_path": ".elevation_cache",
             "elevation_cache_clear": false,
             "instructions": true,
             "maximum_distance": 100000,
