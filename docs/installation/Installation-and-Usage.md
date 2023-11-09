@@ -173,6 +173,15 @@ cp /opt/openrouteservice/config/config-example.json /opt/openrouteservice/config
 curl http://127.0.0.1:8080/ors/v2/status
 ```
 
+## Alternative installation of `openrouteservice-jws5-selinux` RPM Package
+
+To install openrouteservice on a selinux enabled system you can also use a specialized rpm package:
+```bash
+sudo dnf clean all && sudo dnf check-update && sudo dnf install -y openrouteservice-jws5-selinux
+```
+This will basically install `openrouteservice-jws5` and additionally set a security context of `system_u:object_r:jws5_tomcat_var_lib_t:s0` on the directory specified by the variable `ORS_HOME`. Prerequisite is that the `semanage` command is available on the target system. 
+This is the same context as the Tomcat webapps folder if JWS5 is configured with the `jws5-tomcat-selinux` package.
+
 ---
 
 ## Custom settings for JWS 5.x
