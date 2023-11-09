@@ -69,31 +69,31 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void from_null() {
-        assertThrows(NullPointerException.class, () -> ORSGraphInfoV1ProfilePropertiesBuilder.from(null).build());
+    void from_null() {
+        assertThrows(NullPointerException.class, () -> ORSGraphInfoV1ProfilePropertiesBuilder.from(null));
     }
 
     @Test
-    public void from() {
+    void from() {
         EngineProperties.ProfileProperties profileProperties = getInitialProfileProperties();
         ORSGraphInfoV1ProfileProperties opp = ORSGraphInfoV1ProfilePropertiesBuilder.from(profileProperties).build();
         assertInitialProperties(opp);
     }
 
     @Test
-    public void overrideWith_emptyProperties() {
+    void overrideWith_emptyProperties() {
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(new EngineProperties.ProfileProperties());
         assertInitialProperties(opp);
     }
 
     @Test
-    public void overrideStringWithUnsetString() {
+    void overrideStringWithUnsetString() {
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(new EngineProperties.ProfileProperties());
         assertEquals(INITIAL_STRING, opp.profile());
     }
 
     @Test
-    public void overrideStringWithString() {
+    void overrideStringWithString() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setProfile(OVERRIDE_STRING);
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(overrideProperties);
@@ -101,7 +101,7 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void overrideUnsetStringWithString() {
+    void overrideUnsetStringWithString() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setGtfsFile(OVERRIDE_STRING);
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(overrideProperties);
@@ -109,13 +109,13 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void overrideDoubleWithUnsetDouble() {
+    void overrideDoubleWithUnsetDouble() {
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(new EngineProperties.ProfileProperties());
         assertEquals(INITIAL_DOUBLE, opp.maximumDistance());
     }
 
     @Test
-    public void overrideDoubleWithDouble() {
+    void overrideDoubleWithDouble() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setMaximumDistance(OVERRIDE_DOUBLE);
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(overrideProperties);
@@ -123,7 +123,7 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void overrideUnsetDoubleWithDouble() {
+    void overrideUnsetDoubleWithDouble() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setMaximumDistanceDynamicWeights(OVERRIDE_DOUBLE);
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(overrideProperties);
@@ -131,13 +131,13 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void overrideIntegerWithUnsetInteger() {
+    void overrideIntegerWithUnsetInteger() {
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(new EngineProperties.ProfileProperties());
         assertEquals(INITIAL_INTEGER, opp.maximumWayPoints());
     }
 
     @Test
-    public void overrideIntegerWithInteger() {
+    void overrideIntegerWithInteger() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setMaximumWayPoints(OVERRIDE_INTEGER);
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(overrideProperties);
@@ -145,7 +145,7 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void overrideUnsetIntegerWithInteger() {
+    void overrideUnsetIntegerWithInteger() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setMaximumSnappingRadius(OVERRIDE_INTEGER);
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(overrideProperties);
@@ -153,13 +153,13 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void overrideMapWithUnsetMap() {
+    void overrideMapWithUnsetMap() {
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(new EngineProperties.ProfileProperties());
         assertEquals(INITIAL_STRING, opp.encoderOptions().get(INITIAL_STRING));
     }
 
     @Test
-    public void overrideMapWithMap() {
+    void overrideMapWithMap() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setEncoderOptions(Map.of(INITIAL_STRING, OVERRIDE_STRING));
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(overrideProperties);
@@ -167,7 +167,7 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void overrideUnsetMapWithMap() {
+    void overrideUnsetMapWithMap() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setPreparation(Map.of(INITIAL_STRING, OVERRIDE_STRING));
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(overrideProperties);
@@ -175,14 +175,14 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void overrideBooleanWithUnsetBoolean() {
+    void overrideBooleanWithUnsetBoolean() {
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(new EngineProperties.ProfileProperties());
         assertTrue(opp.enabled());
         assertFalse(opp.elevation());
     }
 
     @Test
-    public void overrideBooleanWithBoolean() {
+    void overrideBooleanWithBoolean() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setEnabled(false);
         overrideProperties.setElevation(true);
@@ -192,7 +192,7 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
     }
 
     @Test
-    public void overrideUnsetBooleanWithBoolean() {
+    void overrideUnsetBooleanWithBoolean() {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setInstructions(true);
         overrideProperties.setOptimize(false);

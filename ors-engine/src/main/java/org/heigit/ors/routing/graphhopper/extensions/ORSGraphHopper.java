@@ -247,11 +247,15 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             LOGGER.debug("GraphInfo-File {} already existing", orsGraphInfoFile.getAbsolutePath());
             return;
         }
+        Optional<RouteProfileConfiguration> routeProfileConfiguration = Arrays.stream(engineConfig.getProfiles()).filter(prconf -> this.routeProfileName.equals(prconf.getName())).findFirst();
+        if (routeProfileConfiguration.isEmpty()) {
+            LOGGER.debug("Configuration for profile {} does not exist, could not write GraphInfo-File", this.routeProfileName);
+            return;
+        }
 
-        RouteProfileConfiguration routeProfileConfiguration = Arrays.stream(engineConfig.getProfiles()).filter(prconf -> this.routeProfileName.equals(prconf.getName())).findFirst().orElse(null);
         ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1(getDateFromGhProperty(gh, "datareader.data.date"));
         orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
-        orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.getOrsGraphInfoV1ProfileProperties());
+        orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.get().getOrsGraphInfoV1ProfileProperties());
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
