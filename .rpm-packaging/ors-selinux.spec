@@ -96,9 +96,9 @@ echo "jws_config_location=${jws_config_location}" >> ${ORS_HOME}/.openrouteservi
 
 # copy permissions of jws tomcat folder to openrouteservice home folder
 semanage fcontext -a -t jws5_tomcat_var_lib_t ${ORS_HOME}
-restorecon -vvRF /opt/openrouteservice
+restorecon -vvRF ${ORS_HOME}
 
 %postun
 
 semanage fcontext -a -t unlabeled_t ${ORS_HOME}
-restorecon -vvRF /opt/openrouteservice
+restorecon -vvRF ${ORS_HOME}
