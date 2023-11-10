@@ -23,23 +23,15 @@ You can also modify the configuration and source file settings to match your nee
 the [Running with Docker](Running-with-Docker)-Section.
 More explanation about customization can be found in the [Advanced Docker Setup](Advanced-Docker-Setup)
 
+
+
+
 ## Installation of `openrouteservice-jws5` via RPM Package for Enterprise Linux Environments
 
 The following explanation will guide you through the installation of the `openrouteservice-jws5` package
 on `RHEL 8.x` with `OpenJDK 17 headless` and `JBoss Web Server 5.x` for `ors version 7.2.x`.
 
-
-
 ### Prerequisites
-
-#### Installation via RedHat jws5 subscription
-
-Install the following packages via dnf with a valid RedHat subscription for jws5:
-
-```bash
-dnf groupinstall jws5
-dnf install -y java-17-openjdk-headless
-```
 
 #### Set environment variables
 
@@ -49,7 +41,7 @@ For the installation, the variable `ORS_HOME` showing the persistence directory 
 echo "export ORS_HOME=/opt/openrouteservice" >> /etc/environment
 ```    
 
-**Only if** JBoss Web Service was installed _in a different way_ than described above, some paths need to be specified additionally:
+**Only if** JBoss Web Service was not installed with `dnf groupinstall jws5`, some paths need to be specified additionally:
 
 ```bash
 echo "JWS_CONF_FOLDER=<your custom path>" >> /etc/environment
@@ -153,9 +145,11 @@ This configuration file effectively configures the openrouteservice backend.
 
 Upon installation, a sample configuration file (`config-example.json`) can be located within the `$ORS_HOME/config` directory.
 
-Upon installation, a tomcat configuration file (`openrouteservice-jws5-permanent-state`) can be located within the `$ORS_HOME/` directory. This file contains variables set for the JWS5 Tomcat instance running ORS. You should not  change the content of this file, EXCEPT in some cases the folling variables: 
+Upon installation, a tomcat configuration file (`openrouteservice.conf`) can be located within the JWS config directory (normally `/etc/opt/rh/scls/jws5/tomcat/conf.d`). This file contains variables set for the JWS5 Tomcat instance running ORS. You should not  change the content of this file, EXCEPT in some cases the following variables: 
 - `CATALINA_OPTS`: Memory settings for the VM running the ORS instance. Max heap memory is set to max amount of ram available on the system as per cat /proc/meminfo, minus  4 GB if it is more than 4 GB; initial heap size is set to half the max value. Change these settings only if necessary and on your own risk.
 - `ORS_LOG_ROTATION`: Cron-like pattern passed to Log4J to determine log rotation timing and frequency. Defaults to 00:00:00 h every day. See [Log4J documentation](https://logging.apache.org/log4j/2.x/manual/appenders.html#cron-triggering-policy) for details. Note that ORS does not log any individual requests, and the log file(s) will normally only contain startup information and any occurring error messages.
+
+Should you change these settings, it is required to restart JWS 5.x for them to take effect.
 
 ---
 **Example Usage**
@@ -168,6 +162,9 @@ installed `openrouteservice-jws5` package:
 curl https://download.geofabrik.de/europe/andorra-latest.osm.pbf -o /opt/openrouteservice/files/osm-file.osm.pbf
 # Utilize the default configuration file
 cp /opt/openrouteservice/config/config-example.json /opt/openrouteservice/config/ors-config.json
+sed -i 's/osm-file.osm.gz/osm-file.osm.pbf/g' /opt/openrouteservice/config/ors-config.json
+chown openrouteservice:openrouteservice /opt/openrouteservice/config/ors-config.json
+chown openrouteservice:openrouteservice /opt/openrouteservice/files/osm-file.osm.pbf
 # Restart the tomcat server and await graph construction
 # Check the endpoint ors/v2/status, which should display "ready" once graph construction is complete.
 curl http://127.0.0.1:8080/ors/v2/status
@@ -183,25 +180,6 @@ This will basically install `openrouteservice-jws5` and additionally set a secur
 This is the same context as the Tomcat webapps folder if JWS5 is configured with the `jws5-tomcat-selinux` package.
 
 ---
-
-## Custom settings for JWS 5.x
-
-In order to set custom settings for JAVA_OPTS, CATALINA_OPTS, e.g. you can use following commands:
-
-```bash
-sudo mkdir -p /etc/opt/rh/scls/jws5/tomcat/conf.d
-```
-
-```bash
-sudoedit /etc/opt/rh/scls/jws5/tomcat/conf.d/openrouteservice.conf
-```
-
-```bash
-export CATALINA_OPTS="$CATALINA_OPTS -Xms4g -Xmx4g"
-export ORS_HOME=/data/openrouteservice
-```
-
-After setting the values it is required to restart JWS 5.x
 
 ## Starting OpenRouteService
 
