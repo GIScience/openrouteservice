@@ -1,6 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.commons.io.FileUtils;
 import org.heigit.ors.config.EngineConfig;
 import org.junit.jupiter.api.AfterEach;

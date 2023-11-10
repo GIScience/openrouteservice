@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.graphhopper.*;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
@@ -50,12 +52,14 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -76,6 +80,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -189,6 +195,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         GraphHopper gh = super.importOrLoad();
 
+        writeOrsGraphInfoFileIfNotExists(gh, hash, hashDirAbsPath);
+
         if ((tmcEdges != null) && (osmId2EdgeIds != null)) {
             java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
 
@@ -223,6 +231,50 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
 
         return gh;
+    }
+
+    private void writeOrsGraphInfoFileIfNotExists(GraphHopper gh, String hash, String hashDirAbsPath) {
+        if (engineConfig.getProfiles()==null) return;
+        if (engineConfig.getProfiles().length==0) return;
+
+        File graphDir = new File(hashDirAbsPath);
+        File orsGraphInfoFile = new File(graphDir, hash+".yml");
+        if (!graphDir.exists() || !graphDir.isDirectory() || !graphDir.canWrite() ) {
+            LOGGER.debug("Graph directory {} not existing or not writeable", orsGraphInfoFile.getAbsolutePath());
+            return;
+        }
+        if (orsGraphInfoFile.exists()) {
+            LOGGER.debug("GraphInfo-File {} already existing", orsGraphInfoFile.getAbsolutePath());
+            return;
+        }
+        Optional<RouteProfileConfiguration> routeProfileConfiguration = Arrays.stream(engineConfig.getProfiles()).filter(prconf -> this.routeProfileName.equals(prconf.getName())).findFirst();
+        if (routeProfileConfiguration.isEmpty()) {
+            LOGGER.debug("Configuration for profile {} does not exist, could not write GraphInfo-File", this.routeProfileName);
+            return;
+        }
+
+        ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1(getDateFromGhProperty(gh, "datareader.data.date"));
+        orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
+        orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.get().getOrsGraphInfoV1ProfileProperties());
+
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        try {
+            mapper.writeValue(orsGraphInfoFile, orsGraphInfoV1);
+        } catch (IOException e) {
+            LOGGER.error("Could not write file {}", orsGraphInfoFile.getAbsolutePath());
+        }
+    }
+
+    Date getDateFromGhProperty(GraphHopper gh, String ghProperty) {
+        try {
+            String importDateString = gh.getGraphHopperStorage().getProperties().get(ghProperty);
+            if (StringUtils.isBlank(importDateString)) {
+                return null;
+            }
+            DateFormat f = Helper.createFormatter();
+            return f.parse(importDateString);
+        } catch (ParseException e) {}
+        return null;
     }
 
     boolean useGraphRepository() {

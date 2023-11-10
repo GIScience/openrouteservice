@@ -15,6 +15,7 @@ package org.heigit.ors.routing.configuration;
 
 import com.typesafe.config.Config;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1ProfileProperties;
 import org.locationtech.jts.geom.Envelope;
 
 import java.util.ArrayList;
@@ -67,6 +68,8 @@ public class RouteProfileConfiguration {
 
     private boolean turnCostEnabled = false;
     private boolean enforceTurnCosts = false;
+
+    private ORSGraphInfoV1ProfileProperties orsGraphInfoV1ProfileProperties;
 
     public RouteProfileConfiguration() {
         extStorages = new HashMap<>();
@@ -375,5 +378,13 @@ public class RouteProfileConfiguration {
 
     public void setMaximumVisitedNodesPT(int maximumVisitedNodesPT) {
         this.maximumVisitedNodesPT = maximumVisitedNodesPT;
+    }
+
+    public ORSGraphInfoV1ProfileProperties getOrsGraphInfoV1ProfileProperties() {
+        return orsGraphInfoV1ProfileProperties;
+    }
+
+    public void setOrsGraphInfoV1ProfileProperties(ORSGraphInfoV1ProfileProperties orsGraphInfoV1ProfileProperties) {
+        this.orsGraphInfoV1ProfileProperties = orsGraphInfoV1ProfileProperties;
     }
 }

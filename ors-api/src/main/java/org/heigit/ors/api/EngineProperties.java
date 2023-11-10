@@ -4,6 +4,7 @@ import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1ProfileProperties;
 import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.ProfileTools;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -106,6 +107,7 @@ public class EngineProperties {
             for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
                 ProfileProperties profile = profileEntry.getValue();
                 RouteProfileConfiguration convertedProfile = new RouteProfileConfiguration();
+                convertedProfile.setOrsGraphInfoV1ProfileProperties(ORSGraphInfoV1ProfilePropertiesBuilder.from(profileDefault).overrideWith(profile).build());
                 convertedProfile.setName(profileEntry.getKey());
                 convertedProfile.setEnabled(profile.enabled != null ? profile.enabled : profileDefault.isEnabled());
                 convertedProfile.setProfiles(profile.getProfile());
@@ -249,6 +251,37 @@ public class EngineProperties {
         private Boolean forceTurnCosts;
         private String gtfsFile;
 
+        public ORSGraphInfoV1ProfileProperties asORSGraphInfoV1ProfileProperties() {
+            return new ORSGraphInfoV1ProfileProperties(
+                    profile,
+                    enabled,
+                    elevation,
+                    elevationSmoothing,
+                    traffic,
+                    interpolateBridgesAndTunnels,
+                    instructions,
+                    optimize,
+                    graphPath,
+                    encoderOptions,
+                    preparation,
+                    execution,
+                    extStorages,
+                    maximumDistance,
+                    maximumDistanceDynamicWeights,
+                    maximumDistanceAvoidAreas,
+                    maximumDistanceAlternativeRoutes,
+                    maximumDistanceRoundTripRoutes,
+                    maximumSpeedLowerBound,
+                    maximumWayPoints,
+                    maximumSnappingRadius,
+                    maximumVisitedNodes,
+                    encoderFlagsSize,
+                    locationIndexResolution,
+                    locationIndexSearchIterations,
+                    forceTurnCosts,
+                    gtfsFile
+            );
+        }
         public String getProfile() {
             return profile;
         }
