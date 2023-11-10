@@ -23,23 +23,15 @@ You can also modify the configuration and source file settings to match your nee
 the [Running with Docker](Running-with-Docker)-Section.
 More explanation about customization can be found in the [Advanced Docker Setup](Advanced-Docker-Setup)
 
+
+
+
 ## Installation of `openrouteservice-jws5` via RPM Package for Enterprise Linux Environments
 
 The following explanation will guide you through the installation of the `openrouteservice-jws5` package
 on `RHEL 8.x` with `OpenJDK 17 headless` and `JBoss Web Server 5.x` for `ors version 7.2.x`.
 
-
-
 ### Prerequisites
-
-#### Installation via RedHat jws5 subscription
-
-Install the following packages via dnf with a valid RedHat subscription for jws5:
-
-```bash
-dnf groupinstall jws5
-dnf install -y java-17-openjdk-headless
-```
 
 #### Set environment variables
 
@@ -49,7 +41,7 @@ For the installation, the variable `ORS_HOME` showing the persistence directory 
 echo "export ORS_HOME=/opt/openrouteservice" >> /etc/environment
 ```    
 
-**Only if** JBoss Web Service was installed _in a different way_ than described above, some paths need to be specified additionally:
+**Only if** JBoss Web Service was not installed with `dnf groupinstall jws5`, some paths need to be specified additionally:
 
 ```bash
 echo "JWS_CONF_FOLDER=<your custom path>" >> /etc/environment
@@ -168,6 +160,9 @@ installed `openrouteservice-jws5` package:
 curl https://download.geofabrik.de/europe/andorra-latest.osm.pbf -o /opt/openrouteservice/files/osm-file.osm.pbf
 # Utilize the default configuration file
 cp /opt/openrouteservice/config/config-example.json /opt/openrouteservice/config/ors-config.json
+sed -i 's/osm-file.osm.gz/osm-file.osm.pbf/g' /opt/openrouteservice/config/ors-config.json
+chown openrouteservice:openrouteservice /opt/openrouteservice/config/ors-config.json
+chown openrouteservice:openrouteservice /opt/openrouteservice/files/osm-file.osm.pbf
 # Restart the tomcat server and await graph construction
 # Check the endpoint ors/v2/status, which should display "ready" once graph construction is complete.
 curl http://127.0.0.1:8080/ors/v2/status
