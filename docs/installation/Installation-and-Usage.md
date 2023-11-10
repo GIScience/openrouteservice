@@ -145,11 +145,11 @@ This configuration file effectively configures the openrouteservice backend.
 
 Upon installation, a sample configuration file (`config-example.json`) can be located within the `$ORS_HOME/config` directory.
 
-Upon installation, a tomcat configuration file (`openrouteservice.conf`) can be located within the JWS config directory (normally `/etc/opt/rh/scls/jws5/tomcat/conf.d`). This file contains variables set for the JWS5 Tomcat instance running ORS. You should not  change the content of this file, EXCEPT in some cases the folling variables: 
+Upon installation, a tomcat configuration file (`openrouteservice.conf`) can be located within the JWS config directory (normally `/etc/opt/rh/scls/jws5/tomcat/conf.d`). This file contains variables set for the JWS5 Tomcat instance running ORS. You should not  change the content of this file, EXCEPT in some cases the following variables: 
 - `CATALINA_OPTS`: Memory settings for the VM running the ORS instance. Max heap memory is set to max amount of ram available on the system as per cat /proc/meminfo, minus  4 GB if it is more than 4 GB; initial heap size is set to half the max value. Change these settings only if necessary and on your own risk.
 - `ORS_LOG_ROTATION`: Cron-like pattern passed to Log4J to determine log rotation timing and frequency. Defaults to 00:00:00 h every day. See [Log4J documentation](https://logging.apache.org/log4j/2.x/manual/appenders.html#cron-triggering-policy) for details. Note that ORS does not log any individual requests, and the log file(s) will normally only contain startup information and any occurring error messages.
 
-Should you change these serrings, it is required to restart JWS 5.x for them to take effect.
+Should you change these settings, it is required to restart JWS 5.x for them to take effect.
 
 ---
 **Example Usage**
