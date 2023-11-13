@@ -43,4 +43,4 @@ _(all Values in km/h)_
   |          mud         |      10     |      10     |        10       |
   |       unknown:       |      30     |      30     |        -1       |
 
-[svf]: https://github.com/GIScience/openrouteservice/tree/master/openrouteservice/src/main/resources/resources/services/routing/speed_limits
+[svf]: https://github.com/GIScience/openrouteservice/tree/master/ors-engine/src/main/resources/resources/services/routing/speed_limits

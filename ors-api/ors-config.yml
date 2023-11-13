@@ -1,0 +1,191 @@
+##### openrouteservice settings file #####
+# This file contains parameters for openrouteservice.
+# For a full list of possible parameters see documentation, below are some examples.
+
+### uncomment the following lines to turn on debug output
+#logging:
+#  log4j2:
+#    config:
+#      override: classpath:logs/DEBUG_LOGGING.json
+
+ors:
+  ### uncomment the following lines to change CORS settings.
+  #cors:
+  #  allowed_origins: "*"
+  #  allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
+  #  preflight_max_age: 600
+  engine:
+    ### use the following line for development setup using test OSM file for Heidelberg
+    #source_file: ./src/test/files/heidelberg.osm.gz
+    source_file: ./ors-core/data/osm_file.pbf
+    graphs_root_path: ./ors-core/data/graphs
+    elevation:
+      cache_path: ./ors-core/data/elevation_cache
+
+    profiles:
+      car:
+        profile: driving-car
+        elevation: true
+        encoder_options:
+          turn_costs: true
+          block_fords: false
+          use_acceleration: true
+        preparation:
+          min_network_size: 200
+          min_one_way_network_size: 200
+          methods:
+            ch:
+              enabled: true
+              threads: 1
+              weightings: fastest
+            lm:
+              enabled: false
+              threads: 1
+              weightings: fastest,shortest
+              landmarks: 16
+            core:
+              enabled: true
+              threads: 1
+              weightings: fastest,shortest
+              landmarks: 64
+              lmsets: highways;allow_all
+        execution:
+          methods:
+            ch:
+              disabling_allowed: true
+            lm:
+              disabling_allowed: true
+              active_landmarks: 6
+            core:
+              disabling_allowed: true
+              active_landmarks: 6
+        ext_storages:
+          WayCategory:
+          HeavyVehicle:
+          WaySurfaceType:
+          RoadAccessRestrictions:
+            use_for_warnings: true
+
+### the following lines are example profile setups. Uncomment profile blocks (and the parent elements) to activate.
+#      hgv:
+#        profile: driving-hgv
+#        encoder_flags_size: 8
+#        encoder_options:
+#          turn_costs: true
+#          block_fords: false
+#          use_acceleration: true
+#        maximum_distance: 100000
+#        elevation: true
+#        preparation:
+#          min_network_size: 200
+#          min_one_way_network_size: 200
+#          methods:
+#            ch:
+#              enabled: true
+#              threads: 1
+#              weightings: recommended
+#            core:
+#              enabled: true
+#              threads: 1
+#              weightings: recommended,shortest
+#              landmarks: 64
+#              lmsets: highways;allow_all
+#        execution:
+#          methods:
+#            ch:
+#              disabling_allowed: true
+#            core:
+#              disabling_allowed: true
+#              active_landmarks: 6
+#        ext_storages:
+#          WayCategory:
+#          HeavyVehicle:
+#            restrictions: true
+#          WaySurfaceType:
+#      bike-regular:
+#        profile: cycling-regular
+#        encoder_options:
+#          consider_elevation: true
+#          turn_costs: true
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      bike-mountain:
+#        profile: cycling-mountain
+#        encoder_options:
+#          consider_elevation: true
+#          turn_costs: true
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      bike-road:
+#        profile: cycling-road
+#        encoder_options:
+#          consider_elevation: true
+#          turn_costs: true
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      bike-electric:
+#        profile: cycling-electric
+#        encoder_options:
+#          consider_elevation: true
+#          turn_costs: true
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      walking:
+#        profile: foot-walking
+#        encoder_options:
+#        block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      hiking:
+#        profile: foot-hiking
+#        encoder_options:
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      wheelchair:
+#        profile: wheelchair
+#        encoder_options:
+#          block_fords: true
+#        elevation: true
+#        maximum_snapping_radius: 50
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          Wheelchair:
+#            KerbsOnCrossings: true
+#          OsmId:
+#      public-transport:
+#        profile: public-transport
+#        encoder_options:
+#          block_fords: false
+#        elevation: true
+#        maximum_visited_nodes: 1000000
+#        gtfs_file: ./src/test/files/vrn_gtfs_cut.zip

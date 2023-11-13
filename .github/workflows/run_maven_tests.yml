@@ -35,15 +35,15 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Test, build, run API tests
-      run: mvn -B -f openrouteservice/pom.xml verify -Papitests -DCI=true
+      run: mvn -B verify -Papitests -DCI=true
     - name: Run tests with pre-built graphs from previous run
-      run: mvn -B -f openrouteservice/pom.xml verify -Papitests jacoco:report
+      run: mvn -B verify -Papitests jacoco:report
     - name: run SonarLint checks
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       if: env.SONAR_TOKEN != null
-      run: mvn -B -f openrouteservice/pom.xml org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      run: mvn -B package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
     - name: Rocket.Chat Notification
       uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
       env:

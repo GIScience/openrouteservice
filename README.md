@@ -1,7 +1,10 @@
 # Openrouteservice
 
-[![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) 
+[![Build Status](https://img.shields.io/github/actions/workflow/status/GIScience/openrouteservice/build-and-publish.yml)](https://github.com/GIScience/openrouteservice/actions/workflows/build-and-publish.yml)
+[![Docker](https://img.shields.io/docker/cloud/build/heigit/openrouteservice?label=Docker&style=flat)](https://hub.docker.com/r/heigit/openrouteservice/builds)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=GIScience_openrouteservice&metric=alert_status&branch=master)](https://sonarcloud.io/dashboard?id=GIScience_openrouteservice&metric)
+[![Release](https://img.shields.io/github/v/release/GIScience/openrouteservice)](https://github.com/GIScience/openrouteservice/releases/latest)
+[![LICENSE](https://img.shields.io/github/license/GIScience/openrouteservice)](LICENSE)
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
 
@@ -12,7 +15,7 @@ The following services are available via a HTTP interface served by Tomcat.
 
 To play around with openrouteservice you may use our [demonstration server](https://maps.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/ors-map-client). Or simply [sign up](https://openrouteservice.org/dev/#/signup) for an API key and fire your requests against the API directly.
 
-Please note that openrouteservice uses a forked and edited version of [graphhopper 0.13](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
+Please note that openrouteservice uses a forked and edited version of [graphhopper 4.0](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
 
 [![ors client accessibility](https://user-images.githubusercontent.com/23240110/30385487-9eac96b8-98a7-11e7-9357-afd4df8fccdf.png)](https://openrouteservice.org/reach)
 
@@ -36,10 +39,24 @@ The [sourcespy dashboard](https://sourcespy.com/github/giscienceopenrouteservice
 
 ## Installation
 
-We recommend using Docker to install and launch the openrouteservice backend: 
+We suggest using docker to install and launch openrouteservice backend. In short, a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) will get everything done for you. 
+
+Only use nightly (master branch) if you know what you do. We recommend running docker compose with the latest release version:
 
 ```bash
-cd docker && mkdir -p conf elevation_cache graphs logs/ors logs/tomcat && docker-compose up
+# For example for the latest release
+git clone https://github.com/GIScience/openrouteservice.git
+cd openrouteservice
+# Checkout latest version
+export LATEST_ORS_RELEASE=$(git describe --tags --abbrev=0); 
+git checkout $LATEST_ORS_RELEASE
+# If the docker folder exists cd into it
+cd docker || echo "No docker folder found. Continue with next step."
+# Now change the version the docker-compose.yml uses
+sed -i='' "s/openrouteservice\/openrouteservice:nightly/openrouteservice\/openrouteservice:$LATEST_ORS_RELEASE/g" docker-compose.yml
+sed -i='' "s/openrouteservice\/openrouteservice:latest/openrouteservice\/openrouteservice:$LATEST_ORS_RELEASE/g" docker-compose.yml
+# Run docker compose with
+docker compose up -d
 ```
 
 For more details, check the [docker installation guide](https://GIScience.github.io/openrouteservice/installation/Running-with-Docker.html).

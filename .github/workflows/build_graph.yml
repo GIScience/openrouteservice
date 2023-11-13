@@ -1,0 +1,157 @@
+name: 'Build graphs'
+
+# **What it does**: Builds graphs for a specified environment with adjustable OSM file
+# **Why we have it**: To make triggering graph builds easier.
+
+on:
+  workflow_dispatch:
+    inputs:
+      osm_file_url:
+        description: 'URL to .pbf OSM file'
+        required: false
+        type: string
+        default: "https://download.geofabrik.de/europe/germany/bremen-latest.osm.pbf"
+      environment:
+        description: "GitHub Environment to be used for graph building"
+        required: false
+        type: environment
+      config_in_war:
+        description: "Store the config in the war file"
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  build-graph:
+    runs-on: [self-hosted, graph]
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          clean: false
+      - name: Check if config repository needs to be cloned
+        id: needs_clone
+        run: |
+          # Check if the folder ors-config-repo exists
+          if [ ! -d "ors-config-repo" ]; then
+            export NEEDS_CLONE=1
+          else
+            # Get the current git remote URL
+            remote_url=$(git -C ors-config-repo remote get-url origin)
+
+            # Compare the remote URL with the expected value
+            expected_url="https://oauth2:${{ secrets.CONFIG_REPO_TOKEN }}@${{ secrets.CONFIG_REPO }}.git"
+            if [ "$remote_url" != "$expected_url" ]; then
+             export NEEDS_CLONE=1
+            else
+             export NEEDS_CLONE=0
+            fi
+          fi
+          echo "NEEDS_CLONE=$NEEDS_CLONE" >> "$GITHUB_OUTPUT"
+
+      - name: Clone config repository
+        if: ${{ steps.needs_clone.outputs.NEEDS_CLONE == 1 }}
+        run: |
+          rm -rf ors-config-repo
+          git clone https://oauth2:${{ secrets.CONFIG_REPO_TOKEN }}@${{ secrets.CONFIG_REPO }}.git ors-config-repo
+      - name: Pull config repository changes
+        if: ${{ steps.needs_clone.outputs.NEEDS_CLONE == 0 }}
+        run: |
+          git -C ors-config-repo pull https://oauth2:${{ secrets.CONFIG_REPO_TOKEN }}@${{ secrets.CONFIG_REPO }}.git
+      - name: Create env directory and folders
+        run: |
+          mkdir -p $(pwd)/envs/${{ secrets.ENV_NAME }} && cd $(pwd)/envs/${{ secrets.ENV_NAME }}
+          mkdir -p $(pwd)/graphs $(pwd)/conf $(pwd)/elevation_cache $(pwd)/logs/ors $(pwd)/logs/tomcat
+      - name: Download .md5 file for pbf
+        id: md5
+        run: |
+          cd envs/${{ secrets.ENV_NAME }}
+          URL="${{ inputs.osm_file_url }}"
+          PBF_NAME=$(basename "${URL}")
+          echo "PBF_NAME=${PBF_NAME}" >> $GITHUB_OUTPUT
+          MD5_URL="${URL}.md5"
+          MD5_FILENAME=$(basename "${MD5_URL}")
+          wget ${MD5_URL} -O ${MD5_FILENAME}
+          if md5sum --status -c "${MD5_FILENAME}"; then
+            echo "CHANGED=false" >> $GITHUB_OUTPUT
+            echo "PBF file is up to date."
+          else
+            echo "CHANGED=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Download pbf
+        id: download_pbf
+        if: steps.md5.outputs.CHANGED == 'true'
+        run: |
+          URL="${{ inputs.osm_file_url }}"
+          wget ${URL} -O envs/${{ secrets.ENV_NAME }}/${{ steps.md5.outputs.PBF_NAME }}
+      - name: Build docker image
+        run: docker build . -t ors-local
+      - name: Start docker container from local image
+        run: |
+          docker run -dt -u "0:0" \
+          --name ors-graph-build-${{ secrets.ENV_NAME }} \
+          -p 8080:8080 \
+          -v $PWD/ors-config-repo/${{ secrets.CONFIG_FOLDER_PATH }}:/home/ors/ors-conf \
+          -v $PWD/envs/${{ secrets.ENV_NAME }}/graphs:/home/ors/ors-core/data/graphs \
+          -e "GRAPHS_FOLDER=/home/ors/ors-core/data/graphs" \
+          -v $PWD/envs/${{ secrets.ENV_NAME }}/elevation_cache:/home/ors/ors-core/data/elevation_cache \
+          -e "ELEVATION_CACHE_FOLDER=/home/ors/ors-core/data/elevation_cache" \
+          -v $PWD/envs/${{ secrets.ENV_NAME }}/${{ steps.md5.outputs.PBF_NAME }}:/home/ors/ors-core/data/osm_file.pbf \
+          -e "PBF_FILE_PATH=/home/ors/ors-core/data/osm_file.pbf" \
+          -v $PWD/envs/${{ secrets.ENV_NAME }}/logs/ors:/home/ors/ors-core/logs/ors \
+          -v $PWD/envs/${{ secrets.ENV_NAME }}/logs/tomcat:/home/ors/tomcat/logs \
+          -v $PWD/ors-config-repo/${{ secrets.EXTRAS_FOLDER_PATH }}:/opt/ors/extras \
+          -e "LOGS_FOLDER=/home/ors/ors-core/logs/ors" \
+          -e "JAVA_OPTS=-Dors_config=/home/ors/ors-conf/ors-config.${{ secrets.ENV_NAME }}.json -Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
+          -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
+          ors-local
+      - name: Wait 2 days for healthcheck, report every 15 Minutes
+        run: ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 172800 10 90
+      - name: Restart docker to check for correcty built graphs
+        run: |
+          docker stop ors-graph-build-${{secrets.ENV_NAME }}
+          docker start ors-graph-build-${{secrets.ENV_NAME }}
+      - name: Wait 5 minutes for healthcheck, report every 30 seconds
+        run: ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 300 10 3
+      - name: change permission of files in container
+        run: |
+          docker exec -t ors-graph-build-${{secrets.ENV_NAME }} chown -R ${UID}:${GID} /home/ors/ors-core/data/graphs
+          docker exec -t ors-graph-build-${{secrets.ENV_NAME }} chown -R ${UID}:${GID} /home/ors/ors-core/logs
+          docker exec -t ors-graph-build-${{secrets.ENV_NAME }} chown -R ${UID}:${GID} /home/ors/tomcat/logs
+          docker exec -t ors-graph-build-${{secrets.ENV_NAME }} chown -R ${UID}:${GID} /home/ors/tomcat/webapps/ors.war
+      - name: Prepare graph, logs, war file and config for export
+        run: |
+          cd $(pwd)/envs/${{ secrets.ENV_NAME }}
+          tar -cf - graphs/ | xz -e -9 -T 0 -c > "graphs.tar.gz"
+          tar -cf - logs/ | xz -e -9 -T 0 -c > "logs.tar.gz"
+          sha256sum graphs.tar.gz > graphs.tar.gz.checksum
+          sha256sum logs.tar.gz > logs.tar.gz.checksum
+
+          # Extract war file from container
+          docker cp ors-graph-build-${{ secrets.ENV_NAME }}:/home/ors/tomcat/webapps/ors.war .
+
+          cp ../../ors-config-repo/${{ secrets.CONFIG_FOLDER_PATH }}/ors-config.${{ secrets.ENV_NAME }}.json .
+          sha256sum ors-config.${{ secrets.ENV_NAME }}.json > ors-config.${{ secrets.ENV_NAME }}.json.checksum
+      - name: update ors-config.json in war file
+        if: ${{ inputs.config_in_war == 'true' }}
+        run: |
+          cd $(pwd)/envs/${{ secrets.ENV_NAME }}
+          mkdir -p WEB-INF/classes/
+          cp ors-config.${{ secrets.ENV_NAME }}.json WEB-INF/classes/ors-config.json
+          jar uf ors.war WEB-INF/classes/ors-config.json
+          rm -rf WEB-INF
+          sha256sum ors.war > ors.war.checksum
+      - name: remove config from war file
+        if: ${{ inputs.config_in_war == 'false' }}
+        run: |
+          cd $(pwd)/envs/${{ secrets.ENV_NAME }}
+          zip -d ors.war WEB-INF/classes/ors-config.json
+          zip -d ors.war WEB-INF/classes/ors-config-sample.json
+          sha256sum ors.war > ors.war.checksum
+      - name: Remove docker container
+        if: always()
+        run: |
+          docker stop ors-graph-build-${{ secrets.ENV_NAME }}
+          docker rm -f ors-graph-build-${{ secrets.ENV_NAME }}; echo $?

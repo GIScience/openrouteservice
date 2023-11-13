@@ -98,4 +98,4 @@ _(all Values in km/h)_
   |                |       UZ:rural       |     100     |      90     |
   |                |      UZ:motorway     |     110     |      90     |
 
-[svf]: https://github.com/GIScience/openrouteservice/tree/master/openrouteservice/src/main/resources/resources/services/routing/speed_limits
+[svf]: https://github.com/GIScience/openrouteservice/tree/master/ors-engine/src/main/resources/resources/services/routing/speed_limits
