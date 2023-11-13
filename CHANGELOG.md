@@ -58,7 +58,6 @@ RELEASING:
 - cleanup StatusCodeCaptureWrapper class ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - spring-boot-starter-parent to v3.1.1 ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - from springdoc-openapi-ui package to springdoc-openapi-starter-webmvc-ui ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
-- increase edge splitting threshold for generating isochrones ([#1508](https://github.com/GIScience/openrouteservice/pull/1508))
 - refactor RoutingProfile (part of [#1520](https://github.com/GIScience/openrouteservice/issues/1520))
 - update maven repository for dependencies ([#1536](https://github.com/GIScience/openrouteservice/pull/1536))
 
@@ -89,6 +88,10 @@ RELEASING:
 - adjust weighting of heat stress routing to avoid large detours
 - fix isochrones snapping ([#1566](https://github.com/GIScience/openrouteservice/pull/1566))
 - fix fast-isochrones snapping ([#1572](https://github.com/GIScience/openrouteservice/pull/1572))
+
+## [7.1.1] - 2023-11-13
+### Changed
+- increase edge splitting threshold for generating isochrones ([#1508](https://github.com/GIScience/openrouteservice/pull/1508))
 
 ## [7.1.0] - 2023-06-13
 ### Added
@@ -714,7 +717,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...HEAD
+[7.1.1]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/GIScience/openrouteservice/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/GIScience/openrouteservice/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/GIScience/openrouteservice/compare/v6.8.3...v7.0.0
