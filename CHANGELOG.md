@@ -35,6 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 
+## [7.1.1] - 2023-11-13
 ### Changed
 - increase edge splitting threshold for generating isochrones ([#1508](https://github.com/GIScience/openrouteservice/pull/1508))
 
@@ -661,7 +662,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...HEAD
+[7.1.1]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/GIScience/openrouteservice/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/GIScience/openrouteservice/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/GIScience/openrouteservice/compare/v6.8.3...v7.0.0
