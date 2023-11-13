@@ -38,14 +38,14 @@ on `RHEL 8.x` with `OpenJDK 17 headless` and `JBoss Web Server 5.x` for `ors ver
 For the installation, the variable `ORS_HOME` showing the persistence directory of the OpenRouteService needs to be set, e.g.
 
 ```bash
-echo "export ORS_HOME=/opt/openrouteservice" >> /etc/environment
+sudo echo "export ORS_HOME=/opt/openrouteservice" >> /etc/environment
 ```    
 
 **Only if** JBoss Web Service was not installed with `dnf groupinstall jws5`, some paths need to be specified additionally:
 
 ```bash
-echo "JWS_CONF_FOLDER=<your custom path>" >> /etc/environment
-echo "JWS_WEBAPPS_FOLDER=<your custom path>" >> /etc/environment
+sudo echo "JWS_CONF_FOLDER=<your custom path>" >> /etc/environment
+sudo echo "JWS_WEBAPPS_FOLDER=<your custom path>" >> /etc/environment
 ```
 
 #### Yum .repo Configuration
@@ -79,7 +79,7 @@ while the `releases channel` holds the latest release builds (though it is not y
 After adding the repository, update dnf:
 
 ```bash
-dnf update
+sudo dnf update
 ```
 
 ### Installation
@@ -143,7 +143,7 @@ For proper operation, the `openrouteservice-jws5` installation `necessitates` th
 configuration file within the `$ORS_HOME/config` directory.
 This configuration file effectively configures the openrouteservice backend.
 
-Upon installation, a sample configuration file (`config-example.json`) can be located within the `$ORS_HOME/config` directory.
+Upon installation, a sample configuration file (`example-config.json`) can be located within the `$ORS_HOME/config` directory.
 
 Upon installation, a tomcat configuration file (`openrouteservice.conf`) can be located within the JWS config directory (normally `/etc/opt/rh/scls/jws5/tomcat/conf.d`). This file contains variables set for the JWS5 Tomcat instance running ORS. You should not  change the content of this file, EXCEPT in some cases the following variables: 
 - `CATALINA_OPTS`: Memory settings for the VM running the ORS instance. Max heap memory is set to max amount of ram available on the system as per cat /proc/meminfo, minus  4 GB if it is more than 4 GB; initial heap size is set to half the max value. Change these settings only if necessary and on your own risk.
@@ -159,12 +159,12 @@ installed `openrouteservice-jws5` package:
 
 ```bash
 # Obtain a OSM file using curl
-curl https://download.geofabrik.de/europe/andorra-latest.osm.pbf -o /opt/openrouteservice/files/osm-file.osm.pbf
+sudo curl https://download.geofabrik.de/europe/andorra-latest.osm.pbf -o /opt/openrouteservice/files/osm-file.osm.pbf
 # Utilize the default configuration file
-cp /opt/openrouteservice/config/config-example.json /opt/openrouteservice/config/ors-config.json
-sed -i 's/osm-file.osm.gz/osm-file.osm.pbf/g' /opt/openrouteservice/config/ors-config.json
-chown openrouteservice:openrouteservice /opt/openrouteservice/config/ors-config.json
-chown openrouteservice:openrouteservice /opt/openrouteservice/files/osm-file.osm.pbf
+sudo cp /opt/openrouteservice/config/example-config.json /opt/openrouteservice/config/ors-config.json
+sudo sed -i 's/osm-file.osm.gz/osm-file.osm.pbf/g' /opt/openrouteservice/config/ors-config.json
+sudo chown openrouteservice:openrouteservice /opt/openrouteservice/config/ors-config.json
+sudo chown openrouteservice:openrouteservice /opt/openrouteservice/files/osm-file.osm.pbf
 # Restart the tomcat server and await graph construction
 # Check the endpoint ors/v2/status, which should display "ready" once graph construction is complete.
 curl http://127.0.0.1:8080/ors/v2/status
