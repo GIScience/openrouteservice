@@ -39,11 +39,12 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBik
 import org.heigit.ors.util.GeomUtility;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.index.quadtree.Quadtree;
-import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
+
+import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
 
 public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
@@ -236,8 +237,8 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             sw = new StopWatch();
             sw.start();
         }
-        ConcaveHullOpenSphere concaveHullShell = new ConcaveHullOpenSphere(geometry, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
-        Geometry shellGeometry = concaveHullShell.getConcaveHull();
+
+        Geometry shellGeometry = concaveHullByLength(geometry, convertSmoothingFactorToDistance(smoothingFactor, maxRadius));
         if (shellGeometry instanceof GeometryCollection geomColl) {
             if (geomColl.isEmpty())
                 return;
