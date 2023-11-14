@@ -38,11 +38,9 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlag
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBikeFlagEncoder;
 import org.heigit.ors.util.GeomUtility;
 import org.locationtech.jts.geom.*;
-import org.locationtech.jts.index.quadtree.Quadtree;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
 
@@ -50,14 +48,8 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
     private static final boolean BUFFERED_OUTPUT = true;
     private static final DistanceCalc dcFast = new DistancePlaneProjection();
-    private double searchWidth = 0.0007;
-    private double pointWidth = 0.0005;
-    private double visitorThreshold = 0.0013;
-    private final Envelope searchEnv = new Envelope();
     private GeometryFactory geometryFactory;
-    private PointItemVisitor visitor = null;
     private List<Coordinate> prevIsoPoints = null;
-    private TreeSet<Coordinate> treeSet;
 
     private RouteSearchContext searchContext;
 
@@ -119,8 +111,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         if (edgeMap.isEmpty())
             return isochroneMap;
 
-        treeSet = new TreeSet<>();
-
         List<Coordinate> isoPoints = new ArrayList<>((int) (1.2 * edgeMap.getMap().size()));
 
         if (LOGGER.isDebugEnabled()) {
@@ -167,7 +157,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                 isochronesDifference = metersPerSecond * isochronesDifference;
             }
 
-            Coordinate[] points = buildIsochrone(edgeMap, isoPoints, loc.x, loc.y, isoValue, prevCost, isochronesDifference, 0.85);
+            Coordinate[] points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85);
 
             if (LOGGER.isDebugEnabled()) {
                 sw.stop();
@@ -286,40 +276,13 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         }
     }
 
-    public Boolean addPoint(List<Coordinate> points, Quadtree tree, double lon, double lat, boolean checkNeighbours) {
-        if (checkNeighbours) {
-            visitor.setPoint(lon, lat);
-            searchEnv.init(lon - searchWidth, lon + searchWidth, lat - searchWidth, lat + searchWidth);
-            tree.query(searchEnv, visitor);
-            if (!visitor.isNeighbourFound()) {
-                Coordinate p = new Coordinate(lon, lat);
-
-                if (!treeSet.contains(p)) {
-                    Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-                    tree.insert(env, p);
-                    points.add(p);
-                    treeSet.add(p);
-
-                    return true;
-                }
-            }
-        } else {
-            Coordinate p = new Coordinate(lon, lat);
-            if (!treeSet.contains(p)) {
-                Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-                tree.insert(env, p);
-                points.add(p);
-                treeSet.add(p);
-
-                return true;
-            }
-        }
-
-        return false;
+    public void addPoint(List<Coordinate> points, double lon, double lat) {
+        Coordinate p = new Coordinate(lon, lat);
+        points.add(p);
     }
 
-    private void addBufferPoints(List<Coordinate> points, Quadtree tree, double lon0, double lat0, double lon1,
-                                 double lat1, boolean addLast, boolean checkNeighbours, double bufferSize) {
+    private void addBufferPoints(List<Coordinate> points, double lon0, double lat0, double lon1,
+                                 double lat1, boolean addLast, double bufferSize) {
         double dx = (lon0 - lon1);
         double dy = (lat0 - lat1);
         double normLength = Math.sqrt((dx * dx) + (dy * dy));
@@ -328,27 +291,26 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         double dx2 = -dy * scale;
         double dy2 = dx * scale;
 
-        addPoint(points, tree, lon0 + dx2, lat0 + dy2, checkNeighbours);
-        addPoint(points, tree, lon0 - dx2, lat0 - dy2, checkNeighbours);
+        addPoint(points, lon0 + dx2, lat0 + dy2);
+        addPoint(points, lon0 - dx2, lat0 - dy2);
 
         // add a middle point if two points are too far from each other
         if (normLength > 2 * bufferSize) {
-            addPoint(points, tree, (lon0 + lon1) / 2.0 + dx2, (lat0 + lat1) / 2.0 + dy2, checkNeighbours);
-            addPoint(points, tree, (lon0 + lon1) / 2.0 - dx2, (lat0 + lat1) / 2.0 - dy2, checkNeighbours);
+            addPoint(points, (lon0 + lon1) / 2.0 + dx2, (lat0 + lat1) / 2.0 + dy2);
+            addPoint(points, (lon0 + lon1) / 2.0 - dx2, (lat0 + lat1) / 2.0 - dy2);
         }
 
         if (addLast) {
-            addPoint(points, tree, lon1 + dx2, lat1 + dy2, checkNeighbours);
-            addPoint(points, tree, lon1 - dx2, lat1 - dy2, checkNeighbours);
+            addPoint(points, lon1 + dx2, lat1 + dy2);
+            addPoint(points, lon1 - dx2, lat1 - dy2);
         }
     }
 
-    private Coordinate[] buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points, double lon, double lat,
+    private Coordinate[] buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points,
                                         double isolineCost, double prevCost, double isochronesDifference, double detailedGeomFactor) {
         IntObjectMap<SPTEntry> map = edgeMap.getMap();
 
         points.clear();
-        treeSet.clear();
 
         if (prevIsoPoints != null)
             points.addAll(prevIsoPoints);
@@ -359,26 +321,12 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         int maxEdgeId = graph.getEdges() - 1;
 
         double bufferSize = 0.0018;
-        Quadtree qtree = new Quadtree();
-        visitor = new PointItemVisitor(lon, lat, visitorThreshold);
         double detailedZone = isolineCost * detailedGeomFactor;
-
-        double defaultSearchWidth = 0.0008;
-        double defaulPointWidth = 0.005;
-        double defaultVisitorThreshold = 0.0040;
-
-        // make results a bit more precise for regions with low data density
-        if (map.size() < 10000) {
-            defaultSearchWidth = 0.0008;
-            defaulPointWidth = 0.005;
-            defaultVisitorThreshold = 0.0025;
-        }
 
         boolean useHighDetail = map.size() < 1000 || isochronesDifference < 1000;
 
         if (useHighDetail) {
             bufferSize = 0.00018;
-            defaultVisitorThreshold = 0.000005;
         }
 
         int nodeId;
@@ -404,11 +352,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             if (minCost < prevCost && isochronesDifference > 1000)
                 continue;
 
-            searchWidth = defaultSearchWidth;
-            visitorThreshold = defaultVisitorThreshold;
-            pointWidth = defaulPointWidth;
-
-            visitor.setThreshold(visitorThreshold);
 
             EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, nodeId);
 
@@ -446,7 +389,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                                     lat1 = pl.getLat(i);
                                     lon1 = pl.getLon(i);
 
-                                    addBufferPoints(points, qtree, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, true, bufferSize);
+                                    addBufferPoints(points, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, bufferSize);
 
                                     lon0 = lon1;
                                     lat0 = lat1;
@@ -456,9 +399,9 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                                     lat1 = pl.getLat(i);
                                     lon1 = pl.getLon(i);
 
-                                    addPoint(points, qtree, lon0, lat0, true);
+                                    addPoint(points, lon0, lat0);
                                     if (i == size - 1)
-                                        addPoint(points, qtree, lon1, lat1, true);
+                                        addPoint(points, lon1, lat1);
 
                                     lon0 = lon1;
                                     lat0 = lat1;
@@ -466,7 +409,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                             }
                         }
                     } else {
-                        addPoint(points, qtree, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId), true);
+                        addPoint(points, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId));
                     }
                 }
             } else {
@@ -510,14 +453,14 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                                     double lon2 = lon0 + segLength * (lon1 - lon0);
                                     double lat2 = lat0 + segLength * (lat1 - lat0);
 
-                                    addBufferPoints(points, qtree, lon0, lat0, lon2, lat2, true, false, bufferSize);
+                                    addBufferPoints(points, lon0, lat0, lon2, lat2, true, bufferSize);
 
                                     break;
                                 } else {
-                                    addBufferPoints(points, qtree, lon0, lat0, lon1, lat1, false, true, bufferSize);
+                                    addBufferPoints(points, lon0, lat0, lon1, lat1, false, bufferSize);
                                 }
                             } else {
-                                addPoint(points, qtree, lon0, lat0, true);
+                                addPoint(points, lon0, lat0);
                             }
 
                             lat0 = lat1;
