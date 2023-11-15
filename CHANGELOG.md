@@ -51,6 +51,7 @@ RELEASING:
 - update maven repository for dependencies ([#1536](https://github.com/GIScience/openrouteservice/pull/1536))
 - update org.json from 20230227 to 20231013
 - update commons-io from 2.11.0 to 2.15.0
+- update spring-boot from 2.7.12 to 2.7.17
 
 ### Removed
 - dependency on apache-curator ([#1496](https://github.com/GIScience/openrouteservice/issues/1496))
