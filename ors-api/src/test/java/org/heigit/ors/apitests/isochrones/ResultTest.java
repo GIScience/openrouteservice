@@ -15,6 +15,7 @@ package org.heigit.ors.apitests.isochrones;
 
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.path.json.JsonPath;
 import io.restassured.path.json.config.JsonPathConfig;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
@@ -23,6 +24,16 @@ import org.heigit.ors.apitests.utils.CommonHeaders;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
@@ -477,5 +488,91 @@ class ResultTest extends ServiceTest {
                 .body("metadata.engine.containsKey('graph_date')", is(true))
                 .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
+    }
+
+
+    @ParameterizedTest
+    @CsvSource({
+            "locations_1, cycling-regular, distance, 10,  1, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, distance, 10,  5, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, distance, 10,  10, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, time,     10,  1, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, time,     10,  5, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, time,     10,  10, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, distance, 50,  1, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, distance, 50,  5, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, distance, 50,  10, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, time,     50,  1, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, time,     50,  5, 200;400;600;1000;2000",
+            "locations_1, cycling-regular, time,     50,  10, 200;400;600;1000;2000",
+            "locations_1, driving-car,     distance, 10,  1, 200;400;600;1000;2000",
+            "locations_1, driving-car,     distance, 10,  5, 200;400;600;1000;2000",
+            "locations_1, driving-car,     distance, 10,  10, 200;400;600;1000;2000",
+            "locations_1, driving-car,     time,     10,  1, 200;400;600;1000;2000",
+            "locations_1, driving-car,     time,     10,  5, 200;400;600;1000;2000",
+            "locations_1, driving-car,     time,     10,  10, 200;400;600;1000;2000",
+            "locations_1, driving-car,     distance, 50,  1, 200;400;600;1000;2000",
+            "locations_1, driving-car,     distance, 50,  5, 200;400;600;1000;2000",
+            "locations_1, driving-car,     distance, 50,  10, 200;400;600;1000;2000",
+            "locations_1, driving-car,     time,     50,  1, 200;400;600;1000;2000",
+            "locations_1, driving-car,     time,     50,  5, 200;400;600;1000;2000",
+            "locations_1, driving-car,     time,     50,  10, 200;400;600;1000;2000",
+    })
+    void combinationsAsGeojsonFiles(
+            String locationDef,      // name of origin(s) parameter
+            String profileValue,    // cycling-regular, driving-car
+            String rangeTypeValue,  // distance, time
+            String smoothingValue,  // 0 - 100
+            String intervalValue,   // 0 - 10 (?)
+            String rangesValues        // ; separated list of integers (meters?)
+    ) {
+
+        String changeDescription = "ohneBuffer";
+
+        String id = "%s-%s-%s-%s-%s-%s-%s".formatted(
+                changeDescription,
+                locationDef,
+                profileValue,
+                rangeTypeValue,
+                smoothingValue,
+                intervalValue,
+                rangesValues
+        );
+
+        JSONObject body = new JSONObject();
+        body.put("id", id);
+        body.put("locations", getParameter(locationDef));
+        body.put("range_type", rangeTypeValue);
+        body.put("smoothing", smoothingValue);
+        body.put("interval", intervalValue);
+
+        List<Integer> range = Arrays.stream(rangesValues.split(";")).map(Integer::valueOf).collect(Collectors.toList());
+        body.put("range", range);
+
+        String responseString = given()
+                .headers(CommonHeaders.geoJsonContent)
+                .pathParam("profile", profileValue)
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/geojson")
+                .then()
+                .body("any { it.key == 'type' }", is(true))
+                .body("any { it.key == 'features' }", is(true))
+                .extract()
+                .asString();
+
+
+        writeStringToFile(id + ".json", responseString);
+    }
+
+
+    private static void writeStringToFile(String filePath, String content) {
+        Path path = Paths.get(filePath);
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            writer.write(content);
+            System.out.println("result written to file %s".formatted(path.getFileName().toAbsolutePath().toString()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
