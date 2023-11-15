@@ -35,6 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 
+## [7.2.0] - 2023-11-16
 ### Added
 - workflow for RPM packaging ([#1490](https://github.com/GIScience/openrouteservice/pull/1490))
 - workflow for graph building with GitHub environments ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
@@ -697,7 +698,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.2.0...HEAD
+[7.2.0]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...v7.2.0
 [7.1.1]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/GIScience/openrouteservice/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/GIScience/openrouteservice/compare/v7.0.0...v7.0.1
