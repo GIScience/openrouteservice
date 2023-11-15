@@ -16,15 +16,13 @@ package org.heigit.ors.isochrones.builders.concaveballs;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
-import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.index.quadtree.Quadtree;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.isochrones.GraphEdgeMapFinder;
@@ -38,8 +36,9 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncode
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBikeFlagEncoder;
-import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.GeomUtility;
+import org.locationtech.jts.geom.*;
+import org.locationtech.jts.index.quadtree.Quadtree;
 import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.ArrayList;
@@ -93,11 +92,11 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         }
 
         double meanSpeed = maxSpeed;
-        if (encoder instanceof ORSAbstractFlagEncoder) {
-            meanSpeed = ((ORSAbstractFlagEncoder) encoder).getMeanSpeed();
+        if (encoder instanceof ORSAbstractFlagEncoder orsAbstractFlagEncoder) {
+            meanSpeed = orsAbstractFlagEncoder.getMeanSpeed();
         }
-        if (encoder instanceof CommonBikeFlagEncoder) {
-            meanSpeed = ((CommonBikeFlagEncoder) encoder).getMeanSpeed();
+        if (encoder instanceof CommonBikeFlagEncoder commonBikeFlagEncoder) {
+            meanSpeed = commonBikeFlagEncoder.getMeanSpeed();
         }
 
         AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(searchContext, parameters);
