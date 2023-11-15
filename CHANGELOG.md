@@ -39,10 +39,10 @@ RELEASING:
 - workflow for RPM packaging ([#1490](https://github.com/GIScience/openrouteservice/pull/1490))
 - workflow for graph building with GitHub environments ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
 - environment variables for adjusting folders and paths during graph build using docker: ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
-  - `ELEVATION_CACHE_FOLDER`: value to overwrite the `ors.services.routing.profiles.default_params.elevation_cache_path` with
-  - `GRAPHS_FOLDER`: value to overwrite the `ors.services.routing.profiles.default_params.graphs_root_path` with
-  - `LOGS_FOLDER`: value to overwrite the `ors.logging.location` with
-  - `PBF_FILE_PATH`: value to overwrite the `ors.services.routing.sources` with
+    - `ELEVATION_CACHE_FOLDER`: value to overwrite the `ors.services.routing.profiles.default_params.elevation_cache_path` with
+    - `GRAPHS_FOLDER`: value to overwrite the `ors.services.routing.profiles.default_params.graphs_root_path` with
+    - `LOGS_FOLDER`: value to overwrite the `ors.logging.location` with
+    - `PBF_FILE_PATH`: value to overwrite the `ors.services.routing.sources` with
 - add .editorconfig to streamline IDE code styling ([#1493](https://github.com/GIScience/openrouteservice/pull/1493))
 
 ### Changed
@@ -58,7 +58,6 @@ RELEASING:
 - Centrality API and implementation (use export API and external centrality tools instead)
 
 ### Fixed
-- Upgrade kafka_2.13 from 3.4.0 to 3.5.0 ([#1472](https://github.com/GIScience/openrouteservice/issues/1472))
 - Remove maven-shared-utils dependency ([#1473](https://github.com/GIScience/openrouteservice/issues/1473))
 - update spring-boot from 2.7.10 to 2.7.12 ([#1474](https://github.com/GIScience/openrouteservice/issues/1474))
 - Upgrade org.geotools.gt-epsg-hsql to version 29.1. ([#1479](https://github.com/GIScience/openrouteservice/issues/1479))
@@ -66,6 +65,10 @@ RELEASING:
 - Fix the max visited nodes bug for fast-isochrones ([#1538](https://github.com/GIScience/openrouteservice/pull/1538))
 - fix isochrones snapping ([#1568](https://github.com/GIScience/openrouteservice/pull/1568))
 - fix fast-isochrones snapping ([#1570](https://github.com/GIScience/openrouteservice/pull/1570))
+
+## [7.1.1] - 2023-11-13
+### Changed
+- increase edge splitting threshold for generating isochrones ([#1508](https://github.com/GIScience/openrouteservice/pull/1508))
 
 ## [7.1.0] - 2023-06-13
 ### Added
@@ -691,7 +694,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...HEAD
+[7.1.1]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/GIScience/openrouteservice/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/GIScience/openrouteservice/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/GIScience/openrouteservice/compare/v6.8.3...v7.0.0
