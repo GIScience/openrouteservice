@@ -53,6 +53,7 @@ RELEASING:
 - update org.json from 20230227 to 20231013
 - update commons-io from 2.11.0 to 2.15.0
 - update spring-boot from 2.7.12 to 2.7.17
+- changed logging configuration - see [Installation-and-Usage.md](https://github.com/GIScience/openrouteservice/blob/v7.2.0/docs/installation/Installation-and-Usage.md)
 
 ### Removed
 - dependency on apache-curator ([#1496](https://github.com/GIScience/openrouteservice/issues/1496))
