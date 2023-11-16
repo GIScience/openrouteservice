@@ -42,7 +42,7 @@
         <springdoc-openapi-ui.version>1.7.0</springdoc-openapi-ui.version>
         <swagger-parser.version>2.1.15</swagger-parser.version>
         <snakeyaml.version>2.0</snakeyaml.version>
-        <geotools.version>29.1</geotools.version>
+        <geotools.version>29.3</geotools.version>
         <slf4j.version>2.0.7</slf4j.version>
         <log4j.version>2.20.0</log4j.version>
         <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
