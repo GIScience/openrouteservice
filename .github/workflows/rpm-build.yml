@@ -342,7 +342,7 @@ jobs:
           rm -f ${{ env.GPG_KEY_PATH }}
 
       - name: Attach RPM package to release
-        if: github.event_name == 'release' && github.event.action == 'published'
+        if: github.event_name == 'release' && github.event.action == 'created'
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ github.event.release.upload_url }}
@@ -351,7 +351,7 @@ jobs:
           asset_content_type: application/x-rpm
 
       - name: Upload the RPM package to the nexus releases rpm registry
-        if: github.event_name == 'release' && github.event.action == 'published'
+        if: github.event_name == 'release' && github.event.action == 'created'
         run: |
           # Check that the RPM Nexus releases repository exists and fail completely if not.
           .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
@@ -363,7 +363,7 @@ jobs:
 
       - name: Upload the snapshot RPM package to the nexus snapshots rpm registry
         # Only upload if this is a push on a release/v7.2.* branch
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/releases/v7.2.')
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/releases/v7.2.') && contains(env.ORS_VERSION, 'SNAPSHOT')
         run: |
           # Check that the RPM Nexus snapshots repository exists and fail completely if not.
           .github/utils/check_nexus_repo_exists.sh '${{ secrets.NEXUS_URL }}' '${{ env.RPM_REPO_NAME }}' '${{ secrets.NEXUS_USERNAME }}' '${{ secrets.NEXUS_PASSWORD }}' 'true'
