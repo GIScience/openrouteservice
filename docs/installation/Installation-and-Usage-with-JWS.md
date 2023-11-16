@@ -34,25 +34,25 @@ within `/etc/yum.repos.d/`:
 > /etc/yum.repos.d/ors.repo
 
 ```bash
-[openrouteservice-rpm-snapshots]
-name=openrouteservice RPM repository
-baseurl=https://test-repo.openrouteservice.org/repository/openrouteservice-rpm/snapshots/openrouteservice-jws
-enabled=1
-gpgcheck=1
-gpgkey=https://keys.openpgp.org/vks/v1/by-fingerprint/825F57B756C0B5851C398478585E8FA82AFB5B55
-
-# The releases repository is not yet available
-#[openrouteservice-rpm-releases]
+# The snapshot repository is not reommended for production use
+#[openrouteservice-rpm-snapshots]
 #name=openrouteservice RPM repository
-#baseurl=https://test-repo.openrouteservice.org/repository/openrouteservice-rpm/realeases/openrouteservice-jws
+#baseurl=https://repo.heigit.org/repository/openrouteservice-rpm/snapshots/openrouteservice-jws
 #enabled=1
 #gpgcheck=1
 #gpgkey=https://keys.openpgp.org/vks/v1/by-fingerprint/825F57B756C0B5851C398478585E8FA82AFB5B55
+
+[openrouteservice-rpm-releases]
+name=openrouteservice RPM repository
+baseurl=https://repo.heigit.org/repository/openrouteservice-rpm/releases/openrouteservice-jws
+enabled=1
+gpgcheck=1
+gpgkey=https://keys.openpgp.org/vks/v1/by-fingerprint/825F57B756C0B5851C398478585E8FA82AFB5B55
 ```
 
 This repository includes two channels: `snapshots` and `releases`.
 The `snapshots channel` contains the latest snapshot builds of the `openrouteservice-jws5` package,
-while the `releases channel` holds the latest release builds (though it is not yet operational).
+while the `releases channel` holds the latest release builds.
 
 After adding the repository, update dnf:
 
