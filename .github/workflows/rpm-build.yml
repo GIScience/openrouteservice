@@ -17,6 +17,7 @@ env:
   RPM_REPO_TESTING_FOLDER: 'testing'
   RPM_REPO_SNAPSHOTS_FOLDER: 'snapshots'
   RPM_REPO_RELEASES_FOLDER: 'releases'
+  DOCKER_BASE_IMAGE_TAG: '1'
 
 jobs:
   prepare_docker_images:
@@ -112,14 +113,7 @@ jobs:
               PUSH_TO_DOCKER_HUB=false
           fi
           
-          # If master/main branch add nightly tag, if releases/v7.2.* branch add v7.2 tag, else add the branch name as tag
-          if [ "$cleaned_branch" == "master" ] || [ "$cleaned_branch" == "main" ]; then
-              IMAGE_NAME=$DOCKER_HUB_IMAGE_NAME:nightly
-          elif [[ "$cleaned_branch" == "releases-v72x" ]]; then
-              IMAGE_NAME=$DOCKER_HUB_IMAGE_NAME:v7.2.x
-          else
-              IMAGE_NAME=$DOCKER_HUB_IMAGE_NAME:$branch
-          fi
+          IMAGE_NAME=$DOCKER_HUB_IMAGE_NAME:${{ env.DOCKER_BASE_IMAGE_TAG }}
           
           # Set push to docker hub to true if matrix.PUSH_TO_DOCKER_HUB exists and is not false else false
           if [ -n "${{ matrix.PUSH_TO_DOCKER_HUB }}" ] && [ "${{ matrix.PUSH_TO_DOCKER_HUB }}" == "true" ]; then

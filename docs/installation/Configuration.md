@@ -9,6 +9,7 @@ The configuration of your own **openrouteservice** instance is done in two place
 
 ## Configuration via `application.properties`
 All spring-boot properties can be set in multiple ways. 
+
 #### 1. Environment variables.
 For now the easiest way to modify the settings described below. Note that all properties are translated from period-separated lowercase to underscore-separated uppercase, e.g. to override the `cors.allowed_origins` property you would set `CORS_ALLOWED_ORIGINS=https://example.org` (with `-e` flag to your `docker run` command or in the `environment` block in your `docker-compose.yml`). 
 
@@ -41,6 +42,7 @@ Currently only API-specific options are set this way, which are rarely changed. 
 ## Configuration via `ors-config.json`
 For a quick start with the default values, the [ors-config-sample.json][sample_config] can be copied to that location and adjusted as needed.
 
+The logging configuration was changed from v7.2, see [Logging and Debugging](#logging-and-debugging)
 [comment]: <> (TOC here?)
 
 ### ors
@@ -49,7 +51,6 @@ The top level element.
 | key            | type   | description                       | example value                         |
 |----------------|--------|-----------------------------------|---------------------------------------|
 | services       | object | an object comprising the services | [services](#orsservices)              |  
-| logging        | object | the logging properties            | [logging](#orslogging)                |
 | system_message | list   | List of system message objects    | [system messages](#orssystem_message) |
 
 ---
@@ -296,16 +297,6 @@ The top level element.
 
 ---
 
-#### ors.logging
-
-| key | type | description | example value |
-|-----|------|-------------|-------| 
-|   enabled    |  boolean |   Enables or disables the end-point (default: true)   |  `true`  |
-|   level_file    |  string | Can be either `DEBUG_LOGGING.json` or `PRODUCTION_LOGGING.json`  |   `"DEBUG_LOGGING.json"`  |
-|   location    |  string | Location of the logs  |   `"/var/log/ors"`  |
-|   stdout    |  boolean |   |   `true`  |
-
----
 
 #### ors.system_message
 Array of message objects where each has
@@ -362,3 +353,31 @@ system_message: [
 ```
 
 [sample_config]: https://github.com/GIScience/openrouteservice/blob/master/ors-api/src/main/resources/ors-config-sample.json
+
+
+## Logging and debugging
+
+### Logging configuration changed since v7.2.x
+
+Since version 7.2.0 logging can no longer be changed in `ors-config.json`.
+If necessary, a specific logging profile can still be selected in a new config file `ors-config.yml`:
+
+#### 1. Create a file ors-config.yml with following content:
+
+```yaml
+logging:
+  log4j2:
+    config:
+      override: classpath:logs/DEBUG_LOGGING.json
+```
+
+There are three logging profiles with different log levels:
+
+* DEBUG_LOGGING.json -       Log-Level DEBUG
+* DEFAULT_LOGGING.json -     Log-Level INFO
+* PRODUCTION_LOGGING.json -  Log-Level WARN
+
+#### 2. Reference ors-config.yml
+
+To make openrouteservice use the new config file,
+the environment variable `ORS_CONFIG_LOCATION` has to be set with the absolute path of the file as value.
