@@ -7,6 +7,7 @@ export default defineConfig({
     base: "/openrouteservice/",
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
+        siteTitle: false,
         logo: {
             src: '/openrouteservice.png',
             alt: 'openrouteservice logo',
