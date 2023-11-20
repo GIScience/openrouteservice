@@ -9,6 +9,7 @@ target/
 logs/
 elevation-cache/
 cgiar_cache/
+node_modules/
 
 # jqwik
 .jqwik-database
