@@ -4,6 +4,7 @@ import {defineConfig} from 'vitepress'
 export default defineConfig({
     title: "openrouteservice backend documentation",
     description: "openrouteservice backend documentation",
+    base: "/openrouteservice/",
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         nav: [
