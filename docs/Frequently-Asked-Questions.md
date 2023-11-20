@@ -5,12 +5,6 @@ has_toc: true
 ---
 
 # Frequently Asked Questions
- {: .no_toc }
-
-1. TOC
-{:toc}
-
----
 
 ## Why is my ors reporting `Could not find point`?
 

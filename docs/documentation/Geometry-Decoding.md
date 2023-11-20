@@ -5,7 +5,6 @@ title: Geometry Decoding
 ---
 
 # Geometry Decoding
-{: .no_toc }
 
 When a response includes a geometry the data might be encoded as single string. This is a so-called [encoded polyline](https://developers.google.com/maps/documentation/utilities/polylinealgorithm).
 If no additional elevation data is requested, this can be decoded with a standard polyline decoder, available e.g. from Mapbox or others.
@@ -14,9 +13,6 @@ When you request additional elevation data, this encoded string can not be decod
 The reason for that is, that the elevation data is included in the polyline in addition to the latitude and longitude values.
 To decode _X,Y_ and _X,Y,Z_ polylines the decoder needs to know whether the geometry has elevation information.
 Examples on how to decode _X,Y,Z_ polylines can be found below:
-
-1. TOC
-{:toc}
 
 ## Java
 
