@@ -7,16 +7,20 @@ export default defineConfig({
     base: "/openrouteservice/",
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
+        logo: {
+            src: '/openrouteservice.png',
+            alt: 'openrouteservice logo',
+        },
         nav: [
             {text: 'Home', link: '/'},
             {text: 'Examples', link: '/markdown-examples'}
         ],
         sidebar: [
             {
-                text: 'Examples',
+                text: 'Home', link: '/',
                 items: [
-                    {text: 'Markdown Examples', link: '/markdown-examples'},
-                    {text: 'Runtime API Examples', link: '/api-examples'}
+                    {text: 'Getting Started', link: '/getting-started'},
+                    {text: 'Installation and Usage', link: 'installation/Installation-and-Usage'}
                 ]
             }
         ],
