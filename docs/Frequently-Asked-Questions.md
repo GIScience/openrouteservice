@@ -25,7 +25,7 @@ There are three main reasons for this problem, listed in order of most to least 
    road. The maximum distance for snapping to road segments in our API is 350m.
  This can be customized for local installations via the
   `maximum_snapping_radius` and `location_index_resolution` config-parameter. See
-  [configuration](Installation/Configuration) for details.
+  [configuration](installation/Configuration) for details.
 
 3. The start and enpoint are passed with correct lon,lat-order and are within
    350m of a routable road. This should only happen with a local installation.
@@ -52,7 +52,7 @@ be preprocessed before the openrouteservice can start building the graphs used
 for routing.
 
 The build process in itself is [rather
-resource-intensive](Installation/System-Requirements). It takes roughly two
+resource-intensive](installation/System-Requirements). It takes roughly two
 days for any one of the nine profiles. For the mentioned resource requirements,
 this means that it will take roughly a week for all profiles to be re-built.
 
