@@ -1,9 +1,3 @@
----
-parent: Installation and Usage
-nav_order: 3
-title: System Requirements
----
-
 # System Requirements
 
 When running openrouteservice, by far the biggest consideration that needs to be made is the amount of RAM that is available. Smaller areas such as Baden-Württemberg in Germany can run happily on a mid range system, but for larger areas you need more RAM. For example, in the openrouteservice infrastructure, each profile for the planet is running on a 128GB machine. Anything less than that and you will run out of memory during the build process.

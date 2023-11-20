@@ -1,11 +1,4 @@
----
-grand_parent: Documentation
-parent: Extra Info
-nav_order: 5
-title: Trail Difficulty
----
-
-## Trail difficulty
+# Trail Difficulty
 
 This extra provides information about a trails difficulty for [hiking](https://wiki.openstreetmap.org/wiki/Key:sac_scale) as well as for [mountain-biking](https://wiki.openstreetmap.org/wiki/Key:mtb:scale).
 

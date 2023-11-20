@@ -1,10 +1,3 @@
----
-grand_parent: Documentation
-parent: Extra Info
-nav_order: 2
-title: Surface
----
-
 # Surface
 
 This extra provides info about the [surface](https://wiki.openstreetmap.org/wiki/Key:surface) of the corresponding parts of the route.

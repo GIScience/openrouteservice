@@ -1,9 +1,3 @@
----
-nav_exclude: true
-parent: Documentation
-title: Switching from V1 API to V2
----
-
 # Moving from V1 API to V2
 
 Soon (30th October, 2020), the V1 openrouteservice API will be getting switched off, so before then it is important that you update your queries to reflect this change. The V2 API offers some great benefits over the V1 API including:

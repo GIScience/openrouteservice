@@ -1,10 +1,6 @@
----
-parent: Documentation
-nav_order: 12
-title: Error Codes
----
+# Error Codes
 
-# HTTP Status Codes
+## HTTP Status Codes
 
 The following table describes the supported HTTP status codes.
 
@@ -20,11 +16,13 @@ The following table describes the supported HTTP status codes.
 | 503              | The server is currently unavailable due to overload or maintenance.                                                                        |
 
 
-# Internal Error Codes
 
-The following sections describes the list of possible internal error codes that might be provided by different ORS EndPoints.
+## Internal Error Codes
 
-## Geocoding API
+The following sections describes the list of possible internal error codes that might be provided by different ORS
+EndPoints.
+
+### Geocoding API
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
@@ -39,7 +37,7 @@ The following sections describes the list of possible internal error codes that 
 | 1009       | Address not found for location.                    |
 | 1099       | Unknown internal error.                            |
 
-## Routing API
+### Routing API
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
@@ -54,7 +52,7 @@ The following sections describes the list of possible internal error codes that 
 | 2009       | Route could not be found between locations.        |
 | 2099       | Unknown internal error.                            |
 
-## Isochrones API
+### Isochrones API
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
@@ -69,7 +67,7 @@ The following sections describes the list of possible internal error codes that 
 | 3008       | Empty Element.                                     |
 | 3099       | Unknown internal error.                            |
 
-## POIs API
+### POIs API
 
 | Error Code | Description                                         |
 |:----------:|-----------------------------------------------------|
@@ -84,7 +82,7 @@ The following sections describes the list of possible internal error codes that 
 | 4008       | Geometry size does not meet the restrictions.       |
 | 4099       | Unknown internal error.                             |
 
-## Matrix API
+### Matrix API
 
 | Error Code |  Description                                        |
 |:----------:|-----------------------------------------------------|
@@ -98,7 +96,7 @@ The following sections describes the list of possible internal error codes that 
 | 6008       |  Empty Element.                                     |
 | 6099       |  Unknown internal error.                            |
 
-## Centrality API
+### Centrality API
 
 | Error Code | Description                    |
 |:----------:|--------------------------------|

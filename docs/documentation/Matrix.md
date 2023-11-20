@@ -1,9 +1,3 @@
----
-parent: Documentation
-nav_order: 9
-title: Matrix Response
----
-
 # Matrix Response
 
 The Matrix Response contains one matrix for each specified `metrics` value.

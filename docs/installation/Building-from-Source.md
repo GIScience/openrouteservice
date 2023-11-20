@@ -1,9 +1,3 @@
----
-parent: Installation and Usage
-nav_order: 2
-title: Building from Source
----
-
 # Building from Source
 
 **We recommend running openrouteservice using a Docker container (see [Running with Docker](Running-with-Docker))**

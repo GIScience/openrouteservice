@@ -1,12 +1,4 @@
----
-parent: Documentation
-nav_order: 4
-has_children: true
-has_toc: false
-title: Routing Options
----
-
-# Routing `options`
+# Routing Options
 
 For advanced options formatted as json object. For structure refer to the [examples](Examples).
 The available parameters are:

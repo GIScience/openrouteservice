@@ -1,7 +1,5 @@
 ---
 title: FAQ
-nav_order: 6
-has_toc: true
 ---
 
 # Frequently Asked Questions

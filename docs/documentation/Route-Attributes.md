@@ -1,8 +1,4 @@
----
-parent: Documentation
-nav_order: 3
-title: Route Attributes
----
+# Route Attributes
 
 Route attributes can be used to attribute every segment of a route with possibly three values:
 

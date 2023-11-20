@@ -1,11 +1,4 @@
----
-grand_parent: Documentation
-parent: Extra Info
-nav_order: 4
-title: Waytype
----
-
-## Waytype
+# WayType
 
 This extra provides info about the type of the way of the corresponding parts of the route.
 

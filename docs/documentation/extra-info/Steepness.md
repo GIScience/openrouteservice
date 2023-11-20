@@ -1,11 +1,4 @@
----
-grand_parent: Documentation
-parent: Extra Info
-nav_order: 1
-title: Steepness
----
-
-## Steepness
+# Steepness
 
 Negative values indicate decline, positive incline.
 

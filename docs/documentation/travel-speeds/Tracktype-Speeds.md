@@ -1,11 +1,4 @@
----
-grand_parent: Documentation
-parent: Travel Speeds
-nav_order: 3
-title: Tracktype Speeds
----
-
-## Tracktype Speeds
+# Tracktype Speeds
 The tracktypes corresponds to the OSM [tracktype](https://wiki.openstreetmap.org/wiki/Key:tracktype) tag value.
 This table aggregates the values in the [speed value files][svf].
 
