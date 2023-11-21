@@ -16,6 +16,13 @@ export default defineConfig({
         search: {
             provider: 'local'
         },
+        lastUpdated: {
+            text: 'Updated at',
+            formatOptions: {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            }
+        },
         nav: [
             {text: 'Homepage', link: 'https://openrouteservice.org'},
             {text: 'Forum', link: 'https://ask.openrouteservice.org'},
