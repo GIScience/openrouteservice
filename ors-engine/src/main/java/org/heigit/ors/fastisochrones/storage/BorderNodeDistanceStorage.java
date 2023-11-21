@@ -29,6 +29,8 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Storable;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.util.FileUtility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
 
@@ -38,12 +40,13 @@ import static org.heigit.ors.fastisochrones.storage.ByteConversion.*;
  * @author Hendrik Leuschner
  */
 public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceStorage> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BorderNodeDistanceStorage.class);
     private final DataAccess borderNodes;
     private final int byteCount;
     private int borderNodeIndexOffset;
     private final int nodeCount;
     private int borderNodeCount;
-    private int necessaryCapacity = 0;
+    private long necessaryCapacity = 0;
     private long borderNodePointer;
     private final IsochroneNodeStorage isochroneNodeStorage;
     private IntLongHashMap borderNodeToPointerMap;
@@ -73,7 +76,9 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     public void init() {
         borderNodes.create(1000);
         getNumBorderNodes();
-        borderNodes.ensureCapacity((long) borderNodeCount * byteCount + necessaryCapacity * byteCount + borderNodeCount * 4);
+        if (LOGGER.isWarnEnabled())
+            LOGGER.warn("FASTISOCHRONES borderNodeCount: %d, necessaryCapacity: %d".formatted(borderNodeCount, necessaryCapacity));
+        borderNodes.ensureCapacity((long) borderNodeCount * byteCount + necessaryCapacity * byteCount + borderNodeCount * 4L);
         borderNodes.setHeader(0, borderNodeCount);
         borderNodeIndexOffset = borderNodeCount * byteCount;
         borderNodePointer = borderNodeIndexOffset;
