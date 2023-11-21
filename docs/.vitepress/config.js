@@ -6,6 +6,7 @@ export default defineConfig({
     description: "openrouteservice backend documentation",
     base: "/openrouteservice/",
     head: [['link', {rel: 'icon', href: '/openrouteservice/ors_fav.png'}]],
+    cleanUrls: true,
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         siteTitle: false,
