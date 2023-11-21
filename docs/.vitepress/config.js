@@ -23,6 +23,10 @@ export default defineConfig({
                 timeStyle: 'short'
             }
         },
+        editLink: {
+            pattern: 'https://github.com/GIScience/openrouteservice/issues/new?labels=documentation+%3Abook%3A&template=docs.yml',
+            text: 'Suggest an improvement'
+        },
         nav: [
             {text: 'Homepage', link: 'https://openrouteservice.org'},
             {text: 'Forum', link: 'https://ask.openrouteservice.org'},
