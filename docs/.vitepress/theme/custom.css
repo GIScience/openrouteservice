@@ -2,6 +2,13 @@
   --vp-c-brand-1: #b5152b;
   --vp-button-brand-bg: #b5152b;
   --vp-c-brand-2: #b5152b;
+  /* values below are taken from the old Jekyll installation of the docs */
+  --vp-font-family-base: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --vp-font-family-mono:  "SFMono-Regular",menlo,consolas,monospace;
+}
+
+.vp-doc h1, .vp-doc h2, .vp-doc h3, .vp-doc h4, .vp-doc h5, .vp-doc h6  {
+  font-weight: 300;
 }
 
 /*
