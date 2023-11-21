@@ -9,8 +9,9 @@ export default defineConfig({
         // https://vitepress.dev/reference/default-theme-config
         siteTitle: false,
         logo: {
-            src: '/openrouteservice.png',
-            alt: 'openrouteservice logo',
+            light: '/openrouteservice.png',
+            dark: '/openrouteservice_dark.png',
+            alt: 'openrouteservice logo'
         },
         search: {
             provider: 'local'
