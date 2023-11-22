@@ -18,6 +18,9 @@ export default defineConfig({
         search: {
             provider: 'local'
         },
+        outline: {
+            level: [2, 4]
+        },
         lastUpdated: {
             text: 'Updated at',
             formatOptions: {
