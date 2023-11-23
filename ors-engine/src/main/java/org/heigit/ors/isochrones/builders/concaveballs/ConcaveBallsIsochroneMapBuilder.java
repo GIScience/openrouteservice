@@ -47,6 +47,7 @@ import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLengt
 public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
     private static final boolean BUFFERED_OUTPUT = true;
+    private static final double MAX_SPLIT_LENGTH = 20000.0;
     private static final DistanceCalc dcFast = new DistancePlaneProjection();
     private GeometryFactory geometryFactory;
     private List<Coordinate> prevIsoPoints = null;
@@ -138,7 +139,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             if (i > 0)
                 isochronesDifference = isochronesDifference - parameters.getRanges()[i - 1];
 
-            float smoothingFactor = parameters.getSmoothingFactor();
             TravelRangeType isochroneType = parameters.getRangeType();
 
             if (LOGGER.isDebugEnabled()) {
@@ -157,7 +157,11 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                 isochronesDifference = metersPerSecond * isochronesDifference;
             }
 
-            Coordinate[] points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85);
+            float smoothingFactor = parameters.getSmoothingFactor();
+            var smoothingDistance = convertSmoothingFactorToDistance(smoothingFactor, maxRadius);
+            var smoothingDistanceMeter = dcFast.calcDist(0.0, 0.0, 0.0, smoothingDistance);
+
+            Coordinate[] points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85, smoothingDistanceMeter);
 
             if (LOGGER.isDebugEnabled()) {
                 sw.stop();
@@ -307,7 +311,9 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
     }
 
     private Coordinate[] buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points,
-                                        double isolineCost, double prevCost, double isochronesDifference, double detailedGeomFactor) {
+                                        double isolineCost, double prevCost, double isochronesDifference,
+                                        double detailedGeomFactor,
+                                        double minSplitLength) {
         IntObjectMap<SPTEntry> map = edgeMap.getMap();
 
         points.clear();
@@ -332,7 +338,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         int nodeId;
         int edgeId;
 
-        int minSplitLength = 200;
         int maxSplitLength = 20000;
         StopWatch sw = new StopWatch();
 
@@ -361,117 +366,19 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                 // results
                 if (goalEdge.edge != -2 || useHighDetail) {
                     double edgeDist = iter.getDistance();
-                    if (((maxCost >= detailedZone && maxCost <= isolineCost) || edgeDist > 200)) {
-                        boolean detailedShape = (edgeDist > 200);
-                        // always use mode=3, since other ones do not provide correct results
-                        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
-
-                        if (LOGGER.isDebugEnabled()) {
-                            sw.start();
-                        }
-                        PointList expandedPoints = new PointList(pl.size(), pl.is3D());
-
-                        for (int i = 0; i < pl.size() - 1; i++)
-                            splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, maxSplitLength);
-                        pl.add(expandedPoints);
-                        if (LOGGER.isDebugEnabled()) {
-                            sw.stop();
-                        }
-                        int size = pl.size();
-                        if (size > 0) {
-                            double lat0 = pl.getLat(0);
-                            double lon0 = pl.getLon(0);
-                            double lat1;
-                            double lon1;
-
-                            if (detailedShape && BUFFERED_OUTPUT) {
-                                for (int i = 1; i < size; ++i) {
-                                    lat1 = pl.getLat(i);
-                                    lon1 = pl.getLon(i);
-
-                                    addBufferPoints(points, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, bufferSize);
-
-                                    lon0 = lon1;
-                                    lat0 = lat1;
-                                }
-                            } else {
-                                for (int i = 1; i < size; ++i) {
-                                    lat1 = pl.getLat(i);
-                                    lon1 = pl.getLon(i);
-
-                                    addPoint(points, lon0, lat0);
-                                    if (i == size - 1)
-                                        addPoint(points, lon1, lat1);
-
-                                    lon0 = lon1;
-                                    lat0 = lat1;
-                                }
-                            }
-                        }
+                    boolean detailedShape = (edgeDist > 200);
+                    if (((maxCost >= detailedZone && maxCost <= isolineCost) || detailedShape)) {
+                        detailedShape(points, minSplitLength, iter, detailedShape, goalEdge, bufferSize);
                     } else {
                         addPoint(points, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId));
                     }
                 }
             } else {
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
-
-                    PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
-
-                    PointList expandedPoints = new PointList(pl.size(), pl.is3D());
-                    if (LOGGER.isDebugEnabled()) {
-                        sw.start();
-                    }
-                    for (int i = 0; i < pl.size() - 1; i++)
-                        splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, maxSplitLength);
-                    pl.add(expandedPoints);
-                    if (LOGGER.isDebugEnabled()) {
-                        sw.stop();
-                    }
-                    int size = pl.size();
-
-                    if (size > 0) {
-                        double edgeCost = maxCost - minCost;
-                        double edgeDist = iter.getDistance();
-                        double costPerMeter = edgeCost / edgeDist;
-                        double distPolyline = 0.0;
-
-                        double lat0 = pl.getLat(0);
-                        double lon0 = pl.getLon(0);
-                        double lat1;
-                        double lon1;
-
-                        for (int i = 1; i < size; ++i) {
-                            lat1 = pl.getLat(i);
-                            lon1 = pl.getLon(i);
-
-                            distPolyline += dcFast.calcDist(lat0, lon0, lat1, lon1);
-
-                            if (BUFFERED_OUTPUT) {
-                                double distCost = minCost + distPolyline * costPerMeter;
-                                if (distCost >= isolineCost) {
-                                    double segLength = (1 - (distCost - isolineCost) / edgeCost);
-                                    double lon2 = lon0 + segLength * (lon1 - lon0);
-                                    double lat2 = lat0 + segLength * (lat1 - lat0);
-
-                                    addBufferPoints(points, lon0, lat0, lon2, lat2, true, bufferSize);
-
-                                    break;
-                                } else {
-                                    addBufferPoints(points, lon0, lat0, lon1, lat1, false, bufferSize);
-                                }
-                            } else {
-                                addPoint(points, lon0, lat0);
-                            }
-
-                            lat0 = lat1;
-                            lon0 = lon1;
-                        }
-                    }
+                    cutEdge(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
                 }
             }
         }
-        if (LOGGER.isDebugEnabled())
-            LOGGER.debug("Expanding edges " + sw.getSeconds());
 
         Coordinate[] coordinates = new Coordinate[points.size()];
 
@@ -480,6 +387,102 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             coordinates[i] = c;
         }
         return coordinates;
+    }
+
+    private void cutEdge(List<Coordinate> points, double isolineCost, double minSplitLength, EdgeIteratorState iter, float maxCost, float minCost, double bufferSize) {
+        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
+        if (pl.isEmpty()) {
+            return;
+        }
+
+        PointList expandedPoints = new PointList(pl.size(), pl.is3D());
+
+        for (int i = 0; i < pl.size() - 1; i++)
+            splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
+        pl.add(expandedPoints);
+
+        int size = pl.size();
+
+        double edgeCost = maxCost - minCost;
+        double edgeDist = iter.getDistance();
+        double costPerMeter = edgeCost / edgeDist;
+        double distPolyline = 0.0;
+
+        double lat0 = pl.getLat(0);
+        double lon0 = pl.getLon(0);
+        double lat1;
+        double lon1;
+
+        for (int i = 1; i < size; ++i) {
+            lat1 = pl.getLat(i);
+            lon1 = pl.getLon(i);
+
+            distPolyline += dcFast.calcDist(lat0, lon0, lat1, lon1);
+
+            if (BUFFERED_OUTPUT) {
+                double distCost = minCost + distPolyline * costPerMeter;
+                if (distCost >= isolineCost) {
+                    double segLength = (1 - (distCost - isolineCost) / edgeCost);
+                    double lon2 = lon0 + segLength * (lon1 - lon0);
+                    double lat2 = lat0 + segLength * (lat1 - lat0);
+
+                    addBufferPoints(points, lon0, lat0, lon2, lat2, true, bufferSize);
+
+                    break;
+                } else {
+                    addBufferPoints(points, lon0, lat0, lon1, lat1, false, bufferSize);
+                }
+            } else {
+                addPoint(points, lon0, lat0);
+            }
+
+            lat0 = lat1;
+            lon0 = lon1;
+        }
+    }
+
+    private void detailedShape(List<Coordinate> points, double minSplitLength, EdgeIteratorState iter, boolean detailedShape, SPTEntry goalEdge, double bufferSize) {
+        // always use mode=3, since other ones do not provide correct results
+        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
+        if (pl.isEmpty()) {
+            return;
+        }
+        PointList expandedPoints = new PointList(pl.size(), pl.is3D());
+
+        for (int i = 0; i < pl.size() - 1; i++)
+            splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
+        pl.add(expandedPoints);
+
+        int size = pl.size();
+
+        double lat0 = pl.getLat(0);
+        double lon0 = pl.getLon(0);
+        double lat1;
+        double lon1;
+
+        if (detailedShape && BUFFERED_OUTPUT) {
+            for (int i = 1; i < size; ++i) {
+                lat1 = pl.getLat(i);
+                lon1 = pl.getLon(i);
+
+                addBufferPoints(points, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, bufferSize);
+
+                lon0 = lon1;
+                lat0 = lat1;
+            }
+        } else {
+            for (int i = 1; i < size; ++i) {
+                lat1 = pl.getLat(i);
+                lon1 = pl.getLon(i);
+
+                addPoint(points, lon0, lat0);
+                if (i == size - 1)
+                    addPoint(points, lon1, lat1);
+
+                lon0 = lon1;
+                lat0 = lat1;
+            }
+        }
     }
 
     private void copyConvexHullPoints(Polygon poly) {
