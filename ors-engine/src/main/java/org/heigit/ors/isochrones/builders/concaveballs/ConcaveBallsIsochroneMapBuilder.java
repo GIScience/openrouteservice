@@ -171,7 +171,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                 sw.start();
             }
 
-            addIsochrone(isochroneMap, points, isoValue, maxRadius, meanRadius, smoothingFactor);
+            addIsochrone(isochroneMap, points, isoValue, meanRadius, smoothingDistance);
 
             if (LOGGER.isDebugEnabled())
                 LOGGER.debug("Build concave hull total: " + sw.stop().getSeconds());
@@ -216,7 +216,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         return maxLength;
     }
 
-    private void addIsochrone(IsochroneMap isochroneMap, Coordinate[] points, double isoValue, double maxRadius, double meanRadius, float smoothingFactor) {
+    private void addIsochrone(IsochroneMap isochroneMap, Coordinate[] points, double isoValue, double meanRadius, double smoothingDistance) {
         Geometry[] geometries = new Geometry[points.length];
         for (int i = 0; i < points.length; ++i) {
             Coordinate c = points[i];
@@ -232,7 +232,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             sw.start();
         }
 
-        Geometry shellGeometry = concaveHullByLength(geometry, convertSmoothingFactorToDistance(smoothingFactor, maxRadius));
+        Geometry shellGeometry = concaveHullByLength(geometry, smoothingDistance);
         if (shellGeometry instanceof GeometryCollection geomColl) {
             if (geomColl.isEmpty())
                 return;
