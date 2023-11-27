@@ -100,7 +100,7 @@ restorecon -vvRF ${ORS_HOME}
 
 %postun
 
-if [ "$1" = "0" ]; then
+if [ "$1" == "0" ]; then
     semanage fcontext -a -t unlabeled_t ${ORS_HOME}
     restorecon -vvRF ${ORS_HOME}
 fi
