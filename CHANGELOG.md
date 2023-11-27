@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Fixed
+- fixed setting SELinux type during update of SELinux RPM package  
 
 ## [7.2.0] - 2023-11-16
 ### Added
