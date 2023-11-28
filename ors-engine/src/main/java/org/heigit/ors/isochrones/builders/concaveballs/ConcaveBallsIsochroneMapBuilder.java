@@ -338,7 +338,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         int nodeId;
         int edgeId;
 
-        int maxSplitLength = 20000;
         StopWatch sw = new StopWatch();
 
         for (IntObjectCursor<SPTEntry> entry : map) {
@@ -368,17 +367,27 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                     double edgeDist = iter.getDistance();
                     boolean detailedShape = (edgeDist > 200);
                     if (((maxCost >= detailedZone && maxCost <= isolineCost) || detailedShape)) {
+                        if (LOGGER.isDebugEnabled())
+                            sw.start();
                         detailedShape(points, minSplitLength, iter, detailedShape, goalEdge, bufferSize);
+                        if (LOGGER.isDebugEnabled())
+                            sw.stop();
                     } else {
                         addPoint(points, nodeAccess.getLon(nodeId), nodeAccess.getLat(nodeId));
                     }
                 }
             } else {
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
+                    if (LOGGER.isDebugEnabled())
+                        sw.start();
                     cutEdge(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
+                    if (LOGGER.isDebugEnabled())
+                        sw.stop();
                 }
             }
         }
+        if (LOGGER.isDebugEnabled())
+            LOGGER.debug("Expanding edges " + sw.getSeconds());
 
         Coordinate[] coordinates = new Coordinate[points.size()];
 
