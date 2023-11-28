@@ -1,16 +1,6 @@
----
-parent: Installation and Usage
-nav_order: 2
-title: Building from Source
----
-
 # Building from Source
-{: .no_toc }
 
 **We recommend running openrouteservice using a Docker container (see [Running with Docker](Running-with-Docker))**
-
-1. TOC
-{:toc}
 
 ## Installation from source
 

@@ -1,10 +1,3 @@
----
-parent: Documentation
-nav_order: 5
-title: Instruction Types
----
-
-
 # Instruction Types
 The following table contains the encoding of the instruction types present in the `type`-field in a step of a segment of a route.
 

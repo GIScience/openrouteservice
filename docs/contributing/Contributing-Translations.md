@@ -1,9 +1,3 @@
----
-parent: Contributing
-nav_order: 1
-title: Contributing Translations
----
-
 # Translations
 If you notice any thing wrong with translations, or you want to add a new language to the openrouteservice instructions, please add/edit files in the [`src/main/resources/resources/locales`](https://github.com/GIScience/openrouteservice/tree/master/ors-engine/src/main/resources/resources/locales) folder. You can use the [`ors_en.resources`](https://github.com/GIScience/openrouteservice/openrouteservice/src/main/resources/resources/locales/ors_en-US.resources) file as a template as to what information needs to be present.
 As a guide, for each instruction there are two formats - one where there is a named place (i.e. 47 Berlinerstraße) and one without. It is important to keep the `{way_name}` tag in the text, but it should be moved to the correct location.

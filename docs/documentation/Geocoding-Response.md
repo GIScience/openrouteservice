@@ -1,9 +1,3 @@
----
-parent: Documentation
-nav_order: 11
-title: Geocoding Response
----
-
 # Geocoding Response
 
 Explanation of returned parameters

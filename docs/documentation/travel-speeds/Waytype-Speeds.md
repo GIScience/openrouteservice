@@ -1,10 +1,3 @@
----
-grand_parent: Documentation
-parent: Travel Speeds
-nav_order: 1
-title: Waytype Speeds
----
-
 # Waytype Speeds
 The waytypes correspond to the OSM [highway](https://wiki.openstreetmap.org/wiki/Key:highway) tag value.
 This table aggregates the values in the [speed value files][svf].

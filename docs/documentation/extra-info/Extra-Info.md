@@ -1,11 +1,3 @@
----
-parent: Documentation
-nav_order: 6
-has_children: true
-has_toc: false
-title: Extra Info 
----
-
 # Extra Info
 
 When requesting routes, there are a number of "extra info" items that can be requested to give you more information about the route. This info could be things like the road surface, track type, or OpenStreetMap way ID. The list below details which extra info items are available for each profile **in the routing provided by https://api.openrouteservice.org**.

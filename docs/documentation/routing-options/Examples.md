@@ -1,10 +1,3 @@
----
-grand_parent: Documentation
-parent: Routing Options
-nav_order: 2
-title: Examples
----
-
 # Examples
 
 **If your request works without the options object, but returns an error with it: try to [%-encode](Routing-Options#url-encoding) the options object!**
