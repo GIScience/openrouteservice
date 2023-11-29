@@ -159,7 +159,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
             float smoothingFactor = parameters.getSmoothingFactor();
             var smoothingDistance = convertSmoothingFactorToDistance(smoothingFactor, maxRadius);
-            var smoothingDistanceMeter = dcFast.calcDist(0.0, 0.0, 0.0, smoothingDistance);
+            var smoothingDistanceMeter = GeomUtility.degreesToMetres(smoothingDistance);
 
             Coordinate[] points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85, smoothingDistanceMeter);
 
