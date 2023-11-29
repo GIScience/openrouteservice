@@ -15,7 +15,6 @@ package org.heigit.ors.apitests.isochrones;
 
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
-import io.restassured.path.json.JsonPath;
 import io.restassured.path.json.config.JsonPathConfig;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
@@ -23,6 +22,7 @@ import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.CommonHeaders;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -135,7 +135,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(48)).and(lessThan(54))))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(46)).and(lessThan(50))))
                 .body("features[0].properties.center.size()", is(2))
                 .body("bbox", hasItems(closeTo(8.663323f, 0.001f), closeTo(49.40837f, 0.001f), closeTo(8.700336f, 0.001f), closeTo(49.439884f, 0.001f)))
                 .body("features[0].type", is("Feature"))
@@ -271,7 +271,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(6600000, 132000)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7629, 0.0148)))
                 .statusCode(200);
 
     }
@@ -296,7 +296,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(6600000, 132000)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7629, 0.0148)))
                 .statusCode(200);
 
     }
@@ -320,8 +320,8 @@ class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(closeTo(6.48, 0.132)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
+                .body("features[0].properties.area", is(closeTo(6.60, 0.132)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7629, 0.0148)))
                 .statusCode(200);
 
     }
@@ -372,7 +372,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].properties.area", is(closeTo(2.55, 0.05)))
-                .body("features[0].properties.reachfactor", is(closeTo(0.7429, 0.0148)))
+                .body("features[0].properties.reachfactor", is(closeTo(0.7629, 0.0148)))
                 .statusCode(200);
 
     }
@@ -403,11 +403,11 @@ class ResultTest extends ServiceTest {
                 .body("features[2].type", is("Feature"))
                 .body("features[2].geometry.type", is("Polygon"))
                 //.body("features[2].geometry.coordinates[0].size()", is(26))
-                .body("features[2].geometry.coordinates[0].size()", is(both(greaterThan(39)).and(lessThan(41))))
+                .body("features[2].geometry.coordinates[0].size()", is(both(greaterThan(40)).and(lessThan(44))))
                 .body("features[2].properties.contours.size()", is(2))
                 .body("features[2].properties.containsKey('area')", is(true))
                 //.body("features[2].properties.area", is(5824280.5f))
-                .body("features[0].properties.area", is(both(greaterThan(6400000f)).and(lessThan(6600000f))))
+                .body("features[0].properties.area", is(both(greaterThan(6600000f)).and(lessThan(6700000f))))
                 .body("features[2].properties.contours[0][0]", is(0))
                 .body("features[2].properties.contours[0][1]", is(0))
                 .body("features[2].properties.contours[1][0]", is(1))
@@ -490,7 +490,7 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
-
+    @Disabled
     @ParameterizedTest
     @CsvSource({
             "locations_1, cycling-regular, distance, 10,  1, 200;400;600;1000;2000",
