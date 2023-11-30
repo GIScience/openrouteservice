@@ -404,16 +404,15 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             return;
         }
 
-        PointList expandedPoints = new PointList(pl.size(), pl.is3D());
-
-        for (int i = 0; i < pl.size() - 1; i++)
-            splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
-        pl.add(expandedPoints);
-
-        int size = pl.size();
+        double edgeDist = iter.getDistance();
+        if (edgeDist > minSplitLength) {
+            PointList expandedPoints = new PointList(pl.size(), pl.is3D());
+            for (int i = 0; i < pl.size() - 1; i++)
+                splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
+            pl.add(expandedPoints);
+        }
 
         double edgeCost = maxCost - minCost;
-        double edgeDist = iter.getDistance();
         double costPerMeter = edgeCost / edgeDist;
         double distPolyline = 0.0;
 
@@ -422,7 +421,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         double lat1;
         double lon1;
 
-        for (int i = 1; i < size; ++i) {
+        for (int i = 1; i < pl.size(); ++i) {
             lat1 = pl.getLat(i);
             lon1 = pl.getLon(i);
 
@@ -456,11 +455,14 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         if (pl.isEmpty()) {
             return;
         }
-        PointList expandedPoints = new PointList(pl.size(), pl.is3D());
 
-        for (int i = 0; i < pl.size() - 1; i++)
-            splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
-        pl.add(expandedPoints);
+        double edgeDist = iter.getDistance();
+        if (edgeDist > minSplitLength) {
+            PointList expandedPoints = new PointList(pl.size(), pl.is3D());
+            for (int i = 0; i < pl.size() - 1; i++)
+                splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
+            pl.add(expandedPoints);
+        }
 
         int size = pl.size();
 
