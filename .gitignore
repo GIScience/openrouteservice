@@ -25,5 +25,5 @@ envs/
 ors-config-repo/
 
 # docs stuff
-docs/.vitepress/dist
-docs/.vitepress/cache
+*/.vitepress/dist
+*/.vitepress/cache
