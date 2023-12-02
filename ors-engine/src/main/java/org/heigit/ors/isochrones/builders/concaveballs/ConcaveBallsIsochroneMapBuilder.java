@@ -398,11 +398,9 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         return coordinates;
     }
 
-    private void cutEdge(List<Coordinate> points, double isolineCost, double minSplitLength, EdgeIteratorState iter, float maxCost, float minCost, double bufferSize) {
+    private PointList edgeToPoints(EdgeIteratorState iter, double minSplitLength) {
+        // always use mode=3, since other ones do not provide correct results
         PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
-        if (pl.isEmpty()) {
-            return;
-        }
 
         double edgeDist = iter.getDistance();
         if (edgeDist > minSplitLength) {
@@ -412,6 +410,16 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
             pl.add(expandedPoints);
         }
 
+        return pl;
+    }
+
+    private void cutEdge(List<Coordinate> points, double isolineCost, double minSplitLength, EdgeIteratorState iter, float maxCost, float minCost, double bufferSize) {
+        PointList pl = edgeToPoints(iter, minSplitLength);
+        if (pl.isEmpty()) {
+            return;
+        }
+
+        double edgeDist = iter.getDistance();
         double edgeCost = maxCost - minCost;
         double costPerMeter = edgeCost / edgeDist;
         double distPolyline = 0.0;
@@ -450,18 +458,9 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
     }
 
     private void detailedShape(List<Coordinate> points, double minSplitLength, EdgeIteratorState iter, boolean detailedShape, SPTEntry goalEdge, double bufferSize) {
-        // always use mode=3, since other ones do not provide correct results
-        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
+        PointList pl = edgeToPoints(iter, minSplitLength);
         if (pl.isEmpty()) {
             return;
-        }
-
-        double edgeDist = iter.getDistance();
-        if (edgeDist > minSplitLength) {
-            PointList expandedPoints = new PointList(pl.size(), pl.is3D());
-            for (int i = 0; i < pl.size() - 1; i++)
-                splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
-            pl.add(expandedPoints);
         }
 
         int size = pl.size();
