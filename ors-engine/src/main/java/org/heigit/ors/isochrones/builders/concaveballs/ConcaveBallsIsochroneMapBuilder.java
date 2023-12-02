@@ -487,12 +487,11 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
                 lon1 = pl.getLon(i);
 
                 addPoint(points, lon0, lat0);
-                if (i == size - 1)
-                    addPoint(points, lon1, lat1);
 
                 lon0 = lon1;
                 lat0 = lat1;
             }
+            addPoint(points, lon0, lat0);
         }
     }
 
