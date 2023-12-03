@@ -73,7 +73,7 @@ public class BorderNodeDistanceStorage implements Storable<BorderNodeDistanceSto
     public void init() {
         borderNodes.create(1000);
         getNumBorderNodes();
-        borderNodes.ensureCapacity((long) borderNodeCount * byteCount + necessaryCapacity * byteCount + borderNodeCount * 4);
+        borderNodes.ensureCapacity((long) borderNodeCount * byteCount + (long) necessaryCapacity * byteCount + borderNodeCount * 4);
         borderNodes.setHeader(0, borderNodeCount);
         borderNodeIndexOffset = borderNodeCount * byteCount;
         borderNodePointer = borderNodeIndexOffset;
