@@ -43,72 +43,71 @@ export default defineConfig({
                 items: [
                     {text: 'Getting Started', link: '/getting-started'},
                     {
-                        text: 'Installation and Usage', collapsed: true, link: '/installation/Installation-and-Usage',
+                        text: 'API Reference', collapsed: true, link: '/api-reference/',
                         items: [
-                            {text: 'Running with Docker', link: '/installation/Running-with-Docker'},
-                            {text: 'Building from Source', link: '/installation/Building-from-Source'},
-                            {text: 'System Requirements', link: '/installation/System-Requirements'},
-                            {text: 'Configuration', link: '/installation/Configuration'},
-                            {text: 'Advanced Docker Setup', link: '/installation/Advanced-Docker-Setup'},
-                            {text: 'Backend Documentation', link: '/installation/Backend-Documentation'}
-                        ]
-                    },
-                    {text: 'Data', link: '/Data'},
-                    {
-                        text: 'Contributing', collapsed: true, link: '/contributing/Contributing',
-                        items: [
-                            {text: 'Contributing Translations', link: '/contributing/Contributing-Translations'}
-                        ]
-                    },
-                    {
-                        text: 'Documentation', collapsed: true, link: '/documentation/Documentation',
-                        items: [
-                            {text: 'Tag Filtering', link: '/documentation/Tag-Filtering'},
                             {
-                                text: 'Travel Speeds',
-                                collapsed: true,
-                                link: '/documentation/travel-speeds/Travel-Speeds',
+                                text: 'Endpoints', collapsed: true, link: '/api-reference/endpoints/',
                                 items: [
-                                    {text: 'Waytype Speeds', link: '/documentation/travel-speeds/Waytype-Speeds'},
-                                    {text: 'Surface Speeds', link: '/documentation/travel-speeds/Surface-Speeds'},
-                                    {text: 'Tracktype Speeds', link: '/documentation/travel-speeds/Tracktype-Speeds'},
-                                    {text: 'Country Speeds', link: '/documentation/travel-speeds/Country-Speeds'}
-                                ]
-                            },
-                            {text: 'Route Attributes', link: '/documentation/Route-Attributes'},
-                            {
-                                text: 'Routing Options',
-                                collapsed: true,
-                                link: '/documentation/routing-options/Routing-Options',
-                                items: [
-                                    {text: 'Examples', link: '/documentation/routing-options/Examples'},
-                                    {text: 'Country List', link: '/documentation/routing-options/Country-List'},
-                                ]
-                            },
-                            {text: 'Instruction Types', link: '/documentation/Instruction-Types'},
-                            {
-                                text: 'Extra Info', collapsed: true, link: '/documentation/extra-info/Extra-Info',
-                                items: [
-                                    {text: 'Steepness', link: '/documentation/extra-info/Steepness'},
-                                    {text: 'Surface', link: '/documentation/extra-info/Surface'},
-                                    {text: 'Waycategory', link: '/documentation/extra-info/Waycategory'},
-                                    {text: 'Waytype', link: '/documentation/extra-info/Waytype'},
-                                    {text: 'Trail Difficulty', link: '/documentation/extra-info/Trail-Difficulty'},
                                     {
-                                        text: 'Road Access Restrictions',
-                                        link: '/documentation/extra-info/Road-Access-Restrictions'
-                                    }
+                                        text: 'Directions', collapsed: true, link: '/api-reference/endpoints/directions/',
+                                        items: [
+                                            {text: 'Extra info', link: '/api-reference/endpoints/directions/extra-info'},
+                                            {text: 'Geometry decoding', link: '/api-reference/endpoints/directions/geometry-decoding'},
+                                            {text: 'Instruction types', link: '/api-reference/endpoints/directions/instruction-types'},
+                                        ]
+                                    },
+                                    {text: 'Isochrones', link: '/api-reference/endpoints/isochrones'},
+                                    {text: 'Matrix', link: '/api-reference/endpoints/matrix'},
+                                    {text: 'POIs', link: '/api-reference/endpoints/pois'},
+                                    {text: 'Geocoding', link: '/api-reference/endpoints/geocoding'},
                                 ]
                             },
-                            {text: 'Geometry Decoding', link: '/documentation/Geometry-Decoding'},
-                            {text: 'Structured Geocoding Query', link: '/documentation/Structured-Geocoding-Query'},
-                            {text: 'Matrix Response', link: '/documentation/Matrix-Response'},
-                            {text: 'Places Request and Response', link: '/documentation/Places-Request-and-Response'},
-                            {text: 'Geocoding Response', link: '/documentation/Geocoding-Response'},
-                            {text: 'Error Codes', link: '/documentation/Error-Codes'},
+                            {text: 'Error Codes', link: '/api-reference/error-codes'},
                         ]
                     },
-                    {text: 'FAQ', link: '/Frequently-Asked-Questions'}
+                    {
+                        text: 'Run ORS instance', collapsed: true, link: '/run-instance/',
+                        items: [
+                            {text: 'System Requirements', link: '/run-instance/system-requirements'},
+                            {text: 'Data', link: '/run-instance/data'},
+                            {
+                                text: 'Installation', collapsed: true, link: '/run-instance/installation/',
+                                items: [
+                                    {text: 'Running JAR / WAR', link: '/run-instance/installation/running-jar-war'},
+                                    {text: 'Running with Docker', link: '/run-instance/installation/running-with-docker'},
+                                    {text: 'Building from Source', link: '/run-instance/installation/building-from-source'},
+                                ]
+                            },
+                            {
+                                text: 'Configuration', collapsed: true, link: '/run-instance/configuration/',
+                                items: [
+                                    {text: 'Endpoints and limits', link: '/run-instance/configuration/endpoints-and-limits'},
+                                    {text: 'Profiles', link: '/run-instance/configuration/profiles'},
+                                    {text: 'Extras', link: '/run-instance/configuration/extras'},
+                                    {text: 'Logging', link: '/run-instance/configuration/logging'},
+                                    {text: 'Spring', link: '/run-instance/configuration/spring'}
+                                ]
+                            },
+                        ]
+                    },
+                    {
+                        text: 'Contributing', collapsed: true, link: '/contributing/',
+                        items: [
+                            {text: 'Opening project in IntelliJ', link: '/contributing/opening-project-in-intellij'},
+                            {text: 'Backend documentation', link: '/contributing/backend-documentation'},
+                            {text: 'Contribution guidelines', link: '/contributing/contribution-guidelines'},
+                            {text: 'Contributing translations', link: '/contributing/contributing-translations'},
+                        ]
+                    },
+                    {
+                        text: 'Technical details', collapsed: true, link: '/technical-details/',
+                        items: [
+                            {text: 'Country list', link: '/technical-details/country-list'},
+                            {text: 'Travel speeds', link: '/technical-details/travel-speeds'},
+                            {text: 'Tag filtering', link: '/technical-details/tag-filtering'}
+                        ]
+                    },
+                    {text: 'FAQ', link: '/frequently-asked-questions'}
                 ]
             }
         ],
