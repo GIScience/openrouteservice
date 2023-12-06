@@ -1,9 +1,3 @@
-logging:
-  config: classpath:log4j.properties
-  log4j2:
-    config:
-      override: classpath:logs/TEST_LOGGING.json
-
 ors:
   cors:
     allowed_origins: https://example.org, https://test.com, http://localhost:8080, http://127.0.0.1:8082

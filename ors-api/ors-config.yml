@@ -2,11 +2,8 @@
 # This file contains parameters for openrouteservice.
 # For a full list of possible parameters see documentation, below are some examples.
 
-### uncomment the following lines to turn on debug output
-#logging:
-#  log4j2:
-#    config:
-#      override: classpath:logs/DEBUG_LOGGING.json
+### uncomment the following line to turn on debug output
+#logging.level.org.heigit: DEBUG
 
 ors:
   ### uncomment the following lines to change CORS settings.

@@ -75,7 +75,7 @@ WORKDIR ${BASE_FOLDER}
 # Copy over the needed bits and pieces from the other stages.
 COPY --chown=ors:ors --from=tomcat /tmp/tomcat ${BASE_FOLDER}/tomcat
 COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/tomcat/webapps/ors.war
-COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/log4j.properties ${BASE_FOLDER}/tomcat/conf/logging.properties
+COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/log4j-tomcat.properties ${BASE_FOLDER}/tomcat/conf/logging.properties
 COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/docker-entrypoint.sh
 COPY --chown=ors:ors ./ors-api/ors-config.yml ${BASE_FOLDER}/tmp/ors-config.yml
 COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/tmp/osm_file.pbf
