@@ -56,10 +56,14 @@ export default defineConfig({
                                             {text: 'Instruction types', link: '/api-reference/endpoints/directions/instruction-types'},
                                         ]
                                     },
-                                    {text: 'Isochrones', link: '/api-reference/endpoints/isochrones'},
-                                    {text: 'Matrix', link: '/api-reference/endpoints/matrix'},
-                                    {text: 'POIs', link: '/api-reference/endpoints/pois'},
-                                    {text: 'Geocoding', link: '/api-reference/endpoints/geocoding'},
+                                    {text: 'Isochrones', link: '/api-reference/endpoints/isochrones/'},
+                                    {text: 'Matrix', link: '/api-reference/endpoints/matrix/'},
+                                    {text: 'Export', link: '/api-reference/endpoints/export/'},
+                                    {text: 'Snapping', link: '/api-reference/endpoints/snapping/'},
+                                    {text: 'POIs', link: '/api-reference/endpoints/pois/'},
+                                    {text: 'Geocoding', link: '/api-reference/endpoints/geocoding/'},
+                                    {text: 'Health', link: '/api-reference/endpoints/health/'},
+                                    {text: 'Status', link: '/api-reference/endpoints/status/'},
                                 ]
                             },
                             {text: 'Error Codes', link: '/api-reference/error-codes'},
