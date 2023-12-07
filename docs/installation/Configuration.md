@@ -1,12 +1,6 @@
 # Configuration
 
-The configuration of your own **openrouteservice** instance is done in a YAML file called `ors-config.yml`.
-**openrouteservice** looks for such files in different locations. If a property is set in multiple files, later
-occurances will override previous ones.
 
-- `/etc/openrouteservice/ors-config.yml`
-- `~/.openrouteservice/ors-config.yml`
-- `./ors-config.yml` (in the runtime working directory)
 
 ### Available properties
 
