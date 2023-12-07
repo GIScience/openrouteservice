@@ -60,8 +60,6 @@ export default defineConfig({
                                     {text: 'Matrix', link: '/api-reference/endpoints/matrix/'},
                                     {text: 'Export', link: '/api-reference/endpoints/export/'},
                                     {text: 'Snapping', link: '/api-reference/endpoints/snapping/'},
-                                    {text: 'POIs', link: '/api-reference/endpoints/pois/'},
-                                    {text: 'Geocoding', link: '/api-reference/endpoints/geocoding/'},
                                     {text: 'Health', link: '/api-reference/endpoints/health/'},
                                     {text: 'Status', link: '/api-reference/endpoints/status/'},
                                 ]
