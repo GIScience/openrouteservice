@@ -2,13 +2,14 @@
 openrouteservice makes use of public opensource data. To generate the best routes, a number of different datasets are used.
 
 ## Base Data
-The base data used for the road network and related information (road type, access restrictions etc.) is [OpenStreetMap](https://openstreetmap.org). This dataset is a free and open dataset that can be edited by anyone.
+The base data used for the road network and related information (road type, access restrictions etc.) is [OpenStreetMap](https://openstreetmap.org) (OSM). This dataset is a free and open dataset that can be edited by anyone.  
+You can download the latest OSM dataset from https://planet.openstreetmap.org/ or reginal extracts from http://download.geofabrik.de/.
 
 ## Elevation
-The data used for elevation are [SRTM](http://srtm.csi.cgiar.org/) and GMTED.  
+The data used for elevation are [SRTM](http://srtm.csi.cgiar.org/) and [GMTED](https://www.usgs.gov/coastal-changes-and-impacts/gmted2010).  
 
 ## Population
-When requesting isochrones, you can also request to get population data for the isochrone areas. The data used for this is the [Global Human Settlement Layer (GHSL)](https://data.jrc.ec.europa.eu/dataset/jrc-ghsl-ghs_pop_gpw4_globe_r2015a) from the European Commission. openrouteservice uses the 2015 data at a resolution of 250m.
+When requesting isochrones, you can also request to get population data for the isochrone areas. The data used for this is the [Global Human Settlement Layer (GHSL)](https://ghsl.jrc.ec.europa.eu/ghs_pop2023.php) from the European Commission. openrouteservice uses the 2020 data at a resolution of 100m.
 
 ## Borders
 Data relating to the avoid borders features is derived from administrative boundaries features in OpenStreetMap. Information about open borders is obtained from [Wikipedia](https://en.wikipedia.org/wiki/Open_border).

@@ -11,7 +11,7 @@ If that doesn't work, the sidebar has you covered:
   [configuring openrouteservice](installation/Configuration),
   [IDE usage](installation/Opening-Project-in-IntelliJ) and
   [more docker stuff](installation/Advanced-Docker-Setup)
-* [Data](Data) contains info about the used data sets.
+* [Data](run-instance/data) contains info about the used data sets.
 * [Contributing](contributing/Contributing) contains info about contributing to
   the openrouteservice, the OpenStreetMap and
   [translations](contributing/Contributing-Translations)
