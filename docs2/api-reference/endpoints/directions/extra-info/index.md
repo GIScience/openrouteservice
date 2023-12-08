@@ -1,8 +1,15 @@
 # Extra Info
 
-When requesting routes, there are a number of "extra info" items that can be requested to give you more information about the route. This info could be things like the road surface, track type, or OpenStreetMap way ID. The list below details which extra info items are available for each profile **in the routing provided by https://api.openrouteservice.org**.
+When requesting routes, there are a number of "extra info" items that can be requested to give you more information about the route. 
+This info could be things like the road surface, track type, or OpenStreetMap way ID. 
+The list below details which extra info items are available for each profile in the routing provided by https://api.openrouteservice.org.
 
-|       Parameter        | Description                                                                                                                                  | Code Information                                             |
+## Specify Extra Info in Request
+
+The desired extra info can be specified in the request body parameter `extra_info`, 
+a JSON array with these possible values:
+
+|         Value          | Description                                                                                                                                  | Response Code Information                                    |
 |:----------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------------------------|
 |       steepness        | Provides information about how steep parts of the route are                                                                                  | [Steepness IDs](steepness.md)                                |
 |      suitability       | How suitable the way is based on characteristics of the route and the profile                                                                | 1 (unsuitable) - 10 (very suitable)                          |
@@ -17,7 +24,9 @@ When requesting routes, there are a number of "extra info" items that can be req
 |         green          | How "green" the parts of the route are (influenced by things like number of trees, parks, rivers etc.)                                       | 0 (minimal greenspace) - 10 (a lot of green space)           |
 |         noise          | How noisy the parts of the route are (influenced by things like proximity to highways)                                                       | 0 (quiet) - 10 (noisy)                                       |
 
-# Extra Info Availability
+## Extra Info Availability
+
+Some values are not available in all routing profiles:
 
 |                  | steepness | suitability | surface | waycategory | waytype | tollways | traildifficulty | osmid | roadaccessrestrictions | countryinfo | green | noise |
 |:----------------:|:---------:|:-----------:|:-------:|:-----------:|:-------:|:--------:|:---------------:|:-----:|:----------------------:|:-----------:|:-----:|:-----:|
@@ -29,3 +38,43 @@ When requesting routes, there are a number of "extra info" items that can be req
 |   foot-walking   |     x     |      x      |    x    |      x      |    x    |          |        x        |       |                        |             |   x   |   x   |
 |   foot-hiking    |     x     |      x      |    x    |      x      |    x    |          |        x        |       |                        |             |   x   |   x   |
 |    wheelchair    |     x     |      x      |    x    |      x      |    x    |          |        x        |   x   |                        |             |       |       |
+
+
+## Extra Info in Responses
+
+[//]: # (TODO describe)
+
+```json
+        "steepness": {
+          "values": [
+            [
+              0,
+              20,
+              0
+            ]
+          ],
+          "summary": [
+            {
+              "value": 0,
+              "distance": 1368.2,
+              "amount": 100
+            }
+          ]
+        },
+        "suitability": {
+          "values": [
+            [
+              0,
+              20,
+              3
+            ]
+          ],
+          "summary": [
+            {
+              "value": 3,
+              "distance": 1368.2,
+              "amount": 100
+            }
+          ]
+        }
+```

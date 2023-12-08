@@ -51,7 +51,8 @@ export default defineConfig({
                                     {
                                         text: 'Directions', collapsed: true, link: '/api-reference/endpoints/directions/',
                                         items: [
-                                            {text: 'Routing options', link: '/api-reference/endpoints/directions/routing-options'},
+                                            {text: 'Requests and Return Types', link: '/api-reference/endpoints/directions/requests-and-return-types'},
+                                            {text: 'Routing Options', link: '/api-reference/endpoints/directions/routing-options'},
                                             {
                                                 text: 'Extra info', collapsed: true, link: '/api-reference/endpoints/directions/extra-info/',
                                                 items: [
@@ -64,9 +65,8 @@ export default defineConfig({
                                                     {text: 'Country IDs', link: '/technical-details/country-list'},
                                                 ]
                                             },
-                                            {text: 'Examples', link: '/api-reference/endpoints/directions/examples'},
-                                            {text: 'Geometry decoding', link: '/api-reference/endpoints/directions/geometry-decoding'},
-                                            {text: 'Instruction types', link: '/api-reference/endpoints/directions/instruction-types'},
+                                            {text: 'Geometry Decoding', link: '/api-reference/endpoints/directions/geometry-decoding'},
+                                            {text: 'Instruction Types', link: '/api-reference/endpoints/directions/instruction-types'},
                                         ]
                                     },
                                     {text: 'Isochrones', link: '/api-reference/endpoints/isochrones/'},
