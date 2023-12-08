@@ -1,6 +1,6 @@
 # Routing Options
 
-For advanced options formatted as json object. For structure refer to the [examples](Examples).
+For advanced options formatted as json object. For structure refer to the [examples](examples).
 The available parameters are:
 
 
@@ -18,7 +18,7 @@ The available parameters are:
 
 - `avoid_borders` : `"all"` for no border crossing. `"controlled"` to cross open borders but avoid controlled ones. Only for `driving-*` profiles.
 
-- `avoid_countries` : array of country ids to exclude from routing with `driving-*` profiles. Can be used together with `"avoid_borders": "controlled"`. `"[11,193]"` would exclude Austria and Switzerland. List of countries and application examples can be found in the [country list](Country-List).
+- `avoid_countries` : array of country ids to exclude from routing with `driving-*` profiles. Can be used together with `"avoid_borders": "controlled"`. `"[11,193]"` would exclude Austria and Switzerland. List of countries and application examples can be found in the [country list](../../../technical-details/country-list.md).
 
 - `vehicle_type` (for `profile=driving-hgv` only): `hgv`,`bus`,`agricultural`,`delivery`,`forestry` and `goods`. It is needed for **vehicle restrictions** to work.
 

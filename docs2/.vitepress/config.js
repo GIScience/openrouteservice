@@ -51,7 +51,20 @@ export default defineConfig({
                                     {
                                         text: 'Directions', collapsed: true, link: '/api-reference/endpoints/directions/',
                                         items: [
-                                            {text: 'Extra info', link: '/api-reference/endpoints/directions/extra-info'},
+                                            {text: 'Routing options', link: '/api-reference/endpoints/directions/routing-options'},
+                                            {
+                                                text: 'Extra info', collapsed: true, link: '/api-reference/endpoints/directions/extra-info/',
+                                                items: [
+                                                    {text: 'Steepness IDs', link: '/api-reference/endpoints/directions/extra-info/steepness'},
+                                                    {text: 'Surface IDs', link: '/api-reference/endpoints/directions/extra-info/surface'},
+                                                    {text: 'Category IDs', link: '/api-reference/endpoints/directions/extra-info/waycategory'},
+                                                    {text: 'Type IDs', link: '/api-reference/endpoints/directions/extra-info/waytype'},
+                                                    {text: 'Difficulty IDs', link: '/api-reference/endpoints/directions/extra-info/trail-difficulty'},
+                                                    {text: 'Restriction IDs', link: '/api-reference/endpoints/directions/extra-info/road-access-restrictions'},
+                                                    {text: 'Country IDs', link: '/technical-details/country-list'},
+                                                ]
+                                            },
+                                            {text: 'Examples', link: '/api-reference/endpoints/directions/examples'},
                                             {text: 'Geometry decoding', link: '/api-reference/endpoints/directions/geometry-decoding'},
                                             {text: 'Instruction types', link: '/api-reference/endpoints/directions/instruction-types'},
                                         ]

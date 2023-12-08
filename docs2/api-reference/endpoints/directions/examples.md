@@ -1,6 +1,6 @@
 # Examples
 
-**If your request works without the options object, but returns an error with it: try to [%-encode](Routing-Options#url-encoding) the options object!**
+**If your request works without the options object, but returns an error with it: try to [%-encode](routing-options.md#url-encoding) the options object!**
 
 Some options examples in readable and minified JSON form:
 
