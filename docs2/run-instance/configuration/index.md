@@ -13,3 +13,21 @@ Default settings for all configurable parameters are defined in
 
 In the past **openrouteservice** was configured [via JSON file](./ors-config-json). This configuration method has been deprecated and will
 be eventually removed, therefore we strongly discourage you from using it.
+
+## Available properties
+
+The properties are organized in a hierarchical structure, with the following ones at top level.
+
+- [spring-specific](./spring) settings, such as `server` and `spring`
+- settings ralating to [logging](./logging)
+- **openrouteservice**  settings organized under the following four blocks: 
+
+| key                                     | description                                                                 |
+|-----------------------------------------|-----------------------------------------------------------------------------|
+| [ors.endpoints](./endpoints-and-limits) | Settings required at runtime to process API requests.                       |
+| [ors.engine](./engine)                  | Settings required at graph-build time during startup.                       |
+| [ors.cors](./cors)                      | CORS settings for the **openrouteservice** API.                             |
+| [ors.messages](./messages)              | System messages that can be sent with API responses following simple rules. |
+
+
+
