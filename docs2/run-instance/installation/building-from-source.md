@@ -1,10 +1,19 @@
 # Building from Source
 
-**We recommend running openrouteservice using a Docker container (see [Running with Docker](Running-with-Docker))**
+If you need to customize your openrouteservice instance even further than what is possible by [configuration](../configuration/), or want to start contributing to the openrouteservice project, the following section will give you starting points.
+
+## Prerequisites
+
+The following documentation assumes you are running an Ubuntu 20.04 system (also generally works with newer Ubuntu versions). Depending on your environent, you might need to adjust certain details. You will also need to make sure to have the following installed: 
+* [git](https://github.com/git-guides/install-git) should be available on your system
+* [java](https://www.java.com/en/) 17 should be available, preferably as default Java environment
+* [maven](https://maven.apache.org/) should be installed on your system
 
 ## Installation from source
 
-If you need to install without Docker, on an Ubuntu 20.04 system (also generally works with newer Ubuntu versions) you can use the following steps:
+[//]: # (TODO: overhaul contents below)
+
+If you need to install without Docker, you can use the following steps:
 
   1. (Fork and) Clone the openrouteservice repository to your machine.
       ```bash
@@ -12,8 +21,6 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
       cd openrouteservice
       ```
 
-  2. Make sure that you have java 17 set as the default Java environment.
-  3. Make sure that you have Maven installed.
   4. Download/create an OpenStreetMap pbf file on the machine.
   5. Copy the `ors-api/src/main/resources/ors-config-sample.json` file to
      the same location but renaming it to `ors-config.json`.

@@ -1,5 +1,7 @@
 # Running with Docker
 
+[//]: # (TODO: overhaul contents below)
+
 ## Install and run openrouteservice with docker
 
 > For a step by step guide check out [this YouTube video](https://www.youtube.com/watch?v=VQXlbqKArFk) (Thanks a lot SyntaxByte <3).
@@ -156,3 +158,5 @@ Note, `.osm`, `.osm.gz`, `.osm.zip` and `.pbf` file format are supported as OSM 
 By default the service status is queriable via the `http://localhost:8080/ors/v2/health` endpoint. When the service is ready, you will be able to request `http://localhost:8080/ors/v2/status` for further information on the running services.
 
 If you use the default dataset you will be able to request `http://localhost:8080/ors/v2/directions/foot-walking?start=8.676581,49.418204&end=8.692803,49.409465` for test purposes.
+
+[//]: # (TODO: add content from Advanced-Docker-Setup)

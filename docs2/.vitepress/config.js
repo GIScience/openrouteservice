@@ -89,7 +89,7 @@ export default defineConfig({
                                 text: 'Installation', collapsed: true, link: '/run-instance/installation/',
                                 items: [
                                     {text: 'Running JAR / WAR', link: '/run-instance/installation/running-jar-war'},
-                                    {text: 'Running with Docker', link: '/run-instance/installation/running-with-docker'},
+                                    {text: 'Running within a container', link: '/run-instance/installation/running-in-container'},
                                     {text: 'Building from Source', link: '/run-instance/installation/building-from-source'},
                                 ]
                             },
