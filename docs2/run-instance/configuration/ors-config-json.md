@@ -1,6 +1,6 @@
 # Configuration via `ors-config.json`
 
-The "old" configuration method is supported for a while for convenience. The below description is kept as long as *
+The "old" configuration method is supported for a while for convenience. The description below is kept as long as *
 *openrouteservice** still supports configuration via JSON file, but we do **not** recommend using this configuration
 method.
 
@@ -23,7 +23,7 @@ The top level element.
 | ors.services.routing    | object | settings for routing and its profiles | [routing](#orsservicesrouting)       | 
 | ors.services.isochrones | object | settings for isochrones restrictions  | [isochrones](#orsservicesisochrones) | 
 | ors.services.matrix     | object | settings for matrix restrictions      | [matrix](#orsservicesmatrix)         | 
-| ors.services.snap       | object | settings for snap                     | [matrix](#orsservicesmatrix)         | 
+| ors.services.snap       | object | settings for snap                     | [snap](#orsservicessnap)             | 
 
 ---
 
