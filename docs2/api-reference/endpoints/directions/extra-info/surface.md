@@ -1,5 +1,11 @@
 # Surface
 
+Value list for the directions response values in
+
+```jsonpath
+$.routes[*].extras.surface.values
+```
+
 This extra provides info about the [surface](https://wiki.openstreetmap.org/wiki/Key:surface) of the corresponding parts of the route.
 
 | Value |       Name       |

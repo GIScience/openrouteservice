@@ -1,5 +1,11 @@
 # Steepness
 
+Value list for the directions response values in
+
+```jsonpath
+$.routes[*].extras.steepness.values
+```
+
 Negative values indicate decline, positive incline.
 
 | Value | Encoding |

@@ -1,5 +1,11 @@
 # WayType
 
+Value list for the directions response values in
+
+```jsonpath
+$.routes[*].extras.waytype.values
+```
+
 This extra provides info about the type of the way of the corresponding parts of the route.
 
 | Value |     Name     |
