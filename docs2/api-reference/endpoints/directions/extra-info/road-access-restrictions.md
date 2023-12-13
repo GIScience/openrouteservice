@@ -18,3 +18,5 @@ Explanation of the values can be found in the [list of possible values](https://
 |   8   |             Delivery              |
 |  16   |              Private              |
 |  32   |            Permissive             |
+
+[//]: # (keep in sync with AccessRestrictionType.class)

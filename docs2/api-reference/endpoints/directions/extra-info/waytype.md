@@ -21,3 +21,5 @@ This extra provides info about the type of the way of the corresponding parts of
 | 8     | Steps        |
 | 9     | Ferry        |
 | 10    | Construction |
+
+[//]: # (keep in sync with org.heigit.ors.routing.graphhopper.extensions.WayType)

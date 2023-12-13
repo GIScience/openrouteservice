@@ -29,3 +29,5 @@ This extra provides info about the [surface](https://wiki.openstreetmap.org/wiki
 | 16    | Woodchips        |
 | 17    | Grass            |
 | 18    | Grass Paver      |
+
+[//]: # (keep in sync with org.heigit.ors.routing.graphhopper.extensions.SurfaceType)

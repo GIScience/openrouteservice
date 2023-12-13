@@ -21,3 +21,5 @@ Negative values indicate decline, positive incline.
 | 3     | 7-11%    |
 | 4     | 12-15%   |
 | 5     | >16%     |
+
+[//]: # (keep in sync with )

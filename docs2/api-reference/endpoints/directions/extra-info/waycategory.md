@@ -19,3 +19,5 @@ The exponential assignment of the values is used for [bit fields](http://eddmann
 | 32    | Tunnel                       |
 | 64    | Paved road                   |
 | 128   | Ford                         |
+
+[//]: # (keep in sync with )

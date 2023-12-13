@@ -18,3 +18,5 @@ This extra provides information about a trails difficulty for [hiking](https://w
 |   5   | sac_scale=demanding_alpine_hiking   | mtb:scale=4 |
 |   6   | sac_scale=difficult_alpine_hiking   | mtb:scale=5 |
 |   7   |                 ---                 | mtb:scale=6 |
+
+[//]: # (keep in sync with TrailDifficultyScaleGraphStorageBuilder.getSacScale)
