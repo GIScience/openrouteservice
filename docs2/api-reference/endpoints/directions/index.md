@@ -7,6 +7,6 @@ Here, however, a few topics are explained in more detail:
 
 * The different directions aka routing [requests and return types](requests-and-return-types.md)
 * How advanced [Routing Options](routing-options.md) can be defined
-* How [Extra Info](extra-info/index.md) like road surface, track type, or OpenStreetMap way ID can be requested
+* How [Extra Info](extra-info/index.md) like road surface, track type, OpenStreetMap way ID or additional [Route Attributes](route-attributes.md) can be requested
 * How geometries in directions responses can be [decoded](geometry-decoding.md)
 * How [Instruction Types](instruction-types.md) are encoded in the directions response

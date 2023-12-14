@@ -65,6 +65,7 @@ export default defineConfig({
                                                     {text: 'Country IDs', link: '/technical-details/country-list'},
                                                 ]
                                             },
+                                            {text: 'Route Attributes', link: '/api-reference/endpoints/directions/route-attributes'},
                                             {text: 'Geometry Decoding', link: '/api-reference/endpoints/directions/geometry-decoding'},
                                             {text: 'Instruction Types', link: '/api-reference/endpoints/directions/instruction-types'},
                                         ]

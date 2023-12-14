@@ -14,7 +14,7 @@ adjusting them for different
 If multiple values apply at any point, the lowest value is used.
 
 The speed limits can be reduced by setting the `maximum_speed` parameter in a [request][apidocs].
-The final [average speed](../Route-Attributes#avgspeed) can be requested by adding `avgspeed` to the `attributes` parameter.
+The final [average speed](../../../docs2/api-reference/endpoints/directions/route-attributes.md#avgspeed) can be requested by adding `avgspeed` to the `attributes` parameter.
 
 ### Driving profiles (car and HGV)
 The base travel speed for any road is based on a cascading assessment:
