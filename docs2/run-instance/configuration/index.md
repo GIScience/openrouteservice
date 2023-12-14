@@ -19,7 +19,7 @@ be eventually removed, therefore we strongly discourage you from using it.
 The properties are organized in a hierarchical structure, with the following ones at top level.
 
 - [spring-specific](./spring) settings, such as `server` and `spring`
-- settings ralating to [logging](./logging)
+- settings relating to [logging](./logging)
 - **openrouteservice**  settings organized under the following four blocks: 
 
 | key                                     | description                                                                 |
