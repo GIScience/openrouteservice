@@ -119,7 +119,14 @@ export default defineConfig({
                         text: 'Technical details', collapsed: true, link: '/technical-details/',
                         items: [
                             {text: 'Country list', link: '/technical-details/country-list'},
-                            {text: 'Travel speeds', link: '/technical-details/travel-speeds'},
+                            {text: 'Travel speeds', link: '/technical-details/travel-speeds/',
+                                items: [
+                                    {text: 'Country Speeds', link: '/technical-details/travel-speeds/country-speeds.md'},
+                                    {text: 'Tracktype Speeds', link: '/technical-details/travel-speeds/tracktype-speeds.md'},
+                                    {text: 'Waytype Speeds', link: '/technical-details/travel-speeds/waytype-speeds.md'},
+                                    {text: 'Surface Speeds', link: '/technical-details/travel-speeds/surface-speeds.md'},
+                                ]
+                            },
                             {text: 'Tag filtering', link: '/technical-details/tag-filtering'}
                         ]
                     },

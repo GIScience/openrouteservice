@@ -13,38 +13,38 @@ adjusting them for different
 [surfaces](https://wiki.openstreetmap.org/wiki/Key:surface) of the road.
 If multiple values apply at any point, the lowest value is used.
 
-The speed limits can be reduced by setting the `maximum_speed` parameter in a [request][apidocs].
-The final [average speed](../../../docs2/api-reference/endpoints/directions/route-attributes.md#avgspeed) can be requested by adding `avgspeed` to the `attributes` parameter.
+The speed limits can be reduced by setting the `maximum_speed` parameter in a [directions request][apidocs].
+The final [average speed](../../api-reference/endpoints/directions/route-attributes.md#avgspeed) can be requested by adding `avgspeed` to the `attributes` parameter.
 
 ### Driving profiles (car and HGV)
 The base travel speed for any road is based on a cascading assessment:
-1. When an tag explicitly stating the speed limit for a road is present on the
+1. When a tag explicitly stating the speed limit for a road is present on the
    way in OSM (`maxspeed` or `maxspeed:forward / maxspeed:backward`), this is
    used as the base speed.
 2. If the way has a `zone:maxspeed` or `zone:traffic` tag, this is compared to
    country-specific values in the `max_speeds` array of the
    [speed value files][svf].
-   An overview can be found in the [country speed table](Country-Speeds). 
+   An overview can be found in the [country speed table](country-speeds). 
    This value is then used as the base speed.
 3. If neither of the above set a base speed, then the type of way (`highway=`
    tag) determines the base speed. Values are defined in the
    [speed value files][svf].
-   The [waytype speed table](Waytype-Speeds) gives an overview.
+   The [waytype speed table](waytype-speeds) gives an overview.
 4. If it is a track (`highway=track`) then the base speed is set based on the
    `tracktype` tag compared to values in the [speed value files][svf].
-   The [tracktype speed table](Tracktype-Speeds) gives an overview.
+   The [tracktype speed table](tracktype-speeds) gives an overview.
 
 If the determined base speed is one resulting from a `maxspeed`-tag or from a
-[country speed table](Country-Speeds) (i.e. Steps 1 or 2), it is reduced to 90%
+[country speed table](country-speeds) (i.e. Steps 1 or 2), it is reduced to 90%
 of its original value, since it is more common that you would be travelling
-below the maximum speed value. The [waytype](Waytype-Speeds) and
-[tracktype](Tracktype-Speeds) defaults have already been chosen rather
+below the maximum speed value. The [waytype](waytype-speeds) and
+[tracktype](tracktype-speeds) defaults have already been chosen rather
 conservatively, so they are not adjusted.
 
 Following that, it is further modified based on a number of other factors:
 * If a surface is defined (`surface=*`) then the surface value is set to be the
   corresponding surface type value defined in the [speed value files][svf].
-  An overview can be found in the [surface speed table](Surface-Speeds).
+  An overview can be found in the [surface speed table](surface-speeds).
 * Attempt to take into account reduced speeds in residential areas using
   acceleration modifier or a residential penalty
 * cap speed if it is entering a roundabout (based on number of lanes and
@@ -70,7 +70,7 @@ servers as it can lead to undesirable routes.
 ### Walking profiles
 The travel speeds for `foot-*` profiles (walking and hiking) are set to
 5 km/h on all allowed waytypes.
-For ways with a [`sac_scale`](../../../docs2/api-reference/endpoints/directions/extra-info/trail-difficulty.md) higher than
+For ways with a [`sac_scale`](../../api-reference/endpoints/directions/extra-info/trail-difficulty.md) higher than
 `hiking`, they are reduced to 2 km/h.
 
 Allowed waytypes consist of ways that are safe for use, ways that are better
