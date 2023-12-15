@@ -1,4 +1,5 @@
 # Tag Filtering
+
 During the graph build process, openrouteservice looks at various tags that are given to OSM ways as a means of identifying whether that way should be included into the routing graph or not. For example, in the foot profile any ways that are marked as `highway=motorway` are rejected and not included in the graph, meaning that they can never be routed over (for that profile).
 
 The following tables list what tags are taken into account during the initial filtering process. `Reject` means that the tag value indicates that the way is explicitly rejected form the graph building, `Accept` means that the tag indicates that the way should be included, and `Conditional` means that the tag is taken into account during the filtering process, but the acceptance/rejection is based on other tags and logic.
@@ -15,6 +16,8 @@ _italic words_ are variables defined for the respective section and group severa
 
  
 ## Driving car :car:
+
+[//]: # (TODO: :car: not rendered?)
 
 Definitions:  
 _restrictedValues_ = `[private, agricultural, forestry, no, restricted, delivery, military, emergency]`  
@@ -36,6 +39,8 @@ _firstValue_ = value of the first encountered key from _restrictions_
 | `maxwidth < 2` | :heavy_check_mark: | | |
 
 ## Driving HGV :truck: :bus: 🚜
+
+[//]: # (TODO: :truck: and :bus: not rendered?)
 
 The profile differs from the above logic for driving car in the definitions of  
 
