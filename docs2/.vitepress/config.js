@@ -76,6 +76,7 @@ export default defineConfig({
                                     {text: 'Export', link: '/api-reference/endpoints/export/'},
                                     {text: 'Health', link: '/api-reference/endpoints/health/'},
                                     {text: 'Status', link: '/api-reference/endpoints/status/'},
+                                    {text: 'Geocoder', link: '/api-reference/endpoints/geocoder/'},
                                 ]
                             },
                             {text: 'Error Codes', link: '/api-reference/error-codes'},

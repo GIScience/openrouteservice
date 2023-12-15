@@ -1,7 +1,7 @@
 # Structured Geocoding Query
 
 A structured geocoding request is more precise than a normal one. It is also very useful for querying locations from tables.
-For a structured request insert a JSON Object with at least on of the following parameters into the query parameter of the geocoding request:
+For a structured request insert a JSON Object with at least one of the following parameters into the query parameter of the geocoding request:
 
   |   Parameter   | Description                                                                                                                                                                                              |
   |:-------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
