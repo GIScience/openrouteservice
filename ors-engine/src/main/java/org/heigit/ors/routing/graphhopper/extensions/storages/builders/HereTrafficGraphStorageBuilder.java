@@ -271,7 +271,10 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         try {
             matchedSegments = getMatchedSegmentsInternal(geometry, originalTrafficLinkLength, trafficLinkFunctionalClass, bothDirections, matchingRadius);
         } catch (Exception e) {
-            LOGGER.info("Error while matching: " + e);
+            if (e.getMessage().startsWith("Sequence is broken for submitted track"))
+                LOGGER.debug("Error while matching: " + e);
+            else
+                LOGGER.warn("Error while matching: " + e);
         }
         return matchedSegments;
     }

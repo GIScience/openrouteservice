@@ -62,6 +62,7 @@ RELEASING:
 - refactor RoutingProfile (part of [#1520](https://github.com/GIScience/openrouteservice/issues/1520))
 - update maven repository for dependencies ([#1536](https://github.com/GIScience/openrouteservice/pull/1536))
 - spring-boot-starter-parent to v3.1.6 ([#1630](https://github.com/GIScience/openrouteservice/issues/1630))
+- silence traffic map-matching internal errors ([#1635](https://github.com/GIScience/openrouteservice/pulls/1635))
 
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
