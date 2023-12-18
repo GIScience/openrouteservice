@@ -9,7 +9,7 @@ There are different ways to get information about the openrouteservice API:
   ![](../public/playground-select-server.png)
 
   The responses of your sample requests are visualized on a small map on the bottom right, 
-  but can also shown as json, table or downloaded as file:
+  but can also be shown as json, table or downloaded as file:
   ![](../public/playground-map.png)
 
 * **This chapter** "API Reference" of the present text documentation: 
