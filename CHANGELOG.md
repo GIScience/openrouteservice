@@ -61,6 +61,7 @@ RELEASING:
 - from springdoc-openapi-ui package to springdoc-openapi-starter-webmvc-ui ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - refactor RoutingProfile (part of [#1520](https://github.com/GIScience/openrouteservice/issues/1520))
 - update maven repository for dependencies ([#1536](https://github.com/GIScience/openrouteservice/pull/1536))
+- spring-boot-starter-parent to v3.1.6 ([#1630](https://github.com/GIScience/openrouteservice/issues/1630))
 
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
