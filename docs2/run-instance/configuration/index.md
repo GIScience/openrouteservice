@@ -28,6 +28,3 @@ The properties are organized in a hierarchical structure, with the following one
 | [ors.engine](./engine)                  | Settings required at graph-build time during startup.                       |
 | [ors.cors](./cors)                      | CORS settings for the **openrouteservice** API.                             |
 | [ors.messages](./messages)              | System messages that can be sent with API responses following simple rules. |
-
-
-
