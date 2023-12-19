@@ -178,7 +178,7 @@ public class RoutingProfile {
 
     private static ORSGraphHopperConfig createGHSettings(String sourceFile, RouteProfileConfiguration config) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
-        ghConfig.putObject("graph.dataaccess", "RAM_STORE");
+        ghConfig.putObject("graph.dataaccess", config.getGraphDataAccess());
         ghConfig.putObject("datareader.file", sourceFile);
         ghConfig.putObject("graph.location", config.getGraphPath());
         ghConfig.putObject("graph.bytes_for_flags", config.getEncoderFlagsSize());
