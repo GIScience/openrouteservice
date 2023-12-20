@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileType;

@@ -26,7 +26,7 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 
 import java.util.ArrayList;
 import java.util.HashSet;

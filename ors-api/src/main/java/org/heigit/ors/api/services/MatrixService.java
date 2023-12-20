@@ -11,7 +11,7 @@ import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.MatrixSearchParameters;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;

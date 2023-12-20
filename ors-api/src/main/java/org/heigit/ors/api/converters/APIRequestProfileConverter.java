@@ -15,7 +15,7 @@
 
 package org.heigit.ors.api.converters;
 
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.springframework.core.convert.converter.Converter;
 
 public class APIRequestProfileConverter implements Converter<String, APIEnums.Profile> {

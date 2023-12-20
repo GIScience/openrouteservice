@@ -5,7 +5,7 @@ import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.ResolvedLocation;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;

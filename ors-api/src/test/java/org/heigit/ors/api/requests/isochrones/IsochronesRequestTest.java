@@ -2,7 +2,7 @@ package org.heigit.ors.api.requests.isochrones;
 
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
