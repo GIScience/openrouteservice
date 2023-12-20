@@ -16,27 +16,27 @@
 
 ## **preparation.methods.ch**
 
-| key        | type    | description                                              | example value            |
-|------------|---------|----------------------------------------------------------|--------------------------|
-| enabled    | boolean | Enables or disables the routing algorithm                | `true`                   |
-| threads    | number  | Number of parallel threads for computing the preparation | `1`                      |
-| weightings | string  | Comma-separated list of weightings                       | `"recommended,shortest"` |
+| key        | type    | description                                              | example value           |
+|------------|---------|----------------------------------------------------------|-------------------------|
+| enabled    | boolean | Enables or disables the routing algorithm                | `true`                  |
+| threads    | number  | Number of parallel threads for computing the preparation | `1`                     |
+| weightings | string  | Comma-separated list of weightings                       | `recommended,shortests` |
 
 ## **preparation.methods.lm**
 
-| key        | type    | description                                                                                                               | default value            |
-|------------|---------|---------------------------------------------------------------------------------------------------------------------------|--------------------------|
-| enabled    | boolean | Enables or disables the routing algorithm                                                                                 | `true`                   |
-| threads    | number  | Number of parallel threads for computing the preparation                                                                  | `1`                      |
-| weightings | string  | Comma-separated list of weightings                                                                                        | `"recommended,shortest"` |
-| landmarks  | number  | Total number of precomputed landmarks; the subset used during the query is set in `execution.methods.lm.active_landmarks` | `16`                     |
+| key        | type    | description                                                                                                               | default value          |
+|------------|---------|---------------------------------------------------------------------------------------------------------------------------|------------------------|
+| enabled    | boolean | Enables or disables the routing algorithm                                                                                 | `true`                 |
+| threads    | number  | Number of parallel threads for computing the preparation                                                                  | `1`                    |
+| weightings | string  | Comma-separated list of weightings                                                                                        | `recommended,shortest` |
+| landmarks  | number  | Total number of precomputed landmarks; the subset used during the query is set in `execution.methods.lm.active_landmarks` | `16`                   |
 
 ## **preparation.methods.core**
 
-| key        | type    | description                                                                                                               | example value                                                 |
-|------------|---------|---------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
-| enabled    | boolean | Enables or disables the routing algorithm                                                                                 | `true`                                                        |
-| threads    | number  | Number of parallel threads for computing the preparation                                                                  | `1`                                                           |
-| weightings | string  | Comma-separated list of weightings                                                                                        | `"recommended,shortest"`                                      |
-| landmarks  | number  | Total number of precomputed landmarks, the subset used during the query is set in `execution.methods.lm.active_landmarks` | `32`                                                          |
-| lmsets     | string  | Landmark sets tailored for specific avoid-filters enabled                                                                 | `"highways,tollways;highways;tollways;country_193;allow_all"` |
+| key        | type    | description                                                                                                               | example value                                               |
+|------------|---------|---------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| enabled    | boolean | Enables or disables the routing algorithm                                                                                 | `true`                                                      |
+| threads    | number  | Number of parallel threads for computing the preparation                                                                  | `1`                                                         |
+| weightings | string  | Comma-separated list of weightings                                                                                        | `recommended,shortest`                                      |
+| landmarks  | number  | Total number of precomputed landmarks, the subset used during the query is set in `execution.methods.lm.active_landmarks` | `32`                                                        |
+| lmsets     | string  | Landmark sets tailored for specific avoid-filters enabled                                                                 | `highways,tollways;highways;tollways;country_193;allow_all` |

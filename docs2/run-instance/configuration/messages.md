@@ -2,11 +2,11 @@
 
 `ors.messages` property expects a list of elements, each of which having the following:
 
-| key       | type    | description                                                      | example value        |
-|-----------|---------|------------------------------------------------------------------|----------------------|
-| active    | boolean | Enables or disables this message                                 | `true`               |
-| text      | string  | The message text                                                 | `"The message text"` |
-| condition | list    | optional; may contain any of the conditions from the table below |                      |
+| key       | type    | description                                                      | example value      |
+|-----------|---------|------------------------------------------------------------------|--------------------|
+| active    | boolean | Enables or disables this message                                 | `true`             |
+| text      | string  | The message text                                                 | `The message text` |
+| condition | list    | optional; may contain any of the conditions from the table below |                    |
 
 | condition          | value                                                                                                                | description                                                         |
 |--------------------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|

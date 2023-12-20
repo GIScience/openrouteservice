@@ -6,4 +6,4 @@ spring properties can be set in the `ors-config.yml` file. The most relevant for
 | key                  | type   | description                     | default value |
 |----------------------|--------|---------------------------------|---------------|
 | server.port          | int    | Server HTTP port                | `8082`        |
-| servlet.context-path | string | Context path of the application | `/ors`s       |
+| servlet.context-path | string | Context path of the application | `/ors`        |
