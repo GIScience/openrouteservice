@@ -209,7 +209,8 @@ public class EngineProperties {
         private Boolean optimize;
         private String graphPath;
         private Map<String, String> encoderOptions;
-        //        For later use when refactoring RoutingManagerConfiguration
+
+        //TODO: For later use when refactoring RoutingManagerConfiguration
 //        private PreparationProperties preparation;
 //        private ExecutionProperties execution;
         private Map<String, Object> preparation;

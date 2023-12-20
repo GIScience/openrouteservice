@@ -64,7 +64,7 @@ public class RouteProfileConfiguration {
 
     private int maximumVisitedNodesPT = 1000000;
 
-    private boolean turnCostEnabled = false;
+    private boolean turnCostEnabled = false;//FIXME: even though the field is read by external methods, its setter is never called.
     private boolean enforceTurnCosts = false;
 
     public RouteProfileConfiguration() {

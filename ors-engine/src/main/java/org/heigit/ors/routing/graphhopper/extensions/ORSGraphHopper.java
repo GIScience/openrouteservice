@@ -88,8 +88,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private HashMap<Integer, Long> tmcEdges;
     private Eccentricity eccentricity;
 
-    private int minNetworkSize = 200;
-    private int minOneWayNetworkSize = 0;
+    private int minNetworkSize = 200;//TODO: does this parameter actually influence anything?
+    private int minOneWayNetworkSize = 0;//TODO: does this parameter actually influence anything?
 
     private final CorePreparationHandler corePreparationHandler = new CorePreparationHandler();
     private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
