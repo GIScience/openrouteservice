@@ -8,7 +8,7 @@ The `engine` block consists of the following properties.
 | ors.engine.preparation_mode | boolean | If set, graphs and preparations will be build, but the application will shut down immediately afterwards without starting up any services | `false`       |
 | ors.engine.source_file      | string  | The OSM file to be used, supported formats are `.osm`, `.osm.gz`, `.osm.zip` and `.pbf`                                                   |               |
 | ors.engine.graphs_root_path | string  | The root path to a directory for storing graphs                                                                                           | `./graphs`    |
-| ors.engine.elevation        | object  | See [elevation properties](#elevationproperties)                                                                                          |               |
+| ors.engine.elevation        | object  | See [elevation properties](#elevation-properties)                                                                                         |               |
 | ors.engine.profile_default  | object  | Described in [profile properties](profiles)                                                                                               |               |
 | ors.engine.profiles         | object  | Described in [profile properties](profiles)                                                                                               |               |
 
