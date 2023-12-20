@@ -99,10 +99,13 @@ export default defineConfig({
                                 text: 'Configuration', collapsed: true, link: '/run-instance/configuration/',
                                 items: [
                                     {text: 'Endpoints and limits', link: '/run-instance/configuration/endpoints-and-limits'},
+                                    {text: 'Engine', link: '/run-instance/configuration/engine'},
                                     {text: 'Profiles', link: '/run-instance/configuration/profiles'},
                                     {text: 'Extras', link: '/run-instance/configuration/extras'},
                                     {text: 'Logging', link: '/run-instance/configuration/logging'},
-                                    {text: 'Spring', link: '/run-instance/configuration/spring'}
+                                    {text: 'Spring', link: '/run-instance/configuration/spring'},
+                                    {text: 'Cors', link: '/run-instance/configuration/cors'},
+                                    {text: 'Messages', link: '/run-instance/configuration/messages'}
                                 ]
                             },
                         ]

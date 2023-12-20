@@ -20,7 +20,7 @@
 
 ## **execution.methods.lm**
 
-| key               | type    | description                                      | example value |
+| key               | type    | description                                      | default value |
 |-------------------|---------|--------------------------------------------------|---------------| 
 | disabling_allowed | boolean |                                                  | `true`        |
 | active_landmarks  | number  | Number of landmarks used for computing the route | `8`           |
