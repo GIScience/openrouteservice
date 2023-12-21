@@ -50,10 +50,6 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
         return edgeEntryIndex;
     }
 
-    public void setSegmentSize(int bytes) {
-        orsEdges.setSegmentSize(bytes);
-    }
-
     public WaySurfaceTypeGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;

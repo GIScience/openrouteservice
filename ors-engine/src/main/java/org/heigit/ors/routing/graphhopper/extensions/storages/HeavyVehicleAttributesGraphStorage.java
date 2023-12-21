@@ -60,10 +60,6 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
         return res;
     }
 
-    public void setSegmentSize(int bytes) {
-        orsEdges.setSegmentSize(bytes);
-    }
-
     public HeavyVehicleAttributesGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;
