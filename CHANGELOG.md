@@ -48,6 +48,7 @@ RELEASING:
 - info on duration format in parameter description ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - YML configuration ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
 - new backend documentation using VitePress([#1617](https://github.com/GIScience/openrouteservice/pull/1617))
+- support for Norwegian language
 
 ### Changed
 - include transfers and fare properties only in PT responses ([#1586](https://github.com/GIScience/openrouteservice/pull/1586))
