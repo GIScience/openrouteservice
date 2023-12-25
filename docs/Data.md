@@ -14,7 +14,7 @@ When requesting isochrones, you can also request to get population data for the 
 Data relating to the avoid borders features is derived from administrative boundaries features in OpenStreetMap. Information about open borders is obtained from [Wikipedia](https://en.wikipedia.org/wiki/Open_border).
 
 ## Green & Quiet
-The data used to identify green and quite routes were derived from research
+The data used to identify green and quiet routes were derived from research
 projects in the GIScience research group at Heidelberg University. More
 information about these can be found on the GIScience news blog
 [here](http://k1z.blog.uni-heidelberg.de/2017/07/03/healthy-routing-prefering-green-areas-added-to-openrouteserviceorg/)
