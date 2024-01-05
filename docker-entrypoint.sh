@@ -3,7 +3,7 @@
 echo "Running container as user $(whoami) with id $(id -u)"
 
 if [[ -d /ors-core ]] || [[ -d /ors-conf ]]; then
-  echo "You're mounting old paths. Remove them and migrate to the new docker setup: https://giscience.github.io/openrouteservice/installation/Running-with-Docker.html"
+  echo "You're mounting old paths. Remove them and migrate to the new docker setup: https://giscience.github.io/openrouteservice/run-instance/installation/running-in-container.html"
   echo "Exit setup due to old folders /ors-core or /ors-conf being mounted"
   sleep 5
   exit 1

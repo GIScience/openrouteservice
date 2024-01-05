@@ -34,8 +34,8 @@ export default defineConfig({
         },
         nav: [
             {text: 'Homepage', link: 'https://openrouteservice.org'},
-            {text: 'Forum', link: 'https://ask.openrouteservice.org'},
             {text: 'API Playground', link: 'https://openrouteservice.org/dev/#/api-docs'},
+            {text: 'Forum', link: 'https://ask.openrouteservice.org'},
         ],
         sidebar: [
             {
@@ -77,6 +77,7 @@ export default defineConfig({
                                     {text: 'Health', link: '/api-reference/endpoints/health/'},
                                     {text: 'Status', link: '/api-reference/endpoints/status/'},
                                     {text: 'Geocoder', link: '/api-reference/endpoints/geocoder/'},
+                                    {text: 'POI Service', link: '/api-reference/endpoints/poi-service'},
                                 ]
                             },
                             {text: 'Error Codes', link: '/api-reference/error-codes'},
@@ -90,8 +91,8 @@ export default defineConfig({
                             {
                                 text: 'Installation', collapsed: true, link: '/run-instance/installation/',
                                 items: [
+                                    {text: 'Running with Docker', link: '/run-instance/installation/running-with-docker'},
                                     {text: 'Running JAR / WAR', link: '/run-instance/installation/running-jar-war'},
-                                    {text: 'Running within a container', link: '/run-instance/installation/running-in-container'},
                                     {text: 'Building from Source', link: '/run-instance/installation/building-from-source'},
                                 ]
                             },
@@ -115,7 +116,7 @@ export default defineConfig({
                         items: [
                             {text: 'Opening project in IntelliJ', link: '/contributing/opening-project-in-intellij'},
                             {text: 'Backend documentation', link: '/contributing/backend-documentation'},
-                            {text: 'Contribution guidelines', link: '/contributing/contribution-guidelines'},
+                            {text: 'Contribution guidelines', link: 'https://github.com/GIScience/openrouteservice/blob/master/CONTRIBUTE.md'},
                             {text: 'Contributing translations', link: '/contributing/contributing-translations'},
                         ]
                     },

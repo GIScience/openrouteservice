@@ -1,9 +1,9 @@
 # Data
-openrouteservice makes use of public opensource data. To generate the best routes, a number of different datasets are used.
+openrouteservice makes use of public open-source data. To generate the best routes, a number of different datasets are used.
 
 ## Base Data
 The base data used for the road network and related information (road type, access restrictions etc.) is [OpenStreetMap](https://openstreetmap.org) (OSM). This dataset is a free and open dataset that can be edited by anyone.  
-You can download the latest OSM dataset from https://planet.openstreetmap.org/ or reginal extracts from http://download.geofabrik.de/.
+You can download the latest OSM dataset from https://planet.openstreetmap.org/ or regional extracts from http://download.geofabrik.de/.
 
 ## Elevation
 The data used for elevation are [SRTM](http://srtm.csi.cgiar.org/) and [GMTED](https://www.usgs.gov/coastal-changes-and-impacts/gmted2010).  
