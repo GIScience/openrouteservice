@@ -12,7 +12,7 @@ export ORS_CONFIG_LOCATION=${pwd}/ors-config.yml
 Default settings for all configurable parameters are defined in
 [`application.yml`](https://github.com/GIScience/openrouteservice/blob/master/ors-api/src/main/resources/application.yml).
 
-If you have cloned the repository, you will find thaese files at `ors-api/ors-config.yml` and `ors-api/src/main/resources/application.yml` respectively. 
+If you have cloned the repository, you will find these files at `ors-api/ors-config.yml` and `ors-api/src/main/resources/application.yml` respectively. 
 
 In the past **openrouteservice** was configured [via JSON file](./json). This configuration method has been deprecated and will be eventually removed, therefore we strongly discourage you from using it.
 
