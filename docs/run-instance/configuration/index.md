@@ -1,18 +1,20 @@
 # Configuration
 
-The configuration of your own **openrouteservice** instance is done in a YAML file named `ors-config.yml`.
-**openrouteservice** looks for the file in several different locations, in the following order. 
+The configuration of your own **openrouteservice** instance is done by pointing an environment variable called `ORS_CONFIG_LOCATION` to a YAML configuration file. 
 
-- `/etc/openrouteservice/ors-config.yml`
-- `~/.openrouteservice/ors-config.yml`
-- `./ors-config.yml` (in the runtime working directory)
+To download an example configuration and set the environment variable use the following:
 
-If a property is set in multiple files, later occurrences will override previous ones.
+```shell
+wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/ors-api/ors-config.yml
+export ORS_CONFIG_LOCATION=${pwd}/ors-config.yml
+```
+
 Default settings for all configurable parameters are defined in
 [`application.yml`](https://github.com/GIScience/openrouteservice/blob/master/ors-api/src/main/resources/application.yml).
 
-In the past **openrouteservice** was configured [via JSON file](./json). This configuration method has been deprecated and will
-be eventually removed, therefore we strongly discourage you from using it.
+If you have cloned the repository, you will find thaese files at `ors-api/ors-config.yml` and `ors-api/src/main/resources/application.yml` respectively. 
+
+In the past **openrouteservice** was configured [via JSON file](./json). This configuration method has been deprecated and will be eventually removed, therefore we strongly discourage you from using it.
 
 ## Available properties
 
