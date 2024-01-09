@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RoutingManagerConfiguration {
+    public static final String PARAM_GRAPH_DATA_ACCESS = "graph_data_access";
     public static final String PARAM_ELEVATION_CACHE_CLEAR = "elevation_cache_clear";
     public static final String PARAM_ELEVATION_DATA_ACCESS = "elevation_data_access";
     public static final String PARAM_ELEVATION_SMOOTHING = "elevation_smoothing";
@@ -106,6 +107,9 @@ public class RoutingManagerConfiguration {
             if (profileParams != null) {
                 for (Map.Entry<String, Object> paramItem : profileParams.entrySet()) {
                     switch (paramItem.getKey()) {
+                        case PARAM_GRAPH_DATA_ACCESS:
+                            profile.setGraphDataAccess(StringUtility.trimQuotes(paramItem.getValue().toString()));
+                            break;
                         case "preparation":
                             profile.setPreparationOpts(ConfigFactory.parseString(paramItem.getValue().toString()));
                             break;

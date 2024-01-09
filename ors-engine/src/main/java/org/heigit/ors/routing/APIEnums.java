@@ -420,6 +420,8 @@ public class APIEnums {
         NE_NP("ne-np"),
         NL("nl"),
         NL_NL("nl-nl"),
+        NB("nb"),
+        NB_NO("nb-no"),
         PL("pl"),
         PL_PL("pl-pl"),
         PT("pt"),

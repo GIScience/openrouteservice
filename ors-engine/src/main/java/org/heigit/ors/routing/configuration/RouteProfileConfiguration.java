@@ -66,6 +66,7 @@ public class RouteProfileConfiguration {
 
     private boolean turnCostEnabled = false;
     private boolean enforceTurnCosts = false;
+    private String graphDataAccess = "RAM_STORE";
 
     public RouteProfileConfiguration() {
         extStorages = new HashMap<>();
@@ -366,5 +367,56 @@ public class RouteProfileConfiguration {
 
     public void setMaximumVisitedNodesPT(int maximumVisitedNodesPT) {
         this.maximumVisitedNodesPT = maximumVisitedNodesPT;
+    }
+
+    public String getGraphDataAccess() {
+        return graphDataAccess;
+    }
+
+    public void setGraphDataAccess(String graphDataAccess) {
+        this.graphDataAccess = graphDataAccess;
+    }
+
+    @Override
+    public String toString() {
+        return "RouteProfileConfiguration{" +
+                "name='" + name + '\'' +
+                ", enabled=" + enabled +
+                ", profiles='" + profiles + '\'' +
+                ", graphPath='" + graphPath + '\'' +
+                ", extStorages=" + extStorages +
+                ", graphBuilders=" + graphBuilders +
+                ", maximumDistance=" + maximumDistance +
+                ", maximumDistanceDynamicWeights=" + maximumDistanceDynamicWeights +
+                ", maximumDistanceAvoidAreas=" + maximumDistanceAvoidAreas +
+                ", maximumDistanceAlternativeRoutes=" + maximumDistanceAlternativeRoutes +
+                ", maximumDistanceRoundTripRoutes=" + maximumDistanceRoundTripRoutes +
+                ", maximumWayPoints=" + maximumWayPoints +
+                ", instructions=" + instructions +
+                ", optimize=" + optimize +
+                ", encoderFlagsSize=" + encoderFlagsSize +
+                ", encoderOptions='" + encoderOptions + '\'' +
+                ", gtfsFile='" + gtfsFile + '\'' +
+                ", isochronePreparationOpts=" + isochronePreparationOpts +
+                ", preparationOpts=" + preparationOpts +
+                ", executionOpts=" + executionOpts +
+                ", elevationProvider='" + elevationProvider + '\'' +
+                ", elevationCachePath='" + elevationCachePath + '\'' +
+                ", elevationDataAccess='" + elevationDataAccess + '\'' +
+                ", elevationCacheClear=" + elevationCacheClear +
+                ", elevationSmoothing=" + elevationSmoothing +
+                ", interpolateBridgesAndTunnels=" + interpolateBridgesAndTunnels +
+                ", maximumSnappingRadius=" + maximumSnappingRadius +
+                ", extent=" + extent +
+                ", hasMaximumSnappingRadius=" + hasMaximumSnappingRadius +
+                ", locationIndexResolution=" + locationIndexResolution +
+                ", locationIndexSearchIterations=" + locationIndexSearchIterations +
+                ", maximumSpeedLowerBound=" + maximumSpeedLowerBound +
+                ", trafficExpirationMin=" + trafficExpirationMin +
+                ", maximumVisitedNodesPT=" + maximumVisitedNodesPT +
+                ", turnCostEnabled=" + turnCostEnabled +
+                ", enforceTurnCosts=" + enforceTurnCosts +
+                ", graphDataAccess='" + graphDataAccess + '\'' +
+                '}';
     }
 }
