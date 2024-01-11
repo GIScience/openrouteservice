@@ -584,6 +584,13 @@ public class TrafficGraphStorage implements GraphExtension {
         }
     }
 
+    /**
+     * @return number of processed traffic patterns
+     */
+    public int getPatternCount() {
+        return patternCount;
+    }
+
     public void setZoneId(ZoneId zoneId) {
         this.zoneId = zoneId;
     }
