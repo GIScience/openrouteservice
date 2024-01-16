@@ -34,7 +34,7 @@ One is to run the `mvn spring-boot:run` command which triggers a spring-boot nat
 Tomcat instance running on port `8082`.  This is more restrictive in terms of
 settings for Tomcat. The other is to install and run Tomcat 9.  
 
-[//]: # (TODO: the part below belongs somewhere in the contributing section)
+[//]: # (TODO: the part below belongs somewhere in the contributing section; running with IDE needs to be overhauled, too, since it does not mention running with spring boot run config)
 
 ## Running from within IDE
 
@@ -45,7 +45,7 @@ To run the project from within your IDE, you have to:
      For IntelliJ Idea, have a look at [these instructions](/contributing/opening-project-in-intellij).
 
   2. Configure your IDE to run `spring-boot:run` as the maven goal, setting the
-     environment variable `ORS_CONFIG=ors-config-test.json`.
+     environment variable `ORS_CONFIG_LOCATION=ors-config.yml`.
 
   3. You can run all tests via JUnit.
 

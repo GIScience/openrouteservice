@@ -15,7 +15,7 @@ export ORS_CONFIG_LOCATION=${pwd}/ors-config.yml
 
 For more details on the configuration options with that YAML file, see the chapter on [configuration](/run-instance/configuration/).
 
-If you already have an old and deprecated JSON format configuration file, you can still use that configuration file by setting an environment variable calles `ORS_CONFIG` to point that file. Currently, all settings in a provided JSON configuration file will *override* any settings in the YAML file. We strongly recommend to migrate your settings to the new YAML format though, since we are planning to remove the support for JSON cofiguration files with the next major version release.  
+If you already have an old and deprecated JSON format configuration file, you can still use that configuration file by setting an environment variable called `ORS_CONFIG` to point that file. Currently, all settings in a provided JSON configuration file will *override* any settings in the YAML file. We strongly recommend to migrate your settings to the new YAML format though, since we are planning to remove the support for JSON configuration files with the next major version release.  
 
 ## Folders and files
 
