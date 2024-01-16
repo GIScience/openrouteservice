@@ -65,6 +65,7 @@ RELEASING:
 - spring-boot-starter-parent to v3.1.6 ([#1630](https://github.com/GIScience/openrouteservice/issues/1630))
 - silence traffic map-matching internal errors ([#1635](https://github.com/GIScience/openrouteservice/pulls/1635))
 - fix IN1-JAVA-ORGMOZILLA-1314295 ([#1627](https://github.com/GIScience/openrouteservice/issues/1627))
+- log summary stats on traffic mapmatching and use progress bar only in debug mode ([#1647](https://github.com/GIScience/openrouteservice/pull/1647))
 
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
