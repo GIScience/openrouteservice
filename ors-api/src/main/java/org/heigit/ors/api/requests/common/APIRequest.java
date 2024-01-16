@@ -30,6 +30,7 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -120,27 +121,51 @@ public class APIRequest {
     protected Polygon[] convertAvoidAreas(JSONObject geoJson) throws StatusCodeException {
         // It seems that arrays in json.simple cannot be converted to strings simply
         org.json.JSONObject complexJson = new org.json.JSONObject();
-        complexJson.put("type", geoJson.get("type"));
-        List<List<Double[]>> coordinates = (List<List<Double[]>>) geoJson.get("coordinates");
+        if (geoJson.containsKey("type")) {
+            complexJson.put("type", geoJson.get("type"));
+        } else {
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS, geoJson.toJSONString(), "GeoJSON doesn't contain 'type'.");
+        }
+
+        List<List<Double[]>> coordinates;
+        if (geoJson.containsKey("coordinates")) {
+            Object raw_coordinates = geoJson.get("coordinates");
+            try {
+                coordinates = (List<List<Double[]>>) raw_coordinates;
+            } catch (Exception e) {
+                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS, raw_coordinates.toString(), "Coordinates couldn't be converted:" + e);
+            }
+        } else {
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS, geoJson.toJSONString(), "GeoJSON doesn't contain 'coordinates'.");
+        }
         complexJson.put("coordinates", coordinates);
 
         Geometry convertedGeom;
         try {
             convertedGeom = GeometryJSON.parse(complexJson);
         } catch (Exception e) {
-            throw new ParameterValueException(GenericErrorCodes.INVALID_JSON_FORMAT, RequestOptions.PARAM_AVOID_POLYGONS);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_JSON_FORMAT, RequestOptions.PARAM_AVOID_POLYGONS, complexJson.toString(), "Parser error: " + e);
         }
 
         Polygon[] avoidAreas;
 
         if (convertedGeom instanceof Polygon) {
-            avoidAreas = new Polygon[]{(Polygon) convertedGeom};
+            try {
+                avoidAreas = new Polygon[]{(Polygon) convertedGeom};
+            } catch (Exception e){
+                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS, convertedGeom.toString(), "Converting Polygon failed: " + e);
+            }
         } else if (convertedGeom instanceof MultiPolygon multiPoly) {
             avoidAreas = new Polygon[multiPoly.getNumGeometries()];
-            for (int i = 0; i < multiPoly.getNumGeometries(); i++)
-                avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
+            for (int i = 0; i < multiPoly.getNumGeometries(); i++) {
+                try {
+                    avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
+                } catch (Exception e) {
+                    throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS, convertedGeom.toString(), "Converting MultiPolygon failed: " + e);
+                }
+            }
         } else {
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS, convertedGeom.toString(), "Converted geometry is not a Polygon or MultiPolygon.");
         }
 
         return avoidAreas;
@@ -165,8 +190,8 @@ public class APIRequest {
                         throw new StatusCodeException(StatusCode.BAD_REQUEST, GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("The extent of a polygon to avoid must not exceed %s meters.", extentLimit));
                     }
                 }
-            } catch (InternalServerException e) {
-                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS);
+            } catch (Exception e) {
+                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS, Arrays.toString(avoidAreas), "Validation Issue: " + e);
             }
         }
     }
