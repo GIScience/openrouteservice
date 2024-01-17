@@ -22,7 +22,7 @@ import org.heigit.ors.api.responses.routing.gpx.GPXBounds;
 import org.heigit.ors.api.responses.routing.json.JSON3DBoundingBox;
 import org.heigit.ors.api.responses.routing.json.JSONBoundingBox;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RoutingErrorCodes;
 
 public class BoundingBoxFactory {

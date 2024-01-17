@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api.services;
 
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.routing.*;
 import org.heigit.ors.common.DistanceUnit;
@@ -233,7 +234,7 @@ class RoutingServiceTest {
         RoutingRequest routingRequest = routingService.convertRouteRequest(request);
 
         WheelchairParameters params = (WheelchairParameters) routingRequest.getSearchParameters().getProfileParameters();
-        assertEquals(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD), params.getSmoothnessType());
+        assertEquals(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD.toString()), params.getSmoothnessType());
         assertEquals(3.0f, params.getMaximumIncline(), 0);
         assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
         assertEquals(2.0f, params.getMinimumWidth(), 0);

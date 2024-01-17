@@ -1,6 +1,6 @@
 package org.heigit.ors.api.converters;
 
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

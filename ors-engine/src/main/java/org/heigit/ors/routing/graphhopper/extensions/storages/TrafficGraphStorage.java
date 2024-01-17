@@ -460,17 +460,6 @@ public class TrafficGraphStorage implements GraphExtension {
     }
 
     /**
-     * sets the segment size in all additional data storages
-     *
-     * @param bytes Size in bytes.
-     */
-    public void setSegmentSize(int bytes) {
-        orsEdgesProperties.setSegmentSize(bytes);
-        orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
-        orsSpeedPatternLookup.setSegmentSize(bytes);
-    }
-
-    /**
      * @return true if successfully loaded from persistent storage.
      */
     @Override
@@ -582,6 +571,13 @@ public class TrafficGraphStorage implements GraphExtension {
                 orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_TRAFFIC_MAXSPEED + directionOffset, this.speedValue, 1);
             }
         }
+    }
+
+    /**
+     * @return number of processed traffic patterns
+     */
+    public int getPatternCount() {
+        return patternCount;
     }
 
     public void setZoneId(ZoneId zoneId) {
