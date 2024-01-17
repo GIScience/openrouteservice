@@ -460,17 +460,6 @@ public class TrafficGraphStorage implements GraphExtension {
     }
 
     /**
-     * sets the segment size in all additional data storages
-     *
-     * @param bytes Size in bytes.
-     */
-    public void setSegmentSize(int bytes) {
-        orsEdgesProperties.setSegmentSize(bytes);
-        orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
-        orsSpeedPatternLookup.setSegmentSize(bytes);
-    }
-
-    /**
      * @return true if successfully loaded from persistent storage.
      */
     @Override

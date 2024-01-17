@@ -79,10 +79,6 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
         return res;
     }
 
-    public void setSegmentSize(int bytes) {
-        edges.setSegmentSize(bytes);
-    }
-
     public RoadAccessRestrictionsGraphStorage create(long initBytes) {
         edges.create(initBytes * edgeEntryBytes);
         return this;

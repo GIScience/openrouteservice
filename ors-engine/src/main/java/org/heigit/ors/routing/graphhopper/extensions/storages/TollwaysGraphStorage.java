@@ -47,10 +47,6 @@ public class TollwaysGraphStorage implements GraphExtension {
         return res;
     }
 
-    public void setSegmentSize(int bytes) {
-        edges.setSegmentSize(bytes);
-    }
-
     public TollwaysGraphStorage create(long initBytes) {
         edges.create(initBytes * edgeEntryBytes);
         return this;
