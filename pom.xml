@@ -51,7 +51,8 @@
         <typesafe-config.version>1.4.1</typesafe-config.version>
         <org-json.version>20231013</org-json.version>
         <postgresql.version>42.6.0</postgresql.version>
-        <progressbar.version>0.9.5</progressbar.version>
+        <progressbar.version>0.10.0</progressbar.version>
+        <jline.version>3.25.0</jline.version>
         <jqwik.version>1.6.5</jqwik.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -162,6 +163,18 @@
                 <groupId>me.tongfei</groupId>
                 <artifactId>progressbar</artifactId>
                 <version>${progressbar.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.jline</groupId>
+                        <artifactId>jline</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jline</groupId>
+                <artifactId>jline</artifactId>
+                <version>${jline.version}</version>
             </dependency>
 
             <dependency>
