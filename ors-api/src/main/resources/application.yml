@@ -37,10 +37,9 @@ springdoc:
 
 ##### Logging settings #####
 logging:
-  config: classpath:log4j.properties
-  log4j2:
-    config:
-      override: classpath:logs/DEFAULT_LOGGING.json
+  level:
+    root: WARN
+    org.heigit: INFO
 
 ##### openrouteservice specific settings #####
 ors:
