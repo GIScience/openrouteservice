@@ -60,6 +60,7 @@ public class ORSInitContextListener implements ServletContextListener {
             .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
             .setSourceFile(engineProperties.getSourceFile())
             .setGraphsRootPath(engineProperties.getGraphsRootPath())
+            .setGraphsDataAccess(engineProperties.getGraphsDataAccess())
             .setProfiles(engineProperties.getConvertedProfiles())
             .buildWithAppConfigOverride();
         Runnable runnable = () -> {

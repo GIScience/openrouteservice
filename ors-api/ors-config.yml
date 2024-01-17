@@ -12,6 +12,9 @@ ors:
 #    allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
 #    preflight_max_age: 600
   engine:
+    ### use the following line to enable mmap mode
+#    graphs_data_access: MMAP
+
     ### use the following lines for development setup using test OSM file for Heidelberg
 #    source_file: ./src/test/files/heidelberg.osm.gz
 #    graphs_root_path: ./graphs

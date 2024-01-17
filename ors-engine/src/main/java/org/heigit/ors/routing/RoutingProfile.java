@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing;
 
+import com.google.common.base.Strings;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
@@ -112,7 +113,8 @@ public class RoutingProfile {
 
     public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
         String osmFile = engineConfig.getSourceFile();
-        ORSGraphHopperConfig args = createGHSettings(osmFile, config);
+        String dataAccessType = Strings.isNullOrEmpty(config.getGraphDataAccess()) ? engineConfig.getGraphsDataAccess() : config.getGraphDataAccess();
+        ORSGraphHopperConfig args = createGHSettings(osmFile, dataAccessType, config);
 
         int profileId;
         synchronized (lockObj) {
@@ -176,9 +178,9 @@ public class RoutingProfile {
         return gh;
     }
 
-    private static ORSGraphHopperConfig createGHSettings(String sourceFile, RouteProfileConfiguration config) {
+    private static ORSGraphHopperConfig createGHSettings(String sourceFile, String dataAccessType, RouteProfileConfiguration config) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
-        ghConfig.putObject("graph.dataaccess", config.getGraphDataAccess());
+        ghConfig.putObject("graph.dataaccess", dataAccessType);
         ghConfig.putObject("datareader.file", sourceFile);
         ghConfig.putObject("graph.location", config.getGraphPath());
         ghConfig.putObject("graph.bytes_for_flags", config.getEncoderFlagsSize());
