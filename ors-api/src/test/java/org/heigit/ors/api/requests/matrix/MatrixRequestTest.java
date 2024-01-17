@@ -3,7 +3,7 @@ package org.heigit.ors.api.requests.matrix;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.util.HelperFunctions;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

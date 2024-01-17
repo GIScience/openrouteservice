@@ -1,7 +1,7 @@
 package org.heigit.ors.api.requests.routing;
 
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;

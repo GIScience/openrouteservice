@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.json.simple.JSONObject;
 

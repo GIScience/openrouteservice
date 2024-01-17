@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.common.APIRequest;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 
 import java.util.List;
 

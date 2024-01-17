@@ -19,7 +19,7 @@ import com.graphhopper.util.Helper;
 import jakarta.xml.bind.annotation.XmlElement;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.util.AppInfo;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 
 public class GPXExtensions {
     @XmlElement(name = "attribution")

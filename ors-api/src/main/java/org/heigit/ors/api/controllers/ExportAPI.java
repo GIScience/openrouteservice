@@ -33,7 +33,7 @@ import org.heigit.ors.api.services.ExportService;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportResult;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
