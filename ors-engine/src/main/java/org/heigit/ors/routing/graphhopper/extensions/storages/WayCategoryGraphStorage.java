@@ -41,10 +41,6 @@ public class WayCategoryGraphStorage implements GraphExtension {
         this.orsEdges = dir.find("ext_waycategory");
     }
 
-    public void setSegmentSize(int bytes) {
-        orsEdges.setSegmentSize(bytes);
-    }
-
     public WayCategoryGraphStorage create(long initBytes) {
         orsEdges.create(initBytes * edgeEntryBytes);
         return this;

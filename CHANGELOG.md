@@ -48,6 +48,7 @@ RELEASING:
 - info on duration format in parameter description ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - YML configuration ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
 - new backend documentation using VitePress([#1617](https://github.com/GIScience/openrouteservice/pull/1617))
+- support for Norwegian language ([#1645](https://github.com/GIScience/openrouteservice/pull/1645))
 
 ### Changed
 - include transfers and fare properties only in PT responses ([#1586](https://github.com/GIScience/openrouteservice/pull/1586))
@@ -61,6 +62,11 @@ RELEASING:
 - from springdoc-openapi-ui package to springdoc-openapi-starter-webmvc-ui ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - refactor RoutingProfile (part of [#1520](https://github.com/GIScience/openrouteservice/issues/1520))
 - update maven repository for dependencies ([#1536](https://github.com/GIScience/openrouteservice/pull/1536))
+- spring-boot-starter-parent to v3.1.6 ([#1630](https://github.com/GIScience/openrouteservice/issues/1630))
+- silence traffic map-matching internal errors ([#1635](https://github.com/GIScience/openrouteservice/pulls/1635))
+- fix IN1-JAVA-ORGMOZILLA-1314295 ([#1627](https://github.com/GIScience/openrouteservice/issues/1627))
+- log summary stats on traffic mapmatching and use progress bar only in debug mode ([#1647](https://github.com/GIScience/openrouteservice/pull/1647))
+- move APIEnums into API module ([#1634](https://github.com/GIScience/openrouteservice/issues/1634))
 
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))

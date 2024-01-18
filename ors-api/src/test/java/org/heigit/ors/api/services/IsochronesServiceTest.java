@@ -1,5 +1,6 @@
 package org.heigit.ors.api.services;
 
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;

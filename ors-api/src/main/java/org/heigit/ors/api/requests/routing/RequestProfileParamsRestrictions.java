@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -13,13 +13,14 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.heigit.ors.routing;
+package org.heigit.ors.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.GenericErrorCodes;
 
 
 public class APIEnums {
@@ -420,6 +421,8 @@ public class APIEnums {
         NE_NP("ne-np"),
         NL("nl"),
         NL_NL("nl-nl"),
+        NB("nb"),
+        NB_NO("nb-no"),
         PL("pl"),
         PL_PL("pl-pl"),
         PT("pt"),

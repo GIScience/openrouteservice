@@ -16,7 +16,7 @@
 package org.heigit.ors.api.requests.routing;
 
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;

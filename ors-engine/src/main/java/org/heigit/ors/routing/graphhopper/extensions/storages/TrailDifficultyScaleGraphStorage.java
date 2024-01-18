@@ -48,10 +48,6 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
         return res;
     }
 
-    public void setSegmentSize(int bytes) {
-        edges.setSegmentSize(bytes);
-    }
-
     public TrailDifficultyScaleGraphStorage create(long initBytes) {
         edges.create(initBytes * edgeEntryBytes);
         return this;
