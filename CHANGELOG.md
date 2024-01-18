@@ -49,6 +49,7 @@ RELEASING:
 - YML configuration ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
 - new backend documentation using VitePress([#1617](https://github.com/GIScience/openrouteservice/pull/1617))
 - support for Norwegian language ([#1645](https://github.com/GIScience/openrouteservice/pull/1645))
+- support for mmap dataaccess mode ([#1649](https://github.com/GIScience/openrouteservice/pull/1649))
 
 ### Changed
 - include transfers and fare properties only in PT responses ([#1586](https://github.com/GIScience/openrouteservice/pull/1586))
