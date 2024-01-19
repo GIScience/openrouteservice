@@ -30,41 +30,24 @@ See chapter [logging](/run-instance/configuration/logging) for details on config
 
 [//]: # (TODO: overhaul contents below after integrating the jar build PR)
 
-# Installing and running tomcat9
+# Installing and running openrouteservice within Tomcat 10
 
-1. Install Tomcat 9 using `sudo apt-get install tomcat9`.
+1. Install Tomcat 10 on your system. E.g. on Ubuntu 22.04, follow these [instructions](https://linuxize.com/post/how-to-install-tomcat-10-on-ubuntu-22-04/).
 
-2. If you want to use system settings (i.e. Java heap size) other than the
-   default, then you need to add these to the
-   `/usr/share/tomcat8/bin/setenv.sh` file. If the file is not present, then you
-   can create it. The settings generally used on our servers are similar to:
+2. If you want to use system settings (i.e. Java heap size) other than the default, then you need to add these to the `setenv.sh` file in your tomcat bin folder, typically somewhere like `/usr/share/tomcat10/bin/`. If the file is not present, then you can create it. 
 
-   ```bash
-   JAVA_OPTS="-server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms105g -Xmx105g -XX:MaxMetaspaceSize=50m"
-   CATALINA_OPTS="(here we set settings for JMX monitoring)"
-   ```
-3. If you add these new settings to the `setenv.sh` file, then you need to
-   restart Tomcat for these to take effect using `sudo systemctl restart
-   tomcat8.service`.
-4. To get openrouteservice up and running, copy the `ors.war` file found in
-   the `ors-api/target` folder to the Tomcat webapps folder. For
-   example
+   The environment variable `ORS_CONFIG_LOCATION` and other optional environment variables need to be written to that file, too. The settings generally used on our servers are similar to:
 
-   ```bash
-   sudo cp ~/openrouteservice/ors-api/target/ors.war /var/lib/tomcat8/webapps/
-   ```
+  ```shell
+  JAVA_OPTS="-server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms105g -Xmx105g -XX:MaxMetaspaceSize=50m"
+  CATALINA_OPTS="(here we set settings for JMX monitoring)"
+  ORS_CONFIG_LOCATION=/path/to/ors-config.yml
+  ```
 
-5. Tomcat should now automatically detect the new WAR file and deploy the
-   service. Depending on profiles and size of the OSM data, this can take
-   some time until openrouteservice has built graphs and is ready for generating
-   routes. You can check if it is ready by accessing
-   `http://localhost:8080/ors/health` (the port and URL may be different if you
-   have installed Tomcat differently than above). If you get a `status: ready`
-   message, you are good to go in creating routes.
+3. If you add these new settings to the `setenv.sh` file, then you need to restart Tomcat for these to take effect using a command like `sudo systemctl restart tomcat.service`.
 
-There are numerous settings within the `ors-config.json` which are highly dependent
-on your individual circumstances, but many of these [are documented](Configuration). As a guide
-however you can look at the `ors-config-sample.json` file in the
-`ors-api/src/main/resources` folder. If you run into issues relating
-to out of memory or similar, then you will need to adjust java/tomcat settings
-accordingly.
+4. To get openrouteservice up and running, copy the `ors.war` file you downloaded (or built, in which case the file can be found at `ors-api/target`) to the Tomcat webapps folder.
+
+5. Tomcat should now automatically detect the new WAR file and deploy the service. Depending on profiles and size of the OSM data, this can take some time until openrouteservice has built graphs and is ready for generating routes. You can check if it is ready by accessing `http://localhost:8080/ors/health` (the port and URL may be different if you have installed Tomcat differently than above). If you get a `status: ready` message, you are good to go in creating routes.
+
+6. Your configuration file and all input / output files and directories referenced by that configuration need to be accessible (and in case of the output folders, writable) to the user your tomcat instance is running as. You might need to adjust the location of said files and folders or `chmod` / `chown` them accordingly.
