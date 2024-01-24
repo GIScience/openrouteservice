@@ -34,7 +34,7 @@ A string array of features to avoid. The available features are :
 | `steps`    | cycling-\*, foot-\*, wheelchair             |
 
 ### `avoid_polygons` 
-Comprises areas to be avoided for the route. Formatted as [geojson polygon](http://geojson.org/geojson-spec.html#id4) or [geojson multipolygon](http://geojson.org/geojson-spec.html#id7).
+Comprises areas to be avoided for the route. Formatted as [geojson polygon](https://datatracker.ietf.org/doc/html/rfc7946#appendix-A.3) or [geojson multipolygon](https://datatracker.ietf.org/doc/html/rfc7946#appendix-A.6).
 
 ### `profile_params`
 An object of additional routing parameters for all profiles except `driving-car`: 
