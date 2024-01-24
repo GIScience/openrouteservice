@@ -2,7 +2,7 @@
 
 The status endpoint os not available in the public API.
 
-The GET request http://localhost:8082/ors/v2/status (host and port might be different) returns basic information about the running instance:
+The GET request http://localhost:8082/ors/v2/status (host and port are dependent on the setup) returns basic information about the running instance:
 
 * `languages`: available languages
 * `engine`: the build date and version of the openrouteservice

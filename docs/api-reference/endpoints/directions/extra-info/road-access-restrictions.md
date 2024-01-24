@@ -7,7 +7,7 @@ $.routes[*].extras.roadaccessrestrictions.values
 ```
 
 Provides information about possible restrictions on roads.
-Explanation of the values can be found in the [list of possible values](https://wiki.openstreetmap.org/wiki/Key:access)
+Explanation of the values can be found in the [list of possible values in the OSM Wiki](https://wiki.openstreetmap.org/wiki/Key:access)
 
 | Value |             Encoding              |
 |:-----:|:---------------------------------:|

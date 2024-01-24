@@ -2,15 +2,15 @@
 
 | key     | type   | description | example value                |
 |---------|--------|-------------|------------------------------| 
-| methods | object |             | [methods](#executionmethods) |
+| methods | object |             | [methods](#execution-methods) |
 
 ## **execution.methods**
 
 | key  | type   | description                                           | example value                 |
 |------|--------|-------------------------------------------------------|-------------------------------| 
-| ch   | object | Settings for using contraction hierarchies in routing | [ch](#executionmethodsch)     |
-| lm   | object | Settings for using landmarks in routing               | [lm](#executionmethodslm)     |
-| core | object | Settings for using landmarks in routing               | [core](#executionmethodscore) |
+| ch   | object | Settings for using contraction hierarchies in routing | [ch](#execution-methods-ch)     |
+| lm   | object | Settings for using landmarks in routing               | [lm](#execution-methods-lm)     |
+| core | object | Settings for using landmarks in routing               | [core](#execution-methods-core) |
 
 ## **execution.methods.ch**
 

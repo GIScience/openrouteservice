@@ -94,7 +94,7 @@ A map specifying restrictions for `cycling-*`, `driving-hgv` or `wheelchair`prof
   | Parameter             | Type    | Description                                                                                                                 |
   |-----------------------|---------|-----------------------------------------------------------------------------------------------------------------------------|
   | `surface_type`        | String  | Specifies the minimum [surface type](http://wiki.openstreetmap.org/wiki/Key:surface). Default is `"cobblestone:flattened"`. |
-  | `track_type`          | String  | Specifies the minimum [grade](http://wiki.openstreetmap.org/wiki/Key:tracktype) of the route. Default is `"grade1"`.        |
+  | `track_type`          | String  | Specifies the minimum [quality](http://wiki.openstreetmap.org/wiki/Key:tracktype) of the route. Default is `"grade1"`.        |
   | `smoothness_type`     | String  | Specifies the minimum [smoothness](http://wiki.openstreetmap.org/wiki/Key:smoothness) of the route. Default is `"good"`.    |
   | `maximum_sloped_kerb` | Number  | Specifies the maximum height of the sloped kerb in meters. Values are `0.03`, `0.06`(default), `0.1` or `any`.              |
   | `maximum_incline`     | Integer | Specifies the maximum incline as a percentage. `3`, `6`(default), `10`, `15` or `any`.                                      |
@@ -122,7 +122,7 @@ HINT: *If your request works without the `options` object, but returns an error 
 
 Some options examples in readable and minified JSON form:
 
-for `profile=driving-car`:
+### for `profile=driving-car`:
 
 ```json
 {
@@ -131,7 +131,7 @@ for `profile=driving-car`:
 ```
 `{"avoid_features":["ferries","tollways"]}`
 
-for `profile=cycling-*`:
+### for `profile=cycling-*`:
 
 ```json
 {
@@ -150,7 +150,7 @@ for `profile=cycling-*`:
 ```
 `{"avoid_features":["steps"],"profile_params":{"weightings":{"steepness_difficulty":2}}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
 
-for `profile=foot-*`:
+### for `profile=foot-*`:
 
 ```json
 {
@@ -174,7 +174,7 @@ for `profile=foot-*`:
 ```
 `{"avoid_features":["fords","ferries"],"profile_params":{"weightings":{"green":{"factor":0.8},"quiet":{"factor":1.0}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
 
-for `profile=driving-hgv`:
+### for `profile=driving-hgv`:
 
 ```json
 {
@@ -199,7 +199,7 @@ for `profile=driving-hgv`:
 ```
 `{"avoid_features":["ferries","tollways"],"vehicle_type":"hgv","profile_params":{"restrictions":{"length":30,"width":30,"height":3,"axleload":4,"weight":3,"hazmat":true}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
 
-for `profile=wheelchair`:
+### for `profile=wheelchair`:
 
 ```json
 {

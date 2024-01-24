@@ -2,7 +2,7 @@
 
 The Matrix Endpoint calculates profile specific distance and time matrices between multiple source and destination positions.
 
-Besides parameters for the routing profile, the desired metrics (distance or time) and some more (see  [interactive API-Doc](https://openrouteservice.org/dev/#/api-docs/matrix%20service)), 
+Besides parameters for the routing profile, the desired metrics (distance or time) and some more (see  [interactive API-Doc](https://openrouteservice.org/dev/#/api-docs/matrix_service)), 
 the most important and mandatory content of a matrix request is a list of locations (coordinate tuples), e.g.:
 
 ```json
@@ -57,4 +57,4 @@ The first entry in the result `durations` list represents the duration from loca
 
 To specify whether distances or durations (or both) are to be calculated, the `metrics` parameter can be set accordingly.
 
-For details about all request parameters and the response type, see the [interactive API-Doc](https://openrouteservice.org/dev/#/api-docs/matrix%20service).
+For details about all request parameters and the response type, see the [interactive API-Doc](https://openrouteservice.org/dev/#/api-docs/matrix_service).

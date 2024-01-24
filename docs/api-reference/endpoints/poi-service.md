@@ -23,15 +23,15 @@ Category groups
 |:------------------------------------------------------------|:-----:|
 | [accommodation](#accommodation-100)                         |  100  |
 | [animals](#animals-120)                                     |  120  |
-| [arts_and_culture](#arts_and_culture-130)                   |  130  |
+| [arts_and_culture](#arts-and-culture-130)                   |  130  |
 | [education](#education-150)                                 |  150  |
 | [facilities](#facilities-160)                               |  160  |
 | [financial](#financial-190)                                 |  190  |
 | [healthcare](#healthcare-200)                               |  200  |
 | [historic](#historic-220)                                   |  220  |
-| [leisure_and_entertainment](#leisure_and_entertainment-260) |  260  |
+| [leisure_and_entertainment](#leisure-and-entertainment-260) |  260  |
 | [natural](#natural-330)                                     |  330  |
-| [public_places](#public_places-360)                         |  360  |
+| [public_places](#public-places-360)                         |  360  |
 | [service](#service-390)                                     |  390  |
 | [shops](#shops-420)                                         |  420  |
 | [sustenance](#sustenance-560)                               |  560  |
@@ -240,7 +240,7 @@ Categories listed by group
 | bar            |  561  |
 | bbq            |  562  |
 | biergarten     |  563  |
-| caf?           |  564  |
+| café           |  564  |
 | drinking_water |  565  |
 | fast_food      |  566  |
 | food_court     |  567  |
