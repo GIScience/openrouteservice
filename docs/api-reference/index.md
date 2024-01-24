@@ -2,7 +2,7 @@
 
 There are different ways to get information about the openrouteservice API:
 
-* **First starting point:** [API interactive examples](https://openrouteservice.org/dev/#/api-docs/directions%20service): 
+* **First starting point:** [API interactive examples](https://openrouteservice.org/dev/#/api-docs/directions_service): 
   Complete and concise technical documentation of our live API. 
   It can also be used to send sample requests to both, our live API or an instance of openrouteservice running on your local machine. 
   Use the form "API Server" on the top left to select and edit "Development Server" if you want to send requests to your local instance:
