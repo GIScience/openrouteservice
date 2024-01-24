@@ -22,6 +22,7 @@ public class EngineProperties {
     private boolean preparationMode;
     private String sourceFile;
     private String graphsRootPath;
+    private String graphsDataAccess;
     private ElevationProperties elevation;
     private ProfileProperties profileDefault;
     private Map<String, ProfileProperties> profiles;
@@ -56,6 +57,14 @@ public class EngineProperties {
 
     public void setGraphsRootPath(String graphsRootPath) {
         this.graphsRootPath = graphsRootPath;
+    }
+
+    public String getGraphsDataAccess() {
+        return graphsDataAccess;
+    }
+
+    public void setGraphsDataAccess(String graphsDataAccess) {
+        this.graphsDataAccess = graphsDataAccess;
     }
 
     public ElevationProperties getElevation() {
@@ -307,11 +316,11 @@ public class EngineProperties {
         }
 
         public String getEncoderOptionsString() {
-            if (encoderOptions == null || encoderOptions.size() == 0)
+            if (encoderOptions == null || encoderOptions.isEmpty())
                 return "";
             StringBuilder output = new StringBuilder();
             for (Map.Entry<String, String> entry : encoderOptions.entrySet()) {
-                if (output.length() > 0) {
+                if (!output.isEmpty()) {
                     output.append("|");
                 }
                 output.append(entry.getKey()).append("=").append(entry.getValue());

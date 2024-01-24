@@ -12,6 +12,7 @@ public class EngineConfig {
     private final boolean preparationMode;
     private final String sourceFile;
     private final String graphsRootPath;
+    private final String graphsDataAccess;
     private final boolean elevationPreprocessed;
     private final RouteProfileConfiguration[] profiles;
 
@@ -31,6 +32,10 @@ public class EngineConfig {
         return graphsRootPath;
     }
 
+    public String getGraphsDataAccess() {
+        return graphsDataAccess;
+    }
+
     public boolean isElevationPreprocessed() {
         return elevationPreprocessed;
     }
@@ -46,8 +51,8 @@ public class EngineConfig {
         this.elevationPreprocessed = builder.elevationPreprocessed;
         this.graphsRootPath = builder.graphsRootPath;
         this.profiles = builder.profiles;
+        this.graphsDataAccess = builder.graphsDataAccess;
     }
-
 
     public static class EngineConfigBuilder {
         // Migration guide: 2. add corresponding field (without final)
@@ -55,6 +60,7 @@ public class EngineConfig {
         private boolean preparationMode;
         private String sourceFile;
         private String graphsRootPath;
+        private String graphsDataAccess;
         private boolean elevationPreprocessed;
         private RouteProfileConfiguration[] profiles;
 
@@ -80,6 +86,11 @@ public class EngineConfig {
 
         public EngineConfigBuilder setGraphsRootPath(String graphsRootPath) {
             this.graphsRootPath = graphsRootPath;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphsDataAccess(String graphsDataAccess) {
+            this.graphsDataAccess = graphsDataAccess;
             return this;
         }
 
