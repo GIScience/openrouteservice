@@ -30,4 +30,4 @@ It is a very old standard for lightweight interchange of GPS data and thus being
 **GeoJSON** is a format for encoding a variety of geographic data structures, see [geojson.org](https://geojson.org).
 It is widely used and can therefore be easily processed or displayed in many applications, e.g. in [QGIS](https://qgis.org/) or on [geojson.io](http://geojson.io/)
 
-More information about the result types can be found in the [interactive API documentation](https://openrouteservice.org/dev/#/api-docs/directions%20service).
+More information about the result types can be found in the [interactive API documentation](https://openrouteservice.org/dev/#/api-docs/directions_service).
