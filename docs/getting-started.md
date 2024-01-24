@@ -12,7 +12,7 @@ The fastest way to get to the info you are looking for is **the search bar above
 * [Run ORS instance](run-instance/) contains all info about setting up the ors locally. 
   * [System requirements](run-instance/system-requirements)
   * [Data](run-instance/data) used by openrouteservice
-  * [Installation](run-instance/installation/) either directly using [JAR / WAR](run-instance/installation/running-jar-war) artifacts, with [Docker](run-instance/installation/running-in-container) or [building from source](run-instance/installation/building-from-source)
+  * [Installation](run-instance/installation/) either directly using [JAR / WAR](run-instance/installation/running-jar-war) artifacts, with [Docker](run-instance/installation/running-with-docker) or [building from source](run-instance/installation/building-from-source)
   * [Configuration](run-instance/configuration/) of openrouteservice instances
 * [Contributing](contributing/) contains info about contributing to the openrouteservice, the OpenStreetMap and [translations](contributing/contributing-translations)
 * [Technical details](technical-details/) contains all sorts of explanation about the internal workings of the openrouteservice.
