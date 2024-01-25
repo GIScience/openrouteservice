@@ -4,4 +4,9 @@
 [//]: # (Attention: Keep docu up-to-date!)
 [//]: # (Alternative: Use Github-Code-Links to enums etc. in documentation?)
 
-See some value lists in sub pages
+In this section you can find additional information on some important value lists
+and explanation about the internal workings of the openrouteservice:
+
+* [Country List](country-list.md)
+* [Travel Speeds](travel-speeds/index.md)
+* [Tag filtering](tag-filtering.md)
