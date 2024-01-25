@@ -59,7 +59,7 @@ Some values are not available in all routing profiles:
 
 The requested extra information can be found in the directions response (JSON endpoints) in the node 
 
-```jsonpath
+```json
 $.routes[*].extras
 ```
 

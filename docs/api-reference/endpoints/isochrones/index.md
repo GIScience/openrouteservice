@@ -7,7 +7,7 @@ which help you to further customize your request to obtain a more detailed reach
 
 The result is a GeoJSON where the isochrone polygons are represented as `features`:
 
-```jsonpath
+```json
 $.features
 ```
 

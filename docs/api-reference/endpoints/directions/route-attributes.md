@@ -16,7 +16,7 @@ The possible values are:
 
 In the response, the additional attributes can be found in 
 
-```jsonpath
+```json
 $.routes[*].segments[*].avgspeed
 $.routes[*].segments[*].detourfactor
 $.routes[*].segments[*].percentage

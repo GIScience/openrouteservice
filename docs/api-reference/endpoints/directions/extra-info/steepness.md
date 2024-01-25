@@ -2,7 +2,7 @@
 
 Value list for the directions response values in
 
-```jsonpath
+```json
 $.routes[*].extras.steepness.values
 ```
 
