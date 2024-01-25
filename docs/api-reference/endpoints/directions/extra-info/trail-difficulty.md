@@ -2,7 +2,7 @@
 
 Value list for the directions response values in
 
-```json
+```jsonpath
 $.routes[*].extras.traildifficulty.values
 ```
 
