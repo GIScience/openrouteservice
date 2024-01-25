@@ -7,8 +7,8 @@ The fastest way to get to the info you are looking for is **the search bar above
   * [Directions](api-reference/endpoints/directions/) endpoint
   * [Isochrones](api-reference/endpoints/isochrones/) endpoint
   * [Matrix](api-reference/endpoints/matrix/) endpoint
-  * [Snapping](api-reference/endpoints/snapping/) endpoint
-  * [Export](api-reference/endpoints/export/) endpoint
+  * [Snapping](api-reference/endpoints/snapping/) endpoint _(not available in our live API)_
+  * [Export](api-reference/endpoints/export/) endpoint _(not available in our live API)_
 * [Run ORS instance](run-instance/) contains all info about setting up the ors locally. 
   * [System requirements](run-instance/system-requirements)
   * [Data](run-instance/data) used by openrouteservice
