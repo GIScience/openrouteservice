@@ -16,7 +16,7 @@ There are different ways to get information about the openrouteservice API:
   Explanation and examples for some selected topics that might not be explained sufficiently in the interactive examples. 
   Here, the single endpoints are not completely covered with all their request parameters etc. 
   But on the other hand, there is some information about endpoints that are not available in our live API, 
-  but e.g. on instances you run or host yourself: [Export](endpoints/export/index.md), [Health](endpoints/health/index.md), [Status](endpoints/status/index.md)
+  but e.g. on instances you run or host yourself: [Export](endpoints/export/index.md), [Snapping](endpoints/snapping/index.md), [Health](endpoints/health/index.md), [Status](endpoints/status/index.md)
 
 * **Swagger-UI:** 
   Local instances of openrouteservice also have an accessible swagger-ui. 
