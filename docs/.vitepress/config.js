@@ -7,6 +7,11 @@ export default defineConfig({
     base: "/openrouteservice/",
     head: [['link', {rel: 'icon', href: '/openrouteservice/ors_fav.png'}]],
     cleanUrls: true,
+    markdown: {
+        languageAlias: {
+            'jsonpath': 'json'
+        }
+    },
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         siteTitle: false,
