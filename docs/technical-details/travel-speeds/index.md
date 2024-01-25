@@ -1,4 +1,4 @@
-# Travel speeds
+# Travel Speeds
 A main component that determines things such as fastest routes and the travel
 time for isochrones and route instructions is travel speed. This value is
 determined differently depending on the profile and can be affected by a number

@@ -7,4 +7,4 @@ and explanation about the internal workings of the openrouteservice:
 
 * [Country List](country-list.md)
 * [Travel Speeds](travel-speeds/index.md)
-* [Tag filtering](tag-filtering.md)
+* [Tag Filtering](tag-filtering.md)
