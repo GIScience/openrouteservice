@@ -102,7 +102,13 @@ A map specifying restrictions for `cycling-*`, `driving-hgv` or `wheelchair`prof
 
 ### `round-trip` 
 
-[//]: # (TODO: write)
+A map with specifications of a round-trip:
+
+| Parameter | Type    | Description                                                                                              |
+|-----------|---------|----------------------------------------------------------------------------------------------------------|
+| `length`  | Number  | The target length of the route in m (note that this is a preferred value, but results may be different). |
+| `points`  | Integer | The number of points to use on the route. Larger values create more circular routes.                     |
+| `seed`    | Integer | A seed to use for adding randomisation to the overall direction of the generated route (optional).       |
 
 ### `vehicle_type`
 For `profile=driving-hgv` only. It is needed for **vehicle restrictions** to work. Possible values:
