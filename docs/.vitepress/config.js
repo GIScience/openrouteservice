@@ -81,8 +81,10 @@ export default defineConfig({
                                     {text: 'Export (not live)', link: '/api-reference/endpoints/export/'},
                                     {text: 'Health (not live)', link: '/api-reference/endpoints/health/'},
                                     {text: 'Status (not live)', link: '/api-reference/endpoints/status/'},
+                                    {text: 'POI', link: '/api-reference/endpoints/poi/'},
+                                    {text: 'Elevation', link: '/api-reference/endpoints/elevation/'},
                                     {text: 'Geocoder', link: '/api-reference/endpoints/geocoder/'},
-                                    {text: 'POI Service', link: '/api-reference/endpoints/poi-service'},
+                                    {text: 'Optimization', link: '/api-reference/endpoints/optimization/'},
                                 ]
                             },
                             {text: 'Error Codes', link: '/api-reference/error-codes'},

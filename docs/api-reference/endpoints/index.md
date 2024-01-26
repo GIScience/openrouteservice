@@ -27,7 +27,7 @@ _(not available in our live API)_:
 
 In addition, there are other services accessible via our public API that are not served by the openrouteservice itself:
 
-* [POI Service](poi-service): Stand-Alone service from HeiGIT that returns points of interest in the area surrounding a geometry
-* [Elevation Service](https://openrouteservice.org/dev/#/api-docs/elevation): Stand-Alone service from HeiGIT that returns the elevation for point or line geometries 
-* [Geocoder](geocoder/index.md): A Third Party Service ([Pelias](https://www.pelias.io)) that resolves geo coordinates to addresses and vice versa
-* [Optimization](https://openrouteservice.org/dev/#/api-docs/optimization): Optimize routes for vehicle fleets (-> [vroom](https://github.com/VROOM-Project/vroom))
+* [POI Service](poi/index.md): Stand-Alone service from HeiGIT that returns points of interest in the area surrounding a geometry
+* [Elevation Service](elevation/index.md): Stand-Alone service from HeiGIT that returns the elevation for point or line geometries 
+* [Geocoder Service](geocoder/index.md): Third Party Service ([Pelias](https://www.pelias.io)) hosted by HeiGIT that resolves geo coordinates to addresses and vice versa
+* [Optimization Service](optimization/index.md): Third Party Service ([vroom](https://github.com/VROOM-Project/vroom)) hosted by HeiGIT that optimizes routes for vehicle fleets

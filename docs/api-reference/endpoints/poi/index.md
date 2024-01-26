@@ -1,4 +1,4 @@
-# Points-Of-Interest(POI) Service
+# Points-Of-Interest (POI) Service
 
 The [openpoiservice](https://github.com/GIScience/openpoiservice) is a Stand-Alone service from HeiGIT that returns
 points of interest in the area surrounding a geometry.
