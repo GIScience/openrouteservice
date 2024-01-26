@@ -1,7 +1,5 @@
 # Status Endpoint
 
-The status endpoint os not available in the public API.
-
 The GET request http://localhost:8082/ors/v2/status (host and port are dependent on the setup) returns basic information about the running instance:
 
 * `languages`: available languages
@@ -11,8 +9,8 @@ The GET request http://localhost:8082/ors/v2/status (host and port are dependent
 
 [//]: # (TODO: engine git die ORS version aus, nicht die eigentliche engine version, die wir dann auch im graph management verwenden, oder?)
 
-This is an example response: 
-
+ 
+:::details This is an example response: 
 ```json
 {
     "languages": [
@@ -96,4 +94,8 @@ This is an example response:
     ]
 }
 ```
+:::
 
+:::warning Hint
+This endpoint is not available in the public API, but you can use it when running an own instance of openrouteservice.
+:::

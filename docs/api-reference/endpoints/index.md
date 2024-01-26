@@ -1,7 +1,9 @@
 # Endpoints
 
-_Note, that not all endpoints are available in our live API.
-But you can use them when hosting your own instance of openrouteservice._
+:::warning Hint
+Not all endpoints are available in our live API.
+But you can use them when hosting your own instance of openrouteservice.
+:::
 
 ## Spatial Endpoints
 
