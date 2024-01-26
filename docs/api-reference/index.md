@@ -23,6 +23,9 @@ There are different ways to get information about the openrouteservice API:
   This is a way to get an interactive API doc also for old versions of openrouteservice:  
   Checkout the source code for the desired version or tag and run the service locally.
   You can then navigate to the swagger-ui hosted by your local instance in your browser: [http://localhost:8082/ors/swagger-ui/index.html](http://localhost:8082/ors/swagger-ui/index.html)
-  The port may be different on your local environment.
-  **The swagger-ui is not available on the production ORS instances hosted by HeiGIT.**
+  (the port may be different on your local environment).
+    :::warning Hint
+    The swagger-ui is not available on the production ORS instances hosted by HeiGIT.
+    :::
+
   ![](../public/swagger-ui.png)
