@@ -497,8 +497,8 @@ class ResultTest extends ServiceTest {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         String xsdSchema = """
                 <?xml version="1.0" encoding="UTF-8"?>
-                <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-                    <xs:element name="gpx" type="ors:gpxType" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                    <xs:element name="gpx" type="ors:gpxType" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                     <xs:complexType name="extensionsType">
                         <xs:sequence>
                             <xs:element type="xs:string" name="distance" minOccurs="0"/>
@@ -537,7 +537,7 @@ class ResultTest extends ServiceTest {
                             <xs:element type="xs:string" name="distance-units" minOccurs="0"/>
                             <xs:element type="xs:string" name="instructions" minOccurs="0"/>
                             <xs:element type="xs:string" name="elevation" minOccurs="0"/>
-                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd" minOccurs="0"/>
+                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd" minOccurs="0"/>
                             <xs:element type="xs:string" name="system-message" minOccurs="0"/>
                         </xs:sequence>
                     </xs:complexType>
@@ -545,11 +545,11 @@ class ResultTest extends ServiceTest {
                         <xs:sequence>
                             <xs:element type="xs:string" name="name"/>
                             <xs:element type="xs:string" name="desc"/>
-                            <xs:element type="ors:authorType" name="author" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:copyrightType" name="copyright" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:authorType" name="author" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:copyrightType" name="copyright" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                             <xs:element type="xs:string" name="time"/>
-                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                     </xs:complexType>
                     <xs:complexType name="boundsType">
@@ -571,9 +571,9 @@ class ResultTest extends ServiceTest {
                     </xs:complexType>
                     <xs:complexType name="gpxType">
                         <xs:sequence>
-                            <xs:element type="ors:metadataType" name="metadata" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:rteType" name="rte" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:metadataType" name="metadata" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:rteType" name="rte" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                         <xs:attribute type="xs:string" name="version"/>
                         <xs:attribute type="xs:string" name="creator"/>
@@ -589,8 +589,8 @@ class ResultTest extends ServiceTest {
                     <xs:complexType name="authorType">
                         <xs:sequence>
                             <xs:element type="xs:string" name="name"/>
-                            <xs:element type="ors:emailType" name="email" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:linkType" name="link" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:emailType" name="email" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:linkType" name="link" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                     </xs:complexType>
                     <xs:complexType name="copyrightType">
@@ -605,15 +605,15 @@ class ResultTest extends ServiceTest {
                             <xs:element type="xs:decimal" name="ele" minOccurs="0"/>
                             <xs:element type="xs:string" name="name"/>
                             <xs:element type="xs:string" name="desc"/>
-                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                         <xs:attribute type="xs:string" name="lat" use="optional"/>
                         <xs:attribute type="xs:string" name="lon" use="optional"/>
                     </xs:complexType>
                     <xs:complexType name="rteType">
                         <xs:sequence>
-                            <xs:element type="ors:rteptType" name="rtept" maxOccurs="unbounded" minOccurs="0" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:rteptType" name="rtept" maxOccurs="unbounded" minOccurs="0" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:schema>

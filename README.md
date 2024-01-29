@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/GIScience/openrouteservice/build-and-publish.yml)](https://github.com/GIScience/openrouteservice/actions/workflows/build-and-publish.yml)
 [![Docker](https://img.shields.io/docker/cloud/build/heigit/openrouteservice?label=Docker&style=flat)](https://hub.docker.com/r/heigit/openrouteservice/builds)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=GIScience_openrouteservice&metric=alert_status&branch=master)](https://sonarcloud.io/dashboard?id=GIScience_openrouteservice&metric)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=GIScience_openrouteservice&metric=alert_status&branch=main)](https://sonarcloud.io/dashboard?id=GIScience_openrouteservice&metric)
 [![Release](https://img.shields.io/github/v/release/GIScience/openrouteservice)](https://github.com/GIScience/openrouteservice/releases/latest)
 [![LICENSE](https://img.shields.io/github/license/GIScience/openrouteservice)](LICENSE)
 
@@ -27,7 +27,7 @@ Please note that openrouteservice uses a forked and edited version of [graphhopp
 
 ## Changelog/latest changes
 
-[Openrouteservice CHANGELOG](https://github.com/GIScience/openrouteservice/blob/master/CHANGELOG.md)
+[Openrouteservice CHANGELOG](https://github.com/GIScience/openrouteservice/blob/main/CHANGELOG.md)
 
 ## Contribute
 
@@ -41,7 +41,7 @@ The [sourcespy dashboard](https://sourcespy.com/github/giscienceopenrouteservice
 
 We suggest using docker to install and launch openrouteservice backend. In short, a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) will get everything done for you. 
 
-Only use nightly (master branch) if you know what you do. We recommend running docker compose with the latest release version:
+Only use nightly (main branch) if you know what you do. We recommend running docker compose with the latest release version:
 
 ```bash
 # For example for the latest release
