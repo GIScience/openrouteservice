@@ -52,6 +52,7 @@ RELEASING:
 - support for mmap dataaccess mode ([#1649](https://github.com/GIScience/openrouteservice/pull/1649))
 
 ### Changed
+- default branch from `master` to `main`
 - include transfers and fare properties only in PT responses ([#1586](https://github.com/GIScience/openrouteservice/pull/1586))
 - suppress empty legs property in routing JSON responses ([#1584](https://github.com/GIScience/openrouteservice/pull/1584))
 - url_check.sh to support custom sleep and reporting intervals ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
