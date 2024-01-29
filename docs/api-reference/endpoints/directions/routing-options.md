@@ -8,7 +8,7 @@ For structure refer to the [examples](#examples).
 
 ## Available parameters
 
-### `avoid_borders`
+### `options.avoid_borders`
 String value specifying which borders to avoid. Only for **`driving-*`** profiles.
 
 | Value          | Description                                  |
@@ -16,13 +16,13 @@ String value specifying which borders to avoid. Only for **`driving-*`** profile
 | `"all"`        | for no border crossing                       |
 | `"controlled"` | cross open borders but avoid controlled ones | 
 
-### `avoid_countries` 
+### `options.avoid_countries` 
 An integer array of country ids to exclude from routing with **`driving-*`** profiles. Can be used together with `"avoid_borders": "controlled"`. 
 The list of countries and application examples can be found in the [country list](../../../technical-details/country-list.md).
 
 `"[11,193]"` would exclude Austria and Switzerland. 
 
-### `avoid_features`
+### `options.avoid_features`
 A string array of features to avoid. The available features are :
 
 | Feature    | Available for                               |
@@ -33,13 +33,13 @@ A string array of features to avoid. The available features are :
 | `fords`    | driving-\*, cycling-\*, foot-\*             |
 | `steps`    | cycling-\*, foot-\*, wheelchair             |
 
-### `avoid_polygons` 
+### `options.avoid_polygons` 
 Comprises areas to be avoided for the route. Formatted as [geojson polygon](https://datatracker.ietf.org/doc/html/rfc7946#appendix-A.3) or [geojson multipolygon](https://datatracker.ietf.org/doc/html/rfc7946#appendix-A.6).
 
-### `profile_params`
+### `options.profile_params`
 An object of additional routing parameters for all profiles except `driving-car`: 
 
-#### `weightings`
+#### `options.profile_params.weightings`
 Weightings will prioritize specified factors over the shortest path. 
 The value is an object that can have the following properties:
 
@@ -67,16 +67,11 @@ The value is an object that can have the following properties:
     | `0`   | normal routing                         |
     | `1`   | prefer quiet ways over a shorter route |
 
-#### `restrictions` 
+#### `options.profile_params.restrictions` 
+
+[//]: # (see RequestProfileParamsRestrictions)
+
 An object specifying restrictions for `cycling-*`, `driving-hgv` or `wheelchair`profiles.
-
-* for **`cycling-*`**:
-
-  | Parameter  | Type   | Description                                                                                                                                                                               |
-  |------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-  | `gradient` | Number | Only for avoided `hills` or specified `steepness_difficulty`. Specifies the maximum route steepness in percent. Values range from `1` to `15`. Routes with a higher gradient are avoided. |
-
-[//]: # (TODO: does gradient still exist? Can't find it)
 
 * for `driving-hgv`:
 
@@ -100,7 +95,7 @@ An object specifying restrictions for `cycling-*`, `driving-hgv` or `wheelchair`
   | `maximum_incline`     | Integer | Specifies the maximum incline as a percentage. `3`, `6`(default), `10`, `15` or `any`.                                      |
   | `minimum_width`       | Number  | Specifies the minimum width of a road in meters.                                                                            |
 
-### `round-trip` 
+### `options.round-trip` 
 
 An object with specifications of a round-trip:
 
@@ -110,8 +105,10 @@ An object with specifications of a round-trip:
 | `points`  | Integer | The number of points to use on the route. Larger values create more circular routes.                     |
 | `seed`    | Integer | A seed to use for adding randomisation to the overall direction of the generated route (optional).       |
 
-### `vehicle_type`
-For `profile=driving-hgv` only. It is needed for **vehicle restrictions** to work. Possible values:
+### `options.vehicle_type`
+For `profile=driving-hgv` only.
+It is needed for **vehicle restrictions** to work (see [tag filtering](/technical-details/tag-filtering.md#driving-hgv)).
+Possible values:
 
 * `hgv`
 * `bus`
@@ -124,18 +121,13 @@ For `profile=driving-hgv` only. It is needed for **vehicle restrictions** to wor
 
 ## Examples
 
-HINT: *If your request works without the `options` object, but returns an error _with_ it: try to [URL-encode](#url-encoding) the options object!*
-
-Some options examples in readable and minified JSON form:
+Some `options` examples in readable and minified JSON form:
 
 ### for `profile=driving-car`:
 
 ```json
-{
-    "avoid_features": ["ferries", "tollways"]
-}
+{"avoid_features":["ferries","tollways"]}
 ```
-`{"avoid_features":["ferries","tollways"]}`
 
 ### for `profile=cycling-*`:
 
@@ -148,13 +140,37 @@ Some options examples in readable and minified JSON form:
       }
   },
   "avoid_polygons": {
-      "type": "Polygon",
-      "coordinates": [
-          [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
-   ]}
+    "coordinates": [
+      [
+        [
+          8.683223,
+          49.41971
+        ],
+        [
+          8.68322,
+          49.41635
+        ],
+        [
+          8.68697,
+          49.41635
+        ],
+        [
+          8.68697,
+          49.41971
+        ],
+        [
+          8.683223,
+          49.41971
+        ]
+      ]
+    ],
+    "type": "Polygon"
+  }
 }
 ```
-`{"avoid_features":["steps"],"profile_params":{"weightings":{"steepness_difficulty":2}}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
+```json
+{"avoid_features":["steps"],"profile_params":{"weightings":{"steepness_difficulty":2}},"avoid_polygons":{"coordinates":[[[8.683223,49.41971],[8.68322,49.41635],[8.68697,49.41635],[8.68697,49.41971],[8.683223,49.41971]]],"type":"Polygon"}}
+```
 
 ### for `profile=foot-*`:
 
@@ -170,22 +186,18 @@ Some options examples in readable and minified JSON form:
                 "factor": 1.0
             }
         }
-    },
-    "avoid_polygons": {  
-        "type": "Polygon",
-        "coordinates": [
-            [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
-     ]}
+    }
 }
 ```
-`{"avoid_features":["fords","ferries"],"profile_params":{"weightings":{"green":{"factor":0.8},"quiet":{"factor":1.0}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
+```json
+{"avoid_features":["fords","ferries"],"profile_params":{"weightings":{"green":{"factor":0.8},"quiet":{"factor":1.0}}}}
+```
 
 ### for `profile=driving-hgv`:
 
 ```json
 {
     "avoid_features": ["ferries","tollways"],
-    "vehcile_type": "hgv",
     "profile_params": {
         "restrictions": {
             "length": 30,
@@ -195,15 +207,12 @@ Some options examples in readable and minified JSON form:
             "weight": 3,
             "hazmat": true
         }
-    },
-    "avoid_polygons": {  
-        "type": "Polygon",
-        "coordinates": [
-            [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
-     ]}
+    }
 }
 ```
-`{"avoid_features":["ferries","tollways"],"vehicle_type":"hgv","profile_params":{"restrictions":{"length":30,"width":30,"height":3,"axleload":4,"weight":3,"hazmat":true}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
+```json
+{"avoid_features":["ferries","tollways"],"profile_params":{"restrictions":{"length":30,"width":30,"height":3,"axleload":4,"weight":3,"hazmat":true}}}
+```
 
 ### for `profile=wheelchair`:
 
@@ -215,65 +224,41 @@ Some options examples in readable and minified JSON form:
             "surface_type": "cobblestone:flattened",
             "track_type": "grade1",
             "smoothness_type": "good",
-            "maximum_sloped_curb": 0.06,
+            "maximum_sloped_kerb": 0.06,
             "maximum_incline": 6
         }
     }
 }
 ```
-`{"avoid_features":["ferries","steps"],"profile_params":{"restrictions":{"surface_type":"cobblestone:flattened","track_type":"grade1","smoothness_type":"good","maximum_sloped_curb":0.06,"maximum_incline":6}}}`
+
+```json
+{"avoid_features":["ferries","steps"],"profile_params":{"restrictions":{"surface_type":"cobblestone:flattened","track_type":"grade1","smoothness_type":"good","maximum_sloped_kerb":0.06,"maximum_incline":6}}}
+```
 
 ### Border restrictions
 
 Examples for routing options object with border restrictions:
 
-*Do not cross country borders at all:*
+#### _Do not cross country borders at all_
 
 ```json
-{
-    "avoid_borders":"all"
-}
+{"avoid_borders":"all"}
 ```
 
-`{"avoid_borders":"all"}`
-
-*Do not cross controlled borders (i.e. USA - Canada) but allow crossing of open borders (i.e. France - Germany):*
+#### _Do not cross controlled borders (i.e. USA - Canada) but allow crossing of open borders (i.e. France - Germany)_
 
 ```json
-{
-    "avoid_borders":"controlled"
-}
+{"avoid_borders":"controlled"}
 ```
 
-`{"avoid_borders":"controlled"}`
-
-*Do not route through Austria or Switzerland:*
+#### _Do not route through Austria or Switzerland_
 
 ```json
-{
-    "avoid_countries": [1,120]
-}
+{"avoid_countries": [11,193]}
 ```
 
-`{"avoid_countries": [1,120]}`
-
-*Pass open borders but do not cross into Switzerland:*
+#### _Pass open borders but do not cross into Switzerland_
 
 ```json
-{
-    "avoid_borders": "controlled",
-    "avoid_countries": [193]
-}
+{"avoid_borders": "controlled","avoid_countries": [193]}
 ```
-
-`{"avoid_borders": "controlled","avoid_countries": [193]}`
-
-
-## URL Encoding
-
-To use the curl command string you have to encode special characters.
-Values you need are shown in this table:
-
-| Character |  {  |  \| |  }  |  "  |  [  |  ]  |
-|:---------:|:---:|:---:|:---:|:---:|:---:|:---:|
-|  Encoding | %7B | %7C | %7D | %22 | %5B | %5D |
