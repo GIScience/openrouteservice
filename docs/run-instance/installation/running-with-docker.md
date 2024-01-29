@@ -122,7 +122,7 @@ There are multiple ways with Docker to quickly have a running instance.
 
 ## Checking
 
-By default the service status can be queries via the health endpoint.
+By default the service status can be queries via the [health endpoint](../../api-reference/endpoints/health/).
 
 ```shell 
 curl 'http://localhost:8080/ors/v2/health'
@@ -130,7 +130,7 @@ curl 'http://localhost:8080/ors/v2/health'
 # {"status":"ready"}
 ```
 
-When the service is ready, you will be able to request the status endpoint for further information on the running services.
+When the service is ready, you will be able to request the [status endpoint](../../api-reference/endpoints/status/) for further information on the running services.
 
 ```shell 
 curl 'http://localhost:8080/ors/v2/status'
@@ -220,23 +220,7 @@ When building the image, the following arguments are customizable:
 - `ORS_CONFIG`: Can be changed to specify the location of a custom `ors-config.json` file. Default `./ors-api/src/main/resources/ors-config.json`.
 - `OSM_FILE`: Can be changed to point to a local custom OSM file. Default `./ors-api/src/test/files/heidelberg.osm.gz`.
 
-## Memory mapping in large builds
-If you are running a large build (e.g. a planet file) then you may need to increase the number of memory mappings. You only need to do this on the host machine as this value is used by the Docker containers running on it as well. To do this, go into the system configuration file with `sudo nano /etc/sysctl.conf` and add the following line to the bottom of the file:
-
-```sh
-vm.max_map_count=81920
-```
-
-The usual sign that you need to do this change is if you see something similar to the following in your logs:
-
-```sh
-# There is insufficient memory for the Java Runtime Environment to continue.
-# Native memory allocation (mmap) failed to map 16384 bytes for committing reserved memory.
-# An error report file with more information is saved as:
-# /ors-core/hs_err_pid128.log
-```
-
 ## Instance infrastructure
-Though having a single container works great for smaller datasets or when the graph data doesn't need updating, in many real world implementations having just the one instance isn't the most suitable solution. If you have one container, then all building and serving of routes happens through that single container, meaning that when you rebuild graphs, you can't make any requests to that instance for things like directions as there are no complete graphs that can be used to generate routes with. If it is important that you have graph updates from new data whilst ensuring that there is a minimal amount of time where users cannot make requests, we would recommend having two instances - one that is permanently active for serving requests, and one that gets fired up to rebuild graphs.
+Though having a single container works great for smaller datasets or when the graph data doesn't need updating, in many real world implementations having just the one instance isn't the most suitable solution. If you have one container, then all building and serving of routes happens through that single container, meaning that when you rebuild graphs, you can't make any requests to that instance for things like directions as there are no complete graphs that can be used to generate routes with. If it is important that you have graph updates from new data whilst ensuring that there is a minimal amount of time during which users cannot make requests, we would recommend having two instances - one that is permanently active for serving requests, and one that gets fired up to rebuild graphs.
 
 In that setup, when graphs have been built you can simply stop the container serving requests, replace the graphs used (they are mapped to a folder on the host machine which is defined in the `docker-compose` file), and then restart the container. The new graphs will be reloaded into memory (the amount of time needed for this depends on the size of the graphs and the type of hard drive) and then ready to use for routing. The downtime from reloading already built graphs is normally far less than the time needed to build the graphs. A thing to note though is that you should ensure that the config files and the amount of RAM allocated (as described earlier) is the same on both the builder and the request server else the newly built graphs may not load. **Also, ensure that `BUILD_GRAPHS` parameter in the `docker-compose` file used by the request serving container is set to false else it will try to build the graphs for itself!**
