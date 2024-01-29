@@ -68,83 +68,83 @@ If you need to make adjustments to our forked and edited [GraphHopper repository
 3. Change the `ors-engine/pom.xml`:
 
    ```xml
-   <!--
-   <dependency>
-       <groupId>com.github.GIScience.graphhopper</groupId>
-       <artifactId>graphhopper-core</artifactId>
-       <version>v4.5.2</version>
-       <exclusions>
-           <exclusion>
-               <groupId>com.fasterxml.jackson.dataformat</groupId>
-               <artifactId>jackson-dataformat-xml</artifactId>
-           </exclusion>
-       </exclusions>
-   </dependency>
+    <!-- remove the comment to enable debugging // [!code ++]
+    <dependency>
+        <groupId>com.github.GIScience.graphhopper</groupId>
+        <artifactId>graphhopper-core</artifactId>
+        <version>v4.9.1</version>
+        <exclusions>
+            <exclusion>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
 
-   <dependency>
-   <groupId>com.github.GIScience.graphhopper</groupId>
-   <artifactId>graphhopper-reader-gtfs</artifactId>
-   <version>v4.5.2</version>
-   <exclusions>
-       <exclusion>
-           <groupId>com.fasterxml.jackson.dataformat</groupId>
-           <artifactId>jackson-dataformat-xml</artifactId>
-       </exclusion>
-   </exclusions>
-   </dependency>
+    <dependency>
+        <groupId>com.github.GIScience.graphhopper</groupId>
+        <artifactId>graphhopper-reader-gtfs</artifactId>
+        <version>v4.9.1</version>
+        <exclusions>
+            <exclusion>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
 
-   <dependency>
-   <groupId>com.github.GIScience.graphhopper</groupId>
-   <artifactId>graphhopper-web-api</artifactId>
-   <version>v4.5.2</version>
-   <exclusions>
-       <exclusion>
-           <groupId>com.fasterxml.jackson.dataformat</groupId>
-           <artifactId>jackson-dataformat-xml</artifactId>
-       </exclusion>
-   </exclusions>
-   </dependency>
-   -->
+    <dependency>
+        <groupId>com.github.GIScience.graphhopper</groupId>
+        <artifactId>graphhopper-map-matching</artifactId>
+        <version>v4.9.1</version>
+        <exclusions>
+            <exclusion>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
 
-   <dependency>
-   <groupId>com.graphhopper</groupId>
-   <artifactId>graphhopper-core</artifactId>
-   <version>4.0-SNAPSHOT</version>
-   <exclusions>
-       <exclusion>
-           <groupId>com.fasterxml.jackson.dataformat</groupId>
-           <artifactId>jackson-dataformat-xml</artifactId>
-       </exclusion>
-   </exclusions>
-   </dependency>
+    <!-- remove the comment to enable debugging // [!code --]
+    --> // [!code ++]
+    <dependency>
+        <groupId>com.github.GIScience.graphhopper</groupId>
+        <artifactId>graphhopper-core</artifactId>
+        <version>4.9-SNAPSHOT</version>
+        <exclusions>
+            <exclusion>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
 
-   <dependency>
-   <groupId>com.graphhopper</groupId>
-   <artifactId>graphhopper-web-api</artifactId>
-   <version>4.0-SNAPSHOT</version>
-   <exclusions>
-       <exclusion>
-           <groupId>com.fasterxml.jackson.dataformat</groupId>
-           <artifactId>jackson-dataformat-xml</artifactId>
-       </exclusion>
-   </exclusions>
-   </dependency>
+    <dependency>
+        <groupId>com.github.GIScience.graphhopper</groupId>
+        <artifactId>graphhopper-reader-gtfs</artifactId>
+        <version>4.9-SNAPSHOT</version>
+        <exclusions>
+            <exclusion>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
 
-   <dependency>
-   <groupId>com.graphhopper</groupId>
-   <artifactId>graphhopper-reader-gtfs</artifactId>
-   <version>4.0-SNAPSHOT</version>
-   <exclusions>
-       <exclusion>
-           <groupId>com.fasterxml.jackson.dataformat</groupId>
-           <artifactId>jackson-dataformat-xml</artifactId>
-       </exclusion>
-   </exclusions>
-   </dependency>
+    <dependency>
+        <groupId>com.github.GIScience.graphhopper</groupId>
+        <artifactId>graphhopper-map-matching</artifactId>
+        <version>4.9-SNAPSHOT</version>
+        <exclusions>
+            <exclusion>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    --> // [!code --]
    ```
 
-4. Test your new functionality and run all tests after rebasing your feature branch with the latest `development` branch. Adjust tests if necessary.
+4. Test your new functionality and run all tests after rebasing your feature branch with the latest `main` branch. Adjust tests if necessary.
 
 5. If successful, create a PR for both [openrouteservice](https://github.com/GIScience/openrouteservice/pulls) and [GraphHopper](https://github.com/GIScience/graphhopper/pulls) against `master` and `ors_4.0` branches, respectively.
-
-**Note that in the above example, the 4.x version of GH is being used - you should adapt according to your specific version. To know which one to use, check the [ors-engine module pom file](https://github.com/GIScience/openrouteservice/ors-engine/pom.xml) and see what version is being used for the `com.github.GIScience.graphhopper` dependencies.**
