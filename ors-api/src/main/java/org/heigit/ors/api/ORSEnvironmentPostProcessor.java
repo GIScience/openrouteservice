@@ -22,23 +22,34 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         // Override values from application.yml with contents of custom config yml file.
-        // Later in array => higher precedence
         List<String> configLocations = new ArrayList<>();
-        if (!StringUtility.isNullOrEmpty(System.getenv(ORS_CONFIG_LOCATION_ENV))) {
-            configLocations.add(System.getenv(ORS_CONFIG_LOCATION_ENV));
-        }
+        String output = "";
         if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
             configLocations.add(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY));
+            output = output.concat("Configuration file set by program argument.");
+        }
+        if (configLocations.isEmpty() && !StringUtility.isNullOrEmpty(System.getenv(ORS_CONFIG_LOCATION_ENV))) {
+            configLocations.add(System.getenv(ORS_CONFIG_LOCATION_ENV));
+            output = output.concat("Configuration file set by environment variable.");
+        }
+        if (configLocations.isEmpty()) {
+            configLocations.add("./ors-config.yml");
+            configLocations.add("./ors-api/ors-config.yml");
+            configLocations.add("~/.config/openrouteservice/ors-config.yml");
+            configLocations.add("/etc/openrouteservice/ors-config.yml");
+            output = output.concat("Configuration file lookup by default locations.");
         }
         for (String path : configLocations) {
             try {
                 List<PropertySource<?>> sources = this.loader.load("yml config", new FileSystemResource(path));
                 if (!sources.isEmpty()) {
                     environment.getPropertySources().addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, sources.get(0));
+                    output = output.concat(" Loaded file '%s'".formatted(path));
+                    break;
                 }
-            } catch (IllegalStateException | IOException ex) {
-                System.out.printf("WARNING: Configuration file '%s' could not be loaded.%n", path);
+            } catch (IllegalStateException | IOException ignored) {
             }
         }
+        System.setProperty(ORS_CONFIG_LOCATION_PROPERTY, output);
     }
 }
