@@ -8,18 +8,18 @@ $.routes[*].extras.steepness.values
 
 Negative values indicate decline, positive incline.
 
-| Value | Encoding |
-|:-----:|:--------:|
-| -5    | >16%     |
-| -4    | 12-15%   |
-| -3    | 7-11%    |
-| -2    | 4-6%     |
-| -1    | 1-3%     |
-| 0     | 0%       |
-| 1     | 1-3%     |
-| 2     | 4-6%     |
-| 3     | 7-11%    |
-| 4     | 12-15%   |
-| 5     | >16%     |
+| Value |  Encoding  |
+|:-----:|:----------:|
+|  -5   |   >=16%    |
+|  -4   | 10% - <16% |
+|  -3   | 7% - <10%  |
+|  -2   |  4% - <7%  |
+|  -1   |  1% - <4%  |
+|   0   |  0% - <1%  |
+|   1   |  1% - <4%  |
+|   2   |  4% - <7%  |
+|   3   | 7% - <10%  |
+|   4   | 10% - <16% |
+|   5   |   >=16%    |
 
-[//]: # (keep in sync with )
+[//]: # (keep in sync with org.heigit.ors.routing.util.SteepnessUtil.getCategory )
