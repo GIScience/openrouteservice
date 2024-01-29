@@ -68,15 +68,10 @@ The value is a map with these possible entries:
     | `1`   | prefer quiet ways over a shorter route |
 
 #### `restrictions` 
+
+[//]: # (see RequestProfileParamsRestrictions)
+
 A map specifying restrictions for `cycling-*`, `driving-hgv` or `wheelchair`profiles.
-
-* for **`cycling-*`**:
-
-  | Parameter  | Type   | Description                                                                                                                                                                               |
-  |------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-  | `gradient` | Number | Only for avoided `hills` or specified `steepness_difficulty`. Specifies the maximum route steepness in percent. Values range from `1` to `15`. Routes with a higher gradient are avoided. |
-
-[//]: # (TODO: does gradient still exist? Can't find it)
 
 * for **`driving-hgv`**: *(You have to specify the [vehicle_type](#vehicle-type) in the options for these parameters!)*
 
