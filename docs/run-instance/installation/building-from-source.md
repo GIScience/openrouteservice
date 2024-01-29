@@ -18,23 +18,20 @@ cd openrouteservice
 mvn package
 ```
 
-If you have made modification to the code, you should run all tests before building and using openrouteservice. For a significant part of the tests you need to activate a maven profile called `apitests` to run them. Use the following commands:
+If you have made modifications to the code, you should run all tests before building and using openrouteservice. For a significant part of the tests you need to activate a maven profile called `apitests` to run them. Use the following commands:
 
 ```shell
 mvn -Papitests verify
-# afterwards you can build the artefacts without running the tests again by issueing the folliwing command:
+# afterwards you can build the artefacts without running the tests again by issuing the following command:
 mvn -DskipTests package
 ```
 
 [//]: # (TODO: overhaul contents below after integrating the jar build PR)
 After running this command, you will find the artefact at `ors-api/target/ors.war`. 
 
-After you have packaged openrouteservice, there are two options for running it.
-One is to run the `mvn spring-boot:run` command which triggers a spring-boot native
-Tomcat instance running on port `8082`.  This is more restrictive in terms of
-settings for Tomcat. The other is to install and run Tomcat 9.  
+After you have packaged openrouteservice, there are two options for running it. One is to run the `mvn spring-boot:run` command which triggers a spring-boot native Tomcat instance running on port `8082`.  This is more restrictive in terms of settings for Tomcat. The other is to install and run Tomcat 10. In both cases the requirements of configuration and source files discussed [here](running-jar-war) apply.
 
-[//]: # (TODO: the part below belongs somewhere in the contributing section; running with IDE needs to be overhauled, too, since it does not mention running with spring boot run config)
+[//]: # (TODO: the part below partly belongs somewhere in the contributing section; running with IDE needs to be overhauled, too, since it does not mention running with spring boot run config)
 
 ## Running from within IDE
 
