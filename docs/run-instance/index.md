@@ -7,7 +7,7 @@ If you need to customize the behavior of openrouteservice or if the features or 
 The fastest and easiest way to have an instance of openrouteservice running is to use our docker compose file. If you have docker installed, running the following commands should get everything done.
 
 ```shell
-wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/docker-compose.yml
+wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/docker-compose.yml
 docker compose up
 ```
 

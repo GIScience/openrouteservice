@@ -5,12 +5,12 @@ The configuration of your own **openrouteservice** instance is done by pointing 
 To download an example configuration and set the environment variable use the following:
 
 ```shell
-wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/ors-api/ors-config.yml
+wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/ors-api/ors-config.yml
 export ORS_CONFIG_LOCATION=${pwd}/ors-config.yml
 ```
 
 Default settings for all configurable parameters are defined in
-[`application.yml`](https://github.com/GIScience/openrouteservice/blob/master/ors-api/src/main/resources/application.yml).
+[`application.yml`](https://github.com/GIScience/openrouteservice/blob/main/ors-api/src/main/resources/application.yml).
 
 If you have cloned the repository, you will find these files at `ors-api/ors-config.yml` and `ors-api/src/main/resources/application.yml` respectively. 
 

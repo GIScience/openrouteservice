@@ -30,5 +30,5 @@ features:
     - title: Latest Changes
       details: Check out the latest changes to the openrouteservice.
       linkText: CHANGELOG.md
-      link: https://github.com/GIScience/openrouteservice/blob/master/CHANGELOG.md
+      link: https://github.com/GIScience/openrouteservice/blob/main/CHANGELOG.md
 ---

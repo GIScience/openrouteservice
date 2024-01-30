@@ -9,7 +9,7 @@ For release version 8.0.0 and newer, we provide JAR and WAR files as artifacts f
 Openrouteservice is configured by pointing an environment variable called `ORS_CONFIG_LOCATION` to a YAML configuration file. Use the following commands to download our example configuration file (which is used by our docker setup by default) to have a starting point, and export the path to that file to the required environment variable.
 
 ```shell
-wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/ors-api/ors-config.yml
+wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/ors-api/ors-config.yml
 export ORS_CONFIG_LOCATION=${pwd}/ors-config.yml
 ```
 

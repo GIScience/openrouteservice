@@ -16,7 +16,7 @@ There are multiple ways with Docker to quickly have a running instance.
 
     ```shell
     # For latest build
-    wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/docker-compose.yml
+    wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/docker-compose.yml
     docker compose up -d
     ```
 
@@ -26,7 +26,7 @@ There are multiple ways with Docker to quickly have a running instance.
 
     ```shell
     # For nightly builds
-    wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/docker-compose.yml
+    wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/docker-compose.yml
     export ORS_TAG=nightly && docker compose up -d
     ```
  
@@ -203,7 +203,7 @@ There are some important directories one might want to preserve on the host mach
 - `/home/ors/ors-conf`: Contains the `ors-config.json` which is used to control ORS.
 - `/home/ors/ors-core/data`: Contains the OSM file `osm_file.pbf` being used to generate graphs.
 
-Look at the [`docker-compose.yml`](https://github.com/GIScience/openrouteservice/blob/master/docker-compose.yml) for examples.
+Look at the [`docker-compose.yml`](https://github.com/GIScience/openrouteservice/blob/main/docker-compose.yml) for examples.
 
 ### Environment variables
 
