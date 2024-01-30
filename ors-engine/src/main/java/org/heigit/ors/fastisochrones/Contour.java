@@ -16,9 +16,7 @@ import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
-import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
 import org.locationtech.jts.geom.*;
-import org.locationtech.jts.index.quadtree.Quadtree;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -101,7 +99,7 @@ public class Contour {
     private void handleBaseCells() {
         for (IntCursor cellId : isochroneNodeStorage.getCellIds()) {
             List<Coordinate> coordinates = createCoordinates(cellId.value);
-            LineString ring = createContour(coordinates, cellStorage.getNodesOfCell(cellId.value).size() < 1000);
+            LineString ring = createContour(coordinates);
             if (ring == null || ring.getNumPoints() < 2) {
                 cellStorage.setCellContourOrder(cellId.value, new ArrayList<>(), new ArrayList<>());
                 continue;
@@ -132,7 +130,7 @@ public class Contour {
             //Calculate the concave hull for all super cells and super super cells
             for (IntObjectCursor<IntHashSet> superCell : superCellsToBaseCells) {
                 List<Coordinate> superCellCoordinates = createSuperCellCoordinates(superCell.value);
-                LineString ring = createContour(superCellCoordinates, false);
+                LineString ring = createContour(superCellCoordinates);
                 if (ring == null || ring.getNumPoints() < 2) {
                     cellStorage.setCellContourOrder(superCell.key, new ArrayList<>(), new ArrayList<>());
                     continue;
@@ -187,70 +185,12 @@ public class Contour {
         return superCellCoordinates;
     }
 
-    private Geometry concHullOfNodes(List<Coordinate> coordinates, boolean useHighDetail) {
-        double defaultVisitorThreshold = useHighDetail ? 0.00005 : 0.0025;
-        double defaultSearchWidth = 0.0008;
-        double defaulPointWidth = 0.005;
-
-        List<Coordinate> points = new ArrayList<>((int) (1 / 20.0 * coordinates.size()));
-        PointItemVisitor visitor = new PointItemVisitor(0, 0, defaultVisitorThreshold);
-        Quadtree qtree = new Quadtree();
-        Envelope searchEnv = new Envelope();
-        TreeSet<Coordinate> treeSet = new TreeSet<>();
-
-        for (Coordinate coordinate : coordinates)
-            addPoint(visitor, points, qtree, searchEnv, treeSet, coordinate.x, coordinate.y, defaultSearchWidth, defaulPointWidth, true);
-
-        GeometryFactory geomFactory = new GeometryFactory();
-        int size = points.size();
-        Geometry[] geometries = new Geometry[size];
-        int g = 0;
-        for (Coordinate point : points)
-            geometries[g++] = geomFactory.createPoint(point);
-        GeometryCollection treePoints = new GeometryCollection(geometries, geomFactory);
+    private Geometry concHullOfNodes(List<Coordinate> points) {
+        var geomFactory = new GeometryFactory();
+        var geometries = points.stream().map(geomFactory::createPoint).toArray(Geometry[]::new);
+        var treePoints = geomFactory.createGeometryCollection(geometries);
 
         return concaveHullByLength(treePoints, CONCAVE_HULL_THRESHOLD);
-    }
-
-    private Boolean addPoint(PointItemVisitor visitor,
-                             List<Coordinate> points,
-                             Quadtree tree,
-                             Envelope searchEnv,
-                             Set<Coordinate> treeSet,
-                             double lon,
-                             double lat,
-                             double searchWidth,
-                             double pointWidth,
-                             boolean checkNeighbours) {
-        if (checkNeighbours) {
-            visitor.setPoint(lon, lat);
-            searchEnv.init(lon - searchWidth, lon + searchWidth, lat - searchWidth, lat + searchWidth);
-            tree.query(searchEnv, visitor);
-            if (!visitor.isNeighbourFound()) {
-                Coordinate p = new Coordinate(lon, lat);
-
-                if (!treeSet.contains(p)) {
-                    Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-                    tree.insert(env, p);
-                    points.add(p);
-                    treeSet.add(p);
-
-                    return true;
-                }
-            }
-        } else {
-            Coordinate p = new Coordinate(lon, lat);
-            if (!treeSet.contains(p)) {
-                Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-                tree.insert(env, p);
-                points.add(p);
-                treeSet.add(p);
-
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -399,9 +339,9 @@ public class Contour {
         return coordinates;
     }
 
-    private LineString createContour(List<Coordinate> coordinates, boolean useHighDetail) {
+    private LineString createContour(List<Coordinate> coordinates) {
         try {
-            Geometry geom = concHullOfNodes(coordinates, useHighDetail);
+            Geometry geom = concHullOfNodes(coordinates);
             Polygon poly = (Polygon) geom;
             poly.normalize();
             return poly.getExteriorRing();
