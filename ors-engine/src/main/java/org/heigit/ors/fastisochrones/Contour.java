@@ -19,13 +19,13 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.index.quadtree.Quadtree;
-import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.getMaxCellNodesNumber;
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.isSupercellsEnabled;
+import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
 
 /**
  * Calculates Outlines (Contour) of cells.
@@ -209,8 +209,7 @@ public class Contour {
             geometries[g++] = geomFactory.createPoint(point);
         GeometryCollection treePoints = new GeometryCollection(geometries, geomFactory);
 
-        ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(treePoints, CONCAVE_HULL_THRESHOLD, false);
-        return ch.getConcaveHull();
+        return concaveHullByLength(treePoints, CONCAVE_HULL_THRESHOLD);
     }
 
     private Boolean addPoint(PointItemVisitor visitor,
