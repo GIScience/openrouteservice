@@ -1,5 +1,9 @@
 # Status Endpoint
 
+:::warning NOTE
+This endpoint is not available in the public API, but you can use it when running an own instance of openrouteservice.
+:::
+
 The GET request http://localhost:8082/ors/v2/status (host and port are dependent on the setup) returns basic information about the running instance:
 
 * `languages`: available languages
@@ -96,6 +100,3 @@ The GET request http://localhost:8082/ors/v2/status (host and port are dependent
 ```
 :::
 
-:::warning Hint
-This endpoint is not available in the public API, but you can use it when running an own instance of openrouteservice.
-:::

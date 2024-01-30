@@ -1,12 +1,12 @@
 # Export Endpoint
 
-Export the base graph for different modes of transport.
-
-:::warning Hint
+:::warning NOTE
 This endpoint is not available in the public API,
 but you can use it when running an own instance of openrouteservice.
 You can easily create requests with the [swagger-ui](../../index.md).
 :::
+
+Export the base graph for different modes of transport.
 
 In the request, the desired routing profile is specified as the last path parameter, 
 a bounding box for the area of interest has to be defined in the request body.
