@@ -1,0 +1,56 @@
+name: Automatic conversion of application.yml to ors-config.yml
+on:
+  pull_request:
+    branches:
+      - main
+      - releases/**
+    types: [ edited, opened, ready_for_review, review_requested, reopened, synchronize ]
+  workflow_dispatch:
+
+
+jobs:
+  detect_config_change:
+    name: Detect and commit config changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Check PR state is ready_for_review
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            pr_state=$(gh pr view --json state --jq .state)
+            pr_is_draft=$(gh pr view --json isDraft --jq .isDraft)
+            echo "pr_state=$pr_state" >> $GITHUB_ENV
+            echo "pr_is_draft=$pr_is_draft" >> $GITHUB_ENV
+          else
+            echo "This action is only intended to be run on pull requests."
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Convert application.yml to ors-config.yml
+        run: |
+          .github/utils/config_conversion.sh ors-api/src/main/resources/application.yml ors-api/ors-config.yml
+      - name: Check with git if ors-api/ors-config.yml has changed
+        id: git-check
+        if: env.pr_state == 'OPEN' && env.pr_is_draft == 'false'
+        run: |
+          # Don't fail on exit code 1 (diff found)
+          set +e
+          git diff --exit-code --name-only ors-api/ors-config.yml
+          exit_value=$?
+          echo Found exit code $exit_value
+          # Write out the exit code using environment file
+          if [ $exit_value == 1 ]; then
+            echo "config_has_changed=true" >> $GITHUB_ENV
+          else
+            echo "Config hasn't changed. Skipping commit."
+          fi
+      - uses: MichaelsJP/git-auto-commit-action@v5
+        if: env.pr_state == 'OPEN' && env.pr_is_draft == 'false' && env.config_has_changed == 'true'
+        with:
+          commit_message: 'chore(config): automatic conversion of application.yml to ors-config.yml'
