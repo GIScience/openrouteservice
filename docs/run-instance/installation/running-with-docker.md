@@ -122,7 +122,7 @@ There are multiple ways with Docker to quickly have a running instance.
 
 ## Checking
 
-By default the service status can be queries via the [health endpoint](../../api-reference/endpoints/health/).
+By default the service status can be queried via the [health endpoint](../../api-reference/endpoints/health/).
 
 ```shell 
 curl 'http://localhost:8080/ors/v2/health'
