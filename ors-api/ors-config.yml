@@ -154,16 +154,20 @@ ors:
 #          WaySurfaceType:
 #          HillIndex:
 #          TrailDifficulty:
-#      walking:
-#        profile: foot-walking
-#        encoder_options:
-#        block_fords: false
-#        elevation: true
-#        ext_storages:
-#          WayCategory:
-#          WaySurfaceType:
-#          HillIndex:
-#          TrailDifficulty:
+      walking:
+        profile: foot-walking
+        encoder_options:
+        block_fords: false
+        elevation: true
+        ext_storages:
+          GreenIndex:
+            filepath: /home/jh/repos/openrouteservice/ors-api/src/test/files/green_streets_hd.csv
+          NoiseIndex:
+            filepath: /home/jh/repos/openrouteservice/ors-api/src/test/files/noise_data_hd.csv
+          csv:
+            filepath: /home/jh/repos/openrouteservice/ors-api/src/test/files/csv_data_hd.csv
+          ShadowIndex:
+            filepath: /home/jh/repos/openrouteservice/ors-api/src/test/files/shadow_index_hd.csv
 #      hiking:
 #        profile: foot-hiking
 #        encoder_options:
