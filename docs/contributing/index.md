@@ -17,7 +17,7 @@ please use the [corresponding repository](https://github.com/GIScience/ors-maps-
 ## Contributing code
 
 To help you get started, here is a document describing how to [open the code in IntelliJ](opening-project-in-intellij).
-We also put together a few [guidelines](https://github.com/GIScience/openrouteservice/blob/master/CONTRIBUTE.md)
+We also put together a few [guidelines](https://github.com/GIScience/openrouteservice/blob/main/CONTRIBUTE.md)
 to help you in the process and keep the repository clean and tidy.
 
 ## Other ways to contribute

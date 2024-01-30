@@ -22,7 +22,7 @@ The **JSON** return type is best suited for further processing.
 
 ### GPX
 
-The **GPX** return type is a XML dialect from openrouteservice based on the [GPS Exchange Format](https://www.topografix.com/gpx.asp) with an own [XML Schema](https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd).
+The **GPX** return type is a XML dialect from openrouteservice based on the [GPS Exchange Format](https://www.topografix.com/gpx.asp) with an own [XML Schema](https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd).
 It is a very old standard for lightweight interchange of GPS data and thus being used by hundreds of software programs and Web services.
 
 ### GeoJSON

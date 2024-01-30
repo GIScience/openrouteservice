@@ -28,4 +28,4 @@ _(all Values in km/h)_
   |      pedestrian      |      -      |      -      |        6        |
   |       cycleway       |      -      |      -      |        18       |
 
-[svf]: https://github.com/GIScience/openrouteservice/tree/master/ors-engine/src/main/resources/resources/services/routing/speed_limits
+[svf]: https://github.com/GIScience/openrouteservice/tree/main/ors-engine/src/main/resources/resources/services/routing/speed_limits
