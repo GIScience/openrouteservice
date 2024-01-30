@@ -101,9 +101,9 @@ ors:
 
   ##### ORS engine settings #####
   engine:
+    source_file:
     init_threads: 1
     preparation_mode: false
-    source_file:
     graphs_root_path: ./graphs
     graphs_data_access: RAM_STORE
     elevation:
