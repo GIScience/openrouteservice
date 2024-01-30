@@ -52,6 +52,7 @@ RELEASING:
 - support for mmap dataaccess mode ([#1649](https://github.com/GIScience/openrouteservice/pull/1649))
 
 ### Changed
+- default branch from `master` to `main`
 - include transfers and fare properties only in PT responses ([#1586](https://github.com/GIScience/openrouteservice/pull/1586))
 - suppress empty legs property in routing JSON responses ([#1584](https://github.com/GIScience/openrouteservice/pull/1584))
 - url_check.sh to support custom sleep and reporting intervals ([#1468](https://github.com/GIScience/openrouteservice/pull/1468))
@@ -68,6 +69,7 @@ RELEASING:
 - fix IN1-JAVA-ORGMOZILLA-1314295 ([#1627](https://github.com/GIScience/openrouteservice/issues/1627))
 - log summary stats on traffic mapmatching and use progress bar only in debug mode ([#1647](https://github.com/GIScience/openrouteservice/pull/1647))
 - move APIEnums into API module ([#1634](https://github.com/GIScience/openrouteservice/issues/1634))
+- performance improvements to isochrone calculations ([#1607](https://github.com/GIScience/openrouteservice/pull/1607))
 
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
