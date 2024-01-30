@@ -30,7 +30,6 @@ import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint3D;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.*;
-import org.locationtech.jts.index.quadtree.Quadtree;
 import org.locationtech.jts.operation.union.UnaryUnionOp;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
@@ -43,7 +42,6 @@ import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
-import org.heigit.ors.isochrones.builders.concaveballs.PointItemVisitor;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
@@ -70,18 +68,12 @@ import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLengt
  * @author Hendrik Leuschner
  */
 public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
-    private final Envelope searchEnv = new Envelope();
     private GeometryFactory geomFactory;
-    private PointItemVisitor visitor = null;
-    private TreeSet<Coordinate> treeSet = new TreeSet<>();
     private Polygon previousIsochronePolygon = null;
     private RouteSearchContext searchcontext;
     private CellStorage cellStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
     private QueryGraph queryGraph;
-    private double searchWidth = 0.0007;
-    private double pointWidth = 0.0005;
-    private double visitorThreshold = 0.0013;
     private static final int MIN_EDGE_LENGTH_LIMIT = 100;
     private static final int MAX_EDGE_LENGTH_LIMIT = Integer.MAX_VALUE;
     private static final boolean BUFFERED_OUTPUT = true;
@@ -214,8 +206,6 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
 
             if (edgeMap.isEmpty())
                 return isochroneMap;
-
-            treeSet = new TreeSet<>();
 
             List<Coordinate> isoPoints = new ArrayList<>((int) (1.2 * edgeMap.getMap().size()));
 
@@ -452,40 +442,12 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
     }
 
-    public Boolean addPoint(List<Coordinate> points, Quadtree tree, double lon, double lat, boolean checkNeighbours) {
-        if (checkNeighbours) {
-            visitor.setPoint(lon, lat);
-            searchEnv.init(lon - searchWidth, lon + searchWidth, lat - searchWidth, lat + searchWidth);
-            tree.query(searchEnv, visitor);
-            if (!visitor.isNeighbourFound()) {
-                Coordinate p = new Coordinate(lon, lat);
-
-                if (!treeSet.contains(p)) {
-                    Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-                    tree.insert(env, p);
-                    points.add(p);
-                    treeSet.add(p);
-
-                    return true;
-                }
-            }
-        } else {
-            Coordinate p = new Coordinate(lon, lat);
-            if (!treeSet.contains(p)) {
-                Envelope env = new Envelope(lon - pointWidth, lon + pointWidth, lat - pointWidth, lat + pointWidth);
-                tree.insert(env, p);
-                points.add(p);
-                treeSet.add(p);
-
-                return true;
-            }
-        }
-
-        return false;
+    public void addPoint(List<Coordinate> points, double lon, double lat) {
+         points.add(new Coordinate(lon, lat));
     }
 
-    private void addBufferPoints(List<Coordinate> points, Quadtree tree, double lon0, double lat0, double lon1,
-                                 double lat1, boolean addLast, boolean checkNeighbours, double bufferSize) {
+    private void addBufferPoints(List<Coordinate> points, double lon0, double lat0, double lon1,
+                                 double lat1, boolean addLast, double bufferSize) {
         double dx = (lon0 - lon1);
         double dy = (lat0 - lat1);
         double normLength = Math.sqrt((dx * dx) + (dy * dy));
@@ -494,28 +456,26 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         double dx2 = -dy * scale;
         double dy2 = dx * scale;
 
-        addPoint(points, tree, lon0 + dx2, lat0 + dy2, checkNeighbours);
-        addPoint(points, tree, lon0 - dx2, lat0 - dy2, checkNeighbours);
+        addPoint(points, lon0 + dx2, lat0 + dy2);
+        addPoint(points, lon0 - dx2, lat0 - dy2);
 
         // add a middle point if two points are too far from each other
         if (normLength > 2 * bufferSize) {
-            addPoint(points, tree, (lon0 + lon1) / 2.0 + dx2, (lat0 + lat1) / 2.0 + dy2, checkNeighbours);
-            addPoint(points, tree, (lon0 + lon1) / 2.0 - dx2, (lat0 + lat1) / 2.0 - dy2, checkNeighbours);
+            addPoint(points, (lon0 + lon1) / 2.0 + dx2, (lat0 + lat1) / 2.0 + dy2);
+            addPoint(points, (lon0 + lon1) / 2.0 - dx2, (lat0 + lat1) / 2.0 - dy2);
         }
 
         if (addLast) {
-            addPoint(points, tree, lon1 + dx2, lat1 + dy2, checkNeighbours);
-            addPoint(points, tree, lon1 - dx2, lat1 - dy2, checkNeighbours);
+            addPoint(points, lon1 + dx2, lat1 + dy2);
+            addPoint(points, lon1 - dx2, lat1 - dy2);
         }
     }
 
     private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Double> contourCoordinates, List<Coordinate> points, double lon, double lat,
                                               double isolineCost) {
         IntObjectMap<SPTEntry> map = edgeMap.getMap();
-        treeSet.clear();
 
         GraphHopperStorage graphHopperStorage = searchcontext.getGraphHopper().getGraphHopperStorage();
-        Quadtree qtree = new Quadtree();
 
         int maxNodeId = graphHopperStorage.getNodes() - 1;
         int maxEdgeId = graphHopperStorage.getEdges() - 1;
@@ -523,31 +483,12 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         SPTEntry goalEdge;
 
         double bufferSize = 0.0018;
-        visitor = new PointItemVisitor(lon, lat, visitorThreshold);
-
-        double defaultSearchWidth = 0.0008;
-        double defaulPointWidth = 0.005;
-        double defaultVisitorThreshold = 0.0035;
-
-        // make results a bit more precise for regions with low data density
-        if (map.size() < 10000) {
-            defaultSearchWidth = 0.0008;
-            defaulPointWidth = 0.005;
-            defaultVisitorThreshold = 0.0025;
-        }
 
         boolean useHighDetail = map.size() < 1000;
 
         if (useHighDetail) {
             bufferSize = 0.0009;
-            defaultVisitorThreshold = 0.0008;
         }
-
-        searchWidth = defaultSearchWidth;
-        visitorThreshold = defaultVisitorThreshold;
-        pointWidth = defaulPointWidth;
-
-        visitor.setThreshold(visitorThreshold);
 
         for (IntObjectCursor<SPTEntry> entry : map) {
             goalEdge = entry.value;
@@ -567,15 +508,15 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 // This checks for dead end edges, but we need to include those in small areas to provide realistic
                 // results
                 if (goalEdge.edge != -2 || useHighDetail) {
-                    addBufferedWayGeometry(points, qtree, bufferSize, iter);
+                    addBufferedWayGeometry(points,bufferSize, iter);
                 }
             } else {
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
-                    addEdgeCaseGeometry(iter, qtree, points, bufferSize, maxCost, minCost, isolineCost);
+                    addEdgeCaseGeometry(iter, points, bufferSize, maxCost, minCost, isolineCost);
                 }
             }
         }
-        addContourCoordinates(contourCoordinates, points, qtree);
+        addContourCoordinates(contourCoordinates, points);
         Geometry[] geometries = new Geometry[points.size()];
 
         for (int i = 0; i < points.size(); ++i) {
@@ -586,18 +527,18 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         return new GeometryCollection(geometries, geomFactory);
     }
 
-    private void addContourCoordinates(List<Double> contourCoordinates, List<Coordinate> points, Quadtree qtree) {
+    private void addContourCoordinates(List<Double> contourCoordinates, List<Coordinate> points) {
         int j = 0;
         while (j < contourCoordinates.size()) {
             double latitude = contourCoordinates.get(j);
             j++;
             double longitude = contourCoordinates.get(j);
             j++;
-            addPoint(points, qtree, longitude, latitude, true);
+            addPoint(points, longitude, latitude);
         }
     }
 
-    private void addEdgeCaseGeometry(EdgeIteratorState iter, Quadtree qtree, List<Coordinate> points, double bufferSize, float maxCost, float minCost, double isolineCost) {
+    private void addEdgeCaseGeometry(EdgeIteratorState iter, List<Coordinate> points, double bufferSize, float maxCost, float minCost, double isolineCost) {
         PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
         int size = pl.size();
         if (size > 0) {
@@ -624,14 +565,14 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                         double lon2 = lon0 + segLength * (lon1 - lon0);
                         double lat2 = lat0 + segLength * (lat1 - lat0);
 
-                        addBufferPoints(points, qtree, lon0, lat0, lon2, lat2, true, false, bufferSize);
+                        addBufferPoints(points, lon0, lat0, lon2, lat2, true, bufferSize);
 
                         break;
                     } else {
-                        addBufferPoints(points, qtree, lon0, lat0, lon1, lat1, false, true, bufferSize);
+                        addBufferPoints(points, lon0, lat0, lon1, lat1, false, bufferSize);
                     }
                 } else {
-                    addPoint(points, qtree, lon0, lat0, true);
+                    addPoint(points, lon0, lat0);
                 }
 
                 lat0 = lat1;
@@ -640,7 +581,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         }
     }
 
-    private void addBufferedWayGeometry(List<Coordinate> points, Quadtree qtree, double bufferSize, EdgeIteratorState iter) {
+    private void addBufferedWayGeometry(List<Coordinate> points, double bufferSize, EdgeIteratorState iter) {
         // always use mode=3, since other ones do not provide correct results
         PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
         // Always buffer geometry
@@ -655,9 +596,9 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
                 lat1 = pl.getLat(i);
                 lon1 = pl.getLon(i);
 
-                addPoint(points, qtree, lon0, lat0, true);
+                addPoint(points, lon0, lat0);
                 if (i == size - 1)
-                    addPoint(points, qtree, lon1, lat1, true);
+                    addPoint(points, lon1, lat1);
 
                 lon0 = lon1;
                 lat0 = lat1;
