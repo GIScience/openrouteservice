@@ -1,4 +1,4 @@
-# Image is reused in the workflow builds for master and the latest version
+# Image is reused in the workflow builds for main and the latest version
 FROM maven:3.8-openjdk-17-slim as base
 
 ARG DEBIAN_FRONTEND=noninteractive
