@@ -45,7 +45,8 @@ _firstValue_ = value of the first encountered key from _restrictions_
 The profile differs from the above logic for driving car in the definitions of  
 
 _restrictedValues_ = `[private, no, restricted, military]`  
-_intendedValues_ = `[yes, permissive, designated, destination, hgv, goods, bus, agricultural, forestry, delivery]`
+_intendedValues_ = `[yes, permissive, designated, destination, hgv, goods, bus, agricultural, forestry, delivery]`  
+_restrictions_ = `[motorcar, motor_vehicle, vehicle, access]` _**(unchanged)**_  
 
 and the following addition rule:
 
