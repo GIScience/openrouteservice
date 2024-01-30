@@ -20,7 +20,6 @@
  */
 package org.heigit.ors.api.servlet.listeners;
 
-import com.google.common.base.Strings;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
@@ -33,10 +32,6 @@ import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.FormatUtility;
 
-import java.util.Map;
-
-import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY;
-
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
     private final EngineProperties engineProperties;
@@ -47,16 +42,6 @@ public class ORSInitContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
-        LOGGER.info("");
-        if (!Strings.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
-            LOGGER.info(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY));
-        }
-        for (Map.Entry<String, String> env : System.getenv().entrySet()) {
-            if (env.getKey().startsWith("ORS_") || env.getKey().startsWith("LOGGING_") || env.getKey().startsWith("SPRINGDOC_") || env.getKey().startsWith("SPRING_") || env.getKey().startsWith("SERVER_")) {
-                LOGGER.info("ENV Parameter: %s=%s".formatted(env.getKey(), env.getValue()));
-            }
-        }
-        LOGGER.info("");
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
                 .setInitializationThreads(engineProperties.getInitThreads())
                 .setPreparationMode(engineProperties.isPreparationMode())
