@@ -121,16 +121,13 @@ Possible values:
 
 ## Examples
 
-Some options examples in readable and minified JSON form:
+Some `options` examples in readable and minified JSON form:
 
 ### for `profile=driving-car`:
 
 ```json
-{
-    "avoid_features": ["ferries", "tollways"]
-}
+{"avoid_features":["ferries","tollways"]}
 ```
-`{"avoid_features":["ferries","tollways"]}`
 
 ### for `profile=cycling-*`:
 
@@ -143,13 +140,37 @@ Some options examples in readable and minified JSON form:
       }
   },
   "avoid_polygons": {
-      "type": "Polygon",
-      "coordinates": [
-          [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
-   ]}
+    "coordinates": [
+      [
+        [
+          8.683223,
+          49.41971
+        ],
+        [
+          8.68322,
+          49.41635
+        ],
+        [
+          8.68697,
+          49.41635
+        ],
+        [
+          8.68697,
+          49.41971
+        ],
+        [
+          8.683223,
+          49.41971
+        ]
+      ]
+    ],
+    "type": "Polygon"
+  }
 }
 ```
-`{"avoid_features":["steps"],"profile_params":{"weightings":{"steepness_difficulty":2}}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
+```json
+{"avoid_features":["steps"],"profile_params":{"weightings":{"steepness_difficulty":2}},"avoid_polygons":{"coordinates":[[[8.683223,49.41971],[8.68322,49.41635],[8.68697,49.41635],[8.68697,49.41971],[8.683223,49.41971]]],"type":"Polygon"}}
+```
 
 ### for `profile=foot-*`:
 
@@ -165,22 +186,18 @@ Some options examples in readable and minified JSON form:
                 "factor": 1.0
             }
         }
-    },
-    "avoid_polygons": {  
-        "type": "Polygon",
-        "coordinates": [
-            [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
-     ]}
+    }
 }
 ```
-`{"avoid_features":["fords","ferries"],"profile_params":{"weightings":{"green":{"factor":0.8},"quiet":{"factor":1.0}}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
+```json
+{"avoid_features":["fords","ferries"],"profile_params":{"weightings":{"green":{"factor":0.8},"quiet":{"factor":1.0}}}}
+```
 
 ### for `profile=driving-hgv`:
 
 ```json
 {
     "avoid_features": ["ferries","tollways"],
-    "vehcile_type": "hgv",
     "profile_params": {
         "restrictions": {
             "length": 30,
@@ -190,15 +207,12 @@ Some options examples in readable and minified JSON form:
             "weight": 3,
             "hazmat": true
         }
-    },
-    "avoid_polygons": {  
-        "type": "Polygon",
-        "coordinates": [
-            [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
-     ]}
+    }
 }
 ```
-`{"avoid_features":["ferries","tollways"],"vehicle_type":"hgv","profile_params":{"restrictions":{"length":30,"width":30,"height":3,"axleload":4,"weight":3,"hazmat":true}},"avoid_polygons":{"type":"Polygon","coordinates":[[[100.0,0.0],[101.0,0.0],[101.0,1.0],[100.0,1.0],[100.0,0.0]]]}}`
+```json
+{"avoid_features":["ferries","tollways"],"profile_params":{"restrictions":{"length":30,"width":30,"height":3,"axleload":4,"weight":3,"hazmat":true}}}
+```
 
 ### for `profile=wheelchair`:
 
@@ -210,55 +224,41 @@ Some options examples in readable and minified JSON form:
             "surface_type": "cobblestone:flattened",
             "track_type": "grade1",
             "smoothness_type": "good",
-            "maximum_sloped_curb": 0.06,
+            "maximum_sloped_kerb": 0.06,
             "maximum_incline": 6
         }
     }
 }
 ```
-`{"avoid_features":["ferries","steps"],"profile_params":{"restrictions":{"surface_type":"cobblestone:flattened","track_type":"grade1","smoothness_type":"good","maximum_sloped_curb":0.06,"maximum_incline":6}}}`
+
+```json
+{"avoid_features":["ferries","steps"],"profile_params":{"restrictions":{"surface_type":"cobblestone:flattened","track_type":"grade1","smoothness_type":"good","maximum_sloped_kerb":0.06,"maximum_incline":6}}}
+```
 
 ### Border restrictions
 
 Examples for routing options object with border restrictions:
 
-*Do not cross country borders at all:*
+#### _Do not cross country borders at all_
 
 ```json
-{
-    "avoid_borders":"all"
-}
+{"avoid_borders":"all"}
 ```
 
-`{"avoid_borders":"all"}`
-
-*Do not cross controlled borders (i.e. USA - Canada) but allow crossing of open borders (i.e. France - Germany):*
+#### _Do not cross controlled borders (i.e. USA - Canada) but allow crossing of open borders (i.e. France - Germany)_
 
 ```json
-{
-    "avoid_borders":"controlled"
-}
+{"avoid_borders":"controlled"}
 ```
 
-`{"avoid_borders":"controlled"}`
-
-*Do not route through Austria or Switzerland:*
+#### _Do not route through Austria or Switzerland_
 
 ```json
-{
-    "avoid_countries": [1,120]
-}
+{"avoid_countries": [11,193]}
 ```
 
-`{"avoid_countries": [1,120]}`
-
-*Pass open borders but do not cross into Switzerland:*
+#### _Pass open borders but do not cross into Switzerland_
 
 ```json
-{
-    "avoid_borders": "controlled",
-    "avoid_countries": [193]
-}
+{"avoid_borders": "controlled","avoid_countries": [193]}
 ```
-
-`{"avoid_borders": "controlled","avoid_countries": [193]}`
