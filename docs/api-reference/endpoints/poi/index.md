@@ -280,5 +280,3 @@ Note, that `station` appears once as a railway station (604) and once as a gener
 | picnic_site   |  625  |
 | travel_agency |  626  |
 | viewpoint     |  627  |
-
-:::
