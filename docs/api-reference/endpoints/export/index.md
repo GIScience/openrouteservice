@@ -11,9 +11,7 @@ Export the base graph for different modes of transport.
 In the request, the desired routing profile is specified as the last path parameter, 
 a bounding box for the area of interest has to be defined in the request body.
 
-The following example request and response should be pretty self-explanatory:
-
-Request:
+This is an example requests for a base graph for the profile `driving-car`:
 ```shell
 curl -X 'POST' \
   'http://localhost:8082/ors/v2/export/driving-car' \
@@ -34,7 +32,9 @@ curl -X 'POST' \
 }'
 ```
 
-Response:
+The response contains nodes and edges in the bounding box relevant for this routing profile.
+The edge entry `weight` contains the fastest car durations in seconds:
+
 ```json
 {
   "nodes": [
