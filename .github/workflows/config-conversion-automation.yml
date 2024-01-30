@@ -34,7 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Convert application.yml to ors-config.yml
         run: |
-          .github/utils/config_conversion.sh ors-api/src/main/resources/application.yml ors-api/ors-config.yml
+          .github/utils/config_conversion.sh ors-api/src/main/resources/application.yml ors-config.yml
       - name: Check with git if ors-api/ors-config.yml has changed
         id: git-check
         if: env.pr_state == 'OPEN' && env.pr_is_draft == 'false'

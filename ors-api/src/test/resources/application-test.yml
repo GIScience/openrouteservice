@@ -29,6 +29,7 @@ ors:
           maxcellnodes: 5000
     profiles:
       car:
+        enabled: true
         profile: driving-car
         encoder_options:
           turn_costs: true
@@ -83,6 +84,7 @@ ors:
             output_log: false
             log_location: ors/traffic_log
       hgv:
+        enabled: true
         profile: driving-hgv
         maximum_speed_lower_bound: 75
         encoder_options:
@@ -138,6 +140,7 @@ ors:
             output_log: false
             log_location: ors/traffic_log
       bike-regular:
+        enabled: true
         profile: cycling-regular
         encoder_options:
           consider_elevation: false
@@ -163,6 +166,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       bike-mountain:
+        enabled: true
         profile: cycling-mountain
         maximum_snapping_radius: 10
         encoder_options:
@@ -175,6 +179,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       bike-road:
+        enabled: true
         profile: cycling-road
         encoder_options:
           consider_elevation: false
@@ -186,6 +191,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       bike-electric:
+        enabled: true
         profile: cycling-electric
         encoder_options:
           consider_elevation: false
@@ -197,6 +203,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       walking:
+        enabled: true
         profile: foot-walking
         interpolate_bridges_and_tunnels: false
         encoder_options:
@@ -215,6 +222,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       hiking:
+        enabled: true
         profile: foot-hiking
         encoder_options:
           block_fords: false
@@ -230,6 +238,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       wheelchair:
+        enabled: true
         profile: wheelchair
         maximum_snapping_radius: 50
         encoder_options:
@@ -241,6 +250,7 @@ ors:
           WayCategory:
           OsmId:
       public-transport:
+        enabled: true
         profile: public-transport
         encoder_options:
           block_fords: false

@@ -1,5 +1,6 @@
 ##### openrouteservice settings file #####
 # This file contains parameters for openrouteservice.
+# For a full list of possible parameters see https://giscience.github.io/openrouteservice/
 
 ##### General server settings #####
 #server:
@@ -102,7 +103,7 @@ ors:
   engine:
 #    init_threads: 1
 #    preparation_mode: false
-    source_file: "YOUR_FILE"
+    source_file:  ors-api/src/test/files/heidelberg.osm.gz
 #    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
 #    elevation:
@@ -111,8 +112,8 @@ ors:
 #      cache_clear: false
 #      provider: multi
 #      cache_path: ./elevation_cache
-    profile_default:
-      enabled: false
+#    profile_default:
+#      enabled: false
 #      elevation: false
 #      elevation_smoothing: false
 #      encoder_flags_size: 8
@@ -148,7 +149,7 @@ ors:
 #            active_landmarks: 8
     profiles:
       car:
-        enabled: false
+        enabled: true
 #        profile: driving-car
 #        elevation: true
 #        encoder_options:
@@ -190,8 +191,8 @@ ors:
 #          WaySurfaceType:
 #          RoadAccessRestrictions:
 #            use_for_warnings: true
-      hgv:
-        enabled: false
+#      hgv:
+#        enabled: false
 #        profile: driving-hgv
 #        encoder_flags_size: 8
 #        encoder_options:
@@ -226,8 +227,8 @@ ors:
 #          HeavyVehicle:
 #            restrictions: true
 #          WaySurfaceType:
-      bike-regular:
-        enabled: false
+#      bike-regular:
+#        enabled: false
 #        profile: cycling-regular
 #        encoder_options:
 #          consider_elevation: true
@@ -239,8 +240,8 @@ ors:
 #          WaySurfaceType:
 #          HillIndex:
 #          TrailDifficulty:
-      bike-mountain:
-        enabled: false
+#      bike-mountain:
+#        enabled: false
 #        profile: cycling-mountain
 #        encoder_options:
 #          consider_elevation: true
@@ -252,8 +253,8 @@ ors:
 #          WaySurfaceType:
 #          HillIndex:
 #          TrailDifficulty:
-      bike-road:
-        enabled: false
+#      bike-road:
+#        enabled: false
 #        profile: cycling-road
 #        encoder_options:
 #          consider_elevation: true
@@ -265,8 +266,8 @@ ors:
 #          WaySurfaceType:
 #          HillIndex:
 #          TrailDifficulty:
-      bike-electric:
-        enabled: false
+#      bike-electric:
+#        enabled: false
 #        profile: cycling-electric
 #        encoder_options:
 #          consider_elevation: true
@@ -278,8 +279,8 @@ ors:
 #          WaySurfaceType:
 #          HillIndex:
 #          TrailDifficulty:
-      walking:
-        enabled: false
+#      walking:
+#        enabled: false
 #        profile: foot-walking
 #        encoder_options:
 #          block_fords: false
@@ -289,8 +290,8 @@ ors:
 #          WaySurfaceType:
 #          HillIndex:
 #          TrailDifficulty:
-      hiking:
-        enabled: false
+#      hiking:
+#        enabled: false
 #        profile: foot-hiking
 #        encoder_options:
 #          block_fords: false
@@ -313,8 +314,8 @@ ors:
 #          Wheelchair:
 #            KerbsOnCrossings: true
 #          OsmId:
-      public-transport:
-        enabled: false
+#      public-transport:
+#        enabled: false
 #        profile: public-transport
 #        encoder_options:
 #          block_fords: false

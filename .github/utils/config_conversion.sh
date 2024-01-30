@@ -14,17 +14,14 @@ awk '!/^[[:space:]]*#/ && !/^[[:space:]]*$/ {print "#" $0; next} {print}' "$inpu
 sed -i 's/#ors:/ors:/g' "$output_file"
 # Replace '#  engine:' with '  engine:'
 sed -i 's/#  engine:/  engine:/g' "$output_file"
-# Replace '#    source_file:' with '    source_file: "YOUR_FILE"'
-sed -i 's/#    source_file:/    source_file: "YOUR_FILE"/g' "$output_file"
+# Replace '#    source_file:' with '    source_file: ors-api/src/test/files/heidelberg.osm.gz'
+sed -i 's/#    source_file:/    source_file:  ors-api\/src\/test\/files\/heidelberg.osm.gz/g' "$output_file"
 # Replace '#    profiles:' with '    profiles:'
 sed -i 's/#    profiles:/    profiles:/g' "$output_file"
 
-# Replace the default_profile. Ignore the value of enabled and always set to false.
-awk -i inplace '/#    profile_default:/{getline; if ($0 ~ /#      enabled:/) {print "    profile_default:"; print "      enabled: false"; next}} {print}' "$output_file"
-
 # Replace the individual profiles. Ignore the value of enabled and always set to false.
-for profile in car hgv bike-regular bike-mountain bike-road bike-electric walking hiking public-transport; do
-  awk -i inplace "/#      $profile:/{getline; if (\$0 ~ /#        enabled:/) {print \"      $profile:\"; print \"        enabled: false\"; next}} {print}" "$output_file"
+for profile in car ; do
+  awk -i inplace "/#      $profile:/{getline; if (\$0 ~ /#        enabled:/) {print \"      $profile:\"; print \"        enabled: true\"; next}} {print}" "$output_file"
 done
 
 echo "Parsing complete. Result saved to $output_file"

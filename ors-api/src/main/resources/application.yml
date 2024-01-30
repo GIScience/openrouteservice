@@ -1,5 +1,6 @@
 ##### openrouteservice settings file #####
 # This file contains parameters for openrouteservice.
+# For a full list of possible parameters see https://giscience.github.io/openrouteservice/
 
 ##### General server settings #####
 server:
