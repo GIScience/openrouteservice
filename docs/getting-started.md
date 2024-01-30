@@ -22,4 +22,6 @@ For a more general overview, visit our documentation at [openrouteservice.org](h
 
 For an easy and interactive way to test the api, you can try out the different endpoints instantly and start firing requests at the [API Playground](https://openrouteservice.org/dev/#/api-docs) after obtaining an account and an API key. 
 
+If you spot issues with the documentation, click the link below the page to directly open an issue on GitHub.
+
 If you have questions that aren't answered here, or you want to provide feedback or point out problems, go to our [Forum](https://ask.openrouteservice.org).
