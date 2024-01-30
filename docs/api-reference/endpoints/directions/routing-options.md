@@ -106,7 +106,9 @@ A map with specifications of a round-trip:
 | `seed`    | Integer | A seed to use for adding randomisation to the overall direction of the generated route (optional).       |
 
 ### `vehicle_type`
-For `profile=driving-hgv` only. It is needed for **vehicle restrictions** to work. Possible values:
+For `profile=driving-hgv` only.
+It is needed for **vehicle restrictions** to work (see [tag filtering](/technical-details/tag-filtering.md#driving-hgv)).
+Possible values:
 
 * `hgv`
 * `bus`
