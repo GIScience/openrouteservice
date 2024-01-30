@@ -22,22 +22,9 @@ The following table describes the supported HTTP status codes.
 The following sections describes the list of possible internal error codes that might be provided by different ORS
 EndPoints.
 
-### Geocoding API
-
-| Error Code | Description                                        |
-|:----------:|----------------------------------------------------|
-| 1000       | Unable to parse JSON request.                      |
-| 1001       | Required parameter is missing.                     |
-| 1002       | Invalid parameter format.                          |
-| 1003       | Invalid parameter value.                           |
-| 1004       | Parameter value exceeds the maximum allowed limit. |
-| 1006       | Unable to parse the request to the export handler. |
-| 1007       | Unsupported export format.                         |
-| 1008       | Empty Element.                                     |
-| 1009       | Address not found for location.                    |
-| 1099       | Unknown internal error.                            |
-
 ### Routing API
+
+[//]: # (keep in sync with RoutingErrorCodes)
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
@@ -62,6 +49,8 @@ EndPoints.
 
 ### Isochrones API
 
+[//]: # (keep in sync with IsochronesErrorCodes)
+
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
 |    3000    | Unable to parse JSON request.                      |
@@ -79,20 +68,24 @@ EndPoints.
 
 ### POIs API
 
+[//]: # (keep in sync with openpoiservice https://github.com/GIScience/openpoiservice/blob/master/openpoiservice/server/api/__init__.py)
+
 | Error Code | Description                                         |
 |:----------:|-----------------------------------------------------|
-| 4000       | Invalid JSON object in request.                     |
-| 4001       | Category or category group ids missing.             |
-| 4002       | Geometry is missing.                                |
-| 4003       | Bounding box and or geojson not present in request. |
-| 4004       | Buffer is missing.                                  |
-| 4005       | Geometry length does not meet the restrictions.     |
-| 4006       | Unsupported HTTP method.                            |
-| 4007       | GeoJSON parsing error.                              |
-| 4008       | Geometry size does not meet the restrictions.       |
-| 4099       | Unknown internal error.                             |
+|    4000    | Invalid JSON object in request.                     |
+|    4001    | Category or category group ids missing.             |
+|    4002    | Geometry is missing.                                |
+|    4003    | Bounding box and or geojson not present in request. |
+|    4004    | Buffer is missing.                                  |
+|    4005    | Geometry length does not meet the restrictions.     |
+|    4006    | Unsupported HTTP method.                            |
+|    4007    | GeoJSON parsing error.                              |
+|    4008    | Geometry size does not meet the restrictions.       |
+|    4099    | Unknown internal error.                             |
 
 ### Matrix API
+
+[//]: # (keep in sync with MatrixErrorCodes)
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
@@ -111,13 +104,30 @@ EndPoints.
 
 ### Export API
 
+[//]: # (keep in sync with ExportErrorCodes)
+
 | Error Code | Description                    |
 |:----------:|--------------------------------|
-| 7000       | Unable to parse JSON request.  |
-| 7001       | Required parameter is missing. |
-| 7002       | Invalid parameter format.      |
-| 7003       | Invalid parameter value.       |
-| 7004       | Unknown parameter.             |
-| 7005       | Mismatched input.              |
-| 7006       | Unsupported export format.     |
-| 7099       | Unknown internal error.        |
+|    7000    | Unable to parse JSON request.  |
+|    7001    | Required parameter is missing. |
+|    7002    | Invalid parameter format.      |
+|    7003    | Invalid parameter value.       |
+|    7004    | Unknown parameter.             |
+|    7005    | Mismatched input.              |
+|    7006    | Unsupported export format.     |
+|    7099    | Unknown internal error.        |
+
+### Snapping API 
+
+[//]: # (keep in sync with SnappingErrorCodes)
+
+| Error Code | Description                    |
+|:----------:|--------------------------------|
+|    8000    | Unable to parse JSON request.  |
+|    8001    | Required parameter is missing. |
+|    8002    | Invalid parameter format.      |
+|    8003    | Invalid parameter value.       |
+|    8004    | Unknown parameter.             |
+|    8006    | Unsupported export format.     |
+|    8010    | Point not found.               |
+|    8099    | Unknown internal error.        |
