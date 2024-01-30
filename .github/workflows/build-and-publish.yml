@@ -1,10 +1,10 @@
 name: Build and publish the nightly Docker image
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ "main" ]
     types: [ opened, synchronize, ready_for_review ]
   push:
-    branches: [ master ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 env:
@@ -63,7 +63,7 @@ jobs:
         platform: [ linux/amd64,linux/arm64/v8 ]
         image: [ ubuntu-latest ]
         # linux/arm64/v8 is emulated with qemu and takes ages to build the graph.
-        # Only run linux/arm64/v8 tests on ready PR and master.
+        # Only run linux/arm64/v8 tests on ready PR and main.
         isDraftPR:
           - ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == true }}
         exclude:
@@ -150,13 +150,13 @@ jobs:
         with:
           install: true
       - name: Login to DockerHub
-        if: ${{ success() && github.ref == 'refs/heads/master' }}
+        if: ${{ success() && github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
       - name: Publish nightly
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
         uses: docker/build-push-action@v4
         with:
           context: .
