@@ -66,7 +66,7 @@ public class RouteProfileConfiguration {
 
     private boolean turnCostEnabled = false;//FIXME: even though the field is read by external methods, its setter is never called.
     private boolean enforceTurnCosts = false;
-    private String graphDataAccess = "RAM_STORE";
+    private String graphDataAccess = "";
 
     public RouteProfileConfiguration() {
         extStorages = new HashMap<>();

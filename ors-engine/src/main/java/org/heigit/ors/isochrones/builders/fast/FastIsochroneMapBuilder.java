@@ -57,14 +57,11 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFla
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.GeomUtility;
-import org.locationtech.jts.geom.*;
-import org.locationtech.jts.index.quadtree.Quadtree;
-import org.locationtech.jts.operation.union.UnaryUnionOp;
-import org.opensphere.geometry.algorithm.ConcaveHullOpenSphere;
 
 import java.util.*;
 
 import static org.heigit.ors.fastisochrones.partitioning.FastIsochroneParameters.*;
+import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
 
 /**
  * Calculates isochrone polygons using fast isochrone algorithm.
@@ -409,8 +406,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         LinearRing ring;
         Geometry concaveHull;
         try {
-            ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
-            concaveHull = ch.getConcaveHull();
+            concaveHull = concaveHullByLength(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius));
             if (concaveHull instanceof Polygon polygon) {
                 ring = polygon.getExteriorRing();
                 List<Coordinate> coordinates = new ArrayList<>(ring.getNumPoints());
@@ -441,8 +437,7 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             return;
         Polygon poly;
         try {
-            ConcaveHullOpenSphere ch = new ConcaveHullOpenSphere(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius), false);
-            Geometry geom = ch.getConcaveHull();
+            Geometry geom = concaveHullByLength(points, convertSmoothingFactorToDistance(smoothingFactor, maxRadius));
 
             if (geom instanceof GeometryCollection geomColl) {
                 if (geomColl.isEmpty())

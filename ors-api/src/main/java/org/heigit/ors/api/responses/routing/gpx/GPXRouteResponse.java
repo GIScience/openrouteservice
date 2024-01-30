@@ -41,7 +41,7 @@ public class GPXRouteResponse extends RouteResponse {
     private static final String GPX_CREATOR = "openrouteservice";
 
     @XmlAttribute(name = "xmlns")
-    private static final String XMLNS_LINK = "https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd";
+    private static final String XMLNS_LINK = "https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd";
 
     @XmlElement(name = "metadata")
     private GPXMetadata metadata;

@@ -102,7 +102,7 @@ public class OpenAPIConfig {
     private License apiLicence() {
         return new License()
                 .name("GNU General Public License v3.0")
-                .url("https://github.com/GIScience/openrouteservice/blob/master/LICENSE");
+                .url("https://github.com/GIScience/openrouteservice/blob/main/LICENSE");
     }
 
     private Contact apiContact() {
