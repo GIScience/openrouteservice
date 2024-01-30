@@ -15,7 +15,7 @@ _italic words_ are variables defined for the respective section and group severa
 `*` denotes any tag, `key != *` denotes the absence of `key`.
 
  
-## Driving car :car:
+## Driving car
 
 [//]: # (TODO: :car: not rendered?)
 
@@ -38,7 +38,7 @@ _firstValue_ = value of the first encountered key from _restrictions_
 | `highway = ford` OR `ford = *` | | | :heavy_check_mark: |
 | `maxwidth < 2` | :heavy_check_mark: | | |
 
-## Driving HGV :truck: :bus: 🚜
+## Driving HGV
 
 [//]: # (TODO: :truck: and :bus: not rendered?)
 
@@ -54,7 +54,7 @@ and the following addition rule:
 | --------------- |:------:|:------:|:-----------:|
 | _restrictions_=_restrictedValues_ AND !(_restrictions_=_intendedValues_) AND !([hgv, goods, bus, agricultural, forestry, delivery]=_intendedValues_) | :heavy_check_mark: | | |
 
-## cycling-regular :bike: [cycling-electric, cycling-road & cycling-mountain]
+## cycling-regular [cycling-electric, cycling-road & cycling-mountain]
 
 Definitions:  
 _restrictions_ = `[bicycle, vehicle, access]`  
