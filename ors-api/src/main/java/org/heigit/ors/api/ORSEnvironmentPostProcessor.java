@@ -60,7 +60,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
         }
         List<Map.Entry<String, String>> relevantENVs = System.getenv().entrySet()
                 .stream().filter(env -> env.getKey().startsWith("ORS_") || env.getKey().startsWith("LOGGING_") || env.getKey().startsWith("SPRINGDOC_") || env.getKey().startsWith("SPRING_") || env.getKey().startsWith("SERVER_"))
-                .toList();
+                .sorted(Map.Entry.<String, String>comparingByKey()).toList();
         if (!relevantENVs.isEmpty()) {
             log.info("");
             log.info("Environment variables overriding openrouteservice configuration parameters detected: ");
