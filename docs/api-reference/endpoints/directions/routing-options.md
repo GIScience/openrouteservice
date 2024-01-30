@@ -121,8 +121,6 @@ Possible values:
 
 ## Examples
 
-HINT: *If your request works without the `options` object, but returns an error _with_ it: try to [URL-encode](#url-encoding) the options object!*
-
 Some options examples in readable and minified JSON form:
 
 ### for `profile=driving-car`:
@@ -264,13 +262,3 @@ Examples for routing options object with border restrictions:
 ```
 
 `{"avoid_borders": "controlled","avoid_countries": [193]}`
-
-
-## URL Encoding
-
-To use the curl command string you have to encode special characters.
-Values you need are shown in this table:
-
-| Character |  {  |  \| |  }  |  "  |  [  |  ]  |
-|:---------:|:---:|:---:|:---:|:---:|:---:|:---:|
-|  Encoding | %7B | %7C | %7D | %22 | %5B | %5D |
