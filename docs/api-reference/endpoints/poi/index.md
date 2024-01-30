@@ -8,7 +8,7 @@ separate [github repository](https://github.com/GIScience/openpoiservice), where
 documentation.
 
 A complete and concise overview of all request parameters and return types can be found in
-the [interactive API documentation of the POI Service](https://openrouteservice.org/dev/#/api-docs/pois).
+the [API Playground](https://openrouteservice.org/dev/#/api-docs/pois).
 
 ## POI categories
 

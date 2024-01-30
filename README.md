@@ -75,7 +75,7 @@ You can find more information in the [Installation and Usage Instructions](https
 
 ## API Documentation
 
-For an easy and interactive way to test the api, visit our API documentation at [openrouteservice.org](https://openrouteservice.org/dev/#/api-docs).
+For an easy and interactive way to test the api, visit our [API Playground](https://openrouteservice.org/dev/#/api-docs).
 After obtaining your key you can try out the different endpoints instantly and start firing requests.
 
 

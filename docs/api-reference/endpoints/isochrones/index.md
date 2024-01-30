@@ -11,4 +11,4 @@ The result is a GeoJSON where the isochrone polygons are represented as `feature
 $.features
 ```
 
-For an overview of all features of the isochrones endpoint please refer to [interactive API documentation](https://openrouteservice.org/dev/#/api-docs/isochrones_service).
+For an overview of all features of the isochrones endpoint please refer to the [API Playground](https://openrouteservice.org/dev/#/api-docs/isochrones_service).
