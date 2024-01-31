@@ -73,45 +73,37 @@ _intendedValues_ = `[yes, designated, official, permissive]`
 
 ## Foot
 
-| Tag combination | Reject | Accept | Conditional |
-| --------------- |:------:|:------:|:-----------:|
-| `sac_scale != hiking` | :heavy_check_mark: | | |
-| `foot = [yes, designated, official, permissive]` | | :heavy_check_mark: | |
-| `foot = [private, no, restricted, military, emergency]` | | | :heavy_check_mark: |
-| `access = [private, no, restricted, military, emergency]` | | | :heavy_check_mark: |
-| `sidewalk = [yes, both, left, right]` | | :heavy_check_mark: | |
-| `highway != [footway, path, steps, pedestrian, living_street, track, residential, service, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, cycleway, unclassified, road]` | :heavy_check_mark: | | |
-| `motorroad = yes` | :heavy_check_mark: | | |
-| `highway = ford` OR `ford = *` | | | :heavy_check_mark: |
+_restrictions_ = `[bicycle, vehicle, access]`  
+_restrictedValues_ = `[private, no, restricted, military, emergency]`
+_intendedValues_ = `[yes, designated, permissive, official]`
+
+| Tag combination                                                                                                                                                                                                         |       Reject       | Accept |    Conditional     |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------:|:------:|:------------------:|
+| `sac_scale != hiking`                                                                                                                                                                                                   | :heavy_check_mark: |        |                    |
+| `foot = ` _intendedValues_                                                                                                                                                                                              |                    |        | :heavy_check_mark: |
+| _restrictions_ = _restrictedValues_                                                                                                                                                                                     |                    |        | :heavy_check_mark: |
+| `sidewalk = [yes, both, left, right]`                                                                                                                                                                                   |                    |        | :heavy_check_mark: |
+| `highway != [footway, path, steps, pedestrian, living_street, track, residential, service, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, cycleway, unclassified, road]` | :heavy_check_mark: |        |                    |
+| `motorroad = yes`                                                                                                                                                                                                       | :heavy_check_mark: |        |                    |
+| `highway = ford` OR `ford = *`                                                                                                                                                                                          |                    |        | :heavy_check_mark: |
 
 The following are applicable only when no highway tag has been provided for the way
 
-| Tag combination | Reject | Accept | Conditional |
-| --------------- |:------:|:------:|:-----------:|
-| `route = [shuttle_train, ferry]` AND (`foot != *` OR `foot = yes`) | | :heavy_check_mark: | |
-| `railway = platform` | | :heavy_check_mark: | |
-| `man_made = pier` | | :heavy_check_mark: | |
+| Tag combination                                                    | Reject |       Accept       | Conditional |
+|--------------------------------------------------------------------|:------:|:------------------:|:-----------:|
+| `route = [shuttle_train, ferry]` AND (`foot != *` OR `foot = yes`) |        | :heavy_check_mark: |             |
+| `railway = platform`                                               |        | :heavy_check_mark: |             |
+| `man_made = pier`                                                  |        | :heavy_check_mark: |             |
+| `waterway = lock_gate` AND `foot =` _intendedValues_               |        | :heavy_check_mark: |             |
 
 ## Hiking
 
-| Tag combination | Reject | Accept | Conditional |
-| --------------- |:------:|:------:|:-----------:|
-| `sac_scale != [hiking, mountain_hiking, demanding_mountain_hiking, alpine_hiking]` | :heavy_check_mark: | | |
-| `foot = [yes, designated, official, permissive]` | | :heavy_check_mark: | |
-| `foot = [private, no, restricted, military, emergency]` | | | :heavy_check_mark: |
-| `access = [private, no, restricted, military, emergency]` | | | :heavy_check_mark: |
-| `sidewalk = [yes, both, left, right]` | | :heavy_check_mark: | |
-| `highway != [footway, path, steps, pedestrian, living_street, track, residential, service, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, cycleway, unclassified, road]` | :heavy_check_mark: | | |
-| `motorroad = yes` | :heavy_check_mark: | | |
-| `highway = ford` OR `ford = *` | | | :heavy_check_mark: |
+Same as [Foot](#foot) except for different `sac_scale` check with existing `highway` tag.
 
-The following are applicable only when no highway tag has been provided for the way
+| Tag combination                                                                    |       Reject       | Accept | Conditional |
+|------------------------------------------------------------------------------------|:------------------:|:------:|:-----------:|
+| `sac_scale != [hiking, mountain_hiking, demanding_mountain_hiking, alpine_hiking]` | :heavy_check_mark: |        |             |
 
-| Tag combination | Reject | Accept | Conditional |
-| --------------- |:------:|:------:|:-----------:|
-| `route = [shuttle_train, ferry]` AND (`foot != *` OR `foot = yes`) | | :heavy_check_mark: | |
-| `railway = platform` | | :heavy_check_mark: | |
-| `man_made = pier` | | :heavy_check_mark: | |
 
 ## Wheelchair
 
