@@ -154,7 +154,7 @@ All the above scenarios will:
 
 1. Pull the openrouteservice Docker image from Dockerhub and start a container named `ors-app`
 2. Launch the openrouteservice service on port `8080` within a tomcat running in that container, available at the address `http://localhost:8080/ors`.
-3. A local `./docker` folder containing the files used and produced by openrouteservice for easy access. Most relevant is `./docker/conf/ors-config.yml` controlling ORS behaviour, and the test OSM data file  `/home/ors/ors-core/data/osm_file.pbf` of Heidelberg and surroundings.
+3. Create a local `./docker` folder containing the files used and produced by openrouteservice for easy access. Most relevant is `./docker/conf/ors-config.yml` controlling ORS behaviour, and the test OSM data file  `/home/ors/ors-core/data/osm_file.pbf` of Heidelberg and surroundings.
 
 ### Customization
 
