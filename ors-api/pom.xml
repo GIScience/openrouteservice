@@ -43,9 +43,9 @@
         <!--
             A default for packagingValue is needed, if profiles other than buildWar or buildFatJar are used, e.g. apitests.
             The value is set/overridden in the profiles buildWar and buildFatJar, e.g.
-                mvn clean install -P buildFatJar
+                mvn clean package -PbuildWar
          -->
-        <packagingValue>war</packagingValue>
+        <packagingValue>jar</packagingValue>
     </properties>
 
     <build>
@@ -295,15 +295,15 @@
             <properties>
                 <packagingValue>war</packagingValue>
             </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
         </profile>
         <profile>
             <id>buildFatJar</id>
             <properties>
                 <packagingValue>jar</packagingValue>
             </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
         <profile>
             <id>apitests</id>
