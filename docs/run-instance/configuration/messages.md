@@ -18,6 +18,8 @@
 | request_profile    | String with profile names, comma separated                                                                           | message sent if requested profile matches one of the given names    |
 | request_preference | String with preference (weightings for routing, metrics for matrix, rangetype for isochrones) names, comma separated | message sent if requested preference matches one of the given names |
 
+If multiple conditions are given, all must be fulfilled to trigger the sending of the corresponding message.
+
 ### Example:
 
 ```

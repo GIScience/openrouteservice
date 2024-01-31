@@ -1,19 +1,14 @@
 # Running JAR / WAR
 
+[//]: # (TODO: overhaul contents after integrating the jar build PR)
+
 ## Provided artifacts
 
-For release version 8.0.0 and newer, we provide JAR and WAR files as artifacts for download. The JAR file can be run stand-alone and will start openrouteservice using a built-in tomcat server. Alternatively, you can set up your own tomcat instance on your server and deploy the WAR artifact on it.  
+For release version 8.0.0 and newer, we provide JAR and WAR files as artifacts for download. The JAR file can be run stand-alone and will start openrouteservice using a built-in Tomcat server. Alternatively, you can set up your own Tomcat instance on your server and deploy the WAR artifact on it.  
 
 ## Parameters and environment variables
 
-Openrouteservice is configured by pointing an environment variable called `ORS_CONFIG_LOCATION` to a YAML configuration file. Use the following commands to download our example configuration file (which is used by our docker setup by default) to have a starting point, and export the path to that file to the required environment variable.
-
-```shell
-wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/ors-api/ors-config.yml
-export ORS_CONFIG_LOCATION=${pwd}/ors-config.yml
-```
-
-For more details on the configuration options with that YAML file, see the chapter on [configuration](/run-instance/configuration/).
+Openrouteservice can be configured in several ways, described in detail in the chapter on [configuration](/run-instance/configuration/).
 
 If you already have an old and deprecated JSON format configuration file, you can still use that configuration file by setting an environment variable called `ORS_CONFIG` to point that file. Currently, all settings in a provided JSON configuration file will *override* any settings in the YAML file. We strongly recommend to migrate your settings to the new YAML format though, since we are planning to remove the support for JSON configuration files with the next major version release.  
 
@@ -27,8 +22,6 @@ Openrouteservice produces output files of three types, for which the paths can b
 Openrouteservice also requires an OpenStreetMap export file to import the graph data from, configured in the YAML configuration file. The default location is `./ors-core/data/osm_file.pbf`. 
 
 See chapter [logging](/run-instance/configuration/logging) for details on configuring the location of log files, and chapter [engine](/run-instance/configuration/engine) for the all other file locations.
-
-[//]: # (TODO: overhaul contents below after integrating the jar build PR)
 
 # Installing and running openrouteservice within Tomcat 10
 
@@ -50,4 +43,4 @@ See chapter [logging](/run-instance/configuration/logging) for details on config
 
 5. Tomcat should now automatically detect the new WAR file and deploy the service. Depending on profiles and size of the OSM data, this can take some time until openrouteservice has built graphs and is ready for generating routes. You can check if it is ready by accessing `http://localhost:8080/ors/health` (the port and URL may be different if you have installed Tomcat differently than above). If you get a `status: ready` message, you are good to go in creating routes.
 
-6. Your configuration file and all input / output files and directories referenced by that configuration need to be accessible (and in case of the output folders, writable) to the user your tomcat instance is running as. You might need to adjust the location of said files and folders or `chmod` / `chown` them accordingly.
+6. Your configuration file and all input / output files and directories referenced by that configuration need to be accessible (and in case of the output folders, writable) to the user your Tomcat instance is running as. You might need to adjust the location of said files and folders or `chmod` / `chown` them accordingly.
