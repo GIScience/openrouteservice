@@ -7,6 +7,7 @@ export default defineConfig({
     base: "/openrouteservice/",
     head: [['link', {rel: 'icon', href: '/openrouteservice/ors_fav.png'}]],
     cleanUrls: true,
+    ignoreDeadLinks: 'localhostLinks',
     markdown: {
         languageAlias: {
             'jsonpath': 'json'
