@@ -380,8 +380,8 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
             if (maxRadius < 5000)
                 return minimumDistance;
 
-            // Use a default length (~1000m)
-            return 0.010;
+            // Use a default length (~1333m)
+            return 0.012;
         }
 
         double intervalDegrees = GeomUtility.metresToDegrees(maxRadius);
