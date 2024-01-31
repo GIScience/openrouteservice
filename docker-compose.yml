@@ -1,26 +1,40 @@
-version: '2.4'
+# Docker Compose file for the openrouteservice (ORS) application
+# Documentation and examples can be found on https://giscience.github.io/openrouteservice/run-instance/installation/running-with-docker
+version: '3.8'
 services:
   ors-app:
+    # Activate the following lines to build the container from the repository
+    #build:
+    #  context: ./
     container_name: ors-app
     ports:
-      - "8080:8080"
+      - "8080:8082"
       - "9001:9001"
     image: openrouteservice/openrouteservice:nightly
-    # For versioned images see https://giscience.github.io/openrouteservice/run-instance/installation/running-with-docker
     user: "${UID:-0}:${GID:-0}"
-#    build:
-#      context: ./
-#      args:
-#        OSM_FILE: ./ors-api/src/test/files/heidelberg.osm.gz
     volumes:
-      - ./docker/graphs:/home/ors/ors-core/data/graphs
-      - ./docker/elevation_cache:/home/ors/ors-core/data/elevation_cache
-      - ./docker/logs/ors:/home/ors/logs
-      - ./docker/logs/tomcat:/home/ors/tomcat/logs
-      - ./docker/conf:/home/ors/ors-conf
-      - ./docker/data:/home/ors/ors-core/data
+      - ./graphs:/home/ors/graphs
+      - ./elevation_cache:/home/ors/elevation_cache
+      - ./config:/home/ors/config
+      - ./logs:/home/ors/logs
+      - ./files:/home/ors/files
     environment:
-      - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed
-      - "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g"
-      - "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
-      - ORS_CONFIG=/home/ors/ors-conf/ors-config.json
+      BUILD_GRAPHS: False
+      CONTAINER_LOG_LEVEL: INFO # DEBUG, INFO, WARN, ERROR
+      # Configure your whole container with only property ENVs.
+      # These can be set alternatively or additional to the yml configuration file.
+      # See the ors-config.env file for more options.
+      # To have a configuration file-less container, set at least the following properties:
+      #ors.engine.source_file: /home/ors/files/example-heidelberg.osm.gz
+      #ors.engine.graphs_root_path=/home/ors/graphs
+      #ors.engine.elevation.cache_path=/home/ors/elevation_cache
+      #ors.engine.profiles.car.enabled: true
+    # Too much under 'environment:'? Use an env_file instead and define everything in there:
+    #env_file: ors-config.env
+    #healthcheck:
+    #  test: curl --fail http://localhost:8080/ors/v2/health || exit 1
+    #  start_period: 1m
+    #  interval: 10s
+    #  timeout: 2s
+    #  retries: 3
+    #  disable: false
