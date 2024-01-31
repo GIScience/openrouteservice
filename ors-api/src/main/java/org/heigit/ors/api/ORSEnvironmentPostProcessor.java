@@ -29,6 +29,10 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+        if (environment.matchesProfiles("test")) {
+            log.info("No additional configuration loaded, test profile is active.");
+            return;
+        }
         // Override values from application.yml with contents of custom config yml file.
         List<String> configLocations = new ArrayList<>();
         log.info("");
