@@ -17,8 +17,6 @@ _italic words_ are variables defined for the respective section and group severa
  
 ## Driving car
 
-[//]: # (TODO: :car: not rendered?)
-
 Definitions:  
 _restrictedValues_ = `[private, agricultural, forestry, no, restricted, delivery, military, emergency]`  
 _intendedValues_ = `[yes, permissive, destination]`  
@@ -39,8 +37,6 @@ _firstValue_ = value of the first encountered key from _restrictions_
 | `maxwidth < 2` | :heavy_check_mark: | | |
 
 ## Driving HGV
-
-[//]: # (TODO: :truck: and :bus: not rendered?)
 
 The profile differs from the above logic for driving car in the definitions of  
 
