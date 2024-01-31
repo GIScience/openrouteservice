@@ -15,7 +15,7 @@ If you are developing ORS or running your own instance, you might benefit from t
 ## API Playground
 
 The [API Playground](https://openrouteservice.org/dev/#/api-docs/directions_service) is a complete, interactive and concise technical documentation of our live API.
-It can also be used to send sample requests to both, our live API or an instance of openrouteservice running on your local machine.
+It can also be used to send sample requests to either our live API or an instance of openrouteservice running on your local machine.
 Use the form "API Server" on the top left to select and edit "Development Server" if you want to send requests to your local instance:
 ![Development server usage](/playground-select-server.png "Development server usage"){ style="display: block; margin: 0 auto"}
 
