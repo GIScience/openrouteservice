@@ -2,14 +2,14 @@
 
 A named list of **openrouteservice** services containing their settings limits.
 
-| key                                               | type   | description                                                                             |
-|---------------------------------------------------|--------|-----------------------------------------------------------------------------------------|
-| swagger_documentation_url                         | string | Defines the URL for the the swagger documentation. Can be different from the `base_url` |
-| [ors.endpoints.defaults](#orsendpointsdefaults)   | object | Common settings for all endpoints                                                       |
-| [ors.endpoints.routing](#orsendpointsrouting)     | object | Settings for routing endpoint                                                           |
-| [ors.endpoints.isochrone](#orsendpointsisochrone) | object | Settings for the isochrones endpoint                                                    |
-| [ors.endpoints.matrix](#orsendpointsmatrix)       | object | Settings for the matrix endpoint                                                        |
-| [ors.endpoints.snap](#orsendpointssnap)           | object | Settings for the snapping endpoint                                                      |
+| key                                                 | type   | description                                                                             |
+|-----------------------------------------------------|--------|-----------------------------------------------------------------------------------------|
+| swagger_documentation_url                           | string | Defines the URL for the the swagger documentation. Can be different from the `base_url` |
+| [ors.endpoints.defaults](#ors-endpoints-defaults)   | object | Common settings for all endpoints                                                       |
+| [ors.endpoints.routing](#ors-endpoints-routing)     | object | Settings for routing endpoint                                                           |
+| [ors.endpoints.isochrone](#ors-endpoints-isochrone) | object | Settings for the isochrones endpoint                                                    |
+| [ors.endpoints.matrix](#ors-endpoints-matrix)       | object | Settings for the matrix endpoint                                                        |
+| [ors.endpoints.snap](#ors-endpoints-snap)           | object | Settings for the snapping endpoint                                                      |
 
 ## ors.endpoints.defaults
 
