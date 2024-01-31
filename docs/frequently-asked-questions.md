@@ -25,7 +25,7 @@ There are three main reasons for this problem, listed in order of most to least 
   `maximum_snapping_radius` and `location_index_resolution` config-parameter. See
   [configuration](/run-instance/configuration/index.md) for details.
 
-3. The start and enpoint are passed with correct lon,lat-order and are within
+3. The start and endpoint are passed with correct lon,lat-order and are within
    350m of a routable road. This should only happen with a local installation.
    Usually, this means that ors is trying to route in an area that graphs have not
    been built for.
