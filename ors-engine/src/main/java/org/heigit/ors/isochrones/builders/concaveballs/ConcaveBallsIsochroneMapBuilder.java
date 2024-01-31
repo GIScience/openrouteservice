@@ -17,8 +17,6 @@ import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.graphhopper.coll.GHIntObjectHashMap;
 import com.graphhopper.routing.SPTEntry;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.*;
@@ -29,13 +27,8 @@ import org.heigit.ors.isochrones.GraphEdgeMapFinder;
 import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
-import org.heigit.ors.isochrones.builders.IsochroneMapBuilder;
-import org.heigit.ors.routing.RouteSearchContext;
+import org.heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBikeFlagEncoder;
 import org.heigit.ors.util.GeomUtility;
 import org.locationtech.jts.geom.*;
 
@@ -44,20 +37,11 @@ import java.util.List;
 
 import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
 
-public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
+public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
-    private static final boolean BUFFERED_OUTPUT = true;
     private static final double MAX_SPLIT_LENGTH = 20000.0;
     private static final DistanceCalc dcFast = new DistancePlaneProjection();
-    private GeometryFactory geometryFactory;
     private List<Coordinate> prevIsoPoints = null;
-
-    private RouteSearchContext searchContext;
-
-    public void initialize(RouteSearchContext searchContext) {
-        geometryFactory = new GeometryFactory();
-        this.searchContext = searchContext;
-    }
 
     public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
         StopWatch swTotal = null;
@@ -72,26 +56,8 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
         String graphdate = graph.getProperties().get("datareader.import.date");
 
-        // 1. Find all graph edges for a given cost.
-        FlagEncoder encoder = searchContext.getEncoder();
-        double maxSpeed = encoder.getMaxSpeed();
-
-        if (encoder instanceof FootFlagEncoder || encoder instanceof HikeFlagEncoder) {
-            // in the GH FootFlagEncoder, the maximum speed is set to 15km/h which is way too high
-            maxSpeed = 4;
-        }
-
-        if (encoder instanceof WheelchairFlagEncoder) {
-            maxSpeed = WheelchairFlagEncoder.MEAN_SPEED;
-        }
-
-        double meanSpeed = maxSpeed;
-        if (encoder instanceof ORSAbstractFlagEncoder flagEncoder) {
-            meanSpeed = flagEncoder.getMeanSpeed();
-        }
-        if (encoder instanceof CommonBikeFlagEncoder flagEncoder) {
-            meanSpeed = flagEncoder.getMeanSpeed();
-        }
+        double maxSpeed = determineMaxSpeed();
+        double meanSpeed = determineMeanSpeed(maxSpeed);
 
         AccessibilityMap edgeMap = GraphEdgeMapFinder.findEdgeMap(searchContext, parameters);
 
@@ -185,37 +151,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         return isochroneMap;
     }
 
-    /**
-     * Converts the smoothing factor into a distance (which can be used in algorithms for generating isochrone polygons).
-     * The distance value returned is dependent on the radius and smoothing factor.
-     *
-     * @param smoothingFactor A factor that should be used in the smoothing process. Lower numbers produce a smaller
-     *                        distance (and so likely a more detailed polygon)
-     * @param maxRadius       The maximum radius of the isochrone (in metres)
-     * @return
-     */
-    private double convertSmoothingFactorToDistance(float smoothingFactor, double maxRadius) {
-        final double MINIMUM_DISTANCE = 0.006;
-
-        if (smoothingFactor == -1) {
-            // No user defined smoothing factor, so use defaults
-
-            // For shorter isochrones, we want to use a smaller minimum distance else we get inaccurate results
-            if (maxRadius < 5000)
-                return MINIMUM_DISTANCE;
-
-            // Use a default length (~1333m)
-            return 0.012;
-        }
-
-        double intervalDegrees = GeomUtility.metresToDegrees(maxRadius);
-        double maxLength = (intervalDegrees / 100f) * smoothingFactor;
-
-        if (maxLength < MINIMUM_DISTANCE)
-            maxLength = MINIMUM_DISTANCE;
-        return maxLength;
-    }
-
     private void addIsochrone(IsochroneMap isochroneMap, Coordinate[] points, double isoValue, double meanRadius, double smoothingDistance) {
         Geometry[] geometries = new Geometry[points.length];
         for (int i = 0; i < points.length; ++i) {
@@ -277,36 +212,6 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
 
             if (!result.containsKey(edge.originalEdge))
                 edge.edge = -2;
-        }
-    }
-
-    public void addPoint(List<Coordinate> points, double lon, double lat) {
-        Coordinate p = new Coordinate(lon, lat);
-        points.add(p);
-    }
-
-    private void addBufferPoints(List<Coordinate> points, double lon0, double lat0, double lon1,
-                                 double lat1, boolean addLast, double bufferSize) {
-        double dx = (lon0 - lon1);
-        double dy = (lat0 - lat1);
-        double normLength = Math.sqrt((dx * dx) + (dy * dy));
-        double scale = bufferSize / normLength;
-
-        double dx2 = -dy * scale;
-        double dy2 = dx * scale;
-
-        addPoint(points, lon0 + dx2, lat0 + dy2);
-        addPoint(points, lon0 - dx2, lat0 - dy2);
-
-        // add a middle point if two points are too far from each other
-        if (normLength > 2 * bufferSize) {
-            addPoint(points, (lon0 + lon1) / 2.0 + dx2, (lat0 + lat1) / 2.0 + dy2);
-            addPoint(points, (lon0 + lon1) / 2.0 - dx2, (lat0 + lat1) / 2.0 - dy2);
-        }
-
-        if (addLast) {
-            addPoint(points, lon1 + dx2, lat1 + dy2);
-            addPoint(points, lon1 - dx2, lat1 - dy2);
         }
     }
 
@@ -418,43 +323,7 @@ public class ConcaveBallsIsochroneMapBuilder implements IsochroneMapBuilder {
         if (pl.isEmpty()) {
             return;
         }
-
-        double edgeDist = iter.getDistance();
-        double edgeCost = maxCost - minCost;
-        double costPerMeter = edgeCost / edgeDist;
-        double distPolyline = 0.0;
-
-        double lat0 = pl.getLat(0);
-        double lon0 = pl.getLon(0);
-        double lat1;
-        double lon1;
-
-        for (int i = 1; i < pl.size(); ++i) {
-            lat1 = pl.getLat(i);
-            lon1 = pl.getLon(i);
-
-            distPolyline += dcFast.calcDist(lat0, lon0, lat1, lon1);
-
-            if (BUFFERED_OUTPUT) {
-                double distCost = minCost + distPolyline * costPerMeter;
-                if (distCost >= isolineCost) {
-                    double segLength = (1 - (distCost - isolineCost) / edgeCost);
-                    double lon2 = lon0 + segLength * (lon1 - lon0);
-                    double lat2 = lat0 + segLength * (lat1 - lat0);
-
-                    addBufferPoints(points, lon0, lat0, lon2, lat2, true, bufferSize);
-
-                    break;
-                } else {
-                    addBufferPoints(points, lon0, lat0, lon1, lat1, false, bufferSize);
-                }
-            } else {
-                addPoint(points, lon0, lat0);
-            }
-
-            lat0 = lat1;
-            lon0 = lon1;
-        }
+        addPointsFromEdge(points, isolineCost, maxCost, minCost, bufferSize, iter.getDistance(), pl);
     }
 
     private void detailedShape(List<Coordinate> points, double minSplitLength, EdgeIteratorState iter, boolean detailedShape, SPTEntry goalEdge, double bufferSize) {
