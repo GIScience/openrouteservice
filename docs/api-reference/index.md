@@ -14,14 +14,14 @@ If you are developing ORS or running your own instance, you might benefit from t
 
 ## API Playground
 
-The [API Playground](https://openrouteservice.org/dev/#/api-docs/directions_service) is a complete, interactive and concise technical documentation of our live API. 
-It can also be used to send sample requests to both, our live API or an instance of openrouteservice running on your local machine. 
+The [API Playground](https://openrouteservice.org/dev/#/api-docs/directions_service) is a complete, interactive and concise technical documentation of our live API.
+It can also be used to send sample requests to both, our live API or an instance of openrouteservice running on your local machine.
 Use the form "API Server" on the top left to select and edit "Development Server" if you want to send requests to your local instance:
-![](../public/playground-select-server.png)
+![Development server usage](/playground-select-server.png "Development server usage"){ style="display: block; margin: 0 auto"}
 
-The responses of your sample requests are visualized on a small map on the bottom right, 
+The responses of your sample requests are visualized on a small map on the bottom right,
 but can also be shown as json, table or downloaded as file:
-![](../public/playground-map.png)
+![Example request visualization](/playground-map.png "Example request visualization"){ style="display: block; margin: 0 auto"}
 
 ::: warning Hint
 If you prefer the swagger-ui you can also use the [swagger editor](https://editor-next.swagger.io/) and load
@@ -31,8 +31,8 @@ However, some of the displayed endpoints or features won't be accessible with ou
 
 ## Swagger-UI
 
-Local instances of openrouteservice also have an accessible swagger-ui. 
-This is a way to get an interactive API doc for your current or an older version of openrouteservice:  
+Local instances of openrouteservice also have an accessible swagger-ui.
+This is a way to get an interactive API doc for your current or an older version of openrouteservice:
 1. Checkout the source code for the desired version or tag and [run the service locally](../run-instance/installation/).
 2. You can then navigate to the swagger-ui hosted by your local instance in your browser: [http://localhost:8082/ors/swagger-ui/index.html](http://localhost:8082/ors/swagger-ui/index.html)
 (the port may be different on your local environment).
@@ -41,4 +41,4 @@ This is a way to get an interactive API doc for your current or an older version
 The swagger-ui is not available on the production ORS instances hosted by HeiGIT.
 :::
 
-![](../public/swagger-ui.png)
+![Swagger-UI](/swagger-ui.png "Swagger UI")
