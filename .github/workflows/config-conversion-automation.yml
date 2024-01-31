@@ -22,7 +22,7 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: Convert application.yml to ors-config.yml
         run: |
-          .github/utils/config_conversion.sh ors-api/src/main/resources/application.yml ors-config.yml
+          .github/utils/yml_config_to_ors_config_conversion.sh ors-api/src/main/resources/application.yml ors-config.yml
       - uses: MichaelsJP/git-auto-commit-action@v5
         with:
           commit_message: 'chore(config): automatic conversion of application.yml to ors-config.yml'
