@@ -1,3 +1,7 @@
+logging:
+  level:
+    org.heigit: WARN
+
 spring:
   main:
     banner-mode: "off"
