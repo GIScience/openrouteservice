@@ -96,6 +96,9 @@ public class EngineProperties {
         if (profiles != null) {
             for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
                 ProfileProperties profile = profileEntry.getValue();
+                if (!profile.isEnabled()) {
+                    continue;
+                }
                 RouteProfileConfiguration convertedProfile = new RouteProfileConfiguration();
                 convertedProfile.setName(profileEntry.getKey());
                 convertedProfile.setEnabled(profile.enabled != null ? profile.enabled : profileDefault.isEnabled());
