@@ -74,7 +74,7 @@ A named list of **openrouteservice** services containing their settings limits.
 
 | key      | type   | description                     | example value              |
 |----------|--------|---------------------------------|----------------------------|
-| profiles | object | List of profile names           | `driving-car, driving-hgv` |
+| profiles | list   | List of profile names           | `driving-car, driving-hgv` |
 | value    | number | Value of distance or time limit | `3600`                     |
 
 ### Statistics providers properties
