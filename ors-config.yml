@@ -191,8 +191,8 @@ ors:
 #          WaySurfaceType:
 #          RoadAccessRestrictions:
 #            use_for_warnings: true
-#      hgv:
-#        enabled: false
+      hgv:
+        enabled: true
 #        profile: driving-hgv
 #        encoder_flags_size: 8
 #        encoder_options:
@@ -227,8 +227,8 @@ ors:
 #          HeavyVehicle:
 #            restrictions: true
 #          WaySurfaceType:
-#      bike-regular:
-#        enabled: false
+      bike-regular:
+        enabled: true
 #        profile: cycling-regular
 #        encoder_options:
 #          consider_elevation: true
@@ -279,8 +279,8 @@ ors:
 #          WaySurfaceType:
 #          HillIndex:
 #          TrailDifficulty:
-#      walking:
-#        enabled: false
+      walking:
+        enabled: true
 #        profile: foot-walking
 #        encoder_options:
 #          block_fords: false
@@ -290,8 +290,8 @@ ors:
 #          WaySurfaceType:
 #          HillIndex:
 #          TrailDifficulty:
-#      hiking:
-#        enabled: false
+      hiking:
+        enabled: true
 #        profile: foot-hiking
 #        encoder_options:
 #          block_fords: false
@@ -301,8 +301,8 @@ ors:
 #          WaySurfaceType:
 #          HillIndex:
 #          TrailDifficulty:
-#      wheelchair:
-#        enabled: false
+      wheelchair:
+        enabled: true
 #        profile: wheelchair
 #        encoder_options:
 #          block_fords: true
