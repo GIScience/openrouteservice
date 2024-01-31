@@ -110,6 +110,8 @@ export default defineConfig({
                                     {text: 'Endpoints and limits', link: '/run-instance/configuration/endpoints-and-limits'},
                                     {text: 'Engine', link: '/run-instance/configuration/engine'},
                                     {text: 'Profiles', link: '/run-instance/configuration/profiles'},
+                                    {text: 'Preparation', link: '/run-instance/configuration/preparation'},
+                                    {text: 'Execution', link: '/run-instance/configuration/execution'},
                                     {text: 'Extras', link: '/run-instance/configuration/extras'},
                                     {text: 'Logging', link: '/run-instance/configuration/logging'},
                                     {text: 'Spring', link: '/run-instance/configuration/spring'},
