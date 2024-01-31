@@ -46,6 +46,8 @@ RELEASING:
   - `PBF_FILE_PATH`: value to overwrite the `ors.services.routing.sources` with
 - add .editorconfig to streamline IDE code styling ([#1493](https://github.com/GIScience/openrouteservice/pull/1493))
 - info on duration format in parameter description ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
+- maven profile buildFatJar to build a fatJar (appliction with embedded tomcat, can be started with java -jar ors.jar)
+  instead of a war file
 - YML configuration ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
 - new backend documentation using VitePress([#1617](https://github.com/GIScience/openrouteservice/pull/1617))
 - support for Norwegian language ([#1645](https://github.com/GIScience/openrouteservice/pull/1645))
