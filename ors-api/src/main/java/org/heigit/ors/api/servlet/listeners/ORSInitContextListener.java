@@ -31,10 +31,6 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.FormatUtility;
-import org.heigit.ors.util.StringUtility;
-
-import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_ENV;
-import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY;
 
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
@@ -46,23 +42,15 @@ public class ORSInitContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
-        if (LOGGER.isDebugEnabled()) {
-            if (!StringUtility.isNullOrEmpty(System.getenv(ORS_CONFIG_LOCATION_ENV))) {
-                LOGGER.debug("Configuration loaded by ENV, location: " + System.getenv(ORS_CONFIG_LOCATION_ENV));
-            }
-            if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
-                LOGGER.debug("Configuration loaded by ARG, location: " + System.getProperty(ORS_CONFIG_LOCATION_PROPERTY));
-            }
-        }
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
-            .setInitializationThreads(engineProperties.getInitThreads())
-            .setPreparationMode(engineProperties.isPreparationMode())
-            .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
-            .setSourceFile(engineProperties.getSourceFile())
-            .setGraphsRootPath(engineProperties.getGraphsRootPath())
-            .setGraphsDataAccess(engineProperties.getGraphsDataAccess())
-            .setProfiles(engineProperties.getConvertedProfiles())
-            .buildWithAppConfigOverride();
+                .setInitializationThreads(engineProperties.getInitThreads())
+                .setPreparationMode(engineProperties.isPreparationMode())
+                .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
+                .setSourceFile(engineProperties.getSourceFile())
+                .setGraphsRootPath(engineProperties.getGraphsRootPath())
+                .setGraphsDataAccess(engineProperties.getGraphsDataAccess())
+                .setProfiles(engineProperties.getConvertedProfiles())
+                .buildWithAppConfigOverride();
         Runnable runnable = () -> {
             try {
                 LOGGER.info("Initializing ORS...");

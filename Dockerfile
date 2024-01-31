@@ -77,10 +77,19 @@ COPY --chown=ors:ors --from=tomcat /tmp/tomcat ${BASE_FOLDER}/tomcat
 COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/tomcat/webapps/ors.war
 COPY --chown=ors:ors --from=build /ors-core/ors-api/src/main/resources/log4j-tomcat.properties ${BASE_FOLDER}/tomcat/conf/logging.properties
 COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/docker-entrypoint.sh
-COPY --chown=ors:ors ./ors-api/ors-config.yml ${BASE_FOLDER}/tmp/ors-config.yml
+COPY --chown=ors:ors ./ors-config.yml ${BASE_FOLDER}/tmp/ors-config.yml
 COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/tmp/osm_file.pbf
 
 USER ${UID}:${GID}
+
+# Rewrite the '    source_file:  ors-api/src/test/files/heidelberg.osm.gz' line in the config file to '    source_file:  ${BASE_FOLDER}/ors-core/data/osm_file.pbf'
+RUN sed -i "s|    source_file:  ors-api/src/test/files/heidelberg.osm.gz|    source_file:  ${BASE_FOLDER}/ors-core/data/osm_file.pbf|g" ${BASE_FOLDER}/tmp/ors-config.yml
+# Rewrite the '#    graphs_root_path: ./graphs' line in the config file to '    graphs_root_path: ${BASE_FOLDER}/ors-core/data/graphs'
+RUN sed -i "s|#    graphs_root_path: ./graphs|    graphs_root_path: ${BASE_FOLDER}/ors-core/data/graphs|g" ${BASE_FOLDER}/tmp/ors-config.yml
+# Rewrite the '#    elevation:' line in the config file to '    elevation:'
+RUN sed -i "s|#    elevation:|    elevation:|g" ${BASE_FOLDER}/tmp/ors-config.yml
+# Rewrite the '#      cache_path: ./elevation_cache' line in the config file to '      cache_path: ${BASE_FOLDER}/ors-core/data/elevation_cache'
+RUN sed -i "s|#      cache_path: ./elevation_cache|      cache_path: ${BASE_FOLDER}/ors-core/data/elevation_cache|g" ${BASE_FOLDER}/tmp/ors-config.yml
 
 ENV BUILD_GRAPHS="False"
 ENV ORS_CONFIG_LOCATION=ors-conf/ors-config.yml

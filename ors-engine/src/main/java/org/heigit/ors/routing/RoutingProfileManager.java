@@ -14,9 +14,13 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
-import com.graphhopper.util.*;
+import com.graphhopper.util.AngleCalc;
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.exceptions.*;
@@ -26,13 +30,19 @@ import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.mapmatching.MapMatchingRequest;
-import org.heigit.ors.matrix.*;
+import org.heigit.ors.matrix.MatrixErrorCodes;
+import org.heigit.ors.matrix.MatrixRequest;
+import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import org.heigit.ors.util.*;
+import org.heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.RuntimeUtility;
+import org.heigit.ors.util.StringUtility;
+import org.heigit.ors.util.TimeUtility;
 import org.locationtech.jts.geom.Coordinate;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +120,10 @@ public class RoutingProfileManager {
                     if (!routingProfiles.add(rp))
                         LOGGER.warn("Routing profile has already been added.");
                 } catch (ExecutionException e) {
-                    LOGGER.error(e);
+                    LOGGER.debug(e);
+                    if (ExceptionUtils.indexOfThrowable(e, FileNotFoundException.class) != -1) {
+                        throw new IllegalStateException("Output files can not be written. Make sure ors.engine.graphs_data_access is set to a writable type! ");
+                    }
                     throw e;
                 } catch (InterruptedException e) {
                     LOGGER.error(e);
@@ -129,9 +142,9 @@ public class RoutingProfileManager {
             Thread.currentThread().interrupt();
             return;
         } catch (Exception ex) {
-            fail("Failed to initialize RoutingProfileManager instance. " + ex.getMessage());
+            fail("Failed to initialize RoutingProfileManager instance! " + ex.getMessage());
             Thread.currentThread().interrupt();
-            return;
+            System.exit(1);
         }
         RuntimeUtility.clearMemory(LOGGER);
 

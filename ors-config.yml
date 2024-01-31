@@ -1,0 +1,324 @@
+##### openrouteservice settings file #####
+# This file contains parameters for openrouteservice.
+# For a full list of possible parameters see https://giscience.github.io/openrouteservice/
+
+##### General server settings #####
+#server:
+#  port: 8082
+#  error:
+#    whitelabel:
+#      enabled: false
+  # Keep the context-path at / else the war file run with tomcat will have the context-path of /ors/v2 as well.
+#  servlet:
+#    context-path: /ors
+
+#spring:
+#  profiles:
+#    active: default
+#  mvc:
+#    servlet:
+#      path: /
+
+##### Settings related to springdoc #####
+#springdoc:
+#  swagger-ui:
+#    enabled: true
+#    path: /swagger-ui
+#    tryItOutEnabled: true
+#    filter: false
+#    syntaxHighlight:
+#      activated: true
+#    showExtensions: true
+#  api-docs:
+#    path: /v2/api-docs
+#    version: OPENAPI_3_0
+#  packages-to-scan: org.heigit.ors
+#  pathsToMatch: /v2/**
+
+##### Logging settings #####
+#logging:
+#  level:
+#    root: WARN
+#    org.heigit: INFO
+
+##### openrouteservice specific settings #####
+ors:
+#  cors:
+#    allowed_origins: "*"
+#    allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
+#    preflight_max_age: 600
+
+#  messages:
+
+  ##### ORS endpoints settings #####
+#  endpoints:
+#    routing:
+#      enabled: true
+#      attribution: openrouteservice.org, OpenStreetMap contributors, tmc - BASt
+#      gpx_name: ORSRouting
+#      gpx_description: This is a directions instructions file as GPX, generated from openrouteservice
+#      gpx_base_url: https://openrouteservice.org/
+#      gpx_support_mail: support@openrouteservice.org
+#      gpx_author: openrouteservice
+#      gpx_content_licence: LGPL 3.0
+#      maximum_avoid_polygon_area: 200000000
+#      maximum_avoid_polygon_extent: 20000
+#      maximum_alternative_routes: 3
+#    matrix:
+#      enabled: true
+#      attribution: openrouteservice.org, OpenStreetMap contributors
+#      maximum_routes: 2500
+#      maximum_routes_flexible: 25
+#      maximum_visited_nodes: 100000
+#      maximum_search_radius: 2000
+#      u_turn_costs: -1
+#    isochrone:
+#      enabled: true
+#      attribution: openrouteservice.org, OpenStreetMap contributors
+#      maximum_locations: 2
+#      maximum_intervals: 1
+#      allow_compute_area: true
+#      maximum_range_distance_default: 50000
+#      maximum_range_distance:
+#        - profiles: driving-car, driving-hgv
+#          value: 100000
+#      maximum_range_time_default: 18000
+#      maximum_range_time:
+#        - profiles: driving-car, driving-hgv
+#          value: 3600
+#      fastisochrones:
+#        maximum_range_distance_default: 50000
+#        maximum_range_distance:
+#          - profiles: driving-car, driving-hgv
+#            value: 500000
+#        maximum_range_time_default: 18000
+#        maximum_range_time:
+#          - profiles: driving-car, driving-hgv
+#            value: 10800
+#    Snap:
+#      enabled: true
+#      attribution: openrouteservice.org, OpenStreetMap contributors
+
+  ##### ORS engine settings #####
+  engine:
+#    init_threads: 1
+#    preparation_mode: false
+    source_file:  ors-api/src/test/files/heidelberg.osm.gz
+#    graphs_root_path: ./graphs
+#    graphs_data_access: RAM_STORE
+#    elevation:
+#      preprocessed: false
+#      data_access: MMAP
+#      cache_clear: false
+#      provider: multi
+#      cache_path: ./elevation_cache
+#    profile_default:
+#      enabled: false
+#      elevation: false
+#      elevation_smoothing: false
+#      encoder_flags_size: 8
+#      instructions: true
+#      optimize: false
+#      traffic: false
+#      maximum_distance: 100000
+#      maximum_distance_dynamic_weights: 100000
+#      maximum_distance_avoid_areas: 100000
+#      maximum_waypoints: 50
+#      maximum_snapping_radius: 400
+#      maximum_distance_alternative_routes: 100000
+#      maximum_distance_round_trip_routes: 100000
+#      maximum_speed_lower_bound: 80
+#      maximum_visited_nodes: 1000000
+#      location_index_resolution: 500
+#      location_index_search_iterations: 4
+#      force_turn_costs: false
+#      interpolate_bridges_and_tunnels: true
+#      preparation:
+#        min_network_size: 200
+#        min_one_way_network_size: 200
+#        methods:
+#          lm:
+#            enabled: true
+#            threads: 1
+#            weightings: recommended,shortest
+#            landmarks: 16
+#      execution:
+#        methods:
+#          lm:
+#            disabling_allowed: true
+#            active_landmarks: 8
+    profiles:
+      car:
+        enabled: true
+#        profile: driving-car
+#        elevation: true
+#        encoder_options:
+#          turn_costs: true
+#          block_fords: false
+#          use_acceleration: true
+#        preparation:
+#          min_network_size: 200
+#          min_one_way_network_size: 200
+#          methods:
+#            ch:
+#              enabled: true
+#              threads: 1
+#              weightings: fastest
+#            lm:
+#              enabled: false
+#              threads: 1
+#              weightings: fastest,shortest
+#              landmarks: 16
+#            core:
+#              enabled: true
+#              threads: 1
+#              weightings: fastest,shortest
+#              landmarks: 64
+#              lmsets: highways;allow_all
+#        execution:
+#          methods:
+#            ch:
+#              disabling_allowed: true
+#            lm:
+#              disabling_allowed: true
+#              active_landmarks: 6
+#            core:
+#              disabling_allowed: true
+#              active_landmarks: 6
+#        ext_storages:
+#          WayCategory:
+#          HeavyVehicle:
+#          WaySurfaceType:
+#          RoadAccessRestrictions:
+#            use_for_warnings: true
+#      hgv:
+#        enabled: false
+#        profile: driving-hgv
+#        encoder_flags_size: 8
+#        encoder_options:
+#          turn_costs: true
+#          block_fords: false
+#          use_acceleration: true
+#        maximum_distance: 100000
+#        elevation: true
+#        preparation:
+#          min_network_size: 200
+#          min_one_way_network_size: 200
+#          methods:
+#            ch:
+#              enabled: true
+#              threads: 1
+#              weightings: recommended
+#            core:
+#              enabled: true
+#              threads: 1
+#              weightings: recommended,shortest
+#              landmarks: 64
+#              lmsets: highways;allow_all
+#        execution:
+#          methods:
+#            ch:
+#              disabling_allowed: true
+#            core:
+#              disabling_allowed: true
+#              active_landmarks: 6
+#        ext_storages:
+#          WayCategory:
+#          HeavyVehicle:
+#            restrictions: true
+#          WaySurfaceType:
+#      bike-regular:
+#        enabled: false
+#        profile: cycling-regular
+#        encoder_options:
+#          consider_elevation: true
+#          turn_costs: true
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      bike-mountain:
+#        enabled: false
+#        profile: cycling-mountain
+#        encoder_options:
+#          consider_elevation: true
+#          turn_costs: true
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      bike-road:
+#        enabled: false
+#        profile: cycling-road
+#        encoder_options:
+#          consider_elevation: true
+#          turn_costs: true
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      bike-electric:
+#        enabled: false
+#        profile: cycling-electric
+#        encoder_options:
+#          consider_elevation: true
+#          turn_costs: true
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      walking:
+#        enabled: false
+#        profile: foot-walking
+#        encoder_options:
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      hiking:
+#        enabled: false
+#        profile: foot-hiking
+#        encoder_options:
+#          block_fords: false
+#        elevation: true
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          HillIndex:
+#          TrailDifficulty:
+#      wheelchair:
+#        enabled: false
+#        profile: wheelchair
+#        encoder_options:
+#          block_fords: true
+#        elevation: true
+#        maximum_snapping_radius: 50
+#        ext_storages:
+#          WayCategory:
+#          WaySurfaceType:
+#          Wheelchair:
+#            KerbsOnCrossings: true
+#          OsmId:
+#      public-transport:
+#        enabled: false
+#        profile: public-transport
+#        encoder_options:
+#          block_fords: false
+#        elevation: true
+#        maximum_visited_nodes: 1000000
+#        gtfs_file: ./src/test/files/vrn_gtfs_cut.zip
