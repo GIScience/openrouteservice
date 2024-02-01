@@ -62,19 +62,19 @@ and the following additional rule which replace the check for `ford`:
 Definitions:  
 _restrictions_ = `[bicycle, vehicle, access]`  
 _restrictedValues_ = `[private, no, restricted, military, emergency]`  
-_intendedValues_ = `[yes, designated, official, permissive]`
+_intendedValues_ = `[yes, designated, official, permissive]`  
+_wayTypesWithDefaultSpeed_ = `[unclassified, tertiary_link, primary_link, bridleway, tertiary, living_street, trunk, motorway_link, steps, motorway, secondary, path, residential, road, service, footway, pedestrian, track, secondary_link, cycleway, trunk_link, primary]`  
 
 | Tag combination                                                                                                                                                                                                                      |       Reject       |       Accept       |    Conditional     |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------:|:------------------:|:------------------:|
-| (`man_made = pier` OR `railway = platform` OR ( `route = [shuttle_train, ferry]` AND (`bicycle = yes` OR ( `bicycle != *` AND `foot != *`)))) AND !(_restrictions_ = _restrictedValues_)                                             |                    | :heavy_check_mark: |                    |
-| `highway != [cycleway, path, footway, pedestrian, track, service, residential, living_street, steps, unclassified, road, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link]`              | :heavy_check_mark: |                    |                    |
+| `highway != *` AND (`man_made = pier` OR `railway = platform` OR ( `route = [shuttle_train, ferry]` AND (`bicycle = yes` OR ( `bicycle != *` AND `foot != *`)))) AND !(_restrictions_ = _restrictedValues_)                          |                    | :heavy_check_mark: |                    |
+| `highway !=` _wayTypesWithDefaultSpeed_                                                                                                                                                                                              | :heavy_check_mark: |                    |                    |
 | `sac_scale = hiking` AND `highway = cycleway`                                                                                                                                                                                        |                    | :heavy_check_mark: |                    |
 | _cycling-regular, cycling-electric:_<br/>`sac_scale != hiking`<br/><br/>_cycling-road:_<br/>`sac_scale = *`<br/><br/>_cycling-mountain:_<br/>`sac_scale != [hiking, mountain_hiking, demanding_mountain_hiking, alpine_hiking]`<br/> | :heavy_check_mark: |                    |                    |
 | `bicycle = `_intendedValues_ OR `bicycle = dismount` OR `highway = cycleway` OR `bicycle_road = yes`                                                                                                                                 |                    | :heavy_check_mark: |                    |
-| `highway = [motorway, motorway_link]` OR `motorroad = yes`                                                                                                                                                                           | :heavy_check_mark: |                    |                    |
+| `highway = [motorway, motorway_link, bridleway]` OR `motorroad = yes`                                                                                                                                                                | :heavy_check_mark: |                    |                    |
 | `highway = ford` OR `ford = *`                                                                                                                                                                                                       |                    |                    | :heavy_check_mark: |
 | _restrictions_ = _restrictedValues_                                                                                                                                                                                                  | :heavy_check_mark: |                    |                    |
-| ELSE `* = *`                                                                                                                                                                                                                         |                    | :heavy_check_mark: |                    |
 
 
 ## Foot
