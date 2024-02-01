@@ -55,7 +55,7 @@ days for any one of the nine profiles. For the mentioned resource requirements,
 this means that it will take roughly a week for all profiles to be re-built.
 
 Once the graphs are built, the production instances have to load them. Since
-this should happen in a low-traffic timeslot, it is also scheduled to happen
+this should happen in a low-traffic time slot, it is also scheduled to happen
 once per week.
 
 To sum up: if you change anything in the OSM, it will therefore take roughly a

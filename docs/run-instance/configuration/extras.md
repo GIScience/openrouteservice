@@ -16,5 +16,5 @@
 | key         | type   | description                                                                                         | example value            |
 |-------------|--------|-----------------------------------------------------------------------------------------------------|--------------------------|
 | boundaries  | string | The path to a file containing geojson data representing the borders of countries                    | `borders.geojson.tar.gz` |
-| ids         | string | Path to a csv file containing a unique id for each country, its local name and its english name     | `ids.csv`                |
+| ids         | string | Path to a csv file containing a unique id for each country, its local name and its English name     | `ids.csv`                |
 | openborders | string | Path to a csv file containing pairs of countries where the borders are open (i.e. Schengen borders) | `openborders.csv`        |

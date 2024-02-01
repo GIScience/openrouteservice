@@ -14,7 +14,7 @@ As a guide, you can look at the size of OSM data extracts as a rough guide as to
 [//]: # (TODO: @koebi was working on a set of example memory footprint values or something similar? Add here)
 
 ## Memory mapping in large builds with a containerized openrouteservice instance
-If you are running a large build (e.g. a planet file) then you may need to increase the number of memory mappings. You only need to do this on the host machine as this value is used by the Docker containers running on it aswell. To do this, go into the system configuration file with `sudo nano /etc/sysctl.conf` and add the following line to the bottom of the file:
+If you are running a large build (e.g. a planet file) then you may need to increase the number of memory mappings. You only need to do this on the host machine as this value is used by the Docker containers running on it as well. To do this, go into the system configuration file with `sudo nano /etc/sysctl.conf` and add the following line to the bottom of the file:
 
 ```shell
 vm.max_map_count=81920

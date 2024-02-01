@@ -4,7 +4,7 @@ If you need to customize your openrouteservice instance even further than what i
 
 ## Prerequisites
 
-The following documentation assumes you are running an Ubuntu 20.04 system (also generally works with newer Ubuntu versions). Depending on your environent, you might need to adjust certain details. You will also need to make sure to have the following installed: 
+The following documentation assumes you are running an Ubuntu 20.04 system (also generally works with newer Ubuntu versions). Depending on your environment, you might need to adjust certain details. You will also need to make sure to have the following installed: 
 * [git](https://github.com/git-guides/install-git) should be available on your system
 * [java](https://www.java.com/en/) 17 should be available, preferably as default Java environment
 * [maven](https://maven.apache.org/) should be installed on your system

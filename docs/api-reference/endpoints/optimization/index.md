@@ -9,4 +9,4 @@ good solutions to various real-life vehicle routing problems (VRP) within a smal
 
 Details on how to use it can be found in our [API Playground](https://openrouteservice.org/dev/#/api-docs/optimization).
 
-If you need deeper insights or want to run your own instance, please visit the Github project [vroom](https://github.com/VROOM-Project/vroom).
+If you need deeper insights or want to run your own instance, please visit the GitHub project [VROOM](https://github.com/VROOM-Project/vroom).

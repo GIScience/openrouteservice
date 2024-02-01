@@ -5,12 +5,12 @@
 
 The following table contains the encoding of the instruction types present in the `type`-field of a directions response in a step of a segment of a route.
 
-JSONPath in json response:
+JSON-Path in json response:
 ```jsonpath
 $.routes[*].segments[*].steps[*].type
 ```
 
-JSONPath in geojson response:
+JSON-Path in geojson response:
 ```jsonpath
 $.features[*].properties.segments[*].steps[*].type
 ```

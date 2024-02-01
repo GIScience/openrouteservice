@@ -18,7 +18,7 @@ Additionally, there is one simple GET request that does not allow advanced reque
 
 ### JSON 
 
-The **JSON** return type is an optimized proprietary openrouteservce format and best suited for further processing.
+The **JSON** return type is an optimized proprietary openrouteservice format and best suited for further processing.
 
 ### GPX
 

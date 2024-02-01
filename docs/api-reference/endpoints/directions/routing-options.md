@@ -43,7 +43,7 @@ A map of additional routing parameters for all profiles except driving-car:
 Weightings will prioritize specified factors over the shortest path. 
 The value is a map with these possible entries:
 
-* `steepness_difficulty`: Integer specifying the fitness level for **`cycling-*`** profiles. The prefered gradient increases with the value.
+* `steepness_difficulty`: Integer specifying the fitness level for **`cycling-*`** profiles. The preferred gradient increases with the value.
 
     | Value | Fitness level |
     |-------|---------------|
@@ -80,7 +80,7 @@ A map specifying restrictions for `cycling-*`, `driving-hgv` or `wheelchair`prof
   | `length`   | Number  | Length restriction in meters.                                                                                                     |
   | `width`    | Number  | Width restriction in meters.                                                                                                      |
   | `height`   | Number  | Height restriction in meters.                                                                                                     |
-  | `axleload` | Number  | Axleload restriction in tons.                                                                                                     |
+  | `axleload` | Number  | Axle load restriction in tons.                                                                                                     |
   | `weight`   | Number  | Weight restriction in tons.                                                                                                       |
   | `hazmat`   | Boolean | Specifies whether to use appropriate routing for delivering hazardous goods and avoiding water protected areas. Default is false. |
 

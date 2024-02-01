@@ -30,5 +30,5 @@ a separate local installation:
 
 * [POI Service](poi/index.md): Stand-Alone service from HeiGIT that returns points of interest in the area surrounding a geometry
 * [Elevation Service](elevation/index.md): Stand-Alone service from HeiGIT that returns the elevation for point or line geometries 
-* [Geocoder Service](geocoder/index.md): Third Party Service ([Pelias](https://www.pelias.io)) hosted by HeiGIT that resolves geo coordinates to addresses and vice versa
-* [Optimization Service](optimization/index.md): Third Party Service ([vroom](https://github.com/VROOM-Project/vroom)) hosted by HeiGIT that optimizes routes for vehicle fleets
+* [Geocoding Service](geocoder/index.md): Third Party Service ([Pelias](https://www.pelias.io)) hosted by HeiGIT that resolves geographic coordinates to addresses and vice versa
+* [Optimization Service](optimization/index.md): Third Party Service ([VROOM](https://github.com/VROOM-Project/vroom)) hosted by HeiGIT that optimizes routes for vehicle fleets

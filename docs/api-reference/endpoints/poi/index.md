@@ -8,7 +8,7 @@ The [openpoiservice](https://github.com/GIScience/openpoiservice) is a Stand-Alo
 points of interest in the area surrounding a geometry.
 
 It is a separate flask-based python application and lives in a
-separate [github repository](https://github.com/GIScience/openpoiservice), where you can also find more detailed
+separate [GitHub repository](https://github.com/GIScience/openpoiservice), where you can also find more detailed
 documentation.
 
 A complete and concise overview of all request parameters and return types can be found in

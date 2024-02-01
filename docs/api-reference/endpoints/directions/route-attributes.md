@@ -1,6 +1,6 @@
 # Route Attributes
 
-With the request body parameter `attributes`, additional attributes of route segements can be requestd in a directions request:
+With the request body parameter `attributes`, additional attributes of route segments can be requested in a directions request:
 
 ```json
 "attributes":["avgspeed","detourfactor","percentage"]

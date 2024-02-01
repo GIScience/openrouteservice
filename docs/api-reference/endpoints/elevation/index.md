@@ -9,4 +9,4 @@ Just like the openrouteservice, the elevation service is also accessible via our
 
 Details on how to use it can be found in our [API Playground](https://openrouteservice.org/dev/#/api-docs/elevation).
 
-If you need deeper insights or want to run your own instance, please visit our Github project [openelevationservice](https://github.com/GIScience/openelevationservice).
+If you need deeper insights or want to run your own instance, please visit our GitHub project [openelevationservice](https://github.com/GIScience/openelevationservice).

@@ -14,7 +14,7 @@ but the acceptance/rejection is based on other tags and logic, such as the [`:co
 
 Notation:  
 _italic words_ are variables defined for the respective section and group several tags.  
-`monospace code` are tags from openstreetmap.  
+`monospace code` are tags from OpenStreetMap.  
 `[square brackets]` denote a range of possible tags.  
 `*` denotes any tag, `key != *` denotes the absence of `key`.
 

@@ -4,7 +4,7 @@
 
 Installing the openrouteservice backend service with Docker is quite straightforward. All you need is an OSM extract, e.g. from [Geofabrik](http://download.geofabrik.de), and a working [Docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker).
 
-You can use [Dockerhub's hosted Openrouteservice image](https://hub.docker.com/repository/docker/openrouteservice/openrouteservice) or build your own image.
+You can use [Docker Hub's hosted Openrouteservice image](https://hub.docker.com/repository/docker/openrouteservice/openrouteservice) or build your own image.
 
 > For a step by step guide also check out [this YouTube video](https://www.youtube.com/watch?v=VQXlbqKArFk) (Thanks a lot SyntaxByte <3), though it is a bit outdated by now...
 
@@ -69,7 +69,7 @@ There are multiple ways with Docker to quickly have a running instance.
     ```
     :::
 
-    This tells Docker to build the local code using maven and build a Docker image with that code instead of pulling the ready-built image from Dockerhub. You can then build and start the image with the following command.
+    This tells Docker to build the local code using maven and build a Docker image with that code instead of pulling the ready-built image from Docker Hub. You can then build and start the image with the following command.
 
      ```shell
      # After modifying the docker-compose.yml file 
@@ -78,7 +78,7 @@ There are multiple ways with Docker to quickly have a running instance.
 
 4. `docker run` for ors versions >= 6.8.2
     
-    You can specify the entire Docker command (that `docker compose` would run for you) if you need to change specific details. It is easier to modify the Docker compose file, but to test a specific setup you can run the following command. To use a diffrent version of openrouteservice, change the tag (after the colon) in the last line.
+    You can specify the entire Docker command (that `docker compose` would run for you) if you need to change specific details. It is easier to modify the Docker compose file, but to test a specific setup you can run the following command. To use a different version of openrouteservice, change the tag (after the colon) in the last line.
 
     ```shell
     # create directories for volumes to mount as local user
@@ -152,7 +152,7 @@ Running openrouteservice out of the box via Docker and docker-compose is a great
 
 All the above scenarios will:
 
-1. Pull the openrouteservice Docker image from Dockerhub and start a container named `ors-app`
+1. Pull the openrouteservice Docker image from Docker Hub and start a container named `ors-app`
 2. Launch the openrouteservice service on port `8080` within a tomcat running in that container, available at the address `http://localhost:8080/ors`.
 3. Create a local `./docker` folder containing the files used and produced by openrouteservice for easy access. Most relevant is `./docker/conf/ors-config.yml` controlling ORS behaviour, and the test OSM data file  `/home/ors/ors-core/data/osm_file.pbf` of Heidelberg and surroundings.
 
@@ -196,7 +196,7 @@ ORS_UID=${UID} ORS_GID=${GID} docker compose up -d
 
 There are some important directories one might want to preserve on the host machine, to survive container regeneration. These directories should be mapped as volumes. 
 
-- `/home/ors/ors-core/data/graphs`: Contains the built graphs after ORS intialized.
+- `/home/ors/ors-core/data/graphs`: Contains the built graphs after ORS initialized.
 - `/home/ors/ors-core/data/elevation_cache`: Contains the CGIAR elevation tiles if elevation was specified.
 - `/home/ors/ors-core/logs/ors`: Contains the ORS logs.
 - `/home/ors/tomcat/logs`: Contains the Tomcat logs.
@@ -207,7 +207,7 @@ Look at the [`docker-compose.yml`](https://github.com/GIScience/openrouteservice
 
 ### Environment variables
 
-- `BUILD_GRAPHS`: Forces ORS to rebuild the routings graph(s) when set to `True`. Useful when another PBF is specified in the Docker volume mapping to `/home/ors/ors-core/data/osm_file.pbf`
+- `BUILD_GRAPHS`: Forces ORS to rebuild the routing graph(s) when set to `True`. Useful when another PBF is specified in the Docker volume mapping to `/home/ors/ors-core/data/osm_file.pbf`
 - `JAVA_OPTS`: Custom Java runtime options, such as `-Xms` or `-Xmx`
 - `CATALINA_OPTS`: Custom Catalina options
 
