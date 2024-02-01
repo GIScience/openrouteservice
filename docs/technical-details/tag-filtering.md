@@ -15,7 +15,7 @@ Other time-dependent conditional restrictions are currently not being taken into
 
 Notation:  
 _italic words_ are variables defined for the respective section and group several tags.  
-`monospace code` are tags from openstreetmap.  
+`monospace code` are tags from OpenStreetMap.  
 `[square brackets]` denote a range of possible tags.  
 `*` denotes any tag, `key != *` denotes the absence of `key`.
 

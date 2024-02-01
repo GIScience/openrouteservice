@@ -4,11 +4,11 @@
 This endpoint is not part of the openrouteservice, but of our public API. It is not available when running an own instance of openrouteservice.
 :::
 
-The [openpoiservice](https://github.com/GIScience/openpoiservice) is a Stand-Alone service from HeiGIT that returns
+The [openpoiservice](https://github.com/GIScience/openpoiservice) is a stand-alone service from HeiGIT that returns
 points of interest in the area surrounding a geometry.
 
 It is a separate flask-based python application and lives in a
-separate [github repository](https://github.com/GIScience/openpoiservice), where you can also find more detailed
+separate [GitHub repository](https://github.com/GIScience/openpoiservice), where you can also find more detailed
 documentation.
 
 A complete and concise overview of all request parameters and return types can be found in
@@ -267,7 +267,7 @@ Categories listed by group
 | car_rental             |  589  |   | heliport           | 599   |   | stop_area        | 609   |
 | car_repair             |  590  |   | motorcycle_parking | 600   |   | station          | 610   |
 
-Note, that `station` appears once as a railway station (604) and once as a general public transport station (610).
+Note, that `station` appears once as a railway station (604) and once as a public transport station (610).
 
 #### tourism : 620
 

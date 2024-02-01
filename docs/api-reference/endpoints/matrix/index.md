@@ -24,7 +24,7 @@ To specify, from which to which of these locations the metric should be calculat
 ```
 
 The numbers in both parameter value arrays represent the index of the locations array in the same request. 
-In the example above, the durations from the first (0) and second (1) location to the third (2) and fourth (3) location will be calculated: 
+In the example above, the duration from the first (0) and second (1) location to the third (2) and fourth (3) location will be calculated: 
 
     0 -> 2
     0 -> 3
@@ -32,8 +32,8 @@ In the example above, the durations from the first (0) and second (1) location t
     1 -> 3
 
 In the response, the results are contained in the node `durations`.
-Here, the first array contains the durations from the first source (0) to both destinations (2 and 3), 
-and the second array contains the durations from the second source (1) to both destinations (2 and 3):
+Here, the first array contains the duration from the first source (0) to both destinations (2 and 3), 
+and the second array contains the duration from the second source (1) to both destinations (2 and 3):
 
 ```json
   "durations": [
@@ -51,10 +51,10 @@ and the second array contains the durations from the second source (1) to both d
 If `sources` or `destinations` is not specified in the request, each of both defaults to "all locations". 
 If for example the locations array has 5 entries, 
 the sources array has only one entry `[0]`, 
-and `destinations` is missing, then durations are calculated from location 0 to all locations in the location list.
+and `destinations` is missing, then duration are calculated from location 0 to all locations in the location list.
 
 The first entry in the result `durations` list represents the duration from location 0 to itself and is `0`. 
 
-To specify whether distances or durations (or both) are to be calculated, the `metrics` parameter can be set accordingly.
+To specify whether distances or duration (or both) are to be calculated, the `metrics` parameter can be set accordingly.
 
 For details about all request parameters and the response type, see the [API Playground](https://openrouteservice.org/dev/#/api-docs/matrix_service).

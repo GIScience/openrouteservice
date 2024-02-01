@@ -185,7 +185,7 @@ The top level element.
 | key                      | type   | description                                                                                                                                                                       | example value                  |
 |--------------------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------| 
 | problematic_speed_factor | number | For wheelchair profile only! Travel speeds on edges classified as problematic for wheelchair users are multiplied by this factor, use to set slow traveling speeds on such ways   | `problematic_speed_factor=0.7` |
-| preferred_speed_factor   | number | For wheelchair profile only! Travel speeds on edges classified as preferrable for wheelchair users are multiplied by this factor, use to set faster traveling speeds on such ways | `preferred_speed_factor=1.2`   |
+| preferred_speed_factor   | number | For wheelchair profile only! Travel speeds on edges classified as preferable for wheelchair users are multiplied by this factor, use to set faster traveling speeds on such ways | `preferred_speed_factor=1.2`   |
 
 ##### **ors.services.routing.profiles.profile-XXX.parameters.ext_storages**
 
@@ -205,8 +205,8 @@ The top level element.
 | key         | type   | description                                                                                         | example value              |
 |-------------|--------|-----------------------------------------------------------------------------------------------------|----------------------------| 
 | boundaries  | string | The path to a file containing geojson data representing the borders of countries                    | `'borders.geojson.tar.gz'` |
-| ids         | string | Path to a csv file containing a unique id for each country, its local name and its english name     | `'ids.csv'`                |
-| openborders | string | Path to a csv file contianing pairs of countries where the borders are open (i.e. Schengen borders) | `'openborders.csv'`        |
+| ids         | string | Path to a csv file containing a unique id for each country, its local name and its English name     | `'ids.csv'`                |
+| openborders | string | Path to a csv file containing pairs of countries where the borders are open (i.e. Schengen borders) | `'openborders.csv'`        |
 
 ---
 
@@ -219,7 +219,7 @@ The top level element.
 | maximum_range_time     | list    |                                                                                                                                            | `[{profiles: "any", value: 18000},{profiles: "driving-car, driving-hgv", value: 3600}]`    |
 | maximum_intervals      | number  | Maximum number of intervals/isochrones computed for each location                                                                          | `10`                                                                                       |
 | maximum_locations      | number  | Maximum number of locations in one request                                                                                                 | `2`                                                                                        |
-| allow_compute_area     | number  | Speficies whether area computation is allowed                                                                                              | `true`                                                                                     |
+| allow_compute_area     | number  | Specifies whether area computation is allowed                                                                                              | `true`                                                                                     |
 
 ##### **ors.services.isochrones.fastisochrones**
 

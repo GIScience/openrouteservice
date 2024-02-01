@@ -31,11 +31,11 @@ See chapter [logging](/run-instance/configuration/spring/logging.md) for details
 
    The environment variable `ORS_CONFIG_LOCATION` and other optional environment variables need to be written to that file, too. The settings generally used on our servers are similar to:
 
-  ```shell
-  JAVA_OPTS="-server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms105g -Xmx105g -XX:MaxMetaspaceSize=50m"
-  CATALINA_OPTS="(here we set settings for JMX monitoring)"
-  ORS_CONFIG_LOCATION=/path/to/ors-config.yml
-  ```
+      ```shell
+      JAVA_OPTS="-server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms105g -Xmx105g -XX:MaxMetaspaceSize=50m"
+      CATALINA_OPTS="(here we set settings for JMX monitoring)"
+      ORS_CONFIG_LOCATION=/path/to/ors-config.yml
+      ```
 
 3. If you add these new settings to the `setenv.sh` file, then you need to restart Tomcat for these to take effect using a command like `sudo systemctl restart tomcat.service`.
 

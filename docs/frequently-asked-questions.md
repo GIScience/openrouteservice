@@ -25,7 +25,7 @@ There are three main reasons for this problem, listed in order of most to least 
   `maximum_snapping_radius` and `location_index_resolution` config-parameter. See
   [configuration](/run-instance/configuration/ors/engine/profiles.md) for details.
 
-3. The start and enpoint are passed with correct lon,lat-order and are within
+3. The start and endpoint are passed with correct lon,lat-order and are within
    350m of a routable road. This should only happen with a local installation.
    Usually, this means that ors is trying to route in an area that graphs have not
    been built for.
@@ -53,7 +53,7 @@ days for any one of the nine profiles. For the mentioned resource requirements,
 this means that it will take roughly a week for all profiles to be re-built.
 
 Once the graphs are built, the production instances have to load them. Since
-this should happen in a low-traffic timeslot, it is also scheduled to happen
+this should happen in a low-traffic time slot, it is also scheduled to happen
 once per week.
 
 To sum up: if you change anything in the OSM, it will therefore take roughly a

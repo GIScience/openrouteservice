@@ -33,7 +33,7 @@ curl -X 'POST' \
 ```
 
 The response contains nodes and edges in the bounding box relevant for this routing profile.
-The edge entry `weight` contains the fastest car durations in seconds:
+The edge entry `weight` contains the fastest car duration in seconds:
 
 ```json
 {

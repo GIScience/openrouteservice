@@ -9,7 +9,7 @@ The following table describes the supported HTTP status codes.
 | 200              | Standard response for successfully processed requests.                                                                                     |
 | 400              | The request is incorrect and therefore can not be processed.                                                                               |
 | 404              | The end point is not available, or a given request completed successfully but found no results.                                            |
-| 405              | The specified HTTP method is not supported. For more details, refer to the EndPoint documentation.                                         |
+| 405              | The specified HTTP method is not supported. For more details, refer to the Endpoint documentation.                                         |
 | 413              | The request is larger than the server is able to process, the data provided in the request exceeds the capacity limit.                     |
 | 500              | An unexpected error was encountered and more detailed internal error code is provided (see [Internal Error Codes](#internal-error-codes)). |
 | 501              | Indicates that the server does not support the functionality needed to fulfill the request.                                                |
@@ -20,7 +20,7 @@ The following table describes the supported HTTP status codes.
 ## Internal Error Codes
 
 The following sections describes the list of possible internal error codes that might be provided by different ORS
-EndPoints.
+Endpoints.
 
 ### Routing API
 
@@ -43,7 +43,7 @@ EndPoints.
 |    2013    | Entry not reached.                                 |
 |    2014    | Exit not reached.                                  |
 |    2015    | Entry not reached.                                 |
-|    2016    | No rout beween entry and exit found.               |
+|    2016    | No route between entry and exit found.             |
 |    2017    | Maximum number of nodes exceeded.                  |
 |    2099    | Unknown internal error.                            |
 
@@ -63,7 +63,7 @@ EndPoints.
 |    3007    | Unsupported export format.                         |
 |    3008    | Empty Element.                                     |
 |    3011    | Unknown parameter.                                 |
-|    3012    | Parameter value exeeds the minimum allowed limit.  |
+|    3012    | Parameter value exceeds the minimum allowed limit.  |
 |    3099    | Unknown internal error.                            |
 
 ### POIs API

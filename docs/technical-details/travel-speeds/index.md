@@ -13,7 +13,7 @@ adjusting them for different
 qualities](https://wiki.openstreetmap.org/wiki/Key:tracktype) of the road.  If
 multiple values apply at any point, the lowest value is used.
 
-The speed limits can be reduced by setting the `maximum_speed` parameter in a [directions request][apidocs].
+The speed limits can be reduced by setting the `maximum_speed` parameter in a [directions request][api_docs].
 The final [average speed](/api-reference/endpoints/directions/route-attributes.md) can be requested by adding `avgspeed` to the `attributes` parameter.
 
 ### Driving profiles (car and HGV)
@@ -97,4 +97,4 @@ of way, the actual speed can range from 3 to 10km/h
 [mbfe]: https://github.com/GIScience/openrouteservice/blob/main/ors-engine/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/MountainBikeFlagEncoder.java#L52
 [rbfe]: https://github.com/GIScience/openrouteservice/blob/main/ors-engine/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/RoadBikeFlagEncoder.java#L85
 [ebfe]: https://github.com/GIScience/openrouteservice/blob/main/ors-engine/src/main/java/org/heigit/ors/routing/graphhopper/extensions/flagencoders/bike/ElectroBikeFlagEncoder.java#L41
-[apidocs]: https://openrouteservice.org/dev/#/api-docs/v2/directions/{profile}/post
+[api_docs]: https://openrouteservice.org/dev/#/api-docs/v2/directions/{profile}/post

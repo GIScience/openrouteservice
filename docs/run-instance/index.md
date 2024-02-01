@@ -11,7 +11,7 @@ wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/docker-co
 docker compose up
 ```
 
-This will pull the latest nightly build of openrouteservice from dockerhub and start it up using an example setup and the provided test OSM file for Heidelberg/Germany and surrounding area.
+This will pull the latest nightly build of openrouteservice from Docker Hub and start it up using an example setup and the provided test OSM file for Heidelberg/Germany and surrounding area.
 You can then modify the configuration and source file settings to match your needs. For more details, check the [Running with Docker](installation/running-with-docker) section.
 
 ## Installation

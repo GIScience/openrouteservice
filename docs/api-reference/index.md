@@ -25,7 +25,7 @@ but can also be shown as json, table or downloaded as file:
 
 ::: warning Hint
 If you prefer the swagger-ui you can also use the [swagger editor](https://editor-next.swagger.io/) and load
-the full OpenApi spec file for our API from https://openrouteservice.org/wp-json/ors-api/v1/api-doc/source/V2.
+the full OpenAPI spec file for our API from https://openrouteservice.org/wp-json/ors-api/v1/api-doc/source/V2.
 However, some of the displayed endpoints or features won't be accessible with our live API.
 :::
 

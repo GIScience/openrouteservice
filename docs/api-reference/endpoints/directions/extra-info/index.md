@@ -22,7 +22,7 @@ The following table lists the possible values for the request as well as the key
 |          waycategory          | Specific categories of parts of the route (tollways, highways, fords etc.)                                                                   | `waycategory`                        | [Category IDs](waycategory.md)                            |
 |            waytype            | Types of roads and paths that are used in the route                                                                                          | `waytypes`¹                          | [Type IDs](waytype.md)                                    |
 |           tollways            | Any tollways that the route crosses. Whether a way is marked as [tollway](https://wiki.openstreetmap.org/wiki/Key:toll) depends on `profile` | `tollways`                           | 0 (no tollway) or 1 (tollway)                             |
-|        traildifficulty        | The difficulty of parts of the way based on sac or mountainbike scales                                                                       | `traildifficulty`                    | [Difficulty IDs](trail-difficulty.md)                     |
+|        traildifficulty        | The difficulty of parts of the way based on sac or mountain bike scales                                                                       | `traildifficulty`                    | [Difficulty IDs](trail-difficulty.md)                     |
 |             osmid             | The [OpenStreetMap way IDs](https://wiki.openstreetmap.org/wiki/Elements#id) of the ways the route uses                                      | `osmId`¹                             |                                                           |
 |    roadaccessrestrictions     | Information about ways that may have access restrictions (e.g. private roads, destination only)                                              | `roadaccessrestrictions`             | [Restrictions IDs](road-access-restrictions.md)           |
 |          countryinfo          | Which country parts of the way lies in                                                                                                       | `countryinfo`                        | [Country IDs](/technical-details/country-list.md)         |
@@ -31,9 +31,9 @@ The following table lists the possible values for the request as well as the key
 |            shadow²            | How sunny the parts of the route are are                                                                                                     | `shadow`                             | 0 (completely in the shadow) - 10 (completely in the sun) |
 |             csv²              | Experimental feature: Generic extra information from provided csv file(s)                                                                    | `csv`                                | custom values                                             |
 
-*¹) Note the different keys in request and response!*
+*¹ Note the different keys in request and response!*
 
-*²) No data available in the public openrouteservice hosted by HeiGIT*
+*² No data available in the public openrouteservice hosted by HeiGIT*
 
 
 ## Extra Info Availability

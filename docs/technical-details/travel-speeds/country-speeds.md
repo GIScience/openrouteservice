@@ -1,7 +1,7 @@
 # Country-specific Speeds
 As there are various traffic regulations in different countries, if no [maximum
 speed](http://wiki.openstreetmap.org/wiki/Key:maxspeed) tag is given in
-openstreetmap, we adjust the maximum speed according to the following key
+OpenStreetMap, we adjust the maximum speed according to the following key
 values taken from [country specific speed
 limits](http://wiki.openstreetmap.org/wiki/Speed_limits).
 This table aggregates the values in the [speed value files][svf].
