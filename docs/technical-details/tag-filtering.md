@@ -112,31 +112,45 @@ Same as [Foot](#foot) except for different `sac_scale` check with existing `high
 
 ## Wheelchair
 
-| Tag combination | Reject | Accept | Conditional |
-| --------------- |:------:|:------:|:-----------:|
-| `motorroad = yes` | :heavy_check_mark: | | |
-| `wheelchair = [yes, designated, official, permissive, limited]` | | :heavy_check_mark: | |
-| `wheelchair = [private, no, restricted]` | :heavy_check_mark: | | |
-| `highway = steps` | :heavy_check_mark: | | |
-| `foot = [yes, designated, official, permissive, limited]` | | :heavy_check_mark: | |
-| `foot = [private, no, restricted]` | :heavy_check_mark: | | |
-| `sac_scale = *` | :heavy_check_mark: | | |
-| `sidewalk = [yes, both, left, right]` | | :heavy_check_mark: |
-| `sidewalk = [no, none, separate, detached]` AND `highway = [trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, road]` | :heavy_check_mark: | | |
-| `highway = ford` OR `ford = *` | | | :heavy_check_mark: |
-| (`bicycle = [designated, official]` OR `horse = [designated, official]`) AND `[foot, access, wheelchair] = [yes, designated, official, permissive, limited]` | :heavy_check_mark: | | |
-| `highway = [bridleway, cycleway]` | | | :heavy_check_mark: |
-| `highway = [footway, pedestrian, living_street, residential, unclassified, service, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, road path, track]` | | :heavy_check_mark: | |
+Definitions:  
+_restrictions_ = `[foot, wheelchair, access]`  
+_restrictedValues_ = `[private, no, restricted, military, emergency]`  
+_intendedValues_ = `[yes, limited, designated, permissive, official]`  
 
-The following are applicable only when no highway tag has been provided for the way
+The following check is done first, regardless of the `highway` value:
+| Tag combination                                                                                                                                                                                      |       Reject       |       Accept       |    Conditional     |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------:|:------------------:|:------------------:|
+| _restrictions_ = _restrictedValues_ AND _restrictions_ != _intendedValues_ AND `sidewalk != [yes, both, left, right]`                                                                                | :heavy_check_mark: |                    |                    |
 
-| Tag combination | Reject | Accept | Conditional |
-| --------------- |:------:|:------:|:-----------:|
-| `route = [shuttle_train, ferry]` AND `wheelchair = [yes, designated, official, permissive, limited]` | | :heavy_check_mark: | |
-| `route = [shuttle_train, ferry]` AND `wheelchair = [private, no, restricted]` | :heavy_check_mark: | | |
-| `route = [shuttle_train, ferry]` AND `foot = [yes, designated, official, permissive, limited]` | | :heavy_check_mark: | |
-| `route = [shuttle_train, ferry]` AND `foot = [private, no, restricted]` | :heavy_check_mark: | | |
-| (`public_transport = platform` OR `railway = platform`) AND `wheelchair = [yes, designated, official, permissive, limited]` | | :heavy_check_mark: | |
-| (`public_transport = platform` OR `railway = platform`) AND `wheelchair = [private, no, restricted]` | :heavy_check_mark: | | |
-| (`public_transport = platform` OR `railway = platform`) AND `foot = [yes, designated, official, permissive, limited]` | | :heavy_check_mark: | |
-| (`public_transport = platform` OR `railway = platform`) AND `foot = [private, no, restricted]` | :heavy_check_mark: | | |
+If `highway` is present on the way:
+
+| Tag combination                                                                                                                                                                                                  |       Reject       |       Accept       | Conditional |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------:|:------------------:|:-----------:|
+| `sac_scale = [mountain_hiking, demanding_mountain_hiking, alpine_hiking, demanding_alpine_hiking, difficult_alpine_hiking]`                                                                                      | :heavy_check_mark: |                    |             |
+| `surface = [ sand, salt, grass, snow, earth, dirt, ice, mud]`                                                                                                                                                    | :heavy_check_mark: |                    |             |
+| `smoothness = [bad, very_bad, horrible, very_horrible]`                                                                                                                                                          | :heavy_check_mark: |                    |             |
+| `tracktype = [grade4, grade5]`                                                                                                                                                                                   | :heavy_check_mark: |                    |             |
+| `wheelchair =` _intendedValues_                                                                                                                                                                                  |                    | :heavy_check_mark: |             |
+| `wheelchair =` _restrictedValues_                                                                                                                                                                                | :heavy_check_mark: |                    |             |
+| `highway = [steps, construction]`                                                                                                                                                                                | :heavy_check_mark: |                    |             |
+| `foot =` _intendedValues_                                                                                                                                                                                        |                    | :heavy_check_mark: |             |
+| `foot =` _restrictedValues_                                                                                                                                                                                      | :heavy_check_mark: |                    |             |
+| `sidewalk = [yes, both, left, right]`                                                                                                                                                                            |                    | :heavy_check_mark: |             |
+| `sidewalk = [no, none, separate]`                                                                                                                                                                                | :heavy_check_mark: |                    |             |
+| `motorroad = yes`                                                                                                                                                                                                | :heavy_check_mark: |                    |             |
+| `highway = ford` OR `ford = *`                                                                                                                                                                                   | :heavy_check_mark: |                    |             |
+| `highway = bridleway` AND `foot !=` _intendedValues_ AND `wheelchair !=` _intendedValues_                                                                                                                        | :heavy_check_mark: |                    |             |
+| `highway = [footway, pedestrian, living_street, residential, unclassified, service, tertiary, tertiary_link, road, trunk, trunk_link, primary, primary_link, secondary, secondary_link, path, track, bridleway]` |                    | :heavy_check_mark: |             |
+
+The following are applicable only when no `highway` tag has been provided for the way
+
+| Tag combination                                                                               |       Reject       |       Accept       | Conditional |
+|-----------------------------------------------------------------------------------------------|:------------------:|:------------------:|:-----------:|
+| `route = [shuttle_train, ferry]` AND `wheelchair =` _intendedValues_                          |                    | :heavy_check_mark: |             |
+| `route = [shuttle_train, ferry]` AND `wheelchair =` _restrictedValues_                        | :heavy_check_mark: |                    |             |
+| `route = [shuttle_train, ferry]` AND `foot =` _intendedValues_                                |                    | :heavy_check_mark: |             |
+| `route = [shuttle_train, ferry]` AND `foot =` _restrictedValues_                              | :heavy_check_mark: |                    |             |
+| (`public_transport = platform` OR `railway = platform`) AND `wheelchair =` _intendedValues_   |                    | :heavy_check_mark: |             |
+| (`public_transport = platform` OR `railway = platform`) AND `wheelchair =` _restrictedValues_ | :heavy_check_mark: |                    |             |
+| (`public_transport = platform` OR `railway = platform`) AND `foot =` _intendedValues_         |                    | :heavy_check_mark: |             |
+| (`public_transport = platform` OR `railway = platform`) AND `foot =` _restrictedValues_       | :heavy_check_mark: |                    |             |
