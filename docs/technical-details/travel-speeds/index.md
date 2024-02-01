@@ -9,9 +9,9 @@ of aspects.
 The travel time is calculated for each segment by using speed-limits for
 different [waytypes](https://wiki.openstreetmap.org/wiki/Key:highway) and
 adjusting them for different
-[grades](https://wiki.openstreetmap.org/wiki/Key:tracktype) or
-[surfaces](https://wiki.openstreetmap.org/wiki/Key:surface) of the road.
-If multiple values apply at any point, the lowest value is used.
+[surfaces](https://wiki.openstreetmap.org/wiki/Key:surface) or [surface
+qualities](https://wiki.openstreetmap.org/wiki/Key:tracktype) of the road.  If
+multiple values apply at any point, the lowest value is used.
 
 The speed limits can be reduced by setting the `maximum_speed` parameter in a [directions request][apidocs].
 The final [average speed](../../api-reference/endpoints/directions/route-attributes.md#avgspeed) can be requested by adding `avgspeed` to the `attributes` parameter.
