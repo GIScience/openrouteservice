@@ -45,16 +45,17 @@ _wayTypesWithDefaultSpeed_ = `[motorway, motorway_link, motorroad, trunk, trunk_
 
 The profile differs from the above logic for driving car in the definitions of  
 
+Definitions:  
 _restrictedValues_ = `[private, no, restricted, military]`  
 _intendedValues_ = `[yes, permissive, designated, destination, hgv, goods, bus, agricultural, forestry, delivery]`  
-_restrictions_ = `[motorcar, motor_vehicle, vehicle, access]` _**(unchanged)**_  
+_restrictions_ = `[hgv, motorcar, motor_vehicle, vehicle, access]`  
 
-and the following addition rule:
+and the following additional rule which replace the check for `ford`:
 
-
-| Tag combination | Reject | Accept | Conditional |
-| --------------- |:------:|:------:|:-----------:|
-| _restrictions_=_restrictedValues_ AND !(_restrictions_=_intendedValues_) AND !([hgv, goods, bus, agricultural, forestry, delivery]=_intendedValues_) | :heavy_check_mark: | | |
+| Tag combination                                                                                                                                        |       Reject       | Accept |    Conditional     |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------:|:------:|:------------------:|
+| !(_restrictions_=_intendedValues_) AND (`highway = ford` OR `ford = *`)                                                                                |                    |        | :heavy_check_mark: |
+| !(_restrictions_=_intendedValues_) AND _restrictions_=_restrictedValues_ AND !(`[hgv, goods, bus, agricultural, forestry, delivery]`=_intendedValues_) | :heavy_check_mark: |        |                    |
 
 ## cycling-regular [cycling-electric, cycling-road & cycling-mountain]
 
