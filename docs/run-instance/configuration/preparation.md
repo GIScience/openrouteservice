@@ -1,10 +1,9 @@
 # Preparation settings
 
-| key                      | type   | description                                                       | default value |
-|--------------------------|--------|-------------------------------------------------------------------|---------------|
-| min_network_size         | number | Minimum size (number of edges) of an independent routing subgraph | `200`         |
-| min_one_way_network_size | number |                                                                   | `200`         |
-| methods                  | object | [methods properties](#preparation-methods)                         |               |
+| key               | type   | description                                                       | default value |
+|-------------------|--------|-------------------------------------------------------------------|---------------|
+| min_network_size  | number | Minimum size (number of edges) of an independent routing subgraph | `200`         |
+| methods           | object | [methods properties](#preparation-methods)                        |               |
 
 ## **preparation.methods**
 
