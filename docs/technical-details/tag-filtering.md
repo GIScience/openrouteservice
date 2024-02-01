@@ -77,9 +77,10 @@ _intendedValues_ = `[yes, designated, official, permissive]`
 
 ## Foot
 
-_restrictions_ = `[bicycle, vehicle, access]`  
-_restrictedValues_ = `[private, no, restricted, military, emergency]`
-_intendedValues_ = `[yes, designated, permissive, official]`
+Definitions:  
+_restrictions_ = `[foot, access]`  
+_restrictedValues_ = `[private, no, restricted, military, emergency]`  
+_intendedValues_ = `[yes, designated, permissive, official]`  
 
 | Tag combination                                                                                                                                                                                                         |       Reject       | Accept |    Conditional     |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------:|:------:|:------------------:|
