@@ -25,20 +25,21 @@ Definitions:
 _restrictedValues_ = `[private, agricultural, forestry, no, restricted, delivery, military, emergency]`  
 _intendedValues_ = `[yes, permissive, destination]`  
 _restrictions_ = `[motorcar, motor_vehicle, vehicle, access]`  
-_firstValue_ = value of the first encountered key from _restrictions_
+_firstValue_ = value of the first encountered key from _restrictions_  
+_wayTypesWithDefaultSpeed_ = `[motorway, motorway_link, motorroad, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, unclassified, residential, living_street, service, road, track]`  
 
-| Tag combination | Reject | Accept | Conditional |
-| --------------- |:------:|:------:|:-----------:|
-| `highway != *` AND `route != [shuttle_train, ferry]` | :heavy_check_mark: | | |
-| `highway != *` AND `route = [shuttle_train, ferry]` AND _firstValue_ = _restrictedValues_ | :heavy_check_mark: | | |
-| `highway != *` AND `route = [shuttle_train, ferry]` AND ( _firstValue_ = _intendedValues_ OR _firstValue_ != `*` AND `foot != *` AND `bicycle != *` ) | | :heavy_check_mark: | |
-| `highway = track` AND `tracktype = *` | | | :heavy_check_mark: |
-| `highway != [motorway, motorway_link, motorroad, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, unclassified, residential, living_street, service, road, track]` | :heavy_check_mark: | | |
-| `impassable = yes` OR `[status, smoothness] = impassable` | :heavy_check_mark: | | |
-| _firstValue_ = _restrictedValues_ | :heavy_check_mark: | | |
-| _firstValue_ = _intendedValues_ | | :heavy_check_mark: | |
-| `highway = ford` OR `ford = *` | | | :heavy_check_mark: |
-| `maxwidth < 2` | :heavy_check_mark: | | |
+| Tag combination                                                                                                                                       |       Reject       |       Accept       |    Conditional     |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------:|:------------------:|:------------------:|
+| `highway != *` AND `route != [shuttle_train, ferry]`                                                                                                  | :heavy_check_mark: |                    |                    |
+| `highway != *` AND `route = [shuttle_train, ferry]` AND _firstValue_ = _restrictedValues_                                                             | :heavy_check_mark: |                    |                    |
+| `highway != *` AND `route = [shuttle_train, ferry]` AND ( _firstValue_ = _intendedValues_ OR _firstValue_ != `*` AND `foot != *` AND `bicycle != *` ) |                    | :heavy_check_mark: |                    |
+| `highway = track` AND `tracktype > grade3`                                                                                                            | :heavy_check_mark: |                    |                    |
+| `highway !=` _wayTypesWithDefaultSpeed_                                                                                                               | :heavy_check_mark: |                    |                    |
+| `impassable = yes` OR `[status, smoothness] = impassable`                                                                                             | :heavy_check_mark: |                    |                    |
+| _firstValue_ = _restrictedValues_                                                                                                                     |                    |                    | :heavy_check_mark: |
+| _firstValue_ = _intendedValues_                                                                                                                       |                    | :heavy_check_mark: |                    |
+| `highway = ford` OR `ford = *`                                                                                                                        |                    |                    | :heavy_check_mark: |
+| `maxwidth < 2`                                                                                                                                        | :heavy_check_mark: |                    |                    |
 
 ## Driving HGV
 
