@@ -1,6 +1,6 @@
 # Building from Source
 
-If you need to customize your openrouteservice instance even further than what is possible by [configuration](/run-instance/configuration/), or want to start contributing to the openrouteservice project, the following section will give you starting points.
+If you need to customize your openrouteservice instance even further than what is possible by [configuration](/run-instance/configuration/index.md), or want to start contributing to the openrouteservice project, the following section will give you starting points.
 
 ## Prerequisites
 

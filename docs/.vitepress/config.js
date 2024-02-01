@@ -107,16 +107,34 @@ export default defineConfig({
                             {
                                 text: 'Configuration', collapsed: true, link: '/run-instance/configuration/',
                                 items: [
-                                    {text: 'Endpoints and limits', link: '/run-instance/configuration/endpoints-and-limits'},
-                                    {text: 'Engine', link: '/run-instance/configuration/engine'},
-                                    {text: 'Profiles', link: '/run-instance/configuration/profiles'},
-                                    {text: 'Preparation', link: '/run-instance/configuration/preparation'},
-                                    {text: 'Execution', link: '/run-instance/configuration/execution'},
-                                    {text: 'Extras', link: '/run-instance/configuration/extras'},
-                                    {text: 'Logging', link: '/run-instance/configuration/logging'},
-                                    {text: 'Spring', link: '/run-instance/configuration/spring'},
-                                    {text: 'Cors', link: '/run-instance/configuration/cors'},
-                                    {text: 'Messages', link: '/run-instance/configuration/messages'}
+                                    {text: 'Spring Properties', link: '/run-instance/configuration/spring/', collapsed:true,
+                                        items: [
+                                            {text: 'server', link: '/run-instance/configuration/spring/server.md'},
+                                            {text: 'logging', link: '/run-instance/configuration/spring/logging.md'},
+                                        ]
+                                    },
+                                    {text: 'ORS Properties', collapsed:true,
+                                        items: [
+                                            {text: 'endpoints', link: '/run-instance/configuration/ors/endpoints/', collapsed: true,
+                                                items: [
+                                                    {text: 'defaults', link: '/run-instance/configuration/ors/endpoints/defaults.md'},
+                                                    {text: 'routing', link: '/run-instance/configuration/ors/endpoints/routing.md'},
+                                                    {text: 'matrix', link: '/run-instance/configuration/ors/endpoints/matrix.md'},
+                                                    {text: 'isochrone', link: '/run-instance/configuration/ors/endpoints/isochrone.md'},
+                                                    {text: 'snap', link: '/run-instance/configuration/ors/endpoints/snap.md'},
+                                                ]
+                                            },
+                                            {text: 'engine', link: '/run-instance/configuration/ors/engine/', collapsed: true,
+                                                items: [
+                                                    {text: 'profiles', link: '/run-instance/configuration/ors/engine/profiles.md'},
+                                                    {text: 'elevation', link: '/run-instance/configuration/ors/engine/elevation.md'},
+                                                ]
+                                            },
+                                            {text: 'cors', link: '/run-instance/configuration/ors/cors/'},
+                                            {text: 'messages', link: '/run-instance/configuration/ors/messages/'}
+                                        ]
+                                    },
+                                    {text: 'JSON config (deprecated)', link:'/run-instance/configuration/json.md'}
                                 ]
                             },
                         ]

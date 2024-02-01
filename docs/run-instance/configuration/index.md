@@ -29,7 +29,7 @@ At program start openrouteservice reports which configuration file was loaded.
 
 You can find an [example configuration file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.yml) with most available configuration options.
 
-At the very least, openrouteservice needs the configuration to contain an enabled [profile](profiles) and the
+At the very least, openrouteservice needs the configuration to contain an enabled [profile](ors/engine/profiles.md) and the
 reference to an [OSM data file](../data) to run properly. Therefore, the minimal valid content of such a file
 would be, e.g.:
 
@@ -42,20 +42,17 @@ ors:
         enabled: true
 ```
 
-## Available properties
-
 The properties are organized in a hierarchical structure, with the following ones at top level.
 
-- [spring-specific](./spring) settings, such as `server` and `spring`
-- settings relating to [logging](./logging)
-- openrouteservice settings organized under the following four blocks:
+- [Spring Properties](spring/index.md), such as 
+    * [Server Properties](spring/server.md)
+    * [Logging Properties](spring/logging.md)
+- openrouteservice properties with these children:
+    * [ors.endpoints](ors/endpoints/index.md): Settings required at runtime to process API requests.
+    * [ors.engine](ors/engine/index.md): Settings required at graph-build time during startup.
+    * [ors.cors](ors/cors/index.md): Cross-origin resource sharing settings.
+    * [ors.messages](ors/messages/index.md): System messages that can be sent with API responses following simple rules.
 
-| key                                     | description                                                                 |
-|-----------------------------------------|-----------------------------------------------------------------------------|
-| [ors.endpoints](./endpoints-and-limits) | Settings required at runtime to process API requests.                       |
-| [ors.engine](./engine)                  | Settings required at graph-build time during startup.                       |
-| [ors.cors](./cors)                      | CORS settings for the **openrouteservice** API.                             |
-| [ors.messages](./messages)              | System messages that can be sent with API responses following simple rules. |
 
 ## Alternative configuration 
 
@@ -87,5 +84,5 @@ Consequently,the following commands are equivalent to the last example above:
 ```shell
   export ORS_ENGINE_SOURCE_FILE=./osm_file.pbf
   export ORS_ENGINE_PROFILES_CAR_ENABLED=true
-  java ors.jar
+  java -jar ors.jar
 ```

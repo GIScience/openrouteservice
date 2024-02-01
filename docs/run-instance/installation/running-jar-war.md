@@ -8,7 +8,7 @@ For release version 8.0.0 and newer, we provide JAR and WAR files as artifacts f
 
 ## Parameters and environment variables
 
-Openrouteservice can be configured in several ways, described in detail in the chapter on [configuration](/run-instance/configuration/).
+Openrouteservice can be configured in several ways, described in detail in the chapter on [configuration](/run-instance/configuration/index.md).
 
 If you already have an old and deprecated JSON format configuration file, you can still use that configuration file by setting an environment variable called `ORS_CONFIG` to point that file. Currently, all settings in a provided JSON configuration file will *override* any settings in the YAML file. We strongly recommend to migrate your settings to the new YAML format though, since we are planning to remove the support for JSON configuration files with the next major version release.  
 
@@ -21,7 +21,7 @@ Openrouteservice produces output files of three types, for which the paths can b
  
 Openrouteservice also requires an OpenStreetMap export file to import the graph data from, configured in the YAML configuration file. The default location is `./ors-core/data/osm_file.pbf`. 
 
-See chapter [logging](/run-instance/configuration/logging) for details on configuring the location of log files, and chapter [engine](/run-instance/configuration/engine) for the all other file locations.
+See chapter [logging](/run-instance/configuration/spring/logging.md) for details on configuring the location of log files, and chapter [engine](/run-instance/configuration/ors/engine/index.md) for the all other file locations.
 
 # Installing and running openrouteservice within Tomcat 10
 

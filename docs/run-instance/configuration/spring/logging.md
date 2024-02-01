@@ -1,4 +1,4 @@
-# Logging
+# `logging`
 
 openrouteservice logs status and error messages both to the console and a log file. No access logs are kept for requests.
 

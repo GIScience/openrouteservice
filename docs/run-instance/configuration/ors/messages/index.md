@@ -1,6 +1,9 @@
-# Properties in the `messages` block
 
-`ors.messages` property expects a list of elements, each of which having the following:
+# ors.messages
+
+System messages that can be sent with API responses following simple rules.
+
+The `ors.messages` block expects a list of elements, each of which having the following:
 
 | key       | type    | description                                                      | example value      |
 |-----------|---------|------------------------------------------------------------------|--------------------|
@@ -8,7 +11,11 @@
 | text      | string  | The message text                                                 | `The message text` |
 | condition | list    | optional; may contain any of the conditions from the table below |                    |
 
-| condition          | value                                                                                                                | description                                                         |
+## condition
+
+Properties beneath `ors.messages.condition`: 
+
+| key                | value                                                                                                                | description                                                         |
 |--------------------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
 | time_before        | ISO 8601 datetime string                                                                                             | message sent if server local time is before given point in time     |
 | time_after         | ISO 8601 datetime string                                                                                             | message sent if server local time is after given point in time      |
@@ -20,7 +27,7 @@
 
 If multiple conditions are given, all must be fulfilled to trigger the sending of the corresponding message.
 
-### Example:
+Example:
 
 ```
 messages:
