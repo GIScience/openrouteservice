@@ -86,7 +86,6 @@ The top level element.
 | key                      | type   | description | example value                                                                |
 |--------------------------|--------|-------------|------------------------------------------------------------------------------| 
 | min_network_size         | number |             | `200`                                                                        |
-| min_one_way_network_size | number |             | `200`                                                                        |
 | methods                  | object |             | [methods](#ors-services-routing-profiles-default-params-preparation-methods) |     
 
 ##### **ors.services.routing.profiles.default_params.preparation.methods**
@@ -140,24 +139,16 @@ The top level element.
 | lm   | object | Settings for using landmarks in routing               | [lm](#ors-services-routing-profiles-default-params-execution-methods-lm)     |
 | core | object | Settings for using landmarks in routing               | [core](#ors-services-routing-profiles-default-params-execution-methods-core) |
 
-##### **ors.services.routing.profiles.default_params.execution.methods.ch**
-
-| key               | type    | description | example value |
-|-------------------|---------|-------------|---------------| 
-| disabling_allowed | boolean |             | `true`        |
-
 ##### **ors.services.routing.profiles.default_params.execution.methods.lm**
 
 | key               | type    | description                                      | example value |
 |-------------------|---------|--------------------------------------------------|---------------| 
-| disabling_allowed | boolean |                                                  | `true`        |
 | active_landmarks  | number  | Number of landmarks used for computing the route | `8`           |
 
 ##### **ors.services.routing.profiles.default_params.execution.methods.core**
 
 | key               | type    | description                                      | example value |
 |-------------------|---------|--------------------------------------------------|---------------| 
-| disabling_allowed | boolean |                                                  | `true`        |
 | active_landmarks  | number  | Number of landmarks used for computing the route | `6`           |
 
 ---

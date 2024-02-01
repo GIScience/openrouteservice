@@ -274,8 +274,6 @@ public class RoutingProfile {
             Config opts = config.getPreparationOpts();
             if (opts.hasPath("min_network_size"))
                 ghConfig.putObject("prepare.min_network_size", opts.getInt("min_network_size"));
-            if (opts.hasPath("min_one_way_network_size"))
-                ghConfig.putObject("prepare.min_one_way_network_size", opts.getInt("min_one_way_network_size"));
 
             if (opts.hasPath("methods")) {
                 if (opts.hasPath(ProfileTools.KEY_METHODS_CH)) {
@@ -374,9 +372,6 @@ public class RoutingProfile {
             Config opts = config.getExecutionOpts();
             if (opts.hasPath(ProfileTools.KEY_METHODS_CORE)) {
                 Config coreOpts = opts.getConfig(ProfileTools.KEY_METHODS_CORE);
-                if (coreOpts.hasPath(ProfileTools.KEY_DISABLING_ALLOWED))
-                    ghConfig.putObject("routing.core.disabling_allowed", coreOpts.getBoolean(ProfileTools.KEY_DISABLING_ALLOWED));
-
                 if (coreOpts.hasPath(ProfileTools.KEY_ACTIVE_LANDMARKS))
                     ghConfig.putObject("routing.corelm.active_landmarks", coreOpts.getInt(ProfileTools.KEY_ACTIVE_LANDMARKS));
             }

@@ -40,7 +40,6 @@ ors:
           conditional_speed: true
         preparation:
           min_network_size: 200
-          min_one_way_network_size: 200
           methods:
             ch:
               enabled: true
@@ -61,7 +60,6 @@ ors:
             lm:
               active_landmarks: 8
             core:
-              disabling_allowed: true
               active_landmarks: 6
         ext_storages:
           WayCategory:
@@ -93,7 +91,6 @@ ors:
           use_acceleration: true
         preparation:
           min_network_size: 200
-          min_one_way_network_size: 200
           methods:
             ch:
               enabled: true
@@ -119,7 +116,6 @@ ors:
             lm:
               active_landmarks: 8
             core:
-              disabling_allowed: true
               active_landmarks: 6
         ext_storages:
           WayCategory:
@@ -148,7 +144,6 @@ ors:
           block_fords: false
         preparation:
           min_network_size: 200
-          min_one_way_network_size: 200
           methods:
             core:
               enabled: true
@@ -158,7 +153,6 @@ ors:
         execution:
           methods:
             core:
-              disabling_allowed: true
               active_landmarks: 6
         ext_storages:
           WayCategory:
