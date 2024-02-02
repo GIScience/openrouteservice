@@ -46,7 +46,6 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
         }
         if (configLocations.isEmpty()) {
             configLocations.add("./ors-config.yml");
-            configLocations.add("./ors-api/ors-config.yml");
             configLocations.add("~/.config/openrouteservice/ors-config.yml");
             configLocations.add("/etc/openrouteservice/ors-config.yml");
             log.info("Configuration file lookup by default locations.");
@@ -63,8 +62,18 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
             }
         }
         List<Map.Entry<String, String>> relevantENVs = System.getenv().entrySet()
-                .stream().filter(env -> env.getKey().startsWith("ORS_") || env.getKey().startsWith("LOGGING_") || env.getKey().startsWith("SPRINGDOC_") || env.getKey().startsWith("SPRING_") || env.getKey().startsWith("SERVER_"))
-                .sorted(Map.Entry.<String, String>comparingByKey()).toList();
+                .stream().filter(env ->
+                        env.getKey().startsWith("ORS_") ||
+                        env.getKey().startsWith("LOGGING_") ||
+                        env.getKey().startsWith("SPRINGDOC_") ||
+                        env.getKey().startsWith("SPRING_") ||
+                        env.getKey().startsWith("SERVER_") ||
+                        env.getKey().startsWith("ors.") ||
+                        env.getKey().startsWith("logging.") ||
+                        env.getKey().startsWith("springdoc.") ||
+                        env.getKey().startsWith("spring.") ||
+                        env.getKey().startsWith("server.")
+                ).sorted(Map.Entry.<String, String>comparingByKey()).toList();
         if (!relevantENVs.isEmpty()) {
             log.info("");
             log.info("Environment variables overriding openrouteservice configuration parameters detected: ");
