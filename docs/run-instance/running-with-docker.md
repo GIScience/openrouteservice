@@ -107,7 +107,7 @@ docker run -dt -u "${UID}:${GID}" \
   -v $PWD/docker/logs/tomcat:/home/ors/tomcat/logs \
   -v $PWD/docker/conf:/home/ors/ors-conf \
   -v $PWD/docker/data:/home/ors/ors-core/data \
-  #-e "BUILD_GRAPHS=True" \
+  #-e "REBUILD_GRAPHS=True" \
   -e "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
   -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
   openrouteservice/openrouteservice:latest 
@@ -155,7 +155,7 @@ the use of old format JSON files placed at `./docker/conf/ors-config.json`. All 
 will override settings in the proper YAML format.
 
 If you are making changes to anything relating to the OSM data or the settings that change how graphs are built, you
-need to delete the folders in `graphs` or set the environment variable `BUILD_GRAPHS=True` (see comment in Dockerfile or
+need to delete the folders in `graphs` or set the environment variable `REBUILD_GRAPHS=True` (see comment in Dockerfile or
 examples above). This makes it so that the graphs are built again with the new data/settings.
 
 ### Different OSM file
@@ -164,7 +164,7 @@ To change the OSM data that is used, you can either overwrite the `docker/data/o
 mount of `/home/ors/ors-core/data` to a directory containing a file `osm_file.pbf`, or volume mount something
 like  `/YOUR/PATH/TO/ANOTHER/OSM_FILE.pbf:/home/ors/ors-core/data/osm_file.pbf`.
 
-Make sure to set the environment variable `BUILD_GRAPHS=True` or empty the `docker/graphs/` directory before restarting
+Make sure to set the environment variable `REBUILD_GRAPHS=True` or empty the `docker/graphs/` directory before restarting
 the container.
 
 If you are building the Docker image locally, you can also point the build argument `OSM_FILE` to your desired OSM file
@@ -212,7 +212,7 @@ examples.
 
 ### Environment variables
 
-- `BUILD_GRAPHS`: Forces ORS to rebuild the routing graph(s) when set to `True`. Useful when another PBF is specified in
+- `REBUILD_GRAPHS`: Forces ORS to rebuild the routing graph(s) when set to `True`. Useful when another PBF is specified in
   the Docker volume mapping to `/home/ors/ors-core/data/osm_file.pbf`
 - `JAVA_OPTS`: Custom Java runtime options, such as `-Xms` or `-Xmx`
 - `CATALINA_OPTS`: Custom Catalina options
@@ -243,5 +243,5 @@ container. The new graphs will be reloaded into memory (the amount of time neede
 graphs and the type of hard drive) and then ready to use for routing. The downtime from reloading already built graphs
 is normally far less than the time needed to build the graphs. A thing to note though is that you should ensure that the
 config files and the amount of RAM allocated (as described earlier) is the same on both the builder and the request
-server else the newly built graphs may not load. **Also, ensure that `BUILD_GRAPHS` parameter in the `docker-compose`
+server else the newly built graphs may not load. **Also, ensure that `REBUILD_GRAPHS` parameter in the `docker-compose`
 file used by the request serving container is set to false else it will try to build the graphs for itself!**

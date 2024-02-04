@@ -52,6 +52,7 @@ RUN chmod +x /ors.jar && chown -R ors:ors /entrypoint.sh && chown -R ors:ors ${B
 #USER ${UID}:${GID}
 
 ENV BUILD_GRAPHS="False"
+ENV REBUILD_GRAPHS="False"
 # Set the ARG to an ENV. Else it will be lost.
 ENV BASE_FOLDER=${BASE_FOLDER}
 
