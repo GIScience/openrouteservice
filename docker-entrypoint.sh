@@ -167,10 +167,24 @@ echo "###########################"
 echo "# Container sanity checks #"
 echo "###########################"
 debug "Running container as user $(whoami) with id $(id -u) and group $(id -g)"
+if [[ $(id -u) -ne 0 ]] || [[ $(id -g) -ne 0 ]]; then
+  # Test if the user tampered with the user and group settings
+  warning "Running container as user '$(whoami)' with id $(id -u) and group $(id -g)"
+  warning "Changing these values is only recommended if you're an advanced docker user and can handle file permission issues yourself."
+  warning "Consider leaving the user and group options as root with 0:0 or 1000:1000 or avoid that setting completely."
+fi
+
 if [[ -d /ors-core ]] || [[ -d /ors-conf ]]; then
   warning "Found remnants of old docker setup."
   warning "The ors-core and ors-conf folders are not used by default with the new docker setup."
   warning "Continuing with the new docker setup."
+fi
+
+# Fail if BASE_FOLDER env var is not set or if it is empty or set to /
+if [ -z "${BASE_FOLDER}" ] || [ "${BASE_FOLDER}" = "/" ]; then
+  critical "BASE_FOLDER is not set or empty or set to /. This is not allowed. Exiting."
+else
+  debug "BASE_FOLDER=${BASE_FOLDER} is set and not empty and not set to /"
 fi
 
 mkdir -p "${ORS_HOME}" || critical "Could not create ${ORS_HOME}"
@@ -182,6 +196,7 @@ check_folder_writability "${ORS_HOME}" || critical "ORS_HOME: ${ORS_HOME} doesn'
 success "ORS_HOME: ${ORS_HOME} exists and is writable."
 
 mkdir -p "${ORS_HOME}"/{files,logs,config,graphs,elevation_cache} || warning "Could not create ${ORS_HOME} and folders"
+mkdir -p "${BASE_FOLDER}"/{files,logs,config,graphs,elevation_cache} || warning "Could not create ${BASE_FOLDER} and folders"
 debug "Populated ORS_HOME=${ORS_HOME} with the default folders: files, logs, config, graphs, elevation_cache"
 
 # Check if the original jar file exists
@@ -193,12 +208,6 @@ else
   jar_file="${ORS_HOME}/ors.jar"
 fi
 
-# Fail if BASE_FOLDER env var is not set or if it is empty or set to /
-if [ -z "${BASE_FOLDER}" ] || [ "${BASE_FOLDER}" = "/" ]; then
-  critical "BASE_FOLDER is not set or empty or set to /. This is not allowed. Exiting."
-else
-  debug "BASE_FOLDER=${BASE_FOLDER} is set and not empty and not set to /"
-fi
 
 # Check that ors_engine_graphs_root_path is not empty and not set to /
 if [ -n "${ors_engine_graphs_root_path}" ] && [ "${ors_engine_graphs_root_path}" = "/" ]; then
@@ -221,10 +230,10 @@ update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml
 # The config situation is difficult due to the recent ors versions.
 # To ensure a smooth transition, we need to check if the user is using a .json file or a .yml file.
 # If neither is set, we need to print a migration info and default to the example-ors-config.env file.
-# Check if ors_config_location is a .json file
-if [[ "${ors_config_location}" = *.yml ]]; then
+# Check if ors_config_location is a .json file and exists
+if [[ "${ors_config_location}" = *.yml ]] && [[ -f "${ors_config_location}" ]]; then
   success "Using yml config: ${ors_config_location}"
-elif [[ "${ors_config_location}" = *.json ]]; then
+elif [[ "${ors_config_location}" = *.json ]] && [[ -f "${ors_config_location}" ]]; then
   success "Using json config: ${ors_config_location}"
   # Print the above warning message in individual warning calls
   warning ".json configurations are deprecated and will be removed in the future."
@@ -273,8 +282,9 @@ success "All checks passed. For details set CONTAINER_LOG_LEVEL=DEBUG."
 echo "#####################################"
 echo "# Container file system preparation #"
 echo "#####################################"
-chown -R "$(whoami)" "${ORS_HOME}" || warning "Could not change ownership of ${ORS_HOME} to $(whoami)"
-debug "Changed ownership of ${ORS_HOME} to $(whoami)"
+# Check if uid or gid is different from 1000
+chown -R "$(whoami)" "${ORS_HOME}"; debug "Changed ownership of ${ORS_HOME} to $(whoami)" || warning "Could not change ownership of ${ORS_HOME} to $(whoami)"
+
 
 update_file "${ORS_HOME}/files/example-heidelberg.osm.gz" "/heidelberg.osm.gz"
 
@@ -311,6 +321,7 @@ target_survivor_ratio=${TARGET_SURVIVOR_RATIO:-75}
 survivor_ratio=${SURVIVOR_RATIO:-64}
 max_tenuring_threshold=${MAX_TENURING_THRESHOLD:-3}
 parallel_gc_threads=${PARALLEL_GC_THREADS:-4}
+
 xms=${XMS:-1g}
 xmx=${XMX:-2g}
 additional_java_opts=${ADDITIONAL_JAVA_OPTS:-""}
@@ -346,7 +357,7 @@ if [ "${print_migration_info}" = "true" ]; then
   info "Find detailed information for migrating to ORS version 8 at: "# TODO
   info ">>> Config migration <<<"
   info "Configuring ors with a .json config is deprecated and will be removed in the future."
-  info "You've the following new methods to configure ORS:"
+  info "You have the following options to configure ORS:"
   info "Method 1 yml config:"
   info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.yml ./ors-config.yml"
   info "> docker run --name example-ors-instance-conf-file -e ORS_CONFIG_LOCATION=${ORS_HOME}/config/ors-config.yml -v \$(pwd)/ors-config.yml:${ORS_HOME}/config/ors-config.yml heigit/openrouteservice:latest"
