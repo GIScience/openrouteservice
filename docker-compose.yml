@@ -19,7 +19,7 @@ services:
       - ./logs:/home/ors/logs
       - ./files:/home/ors/files
     environment:
-      BUILD_GRAPHS: False
+      REBUILD_GRAPHS: False # Set to True to rebuild graphs on container start.
       CONTAINER_LOG_LEVEL: INFO # DEBUG, INFO, WARN, ERROR
       # Configure your whole container with only property ENVs.
       # These can be set alternatively or additional to the yml configuration file.

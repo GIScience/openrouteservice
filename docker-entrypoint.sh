@@ -129,10 +129,23 @@ if [ -z "${ORS_HOME}" ]; then
 else
   success "Custom ORS_HOME: ${ORS_HOME}"
 fi
+
 # Set the jar file location
 original_jar_file=/ors.jar
-# Make sure BUILD_GRAPHS is safe to use
-ors_build_graphs=${BUILD_GRAPHS:-"false"}
+BUILD_GRAPHS=${BUILD_GRAPHS:-"false"}
+REBUILD_GRAPHS=${REBUILD_GRAPHS:-"false"}
+# If BUILD_GRAPHS is set to true, we need to set ors_rebuild_graphs to true and print an info about migration to REBUILD_GRAPHS
+if [ "${BUILD_GRAPHS}" = "true" ]; then
+  ors_rebuild_graphs="true"
+  warning "BUILD_GRAPHS is deprecated and will be removed in the future."
+  warning "Please use REBUILD_GRAPHS instead."
+elif [ "${REBUILD_GRAPHS}" = "true" ]; then
+  ors_rebuild_graphs="true"
+else
+  ors_rebuild_graphs="false"
+fi
+
+
 # get ors.engine.graphs_root_path=. Dot notations in bash are not allowed, so we need to use awk to parse it.
 ors_engine_graphs_root_path=$(env | grep "^ors\.engine\.graphs_root_path=" | awk -F '=' '{print $2}')
 # get ors.engine.elevation.cache_path
@@ -266,7 +279,7 @@ debug "Changed ownership of ${ORS_HOME} to $(whoami)"
 update_file "${ORS_HOME}/files/example-heidelberg.osm.gz" "/heidelberg.osm.gz"
 
 # Remove existing graphs if BUILD_GRAPHS is set to true
-if [ "${ors_build_graphs}" = "true" ]; then
+if [ "${ors_rebuild_graphs}" = "true" ]; then
   # Warn if ors.engine.graphs_root_path is not set or empty
   if [ -z "${ors_engine_graphs_root_path}" ]; then
     warning "graphs_root_path is not set or could not be found. Skipping cleanup."
