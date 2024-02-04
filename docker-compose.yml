@@ -1,36 +1,51 @@
 # Docker Compose file for the openrouteservice (ORS) application
 # Documentation and examples can be found on https://giscience.github.io/openrouteservice/run-instance/installation/running-with-docker
 version: '3.8'
+
 services:
+  # ----------------- ORS application configuration ------------------- #
   ors-app:
     # Activate the following lines to build the container from the repository
     #build:
     #  context: ./
     container_name: ors-app
     ports:
-      - "8080:8082"
-      - "9001:9001"
+      - "8080:8082"  # Expose the ORS API on port 8080
+      - "9001:9001"  # Expose additional port for monitoring (optional)
     image: openrouteservice/openrouteservice:nightly
-    user: "${UID:-0}:${GID:-0}"
+    user: "${UID:-0}:${GID:-0}"  # Set user and group IDs for the container (optional)
     volumes:
-      - ./graphs:/home/ors/graphs
-      - ./elevation_cache:/home/ors/elevation_cache
-      - ./config:/home/ors/config
-      - ./logs:/home/ors/logs
-      - ./files:/home/ors/files
+      - ./graphs:/home/ors/graphs  # Mount graphs directory
+      - ./elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory
+      - ./config:/home/ors/config  # Mount configuration directory
+      - ./logs:/home/ors/logs  # Mount logs directory
+      - ./files:/home/ors/files  # Mount files directory
     environment:
-      REBUILD_GRAPHS: False # Set to True to rebuild graphs on container start.
-      CONTAINER_LOG_LEVEL: INFO # DEBUG, INFO, WARN, ERROR
+      REBUILD_GRAPHS: False  # Set to True to rebuild graphs on container start.
+      CONTAINER_LOG_LEVEL: INFO  # Log level for the container. Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
+      ORS_CONFIG_LOCATION: /home/ors/config/example-ors-config.yml  # Location of the default ORS configuration file
+
+      # ----------------- Properties configuration ------------------- #
       # Configure your whole container with only property ENVs.
-      # These can be set alternatively or additional to the yml configuration file.
+      # These can be set alternatively or additionally to the yml configuration file.
       # See the ors-config.env file for more options.
-      # To have a configuration file-less container, set at least the following properties:
+      # To have a configuration file-less container, uncomment at least the following properties.
+      # The values are examples and provide the default configuration.
       #ors.engine.source_file: /home/ors/files/example-heidelberg.osm.gz
-      #ors.engine.graphs_root_path=/home/ors/graphs
-      #ors.engine.elevation.cache_path=/home/ors/elevation_cache
+      #ors.engine.graphs_root_path: /home/ors/graphs
+      #ors.engine.elevation.cache_path: /home/ors/elevation_cache
       #ors.engine.profiles.car.enabled: true
-    # Too much under 'environment:'? Use an env_file instead and define everything in there:
+
+    # ----------------- ENV file configuration ------------------- #
+    # Too many variables for your 'environment:' section?
+    # Use an env_file with the ENV properties instead and define everything in there:
     #env_file: ors-config.env
+
+    # ----------------- Healthcheck configuration ------------------- #
+    # The healthcheck is disabled by default. Uncomment the following lines to enable it.
+    # The healthcheck allows you to monitor the status of the ORS application.
+    # Be careful with long graph builds, as the healthcheck will fail and show 'unhealthy' during this time.
+    # This is especially useful if you run your ORS container in a production environment.
     #healthcheck:
     #  test: curl --fail http://localhost:8080/ors/v2/health || exit 1
     #  start_period: 1m
