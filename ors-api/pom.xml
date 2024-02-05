@@ -101,7 +101,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <skip>false</skip>
-                    <workingDirectory>${basedir}</workingDirectory>
+                    <workingDirectory>${project.parent.basedir}</workingDirectory>
                     <jmxPort>${tomcat.http.jmxPort}</jmxPort>
                 </configuration>
             </plugin>
