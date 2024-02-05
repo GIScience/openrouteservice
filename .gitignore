@@ -7,7 +7,7 @@ graphs/
 graphs-*/
 target/
 logs/
-elevation-cache/
+elevation_cache/
 cgiar_cache/
 node_modules/
 
