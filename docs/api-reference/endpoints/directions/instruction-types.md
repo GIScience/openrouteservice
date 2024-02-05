@@ -1,5 +1,8 @@
 # Instruction Types
 
+[//]: # (keep in sync with org.heigit.ors.routing.instructions.InstructionType; PT_ENTER, PT_TRANSFER, PT_EXIT are replaced with street names )
+
+
 The following table contains the encoding of the instruction types present in the `type`-field of a directions response in a step of a segment of a route.
 
 JSONPath in json response:

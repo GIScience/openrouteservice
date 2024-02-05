@@ -24,7 +24,7 @@ EndPoints.
 
 ### Routing API
 
-[//]: # (keep in sync with RoutingErrorCodes)
+[//]: # (keep in sync with org.heigit.ors.routing.RoutingErrorCodes)
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
@@ -49,7 +49,7 @@ EndPoints.
 
 ### Isochrones API
 
-[//]: # (keep in sync with IsochronesErrorCodes)
+[//]: # (keep in sync with org.heigit.ors.isochrones.IsochronesErrorCodes)
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
@@ -85,7 +85,7 @@ EndPoints.
 
 ### Matrix API
 
-[//]: # (keep in sync with MatrixErrorCodes)
+[//]: # (keep in sync with org.heigit.ors.matrix.MatrixErrorCodes)
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
@@ -104,7 +104,7 @@ EndPoints.
 
 ### Export API
 
-[//]: # (keep in sync with ExportErrorCodes)
+[//]: # (keep in sync with org.heigit.ors.export.ExportErrorCodes)
 
 | Error Code | Description                    |
 |:----------:|--------------------------------|
@@ -119,7 +119,7 @@ EndPoints.
 
 ### Snapping API 
 
-[//]: # (keep in sync with SnappingErrorCodes)
+[//]: # (keep in sync with org.heigit.ors.snapping.SnappingErrorCodes)
 
 | Error Code | Description                    |
 |:----------:|--------------------------------|

@@ -20,6 +20,9 @@ package org.heigit.ors.routing;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class RoutingErrorCodes {
+
+    //Keep in sync with documentation: error-codes.md
+
     public static final int BASE = 2000;
     public static final int INVALID_JSON_FORMAT = 2000;
     public static final int MISSING_PARAMETER = 2001;

@@ -19,4 +19,4 @@ Explanation of the values can be found in the [list of possible values in the OS
 |  16   |              Private              |
 |  32   |            Permissive             |
 
-[//]: # (keep in sync with AccessRestrictionType.class)
+[//]: # (keep in sync with org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType.class)

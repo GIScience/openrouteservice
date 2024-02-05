@@ -45,6 +45,9 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     public void processWay(ReaderWay way) {
+
+        //Keep in sync with documentation: waycategory.md
+
         wayType = 0;
 
         boolean hasHighway = way.hasTag("highway");

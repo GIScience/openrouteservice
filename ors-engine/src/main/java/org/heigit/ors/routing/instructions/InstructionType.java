@@ -14,6 +14,9 @@
 package org.heigit.ors.routing.instructions;
 
 public enum InstructionType {
+
+    //Keep in sync with documentation: instruction-types.md
+
     TURN_LEFT,              /*0*/
     TURN_RIGHT,             /*1*/
     TURN_SHARP_LEFT,        /*2*/
