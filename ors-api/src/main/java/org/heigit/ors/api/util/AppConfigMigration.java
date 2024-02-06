@@ -81,7 +81,7 @@ public class AppConfigMigration {
             endpoints.setSwaggerDocumentationUrl(swaggerDocumentationUrl);
 
 // ### Isochrones ###
-        EndpointsProperties.EndpointIsochroneProperties isochrones = endpoints.getIsochrone();
+        EndpointsProperties.EndpointIsochronesProperties isochrones = endpoints.getIsochrones();
         String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_ENABLED);
         if (value != null)
             isochrones.setEnabled(Boolean.parseBoolean(value));
@@ -140,7 +140,7 @@ public class AppConfigMigration {
                 fastisochrones.setMaximumRangeTimeDefault(def);
         }
 
-        Map<String, EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties> statisticsProviderPropertiesMap = new HashMap<>();
+        Map<String, EndpointsProperties.EndpointIsochronesProperties.StatisticsProviderProperties> statisticsProviderPropertiesMap = new HashMap<>();
         Map<String, Object> providers = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, "statistics_providers", false);
         if (providers != null) {
             for (Map.Entry<String, Object> entry : providers.entrySet()) {
@@ -148,7 +148,7 @@ public class AppConfigMigration {
                 Map<String, Object> provider = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey(), false);
 
                 if (provider.containsKey("provider_name") && provider.containsKey("provider_parameters") && provider.containsKey("property_mapping")) {
-                    EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties statisticsProviderProperties = new EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties();
+                    EndpointsProperties.EndpointIsochronesProperties.StatisticsProviderProperties statisticsProviderProperties = new EndpointsProperties.EndpointIsochronesProperties.StatisticsProviderProperties();
                     statisticsProviderProperties.setProviderName(provider.get("provider_name").toString());
                     Map<String, Object> providerParams = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".provider_parameters", false);
                     statisticsProviderProperties.setProviderParameters(providerParams);

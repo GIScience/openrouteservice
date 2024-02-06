@@ -77,7 +77,7 @@ ors:
       maximum_visited_nodes: 100000
       maximum_search_radius: 2000
       u_turn_costs: -1
-    isochrone:
+    isochrones:
       enabled: true
       attribution: openrouteservice.org, OpenStreetMap contributors
       maximum_locations: 2
