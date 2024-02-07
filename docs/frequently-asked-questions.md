@@ -32,8 +32,6 @@ There are three main reasons for this problem, listed in order of most to least 
    If routes in Heidelberg(Germany) can be found, the ors is still running on the
    default dataset.
 
----
-
 ## When does the OSM data update in the openrouteservice?
 
 The openrouteservice builds its data from the `planet.osm.pbf`-files. According
@@ -68,3 +66,7 @@ openrouteservice within two to three weeks.
 If, however, anything goes wrong anywhere, this will usually mean a delay of at
 least a week, assuming it gets noticed and fixed immediately. It is no sign of
 concern, if changes are not reflected within a month.
+
+## I get an Error `Native memory allocation (mmap) failed to map 16384 bytes for committing reserved memory`
+
+See memory mapping section in [system requirements](/run-instance/system-requirements.md#memory-mapping-in-large-builds-with-a-containerized-openrouteservice-instance).
