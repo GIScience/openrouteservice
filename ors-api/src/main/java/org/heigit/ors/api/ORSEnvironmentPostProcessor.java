@@ -14,7 +14,7 @@ import org.springframework.core.io.FileSystemResource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
 public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
@@ -61,25 +61,24 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
             } catch (IllegalStateException | IOException ignored) {
             }
         }
-        List<Map.Entry<String, String>> relevantENVs = System.getenv().entrySet()
-                .stream().filter(env ->
-                        env.getKey().startsWith("ORS_") ||
-                        env.getKey().startsWith("LOGGING_") ||
-                        env.getKey().startsWith("SPRINGDOC_") ||
-                        env.getKey().startsWith("SPRING_") ||
-                        env.getKey().startsWith("SERVER_") ||
-                        env.getKey().startsWith("ors.") ||
-                        env.getKey().startsWith("logging.") ||
-                        env.getKey().startsWith("springdoc.") ||
-                        env.getKey().startsWith("spring.") ||
-                        env.getKey().startsWith("server.")
-                ).sorted(Map.Entry.<String, String>comparingByKey()).toList();
+        var relevantPrefixes = List.of(
+                "ORS_",
+                "ors.",
+                "LOGGING_",
+                "logging.",
+                "SPRINGDOC_",
+                "springdoc.",
+                "SPRING_",
+                "spring.",
+                "SERVER_",
+                "server.");
+        var relevantENVs = System.getenv().entrySet().stream()
+                .filter(env -> relevantPrefixes.stream().anyMatch(env.getKey()::startsWith))
+                .sorted(Entry.comparingByKey()).toList();
         if (!relevantENVs.isEmpty()) {
             log.info("");
             log.info("Environment variables overriding openrouteservice configuration parameters detected: ");
-            for (Map.Entry<String, String> env : relevantENVs) {
-                log.info("%s=%s".formatted(env.getKey(), env.getValue()));
-            }
+            relevantENVs.forEach(env -> log.info("%s=%s".formatted(env.getKey(), env.getValue())));
         }
         log.info("");
     }
