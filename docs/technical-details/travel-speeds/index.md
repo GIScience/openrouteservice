@@ -14,7 +14,7 @@ qualities](https://wiki.openstreetmap.org/wiki/Key:tracktype) of the road.  If
 multiple values apply at any point, the lowest value is used.
 
 The speed limits can be reduced by setting the `maximum_speed` parameter in a [directions request][apidocs].
-The final [average speed](../../api-reference/endpoints/directions/route-attributes.md#avgspeed) can be requested by adding `avgspeed` to the `attributes` parameter.
+The final [average speed](/api-reference/endpoints/directions/route-attributes.md) can be requested by adding `avgspeed` to the `attributes` parameter.
 
 ### Driving profiles (car and HGV)
 The base travel speed for any road is based on a cascading assessment:
@@ -70,7 +70,7 @@ servers as it can lead to undesirable routes.
 ### Walking profiles
 The travel speeds for `foot-*` profiles (walking and hiking) are set to
 5 km/h on all allowed waytypes.
-For ways with a [`sac_scale`](../../api-reference/endpoints/directions/extra-info/trail-difficulty.md) higher than
+For ways with a [`sac_scale`](/api-reference/endpoints/directions/extra-info/trail-difficulty.md) higher than
 `hiking`, they are reduced to 2 km/h.
 
 Allowed waytypes consist of ways that are safe for use, ways that are better

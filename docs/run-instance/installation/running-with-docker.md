@@ -122,7 +122,7 @@ There are multiple ways with Docker to quickly have a running instance.
 
 ## Checking
 
-By default the service status can be queried via the [health endpoint](../../api-reference/endpoints/health/).
+By default, the service status can be queried via the [health endpoint](/api-reference/endpoints/health/index.md).
 
 ```shell 
 curl 'http://localhost:8080/ors/v2/health'
@@ -130,7 +130,7 @@ curl 'http://localhost:8080/ors/v2/health'
 # {"status":"ready"}
 ```
 
-When the service is ready, you will be able to request the [status endpoint](../../api-reference/endpoints/status/) for further information on the running services.
+When the service is ready, you will be able to request the [status endpoint](/api-reference/endpoints/status/index.md) for further information on the running services.
 
 ```shell 
 curl 'http://localhost:8080/ors/v2/status'
@@ -160,7 +160,7 @@ All the above scenarios will:
 
 Once you have a built image you can decide to start a container with different settings, e.g. changing the active profiles or other settings. To run ORS with a custom configuration, modify the `./docker/conf/ors-config.yml` to your needs, and restart the container. You can obviously also modify the volume mappings in the `docker-compose.yml` to your needs. **Note that using `docker-compose restart` does not carry across changes made inside the `docker-compose.yml` file, so you should use `docker-compose down` to take down the container, and then `docker-compose up` to restart it again when you have made changes.**
 
-For detailed information on the settings you can make, see the chapter on [configuration](../configuration/).
+For detailed information on the settings you can make, see the chapter on [configuration](/run-instance/configuration/index.md).
 
 Old ORS configuration files in JSON format are **deprecated**. If you have a custom `ors-config.json` file from a previous installation we strongly recommend to migrate to the new YAML format. For the transitional period ORS allows the use of old format JSON files placed at `./docker/conf/ors-config.json`. All settings in such a file, if present, will override settings in the proper YAML format.
 

@@ -6,4 +6,4 @@ There are multiple possible ways to run your own openrouteservice instance. The 
 * [Running JAR / WAR](running-jar-war)
 * [Building from Source](building-from-source)
 
-For more information on configuring openrouteservice for your specific needs, also see the [configuration](../configuration/) documentation.
+For more information on configuring openrouteservice for your specific needs, also see the [configuration](/run-instance/configuration/index.md) documentation.

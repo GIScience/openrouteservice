@@ -18,7 +18,7 @@ String value specifying which borders to avoid. Only for **`driving-*`** profile
 
 ### `options.avoid_countries` 
 An integer array of country ids to exclude from routing with **`driving-*`** profiles. Can be used together with `"avoid_borders": "controlled"`. 
-The list of countries and application examples can be found in the [country list](../../../technical-details/country-list.md).
+The list of countries and application examples can be found in the [country list](/technical-details/country-list.md).
 
 `"[11,193]"` would exclude Austria and Switzerland. 
 

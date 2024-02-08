@@ -2,7 +2,7 @@
 
 The recommended way to configure your own openrouteservice instance is with a YAML configuration file. 
 
-In the past openrouteservice was configured [via JSON file](./json). This configuration method has been **deprecated** and will be eventually removed, therefore we strongly discourage you from using it.
+In the past openrouteservice was configured [via JSON file](json.md). This configuration method has been **deprecated** and will be eventually removed, therefore we strongly discourage you from using it.
 
 ## File location
 
@@ -33,7 +33,7 @@ At program start openrouteservice reports which configuration file was loaded.
 You can find an [example configuration file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.yml) with most available configuration options.
 
 At the very least, openrouteservice needs the configuration to contain an enabled [profile](ors/engine/profiles.md) and the
-reference to an [OSM data file](../data) to run properly. Therefore, the minimal valid content of such a file
+reference to an [OSM data file](/run-instance/data.md#osm-data) to run properly. Therefore, the minimal valid content of such a file
 would be, e.g.:
 
 ```yaml
@@ -77,7 +77,7 @@ The options in order of precedence (higher options win over lower) are:
   java -jar ors.jar 
   ```
   
-The option to configure using environment variables is especially useful in contexts where you want to run openrouteservice in containers such as with [docker](../installation/running-with-docker). 
+The option to configure using environment variables is especially useful in contexts where you want to run openrouteservice in containers such as with [docker](/run-instance/installation/running-with-docker.md). 
 
 Every property also corresponds to an environment variable name in *uppercase letters* and with *underscores* replacing *dots*, so e.g.
 - `ORS_ENGINE_SOURCE_FILE` replaces `ors.engine.source_file`
