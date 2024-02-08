@@ -144,7 +144,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 
     public static Weighting createIsochroneWeighting(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
         if (travelRangeType == TravelRangeType.TIME) {
-            return new FastestWeighting(searchContext.getEncoder());
+            return new ORSFastestWeighting(searchContext.getEncoder());
         } else {
             return new ShortestWeighting(searchContext.getEncoder());
         }

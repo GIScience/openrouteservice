@@ -26,6 +26,10 @@ import com.graphhopper.util.Parameters;
 public class ORSFastestWeighting extends FastestWeighting {
     private final double headingPenalty;
 
+    public ORSFastestWeighting(FlagEncoder encoder) {
+        this(encoder, new PMap(0), TurnCostProvider.NO_TURN_COST_PROVIDER);
+    }
+
     public ORSFastestWeighting(FlagEncoder encoder, PMap map, TurnCostProvider turnCostProvider) {
         super(encoder, map, turnCostProvider);
         headingPenalty = map.getDouble(Parameters.Routing.HEADING_PENALTY, Parameters.Routing.DEFAULT_HEADING_PENALTY);
