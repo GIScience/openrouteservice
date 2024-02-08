@@ -21,6 +21,11 @@ npm run docs:build
 npm run docs:preview
 ```
 
+::: info
+For Markdown links to resolve properly in your IDE (e.g. Intellij), right-click the `docs` folder and 
+mark it as 'Sources Root'.
+:::
+
 ## Configuration and Theme
 
 Configuration of the site (e.g. sidebar, navigation, …) is in `docs/.vitepress/config.js`.
