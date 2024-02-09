@@ -86,6 +86,7 @@ RELEASING:
 - workaround for springfox-swagger package & GroupedOpenApi builders ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - wrong instanceof checks/casts for RoutingCHGraph ([#1504](https://github.com/GIScience/openrouteservice/pull/1504))
 - Fix the ElevationSmoother ([#1511](https://github.com/GIScience/openrouteservice/pull/1511))
+- obsolete configuration options 'min_one_way_network_size' and 'disabling_allowed' ([#1683](https://github.com/GIScience/openrouteservice/pull/1683))
 
 ### Fixed
 - GTFS issues with old jts-core version used in GH ([#1501](https://github.com/GIScience/openrouteservice/pull/1501))
@@ -101,6 +102,7 @@ RELEASING:
 - adjust weighting of heat stress routing to avoid large detours
 - fix isochrones snapping ([#1566](https://github.com/GIScience/openrouteservice/pull/1566))
 - fix fast-isochrones snapping ([#1572](https://github.com/GIScience/openrouteservice/pull/1572))
+- endpoint property 'isochrone' to 'isochrones' ([#1683](https://github.com/GIScience/openrouteservice/pull/1683))
 
 ## [7.1.1] - 2023-11-13
 ### Changed

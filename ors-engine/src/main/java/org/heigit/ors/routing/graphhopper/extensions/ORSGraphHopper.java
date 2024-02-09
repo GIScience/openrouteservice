@@ -89,7 +89,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private Eccentricity eccentricity;
 
     private int minNetworkSize = 200;
-    private int minOneWayNetworkSize = 0;
 
     private final CorePreparationHandler corePreparationHandler = new CorePreparationHandler();
     private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
@@ -124,7 +123,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         fastIsochroneFactory.init(ghConfig);
 
         minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
-        minOneWayNetworkSize = ghConfig.getInt("prepare.min_one_way_network_size", minOneWayNetworkSize);
         config = ghConfig;
         return ret;
     }
@@ -141,7 +139,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             int ex = ghs.getAllEdges().length();
             List<FlagEncoder> list = getEncodingManager().fetchEdgeEncoders();
             if (LOGGER.isDebugEnabled())
-                LOGGER.debug("will create PrepareRoutingSubnetworks with: NodeCountBefore: '%d' getAllEdges().getMaxId(): '%d' List<FlagEncoder>: '%s' minNetworkSize: '%d' minOneWayNetworkSize: '%d'".formatted(prevNodeCount, ex, list, minNetworkSize, minOneWayNetworkSize)
+                LOGGER.debug("will create PrepareRoutingSubnetworks with: NodeCountBefore: '%d' getAllEdges().getMaxId(): '%d' List<FlagEncoder>: '%s' minNetworkSize: '%d'".formatted(prevNodeCount, ex, list, minNetworkSize)
                 );
             ghs.getProperties().put("elevation", hasElevation());
         } else {

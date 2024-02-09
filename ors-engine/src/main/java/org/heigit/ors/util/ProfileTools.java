@@ -23,7 +23,6 @@ public class ProfileTools {
     public static final String KEY_METHODS_LM = "methods.lm";
     public static final String KEY_LANDMARKS = "landmarks";
     public static final String KEY_METHODS_CORE = "methods.core";
-    public static final String KEY_DISABLING_ALLOWED = "disabling_allowed";
     public static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
     public static final String KEY_TOTAL_POP = "total_pop";
     public static final String KEY_TOTAL_AREA_KM = "total_area_km";

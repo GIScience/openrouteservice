@@ -67,8 +67,8 @@ public class IsochronesResponseInfo {
         if (AppConfig.hasValidMD5Hash())
             osmFileMD5Hash = AppConfig.getMD5Hash();
 
-        if (!Helper.isEmpty(endpointsProperties.getIsochrone().getAttribution()))
-            attribution = endpointsProperties.getIsochrone().getAttribution();
+        if (!Helper.isEmpty(endpointsProperties.getIsochrones().getAttribution()))
+            attribution = endpointsProperties.getIsochrones().getAttribution();
 
         if (request.hasId())
             id = request.getId();
