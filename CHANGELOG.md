@@ -72,7 +72,7 @@ RELEASING:
 - fix IN1-JAVA-ORGMOZILLA-1314295 ([#1627](https://github.com/GIScience/openrouteservice/issues/1627))
 - log summary stats on traffic mapmatching and use progress bar only in debug mode ([#1647](https://github.com/GIScience/openrouteservice/pull/1647))
 - move APIEnums into API module ([#1634](https://github.com/GIScience/openrouteservice/issues/1634))
-- performance improvements to isochrone calculations ([#1607](https://github.com/GIScience/openrouteservice/pull/1607))
+- performance improvements to isochrone calculations ([#1607](https://github.com/GIScience/openrouteservice/pull/1607)) and ([#1658](https://gith$
 - do not apply speed penalty to roads tagged with "access=destination" when computing isochrones ([#1682](https://github.com/GIScience/openrouteservice/pull/1682))
 - backend documentation overhaul ([#1651](https://github.com/GIScience/openrouteservice/pull/1651))
 - separate docker image build from test workflow. Build nightly on schedule if there are changes to main ([#1689](https://github.com/GIScience/openrouteservice/pull/1689))
