@@ -1,6 +1,6 @@
 # Country List
 
-This table lists country ids for the `avoid_country`-parameter. For details, see [routing options](Routing-Options).
+This table lists country ids for the `avoid_country`-parameter. For details, see [routing options](../api-reference/endpoints/directions/routing-options).
 
   | country_id |                        name                        |             name:en            |   | country_id |                    name                   |             name:en            |   | country_id |                   name                  |        name:en        |   | country_id |                      name                     |                    name:en                    |   | country_id |                    name                   |          name:en         |
   |:----------:|:--------------------------------------------------:|:------------------------------:|---|:----------:|:-----------------------------------------:|:------------------------------:|---|:----------:|:---------------------------------------:|:---------------------:|---|:----------:|:---------------------------------------------:|:---------------------------------------------:|---|:----------:|:-----------------------------------------:|:------------------------:|
