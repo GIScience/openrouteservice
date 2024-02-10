@@ -1,30 +1,9 @@
-# Installation and Usage
+# Installation
 
-## Installation via Docker
+There are multiple possible ways to run your own openrouteservice instance. The most convenient way is to use [Docker](https://www.docker.com/) to run openrouteservice within a container, with a hosted Docker image or building from source. Alternatively, you can either run openrouteservice stand-alone by running the JAR file, or use the WAR file within an [Apache Tomcat](https://tomcat.apache.org/) installation. If you want to customize your instance further than what is possible already by configuration, you can also locally build from source. For further instructions refer to the following documents:
 
-We suggest using docker to install and launch openrouteservice backend. In short, run the following commands will get everything done.
+* [Running with Docker](running-with-docker)
+* [Running JAR / WAR](running-jar-war)
+* [Building from Source](building-from-source)
 
-```bash
-wget https://raw.githubusercontent.com/GIScience/openrouteservice/master/docker-compose.yml
-docker compose up
-```
-
-This will pull the latest release version of openrouteservice from dockerhub and start it up using an example setup and the provided test OSM file. 
-You can also modify the configuration and source file settings to match your needs. For more details, check the [Running with Docker](Running-with-Docker)-Section. 
-More explanation about customization can be found in the [Advanced Docker Setup](Advanced-Docker-Setup)
-
-## Other Resources 
-
-* [Building from Source](Building-from-Source)
-* [System requirements](System-Requirements)
-* [Configuration](Configuration)
-
-## Usage
-Openrouteservice offers a set of endpoints for different spatial purposes. They are served with the help of [Tomcat in a java servlet container](https://github.com/GIScience/openrouteservice/blob/master/ors-api/WebContent/WEB-INF/web.xml). By default you will be able to query the services with these addresses:
-
-- `http://localhost:8080/ors/v2/directions`
-- `http://localhost:8080/ors/v2/isochrones`
-- `http://localhost:8080/ors/v2/matrix`
-
-Note, that Tomcat running via maven will use port `8082` by default.
-
+For more information on configuring openrouteservice for your specific needs, also see the [configuration](../configuration/) documentation.
