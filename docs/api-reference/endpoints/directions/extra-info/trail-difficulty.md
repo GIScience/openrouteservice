@@ -1,5 +1,11 @@
 # Trail Difficulty
 
+Value list for the directions response values in
+
+```jsonpath
+$.routes[*].extras.traildifficulty.values
+```
+
 This extra provides information about a trails difficulty for [hiking](https://wiki.openstreetmap.org/wiki/Key:sac_scale) as well as for [mountain-biking](https://wiki.openstreetmap.org/wiki/Key:mtb:scale).
 
 | Value | foot-\*                              | cycling-\* |
@@ -12,3 +18,5 @@ This extra provides information about a trails difficulty for [hiking](https://w
 |   5   | sac_scale=demanding_alpine_hiking   | mtb:scale=4 |
 |   6   | sac_scale=difficult_alpine_hiking   | mtb:scale=5 |
 |   7   |                 ---                 | mtb:scale=6 |
+
+[//]: # (keep in sync with TrailDifficultyScaleGraphStorageBuilder.getSacScale)

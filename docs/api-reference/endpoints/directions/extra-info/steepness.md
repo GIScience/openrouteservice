@@ -1,17 +1,23 @@
 # Steepness
 
-Negative values indicate decline, positive incline.
+Value list for the directions response values in
 
-| Value | Encoding |
-|:-----:|:--------:|
-| -5    | >16%     |
-| -4    | 12-15%   |
-| -3    | 7-11%    |
-| -2    | 4-6%     |
-| -1    | 1-3%     |
-| 0     | 0%       |
-| 1     | 1-3%     |
-| 2     | 4-6%     |
-| 3     | 7-11%    |
-| 4     | 12-15%   |
-| 5     | >16%     |
+```jsonpath
+$.routes[*].extras.steepness.values
+```
+
+| Value |           Encoding |
+|:-----:|-------------------:|
+|  -5   |      >=16% decline |
+|  -4   | 10% - <16% decline |
+|  -3   |  7% - <10% decline |
+|  -2   |   4% - <7% decline |
+|  -1   |   1% - <4% decline |
+|   0   |   0% - <1% incline |
+|   1   |   1% - <4% incline |
+|   2   |   4% - <7% incline |
+|   3   |  7% - <10% incline |
+|   4   | 10% - <16% incline |
+|   5   |      >=16% incline |
+
+[//]: # (keep in sync with org.heigit.ors.routing.util.SteepnessUtil.getCategory )
