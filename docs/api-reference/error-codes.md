@@ -41,31 +41,41 @@ EndPoints.
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
-| 2000       | Unable to parse JSON request.                      |
-| 2001       | Required parameter is missing.                     |
-| 2002       | Invalid parameter format.                          |
-| 2003       | Invalid parameter value.                           |
-| 2004       | Parameter value exceeds the maximum allowed limit. |
-| 2006       | Unable to parse the request to the export handler. |
-| 2007       | Unsupported export format.                         |
-| 2008       | Empty Element.                                     |
-| 2009       | Route could not be found between locations.        |
-| 2099       | Unknown internal error.                            |
+|    2000    | Unable to parse JSON request.                      |x
+|    2001    | Required parameter is missing.                     |x
+|    2002    | Invalid parameter format.                          |x
+|    2003    | Invalid parameter value.                           |x
+|    2004    | Parameter value exceeds the maximum allowed limit. |
+|    2006    | Unable to parse the request to the export handler. |
+|    2007    | Unsupported export format.                         |x
+|    2008    | Empty Element.                                     |
+|    2009    | Route could not be found between locations.        |
+|    2010    | Point was not found.                               |
+|    2011    | Incompatible parameters.                           |
+|    2012    | Unknown parameter.                                 |x
+|    2013    | Entry not reached.                                 |
+|    2014    | Exit not reached.                                  |
+|    2015    | Entry not reached.                                 |
+|    2016    | No rout beween entry and exit found.               |
+|    2017    | Maximum number of nodes exceeded.                  |
+|    2099    | Unknown internal error.                            |
 
 ### Isochrones API
 
 | Error Code | Description                                        |
 |:----------:|----------------------------------------------------|
-| 3000       | Unable to parse JSON request.                      |
-| 3001       | Required parameter is missing.                     |
-| 3002       | Invalid parameter format.                          |
-| 3003       | Invalid parameter value.                           |
-| 3004       | Parameter value exceeds the maximum allowed limit. |
-| 3005       | Requested feature is not supported.                |
-| 3006       | Unable to parse the request to the export handler. |
-| 3007       | Unsupported export format.                         |
-| 3008       | Empty Element.                                     |
-| 3099       | Unknown internal error.                            |
+|    3000    | Unable to parse JSON request.                      |
+|    3001    | Required parameter is missing.                     |
+|    3002    | Invalid parameter format.                          |
+|    3003    | Invalid parameter value.                           |
+|    3004    | Parameter value exceeds the maximum allowed limit. |
+|    3005    | Requested feature is not supported.                |
+|    3006    | Unable to parse the request to the export handler. |
+|    3007    | Unsupported export format.                         |
+|    3008    | Empty Element.                                     |
+|    3011    | Unknown parameter.                                 |
+|    3012    | Parameter value exeeds the minimum allowed limit.  |
+|    3099    | Unknown internal error.                            |
 
 ### POIs API
 
@@ -84,19 +94,22 @@ EndPoints.
 
 ### Matrix API
 
-| Error Code |  Description                                        |
-|:----------:|-----------------------------------------------------|
-| 6000       |  Unable to parse JSON request.                      |
-| 6001       |  Required parameter is missing.                     |
-| 6002       |  Invalid parameter format.                          |
-| 6003       |  Invalid parameter value.                           |
-| 6004       |  Parameter value exceeds the maximum allowed limit. |
-| 6006       |  Unable to parse the request to the export handler. |
-| 6007       |  Unsupported export format.                         |
-| 6008       |  Empty Element.                                     |
-| 6099       |  Unknown internal error.                            |
+| Error Code | Description                                        |
+|:----------:|----------------------------------------------------|
+|    6000    | Unable to parse JSON request.                      |
+|    6001    | Required parameter is missing.                     |
+|    6002    | Invalid parameter format.                          |
+|    6003    | Invalid parameter value.                           |
+|    6004    | Parameter value exceeds the maximum allowed limit. |
+|    6006    | Unable to parse the request to the export handler. |
+|    6007    | Unsupported export format.                         |
+|    6008    | Empty Element.                                     |
+|    6010    | Point not found.                                   |
+|    6011    | Unknown parameter.                                 |
+|    6020    | Maximum number of visited nodes exceeded.          |
+|    6099    | Unknown internal error.                            |
 
-### Centrality API
+### Export API
 
 | Error Code | Description                    |
 |:----------:|--------------------------------|
