@@ -137,6 +137,38 @@ export default defineConfig({
                                     {text: 'JSON config (deprecated)', link:'/run-instance/configuration/json.md'}
                                 ]
                             },
+                            {text: 'As WAR', collapsed: true,
+                                items: [
+                                    {text: 'build', link: '/run-instance/war/build.md'},
+                                    {text: 'download', link: '/run-instance/war/download.md'},
+                                    {text: 'configure', link: '/run-instance/war/configure.md'},
+                                    {text: 'run', link: '/run-instance/war/run.md'},
+                                    {text: 'troubleshoot', link: '/run-instance/war/troubleshoot.md'}
+                                ]},
+                            {text: 'As JAR', collapsed: true,
+                                items: [
+                                    {text: 'build', link: '/run-instance/jar/build.md'},
+                                    {text: 'download', link: '/run-instance/jar/download.md'},
+                                    {text: 'configure', link: '/run-instance/jar/configure.md'},
+                                    {text: 'run', link: '/run-instance/jar/run.md'},
+                                    {text: 'troubleshoot', link: '/run-instance/jar/troubleshoot.md'}
+                                ]},
+                            {text: 'As Docker Container (WAR)', collapsed: true,
+                                items: [
+                                    {text: 'build', link: '/run-instance/jar-docker/build.md'},
+                                    {text: 'download', link: '/run-instance/jar-docker/download.md'},
+                                    {text: 'configure', link: '/run-instance/jar-docker/configure.md'},
+                                    {text: 'run', link: '/run-instance/jar-docker/run.md'},
+                                    {text: 'troubleshoot', link: '/run-instance/jar-docker/troubleshoot.md'}
+                                ]},
+                            {text: 'As Docker Container (JAR)', collapsed: true,
+                                items: [
+                                    {text: 'build', link: '/run-instance/jar-docker/build.md'},
+                                    {text: 'download', link: '/run-instance/jar-docker/download.md'},
+                                    {text: 'configure', link: '/run-instance/jar-docker/configure.md'},
+                                    {text: 'run', link: '/run-instance/jar-docker/run.md'},
+                                    {text: 'troubleshoot', link: '/run-instance/jar-docker/troubleshoot.md'}
+                                ]},
                         ]
                     },
                     {
