@@ -1,6 +1,9 @@
 package org.heigit.ors.snapping;
 
 public class SnappingErrorCodes {
+
+    //Keep in sync with documentation: error-codes.md
+
     public static final int BASE = 8000;
     public static final int INVALID_JSON_FORMAT = 8000;
     public static final int MISSING_PARAMETER = 8001;

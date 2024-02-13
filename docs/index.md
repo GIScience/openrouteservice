@@ -13,22 +13,22 @@ hero:
           link: https://openrouteservice.org/dev/#/api-docs/v2/directions/{profile}/post
         - theme: alt
           text: Contributing
-          link: /contributing/Contributing
+          link: /contributing/
         - theme: alt
           text: Reference
-          link: /documentation/Documentation
+          link: /api-reference/
 
 features:
     - title: Installation
       details: Set up your own openrouteservice instance.
       linkText: Instructions
-      link: /installation/Installation-and-Usage
+      link: /run-instance/installation/
     - title: Data Sources
       details: Find all information on the data used by the openrouteservice here.
       linkText: Data
-      link: /Data
+      link: /run-instance/data
     - title: Latest Changes
       details: Check out the latest changes to the openrouteservice.
       linkText: CHANGELOG.md
-      link: https://github.com/GIScience/openrouteservice/blob/master/CHANGELOG.md
+      link: https://github.com/GIScience/openrouteservice/blob/main/CHANGELOG.md
 ---

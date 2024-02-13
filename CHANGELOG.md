@@ -73,6 +73,7 @@ RELEASING:
 - move APIEnums into API module ([#1634](https://github.com/GIScience/openrouteservice/issues/1634))
 - performance improvements to isochrone calculations ([#1607](https://github.com/GIScience/openrouteservice/pull/1607))
 - do not apply speed penalty to roads tagged with "access=destination" when computing isochrones ([#1682](https://github.com/GIScience/openrouteservice/pull/1682))
+- backend documentation overhaul ([#1651](https://github.com/GIScience/openrouteservice/pull/1651))
 
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))

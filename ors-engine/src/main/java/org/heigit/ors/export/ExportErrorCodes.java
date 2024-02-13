@@ -1,6 +1,9 @@
 package org.heigit.ors.export;
 
 public class ExportErrorCodes {
+
+    //Keep in sync with documentation: error-codes.md
+
     public static final int BASE = 7000;
     public static final int INVALID_JSON_FORMAT = 7000;
     public static final int MISSING_PARAMETER = 7001;

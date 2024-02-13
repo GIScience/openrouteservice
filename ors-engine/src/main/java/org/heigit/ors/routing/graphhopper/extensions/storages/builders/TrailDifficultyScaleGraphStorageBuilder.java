@@ -44,6 +44,9 @@ public class TrailDifficultyScaleGraphStorageBuilder extends AbstractGraphStorag
     }
 
     private int getSacScale(String value) {
+
+        //Keep in sync with documentation: trail-difficulty.md
+
         if (!Helper.isEmpty(value)) {
             switch (value) {
                 case "hiking":

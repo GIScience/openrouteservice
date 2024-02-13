@@ -14,6 +14,9 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 public class SurfaceType {
+
+    //Keep in sync with documentation: surface.md
+
     public static final int UNKNOWN = 0;
     public static final int PAVED = 1;
     public static final int UNPAVED = 2;

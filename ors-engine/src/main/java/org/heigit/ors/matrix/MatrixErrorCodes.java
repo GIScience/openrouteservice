@@ -20,6 +20,9 @@ package org.heigit.ors.matrix;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class MatrixErrorCodes {
+
+    //Keep in sync with documentation: error-codes.md
+
     public static final int BASE = 6000;
     public static final int INVALID_JSON_FORMAT = 6000;
     public static final int MISSING_PARAMETER = 6001;

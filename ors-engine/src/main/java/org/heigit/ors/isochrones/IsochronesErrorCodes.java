@@ -20,6 +20,9 @@ package org.heigit.ors.isochrones;
  * @author Julian Psotta, julian@openrouteservice.org
  */
 public class IsochronesErrorCodes {
+
+    //Keep in sync with documentation: error-codes.md
+
     public static final int BASE = 3000;
     public static final int INVALID_JSON_FORMAT = 3000;
     public static final int MISSING_PARAMETER = 3001;

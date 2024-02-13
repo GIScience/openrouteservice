@@ -14,6 +14,9 @@ public class SteepnessUtil {
     }
 
     public static int getCategory(double value) {
+
+        //Keep in sync with documentation: steepness.md
+
         if (Double.isNaN(value))
             return 0;
 

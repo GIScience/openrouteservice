@@ -8,7 +8,7 @@
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
 
-The following services are available via a HTTP interface served by Tomcat.
+The following services are available via an HTTP interface served by Tomcat.
 - **Directions** - Returns a route between two or more locations for a selected profile with customizable additional settings and instructions.
 - **Isochrones** - Obtains areas of reachability from given locations.
 - **Matrix** - Computes one-to-many, many-to-one or many-to-many routes for any mode of transport provided by openrouteservice.
@@ -65,7 +65,7 @@ For instructions on how to [build from source](https://GIScience.github.io/openr
 
 ## Usage
 
-Openrouteservice offers a set of endpoints for different spatial purposes. By default they will be available at
+Openrouteservice offers a set of endpoints for different spatial purposes. By default, they will be available at
 
 - `http://localhost:8080/ors/v2/directions`
 - `http://localhost:8080/ors/v2/isochrones`
@@ -75,7 +75,7 @@ You can find more information in the [Installation and Usage Instructions](https
 
 ## API Documentation
 
-For an easy and interactive way to test the api, visit our API documentation at [openrouteservice.org](https://openrouteservice.org/dev/#/api-docs).
+For an easy and interactive way to test the api, visit our [API Playground](https://openrouteservice.org/dev/#/api-docs).
 After obtaining your key you can try out the different endpoints instantly and start firing requests.
 
 

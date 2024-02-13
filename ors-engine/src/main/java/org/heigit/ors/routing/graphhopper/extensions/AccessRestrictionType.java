@@ -14,6 +14,9 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 public abstract class AccessRestrictionType {
+
+    //Keep in sync with documentation: road-access-restrictions.md
+
     public static final int NONE = 0;
     public static final int NO = 1;
     public static final int CUSTOMERS = 2;
