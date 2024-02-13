@@ -16,7 +16,8 @@ node_modules/
 .jqwik-database
 
 # Ignore folders generated from docker
-docker/
+/config/
+/files/
 
 # Ignore all ors-config files except for the sample one, useful for development and testing
 ors-api/src/main/resources/ors-config*
