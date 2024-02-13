@@ -52,6 +52,7 @@ RELEASING:
 - new backend documentation using VitePress([#1617](https://github.com/GIScience/openrouteservice/pull/1617))
 - support for Norwegian language ([#1645](https://github.com/GIScience/openrouteservice/pull/1645))
 - support for mmap dataaccess mode ([#1649](https://github.com/GIScience/openrouteservice/pull/1649))
+- JAR & WAR artifacts for new releases ([#1669](https://github.com/GIScience/openrouteservice/pull/1669))
 
 ### Changed
 - default branch from `master` to `main`
