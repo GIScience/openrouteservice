@@ -59,9 +59,9 @@ sed -i='' "s/openrouteservice\/openrouteservice:latest/openrouteservice\/openrou
 docker compose up -d
 ```
 
-For more details, check the [docker installation guide](https://GIScience.github.io/openrouteservice/installation/Running-with-Docker.html).
+For more details, check the [docker installation guide](https://giscience.github.io/openrouteservice/run-instance/installation/running-with-docker).
 
-For instructions on how to [build from source](https://GIScience.github.io/openrouteservice/installation/Building-from-Source.html) or [configure](https://GIScience.github.io/openrouteservice/installation/Configuration.html), visit our [Installation and Usage Instructions](https://GIScience.github.io/openrouteservice/installation/Installation-and-Usage.html).
+For instructions on how to [build from source](https://giscience.github.io/openrouteservice/run-instance/installation/building-from-source) or [configure](https://giscience.github.io/openrouteservice/openrouteservice/run-instance/configuration/), visit our [Installation Instructions](https://giscience.github.io/openrouteservice/openrouteservice/run-instance/installation/).
 
 ## Usage
 
@@ -71,7 +71,7 @@ Openrouteservice offers a set of endpoints for different spatial purposes. By de
 - `http://localhost:8080/ors/v2/isochrones`
 - `http://localhost:8080/ors/v2/matrix`
 
-You can find more information in the [Installation and Usage Instructions](https://GIScience.github.io/openrouteservice/installation/Installation-and-Usage.html).
+You can find more information in the [Installation Instructions](https://giscience.github.io/openrouteservice/run-instance/installation/running-with-docker).
 
 ## API Documentation
 
@@ -85,4 +85,4 @@ For questions please use our [community forum](https://ask.openrouteservice.org)
 
 ## Translations
 
-If you notice anything wrong with translations, or you want to add a new language to the ORS instructions, we have some instructions in our [backend documentation](https://GIScience.github.io/openrouteservice/contributing/Contributing-Translations) about how you can submit an update. You can also look over at our [maps client GitHub](https://github.com/GIScience/ors-map-client/#add-language) if you want to contribute the language to there as well (adding or editing the language in the openrouteservice GitHub repo only affects the instructions - any new language also needs adding to the client).
+If you notice anything wrong with translations, or you want to add a new language to the ORS instructions, we have some instructions in our [backend documentation](https://GIScience.github.io/openrouteservice/contributing/contributing-translations) about how you can submit an update. You can also look over at our [maps client GitHub](https://github.com/GIScience/ors-map-client/#add-language) if you want to contribute the language to there as well (adding or editing the language in the openrouteservice GitHub repo only affects the instructions - any new language also needs adding to the client).

@@ -36,6 +36,6 @@ Fixes # .
 ### Required changes to ors config (if applicable)
 -
 
-[config]: https://GIScience.github.io/openrouteservice/installation/Configuration.html
+[config]: https://GIScience.github.io/openrouteservice/run-instance/configuration/
 [api]: https://gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice-infrastructure/ors-docs-api#test-new-ors-documentation
 [rebase]: https://github.com/GIScience/openrouteservice/blob/main/CONTRIBUTE.md#pull-request-guidelines
