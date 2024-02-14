@@ -101,7 +101,7 @@ public class RoutingAPI {
                     """, summary = "Directions Service")
     @ApiResponse(
             responseCode = "200",
-            description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
+            description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/extra-info/).",
             content = {@Content(
                     mediaType = "application/geo+json",
                     schema = @Schema(implementation = GeoJSONRouteResponse.class)
@@ -125,7 +125,7 @@ public class RoutingAPI {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Standard response for successfully processed requests. Returns JSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
+            description = "Standard response for successfully processed requests. Returns JSON. The decoded values of the extra information can be found [here](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/extra-info/).",
             content = {@Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = JSONRouteResponse.class)
@@ -191,7 +191,7 @@ public class RoutingAPI {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
+            description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/extra-info/).",
             content = {@Content(
                     mediaType = "application/geo+json",
                     schema = @Schema(implementation = GeoJSONRouteResponse.class)

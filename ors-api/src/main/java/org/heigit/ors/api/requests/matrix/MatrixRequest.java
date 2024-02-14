@@ -107,7 +107,7 @@ public class MatrixRequest extends APIRequest {
     private boolean hasOptimized = false;
 
     @Schema(name = PARAM_OPTIONS,
-            description = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
+            description = "For advanced options formatted as json object. For structure refer to the [these examples](src/main/java/org/heigit/ors/api/requests/matrix/MatrixRequest.java).",
             example = "{\"avoid_borders\":\"controlled\"}",
             hidden = true)
     @JsonProperty(PARAM_OPTIONS)

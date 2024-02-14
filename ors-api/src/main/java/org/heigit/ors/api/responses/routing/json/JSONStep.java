@@ -37,7 +37,7 @@ public class JSONStep {
     @JsonProperty("duration")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "%.1d")
     private final Double duration;
-    @Schema(description = "The [instruction](https://GIScience.github.io/openrouteservice/documentation/Instruction-Types.html) action for symbolisation purposes.", example = "1")
+    @Schema(description = "The [instruction](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/instruction-types) action for symbolisation purposes.", example = "1")
     @JsonProperty("type")
     private final Integer type;
     @Schema(description = "The routing instruction text for the step.", example = "Turn right onto Berliner Straße")
