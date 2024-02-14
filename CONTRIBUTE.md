@@ -52,7 +52,7 @@ Be extra careful using `rebase` commands when collaborating on a branch with oth
 
 ### Contributing code
 
-For a short explanation on how to set up, deploy and test **openrouteservice** locally for development, see our [installation instructions](https://GIScience.github.io/openrouteservice/installation/Building-from-Source).
+For a short explanation on how to set up, deploy and test **openrouteservice** locally for development, see our [installation instructions](https://GIScience.github.io/openrouteservice/run-instance/installation/building-from-source).
 
 Though there are no concrete rules for code that is contributed, we have a few general styles that should be adopted:
 
