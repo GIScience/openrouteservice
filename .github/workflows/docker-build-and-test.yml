@@ -1,4 +1,4 @@
-name: Build and publish the nightly Docker image
+name: Build and test the Docker image
 on:
   pull_request:
     types: [ opened, synchronize, ready_for_review ]
@@ -8,7 +8,6 @@ on:
 
 env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
-  PRODUCTION_IMAGE_NAME: 'openrouteservice/openrouteservice:nightly'
   BUILD_PLATFORMS: 'linux/amd64,linux/arm64/v8'
 
 
@@ -19,7 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       test_image_name: ${{ env.TEST_IMAGE_NAME }}
-      production_image_name: ${{ env.PRODUCTION_IMAGE_NAME }}
       build_platforms: ${{ env.BUILD_PLATFORMS }}
     steps:
       - run: |
@@ -47,7 +45,7 @@ jobs:
           context: .
           push: false
           load: false
-          tags: ${{ needs.prepare_environment.outputs.test_image_name }}, ${{ needs.prepare_environment.outputs.production_image_name }}
+          tags: ${{ needs.prepare_environment.outputs.test_image_name }}
           platforms: "${{ needs.prepare_environment.outputs.build_platforms }}"
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -127,39 +125,3 @@ jobs:
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 50
           # It should fail with http code 403 for https://example.com since the Origin is not covered.
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
-  publish_docker:
-    name: Publish the docker image to docker hub
-    runs-on: ubuntu-latest
-    needs:
-      - prepare_environment
-      - build_docker_images
-      - run_docker_image_tests
-    steps:
-      - run: |
-          echo "Publish image ${{ needs.prepare_environment.outputs.production_image_name }}"
-      - name: Checkout
-        uses: actions/checkout@v2.2.0
-        with:
-          fetch-depth: 0
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        id: buildx
-        with:
-          install: true
-      - name: Login to DockerHub
-        if: ${{ success() && github.ref == 'refs/heads/main' }}
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-      - name: Publish nightly
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ needs.prepare_environment.outputs.production_image_name }}
-          platforms: "${{ needs.prepare_environment.outputs.build_platforms }}"
-          cache-from: type=gha
