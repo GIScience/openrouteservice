@@ -1,6 +1,6 @@
 # Building from Source
 
-If you need to customize your openrouteservice instance even further than what is possible by [configuration](/run-instance/configuration/index.md), or want to start contributing to the openrouteservice project, the following section will give you starting points.
+If you need to customize your openrouteservice instance even further than what is possible by [configuration](/run-instance/configuration/index.md), or want to start [contributing](/contributing/index.md) to the openrouteservice project, the following section will give you starting points.
 
 ## Prerequisites
 
@@ -9,42 +9,70 @@ The following documentation assumes you are running an Ubuntu 20.04 system (also
 * [java](https://www.java.com/en/) 17 should be available, preferably as default Java environment
 * [maven](https://maven.apache.org/) should be installed on your system
 
-## Installation from source
+## Get Source Code
 
-To build openrouteservice from source, you can use the following commands:
+Clone and switch into the repository with the following commands:
 ```shell
 git clone https://github.com/user/openrouteservice.git
 cd openrouteservice
-mvn package
 ```
 
-If you have made modifications to the code, you should run all tests before building and using openrouteservice. For a significant part of the tests you need to activate a maven profile called `apitests` to run them. Use the following commands:
+## Running with maven
+
+You should be able to run the application directly with  
 
 ```shell
-mvn -Papitests verify
-# afterwards you can build the artefacts without running the tests again by issuing the following command:
-mvn -DskipTests package
+mvn spring-boot:run
 ```
 
-[//]: # (TODO: overhaul contents below after integrating the jar build PR)
-After running this command, you will find the artefact at `ors-api/target/ors.war`. 
+or in your IDE (see below). This will start openrouteservice on port `8082` with the default configuration `ors-config.yml` in the project root directory
+and a small OSM data set from Heidelberg.
 
-After you have packaged openrouteservice, there are two options for running it. One is to run the `mvn spring-boot:run` command which triggers a spring-boot native Tomcat instance running on port `8082`.  This is more restrictive in terms of settings for Tomcat. The other is to install and run Tomcat 10. In both cases the requirements of configuration and source files discussed [here](running-jar-war) apply.
+In [Configuration](configuration/index.md) you find the options how you can use customised configurations.  
 
-[//]: # (TODO: the part below partly belongs somewhere in the contributing section; running with IDE needs to be overhauled, too, since it does not mention running with spring boot run config)
+To create a deployable WAR or JAR artifact, please refer to the documentation for [JAR](jar/build.md) and [WAR](war/build.md).
+
 
 ## Running from within IDE
 
 To run the project from within your IDE, you have to:
 
-  1. Set up your IDE project and import `openrouteservice`
-     modules as Maven model.
-     For IntelliJ Idea, have a look at [these instructions](/contributing/opening-project-in-intellij.md).
+1. Open IntelliJ and Create a project via File -> New -> Project from Existing Sources
+2. Select the "pom.xml" file from the cloned "openrouteservice" folder and click "Open"
+3. Click through project settings with "Next" until you reach the page for selecting project SDK.
+4. Choose "17" as project SDK and click "Next"
+5. Finalize the project import by clicking "Finish" in the last window.
+6. Configure your IDE to run `spring-boot:run` as the maven goal. Now you can run your application directly in IntelliJ.
+7. To use a different config file than ors-config.yml in the project directory, you can set the environment variable `ORS_CONFIG_LOCATION=<config>` in your run config. 
+7. You can run all tests via JUnit.
 
-  2. Configure your IDE to run `spring-boot:run` as the maven goal, setting the
-     environment variable `ORS_CONFIG_LOCATION=ors-config.yml`.
 
-  3. You can run all tests via JUnit.
+## Running Tests
+
+Running tests is essential if you change the code. Please always make sure that all tests are passing. Failing test sometimes indicate, that code changes break existing code. If the expected behavior of the application changes, it might also be necessary to change existing tests. For new functionality, new tests should be added.
+
+It is very convenient to run unit tests (all or just one or some) in the IDE.
+You can also run tests with maven on the command line. Here are some examples, checkout the maven documentation for more options.
+
+```shell
+mvn clean test                   # runs unit tests in all modules
+mvn clean test -pl :ors-api      # runs unit tests in ors-api
+mvn clean test -pl :ors-api -Dtest="APIEnumsTest" # run tests in a single test class
+mvn clean test -pl :ors-api -Dtest="APIEnumsTest#testLanguagesEnumCreation" # or a single test method only
+```
+
+The api tests (in `ors-api/src/test/java/org/heigit/ors/apitests`) are excluded by default. 
+To include them, add the option `-Papitests`, e.g.:
+
+```shell
+mvn clean verify -Papitests
+```
+
+If you want to run maven tasks without tests, add the option`-DskipTests`, e.g.:
+
+```shell
+mvn clean package -DskipTests
+```
 
 
 ## Integrating GraphHopper
