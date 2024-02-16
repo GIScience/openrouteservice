@@ -47,7 +47,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
         if (configLocations.isEmpty()) {
             String home = System.getenv("HOME");
             configLocations.add("./ors-config.yml");
-            configLocations.add(home+"/.config/openrouteservice/ors-config.yml");
+            configLocations.add(home + "/.config/openrouteservice/ors-config.yml");
             configLocations.add("/etc/openrouteservice/ors-config.yml");
             log.info("Configuration file lookup by default locations.");
         }
