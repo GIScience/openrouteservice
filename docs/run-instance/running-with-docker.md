@@ -1,19 +1,24 @@
 # Running with Docker
 
-If Docker is available on your system, openrouteservice can be run within a container using prebuilt images from [dockerhub](https://hub.docker.com/r/openrouteservice/openrouteservice) or by building your own image from our source files.
+If Docker is available on your system, openrouteservice can be run within a container using prebuilt images
+from [dockerhub](https://hub.docker.com/r/openrouteservice/openrouteservice) or by building your own image from the
+source files.
 
 ## Prerequisites
 
-* [Docker](https://docs.docker.com/get-docker/) should be installed on your system.
+- [Docker](https://docs.docker.com/get-docker/)
+- an OSM extract, e.g. from [Geofabrik](http://download.geofabrik.de) or for small areas directly export
+from [osm.org](https://www.openstreetmap.org/export#map=15/49.4197/8.6893).
 
-## Running prebuilt images
+## Docker compose
 
 There are multiple ways with Docker to quickly have a running instance.
 
+### Prebuilt image
 1. Recommended: Run latest release version image using `docker compose`
 
     ```shell
-    # For latest release build
+    # For latest build
     wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/docker-compose.yml
     docker compose up -d
     ```
@@ -31,9 +36,11 @@ There are multiple ways with Docker to quickly have a running instance.
     export ORS_TAG=nightly && docker compose up -d
     ```
 
-## Build image
+## Build local image
 
-To build your own image, you need to download the source code by following the instructions in chapter [Building from Source](/run-instance/building-from-source.md#download-source-code). You do not have to have Java or Maven installed on your system.  
+To build your own image, you need to download the source code by following the instructions in chapter
+[Building from Source](/run-instance/building-from-source.md#download-source-code).
+You do not have to have Java or Maven installed on your system.  
 
 After downloading the source, you can build your Docker image by running the following command in the source directory: 
 
@@ -50,7 +57,7 @@ export ORS_TAG=local && docker compose up -d
 
 ::: details Alternative: modify docker compose to build image 
 
-After downloading the code, open the file `docker-compose.yml`, remove line 8 and uncomment lines 11-14.
+After downloading the code, open the file `docker-compose.yml`, and apply the following changes:
 
 ```yaml
 version: '2.4'
@@ -61,7 +68,7 @@ services:
       - "8080:8080"
       - "9001:9001"
     image: openrouteservice/openrouteservice:nightly // [!code --]
-    # For versioned images see https://giscience.github.io/openrouteservice/run-instance/installation/running-with-docker
+    # For versioned images see https://giscience.github.io/openrouteservice/run-instance/running-with-docker
     user: "${UID:-0}:${GID:-0}"
 #    build: // [!code --]
 #      context: ./ // [!code --]
