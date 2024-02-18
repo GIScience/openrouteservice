@@ -24,7 +24,7 @@ import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
-import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.*;
 import org.apache.log4j.Logger;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -51,6 +51,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -85,7 +86,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private TrafficEdgeFilter trafficEdgeFilter;
     private final IntHashSet matchedHereLinks = new IntHashSet();
     private final ArrayList<String> matchedOSMLinks = new ArrayList<>();
-    private  boolean showProgressBar;
+    ProgressBarBuilder progressBar;
 
     /**
      * Initialize the Here Traffic graph extension <br/><br/>
@@ -138,7 +139,20 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
         gh = graphhopper;
         mMapMatcher = new GhMapMatcher(graphhopper, parameters.get("gh_profile"));
-        showProgressBar = LOGGER.isDebugEnabled();
+
+        // Define the print stream for the progress bar that is only printing when the log level is set to debug.
+        // Each line is printed with a carriage return to overwrite the previous line and avoid cluttering the console when printing the progress bar.
+        PrintStream printStream = new PrintStream(System.out) {
+            public void print(String x) {
+                if (LOGGER.isDebugEnabled() && x != null)
+                    System.out.print("\r" + x);
+            }
+        };
+        // Initialize the progress bar with the print stream and the style of the progress bar.
+        progressBar = new ProgressBarBuilder()
+                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
+                .setUpdateIntervalMillis(5000) // slow update for better visualization and less IO. Avoids % calculation for each element.
+                .setConsumer(new ConsoleProgressBarConsumer(printStream));
         return storage;
     }
 
@@ -313,32 +327,29 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     private void processTrafficPatterns(IntObjectHashMap<TrafficPattern> patterns) {
-        try (ProgressBar pb = showProgressBar ? new ProgressBar("Processing traffic patterns", patterns.values().size()) : null) {
+        try (ProgressBar pb = progressBar.setInitialMax(patterns.size()).setTaskName("Processing Here traffic patterns").build()) {
             for (ObjectCursor<TrafficPattern> pattern : patterns.values()) {
                 storage.setTrafficPatterns(pattern.value.getPatternId(), pattern.value.getValues());
-                if (showProgressBar)
-                    pb.step();
+                pb.step();
             }
-            LOGGER.info("Processed " + storage.getPatternCount() + " traffic patterns");
         } catch (Exception e) {
             LOGGER.error("Error processing here traffic patterns with error: " + e);
+        } finally {
+            LOGGER.info("Processed " + storage.getPatternCount() + " traffic patterns");
         }
     }
 
     private void processLinks(ORSGraphHopper graphHopper, IntObjectHashMap<TrafficLink> links) {
         int trafficLinksCount = links.values().size();
-        try (ProgressBar pb = showProgressBar ? new ProgressBar("Matching Here Links", trafficLinksCount) : null) {
-            int counter = 0;
-            int step = trafficLinksCount / 100 + ((trafficLinksCount % 100 == 0) ? 0 : 1);
+        try (ProgressBar pb = progressBar.setInitialMax(links.size()).setTaskName("Matching Here links").build()) {
             for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
-                counter++;
                 processLink(graphHopper, trafficLink.value);
-                if (showProgressBar && counter % step == 0)
-                    pb.stepBy(step);
+                pb.step();
             }
-            LOGGER.info("Matched " + 100 * getMatchedHereLinksCount()/trafficLinksCount + "% Here links (" + getMatchedHereLinksCount() + " out of " + trafficLinksCount + ")");
         } catch (Exception e) {
             LOGGER.error("Error processing here traffic links with error: " + e);
+        } finally {
+            LOGGER.info("Matched " + 100 * getMatchedHereLinksCount() / trafficLinksCount + "% Here links (" + getMatchedHereLinksCount() + " out of " + trafficLinksCount + ")");
         }
     }
 
