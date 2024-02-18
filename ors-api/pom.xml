@@ -152,11 +152,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-reload4j</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.json</groupId>
@@ -243,12 +238,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j2-impl</artifactId>
-                </exclusion>
-            </exclusions>
+            <!-- Don't exclude log4j-slf4j2-impl -->
+            <!-- This implements log4j logging as well as proper forwarding from slf4j to log4j -->
+            <!-- It is necessary when artifacts in the dependency tree use slf4j but we use log4j -->
+            <!-- Right now, we use log4j2 as logging framework but the graphhopper library uses slf4j -->
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
