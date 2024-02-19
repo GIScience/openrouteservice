@@ -138,11 +138,11 @@ public class RoutingProfileManager {
             LOGGER.info("========================================================================");
             RoutingProfileManagerStatus.setReady(true);
         } catch (ExecutionException ex) {
-            fail("Configured source file: '" + config.getSourceFile() + "' does not appear to be a valid OSM data file! Exiting.");
+            fail("Failed to either read or execute the ors configuration and its parameters: " + ex.getMessage());
             Thread.currentThread().interrupt();
             return;
         } catch (Exception ex) {
-            fail("Failed to initialize RoutingProfileManager instance! " + ex.getMessage());
+            fail("Unhandled exception at RoutingProfileManager initialization: " + ex.getMessage());
             Thread.currentThread().interrupt();
             System.exit(1);
         }
