@@ -33,7 +33,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         id: buildx
@@ -84,7 +84,7 @@ jobs:
             echo "HEALTH_WAIT_TIME=260" >> $GITHUB_ENV
           fi
       - name: Set up QEMU for ${{ matrix.platform }}
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: ${{ matrix.platform }}
       - name: Set up Docker Buildx
