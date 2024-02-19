@@ -23,7 +23,7 @@
             <groupId>org.heigit.ors</groupId>
             <artifactId>ors-api</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
+            <type>${packagingValue}</type>
         </dependency>
     </dependencies>
 

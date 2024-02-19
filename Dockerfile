@@ -43,8 +43,8 @@ COPY ors-engine /ors-core/ors-engine
 COPY pom.xml /ors-core/pom.xml
 COPY ors-report-aggregation /ors-core/ors-report-aggregation
 
-# Build the project and ignore the report aggregation module as not needed for the API
-RUN mvn package -DskipTests -pl '!ors-report-aggregation'
+# Build the project and ignore the report aggregation module as not needed for the API build war
+RUN mvn package -DskipTests -P buildWar
 
 # build final image, just copying stuff inside
 FROM amazoncorretto:17.0.7-alpine3.17 as publish
