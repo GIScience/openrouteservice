@@ -1,0 +1,14 @@
+source $TESTFILES_DIR/testfunctions.sh
+
+clearEnvironment
+
+cd $REPO_DIR
+mkdir -p $HOME/.config
+cp $TESTFILES_DIR/config-car.yml $HOME/.config/ors-config.yml
+mvn spring-boot:run -DskipTests &
+
+awaitOrsReady 100
+
+profiles=$(requestEnabledProfiles)
+#stopOrs
+assertEquals "driving-car" "$profiles"
