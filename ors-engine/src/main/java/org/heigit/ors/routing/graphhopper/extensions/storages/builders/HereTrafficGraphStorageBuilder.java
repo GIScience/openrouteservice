@@ -431,40 +431,50 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
         org.locationtech.jts.geom.Coordinate[] locations = geometry.getCoordinates();
         int originalFunctionalClass = trafficEdgeFilter.getHereFunctionalClass();
-        RouteSegmentInfo[] match = mMapMatcher.match(locations, bothDirections);
-        match = validateRouteSegment(originalTrafficLinkLength, match);
+        try {
+            RouteSegmentInfo[] match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
 
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value)) {
-            // Test a higher functional class based from the original class
-//            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
-            trafficEdgeFilter.higherFunctionalClass();
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
+            if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value)) {
+                // Test a higher functional class based from the original class
+                //            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
+                trafficEdgeFilter.higherFunctionalClass();
+                mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+                match = mMapMatcher.match(locations, bothDirections);
+                match = validateRouteSegment(originalTrafficLinkLength, match);
+            }
+            if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
+                // Try matching in the next lower functional class.
+                trafficEdgeFilter.setHereFunctionalClass(originalFunctionalClass);
+                trafficEdgeFilter.lowerFunctionalClass();
+                mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+                match = mMapMatcher.match(locations, bothDirections);
+                match = validateRouteSegment(originalTrafficLinkLength, match);
+            }
+            if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
+                // But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+                trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value);
+                mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+                match = mMapMatcher.match(locations, bothDirections);
+                match = validateRouteSegment(originalTrafficLinkLength, match);
+            }
+            if (match.length <= 0 && (originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS1.value)) {
+                // If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+                trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.CLASS5.value);
+                mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+                match = mMapMatcher.match(locations, bothDirections);
+                match = validateRouteSegment(originalTrafficLinkLength, match);
+            }
+            return match;
+        } catch (IllegalArgumentException e) {
+            // Graphhopper throws an IllegalArgumentException when the matching fails. This is to be expected when matching here traffic on osm files without the corresponding edges.
+            // The exception is caught and logged as a trace to avoid cluttering the log with expected exceptions.
+            LOGGER.trace("Error while matching: " + e);
+            return new RouteSegmentInfo[]{};
+        } catch (Exception e) {
+            LOGGER.error("Error while matching: " + e);
+            return new RouteSegmentInfo[]{};
         }
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
-            // Try matching in the next lower functional class.
-            trafficEdgeFilter.setHereFunctionalClass(originalFunctionalClass);
-            trafficEdgeFilter.lowerFunctionalClass();
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
-            // But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
-            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value);
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        if (match.length <= 0 && (originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS1.value)) {
-            // If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
-            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.CLASS5.value);
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        return match;
     }
 
     private RouteSegmentInfo[] validateRouteSegment(double originalTrafficLinkLength, RouteSegmentInfo[] routeSegmentInfo) {
