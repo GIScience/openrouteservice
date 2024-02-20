@@ -8,7 +8,7 @@ on:
 
 env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
-  BUILD_PLATFORMS: 'linux/amd64,linux/arm64/v8'
+  BUILD_PLATFORMS: 'linux/amd64,linux/arm64'
 
 
 jobs:
@@ -61,15 +61,15 @@ jobs:
       - build_docker_images
     strategy:
       matrix:
-        platform: [ linux/amd64,linux/arm64/v8 ]
+        platform: [ linux/amd64,linux/arm64 ]
         image: [ ubuntu-latest ]
-        # linux/arm64/v8 is emulated with qemu and takes ages to build the graph.
-        # Only run linux/arm64/v8 tests on ready PR and main.
+        # linux/arm64 is emulated with qemu and takes ages to build the graph.
+        # Only run linux/arm64 tests on ready PR and main.
         isDraftPR:
           - ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == true }}
         exclude:
           - isDraftPR: true
-            platform: linux/arm64/v8
+            platform: linux/arm64
     steps:
       - run: |
           echo "Run docker test for platform ${{ matrix.platform }}"
@@ -82,7 +82,7 @@ jobs:
           echo "UID=$(id -u)" >> $GITHUB_ENV
       - name: Set the wait time for arm64
         run: |
-          if [[ "${{ matrix.platform }}" == 'linux/arm64/v8' ]]; then
+          if [[ "${{ matrix.platform }}" == 'linux/arm64' ]]; then
             # arm64 is emulated and takes longer to build the graph
             echo "Set HEALTH_WAIT_TIME to 600 for arm64"
             echo "HEALTH_WAIT_TIME=600" >> $GITHUB_ENV
