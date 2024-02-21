@@ -41,6 +41,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilt
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.util.ErrorLoggingUtility;
+import org.heigit.ors.util.ProgressBarLogger;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -51,7 +52,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -140,19 +140,13 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         gh = graphhopper;
         mMapMatcher = new GhMapMatcher(graphhopper, parameters.get("gh_profile"));
 
-        // Define the print stream for the progress bar that is only printing when the log level is set to debug.
-        // Each line is printed with a carriage return to overwrite the previous line and avoid cluttering the console when printing the progress bar.
-        PrintStream printStream = new PrintStream(System.out) {
-            public void print(String x) {
-                if (LOGGER.isDebugEnabled() && x != null)
-                    System.out.print("\r" + x);
-            }
-        };
+        Logger progressBarLogger = ProgressBarLogger.getLogger();
+
         // Initialize the progress bar with the print stream and the style of the progress bar.
         progressBar = new ProgressBarBuilder()
                 .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
                 .setUpdateIntervalMillis(5000) // slow update for better visualization and less IO. Avoids % calculation for each element.
-                .setConsumer(new ConsoleProgressBarConsumer(printStream));
+                .setConsumer(new DelegatingProgressBarConsumer(progressBarLogger::info));
         return storage;
     }
 
