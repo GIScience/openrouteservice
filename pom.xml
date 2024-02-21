@@ -33,6 +33,12 @@
     </modules>
 
     <properties>
+        <!--
+            A default for packagingValue is needed, if profiles other than buildWar or buildFatJar are used, e.g. apitests.
+            The value is set/overridden in the profiles buildWar and buildFatJar, e.g.
+                mvn clean package -PbuildWar
+         -->
+        <packagingValue>jar</packagingValue>
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -80,6 +86,24 @@
             </releases>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>buildWar</id>
+            <properties>
+                <packagingValue>war</packagingValue>
+            </properties>
+        </profile>
+        <profile>
+            <id>buildFatJar</id>
+            <properties>
+                <packagingValue>jar</packagingValue>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
 
     <dependencyManagement>
         <dependencies>
@@ -237,13 +261,6 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-reload4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
