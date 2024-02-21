@@ -7,7 +7,7 @@ cp $TESTFILES_DIR/config-car.yml $CONF_DIR_ETC/ors-config.yml
 cd $WORK_DIR
 mvn spring-boot:run -DskipTests &
 
-awaitOrsReady 30
+awaitOrsReady 60
 
 profiles=$(requestEnabledProfiles)
 #stopOrs
