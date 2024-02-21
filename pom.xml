@@ -56,7 +56,7 @@
         <commons-io.version>2.11.0</commons-io.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
         <org-json.version>20231013</org-json.version>
-        <postgresql.version>42.6.0</postgresql.version>
+        <postgresql.version>42.7.2</postgresql.version>
         <progressbar.version>0.10.0</progressbar.version>
         <jline.version>3.25.0</jline.version>
         <jqwik.version>1.6.5</jqwik.version>
