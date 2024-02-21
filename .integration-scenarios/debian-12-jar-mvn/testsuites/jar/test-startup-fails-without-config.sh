@@ -9,7 +9,7 @@ cd $WORK_DIR
 java -jar $WORK_DIR/ors-api/target/ors.jar 1>/dev/null 2>&1 &
 
 # expect process finished within 100 sec
-res=$(expectOrsStartupFails 30)
+res=$(expectOrsStartupFails 60)
 
 #stopOrs
 

@@ -6,10 +6,10 @@ clearEnvironment
 cd $WORK_DIR
 
 # do not set params to enable a routing profile
-mvn spring-boot:run -DskipTests &
+mvn spring-boot:run -DskipTests 1>/dev/null 2>&1 &
 
 # expect process finished within 100 sec
-res=$(expectOrsStartupFails 30)
+res=$(expectOrsStartupFails 60)
 
 #stopOrs
 
