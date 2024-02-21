@@ -3,7 +3,7 @@ source $TESTFILES_DIR/testfunctions.sh
 clearEnvironment
 # do not copy config to one of the default places
 
-cd $REPO_DIR
+cd $WORK_DIR
 
 # do not set params to enable a routing profile
 mvn spring-boot:run -DskipTests &

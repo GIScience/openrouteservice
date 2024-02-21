@@ -2,9 +2,10 @@ source $TESTFILES_DIR/testfunctions.sh
 
 clearEnvironment
 
-cd $REPO_DIR
-cp $TESTFILES_DIR/config-car.yml ./ors-config.yml
-java -jar $REPO_DIR/ors-api/target/ors.jar 1>/dev/null 2>&1 &
+cp $TESTFILES_DIR/config-car.yml $WORK_DIR/ors-config.yml
+
+cd $WORK_DIR
+mvn spring-boot:run -DskipTests &
 
 awaitOrsReady 30
 

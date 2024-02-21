@@ -46,9 +46,9 @@ function clearEnvironment() {
   unset ORS_ENGINE_PROFILES_HGV_ENABLED
   unset ORS_ENGINE_PROFILES_CAR_ENABLED
   unset ORS_ENGINE_PROFILES_WHEELCHAIR_ENABLED
-  rm -f $REPO_DIR/ors-config.yml
-  rm -f $HOME_DIR/.config/ors-config.yml
-  rm -f /etc/openrouteservice/ors-config.yml
+  rm -f $WORK_DIR/ors-config.yml
+  rm -f $CONF_DIR_USER/ors-config.yml
+  rm -f $CONF_DIR_ETC/ors-config.yml
 }
 
 function awaitOrsReady() {
