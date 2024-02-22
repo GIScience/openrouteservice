@@ -26,12 +26,12 @@ ${B}Options:${N}
 function runTest() {
     runType=$1
     testscript=$2
-    echo -n "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}$(basename $testscript)${N} with ${runType}... "
+    echo -n "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}$(basename $testscript)${N} ${runType}... "
     $testscript "${runType}" 1>/dev/null 2>&1
     if (($?)); then
       hasErrors=1
       echo "${FG_RED}${B}failed${N}"
-      [[ -n $failFast ]] && exit 1
+      (($failFast)) && exit 1
     else
       echo "${FG_GRN}passed${N}"
     fi
