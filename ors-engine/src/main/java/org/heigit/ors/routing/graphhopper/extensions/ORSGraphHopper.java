@@ -414,8 +414,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
                 calculateContours();
                 List<Profile> profiles = fastIsochroneFactory.getFastIsochroneProfiles();
                 for (Profile profile : profiles) {
-                    Weighting weighting = ((ORSWeightingFactory) createWeightingFactory()).createIsochroneWeighting(profile, new PMap(profile.getName()).putObject("isochroneWeighting", "true"));
-
+                    Weighting weighting = ((ORSWeightingFactory) createWeightingFactory()).createIsochroneWeighting(profile);
                     for (FlagEncoder encoder : super.getEncodingManager().fetchEdgeEncoders()) {
                         calculateCellProperties(weighting, partitioningEdgeFilter, encoder, fastIsochroneFactory.getIsochroneNodeStorage(), fastIsochroneFactory.getCellStorage());
                     }

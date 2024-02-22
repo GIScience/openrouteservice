@@ -122,7 +122,7 @@ public class ORSWeightingFactory implements WeightingFactory {
             return weighting;
     }
 
-    public Weighting createIsochroneWeighting(Profile profile, PMap requestHints) {
+    public Weighting createIsochroneWeighting(Profile profile) {
         FlagEncoder encoder = this.encodingManager.getEncoder(profile.getVehicle());
         String weightingStr = toLowerCase(profile.getWeighting());
         Weighting result = null;
@@ -136,7 +136,7 @@ public class ORSWeightingFactory implements WeightingFactory {
                 || "priority".equalsIgnoreCase(weightingStr)
                 || "recommended_pref".equalsIgnoreCase(weightingStr)
                 || "recommended".equalsIgnoreCase(weightingStr)) {
-            result = new FastestWeighting(encoder, requestHints);
+            result = new ORSFastestWeighting(encoder);
         }
 
         return result;
