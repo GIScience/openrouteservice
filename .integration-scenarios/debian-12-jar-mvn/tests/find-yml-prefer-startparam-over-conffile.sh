@@ -1,13 +1,7 @@
 TESTROOT="$( cd "$(dirname "$0")"/.. >/dev/null 2>&1 ; pwd -P )"
 source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
-CONTAINER=$(removeExtension "$(basename $0)")
-HOST_PORT=$(findFreePort 8082)
-runType=$1
-case $runType in
-  jar) IMAGE=$IMAGE_NAME_JAR;;
-  mvn) IMAGE=$IMAGE_NAME_MVN;;
-esac
+prepareTest $1 $(basename $0)
 
 # Although the config file $WORK_DIR/ors-config.yml exists, it should not be used,
 # but instead the config file specified as start parameter (first positional parameter)
