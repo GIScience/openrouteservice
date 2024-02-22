@@ -130,3 +130,12 @@ function findFreePort() {
     # If no available port found, return failure
     return 1
 }
+
+function getProgramArguments() {
+    runType=$1
+    shift
+    case "$runType" in
+      jar) echo "$*";;
+      mvn) echo "-Dspring-boot.run.arguments='$*'";;
+    esac
+}

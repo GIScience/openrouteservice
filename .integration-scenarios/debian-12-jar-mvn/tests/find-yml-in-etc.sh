@@ -3,12 +3,17 @@ source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
 CONTAINER=$(removeExtension "$(basename $0)")
 HOST_PORT=$(findFreePort 8082)
+runType=$1
+case $runType in
+  jar) IMAGE=$IMAGE_NAME_JAR;;
+  mvn) IMAGE=$IMAGE_NAME_MVN;;
+esac
 
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
   -v "$TESTROOT"/files/config-car.yml:$CONF_DIR_ETC/ors-config.yml \
-  local/"$IMAGE_NAME_JAR":latest &
+  local/"$IMAGE":latest &
 
-awaitOrsReady 30 $HOST_PORT
+awaitOrsReady 60 $HOST_PORT
 profiles=$(requestEnabledProfiles $HOST_PORT)
 podman stop "$CONTAINER"
 

@@ -3,16 +3,21 @@ source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
 CONTAINER=$(removeExtension "$(basename $0)")
 HOST_PORT=$(findFreePort 8082)
+runType=$1
+case $runType in
+  jar) IMAGE=$IMAGE_NAME_JAR;;
+  mvn) IMAGE=$IMAGE_NAME_MVN;;
+esac
 
 # Although the config file $WORK_DIR/ors-config.yml exists, it should not be used,
 # but instead the config file specified as start parameter (first positional parameter)
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
   -v "$TESTROOT"/files/config-car.yml:$WORK_DIR/ors-config.yml \
   -v "$TESTROOT"/files/config-hgv.yml:$WORK_DIR/config-hgv.yml \
-  local/"$IMAGE_NAME_JAR":latest \
-  config-hgv.yml &
+  local/"$IMAGE":latest \
+  $(getProgramArguments $runType $WORK_DIR/config-hgv.yml) &
 
-awaitOrsReady 30 $HOST_PORT
+awaitOrsReady 60 $HOST_PORT
 profiles=$(requestEnabledProfiles $HOST_PORT)
 podman stop "$CONTAINER"
 
