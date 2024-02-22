@@ -2,22 +2,22 @@
 TESTROOT="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source $TESTROOT/files/test.conf
 source $TESTROOT/files/testfunctions.sh
-
+SCRIPT=$(basename $0)
 failFast=0
 jar=0
 mvn=0
 pattern="*.sh"
 
 function printCliHelp() { # TODO adapt
-  printInfo "\
+  echo "\
 ${B}$SCRIPT${N} - run ors tests in containers
 
-${B}Usage:${N} $SCRIPT [options]
+${B}Usage:${N} $SCRIPT [options] (at least one of -j|-m is required)
 
 ${B}Options:${N}
     ${B}-f      ${N} -- Fail fast
-    ${B}-j      ${N} -- Run with java -jar
-    ${B}-m      ${N} -- Run with mvn spring-boot:run
+    ${B}-j      ${N} -- Run with ${B}java -jar${N}
+    ${B}-m      ${N} -- Run with ${B}mvn spring-boot:run${N}
     ${B}-p <arg>${N} -- Pattern to specify tests (quote)
     ${B}-h      ${N} -- Display this help and exit
 "
@@ -37,7 +37,7 @@ function runTest() {
     fi
 }
 
-while getopts :fjmp:h FLAG; do # TODO adapt
+while getopts :fjmp:h FLAG; do
   case $FLAG in
     f) failFast=1;;
     j) jar=1;;
@@ -47,13 +47,15 @@ while getopts :fjmp:h FLAG; do # TODO adapt
       printCliHelp
       exit 0;;
     \?) #unrecognized option - show help
-      printError "Unknown option -${B}$OPTARG${N}. Type ${B}$SCRIPT -h${N} for help."
+      echo "${FG_RED}${B}Error: Unknown option -${B}$OPTARG${N}. Type ${B}$SCRIPT -h${N} for help."
       exit 1;;
   esac
 done
 
 # This tells getopts to move on to the next argument.
 shift $((OPTIND-1))
+
+if ! (($jar)) && ! (($mvn)); then echo "${FG_RED}${B}Error: Neither option -j nor -m is set!${N} Type ${B}$SCRIPT -h${N} for help. "; exit 1; fi
 
 hasErrors=0
 
