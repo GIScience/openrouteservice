@@ -399,24 +399,6 @@ public class FastIsochroneMapBuilder implements IsochroneMapBuilder {
         Geometry concaveHull;
         try {
             concaveHull = concaveHullByLength(points, smoothingDistance);
-            if (concaveHull instanceof Polygon polygon) {
-                ring = polygon.getExteriorRing();
-                List<Coordinate> coordinates = new ArrayList<>(ring.getNumPoints());
-                for (int i = 0; i < ring.getNumPoints(); i++) {
-                    coordinates.add(ring.getCoordinateN(i));
-                    if (i < ring.getNumPoints() - 1) {
-                        splitEdgeToCoordinates(ring.getPointN(i).getY(),
-                                ring.getPointN(i + 1).getY(),
-                                ring.getPointN(i).getX(),
-                                ring.getPointN(i + 1).getX(),
-                                coordinates,
-                                minSplitLength/2,
-                                MAX_EDGE_LENGTH_LIMIT);
-                    }
-                }
-                coordinates.add(ring.getCoordinateN(0));
-                concaveHull = geomFactory.createPolygon(coordinates.toArray(new Coordinate[0]));
-            }
             if (concaveHull instanceof Polygon && concaveHull.isValid() && !concaveHull.isEmpty())
                 isochroneGeometries.add(concaveHull);
         } catch (Exception e) {
