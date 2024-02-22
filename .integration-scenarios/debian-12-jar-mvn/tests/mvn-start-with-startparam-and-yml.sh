@@ -4,12 +4,16 @@ source $TESTROOT/files/test.conf
 CONTAINER=$(removeExtension "$(basename $0)")
 HOST_PORT=$(findFreePort 8082)
 
+# The yml config $CONF_DIR_USER/ors-config.yml should be loaded
+# and additionally the default hgv profile should be enabled
+# by the start param
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
-  -v "$TESTROOT"/files/config-car.yml:$CONF_DIR_ETC/ors-config.yml \
-  local/"$IMAGE_NAME_JAR":latest &
+  -v "$TESTROOT"/files/config-car.yml:$CONF_DIR_USER/ors-config.yml \
+  local/"$IMAGE_NAME_MVN":latest \
+  "-Dspring-boot.run.arguments='--ors.engine.profiles.hgv.enabled=true'" &
 
 awaitOrsReady 30 $HOST_PORT
-
 profiles=$(requestEnabledProfiles $HOST_PORT)
 podman stop "$CONTAINER"
-assertEquals "driving-car" "$profiles"
+
+assertEquals 'driving-hgv driving-car' "$profiles"

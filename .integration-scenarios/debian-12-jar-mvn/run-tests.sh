@@ -9,7 +9,7 @@ failFast=$2
 hasErrors=0
 
 for testscript in ${TESTROOT}/tests/${pattern}; do
-  echo -n "$(basename $testscript) ... "
+  echo -n "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} $(basename $testscript) ... "
   $testscript 1>/dev/null 2>&1
   if (($?)); then
     hasErrors=1

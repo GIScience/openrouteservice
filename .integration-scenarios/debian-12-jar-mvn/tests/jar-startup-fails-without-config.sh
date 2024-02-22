@@ -8,7 +8,7 @@ HOST_PORT=$(findFreePort 8082)
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 local/"$IMAGE_NAME_JAR":latest  &
 
 # expect process finished timout
-res=$(expectOrsStartupFails 60 "$CONTAINER" $HOST_PORT)
+res=$(expectOrsStartupFails 60 "$CONTAINER" )
 # stop container if was not finished
 podman stop "$CONTAINER"
 

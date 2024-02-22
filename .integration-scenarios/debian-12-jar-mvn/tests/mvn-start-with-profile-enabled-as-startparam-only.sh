@@ -4,16 +4,14 @@ source $TESTROOT/files/test.conf
 CONTAINER=$(removeExtension "$(basename $0)")
 HOST_PORT=$(findFreePort 8082)
 
-cp $TESTFILES_DIR/config-car.yml $WORK_DIR/ors-config.yml
-cp $TESTFILES_DIR/config-hgv.yml $CONF_DIR_USER/ors-config.yml
-
+# even if no yml config file is present the ors is startable
+# if at least one routing profile is enabled with a start parameter
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
-  -v "$TESTROOT"/files/config-car.yml:$WORK_DIR/ors-config.yml \
-  -v "$TESTROOT"/files/config-hgv.yml:$CONF_DIR_USER/ors-config.yml \
-  local/"$IMAGE_NAME_JAR":latest  &
+  local/"$IMAGE_NAME_MVN":latest \
+  "-Dspring-boot.run.arguments='--ors.engine.profiles.hgv.enabled=true'" &
 
 awaitOrsReady 30 $HOST_PORT
 profiles=$(requestEnabledProfiles $HOST_PORT)
 podman stop "$CONTAINER"
 
-assertEquals "driving-car" "$profiles"
+assertEquals "driving-hgv" "$profiles"
