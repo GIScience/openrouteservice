@@ -8,8 +8,8 @@ cp $TESTFILES_DIR/config-hgv.yml $CONF_DIR_USER/ors-config.yml
 cd $WORK_DIR
 mvn spring-boot:run -DskipTests &
 
-awaitOrsReady 60
+awaitOrsReady 60 $HOST_PORT
 
-profiles=$(requestEnabledProfiles)
+profiles=$(requestEnabledProfiles $HOST_PORT)
 #stopOrs
 assertEquals "driving-car" "$profiles"

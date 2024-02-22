@@ -31,7 +31,11 @@ BG_CYA=`tput setab 6` #  cyan
 BG_WHT=`tput setab 7` #  white
 BG_DEF=`tput setab 9` #  default
 
-orsUrl=http://localhost:8082/ors/v2
+
+function getOrsUrl() {
+  port=$1
+  echo "http://localhost:${port}/ors/v2"
+}
 
 function stopOrs() {
 #  echo "killing java processes"
@@ -52,26 +56,28 @@ function clearEnvironment() {
 }
 
 function awaitOrsReady() {
-  maxWaitSeconds=$1
+  maxWaitSeconds=${1}
+  port=${2}
   elapsedSeconds=0
   while sleep 1; do
     ((elapsedSeconds++))
     if [ $elapsedSeconds -ge $maxWaitSeconds ]; then break; fi
 
-    health=$(curl --silent $orsUrl/health | jq -r '.status')
+    health=$(curl --silent $(getOrsUrl $port)/health | jq -r '.status')
     if [ "$health" = "ready" ]; then break; fi
   done
 }
 
 function expectOrsStartupFails() {
   maxWaitSeconds=$1
+  container=$2
   elapsedSeconds=0
   while sleep 1; do
     ((elapsedSeconds++))
     if [ $elapsedSeconds -ge $maxWaitSeconds ]; then break ; fi
 
-    javaProcesses=$(pidof java | wc -w)
-    if [[ $javaProcesses -eq 0 ]]; then break; fi
+    running=$(podman ps | grep -e " $CONTAINER$" | wc -l)
+    if [[ $running -eq 0 ]]; then break; fi
   done
 
   if [ $elapsedSeconds -ge $maxWaitSeconds ]; then
@@ -79,7 +85,6 @@ function expectOrsStartupFails() {
   else
     echo "terminated"
   fi
-
 }
 
 function assertEquals() {
@@ -96,6 +101,32 @@ function assertEquals() {
 }
 
 function requestEnabledProfiles() {
-  echo $(curl --silent $orsUrl/status | jq -r '.profiles[].profiles')
+  port=$1
+  echo $(curl --silent $(getOrsUrl $port)/status | jq -r '.profiles[].profiles')
 }
 
+function removeExtension() {
+  echo "${1%.*}"
+}
+
+function isPortInUse() {
+  port=$1
+  if [ -z "$port" ]; then echo ""; exit 1; fi
+  echo "$(ss -tulpn | grep ":${port}" | wc -l)"
+}
+
+function findFreePort() {
+    local port="${1:-8080}"
+    local max_port=${2:-$((port + 100))}
+#    echo "$port .. $max_port"
+    while [[ "$port" -lt "$max_port" ]]; do
+        if ! (($(isPortInUse $port))); then
+            echo "$port"
+            return 0  # Port is available, return success
+        fi
+        ((port++))  # Try the next port
+    done
+
+    # If no available port found, return failure
+    return 1
+}
