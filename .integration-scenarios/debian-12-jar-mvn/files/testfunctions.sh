@@ -143,7 +143,7 @@ function getProgramArguments() {
 function prepareTest() {
   runType=$1
   script=$2
-  CONTAINER=$(removeExtension "$(basename $script)")
+  CONTAINER=${runType}-$(removeExtension "$(basename $script)")
   HOST_PORT=$(findFreePort 8082)
   case $runType in
     jar) IMAGE=$IMAGE_NAME_JAR;;
