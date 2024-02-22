@@ -364,15 +364,6 @@ public class Contour {
             // Add coordinates to storage, but make sure there are enough on long edges by splitting
             hullLatitudes.add(ring.getPointN(i).getY());
             hullLongitudes.add(ring.getPointN(i).getX());
-
-            if (i < ring.getNumPoints() - 1) {
-                splitEdge(ring.getPointN(i),
-                        ring.getPointN(i + 1),
-                        hullLatitudes,
-                        hullLongitudes,
-                        MIN_EDGE_LENGTH,
-                        MAX_EDGE_LENGTH);
-            }
         }
         cellStorage.setCellContourOrder(cellId, hullLatitudes, hullLongitudes);
     }
@@ -380,32 +371,6 @@ public class Contour {
     public Contour setGhStorage(GraphHopperStorage ghStorage) {
         this.ghStorage = ghStorage;
         return this;
-    }
-
-    /**
-     * Splits a line between two points of the distance is longer than a limit
-     *
-     * @param point0     point0 of line
-     * @param point1     point1 of line
-     * @param latitudes  latitudes to which the new coordinates are added
-     * @param longitudes longitudes to which th enew coordinates are added
-     * @param minlim     limit above which the edge will be split (in meters)
-     * @param maxlim     limit above which the edge will NOT be split anymore (in meters)
-     */
-    private void splitEdge(Point point0, Point point1, List<Double> latitudes, List<Double> longitudes, double minlim, double maxlim) {
-        double lat0 = point0.getY();
-        double lon0 = point0.getX();
-        double lat1 = point1.getY();
-        double lon1 = point1.getX();
-        double dist = distance(lat0, lat1, lon0, lon1);
-
-        if (dist > minlim && dist < maxlim) {
-            int n = (int) Math.ceil(dist / minlim);
-            for (int i = 1; i < n; i++) {
-                latitudes.add(lat0 + i * (lat1 - lat0) / n);
-                longitudes.add(lon0 + i * (lon1 - lon0) / n);
-            }
-        }
     }
 
     private void splitAndAddLatLon(PointList newCoordinates, List<Coordinate> existingCoordinates, double minlim, double maxlim) {
