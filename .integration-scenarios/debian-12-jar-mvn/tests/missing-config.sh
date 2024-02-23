@@ -6,7 +6,7 @@ prepareTest $1 $(basename $0)
 # If there is no yml config and also no start parameter
 # enabling a routing profile, ORS cannot start
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
-  -v "$TESTROOT"/graphs_volume:$WORK_DIR/graphs \
+  -v "$TESTROOT"/graphs_volume:$CONTAINER_WORK_DIR/graphs \
   local/"$IMAGE":latest  &
 
 # expect process finished timout

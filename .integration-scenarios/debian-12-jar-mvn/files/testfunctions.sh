@@ -50,9 +50,9 @@ function clearEnvironment() {
   unset ORS_ENGINE_PROFILES_HGV_ENABLED
   unset ORS_ENGINE_PROFILES_CAR_ENABLED
   unset ORS_ENGINE_PROFILES_WHEELCHAIR_ENABLED
-  rm -f $WORK_DIR/ors-config.yml
-  rm -f $CONF_DIR_USER/ors-config.yml
-  rm -f $CONF_DIR_ETC/ors-config.yml
+  rm -f $CONTAINER_WORK_DIR/ors-config.yml
+  rm -f $CONTAINER_CONF_DIR_USER/ors-config.yml
+  rm -f $CONTAINER_CONF_DIR_ETC/ors-config.yml
 }
 
 function awaitOrsReady() {

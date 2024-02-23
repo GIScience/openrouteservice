@@ -3,11 +3,11 @@ FROM docker.io/debian:bookworm-slim as final
 RUN apt-get update -y && \
     apt-get install -y openjdk-17-jdk-headless maven
 
-ARG CONF_DIR_USER=/root/.config/openrouteservice
-ARG CONF_DIR_ETC=/etc/openrouteservice
-ARG WORK_DIR=/home/ors/openrouteservice
+ARG CONTAINER_CONF_DIR_USER=/root/.config/openrouteservice
+ARG CONTAINER_CONF_DIR_ETC=/etc/openrouteservice
+ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
-WORKDIR $WORK_DIR
+WORKDIR $CONTAINER_WORK_DIR
 
 COPY .m2                    /root/.m2
 COPY ors-api                ors-api
@@ -16,12 +16,12 @@ COPY ors-report-aggregation ors-report-aggregation
 COPY pom.xml                pom.xml
 
 RUN mkdir graphs
-RUN mkdir -p "$CONF_DIR_USER"
-RUN mkdir -p "$CONF_DIR_ETC"
+RUN mkdir -p "$CONTAINER_CONF_DIR_USER"
+RUN mkdir -p "$CONTAINER_CONF_DIR_ETC"
 
 RUN chmod -R 770 .
-RUN chmod -R 770 "$CONF_DIR_USER"
-RUN chmod -R 770 "$CONF_DIR_ETC"
+RUN chmod -R 770 "$CONTAINER_CONF_DIR_USER"
+RUN chmod -R 770 "$CONTAINER_CONF_DIR_ETC"
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
