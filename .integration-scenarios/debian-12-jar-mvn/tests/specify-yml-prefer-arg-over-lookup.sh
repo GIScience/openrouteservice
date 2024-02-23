@@ -7,6 +7,7 @@ prepareTest $1 $(basename $0)
 # but if a config file specified as run argument (first positional parameter)
 # the run argument should win.
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
+  -v "$TESTROOT"/graphs_volume:$WORK_DIR/graphs \
   -v "$TESTROOT"/files/config-car.yml:$WORK_DIR/ors-config.yml \
   -v "$TESTROOT"/files/config-hgv.yml:$WORK_DIR/config-hgv.yml \
   local/"$IMAGE":latest \

@@ -30,9 +30,11 @@ function runTest() {
     $testscript "${runType}" 1>/dev/null 2>&1
     if (($?)); then
       hasErrors=1
+      ((failed++))
       echo "${FG_RED}${B}failed${N}"
       (($failFast)) && exit 1
     else
+      ((passed++))
       echo "${FG_GRN}passed${N}"
     fi
 }
@@ -58,10 +60,16 @@ shift $((OPTIND-1))
 if ! (($jar)) && ! (($mvn)); then echo "${FG_RED}${B}Error: Neither option -j nor -m is set!${N} Type ${B}$SCRIPT -h${N} for help. "; exit 1; fi
 
 hasErrors=0
-
+passed=0
+failed=0
 for testscript in ${TESTROOT}/tests/${pattern}; do
   (($jar)) && runTest jar $testscript
   (($mvn)) && runTest mvn $testscript
 done
 
+(($passed)) && passedText=", ${FG_GRN}${B}${passed} passed${N}"
+(($failed)) && failedText=", ${FG_RED}${failed} failed${N}"
+
+total=$(($passed + $failed))
+echo "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} done, ${total} test$( (($total-1)) && echo "s") executed${passedText}${failedText}"
 exit $hasErrors

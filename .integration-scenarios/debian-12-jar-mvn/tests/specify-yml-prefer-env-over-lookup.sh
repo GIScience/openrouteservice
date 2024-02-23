@@ -6,6 +6,7 @@ prepareTest $1 $(basename $0)
 # A default yml $WORK_DIR/ors-config.yml is present and would normally be used,
 # but if the environment variable ORS_CONFIG_LOCATION is set, it should be preferred.
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
+  -v "$TESTROOT"/graphs_volume:$WORK_DIR/graphs \
   -v "$TESTROOT"/files/config-car.yml:$WORK_DIR/ors-config.yml \
   -v "$TESTROOT"/files/config-hgv.yml:$WORK_DIR/config-hgv.yml \
   --env ORS_CONFIG_LOCATION=$WORK_DIR/config-hgv.yml \

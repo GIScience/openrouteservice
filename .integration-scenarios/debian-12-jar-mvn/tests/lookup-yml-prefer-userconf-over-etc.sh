@@ -4,6 +4,7 @@ source $TESTROOT/files/test.conf
 prepareTest $1 $(basename $0)
 
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
+  -v "$TESTROOT"/graphs_volume:$WORK_DIR/graphs \
   -v "$TESTROOT"/files/config-car.yml:$CONF_DIR_USER/ors-config.yml \
   -v "$TESTROOT"/files/config-hgv.yml:$CONF_DIR_ETC/ors-config.yml \
   local/"$IMAGE":latest  &

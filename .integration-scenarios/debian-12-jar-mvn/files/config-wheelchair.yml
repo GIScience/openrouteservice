@@ -1,0 +1,6 @@
+ors:
+  engine:
+    source_file:  ors-api/src/test/files/heidelberg.osm.gz
+    profiles:
+      wheelchair:
+        enabled: true

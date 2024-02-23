@@ -7,6 +7,7 @@ prepareTest $1 $(basename $0)
 # but is present as internal default. This default should be overridden, but the
 # properties from $CONF_DIR_USER/ors-config.yml should also be loaded.
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
+  -v "$TESTROOT"/graphs_volume:$WORK_DIR/graphs \
   -v "$TESTROOT"/files/config-car.yml:$CONF_DIR_USER/ors-config.yml \
   local/"$IMAGE":latest \
   $(getProgramArguments $runType --ors.engine.profiles.hgv.enabled=true) &
