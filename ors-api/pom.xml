@@ -135,10 +135,12 @@
             <artifactId>json-simple</artifactId>
         </dependency>
 
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
+        -->
 
         <dependency>
             <groupId>jakarta.servlet</groupId>
@@ -151,10 +153,12 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
 
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -170,31 +174,39 @@
         </dependency>
         -->
 
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j</artifactId>
             <type>pom</type>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
         </dependency>
 
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
         </dependency>
+        -->
 
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
+        -->
 
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.json</groupId>
@@ -213,6 +225,8 @@
         </dependency>
 
         <!-- Spring dependencies -->
+        <!-- TODO: according dependency:analyze this
+        is not used, but build fails when not declared -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -228,11 +242,16 @@
             </exclusions>
         </dependency>
         <!-- The following dependency is needed for the Spring Boot Actuator and validates beans -->
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        -->
 
+        <!-- TODO: remove this if nothing breaks -->
+        <?ignore NOTE: this non-existing processing instruction is
+           a hack circumventing XML not supporting nested comments
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -245,12 +264,15 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        ?>
 
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+        -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -264,11 +286,16 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        -->
+
+        <!-- jupiter-engine is needed to run tests. If this dependency
+            is removed, the build succeeds with no tests executed. -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -313,6 +340,7 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -323,6 +351,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
@@ -355,10 +384,12 @@
             <version>1.2</version>
             <scope>test</scope>
         </dependency>
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
+        -->
         <dependency>
             <groupId>io.swagger.parser.v3</groupId>
             <artifactId>swagger-parser</artifactId>
@@ -375,10 +406,14 @@
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
+
+        <!-- TODO: according dependency:analyze this
+        is not used, but build fails when not declared -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-common</artifactId>
