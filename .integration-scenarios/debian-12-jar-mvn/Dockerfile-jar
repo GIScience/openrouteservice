@@ -1,7 +1,10 @@
 FROM docker.io/debian:bookworm-slim as builder
+
 RUN apt-get update -y && \
     apt-get install -y openjdk-17-jdk-headless maven
 
+ARG CONTAINER_CONF_DIR_USER=/root/.config/openrouteservice
+ARG CONTAINER_CONF_DIR_ETC=/etc/openrouteservice
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
 WORKDIR $CONTAINER_WORK_DIR
@@ -19,10 +22,6 @@ FROM docker.io/debian:bookworm-slim as final
 
 RUN apt-get update -y && \
     apt-get install -y openjdk-17-jdk-headless
-
-ARG CONTAINER_CONF_DIR_USER=/root/.config/openrouteservice
-ARG CONTAINER_CONF_DIR_ETC=/etc/openrouteservice
-ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
 WORKDIR $CONTAINER_WORK_DIR
 
