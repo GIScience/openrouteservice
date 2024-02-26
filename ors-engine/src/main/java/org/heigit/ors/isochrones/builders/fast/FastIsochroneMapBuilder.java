@@ -447,21 +447,8 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         if(pl.isEmpty()){
             return;
         }
-        int size = pl.size();
-        double lat0 = pl.getLat(0);
-        double lon0 = pl.getLon(0);
-        double lat1;
-        double lon1;
-        for (int i = 1; i < size; ++i) {
-            lat1 = pl.getLat(i);
-            lon1 = pl.getLon(i);
-
-            addPoint(points, lon0, lat0);
-            if (i == size - 1)
-                addPoint(points, lon1, lat1);
-
-            lon0 = lon1;
-            lat0 = lat1;
+        for (int i = 0; i < pl.size(); ++i) {
+            addPoint(points, pl.getLon(i), pl.getLat(i));
         }
     }
 

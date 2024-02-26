@@ -350,16 +350,9 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                 lat0 = lat1;
             }
         } else {
-            for (int i = 1; i < size; ++i) {
-                lat1 = pl.getLat(i);
-                lon1 = pl.getLon(i);
-
-                addPoint(points, lon0, lat0);
-
-                lon0 = lon1;
-                lat0 = lat1;
+            for (int i = 0; i < pl.size(); ++i) {
+                addPoint(points, pl.getLon(i), pl.getLat(i));
             }
-            addPoint(points, lon0, lat0);
         }
     }
 
