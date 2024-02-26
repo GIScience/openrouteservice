@@ -249,23 +249,6 @@
         </dependency>
         -->
 
-        <!-- TODO: remove this if nothing breaks -->
-        <?ignore NOTE: this non-existing processing instruction is
-           a hack circumventing XML not supporting nested comments
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <!-- this would pull in a wrong version of org.json -->
-            <exclusions>
-                <exclusion>
-                    <groupId>com.vaadin.external.google</groupId>
-                    <artifactId>android-json</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        ?>
-
         <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.springframework.boot</groupId>
