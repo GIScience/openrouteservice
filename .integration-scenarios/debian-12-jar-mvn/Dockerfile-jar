@@ -25,7 +25,6 @@ RUN apt-get update -y && \
 
 WORKDIR $CONTAINER_WORK_DIR
 
-COPY --from=builder /root/.m2 /root/.m2
 COPY --from=builder $CONTAINER_WORK_DIR/ors-api/target/ors.jar ors.jar
 COPY ors-api/src/test/files ors-api/src/test/files
 
