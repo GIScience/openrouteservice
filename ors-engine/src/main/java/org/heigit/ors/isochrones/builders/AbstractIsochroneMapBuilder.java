@@ -16,7 +16,6 @@ import org.locationtech.jts.geom.GeometryFactory;
 import java.util.List;
 
 public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder {
-    protected static final boolean BUFFERED_OUTPUT = true;
     private static final double MAX_SPLIT_LENGTH = 20000.0;
     protected static final DistanceCalc dcFast = new DistancePlaneProjection();
     protected GeometryFactory geometryFactory;
@@ -104,21 +103,17 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
 
             distPolyline += dcFast.calcDist(lat0, lon0, lat1, lon1);
 
-            if (BUFFERED_OUTPUT) {
-                double distCost = minCost + distPolyline * costPerMeter;
-                if (distCost >= isolineCost) {
-                    double segLength = (1 - (distCost - isolineCost) / edgeCost);
-                    double lon2 = lon0 + segLength * (lon1 - lon0);
-                    double lat2 = lat0 + segLength * (lat1 - lat0);
+            double distCost = minCost + distPolyline * costPerMeter;
+            if (distCost >= isolineCost) {
+                double segLength = (1 - (distCost - isolineCost) / edgeCost);
+                double lon2 = lon0 + segLength * (lon1 - lon0);
+                double lat2 = lat0 + segLength * (lat1 - lat0);
 
-                    addBufferPoints(points, lon0, lat0, lon2, lat2, true, bufferSize);
+                addBufferPoints(points, lon0, lat0, lon2, lat2, true, bufferSize);
 
-                    break;
-                } else {
-                    addBufferPoints(points, lon0, lat0, lon1, lat1, false, bufferSize);
-                }
+                break;
             } else {
-                addPoint(points, lon0, lat0);
+                addBufferPoints(points, lon0, lat0, lon1, lat1, false, bufferSize);
             }
 
             lat0 = lat1;

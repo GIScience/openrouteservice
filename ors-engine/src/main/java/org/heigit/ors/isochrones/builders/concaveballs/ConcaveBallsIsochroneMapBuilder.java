@@ -315,7 +315,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
         double lat1;
         double lon1;
 
-        if (detailedShape && BUFFERED_OUTPUT) {
+        if (detailedShape) {
             for (int i = 1; i < size; ++i) {
                 lat1 = pl.getLat(i);
                 lon1 = pl.getLon(i);
