@@ -1,5 +1,6 @@
 package org.heigit.ors.isochrones.builders;
 
+import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.util.*;
@@ -164,7 +165,37 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
         return pl;
     }
 
-    protected void addCutEdgeGeometry(List<Coordinate> points, double isolineCost, double minSplitLength, EdgeIteratorState iter, float maxCost, float minCost, double bufferSize) {
+    protected void addBufferedEdgeGeometry(List<Coordinate> points, double minSplitLength, EdgeIteratorState iter, boolean detailedShape, SPTEntry goalEdge, double bufferSize) {
+        PointList pl = edgeToPoints(iter, minSplitLength);
+        if (pl.isEmpty()) {
+            return;
+        }
+
+        int size = pl.size();
+
+        double lat0 = pl.getLat(0);
+        double lon0 = pl.getLon(0);
+        double lat1;
+        double lon1;
+
+        if (detailedShape) {
+            for (int i = 1; i < size; ++i) {
+                lat1 = pl.getLat(i);
+                lon1 = pl.getLon(i);
+
+                addBufferPoints(points, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, bufferSize);
+
+                lon0 = lon1;
+                lat0 = lat1;
+            }
+        } else {
+            for (int i = 0; i < size; ++i) {
+                addPoint(points, pl.getLon(i), pl.getLat(i));
+            }
+        }
+    }
+
+    protected void addCuttedEdgeGeometry(List<Coordinate> points, double isolineCost, double minSplitLength, EdgeIteratorState iter, float maxCost, float minCost, double bufferSize) {
         PointList pl = edgeToPoints(iter, minSplitLength);
         if (pl.isEmpty()) {
             return;

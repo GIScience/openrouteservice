@@ -273,7 +273,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                     if (maxCost >= detailedZone || detailedShape) {
                         if (LOGGER.isDebugEnabled())
                             sw.start();
-                        detailedShape(points, minSplitLength, iter, detailedShape, goalEdge, bufferSize);
+                        addBufferedEdgeGeometry(points, minSplitLength, iter, detailedShape, goalEdge, bufferSize);
                         if (LOGGER.isDebugEnabled())
                             sw.stop();
                     } else {
@@ -284,7 +284,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
                     if (LOGGER.isDebugEnabled())
                         sw.start();
-                    addCutEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
+                    addCuttedEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
                     if (LOGGER.isDebugEnabled())
                         sw.stop();
                 }
@@ -300,36 +300,6 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             coordinates[i] = c;
         }
         return coordinates;
-    }
-
-    private void detailedShape(List<Coordinate> points, double minSplitLength, EdgeIteratorState iter, boolean detailedShape, SPTEntry goalEdge, double bufferSize) {
-        PointList pl = edgeToPoints(iter, minSplitLength);
-        if (pl.isEmpty()) {
-            return;
-        }
-
-        int size = pl.size();
-
-        double lat0 = pl.getLat(0);
-        double lon0 = pl.getLon(0);
-        double lat1;
-        double lon1;
-
-        if (detailedShape) {
-            for (int i = 1; i < size; ++i) {
-                lat1 = pl.getLat(i);
-                lon1 = pl.getLon(i);
-
-                addBufferPoints(points, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, bufferSize);
-
-                lon0 = lon1;
-                lat0 = lat1;
-            }
-        } else {
-            for (int i = 0; i < pl.size(); ++i) {
-                addPoint(points, pl.getLon(i), pl.getLat(i));
-            }
-        }
     }
 
     private void copyConvexHullPoints(Polygon poly) {

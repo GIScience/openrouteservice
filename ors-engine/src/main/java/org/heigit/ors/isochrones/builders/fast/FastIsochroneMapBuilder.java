@@ -403,11 +403,11 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 // This checks for dead end edges, but we need to include those in small areas to provide realistic
                 // results
                 if (goalEdge.edge != -2 || useHighDetail) {
-                    addBufferedWayGeometry(points,bufferSize, iter, minSplitLength);
+                    addBufferedEdgeGeometry(points, minSplitLength, iter, true, goalEdge, bufferSize);
                 }
             } else {
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
-                    addCutEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
+                    addCuttedEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
                 }
             }
         }
@@ -430,17 +430,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
             double longitude = contourCoordinates.get(j);
             j++;
             addPoint(points, longitude, latitude);
-        }
-    }
-
-    private void addBufferedWayGeometry(List<Coordinate> points, double bufferSize, EdgeIteratorState iter, double minSplitLength) {
-        // always use mode=3, since other ones do not provide correct results
-        var pl = expandAndBufferPointList(iter.fetchWayGeometry(FetchMode.ALL), bufferSize, minSplitLength, MAX_EDGE_LENGTH_LIMIT);
-        if(pl.isEmpty()){
-            return;
-        }
-        for (int i = 0; i < pl.size(); ++i) {
-            addPoint(points, pl.getLon(i), pl.getLat(i));
         }
     }
 
@@ -535,39 +524,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 coordinates.add(lon0 + i * (lon1 - lon0) / n);
             }
         }
-    }
-
-    private PointList expandAndBufferPointList(PointList list, double bufferSize, double minlim, double maxlim) {
-        PointList extendedList = new PointList();
-        for (int i = 0; i < list.size() - 1; i++) {
-            double lat0 = list.getLat(i);
-            double lon0 = list.getLon(i);
-            double lat1 = list.getLat(i + 1);
-            double lon1 = list.getLon(i + 1);
-            double dist = distance(lat0, lat1, lon0, lon1);
-            double dx = (lon0 - lon1);
-            double dy = (lat0 - lat1);
-            double normLength = Math.sqrt((dx * dx) + (dy * dy));
-
-            int n = (int) Math.ceil(dist / minlim);
-            double scale = bufferSize / normLength;
-
-            double dx2 = -dy * scale;
-            double dy2 = dx * scale;
-            extendedList.add(lat0 + dy2, lon0 + dx2);
-            extendedList.add(lat0 - dy2, lon0 - dx2);
-            if (i == list.size() - 2) {
-                extendedList.add(lat1 + dy2, lon1 + dx2);
-                extendedList.add(lat1 - dy2, lon1 - dx2);
-            }
-            if (dist > minlim && dist < maxlim) {
-                for (int j = 1; j < n; j++) {
-                    extendedList.add(lat0 + j * (lat1 - lat0) / n + dy2, lon0 + j * (lon1 - lon0) / n + dx2);
-                    extendedList.add(lat0 + j * (lat1 - lat0) / n - dy2, lon0 + j * (lon1 - lon0) / n - dx2);
-                }
-            }
-        }
-        return extendedList;
     }
 
     private List<GHIntObjectHashMap<SPTEntry>> separateDisconnected(IntObjectMap<SPTEntry> map) {
