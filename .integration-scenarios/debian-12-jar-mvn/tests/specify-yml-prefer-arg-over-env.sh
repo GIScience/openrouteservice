@@ -5,6 +5,7 @@ prepareTest $1 $(basename $0)
 
 # The profile configured as run argument should be preferred over environment variable.
 podman run --replace --name "$CONTAINER" -p $HOST_PORT:8082 \
+  -v "$M2_FOLDER":/root/.m2 \
   -v "$TESTROOT"/graphs_volume:$CONTAINER_WORK_DIR/graphs \
   -v "$TESTROOT"/files/config-car.yml:$CONTAINER_WORK_DIR/config-car.yml \
   -v "$TESTROOT"/files/config-hgv.yml:$CONTAINER_WORK_DIR/config-hgv.yml \

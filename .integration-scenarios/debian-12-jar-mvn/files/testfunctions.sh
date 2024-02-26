@@ -149,4 +149,7 @@ function prepareTest() {
     jar) IMAGE=$IMAGE_NAME_JAR;;
     mvn) IMAGE=$IMAGE_NAME_MVN;;
   esac
+
+  mkdir -p ~/.m2
+  M2_FOLDER="$(realpath ~/.m2)"
 }

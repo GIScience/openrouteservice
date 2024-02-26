@@ -9,8 +9,6 @@ ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
 WORKDIR $CONTAINER_WORK_DIR
 
-# TODO remove .m2
-COPY .m2 /root/.m2
 COPY ors-api ors-api
 COPY ors-engine ors-engine
 COPY ors-report-aggregation ors-report-aggregation
