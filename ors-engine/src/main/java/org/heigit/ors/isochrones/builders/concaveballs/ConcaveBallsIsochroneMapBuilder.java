@@ -270,7 +270,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                 if (goalEdge.edge != -2 || useHighDetail) {
                     double edgeDist = iter.getDistance();
                     boolean detailedShape = (edgeDist > 200);
-                    if (((maxCost >= detailedZone && maxCost <= isolineCost) || detailedShape)) {
+                    if (maxCost >= detailedZone || detailedShape) {
                         if (LOGGER.isDebugEnabled())
                             sw.start();
                         detailedShape(points, minSplitLength, iter, detailedShape, goalEdge, bufferSize);
