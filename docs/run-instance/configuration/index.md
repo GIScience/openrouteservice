@@ -12,7 +12,7 @@ There are two (optional) ways for you to provide openrouteservice the location o
       export ORS_CONFIG_LOCATION=/path/to/ors-config.yml
       java -jar ors.jar
       ```
-If both is specified, the program argument wins. 
+If both are specified, the program argument wins. 
 
 [//]: # (TODO: test this)
 
@@ -35,10 +35,9 @@ At program start openrouteservice reports which configuration file was loaded.
 
 Depending on the artifact type, the configuration properties can be specified in different formats.
 Which format to use in which scenario is documented in the config documentations for 
-[JAR](/run-instance/jar/configure.md),
-[WAR](/run-instance/war/configure.md) and 
-[Docker (JAR)](/run-instance/jar-docker/configure.md) / 
-[Docker (WAR)](/run-instance/war-docker/configure.md).
+[JAR](/run-instance/running-jar.md),
+[WAR](/run-instance/running-war.md) and 
+[Docker](/run-instance/running-with-docker.md).
 
 * `.yml` is the default configuration format since version 8. You can find an [example configuration file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.yml) with all available configuration options. Only a minimal set of properties is active, all others are commented out.
 * `.env` files for Docker setup. There is also a [example env file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.env) that you can download and customize. 

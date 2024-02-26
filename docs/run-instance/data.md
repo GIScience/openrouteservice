@@ -1,4 +1,4 @@
-# Folders and Files
+# Data: Input and output folders and files
 
 ## Input Files
 
@@ -27,6 +27,11 @@ Data relating to the avoid borders features is derived from administrative bound
 
 Configuration parameters: [`ors.engine.profiles.*.ext_storages.Borders`](/run-instance/configuration/ors/engine/profiles.md#borders)
 
+### GTFS
+The public transport profile integrates [GTFS](https://developers.google.com/transit/gtfs) data for the public transit part. GTFS feeds can be obtained e.g. from sites like https://gtfs.de/ (for Germany), or from local public transport operators.
+
+Configuration parameters: [`ors.engine.profiles.*.gtfs_file`](/run-instance/configuration/ors/engine/profiles.md)
+
 ### Green & Quiet
 The data used to identify green and quiet routes were derived from research projects in the GIScience research group at Heidelberg University. 
 More information about these can be found on the GIScience news blog [here](https://giscienceblog.uni-heidelberg.de/2017/07/03/healthy-routing-prefering-green-areas-added-to-openrouteserviceorg/) and [here](http://giscienceblog.uni-heidelberg.de/2017/07/10/reducing-stress-by-avoiding-noise-with-quiet-routing-in-openrouteservice/)
@@ -42,7 +47,7 @@ Openrouteservice produces output files of three types, for which the paths can b
 
 openrouteservice reads the input data and computes a graph for each enabled routing profile. 
 
-The root directory for the graphs can be configured with the configuration property [`graphs_root_path`](/run-instance/configuration/ors/engine/index.md). 
+The root directory for the graphs can be configured with the configuration property [`ors.engine.graphs_root_path`](/run-instance/configuration/ors/engine/index.md). 
 
 ### Elevation Cache
 

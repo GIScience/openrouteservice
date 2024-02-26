@@ -96,40 +96,10 @@ export default defineConfig({
                         items: [
                             {text: 'System Requirements', link: '/run-instance/system-requirements'},
                             {text: 'Data', link: '/run-instance/data'},
-                            {text: 'ORS as JAR', collapsed: true, link: '/run-instance/jar/index.md',
-                                items: [
-                                    {text: 'build', link: '/run-instance/jar/build.md'},
-                                    {text: 'download', link: '/run-instance/jar/download.md'},
-                                    {text: 'configure', link: '/run-instance/jar/configure.md'},
-                                    {text: 'run', link: '/run-instance/jar/run.md'},
-                                    {text: 'troubleshoot', link: '/run-instance/jar/troubleshoot.md'}
-                                ]},
-                            {text: 'ORS as Docker Container (JAR)', collapsed: true, link: '/run-instance/jar-docker/index.md',
-                                items: [
-                                    {text: 'build', link: '/run-instance/jar-docker/build.md'},
-                                    {text: 'download', link: '/run-instance/jar-docker/download.md'},
-                                    {text: 'configure', link: '/run-instance/jar-docker/configure.md'},
-                                    {text: 'run', link: '/run-instance/jar-docker/run.md'},
-                                    {text: 'troubleshoot', link: '/run-instance/jar-docker/troubleshoot.md'}
-                                ]},
-                            {text: 'ORS as WAR', collapsed: true, link: '/run-instance/war/index.md',
-                                items: [
-                                    {text: 'build', link: '/run-instance/war/build.md'},
-                                    {text: 'download', link: '/run-instance/war/download.md'},
-                                    {text: 'configure', link: '/run-instance/war/configure.md'},
-                                    {text: 'run', link: '/run-instance/war/run.md'},
-                                    {text: 'troubleshoot', link: '/run-instance/war/troubleshoot.md'}
-                                ]},
-                            {text: 'ORS as Docker Container (WAR)', collapsed: true, link: '/run-instance/war-docker/index.md',
-                                items: [
-                                    {text: 'build', link: '/run-instance/jar-docker/build.md'},
-                                    {text: 'download', link: '/run-instance/jar-docker/download.md'},
-                                    {text: 'configure', link: '/run-instance/jar-docker/configure.md'},
-                                    {text: 'run', link: '/run-instance/jar-docker/run.md'},
-                                    {text: 'troubleshoot', link: '/run-instance/jar-docker/troubleshoot.md'}
-                                ]},
-                                {text: 'Building from Source', link: '/run-instance/building-from-source'},                            {
-                            },
+                            {text: 'Running with Docker', link: '/run-instance/running-with-docker'},
+                            {text: 'Running JAR', link: '/run-instance/running-jar'},
+                            {text: 'Running WAR', link: '/run-instance/running-war'},
+                            {text: 'Building from Source', link: '/run-instance/building-from-source'},
                             {
                                 text: 'Configuration', collapsed: true, link: '/run-instance/configuration/',
                                 items: [

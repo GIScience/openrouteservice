@@ -5,19 +5,54 @@ If you need to customize your openrouteservice instance even further than what i
 ## Prerequisites
 
 The following documentation assumes you are running an Ubuntu 20.04 system (also generally works with newer Ubuntu versions). Depending on your environment, you might need to adjust certain details. You will also need to make sure to have the following installed: 
-* [git](https://github.com/git-guides/install-git) should be available on your system
-* [java](https://www.java.com/en/) 17 should be available, preferably as default Java environment
-* [maven](https://maven.apache.org/) should be installed on your system
+* [java](https://www.java.com/en/) 17 (or higher) should be available, preferably as default Java environment.
+* [maven](https://maven.apache.org/) should be installed on your system.
+* [git](https://github.com/git-guides/install-git) should be available on your system if you want to download the source code conveniently.
 
-## Get Source Code
+## Download source code
 
-Clone and switch into the repository with the following commands:
+If you have git installed, the easiest way to download the source code is to clone the repository with the following command:
+
 ```shell
-git clone https://github.com/user/openrouteservice.git
+git clone https://github.com/GIScience/openrouteservice.git
 cd openrouteservice
 ```
 
-## Running with maven
+This creates a directory named `openrouteservice` containing the downloaded source code. All following instructions will assume you are within that directory. 
+
+If you do not have git installed on your system, you can also download the packed (`.zip` and `.tar.gz`) source code file from the "Assets" section of the desired release from our github [releases](https://github.com/GIScience/openrouteservice/releases) page. Unpack the archive and run the following instructions within the directory you unpacked the source code into.
+
+## Build JAR 
+
+When your source code is set up, you can generate a runnable openrouteservice fat JAR:
+
+```shell
+mvn clean package -PbuildFatJar
+```
+
+Because JAR is the default, you can also run the command without `-PbuildFatJar`:
+
+```shell
+mvn clean package
+```
+
+You will find the fat JAR file in `ors-api/target/ors.jar`
+
+The chapter on [JAR](running-jar.md) artifact explains how to configure and run the JAR file.
+
+## Build WAR
+
+When your source code is set up, you can generate a deployable openrouteservice WAR:
+
+```shell
+mvn clean package -PbuildWar
+```
+
+You will find the WAR file in `ors-api/target/ors.war`
+
+The chapter on [WAR](running-war.md) artifact explains how to configure and deploy the WAR file.
+
+## Run source code directly
 
 You should be able to run the application directly with  
 
@@ -30,10 +65,15 @@ and a small OSM data set from Heidelberg.
 
 In [Configuration](configuration/index.md) you find the options how you can use customised configurations.  
 
-To create a deployable WAR or JAR artifact, please refer to the documentation for [JAR](jar/build.md) and [WAR](war/build.md).
+## For developers
 
+If you need to customize openrouteservice more than what is possible by [Configuration](configuration/index.md) you might need to make changes to the code. If you implement features that might be useful for others as well, consider [contributing](../contributing/)! 
 
-## Running from within IDE
+The following instructions are useful to get you set up to start modifying the code.
+
+### Running from within IDE
+
+[//]: # (TODO: review below here)
 
 To run the project from within your IDE, you have to:
 
@@ -47,7 +87,7 @@ To run the project from within your IDE, you have to:
 7. You can run all tests via JUnit.
 
 
-## Running Tests
+### Running Tests
 
 Running tests is essential if you change the code. Please always make sure that all tests are passing. Failing test sometimes indicate, that code changes break existing code. If the expected behavior of the application changes, it might also be necessary to change existing tests. For new functionality, new tests should be added.
 
@@ -75,7 +115,7 @@ mvn clean package -DskipTests
 ```
 
 
-## Integrating GraphHopper
+### Integrating GraphHopper
 
 If you need to make adjustments to our forked and edited [GraphHopper repository](https://github.com/GIScience/graphhopper), follow these steps:
 

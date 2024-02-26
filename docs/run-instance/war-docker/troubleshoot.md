@@ -1,1 +1,0 @@
-# Troubleshoot Docker Image with openrouteservice WAR

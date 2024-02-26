@@ -1,1 +1,0 @@
-# Configure Docker Image with openrouteservice WAR
