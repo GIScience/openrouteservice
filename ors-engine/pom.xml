@@ -193,13 +193,9 @@
         </dependency>
         -->
 
-        <!-- TODO: according dependency:analyze this
-        is not used, but build fails when not declared
-        -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
