@@ -2,9 +2,8 @@ package org.heigit.ors.isochrones.builders;
 
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HikeFlagEncoder;
-import com.graphhopper.util.DistanceCalc;
-import com.graphhopper.util.DistancePlaneProjection;
-import com.graphhopper.util.PointList;
+import com.graphhopper.util.*;
+import com.graphhopper.util.shapes.GHPoint3D;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
@@ -18,6 +17,7 @@ import java.util.List;
 
 public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder {
     protected static final boolean BUFFERED_OUTPUT = true;
+    private static final double MAX_SPLIT_LENGTH = 20000.0;
     protected static final DistanceCalc dcFast = new DistancePlaneProjection();
     protected GeometryFactory geometryFactory;
     protected RouteSearchContext searchContext;
@@ -124,6 +124,57 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
             lat0 = lat1;
             lon0 = lon1;
         }
+    }
+
+    /**
+     * Splits a line between two points of the distance is longer than a limit
+     *
+     * @param point0 point0 of line
+     * @param point1 point1 of line
+     * @param minlim limit above which the edge will be split (in meters)
+     * @param maxlim limit above which the edge will NOT be split anymore (in meters)
+     */
+    private void splitEdge(GHPoint3D point0, GHPoint3D point1, PointList pointList, double minlim, double maxlim) {
+        //No need to consider elevation
+        double lat0 = point0.getLat();
+        double lon0 = point0.getLon();
+        double lat1 = point1.getLat();
+        double lon1 = point1.getLon();
+        double dist = dcFast.calcDist(lat0, lon0, lat1, lon1);
+        boolean is3D = pointList.is3D();
+
+        if (dist > minlim && dist < maxlim) {
+            int n = (int) Math.ceil(dist / minlim);
+            for (int i = 1; i < n; i++) {
+                if (is3D)
+                    pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n, 0);
+                else
+                    pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n);
+            }
+        }
+    }
+
+    protected PointList edgeToPoints(EdgeIteratorState iter, double minSplitLength) {
+        // always use mode=3, since other ones do not provide correct results
+        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
+
+        double edgeDist = iter.getDistance();
+        if (edgeDist > minSplitLength) {
+            PointList expandedPoints = new PointList(pl.size(), pl.is3D());
+            for (int i = 0; i < pl.size() - 1; i++)
+                splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
+            pl.add(expandedPoints);
+        }
+
+        return pl;
+    }
+
+    protected void addCutEdgeGeometry(List<Coordinate> points, double isolineCost, double minSplitLength, EdgeIteratorState iter, float maxCost, float minCost, double bufferSize) {
+        PointList pl = edgeToPoints(iter, minSplitLength);
+        if (pl.isEmpty()) {
+            return;
+        }
+        addPointsFromEdge(points, isolineCost, maxCost, minCost, bufferSize, iter.getDistance(), pl);
     }
 
     protected double determineMaxSpeed() {

@@ -39,7 +39,6 @@ import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLengt
 
 public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
-    private static final double MAX_SPLIT_LENGTH = 20000.0;
     private static final DistanceCalc dcFast = new DistancePlaneProjection();
     private List<Coordinate> prevIsoPoints = null;
 
@@ -285,7 +284,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
                     if (LOGGER.isDebugEnabled())
                         sw.start();
-                    cutEdge(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
+                    addCutEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
                     if (LOGGER.isDebugEnabled())
                         sw.stop();
                 }
@@ -301,29 +300,6 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             coordinates[i] = c;
         }
         return coordinates;
-    }
-
-    private PointList edgeToPoints(EdgeIteratorState iter, double minSplitLength) {
-        // always use mode=3, since other ones do not provide correct results
-        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
-
-        double edgeDist = iter.getDistance();
-        if (edgeDist > minSplitLength) {
-            PointList expandedPoints = new PointList(pl.size(), pl.is3D());
-            for (int i = 0; i < pl.size() - 1; i++)
-                splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
-            pl.add(expandedPoints);
-        }
-
-        return pl;
-    }
-
-    private void cutEdge(List<Coordinate> points, double isolineCost, double minSplitLength, EdgeIteratorState iter, float maxCost, float minCost, double bufferSize) {
-        PointList pl = edgeToPoints(iter, minSplitLength);
-        if (pl.isEmpty()) {
-            return;
-        }
-        addPointsFromEdge(points, isolineCost, maxCost, minCost, bufferSize, iter.getDistance(), pl);
     }
 
     private void detailedShape(List<Coordinate> points, double minSplitLength, EdgeIteratorState iter, boolean detailedShape, SPTEntry goalEdge, double bufferSize) {
@@ -365,34 +341,6 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
         for (int i = 0; i < ring.getNumPoints(); ++i) {
             Point p = ring.getPointN(i);
             prevIsoPoints.add(new Coordinate(p.getX(), p.getY()));
-        }
-    }
-
-    /**
-     * Splits a line between two points of the distance is longer than a limit
-     *
-     * @param point0 point0 of line
-     * @param point1 point1 of line
-     * @param minlim limit above which the edge will be split (in meters)
-     * @param maxlim limit above which the edge will NOT be split anymore (in meters)
-     */
-    private void splitEdge(GHPoint3D point0, GHPoint3D point1, PointList pointList, double minlim, double maxlim) {
-        //No need to consider elevation
-        double lat0 = point0.getLat();
-        double lon0 = point0.getLon();
-        double lat1 = point1.getLat();
-        double lon1 = point1.getLon();
-        double dist = dcFast.calcDist(lat0, lon0, lat1, lon1);
-        boolean is3D = pointList.is3D();
-
-        if (dist > minlim && dist < maxlim) {
-            int n = (int) Math.ceil(dist / minlim);
-            for (int i = 1; i < n; i++) {
-                if (is3D)
-                    pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n, 0);
-                else
-                    pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n);
-            }
         }
     }
 }

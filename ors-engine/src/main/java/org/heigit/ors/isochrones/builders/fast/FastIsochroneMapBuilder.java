@@ -407,7 +407,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 }
             } else {
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
-                    addEdgeCaseGeometry(iter, points, bufferSize, maxCost, minCost, isolineCost);
+                    addCutEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
                 }
             }
         }
@@ -431,14 +431,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
             j++;
             addPoint(points, longitude, latitude);
         }
-    }
-
-    private void addEdgeCaseGeometry(EdgeIteratorState iter, List<Coordinate> points, double bufferSize, float maxCost, float minCost, double isolineCost) {
-        PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
-        if (pl.isEmpty()) {
-            return;
-        }
-        addPointsFromEdge(points, isolineCost, maxCost, minCost, bufferSize, iter.getDistance(), pl);
     }
 
     private void addBufferedWayGeometry(List<Coordinate> points, double bufferSize, EdgeIteratorState iter, double minSplitLength) {
