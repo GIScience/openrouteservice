@@ -149,9 +149,14 @@ function prepareTest() {
     jar) IMAGE=$IMAGE_NAME_JAR;;
     mvn) IMAGE=$IMAGE_NAME_MVN;;
   esac
-
+#  mkdir -p $TESTROOT/tmp
   mkdir -p ~/.m2
   M2_FOLDER="$(realpath ~/.m2)"
+}
+
+function cleanupTest() {
+  podman stop "$CONTAINER"
+  deleteTempFiles "$script"
 }
 
 function printVariables(){
@@ -160,4 +165,18 @@ function printVariables(){
   echo "CONTAINER_CONF_DIR_ETC=$CONTAINER_CONF_DIR_ETC"
   echo "IMAGE=$IMAGE"
   echo "M2_FOLDER=$M2_FOLDER"
+}
+
+function makeTempFile() {
+  script=$1
+  content=$2
+  mkdir -p "$TESTROOT/tmp"
+  tempFile=$(mktemp "${TESTROOT}/tmp/${script}.XXXXXXXXX")
+  echo "$content" >> $tempFile
+  echo "$tempFile"
+}
+
+function deleteTempFiles() {
+  script=$1
+  rm "${TESTROOT}/tmp/${script}".*
 }

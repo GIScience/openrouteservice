@@ -1,6 +1,0 @@
-ors:
-  engine:
-    source_file:  ors-api/src/test/files/heidelberg.osm.gz
-    profiles:
-      hgv:
-        enabled: true
