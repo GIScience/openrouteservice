@@ -177,19 +177,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
         if (LOGGER.isDebugEnabled()) {
             sw.stop();
             LOGGER.debug("Build shell concave hull " + sw.getSeconds());
-
-            sw = new StopWatch();
-            sw.start();
         }
         isochroneMap.addIsochrone(new Isochrone(polyShell, isoValue, meanRadius));
-
-        if (LOGGER.isDebugEnabled()) {
-            sw.stop();
-            LOGGER.debug("Adding holes " + sw.getSeconds());
-
-            sw = new StopWatch();
-            sw.start();
-        }
     }
 
     private void markDeadEndEdges(AccessibilityMap edgeMap) {
