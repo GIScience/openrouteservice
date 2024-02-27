@@ -297,21 +297,17 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
             }
 
             LinearRing ring = ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing();
-            for (int i = 0; i < ring.getNumPoints(); i++) {
+            for (int i = 0; i < ring.getNumPoints() - 1; i++) {
                 contourCoordinates.add(ring.getCoordinateN(i).y);
                 contourCoordinates.add(ring.getCoordinateN(i).x);
-                if (i < ring.getNumPoints() - 1) {
-                    splitEdgeToDoubles(ring.getPointN(i).getY(),
-                            ring.getPointN(i + 1).getY(),
-                            ring.getPointN(i).getX(),
-                            ring.getPointN(i + 1).getX(),
-                            contourCoordinates,
-                            minSplitLength/2,
-                            MAX_EDGE_LENGTH_LIMIT);
-                }
+                splitEdgeToDoubles(ring.getCoordinateN(i).y,
+                        ring.getCoordinateN(i + 1).y,
+                        ring.getCoordinateN(i).x,
+                        ring.getCoordinateN(i + 1).x,
+                        contourCoordinates,
+                        minSplitLength/2,
+                        MAX_EDGE_LENGTH_LIMIT);
             }
-            contourCoordinates.add(ring.getCoordinateN(0).y);
-            contourCoordinates.add(ring.getCoordinateN(0).x);
         }
         return contourCoordinates;
     }
