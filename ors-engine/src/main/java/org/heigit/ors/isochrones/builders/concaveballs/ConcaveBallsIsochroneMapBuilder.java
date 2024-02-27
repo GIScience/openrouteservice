@@ -33,6 +33,7 @@ import org.heigit.ors.util.GeomUtility;
 import org.locationtech.jts.geom.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
@@ -171,7 +172,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                 return;
         }
         Polygon polyShell = (Polygon) shellGeometry;
-        copyConvexHullPoints(polyShell);
+        copyConcaveHullPoints(polyShell);
 
         if (LOGGER.isDebugEnabled()) {
             sw.stop();
@@ -301,15 +302,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
         return coordinates;
     }
 
-    private void copyConvexHullPoints(Polygon poly) {
+    private void copyConcaveHullPoints(Polygon poly) {
         LineString ring = poly.getExteriorRing();
-        if (prevIsoPoints == null)
-            prevIsoPoints = new ArrayList<>(ring.getNumPoints());
-        else
-            prevIsoPoints.clear();
-        for (int i = 0; i < ring.getNumPoints(); ++i) {
-            Point p = ring.getPointN(i);
-            prevIsoPoints.add(new Coordinate(p.getX(), p.getY()));
-        }
+        prevIsoPoints = new ArrayList<>(Arrays.asList(ring.getCoordinates()));
     }
 }
