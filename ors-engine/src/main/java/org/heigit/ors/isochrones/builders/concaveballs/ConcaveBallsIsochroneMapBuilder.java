@@ -39,7 +39,6 @@ import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLengt
 
 public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
-    private static final DistanceCalc dcFast = new DistancePlaneProjection();
     private List<Coordinate> prevIsoPoints = null;
 
     public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {

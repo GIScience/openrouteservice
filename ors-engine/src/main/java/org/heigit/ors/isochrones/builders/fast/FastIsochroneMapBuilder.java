@@ -73,26 +73,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private static final double ACTIVE_CELL_APPROXIMATION_FACTOR = 0.99;
     private static final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
 
-    /*
-        Calculates the distance between two coordinates in meters
-     */
-    public static double distance(double lat1, double lat2, double lon1,
-                                  double lon2) {
-        final int R = 6371; // Radius of the earth
-
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c * 1000; // convert to meters
-
-        distance = Math.pow(distance, 2);
-
-        return Math.sqrt(distance);
-    }
-
     public void initialize(RouteSearchContext searchContext) {
         super.initialize(searchContext);
         defaultSmoothingDistance = 0.010;// Use a default length of ~1000m
@@ -511,7 +491,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     }
 
     private void splitEdgeToDoubles(double lat0, double lat1, double lon0, double lon1, List<Double> coordinates, double minlim, double maxlim) {
-        double dist = distance(lat0, lat1, lon0, lon1);
+        double dist = dcFast.calcDist(lat0, lon0, lat1, lon1);
 
         if (dist > minlim && dist < maxlim) {
             int n = (int) Math.ceil(dist / minlim);
