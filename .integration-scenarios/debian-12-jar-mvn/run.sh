@@ -6,7 +6,7 @@ SCRIPT=$(basename $0)
 failFast=0
 jar=0
 mvn=0
-pattern="*.sh"
+pattern=""
 
 function printCliHelp() { # TODO adapt
   echo "\
@@ -15,17 +15,32 @@ ${B}$SCRIPT${N} - run ors tests in containers
 ${B}Usage:${N} $SCRIPT [options] (at least one of -j|-m is required)
 
 ${B}Options:${N}
+    ${B}-b      ${N} -- Build docker containers
+    ${B}-c      ${N} -- Clear graphs volume
     ${B}-f      ${N} -- Fail fast
     ${B}-j      ${N} -- Run with ${B}java -jar${N}
     ${B}-m      ${N} -- Run with ${B}mvn spring-boot:run${N}
-    ${B}-p <arg>${N} -- Pattern to specify tests (quote)
+    ${B}-t <arg>${N} -- Tests to run specified by globbing pattern (quote)
     ${B}-h      ${N} -- Display this help and exit
 "
+}
+
+function buildContainers() {
+  dockerfile=$1
+  imageName=$2
+  m2Folder=$3
+
+  echo "${FG_CYA}${B}building docker image ${IMAGE_NAME_JAR}${N}"
+  if podman ps -a | grep -q "$imageName"; then
+    podman rm -f "$imageName";
+  fi
+  podman build -t local/"$imageName" -f $(dirname $0)/"$dockerfile" -v $m2Folder:/root/.m2 --build-arg CONTAINER_WORK_DIR="$CONTAINER_WORK_DIR" --build-arg CONTAINER_CONF_DIR_USER="$CONTAINER_CONF_DIR_USER" --build-arg CONTAINER_CONF_DIR_ETC="$CONTAINER_CONF_DIR_ETC" "$TESTROOT"/../..
 }
 
 function runTest() {
     runType=$1
     testscript=$2
+    if [ ! -f "$testscript" ]; then return; fi
     echo -n "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}$(basename $testscript)${N} ${runType}... "
     $testscript "${runType}" 1>/dev/null 2>&1
     if (($?)); then
@@ -39,12 +54,14 @@ function runTest() {
     fi
 }
 
-while getopts :fjmp:h FLAG; do
+while getopts :bcfjmt:h FLAG; do
   case $FLAG in
+    b) buildContainers=1;;
+    c) clearGraphs=1;;
     f) failFast=1;;
     j) jar=1;;
     m) mvn=1;;
-    p) pattern="$OPTARG";;
+    t) pattern="$OPTARG";;
     h)
       printCliHelp
       exit 0;;
@@ -57,7 +74,26 @@ done
 # This tells getopts to move on to the next argument.
 shift $((OPTIND-1))
 
-if ! (($jar)) && ! (($mvn)); then echo "${FG_RED}${B}Error: Neither option -j nor -m is set!${N} Type ${B}$SCRIPT -h${N} for help. "; exit 1; fi
+#if [[ ( (($buildContainers)) || -z $pattern ) && !(($jar)) && !(($mvn)) ]]; then
+#  echo "${FG_RED}${B}Error: Neither option -j nor -m is set!${N} Type ${B}$SCRIPT -h${N} for help. "
+#  exit 1
+#fi
+
+if (($clearGraphs)); then
+  echo "Clearing ${TESTROOT}/graphs_volume/"
+  rm -rf ${TESTROOT}/graphs_volume/*
+fi
+
+if (($buildContainers)); then
+  mkdir -p ~/.m2
+  m2Folder="$(realpath ~/.m2)"
+
+  (($jar)) && buildContainers Dockerfile-jar $IMAGE_NAME_JAR $m2Folder
+  (($mvn)) && buildContainers Dockerfile-mvn $IMAGE_NAME_MVN $m2Folder
+  (($jar)) || (($mvn)) || echo "${FG_RED}${B}Set -j or -m to specify which Docker image(s) to build!${N}"
+fi
+
+if [ -z "$pattern" ]; then echo "${B}No tests specified!${N}"; exit 0; fi
 
 hasErrors=0
 passed=0

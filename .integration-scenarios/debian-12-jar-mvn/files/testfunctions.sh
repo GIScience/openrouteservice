@@ -153,3 +153,11 @@ function prepareTest() {
   mkdir -p ~/.m2
   M2_FOLDER="$(realpath ~/.m2)"
 }
+
+function printVariables(){
+  echo "CONTAINER_WORK_DIR=$CONTAINER_WORK_DIR"
+  echo "CONTAINER_CONF_DIR_USER=$CONTAINER_CONF_DIR_USER"
+  echo "CONTAINER_CONF_DIR_ETC=$CONTAINER_CONF_DIR_ETC"
+  echo "IMAGE=$IMAGE"
+  echo "M2_FOLDER=$M2_FOLDER"
+}
