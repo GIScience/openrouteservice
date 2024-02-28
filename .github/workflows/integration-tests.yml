@@ -78,7 +78,10 @@ jobs:
         with:
           install: true
       - name: Build Docker Images for jar and mvn
-        run: ./.integration-scenarios/debian-12-jar-mvn/run.sh -mjt 'build-graph-*'
+#        run: ./.integration-scenarios/debian-12-jar-mvn/run.sh -mjt 'build-graph-*'
+        run: |
+          ./.integration-scenarios/debian-12-jar-mvn/tests/build-graph-bike-electric.sh jar
+          ./.integration-scenarios/debian-12-jar-mvn/tests/build-graph-bike-mountain.sh mvn
   debian-12-jar-mvn-run-tests:
     needs: debian-12-jar-mvn-build-graphs
     name: Run Debian 12 Maven JAR integration tests
