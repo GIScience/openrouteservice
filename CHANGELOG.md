@@ -76,6 +76,7 @@ RELEASING:
 - do not apply speed penalty to roads tagged with "access=destination" when computing isochrones ([#1682](https://github.com/GIScience/openrouteservice/pull/1682))
 - backend documentation overhaul ([#1651](https://github.com/GIScience/openrouteservice/pull/1651))
 - separate docker image build from test workflow. Build nightly on schedule if there are changes to main ([#1689](https://github.com/GIScience/openrouteservice/pull/1689))
+- refactor isochrone builder classes ([#1699](https://github.com/GIScience/openrouteservice/pull/1699))
 
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
