@@ -70,3 +70,41 @@ concern, if changes are not reflected within a month.
 ## I get an Error `Native memory allocation (mmap) failed to map 16384 bytes for committing reserved memory`
 
 See memory mapping section in [system requirements](/run-instance/system-requirements.md#memory-mapping-in-large-builds-with-a-containerized-openrouteservice-instance).
+
+## Why does routing not work when there is clearly a road?
+
+There are a lot of reasons why routing is seemingly "wrong" since
+roads are there that are not being used. In many cases, this is a data issue more than a routing issue.
+A very common occurrence has to do with `barrier=*`-nodes in the OSM.
+
+This issue most commonly manifests itself in two ways:
+
+1. Ferries are not taken, although they exist and should be faster/shorter
+2. Roads in residential areas are not accessible from the outside.
+
+In both cases, there might be a node with a `barrier=*`-tag on the roads accessing the ferry port or the residential area.
+The corresponding barriers are made to disallow unauthorized access.
+Thus, if no more information than `barrier=*` is given, the openrouteservice will not route over them.
+
+This behaviour is often misinterpreted as _wrong_ since in many cases, the barrier is passable by default or a ticket can be purchased.
+While often obvious to a human looking at the map, the openrouteservice can not know that.
+Routing over such a barrier would be an assumption that the openrouteservice will not make.
+
+[A lot](https://wiki.openstreetmap.org/wiki/Key:access#List_of_possible_values)
+of [options](https://wiki.openstreetmap.org/wiki/Key:locked) exist to
+[enable](https://wiki.openstreetmap.org/wiki/Tag:access%3Ddestination) routing,
+but they have to be made in the data, not in the routing engine.
+
+## Why is the response time for matrix requests in my own instance so much higher than in the live API
+Depending on the parameters of your request, the openrouteservice will use
+different routing algorithms with different preparations to calculate an
+answer.
+
+For matrix calculations, the ors uses the very fast RPHAST algorithm, which is
+based on so-called _Contraction Hierarchies_ (CH for short).  While the usage
+of CH speeds up matrix calculation by a lot, preparing them is rather costly.
+Thus, they are not calculated by default, but have to be turned on manually.
+Documentation on how to do that can be found [here](https://giscience.github.io/openrouteservice/run-instance/configuration/ors/engine/profiles#methods-ch).
+
+If CH have not been prepared, matrix calculation will fall back to the Dijkstra
+algorithm, which is way slower and responsible for the slow response.
