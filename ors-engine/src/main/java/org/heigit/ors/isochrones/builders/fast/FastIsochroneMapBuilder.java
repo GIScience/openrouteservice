@@ -38,7 +38,6 @@ import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.fastisochrones.FastIsochroneAlgorithm;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
-import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
@@ -71,6 +70,11 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private static final int MAX_EDGE_LENGTH_LIMIT = Integer.MAX_VALUE;
     private static final double ACTIVE_CELL_APPROXIMATION_FACTOR = 0.99;
     private static final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
+
+    @Override
+    public Logger getLogger() {
+        return LOGGER;
+    }
 
     @Override
     public void initialize(RouteSearchContext searchContext) {
@@ -322,26 +326,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         } catch (Exception e) {
             if (isLogEnabled()) LOGGER.debug(e.getMessage());
         }
-    }
-
-    private void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double meanRadius, double smoothingDistance) {
-        if (points.isEmpty())
-            return;
-        Polygon poly;
-        try {
-            Geometry geom = concaveHullByLength(points, smoothingDistance);
-
-            if (geom instanceof GeometryCollection geomColl) {
-                if (geomColl.isEmpty())
-                    return;
-            }
-
-            poly = (Polygon) geom;
-        } catch (Exception e) {
-            return;
-        }
-        previousIsochronePolygon = poly;
-        isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
     }
 
     private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points,

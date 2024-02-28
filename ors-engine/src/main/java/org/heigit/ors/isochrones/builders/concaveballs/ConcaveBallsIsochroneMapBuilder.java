@@ -24,7 +24,6 @@ import com.graphhopper.util.shapes.GHPoint3D;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.isochrones.GraphEdgeMapFinder;
-import org.heigit.ors.isochrones.Isochrone;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
@@ -35,10 +34,13 @@ import org.locationtech.jts.geom.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
-
 public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
+
+    @Override
+    public Logger getLogger() {
+        return LOGGER;
+    }
 
     public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
         StopWatch swTotal = null;
@@ -124,12 +126,11 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             var smoothingDistance = convertSmoothingFactorToDistance(smoothingFactor, maxRadius);
             var smoothingDistanceMeter = GeomUtility.degreesToMetres(smoothingDistance);
 
-            Coordinate[] points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85, smoothingDistanceMeter);
+            GeometryCollection points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85, smoothingDistanceMeter);
 
             if (LOGGER.isDebugEnabled()) {
                 sw.stop();
-                LOGGER.debug(i + " Find points: " + sw.getSeconds() + " " + points.length);
-
+                LOGGER.debug(i + " Find points: " + sw.getSeconds() + " " + points.getNumPoints());
                 sw = new StopWatch();
                 sw.start();
             }
@@ -146,38 +147,6 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             LOGGER.debug("Total time: " + swTotal.stop().getSeconds());
 
         return isochroneMap;
-    }
-
-    private void addIsochrone(IsochroneMap isochroneMap, Coordinate[] points, double isoValue, double meanRadius, double smoothingDistance) {
-        Geometry[] geometries = new Geometry[points.length];
-        for (int i = 0; i < points.length; ++i) {
-            Coordinate c = points[i];
-            geometries[i] = geometryFactory.createPoint(c);
-        }
-        GeometryCollection geometry = new GeometryCollection(geometries, geometryFactory);
-
-        if (points.length == 0)
-            return;
-        StopWatch sw = new StopWatch();
-        if (LOGGER.isDebugEnabled()) {
-            sw = new StopWatch();
-            sw.start();
-        }
-
-        Geometry shellGeometry = concaveHullByLength(geometry, smoothingDistance);
-        if (shellGeometry instanceof GeometryCollection geomColl) {
-            if (geomColl.isEmpty())
-                return;
-        }
-
-        Polygon poly = (Polygon) shellGeometry;
-        previousIsochronePolygon = poly;
-
-        if (LOGGER.isDebugEnabled()) {
-            sw.stop();
-            LOGGER.debug("Build shell concave hull " + sw.getSeconds());
-        }
-        isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
     }
 
     private void markDeadEndEdges(AccessibilityMap edgeMap) {
@@ -202,7 +171,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
         }
     }
 
-    private Coordinate[] buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points,
+    private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points,
                                         double isolineCost, double prevCost, double isochronesDifference,
                                         double detailedGeomFactor,
                                         double minSplitLength) {
@@ -280,12 +249,13 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
         if (LOGGER.isDebugEnabled())
             LOGGER.debug("Expanding edges " + sw.getSeconds());
 
-        Coordinate[] coordinates = new Coordinate[points.size()];
+        Geometry[] geometries = new Geometry[points.size()];
 
         for (int i = 0; i < points.size(); ++i) {
             Coordinate c = points.get(i);
-            coordinates[i] = c;
+            geometries[i] = geometryFactory.createPoint(c);
         }
-        return coordinates;
+
+        return new GeometryCollection(geometries, geometryFactory);
     }
 }

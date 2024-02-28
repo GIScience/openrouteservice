@@ -4,19 +4,22 @@ import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.util.*;
+import org.apache.log4j.Logger;
+import org.heigit.ors.isochrones.Isochrone;
+import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.WheelchairFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBikeFlagEncoder;
 import org.heigit.ors.util.GeomUtility;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
 
 public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder {
     private static final double MAX_SPLIT_LENGTH = 20000.0;
@@ -25,6 +28,8 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
     protected RouteSearchContext searchContext;
     protected double defaultSmoothingDistance = 0.012;// Use a default length of ~1333m
     protected Polygon previousIsochronePolygon = null;
+
+    public abstract Logger getLogger();
 
     public void initialize(RouteSearchContext searchContext) {
         this.searchContext = searchContext;
@@ -244,5 +249,32 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
         ringCoordinates.remove(ringCoordinates.size() - 1);
 
         return ringCoordinates;
+    }
+
+    protected void addIsochrone(IsochroneMap isochroneMap, GeometryCollection points, double isoValue, double meanRadius, double smoothingDistance) {
+        if (points.isEmpty())
+            return;
+
+        StopWatch sw = new StopWatch();
+        if (getLogger().isDebugEnabled()) {
+            sw = new StopWatch();
+            sw.start();
+        }
+
+        Geometry shellGeometry = concaveHullByLength(points, smoothingDistance);
+        if (shellGeometry instanceof GeometryCollection geomColl) {
+            if (geomColl.isEmpty())
+                return;
+        }
+
+        Polygon poly = (Polygon) shellGeometry;
+        previousIsochronePolygon = poly;
+
+        if (getLogger().isDebugEnabled()) {
+            sw.stop();
+            getLogger().debug("Build shell concave hull " + sw.getSeconds());
+        }
+
+        isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
     }
 }
