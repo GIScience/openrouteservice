@@ -25,16 +25,18 @@ ${B}Options:${N}
 "
 }
 
-function buildContainers() {
+function buildContainer() {
   dockerfile=$1
   imageName=$2
   m2Folder=$3
+  CONTEXT_PATH="$(realpath "${TESTROOT}/../..")"
 
-  echo "${FG_CYA}${B}building docker image ${IMAGE_NAME_JAR}${N}"
+  echo "${FG_CYA}${B}Building docker image ${IMAGE_NAME_JAR}${N} with context ${CONTEXT_PATH}"
   if podman ps -a | grep -q "$imageName"; then
+    echo "Removing existing image $imageName${N}"
     podman rm -f "$imageName";
   fi
-  podman build -t local/"$imageName" -f $(dirname $0)/"$dockerfile" -v $m2Folder:/root/.m2 --build-arg CONTAINER_WORK_DIR="$CONTAINER_WORK_DIR" --build-arg CONTAINER_CONF_DIR_USER="$CONTAINER_CONF_DIR_USER" --build-arg CONTAINER_CONF_DIR_ETC="$CONTAINER_CONF_DIR_ETC" "$TESTROOT"/../..
+  podman build -t local/"$imageName" -f "${TESTROOT}/${dockerfile}" -v ${m2Folder}:/root/.m2 --build-arg CONTAINER_WORK_DIR="$CONTAINER_WORK_DIR" --build-arg CONTAINER_CONF_DIR_USER="$CONTAINER_CONF_DIR_USER" --build-arg CONTAINER_CONF_DIR_ETC="$CONTAINER_CONF_DIR_ETC" "$CONTEXT_PATH"
 }
 
 function runTest() {
@@ -54,9 +56,14 @@ function runTest() {
     fi
 }
 
+function exitWithRunTypeMissing() {
+    echo "${FG_RED}${B}Error: When -t <arg> or -b is set, at least one of -j nor -m is required!${N} Type ${B}$SCRIPT -h${N} for help. "
+    exit 1
+}
+
 while getopts :bcfjmt:h FLAG; do
   case $FLAG in
-    b) buildContainers=1;;
+    b) wantBuildContainers=1;;
     c) clearGraphs=1;;
     f) failFast=1;;
     j) jar=1;;
@@ -65,7 +72,7 @@ while getopts :bcfjmt:h FLAG; do
     h)
       printCliHelp
       exit 0;;
-    \?) #unrecognized option - show help
+    \?)
       echo "${FG_RED}${B}Error: Unknown option -${B}$OPTARG${N}. Type ${B}$SCRIPT -h${N} for help."
       exit 1;;
   esac
@@ -74,22 +81,20 @@ done
 # This tells getopts to move on to the next argument.
 shift $((OPTIND-1))
 
-#if [[ ( (($buildContainers)) || -z $pattern ) && !(($jar)) && !(($mvn)) ]]; then
-#  echo "${FG_RED}${B}Error: Neither option -j nor -m is set!${N} Type ${B}$SCRIPT -h${N} for help. "
-#  exit 1
-#fi
+! (($jar)) && ! (($mvn)) && (($wantBuildContainers)) && exitWithRunTypeMissing
+! (($jar)) && ! (($mvn)) && [ -n "$pattern" ] && exitWithRunTypeMissing
 
 if (($clearGraphs)); then
   echo "Clearing ${TESTROOT}/graphs_volume/"
   rm -rf ${TESTROOT}/graphs_volume/*
 fi
 
-if (($buildContainers)); then
+if (($wantBuildContainers)); then
   mkdir -p ~/.m2
   m2Folder="$(realpath ~/.m2)"
 
-  (($jar)) && buildContainers Dockerfile-jar $IMAGE_NAME_JAR $m2Folder
-  (($mvn)) && buildContainers Dockerfile-mvn $IMAGE_NAME_MVN $m2Folder
+  (($jar)) && buildContainer Dockerfile-jar $IMAGE_NAME_JAR $m2Folder
+  (($mvn)) && buildContainer Dockerfile-mvn $IMAGE_NAME_MVN $m2Folder
   (($jar)) || (($mvn)) || echo "${FG_RED}${B}Set -j or -m to specify which Docker image(s) to build!${N}"
 fi
 

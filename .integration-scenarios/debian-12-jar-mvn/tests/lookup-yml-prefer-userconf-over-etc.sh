@@ -25,7 +25,7 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
   -v "${configCar}":"${CONTAINER_CONF_DIR_USER}/ors-config.yml" \
-  -v "${configHgv}":${CONTAINER_CONF_DIR_ETC}/ors-config.yml \
+  -v "${configHgv}":"${CONTAINER_CONF_DIR_ETC}/ors-config.yml" \
   "local/${IMAGE}:latest"  &
 
 awaitOrsReady 60 "${HOST_PORT}"

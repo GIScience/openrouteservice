@@ -32,4 +32,4 @@ docs/
 Dockerfile
 envs/
 .jqwik-database
-!ors-engine/src/test/files/preprocessed_osm_data.pbf
+!ors-engine/src/test/files/

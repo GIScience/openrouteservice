@@ -38,10 +38,7 @@ function getOrsUrl() {
 }
 
 function stopOrs() {
-#  echo "killing java processes"
   killall -w java
-#  echo "pidof java : "
-#  pidof java
 }
 
 function clearEnvironment() {
@@ -149,7 +146,7 @@ function prepareTest() {
     jar) IMAGE=$IMAGE_NAME_JAR;;
     mvn) IMAGE=$IMAGE_NAME_MVN;;
   esac
-#  mkdir -p $TESTROOT/tmp
+
   mkdir -p ~/.m2
   M2_FOLDER="$(realpath ~/.m2)"
 }

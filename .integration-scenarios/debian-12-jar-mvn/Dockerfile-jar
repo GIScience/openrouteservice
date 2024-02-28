@@ -15,7 +15,6 @@ COPY ors-report-aggregation ors-report-aggregation
 COPY pom.xml pom.xml
 
 RUN mvn clean package -DskipTests -PbuildFatJar -DCI=true
-RUN ls -l ors-api/target
 
 FROM docker.io/debian:bookworm-slim as final
 
