@@ -1,6 +1,6 @@
 # Building from Source
 
-If you need to customize your openrouteservice instance even further than what is possible by [configuration](/run-instance/configuration/index.md), or want to start contributing to the openrouteservice project, the following section will give you starting points.
+If you need to customize your openrouteservice instance even further than what is possible by [configuration](../configuration/index.md), or want to start contributing to the openrouteservice project, the following section will give you starting points.
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ mvn -DskipTests package
 [//]: # (TODO: overhaul contents below after integrating the jar build PR)
 After running this command, you will find the artefact at `ors-api/target/ors.war`. 
 
-After you have packaged openrouteservice, there are two options for running it. One is to run the `mvn spring-boot:run` command which triggers a spring-boot native Tomcat instance running on port `8082`.  This is more restrictive in terms of settings for Tomcat. The other is to install and run Tomcat 10. In both cases the requirements of configuration and source files discussed [here](running-jar-war) apply.
+After you have packaged openrouteservice, there are two options for running it. One is to run the `mvn spring-boot:run` command which triggers a spring-boot native Tomcat instance running on port `8082`.  This is more restrictive in terms of settings for Tomcat. The other is to install and run Tomcat 10. In both cases the requirements of configuration and source files discussed [here](./running-jar-war) apply.
 
 [//]: # (TODO: the part below partly belongs somewhere in the contributing section; running with IDE needs to be overhauled, too, since it does not mention running with spring boot run config)
 
@@ -39,7 +39,7 @@ To run the project from within your IDE, you have to:
 
   1. Set up your IDE project and import `openrouteservice`
      modules as Maven model.
-     For IntelliJ Idea, have a look at [these instructions](/contributing/opening-project-in-intellij.md).
+     For IntelliJ Idea, have a look at [these instructions](../../contributing/opening-project-in-intellij.md).
 
   2. Configure your IDE to run `spring-boot:run` as the maven goal, setting the
      environment variable `ORS_CONFIG_LOCATION=ors-config.yml`.
