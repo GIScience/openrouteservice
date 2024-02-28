@@ -1,8 +1,11 @@
 # Openrouteservice
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/GIScience/openrouteservice/build-and-publish.yml)](https://github.com/GIScience/openrouteservice/actions/workflows/build-and-publish.yml)
+[![Docker Nightly Build Status](https://img.shields.io/github/actions/workflow/status/GIScience/openrouteservice/docker-nightly-image.yml)](https://github.com/GIScience/openrouteservice/actions/workflows/docker-nightly-image.yml)
 [![Docker](https://img.shields.io/docker/cloud/build/heigit/openrouteservice?label=Docker&style=flat)](https://hub.docker.com/r/heigit/openrouteservice/builds)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=GIScience_openrouteservice&metric=alert_status&branch=main)](https://sonarcloud.io/dashboard?id=GIScience_openrouteservice&metric)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=GIScience_openrouteservice&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=GIScience_openrouteservice)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=GIScience_openrouteservice&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=GIScience_openrouteservice)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=GIScience_openrouteservice&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=GIScience_openrouteservice)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=GIScience_openrouteservice&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=GIScience_openrouteservice)
 [![Release](https://img.shields.io/github/v/release/GIScience/openrouteservice)](https://github.com/GIScience/openrouteservice/releases/latest)
 [![LICENSE](https://img.shields.io/github/license/GIScience/openrouteservice)](LICENSE)
 

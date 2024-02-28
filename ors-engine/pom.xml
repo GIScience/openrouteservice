@@ -201,12 +201,12 @@
             <artifactId>progressbar</artifactId>
         </dependency>
 
-        <!-- TODO: remove this if nothing breaks
+        <!-- Somehow the RoutingProfileLoader needs jline -->
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
         </dependency>
-        -->
+
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
