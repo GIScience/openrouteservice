@@ -1,6 +1,8 @@
 package org.heigit.ors.util;
 
+import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
+import org.apache.logging.log4j.core.config.AppenderRef;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,5 +43,12 @@ public class ProgressBarLoggerTest {
     @Test
     public void testGetLogger() {
         assertEquals(Logger.getLogger("ProgressBarLogger"), logger, "Logger should be the same instance");
+    }
+
+    @Test
+    public void testConsoleAppender() {
+        Appender appenderRefs = ProgressBarLogger.getLogger().getAppender("ProgressBarLogger");
+        assertNotNull(appenderRefs, "Appender should not be null");
+        assertEquals(ProgressBarLogger.getLoggerName(), appenderRefs.getName(), "Appender name should be 'ProgressBarLogger'");
     }
 }

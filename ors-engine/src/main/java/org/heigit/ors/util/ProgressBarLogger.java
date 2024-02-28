@@ -53,7 +53,7 @@ public class ProgressBarLogger {
             consoleAppender.start();
 
             // Create the new appender reference
-            AppenderRef ref = AppenderRef.createAppenderRef("File", null, null);
+            AppenderRef ref = AppenderRef.createAppenderRef(LOGGER_NAME, null, null);
             AppenderRef[] refs = new AppenderRef[]{ref};
             LoggerConfig loggerConfig = LoggerConfig.newBuilder()
                     .withAdditivity(false)
