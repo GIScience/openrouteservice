@@ -8,7 +8,7 @@ on:
 
 env:
   TEST_IMAGE_NAME: 'local/openrouteservice:test'
-  BUILD_PLATFORMS: 'linux/amd64,linux/arm64/v8'
+  BUILD_PLATFORMS: 'linux/amd64,linux/arm64'
 
 
 jobs:
@@ -32,6 +32,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Get and save the UID
+        run: |
+          echo "UID=$(id -u)" >> $GITHUB_ENV
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -43,6 +46,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          build-args: UID=${{ env.UID }}
           push: false
           load: false
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
@@ -57,15 +61,15 @@ jobs:
       - build_docker_images
     strategy:
       matrix:
-        platform: [ linux/amd64,linux/arm64/v8 ]
+        platform: [ linux/amd64,linux/arm64 ]
         image: [ ubuntu-latest ]
-        # linux/arm64/v8 is emulated with qemu and takes ages to build the graph.
-        # Only run linux/arm64/v8 tests on ready PR and main.
+        # linux/arm64 is emulated with qemu and takes ages to build the graph.
+        # Only run linux/arm64 tests on ready PR and main.
         isDraftPR:
           - ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == true }}
         exclude:
           - isDraftPR: true
-            platform: linux/arm64/v8
+            platform: linux/arm64
     steps:
       - run: |
           echo "Run docker test for platform ${{ matrix.platform }}"
@@ -73,9 +77,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Get and save the UID
+        run: |
+          echo "UID=$(id -u)" >> $GITHUB_ENV
       - name: Set the wait time for arm64
         run: |
-          if [[ "${{ matrix.platform }}" == 'linux/arm64/v8' ]]; then
+          if [[ "${{ matrix.platform }}" == 'linux/arm64' ]]; then
             # arm64 is emulated and takes longer to build the graph
             echo "Set HEALTH_WAIT_TIME to 600 for arm64"
             echo "HEALTH_WAIT_TIME=600" >> $GITHUB_ENV
@@ -101,6 +108,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          build-args: UID=${{ env.UID }}
           push: false
           load: true
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
@@ -108,19 +116,27 @@ jobs:
           cache-from: type=gha
       - name: Start container from previously build image and wait for successful checks
         run: |
-          mkdir $(pwd)/graphs $(pwd)/conf
-          sudo chown 1000:1000 $(pwd)/graphs $(pwd)/conf
-          docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
-          docker logs ors-instance
+          mkdir -p $(pwd)/graphs $(pwd)/conf
+          chown -R $UID $(pwd)/graphs $(pwd)/conf
+          docker run -it --user $UID -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
           # Check for health to turn 200 after the graphs are build and spring-boot completely started
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
           # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 10
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 200 10
+          echo "Adjust the config file and set ORIGIN to https://example.org"
+          sudo yq '.ors.cors.allowed_origins = "https://example.org, https://test.com, http://localhost:8080"' -i ./conf/ors-config.yml
           # Restart the container to apply the config changes
+          docker restart ors-instance
+          # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 50
+          # It should fail with http code 403 for https://example.com since the Origin is not covered.
+          ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 403 10
+          echo "Recreate the container to test if the graph can be properly read again"
           docker stop ors-instance
           docker container prune -f 
-          docker run -it -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf -e ORS_CORS_ALLOWED_ORIGINS=https://example.org --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          chown -R $UID $(pwd)/graphs $(pwd)/conf
+          docker run -it --user $UID -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
           # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 50
           # It should fail with http code 403 for https://example.com since the Origin is not covered.
