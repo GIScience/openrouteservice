@@ -33,7 +33,6 @@ import org.heigit.ors.util.GeomUtility;
 import org.locationtech.jts.geom.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
@@ -172,7 +171,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                 return;
         }
         Polygon polyShell = (Polygon) shellGeometry;
-        copyConcaveHullPoints(polyShell);
+        prevIsoPoints = createCoordinateListFromPolygon(polyShell);
 
         if (LOGGER.isDebugEnabled()) {
             sw.stop();
@@ -249,7 +248,6 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             if (minCost < prevCost && isochronesDifference > 1000)
                 continue;
 
-
             EdgeIteratorState iter = graph.getEdgeIteratorState(edgeId, nodeId);
 
             // edges that are fully inside the isochrone
@@ -273,7 +271,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
                     if (LOGGER.isDebugEnabled())
                         sw.start();
-                    addCuttedEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
+                    addBorderEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
                     if (LOGGER.isDebugEnabled())
                         sw.stop();
                 }
@@ -289,10 +287,5 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             coordinates[i] = c;
         }
         return coordinates;
-    }
-
-    private void copyConcaveHullPoints(Polygon poly) {
-        LineString ring = poly.getExteriorRing();
-        prevIsoPoints = new ArrayList<>(Arrays.asList(ring.getCoordinates()));
     }
 }

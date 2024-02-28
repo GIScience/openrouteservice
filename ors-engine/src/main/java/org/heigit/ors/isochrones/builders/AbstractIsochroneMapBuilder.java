@@ -4,7 +4,6 @@ import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.HikeFlagEncoder;
 import com.graphhopper.util.*;
-import com.graphhopper.util.shapes.GHPoint3D;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FootFlagEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.ORSAbstractFlagEncoder;
@@ -13,7 +12,10 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CommonBik
 import org.heigit.ors.util.GeomUtility;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder {
@@ -88,19 +90,19 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
         }
     }
 
-    protected void addPointsFromEdge(List<Coordinate> points, double isolineCost, float maxCost, float minCost, double bufferSize, double edgeDist, PointList pl) {
+    protected void addPointsFromEdge(List<Coordinate> points, double isolineCost, float maxCost, float minCost, double bufferSize, double edgeDist, List<Coordinate> pl) {
         double edgeCost = maxCost - minCost;
         double costPerMeter = edgeCost / edgeDist;
         double distPolyline = 0.0;
 
-        double lat0 = pl.getLat(0);
-        double lon0 = pl.getLon(0);
+        double lat0 = pl.get(0).y;
+        double lon0 = pl.get(0).x;
         double lat1;
         double lon1;
 
         for (int i = 1; i < pl.size(); ++i) {
-            lat1 = pl.getLat(i);
-            lon1 = pl.getLon(i);
+            lat1 = pl.get(i).y;
+            lon1 = pl.get(i).x;
 
             distPolyline += dcFast.calcDist(lat0, lon0, lat1, lon1);
 
@@ -125,63 +127,66 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
     /**
      * Splits a line between two points of the distance is longer than a limit
      *
-     * @param point0 point0 of line
-     * @param point1 point1 of line
+     * @param lat0 latitude of first point
+     * @param lon0 longitude of first point
+     * @param lat1 latitude of second point
+     * @param lon1 longitude of second point
      * @param minlim limit above which the edge will be split (in meters)
      * @param maxlim limit above which the edge will NOT be split anymore (in meters)
      */
-    private void splitEdge(GHPoint3D point0, GHPoint3D point1, PointList pointList, double minlim, double maxlim) {
-        //No need to consider elevation
-        double lat0 = point0.getLat();
-        double lon0 = point0.getLon();
-        double lat1 = point1.getLat();
-        double lon1 = point1.getLon();
+    protected void splitLineSegment(double lat0, double lon0, double lat1, double lon1, List<Coordinate> points, double minlim, double maxlim) {
         double dist = dcFast.calcDist(lat0, lon0, lat1, lon1);
-        boolean is3D = pointList.is3D();
 
         if (dist > minlim && dist < maxlim) {
             int n = (int) Math.ceil(dist / minlim);
             for (int i = 1; i < n; i++) {
-                if (is3D)
-                    pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n, 0);
-                else
-                    pointList.add(lat0 + i * (lat1 - lat0) / n, lon0 + i * (lon1 - lon0) / n);
+                addPoint(points, lon0 + i * (lon1 - lon0) / n, lat0 + i * (lat1 - lat0) / n);
             }
         }
     }
 
-    protected PointList edgeToPoints(EdgeIteratorState iter, double minSplitLength) {
+    protected List<Coordinate> edgeToPoints(EdgeIteratorState iter, double minSplitLength) {
         // always use mode=3, since other ones do not provide correct results
         PointList pl = iter.fetchWayGeometry(FetchMode.ALL);
 
-        double edgeDist = iter.getDistance();
-        if (edgeDist > minSplitLength) {
-            PointList expandedPoints = new PointList(pl.size(), pl.is3D());
-            for (int i = 0; i < pl.size() - 1; i++)
-                splitEdge(pl.get(i), pl.get(i + 1), expandedPoints, minSplitLength, MAX_SPLIT_LENGTH);
-            pl.add(expandedPoints);
+        List<Coordinate> points = new ArrayList<>(2 * pl.size());
+
+        if (!pl.isEmpty()) {
+            double lat0 = pl.getLat(0);
+            double lon0 = pl.getLon(0);
+            double lat1;
+            double lon1;
+            for (int i = 1; i < pl.size(); i++) {
+                lat1 = pl.getLat(i);
+                lon1 = pl.getLon(i);
+                addPoint(points, lon0, lat0);
+                splitLineSegment(lat0, lon0, lat1, lon1, points, minSplitLength, MAX_SPLIT_LENGTH);
+                lon0 = lon1;
+                lat0 = lat1;
+            }
+            addPoint(points, lon0, lat0);
         }
 
-        return pl;
+        return points;
     }
 
     protected void addBufferedEdgeGeometry(List<Coordinate> points, double minSplitLength, EdgeIteratorState iter, boolean detailedShape, SPTEntry goalEdge, double bufferSize) {
-        PointList pl = edgeToPoints(iter, minSplitLength);
+        List<Coordinate> pl = edgeToPoints(iter, minSplitLength);
         if (pl.isEmpty()) {
             return;
         }
 
         int size = pl.size();
 
-        double lat0 = pl.getLat(0);
-        double lon0 = pl.getLon(0);
+        double lat0 = pl.get(0).y;
+        double lon0 = pl.get(0).x;
         double lat1;
         double lon1;
 
         if (detailedShape) {
             for (int i = 1; i < size; ++i) {
-                lat1 = pl.getLat(i);
-                lon1 = pl.getLon(i);
+                lat1 = pl.get(i).y;
+                lon1 = pl.get(i).x;
 
                 addBufferPoints(points, lon0, lat0, lon1, lat1, goalEdge.edge < 0 && i == size - 1, bufferSize);
 
@@ -189,14 +194,12 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
                 lat0 = lat1;
             }
         } else {
-            for (int i = 0; i < size; ++i) {
-                addPoint(points, pl.getLon(i), pl.getLat(i));
-            }
+            points.addAll(pl);
         }
     }
 
-    protected void addCuttedEdgeGeometry(List<Coordinate> points, double isolineCost, double minSplitLength, EdgeIteratorState iter, float maxCost, float minCost, double bufferSize) {
-        PointList pl = edgeToPoints(iter, minSplitLength);
+    protected void addBorderEdgeGeometry(List<Coordinate> points, double isolineCost, double minSplitLength, EdgeIteratorState iter, float maxCost, float minCost, double bufferSize) {
+        List<Coordinate> pl = edgeToPoints(iter, minSplitLength);
         if (pl.isEmpty()) {
             return;
         }
@@ -232,5 +235,13 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
         }
 
         return meanSpeed;
+    }
+
+    protected List<Coordinate> createCoordinateListFromPolygon(Polygon poly) {
+        List<Coordinate> ringCoordinates = new ArrayList<>(Arrays.asList(poly.getExteriorRing().getCoordinates()));
+        // remove the last point as for a closed ring it equals the first one
+        ringCoordinates.remove(ringCoordinates.size() - 1);
+
+        return ringCoordinates;
     }
 }

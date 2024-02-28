@@ -73,6 +73,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private static final double ACTIVE_CELL_APPROXIMATION_FACTOR = 0.99;
     private static final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
 
+    @Override
     public void initialize(RouteSearchContext searchContext) {
         super.initialize(searchContext);
         defaultSmoothingDistance = 0.010;// Use a default length of ~1000m
@@ -214,8 +215,8 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 StopWatch finalConcaveHullStopWatch = new StopWatch();
                 if (DebugUtility.isDebug())
                     finalConcaveHullStopWatch.start();
-                List<Double> contourCoordinates = createCoordinateListFromGeometry(preprocessedGeometry, smoothingDistanceMeter);
-                GeometryCollection points = buildIsochrone(new AccessibilityMap(new GHIntObjectHashMap<>(0), snappedPosition), contourCoordinates, isoPoints, isoValue, smoothingDistanceMeter);
+                isoPoints.addAll(createCoordinateListFromGeometry(preprocessedGeometry, smoothingDistanceMeter));
+                GeometryCollection points = buildIsochrone(new AccessibilityMap(new GHIntObjectHashMap<>(0), snappedPosition), isoPoints, isoValue, smoothingDistanceMeter);
                 addIsochrone(isochroneMap, points, isoValue, meanRadius, smoothingDistance);
                 if (DebugUtility.isDebug()) {
                     LOGGER.debug("Build final concave hull from " + points.getNumGeometries() + " points: " + finalConcaveHullStopWatch.stop().getSeconds());
@@ -254,7 +255,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 if (largestSubCellProcessed && splitMap.size() < getMinCellNodesNumber())
                     continue;
                 largestSubCellProcessed = true;
-                GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), new ArrayList<>(), isoValue, minSplitLength);
+                GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), isoValue, minSplitLength);
                 createPolyFromPoints(isochroneGeometries, points, smoothingDistance, minSplitLength);
             }
             swActiveCellBuild.stop();
@@ -265,31 +266,34 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         }
     }
 
-    private List<Double> createCoordinateListFromGeometry(Geometry preprocessedGeometry, double minSplitLength) {
-        List<Double> contourCoordinates = new ArrayList<>();
-        for (int j = 0; j < preprocessedGeometry.getNumGeometries(); j++) {
-            if (!(preprocessedGeometry.getGeometryN(j) instanceof Polygon)) {
-                for (Coordinate coordinate : preprocessedGeometry.getGeometryN(j).getCoordinates()) {
-                    contourCoordinates.add(coordinate.y);
-                    contourCoordinates.add(coordinate.x);
-                }
-                continue;
-            }
+    private List<Coordinate> createCoordinateListFromGeometry(Geometry preprocessedGeometry, double minSplitLength) {
+        List<Coordinate> contourCoords = new ArrayList<>();
 
-            LinearRing ring = ((Polygon) preprocessedGeometry.getGeometryN(j)).getExteriorRing();
-            for (int i = 0; i < ring.getNumPoints() - 1; i++) {
-                contourCoordinates.add(ring.getCoordinateN(i).y);
-                contourCoordinates.add(ring.getCoordinateN(i).x);
-                splitEdgeToDoubles(ring.getCoordinateN(i).y,
-                        ring.getCoordinateN(i + 1).y,
-                        ring.getCoordinateN(i).x,
-                        ring.getCoordinateN(i + 1).x,
-                        contourCoordinates,
-                        minSplitLength/2,
-                        MAX_EDGE_LENGTH_LIMIT);
+        for (int j = 0; j < preprocessedGeometry.getNumGeometries(); j++) {
+            Geometry geometry = preprocessedGeometry.getGeometryN(j);
+
+            if (geometry instanceof Polygon poly) {
+                List<Coordinate> ringCoords = createCoordinateListFromPolygon(poly);
+                contourCoords.addAll(ringCoords);
+
+                double lat0 = ringCoords.get(ringCoords.size() - 1).y;
+                double lon0 = ringCoords.get(ringCoords.size() - 1).x;
+                double lat1;
+                double lon1;
+                for (int i = 0; i < ringCoords.size(); i++) {
+                    lat1 = ringCoords.get(i).y;
+                    lon1 = ringCoords.get(i).x;
+                    splitLineSegment(lat0, lon0, lat1, lon1, contourCoords, minSplitLength / 2, MAX_EDGE_LENGTH_LIMIT);
+                    lon0 = lon1;
+                    lat0 = lat1;
+                }
+            }
+            else {
+                contourCoords.addAll(Arrays.asList(geometry.getCoordinates()));
             }
         }
-        return contourCoordinates;
+
+        return contourCoords;
     }
 
     private Geometry combineGeometries(Set<Geometry> isochroneGeometries) {
@@ -311,10 +315,9 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private void createPolyFromPoints(Set<Geometry> isochroneGeometries, GeometryCollection points, double smoothingDistance, double minSplitLength) {
         if (points.isEmpty())
             return;
-        LinearRing ring;
-        Geometry concaveHull;
+
         try {
-            concaveHull = concaveHullByLength(points, smoothingDistance);
+            Geometry concaveHull = concaveHullByLength(points, smoothingDistance);
             if (concaveHull instanceof Polygon && concaveHull.isValid() && !concaveHull.isEmpty())
                 isochroneGeometries.add(concaveHull);
         } catch (Exception e) {
@@ -342,7 +345,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
     }
 
-    private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Double> contourCoordinates, List<Coordinate> points,
+    private GeometryCollection buildIsochrone(AccessibilityMap edgeMap, List<Coordinate> points,
                                               double isolineCost, double minSplitLength) {
         IntObjectMap<SPTEntry> map = edgeMap.getMap();
 
@@ -383,11 +386,10 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 }
             } else {
                 if ((minCost < isolineCost && maxCost >= isolineCost)) {
-                    addCuttedEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
+                    addBorderEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
                 }
             }
         }
-        addContourCoordinates(contourCoordinates, points);
         Geometry[] geometries = new Geometry[points.size()];
 
         for (int i = 0; i < points.size(); ++i) {
@@ -396,17 +398,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         }
 
         return new GeometryCollection(geometries, geometryFactory);
-    }
-
-    private void addContourCoordinates(List<Double> contourCoordinates, List<Coordinate> points) {
-        int j = 0;
-        while (j < contourCoordinates.size()) {
-            double latitude = contourCoordinates.get(j);
-            j++;
-            double longitude = contourCoordinates.get(j);
-            j++;
-            addPoint(points, longitude, latitude);
-        }
     }
 
     private void handleFullyReachableCells(Set<Geometry> isochroneGeometries, Set<Integer> fullyReachableCells) {
@@ -488,18 +479,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         statement.append("]]}},");
         statement.append(System.lineSeparator());
         return statement.toString();
-    }
-
-    private void splitEdgeToDoubles(double lat0, double lat1, double lon0, double lon1, List<Double> coordinates, double minlim, double maxlim) {
-        double dist = dcFast.calcDist(lat0, lon0, lat1, lon1);
-
-        if (dist > minlim && dist < maxlim) {
-            int n = (int) Math.ceil(dist / minlim);
-            for (int i = 1; i < n; i++) {
-                coordinates.add(lat0 + i * (lat1 - lat0) / n);
-                coordinates.add(lon0 + i * (lon1 - lon0) / n);
-            }
-        }
     }
 
     private List<GHIntObjectHashMap<SPTEntry>> separateDisconnected(IntObjectMap<SPTEntry> map) {
