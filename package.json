@@ -8,5 +8,8 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "build-preview": "vitepress build docs && vitepress preview docs"
+  },
+  "dependencies": {
+    "vitepress-versioning-plugin": "^0.10.0"
   }
 }
