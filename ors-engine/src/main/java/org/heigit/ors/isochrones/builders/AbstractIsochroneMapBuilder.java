@@ -24,6 +24,7 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
     protected GeometryFactory geometryFactory;
     protected RouteSearchContext searchContext;
     protected double defaultSmoothingDistance = 0.012;// Use a default length of ~1333m
+    protected Polygon previousIsochronePolygon = null;
 
     public void initialize(RouteSearchContext searchContext) {
         this.searchContext = searchContext;

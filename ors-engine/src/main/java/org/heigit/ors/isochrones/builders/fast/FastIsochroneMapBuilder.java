@@ -65,7 +65,6 @@ import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLengt
  * @author Hendrik Leuschner
  */
 public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
-    private Polygon previousIsochronePolygon = null;
     private CellStorage cellStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
     private QueryGraph queryGraph;

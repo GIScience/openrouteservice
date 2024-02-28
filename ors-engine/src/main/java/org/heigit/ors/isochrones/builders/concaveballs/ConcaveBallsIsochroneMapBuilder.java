@@ -39,7 +39,6 @@ import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLengt
 
 public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private static final Logger LOGGER = Logger.getLogger(ConcaveBallsIsochroneMapBuilder.class.getName());
-    private List<Coordinate> prevIsoPoints = null;
 
     public IsochroneMap compute(IsochroneSearchParameters parameters) throws Exception {
         StopWatch swTotal = null;
@@ -170,14 +169,15 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             if (geomColl.isEmpty())
                 return;
         }
-        Polygon polyShell = (Polygon) shellGeometry;
-        prevIsoPoints = createCoordinateListFromPolygon(polyShell);
+
+        Polygon poly = (Polygon) shellGeometry;
+        previousIsochronePolygon = poly;
 
         if (LOGGER.isDebugEnabled()) {
             sw.stop();
             LOGGER.debug("Build shell concave hull " + sw.getSeconds());
         }
-        isochroneMap.addIsochrone(new Isochrone(polyShell, isoValue, meanRadius));
+        isochroneMap.addIsochrone(new Isochrone(poly, isoValue, meanRadius));
     }
 
     private void markDeadEndEdges(AccessibilityMap edgeMap) {
@@ -210,8 +210,8 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
         points.clear();
 
-        if (prevIsoPoints != null)
-            points.addAll(prevIsoPoints);
+        if (previousIsochronePolygon != null)
+            points.addAll(createCoordinateListFromPolygon(previousIsochronePolygon));
 
         GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
         NodeAccess nodeAccess = graph.getNodeAccess();
