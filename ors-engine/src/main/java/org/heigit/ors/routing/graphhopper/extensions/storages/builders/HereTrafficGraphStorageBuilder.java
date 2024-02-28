@@ -24,7 +24,7 @@ import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
-import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.*;
 import org.apache.log4j.Logger;
 import org.geotools.data.DataUtilities;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -41,6 +41,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.TrafficEdgeFilt
 import org.heigit.ors.routing.graphhopper.extensions.reader.traffic.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.util.ErrorLoggingUtility;
+import org.heigit.ors.util.ProgressBarLogger;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -85,7 +86,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     private TrafficEdgeFilter trafficEdgeFilter;
     private final IntHashSet matchedHereLinks = new IntHashSet();
     private final ArrayList<String> matchedOSMLinks = new ArrayList<>();
-    private  boolean showProgressBar;
+    ProgressBarBuilder progressBar;
 
     /**
      * Initialize the Here Traffic graph extension <br/><br/>
@@ -138,7 +139,14 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
         gh = graphhopper;
         mMapMatcher = new GhMapMatcher(graphhopper, parameters.get("gh_profile"));
-        showProgressBar = LOGGER.isDebugEnabled();
+
+        Logger progressBarLogger = ProgressBarLogger.getLogger();
+
+        // Initialize the progress bar with the print stream and the style of the progress bar.
+        progressBar = new ProgressBarBuilder()
+                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
+                .setUpdateIntervalMillis(5000) // slow update for better visualization and less IO. Avoids % calculation for each element.
+                .setConsumer(new DelegatingProgressBarConsumer(progressBarLogger::info));
         return storage;
     }
 
@@ -313,32 +321,29 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
     }
 
     private void processTrafficPatterns(IntObjectHashMap<TrafficPattern> patterns) {
-        try (ProgressBar pb = showProgressBar ? new ProgressBar("Processing traffic patterns", patterns.values().size()) : null) {
+        try (ProgressBar pb = progressBar.setInitialMax(patterns.size()).setTaskName("Processing Here traffic patterns").build()) {
             for (ObjectCursor<TrafficPattern> pattern : patterns.values()) {
                 storage.setTrafficPatterns(pattern.value.getPatternId(), pattern.value.getValues());
-                if (showProgressBar)
-                    pb.step();
+                pb.step();
             }
-            LOGGER.info("Processed " + storage.getPatternCount() + " traffic patterns");
         } catch (Exception e) {
             LOGGER.error("Error processing here traffic patterns with error: " + e);
+        } finally {
+            LOGGER.info("Processed " + storage.getPatternCount() + " traffic patterns");
         }
     }
 
     private void processLinks(ORSGraphHopper graphHopper, IntObjectHashMap<TrafficLink> links) {
         int trafficLinksCount = links.values().size();
-        try (ProgressBar pb = showProgressBar ? new ProgressBar("Matching Here Links", trafficLinksCount) : null) {
-            int counter = 0;
-            int step = trafficLinksCount / 100 + ((trafficLinksCount % 100 == 0) ? 0 : 1);
+        try (ProgressBar pb = progressBar.setInitialMax(links.size()).setTaskName("Matching Here links").build()) {
             for (ObjectCursor<TrafficLink> trafficLink : links.values()) {
-                counter++;
                 processLink(graphHopper, trafficLink.value);
-                if (showProgressBar && counter % step == 0)
-                    pb.stepBy(step);
+                pb.step();
             }
-            LOGGER.info("Matched " + 100 * getMatchedHereLinksCount()/trafficLinksCount + "% Here links (" + getMatchedHereLinksCount() + " out of " + trafficLinksCount + ")");
         } catch (Exception e) {
             LOGGER.error("Error processing here traffic links with error: " + e);
+        } finally {
+            LOGGER.info("Matched " + 100 * getMatchedHereLinksCount() / trafficLinksCount + "% Here links (" + getMatchedHereLinksCount() + " out of " + trafficLinksCount + ")");
         }
     }
 
@@ -420,40 +425,50 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
 
         org.locationtech.jts.geom.Coordinate[] locations = geometry.getCoordinates();
         int originalFunctionalClass = trafficEdgeFilter.getHereFunctionalClass();
-        RouteSegmentInfo[] match = mMapMatcher.match(locations, bothDirections);
-        match = validateRouteSegment(originalTrafficLinkLength, match);
+        try {
+            RouteSegmentInfo[] match = mMapMatcher.match(locations, bothDirections);
+            match = validateRouteSegment(originalTrafficLinkLength, match);
 
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value)) {
-            // Test a higher functional class based from the original class
-//            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
-            trafficEdgeFilter.higherFunctionalClass();
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
+            if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS1LINK.value)) {
+                // Test a higher functional class based from the original class
+                //            ((TrafficEdgeFilter) edgeFilter).setHereFunctionalClass(originalFunctionalClass);
+                trafficEdgeFilter.higherFunctionalClass();
+                mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+                match = mMapMatcher.match(locations, bothDirections);
+                match = validateRouteSegment(originalTrafficLinkLength, match);
+            }
+            if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
+                // Try matching in the next lower functional class.
+                trafficEdgeFilter.setHereFunctionalClass(originalFunctionalClass);
+                trafficEdgeFilter.lowerFunctionalClass();
+                mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+                match = mMapMatcher.match(locations, bothDirections);
+                match = validateRouteSegment(originalTrafficLinkLength, match);
+            }
+            if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
+                // But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+                trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value);
+                mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+                match = mMapMatcher.match(locations, bothDirections);
+                match = validateRouteSegment(originalTrafficLinkLength, match);
+            }
+            if (match.length <= 0 && (originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS1.value)) {
+                // If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
+                trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.CLASS5.value);
+                mMapMatcher.setEdgeFilter(trafficEdgeFilter);
+                match = mMapMatcher.match(locations, bothDirections);
+                match = validateRouteSegment(originalTrafficLinkLength, match);
+            }
+            return match;
+        } catch (IllegalArgumentException e) {
+            // Graphhopper throws an IllegalArgumentException when the matching fails. This is to be expected when matching here traffic on osm files without the corresponding edges.
+            // The exception is caught and logged as a trace to avoid cluttering the log with expected exceptions.
+            LOGGER.trace("Error while matching: " + e);
+            return new RouteSegmentInfo[]{};
+        } catch (Exception e) {
+            LOGGER.error("Error while matching: " + e);
+            return new RouteSegmentInfo[]{};
         }
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
-            // Try matching in the next lower functional class.
-            trafficEdgeFilter.setHereFunctionalClass(originalFunctionalClass);
-            trafficEdgeFilter.lowerFunctionalClass();
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        if (match.length <= 0 && (originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value && originalFunctionalClass != TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value)) {
-            // But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
-            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value);
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        if (match.length <= 0 && (originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.UNCLASSIFIED.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS4LINK.value || originalFunctionalClass == TrafficRelevantWayType.RelevantWayTypes.CLASS1.value)) {
-            // If the first tested class was unclassified, try CLASS5. But always try UNCLASSIFIED before. CLASS5 hast way too many false-positives!
-            trafficEdgeFilter.setHereFunctionalClass(TrafficRelevantWayType.RelevantWayTypes.CLASS5.value);
-            mMapMatcher.setEdgeFilter(trafficEdgeFilter);
-            match = mMapMatcher.match(locations, bothDirections);
-            match = validateRouteSegment(originalTrafficLinkLength, match);
-        }
-        return match;
     }
 
     private RouteSegmentInfo[] validateRouteSegment(double originalTrafficLinkLength, RouteSegmentInfo[] routeSegmentInfo) {
