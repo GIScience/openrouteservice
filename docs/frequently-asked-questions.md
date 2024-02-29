@@ -128,3 +128,4 @@ consecutive period of 60 seconds may only contain 40 directions requests.
 
 If you run into the daily limit, you will receive a `403 - Forbidden` HTTP error.
 If you run into the minutely limit, you will receive a `429 - Too many requests` HTTP error.
+The remaining daily quota is returned in the `x-ratelimit-remaining` header and the time it resets in the `x-ratelimit-reset` header.
