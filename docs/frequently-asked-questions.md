@@ -126,4 +126,5 @@ tomorrow until you can request any more directions.
 The minutely limit is enforced as a sliding window, meaning that any
 consecutive period of 60 seconds may only contain 40 directions requests.
 
-If you run into either the daily or the minutely limit, you will receive a `429 - Too many requests` HTTP error.
+If you run into the daily limit, you will receive a `403 - Forbidden` HTTP error.
+If you run into the minutely limit, you will receive a `429 - Too many requests` HTTP error.
