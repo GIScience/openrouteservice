@@ -36,7 +36,7 @@ function buildContainer() {
     echo "Removing existing image $imageName${N}"
     podman rm -f "$imageName";
   fi
-  podman build -t local/"$imageName" -f "${TESTROOT}/${dockerfile}" -v ${m2Folder}:/root/.m2 --build-arg CONTAINER_WORK_DIR="$CONTAINER_WORK_DIR" --build-arg CONTAINER_CONF_DIR_USER="$CONTAINER_CONF_DIR_USER" --build-arg CONTAINER_CONF_DIR_ETC="$CONTAINER_CONF_DIR_ETC" "$CONTEXT_PATH"
+  podman build -t local/"$imageName" -f "${TESTROOT}/${dockerfile}" --ignorefile "${TESTROOT}/${dockerfile}.dockerignore" -v ${m2Folder}:/root/.m2 --build-arg CONTAINER_WORK_DIR="$CONTAINER_WORK_DIR" --build-arg CONTAINER_CONF_DIR_USER="$CONTAINER_CONF_DIR_USER" --build-arg CONTAINER_CONF_DIR_ETC="$CONTAINER_CONF_DIR_ETC" "$CONTEXT_PATH"
 }
 
 function runTest() {
