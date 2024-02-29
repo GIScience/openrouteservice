@@ -19,8 +19,7 @@ docker/
 
 # Ignore all ors-config files except for the sample one, useful for development and testing
 ors-api/src/main/resources/ors-config*
-!ors-api/src/main/resources/ors-config-sample.json
-ors-api/ors-config.yml
+ors-config*
 
 envs/
 ors-config-repo/

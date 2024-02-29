@@ -13,6 +13,16 @@ As a guide, you can look at the size of OSM data extracts as a rough guide as to
 
 [//]: # (TODO: @koebi was working on a set of example memory footprint values or something similar? Add here)
 
+## JVM configuration
+
+Independent of the configuration of the openrouteservice itself, you might need to adjust settings of the Java Virtual Machine (JVM) running the code. Since the memory requirements of openrouteservice are proportional to the size of the OSM data (and therefore the resulting graph), the setting that needs to be adjusted most often is the heap memory size.
+
+[//]: # (TODO: elaborate)
+
+```
+JAVA_OPTS="-Xms105g -Xmx105g "
+```
+
 ## Memory mapping in large builds with a containerized openrouteservice instance
 If you are running a large build (e.g. a planet file) then you may need to increase the number of memory mappings. You only need to do this on the host machine as this value is used by the Docker containers running on it as well. To do this, go into the system configuration file with `sudo nano /etc/sysctl.conf` and add the following line to the bottom of the file:
 
@@ -28,3 +38,4 @@ The usual sign that you need to do this change is if you see something similar t
 # An error report file with more information is saved as:
 # /ors-core/hs_err_pid128.log
 ```
+

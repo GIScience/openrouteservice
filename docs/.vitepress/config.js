@@ -96,14 +96,10 @@ export default defineConfig({
                         items: [
                             {text: 'System Requirements', link: '/run-instance/system-requirements'},
                             {text: 'Data', link: '/run-instance/data'},
-                            {
-                                text: 'Installation', collapsed: true, link: '/run-instance/installation/',
-                                items: [
-                                    {text: 'Running with Docker', link: '/run-instance/installation/running-with-docker'},
-                                    {text: 'Running JAR / WAR', link: '/run-instance/installation/running-jar-war'},
-                                    {text: 'Building from Source', link: '/run-instance/installation/building-from-source'},
-                                ]
-                            },
+                            {text: 'Running with Docker', link: '/run-instance/running-with-docker'},
+                            {text: 'Running JAR', link: '/run-instance/running-jar'},
+                            {text: 'Running WAR', link: '/run-instance/running-war'},
+                            {text: 'Building from Source', link: '/run-instance/building-from-source'},
                             {
                                 text: 'Configuration', collapsed: true, link: '/run-instance/configuration/',
                                 items: [
