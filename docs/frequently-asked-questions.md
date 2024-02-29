@@ -108,3 +108,26 @@ Documentation on how to do that can be found [here](https://giscience.github.io/
 
 If CH have not been prepared, matrix calculation will fall back to the Dijkstra
 algorithm, which is way slower and responsible for the slow response.
+
+## When and how does my quota reset?
+When you check our [plans](https://openrouteservice.org/plans/), you'll see
+that our endpoints have a daily and a minutely request limit.
+
+All remaining quota is shown in your [developer dashboard](https://openrouteservice.org/dev/#/home).
+
+The daily limit is reset after 24h, starting from the first time you request
+anything. Thus, your 24h-window might shift over the days.
+
+As an example, let's look at the `directions` endpoint and its default limit of
+2000 requests per day.  If you request 1000 directions at 3pm today and try to
+request 1500 tomorrow at 10am, the last 500 of those will fail, since your
+quota only resets at 3pm tomorrow. After 3pm, you can issue up to 2000 requests
+again, but if you do so at 6pm, you'll have to wait until 6pm the day after
+tomorrow until you can request any more directions.
+
+The minutely limit is enforced as a sliding window, meaning that any
+consecutive period of 60 seconds may only contain 40 directions requests.
+
+If you run into the daily limit, you will receive a `403 - Forbidden` HTTP error.
+If you run into the minutely limit, you will receive a `429 - Too many requests` HTTP error.
+The remaining daily quota can also be checked programmatically, compare the `x-ratelimit-remaining` and the `x-ratelimit-reset` header.
