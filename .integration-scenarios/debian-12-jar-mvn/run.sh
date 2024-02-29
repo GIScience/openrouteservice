@@ -18,6 +18,7 @@ ${B}Usage:${N} $SCRIPT [options] (at least one of -j|-m is required)
 ${B}Options:${N}
     ${B}-b      ${N} -- Build docker containers
     ${B}-c      ${N} -- Clear graphs volume
+    ${B}-C      ${N} -- Clear graphs volume before each test (caution when running tests in parallel)
     ${B}-f      ${N} -- Fail fast
     ${B}-j      ${N} -- Run with ${B}java -jar${N}
     ${B}-m      ${N} -- Run with ${B}mvn spring-boot:run${N}
@@ -46,7 +47,10 @@ function runTest() {
     testscript=$2
     verbose=$3
     if [ ! -f "$testscript" ]; then return; fi
-    echo -ne "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}$(basename $testscript)${N} ${runType}... "
+
+    echo -ne "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} $(basename $testscript)${N} ${FG_BLU}${runType}${N}... "
+
+    (($clearGraphsBeforeEachTest)) && rm -rf ${TESTROOT}/graphs_volume/*
 
     if (($verbose)); then
       $testscript "${runType}"
@@ -70,10 +74,11 @@ function exitWithRunTypeMissing() {
     exit 1
 }
 
-while getopts :bcfjmt:vh FLAG; do
+while getopts :bcCfjmt:vh FLAG; do
   case $FLAG in
     b) wantBuildContainers=1;;
     c) clearGraphs=1;;
+    C) clearGraphsBeforeEachTest=1;;
     f) failFast=1;;
     j) jar=1;;
     m) mvn=1;;
@@ -121,8 +126,8 @@ for testscript in ${TESTROOT}/tests/${pattern}; do
 done
 
 (($passed)) && passedText=", ${FG_GRN}${B}${passed} passed${N}"
-(($failed)) && failedText=", ${FG_RED}${failed} failed${N}"
+(($failed)) && failedText=", ${FG_RED}${B}${failed} failed${N}"
 
 total=$(($passed + $failed))
-echo -e "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} done, ${total} test$( (($total-1)) && echo "s") executed${passedText}${failedText}"
+echo -e "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}done, ${total} test$( (($total-1)) && echo "s") executed${passedText}${failedText}"
 exit $hasErrors

@@ -109,4 +109,4 @@ jobs:
         run: |
           echo "Scenario: ${{ matrix.scenario }}"
           echo "Parameters: ${{ matrix.parameters }}"
-          .integration-scenarios/debian-12-jar-mvn/run.sh -b ${{ matrix.runtype }} -vt ${{ matrix.testgroup }} 
+          .integration-scenarios/debian-12-jar-mvn/run.sh -b ${{ matrix.runtype }} -t ${{ matrix.testgroup }} 
