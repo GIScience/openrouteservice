@@ -89,14 +89,8 @@ jobs:
     strategy:
       matrix:
         runtype: [ '-m' , '-j' ]
-        testgroup: [ build-*car*] #, build*public*, arg-overrides-*, lookup-yml-*, missing-config-*, specify-yml-* ]
-        image: [ ubuntu-latest ]
+        testgroup: [ build-*car*, build*public*, arg-overrides-*, lookup-yml-*, missing-config-*, specify-yml-* ]
     steps:
-      #      - name: Set up JDK 17
-      #        uses: actions/setup-java@v2
-      #        with:
-      #          distribution: 'temurin'
-      #          java-version: '17'
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
