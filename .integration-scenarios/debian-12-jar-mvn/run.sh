@@ -6,6 +6,7 @@ SCRIPT=$(basename $0)
 failFast=0
 jar=0
 mvn=0
+verbose=0
 pattern=""
 
 function printCliHelp() { # TODO adapt
@@ -21,6 +22,7 @@ ${B}Options:${N}
     ${B}-j      ${N} -- Run with ${B}java -jar${N}
     ${B}-m      ${N} -- Run with ${B}mvn spring-boot:run${N}
     ${B}-t <arg>${N} -- Tests to run specified by globbing pattern (quote)
+    ${B}-v      ${N} -- Verbose: Print tests console output
     ${B}-h      ${N} -- Display this help and exit
 "
 }
@@ -42,9 +44,13 @@ function buildContainer() {
 function runTest() {
     runType=$1
     testscript=$2
+    verbose=$3
     if [ ! -f "$testscript" ]; then return; fi
     echo -n "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}$(basename $testscript)${N} ${runType}... "
-    $testscript "${runType}" 1>/dev/null 2>&1
+
+    (($verbose)) && $testscript "${runType}"
+    (($verbose)) || $testscript "${runType}" 1>/dev/null 2>&1
+
     if (($?)); then
       hasErrors=1
       ((failed++))
@@ -61,7 +67,7 @@ function exitWithRunTypeMissing() {
     exit 1
 }
 
-while getopts :bcfjmt:h FLAG; do
+while getopts :bcfjmt:vh FLAG; do
   case $FLAG in
     b) wantBuildContainers=1;;
     c) clearGraphs=1;;
@@ -69,6 +75,7 @@ while getopts :bcfjmt:h FLAG; do
     j) jar=1;;
     m) mvn=1;;
     t) pattern="$OPTARG";;
+    v) verbose=1;;
     h)
       printCliHelp
       exit 0;;
@@ -104,8 +111,8 @@ hasErrors=0
 passed=0
 failed=0
 for testscript in ${TESTROOT}/tests/${pattern}; do
-  (($jar)) && runTest jar $testscript
-  (($mvn)) && runTest mvn $testscript
+  (($jar)) && runTest jar $testscript $verbose
+  (($mvn)) && runTest mvn $testscript $verbose
 done
 
 (($passed)) && passedText=", ${FG_GRN}${B}${passed} passed${N}"
