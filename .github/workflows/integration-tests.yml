@@ -89,7 +89,7 @@ jobs:
     strategy:
       matrix:
         runtype: [ '-m' , '-j' ]
-        testgroup: [ build-*car*, build*public*, arg-overrides-*, lookup-yml-*, missing-config-*, specify-yml-* ]
+        testgroup: [ build*car*, build*public*, arg-overrides*, lookup-yml*, missing-config*, specify-yml* ]
     steps:
       - uses: actions/checkout@v2
         with:
