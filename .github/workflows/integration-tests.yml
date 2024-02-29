@@ -83,7 +83,7 @@ jobs:
 #          ./.integration-scenarios/debian-12-jar-mvn/tests/build-graph-bike-electric.sh jar
 #          ./.integration-scenarios/debian-12-jar-mvn/tests/build-graph-bike-mountain.sh mvn
   debian-12-jar-mvn-run-tests:
-    needs: debian-12-jar-mvn-build-graphs
+    needs: debian-12-jar-mvn-build-docker
     name: Run Debian 12 Maven JAR integration tests
     runs-on: ubuntu-latest
     strategy:
