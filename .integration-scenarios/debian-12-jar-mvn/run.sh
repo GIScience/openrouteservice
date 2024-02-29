@@ -10,7 +10,7 @@ verbose=0
 pattern=""
 
 function printCliHelp() { # TODO adapt
-  echo "\
+  echo -e "\
 ${B}$SCRIPT${N} - run ors tests in containers
 
 ${B}Usage:${N} $SCRIPT [options] (at least one of -j|-m is required)
@@ -33,9 +33,9 @@ function buildContainer() {
   m2Folder=$3
   CONTEXT_PATH="$(realpath "${TESTROOT}/../..")"
 
-  echo "${FG_CYA}${B}Building docker image ${IMAGE_NAME_JAR}${N} with context ${CONTEXT_PATH}"
+  echo -e "${FG_CYA}${B}Building docker image ${IMAGE_NAME_JAR}${N} with context ${CONTEXT_PATH}"
   if podman ps -a | grep -q "$imageName"; then
-    echo "Removing existing image $imageName${N}"
+    echo -e "Removing existing image $imageName${N}"
     podman rm -f "$imageName";
   fi
   podman build -t local/"$imageName" -f "${TESTROOT}/${dockerfile}" --ignorefile "${TESTROOT}/${dockerfile}.dockerignore" -v ${m2Folder}:/root/.m2 --build-arg CONTAINER_WORK_DIR="$CONTAINER_WORK_DIR" --build-arg CONTAINER_CONF_DIR_USER="$CONTAINER_CONF_DIR_USER" --build-arg CONTAINER_CONF_DIR_ETC="$CONTAINER_CONF_DIR_ETC" "$CONTEXT_PATH"
@@ -46,7 +46,7 @@ function runTest() {
     testscript=$2
     verbose=$3
     if [ ! -f "$testscript" ]; then return; fi
-    echo -n "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}$(basename $testscript)${N} ${runType}... "
+    echo -ne "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}$(basename $testscript)${N} ${runType}... "
 
     (($verbose)) && $testscript "${runType}"
     (($verbose)) || $testscript "${runType}" 1>/dev/null 2>&1
@@ -54,16 +54,16 @@ function runTest() {
     if (($?)); then
       hasErrors=1
       ((failed++))
-      echo "${FG_RED}${B}failed${N}"
+      echo -e "${FG_RED}${B}failed${N}"
       (($failFast)) && exit 1
     else
       ((passed++))
-      echo "${FG_GRN}passed${N}"
+      echo -e "${FG_GRN}passed${N}"
     fi
 }
 
 function exitWithRunTypeMissing() {
-    echo "${FG_RED}${B}Error: When -t <arg> or -b is set, at least one of -j nor -m is required!${N} Type ${B}$SCRIPT -h${N} for help. "
+    echo -e "${FG_RED}${B}Error: When -t <arg> or -b is set, at least one of -j nor -m is required!${N} Type ${B}$SCRIPT -h${N} for help. "
     exit 1
 }
 
@@ -80,7 +80,7 @@ while getopts :bcfjmt:vh FLAG; do
       printCliHelp
       exit 0;;
     \?)
-      echo "${FG_RED}${B}Error: Unknown option -${B}$OPTARG${N}. Type ${B}$SCRIPT -h${N} for help."
+      echo -e "${FG_RED}${B}Error: Unknown option -${B}$OPTARG${N}. Type ${B}$SCRIPT -h${N} for help."
       exit 1;;
   esac
 done
@@ -92,7 +92,7 @@ shift $((OPTIND-1))
 ! (($jar)) && ! (($mvn)) && [ -n "$pattern" ] && exitWithRunTypeMissing
 
 if (($clearGraphs)); then
-  echo "Clearing ${TESTROOT}/graphs_volume/"
+  echo -e "Clearing ${TESTROOT}/graphs_volume/"
   rm -rf ${TESTROOT}/graphs_volume/*
 fi
 
@@ -102,10 +102,12 @@ if (($wantBuildContainers)); then
 
   (($jar)) && buildContainer Dockerfile-jar $IMAGE_NAME_JAR $m2Folder
   (($mvn)) && buildContainer Dockerfile-mvn $IMAGE_NAME_MVN $m2Folder
-  (($jar)) || (($mvn)) || echo "${FG_RED}${B}Set -j or -m to specify which Docker image(s) to build!${N}"
+  (($jar)) || (($mvn)) || echo -e "${FG_RED}${B}Set -j or -m to specify which Docker image(s) to build!${N}"
 fi
 
-if [ -z "$pattern" ]; then echo "${B}No tests specified!${N}"; exit 0; fi
+if [ -z "$pattern" ]; then echo -e "${B}No tests specified!${N}"; exit 0; fi
+
+mkdir -p "${TESTROOT}/graphs_volume"
 
 hasErrors=0
 passed=0
@@ -119,5 +121,5 @@ done
 (($failed)) && failedText=", ${FG_RED}${failed} failed${N}"
 
 total=$(($passed + $failed))
-echo "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} done, ${total} test$( (($total-1)) && echo "s") executed${passedText}${failedText}"
+echo -e "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} done, ${total} test$( (($total-1)) && echo "s") executed${passedText}${failedText}"
 exit $hasErrors

@@ -1,35 +1,36 @@
 #!/usr/bin/env bash
 
 # Textdekoration
-B=`tput bold`    # bold
-U=`tput sgr 0 1` # underline
-R=`tput smso`    # reverse (invertiert)
-N=`tput sgr0`    # normal / reset
+B='\e[1m' #`tput bold`    # bold
+U='\e[4m' #`tput sgr 0 1` # underline
+R='\e[7m' #`tput smso`    # reverse (invertiert)
+N='\e[0m' #`tput sgr0`    # normal / reset
 
-US=`tput smul`   # underline start
-UE=`tput rmul`   # underline reset
+BE='\e[22m' #`tput smul`   # bold reset
+UE='\e[24m' #`tput rmul`   # underline reset
+RE='\e[27m'
 
 # Foreground
-FG_BLA=`tput setaf 0` #  black
-FG_RED=`tput setaf 1` #  red
-FG_GRN=`tput setaf 2` #  green
-FG_ORA=`tput setaf 3` #  orange
-FG_BLU=`tput setaf 4` #  blue
-FG_PUR=`tput setaf 5` #  purple
-FG_CYA=`tput setaf 6` #  cyan
-FG_WHT=`tput setaf 7` #  white
-FG_DEF=`tput setaf 9` #  default
+FG_BLA='\e[30m' #`tput setaf 0` #  black
+FG_RED='\e[31m' #`tput setaf 1` #  red
+FG_GRN='\e[32m' #`tput setaf 2` #  green
+FG_ORA='\e[33m' #`tput setaf 3` #  orange
+FG_BLU='\e[34m' #`tput setaf 4` #  blue
+FG_PUR='\e[35m' #`tput setaf 5` #  purple
+FG_CYA='\e[36m' #`tput setaf 6` #  cyan
+FG_WHT='\e[37m' #`tput setaf 7` #  white
+FG_DEF='\e[39m' #`tput setaf 9` #  default
 
 # Background
-BG_BLA=`tput setab 0` #  black
-BG_RED=`tput setab 1` #  red
-BG_GRN=`tput setab 2` #  green
-BG_ORA=`tput setab 3` #  orange
-BG_BLU=`tput setab 4` #  blue
-BG_PUR=`tput setab 5` #  purple
-BG_CYA=`tput setab 6` #  cyan
-BG_WHT=`tput setab 7` #  white
-BG_DEF=`tput setab 9` #  default
+BG_BLA='\e[40m' #`tput setab 0` #  black
+BG_RED='\e[41m' #`tput setab 1` #  red
+BG_GRN='\e[42m' #`tput setab 2` #  green
+BG_ORA='\e[43m' #`tput setab 3` #  orange
+BG_BLU='\e[44m' #`tput setab 4` #  blue
+BG_PUR='\e[45m' #`tput setab 5` #  purple
+BG_CYA='\e[46m' #`tput setab 6` #  cyan
+BG_WHT='\e[47m' #`tput setab 7` #  white
+BG_DEF='\e[49m' #`tput setab 9` #  default
 
 
 function getOrsUrl() {
@@ -88,12 +89,12 @@ function assertEquals() {
   expected=$1
   received=$2
   if [ "$expected" != "$received" ]; then
-    echo "${FG_RED}ASSERTION ERROR:${N}"
-    echo "expected: '${FG_GRN}${expected}${N}'"
-    echo "received: '${FG_RED}${received}${N}'"
+    echo -e "${FG_RED}ASSERTION ERROR:${N}"
+    echo -e "expected: '${FG_GRN}${expected}${N}'"
+    echo -e "received: '${FG_RED}${received}${N}'"
     exit 1
   else
-    echo "${FG_GRN}received '$received' as expected${N}"
+    echo -e "${FG_GRN}received '$received' as expected${N}"
   fi
 }
 
