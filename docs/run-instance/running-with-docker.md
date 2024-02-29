@@ -2,11 +2,6 @@
 
 If Docker is available on your system, openrouteservice can be run within a container using prebuilt images from [dockerhub](https://hub.docker.com/r/openrouteservice/openrouteservice) or by building your own image from our source files.
 
-::: tip Hint
-If you do not have Docker installed on your system, it is more convenient to run a plain [JAR](running-jar.md) file instead.  
-If you have Tomcat installed on your system, it may be convenient to run a [WAR](running-war.md) file within that Tomcat instance instead.
-:::
-
 ## Prerequisites
 
 * [Docker](https://docs.docker.com/get-docker/) should be installed on your system.

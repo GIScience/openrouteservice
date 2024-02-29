@@ -2,11 +2,6 @@
 
 Since version 8, openrouteservice can be built as a fat JAR file that contains all its dependencies and can be run as stand-alone application.
 
-::: tip Hint
-If you have Docker installed on your system, it is more convenient to run a [Docker Image](running-with-docker.md) instead.   
-If you have Tomcat installed on your system, it may be convenient to run a [WAR](running-war.md) file within that Tomcat instance instead.
-:::
-
 ## Prerequisites
 
 * [java](https://www.java.com/en/) 17 (or higher) should be available, preferably as default Java environment.

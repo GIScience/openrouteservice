@@ -4,12 +4,6 @@ Like older versions, ORS version 8 can still be built and run as a Web Applicati
 A WAR file can be deployed to a Servlet Container like Tomcat, which is running as a service.
 To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](http://download.geofabrik.de). For more details see chapter [Data](data.md).
 
-
-::: tip Hint
-If you have Docker installed on your system, it may be more convenient to run a [Docker Image](running-with-docker.md) instead.    
-If you do not have Tomcat installed on your system, it is more convenient to run a plain [JAR](running-jar.md) file instead.
-:::
-
 ## Prerequisites
 
 * [Tomcat](https://tomcat.apache.org/) 10 (or higher) should be installed. E.g. on Ubuntu 22.04, follow these [instructions](https://linuxize.com/post/how-to-install-tomcat-10-on-ubuntu-22-04/). 
