@@ -88,8 +88,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        run-type: [ '-m', '-j' ]
-        test-group: [ 'build-*car*', 'build*public*', '', 'arg-overrides-*', 'lookup-yml-*', 'missing-config-*', 'specify-yml-*' ]
+        runtype: [ '-m', '-j' ]
+        testgroup: [ build-*car*, build*public*, arg-overrides-*, lookup-yml-*, missing-config-*, specify-yml-* ]
         image: [ ubuntu-latest ]
     steps:
       #      - name: Set up JDK 17
@@ -115,4 +115,4 @@ jobs:
         run: |
           echo "Scenario: ${{ matrix.scenario }}"
           echo "Parameters: ${{ matrix.parameters }}"
-          .integration-scenarios/debian-12-jar-mvn/run.sh -b ${{ matrix.run-type }} -t '${{ matrix.test-group }}'
+          .integration-scenarios/debian-12-jar-mvn/run.sh -b ${{ matrix.runtype }} -t "'${{ matrix.testgroup }}'"
