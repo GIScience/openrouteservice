@@ -2,6 +2,7 @@
 *.iml
 *.ipr
 .DS_Store
+**/.m2/
 
 graphs/
 graphs-*/
