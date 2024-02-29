@@ -48,8 +48,11 @@ function runTest() {
     if [ ! -f "$testscript" ]; then return; fi
     echo -ne "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}$(basename $testscript)${N} ${runType}... "
 
-    (($verbose)) && $testscript "${runType}"
-    (($verbose)) || $testscript "${runType}" 1>/dev/null 2>&1
+    if (($verbose)); then
+      $testscript "${runType}"
+    else
+      $testscript "${runType}" 1>/dev/null 2>&1
+    fi
 
     if (($?)); then
       hasErrors=1

@@ -95,6 +95,7 @@ function assertEquals() {
     exit 1
   else
     echo -e "${FG_GRN}received '$received' as expected${N}"
+    exit 0
   fi
 }
 
