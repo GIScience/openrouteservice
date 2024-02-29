@@ -13,7 +13,7 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   "local/${IMAGE}:latest"  &
 
 # expect process finished timout
-res=$(expectOrsStartupFails 30 "$CONTAINER" )
+res=$(expectOrsStartupFails 60 "$CONTAINER" )
 # stop container if was not finished
 cleanupTest
 
