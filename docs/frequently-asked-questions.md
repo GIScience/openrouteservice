@@ -128,5 +128,6 @@ consecutive period of 60 seconds may only contain 40 directions requests.
 
 If you run into the daily limit, you will receive a `403 - Forbidden` HTTP error.
 If you run into the minutely limit, you will receive a `429 - Too many requests` HTTP error.
-The remaining quota is shown in your developer dashboard on the openrouteservice website.
+
+All remaining quotas are shown in your [developer dashboard](https://openrouteservice.org/dev/#/home).
 The remaining daily quota can also be checked programmatically, compare the `x-ratelimit-remaining` and the `x-ratelimit-reset` header.
