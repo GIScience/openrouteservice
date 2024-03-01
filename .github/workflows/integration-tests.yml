@@ -103,7 +103,7 @@ jobs:
             ${{ runner.os }}-tomcat-test-
       - name: Load the docker image from cache if available
         run: |
-          if [ -f ${{ env.cache ]; then
+          if [ -f ${{ env.cache }} ]; then
               podman load -i ${{ env.cache }} || { echo "Could not load the image from cache."; exit 1; }
           fi
       - name: Run integration tests
