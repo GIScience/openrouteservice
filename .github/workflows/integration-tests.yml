@@ -54,14 +54,15 @@ jobs:
       - name: Resolve missing dependencies
         run: |
           echo "Running maven dependency:go-offline"
+          ls -la ./.m2/**
           mvn dependency:go-offline -Dmaven.repo.local=./.m2
-          ls -la ./.m2
+          ls -la ./.m2/**
           # If a repository folder exists force copy the dependencies to the m2 folder
           if [ -d "./.m2/repository" ]; then
             echo "Copying dependencies from repository folder to m2 folder"
             cp -rf ./.m2/repository/* ./.m2/
           fi
-          ls -la ./.m2
+          ls -la ./.m2/**
           exit 0
       - name: Build image for platforms ${{ needs.prepare_environment.outputs.build_platforms }}
         uses: docker/build-push-action@v5
