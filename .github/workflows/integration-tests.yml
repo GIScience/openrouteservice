@@ -57,7 +57,7 @@ jobs:
       - name: Load the docker image from cache if available
         run: |
           if [ -f ${{ matrix.CONTAINER_CACHE }} ]; then
-              podman load -i ${{ matrix.CONTAINER_CACHE }} || echo "Could not load the image from cache. Building it."
+              podman load -i "${{ matrix.CONTAINER_CACHE }}" || echo "Could not load the image from cache. Building it."
           fi
       - name: Build the podman image for changes
         run: |
