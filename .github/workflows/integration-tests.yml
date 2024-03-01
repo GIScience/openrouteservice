@@ -46,20 +46,25 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
-      - name: Resolve missing dependencies
-        run: |
-          mvn package -DskipTests -T $(nproc)
-          cp -rf ~/.m2 ./.m2
-      - name: Build image for platforms ${{ needs.prepare_environment.outputs.build_platforms }}
+      - name: Get latest image caches
         uses: docker/build-push-action@v5
         with:
-          context: .
+          push: false
+          load: true
+          tags: ${{ needs.prepare_environment.outputs.test_image_name }}
+          cache-from: type=gha
+      - name: Build the podman image
+        run: |
+          podman pull docker-daemon:${{ needs.prepare_environment.outputs.test_image_name }} || echo "No image found. Building it now."
+          ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i ${{ needs.prepare_environment.outputs.test_image_name }}
+          podman push ${{ needs.prepare_environment.outputs.test_image_name }} docker-daemon:${{ needs.prepare_environment.outputs.test_image_name }}
+      - name: Cache the docker image only
+        uses: docker/build-push-action@v5
+        with:
           push: false
           load: false
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          cache-from: type=gha
           cache-to: type=gha,mode=max
-          file: ./.integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile
   debian-12-tomcat-war-systemd:
     name: Run Debian 12 Tomcat WAR systemd integration tests
     runs-on: ubuntu-latest
@@ -91,7 +96,6 @@ jobs:
       - name: Load the docker image from cache
         uses: docker/build-push-action@v5
         with:
-          context: .
           push: false
           load: true
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}

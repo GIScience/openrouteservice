@@ -101,19 +101,7 @@ fi
 #############################
 # Build the container image #
 #############################
-# If ci build without the cache mount
-if [ "$CI" != "true" ]; then
-  log_info "Running in local mode. Create the m2 folder and populate it."
-  # Ensure that the .m2 folder exists
-  mkdir -p ./.m2
-  # Get absolute path to the .m2 folder
-  M2_PATH="$(cd ./.m2 >/dev/null 2>&1 || exit 1
-    pwd -P
-  )"
-  mvn clean package -DskipTests -Dmaven.repo.local=$M2_PATH
-fi
-
-podman build --ignorefile ./.integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile.dockerignore -t $CONTAINER_IMAGE --build-arg TOMCAT_MAJOR=10 --build-arg UNIT_TESTS=$UNIT_TESTS -f .integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile .
+podman build -v ~/.m2:/root/.m2 --ignorefile ./.integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile.dockerignore -t $CONTAINER_IMAGE --build-arg TOMCAT_MAJOR=10 --build-arg UNIT_TESTS=$UNIT_TESTS -f .integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile .
 
 
 ##############################
