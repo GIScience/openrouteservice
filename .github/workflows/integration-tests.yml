@@ -82,6 +82,7 @@ jobs:
           fi
       - name: Build the podman image for changes
         run: |
+          echo "Building the podman image ${{ matrix.build_command }}"
           bash ${{ matrix.build_command }}
       - name: Export the podman image again
         run: |
