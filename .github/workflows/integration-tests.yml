@@ -63,7 +63,7 @@ jobs:
           ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i ${{ needs.prepare_environment.outputs.test_image_name }}
       - name: Export the podman image again
         run: |
-          podman save -o /tmp/tomcat-test.tar docker-daemon:${{ needs.prepare_environment.outputs.test_image_name }}
+          podman save -o /tmp/tomcat-test.tar ${{ needs.prepare_environment.outputs.test_image_name }}
   debian-12-tomcat-war-systemd:
     name: Run Debian 12 Tomcat WAR systemd integration tests
     runs-on: ubuntu-latest
