@@ -97,17 +97,17 @@ jobs:
       - name: Cache the docker image
         uses: actions/cache@v4
         with:
-          path: ${{ CONTAINER_CACHE }}
-          key: ${{ runner.os }}-tomcat-test-${{ CONTAINER_IMAGE }}
+          path: ${{ env.CONTAINER_CACHE }}
+          key: ${{ runner.os }}-tomcat-test-${{ env.CONTAINER_IMAGE }}
           restore-keys: |
             ${{ runner.os }}-tomcat-test-
       - name: Load the docker image from cache if available
         run: |
-          if [ -f ${{ CONTAINER_CACHE }} ]; then
-              podman load -i ${{ CONTAINER_CACHE }} || { echo "Could not load the image from cache."; exit 1; }
+          if [ -f ${{ env.CONTAINER_CACHE }} ]; then
+              podman load -i ${{ env.CONTAINER_CACHE }} || { echo "Could not load the image from cache."; exit 1; }
           fi
       - name: Run integration tests
-        run: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -t -g '${{ matrix.test_case }}' -i ${{ CONTAINER_IMAGE }}
+        run: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -t -g '${{ matrix.test_case }}' -i ${{ env.CONTAINER_IMAGE }}
 
 #  debian-12-jar-mvn-run-tests:
 #    needs:
