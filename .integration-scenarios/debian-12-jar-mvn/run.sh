@@ -48,7 +48,12 @@ function runTest() {
     verbose=$3
     if [ ! -f "$testscript" ]; then return; fi
 
-    echo -ne "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} $(basename $testscript)${N} ${FG_BLU}${runType}${N}... "
+    case "${runType}" in
+      "jar") coloredRunType="${FG_ORA}jar";;
+      "mvn") coloredRunType="${FG_CYA}mvn";;
+    esac
+
+    echo -ne "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} $(basename $testscript)${N} ${coloredRunType}${N}... "
 
     (($clearGraphsBeforeEachTest)) && rm -rf ${TESTROOT}/graphs_volume/*
 
