@@ -68,8 +68,6 @@ jobs:
           load: false
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
-          file: ./.integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile
   debian-12-tomcat-war-systemd:
     name: Run Debian 12 Tomcat WAR systemd integration tests
     runs-on: ubuntu-latest
