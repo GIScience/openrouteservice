@@ -3,11 +3,12 @@
 TESTROOT="$( cd "$(dirname "$0")"/.. >/dev/null 2>&1 ; pwd -P )"
 source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
-runType=$1
-callingScript=$2
-enabledProfile=$3
-expectedProfiles=$4
-prepareTest $runType $callingScript
+callingScript=$1
+runType=$2
+image=$3
+enabledProfile=$4
+expectedProfiles=$5
+prepareTest $callingScript $runType $image
 
 orsConfig=$(makeTempFile $callingScript "\
 ors:

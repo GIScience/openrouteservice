@@ -3,7 +3,7 @@
 TESTROOT="$( cd "$(dirname "$0")"/.. >/dev/null 2>&1 ; pwd -P )"
 source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
-prepareTest $1 $(basename $0)
+prepareTest $(basename $0) $*
 
 # Even if no yml config file is present, the ors is runnable
 # if at least one routing profile is enabled with a environment variable

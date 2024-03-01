@@ -3,6 +3,8 @@ TESTROOT="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source $TESTROOT/files/test.conf
 source $TESTROOT/files/testfunctions.sh
 SCRIPT=$(basename $0)
+
+dockerImageBase="ors-test"
 failFast=0
 jar=0
 mvn=0
@@ -19,6 +21,7 @@ ${B}Options:${N}
     ${B}-b      ${N} -- Build docker containers
     ${B}-c      ${N} -- Clear graphs volume
     ${B}-C      ${N} -- Clear graphs volume before each test (caution when running tests in parallel)
+    ${B}-d <arg>${N} -- Base name for docker image, will be extended with 'jar'/'mvn', default: ${dockerImageBase}
     ${B}-f      ${N} -- Fail fast
     ${B}-j      ${N} -- Run with ${B}java -jar${N}
     ${B}-m      ${N} -- Run with ${B}mvn spring-boot:run${N}
@@ -45,7 +48,8 @@ function buildContainer() {
 function runTest() {
     runType=$1
     testscript=$2
-    verbose=$3
+    imageName=$3
+    verbose=$4
     if [ ! -f "$testscript" ]; then return; fi
 
     case "${runType}" in
@@ -58,9 +62,9 @@ function runTest() {
     (($clearGraphsBeforeEachTest)) && rm -rf ${TESTROOT}/graphs_volume/*
 
     if (($verbose)); then
-      $testscript "${runType}"
+      $testscript "${runType}" "${imageName}"
     else
-      $testscript "${runType}" 1>/dev/null 2>&1
+      $testscript "${runType}" "${imageName}" 1>/dev/null 2>&1
     fi
 
     if (($?)); then
@@ -79,11 +83,12 @@ function exitWithRunTypeMissing() {
     exit 1
 }
 
-while getopts :bcCfjmt:vh FLAG; do
+while getopts :bcCd:fjmt:vh FLAG; do
   case $FLAG in
     b) wantBuildContainers=1;;
     c) clearGraphs=1;;
     C) clearGraphsBeforeEachTest=1;;
+    d) dockerImageBase="$OPTARG";;
     f) failFast=1;;
     j) jar=1;;
     m) mvn=1;;
@@ -109,12 +114,15 @@ if (($clearGraphs)); then
   rm -rf ${TESTROOT}/graphs_volume/*
 fi
 
+dockerImageJar="${dockerImageBase}-jar"
+dockerImageMvn="${dockerImageBase}-mvn"
+
 if (($wantBuildContainers)); then
   mkdir -p ~/.m2
   m2Folder="$(realpath ~/.m2)"
 
-  (($jar)) && buildContainer Dockerfile-jar $IMAGE_NAME_JAR $m2Folder
-  (($mvn)) && buildContainer Dockerfile-mvn $IMAGE_NAME_MVN $m2Folder
+  (($jar)) && buildContainer Dockerfile-jar "${dockerImageJar}" "${m2Folder}"
+  (($mvn)) && buildContainer Dockerfile-mvn "${dockerImageMvn}" "${m2Folder}"
   (($jar)) || (($mvn)) || echo -e "${FG_RED}${B}Set -j or -m to specify which Docker image(s) to build!${N}"
 fi
 
@@ -126,8 +134,8 @@ hasErrors=0
 passed=0
 failed=0
 for testscript in ${TESTROOT}/tests/${pattern}; do
-  (($jar)) && runTest jar $testscript $verbose
-  (($mvn)) && runTest mvn $testscript $verbose
+  (($jar)) && runTest jar $testscript $dockerImageJar $verbose
+  (($mvn)) && runTest mvn $testscript $dockerImageMvn $verbose
 done
 
 (($passed)) && passedText=", ${FG_GRN}${B}${passed} passed${N}"
