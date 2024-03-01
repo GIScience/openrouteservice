@@ -53,7 +53,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Resolve missing dependencies
         run: |
-          mvn clean package -DskipTests
+          mvn clean package -DskipTests -T $(nproc)
           cp -rf ~/.m2 ./.m2
       - name: Build image for platforms ${{ needs.prepare_environment.outputs.build_platforms }}
         uses: docker/build-push-action@v5
