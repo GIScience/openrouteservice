@@ -65,6 +65,7 @@ jobs:
           bash ${{ matrix.BUILD_COMMAND }}
       - name: Export the podman image again
         run: |
+          rm -rf ${{ matrix.CONTAINER_CACHE }}
           podman save -o ${{ matrix.CONTAINER_CACHE }} ${{ matrix.CONTAINER_IMAGE }}
   scenario-debian-12-tomcat-war-systemd:
     name: Run Debian 12 Tomcat WAR systemd integration tests
@@ -78,7 +79,6 @@ jobs:
     env:
       CONTAINER_CACHE: /tmp/integration-build-war.tar
       CONTAINER_IMAGE: local/integration-build-war:latest
-      BUILD_COMMAND: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i local/integration-build-war:latest
     steps:
       - uses: actions/checkout@v2
         with:
