@@ -18,7 +18,7 @@ jobs:
         scenario:
           #          - 'debian-12-jar'
           #          - 'debian-12-mvn'
-          - 'debian-12-tomcat-war-systemd'
+          - debian-12-tomcat-war-systemd
         image: [ ubuntu-latest ]
         include:
           #          - scenario: debian-12-jar
@@ -26,9 +26,9 @@ jobs:
           #          - scenario: debian-12-mvn
           #            build_command: -bjm ${{ needs.prepare_environment.outputs.test_image_name }}-mvn
           - scenario: debian-12-tomcat-war-systemd
-            cache: integration-build-war.tar
-            image: local/integration-build-war:latest
-            build_command: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i local/integration-build-war:latest
+            CONTAINER_CACHE: integration-build-war.tar
+            CONTAINER_IMAGE: local/integration-build-war:latest
+            BUILD_COMMAND: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i local/integration-build-war:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -50,22 +50,22 @@ jobs:
       - name: Cache the docker image
         uses: actions/cache@v4
         with:
-          path: ${{ matrix.cache }}
-          key: ${{ runner.os }}-tomcat-test-${{ matrix.image }}
+          path: ${{ matrix.CONTAINER_CACHE }}
+          key: ${{ runner.os }}-tomcat-test-${{ matrix.CONTAINER_IMAGE }}
           restore-keys: |
             ${{ runner.os }}-tomcat-test-
       - name: Load the docker image from cache if available
         run: |
-          if [ -f ${{ matrix.cache }} ]; then
-              podman load -i ${{ matrix.cache }} || echo "Could not load the image from cache. Building it."
+          if [ -f ${{ matrix.CONTAINER_CACHE }} ]; then
+              podman load -i ${{ matrix.CONTAINER_CACHE }} || echo "Could not load the image from cache. Building it."
           fi
       - name: Build the podman image for changes
         run: |
-          echo "Building the podman image ${{ matrix.build_command }}"
-          bash ${{ matrix.build_command }}
+          echo "Building the podman image ${{ matrix.BUILD_COMMAND }}"
+          bash ${{ matrix.BUILD_COMMAND }}
       - name: Export the podman image again
         run: |
-          podman save -o ${{ matrix.cache }} ${{ matrix.image }}
+          podman save -o ${{ matrix.CONTAINER_CACHE }} ${{ matrix.CONTAINER_IMAGE }}
   scenario-debian-12-tomcat-war-systemd:
     name: Run Debian 12 Tomcat WAR systemd integration tests
     runs-on: ubuntu-latest
@@ -76,9 +76,9 @@ jobs:
         test_case: [ '0_*.sh', '1_*.sh', '2_*.sh' ]
         image: [ ubuntu-latest ]
     env:
-      cache: integration-build-war.tar
-      image: local/integration-build-war:latest
-      build_command: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i local/integration-build-war:latest
+      CONTAINER_CACHE: integration-build-war.tar
+      CONTAINER_IMAGE: local/integration-build-war:latest
+      BUILD_COMMAND: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i local/integration-build-war:latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -97,17 +97,17 @@ jobs:
       - name: Cache the docker image
         uses: actions/cache@v4
         with:
-          path: ${{ env.cache }}
-          key: ${{ runner.os }}-tomcat-test-${{ env.image }}
+          path: ${{ CONTAINER_CACHE }}
+          key: ${{ runner.os }}-tomcat-test-${{ CONTAINER_IMAGE }}
           restore-keys: |
             ${{ runner.os }}-tomcat-test-
       - name: Load the docker image from cache if available
         run: |
-          if [ -f ${{ env.cache }} ]; then
-              podman load -i ${{ env.cache }} || { echo "Could not load the image from cache."; exit 1; }
+          if [ -f ${{ CONTAINER_CACHE }} ]; then
+              podman load -i ${{ CONTAINER_CACHE }} || { echo "Could not load the image from cache."; exit 1; }
           fi
       - name: Run integration tests
-        run: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -t -g '${{ matrix.test_case }}' -i ${{ env.image }}
+        run: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -t -g '${{ matrix.test_case }}' -i ${{ CONTAINER_IMAGE }}
 
 #  debian-12-jar-mvn-run-tests:
 #    needs:
