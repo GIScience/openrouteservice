@@ -57,6 +57,8 @@ jobs:
           mkdir -p ./.m2 ./.m2_temp/repository
           echo "Moving existing m2 folder to repository folder"
           mv ./.m2/* ./.m2_temp/repository/
+          echo "Show folder contents"
+          ls -la ./.m2_temp/
           echo "Running maven dependency:go-offline"
           mvn dependency:go-offline -Dmaven.repo.local=./.m2_temp/
           # If a repository folder exists force copy the dependencies to the m2 folder
