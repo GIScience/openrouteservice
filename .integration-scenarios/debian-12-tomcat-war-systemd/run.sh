@@ -33,7 +33,7 @@ display_usage() {
     echo "-l: Log level. Default is '-l SUCCESS'"
     echo "-h: Display this help message"
 }
-while getopts 'ctpu:i:l:h' opt; do
+while getopts 'ctpu:g:i:l:h' opt; do
     case ${opt} in
         c)
           CI=true
@@ -46,6 +46,9 @@ while getopts 'ctpu:i:l:h' opt; do
           ;;
         u)
           UNIT_TESTS=true
+          ;;
+        g)
+          GLOB_PATTERN=${OPTARG}
           ;;
         i)
           CONTAINER_IMAGE=${OPTARG}
@@ -86,6 +89,7 @@ CI=${CI:-false}
 RUN_INTEGRATION_TESTS=${RUN_INTEGRATION_TESTS:-false}
 UNIT_TESTS=${UNIT_TESTS:-false}
 PARALLEL_TESTS=${PARALLEL_TESTS:-false}
+GLOB_PATTERN=${GLOB_PATTERN:-"[0-9]_*.sh"}
 export LOG_LEVEL=${LOG_LEVEL:-"SUCCESS"}
 
 if [ "$CI" = "false" ]; then
@@ -120,17 +124,27 @@ if [ "$PARALLEL_TESTS" = "true" ]; then
   export LOG_LEVEL="ERROR"
 fi
 
+# declare array
 declare -A running_processes
 
-if [ "$RUN_INTEGRATION_TESTS" = "true" ]; then
-#  # Execute the tests, catch the PIDs and add them to the processes array
-  $START_DIRECTORY/tests/0_test_default.sh $CONTAINER_IMAGE &
-  if [ "$PARALLEL_TESTS" = "false" ]; then wait $!; else running_processes+=( ["0_test_default.sh"]=$! ) && sleep 5; fi
-  $START_DIRECTORY/tests/1_test_activate_second_profile_with_config.sh $CONTAINER_IMAGE &
-  if [ "$PARALLEL_TESTS" = "false" ]; then wait $!; else running_processes+=( ["1_test_activate_second_profile_with_config.sh"]=$! ) && sleep 5; fi
-  $START_DIRECTORY/tests/2_test_activate_three_profiles_with_env.sh $CONTAINER_IMAGE &
-  if [ "$PARALLEL_TESTS" = "false" ]; then wait $!; else running_processes+=( ["2_test_activate_three_profiles_with_env.sh"]=$! ) && sleep 5; fi
-fi
+# Use the glob pattern to find all the tests in the tests folder
+for file in $START_DIRECTORY/tests/$GLOB_PATTERN; do
+  # Skip it run tests is false
+  if [ "$RUN_INTEGRATION_TESTS" = "false" ]; then
+    log_info "Skipping $file"
+    continue
+  fi
+  # Run the test in the background
+  if [ "$PARALLEL_TESTS" = "true" ]; then
+    log_info "Running parallel test: $file"
+    bash $file $CONTAINER_IMAGE &
+    running_processes[$file]=$!
+    sleep 5
+  else
+    log_info "Running sequential test: $file"
+    bash $file $CONTAINER_IMAGE
+  fi
+done
 
 # Reactivate the logging
 export LOG_LEVEL="SUCCESS"
