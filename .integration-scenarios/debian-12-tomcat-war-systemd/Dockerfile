@@ -26,6 +26,7 @@ ARG USER=ors
 # Create user and group and execute the script
 RUN useradd -m -U -s /bin/bash "$USER" && \
     mkdir -p /home/$USER/ && \
+    cp -r /root/.m2 /home/$USER/ && \
     .integration-scenarios/debian-12-tomcat-war-systemd/setup/install.sh -u $USER -w /build/ors-api/target/ors.war && \
     systemctl enable openrouteservice.service
 
