@@ -68,6 +68,8 @@ jobs:
           load: false
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
           cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: ./.integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile
   debian-12-tomcat-war-systemd:
     name: Run Debian 12 Tomcat WAR systemd integration tests
     runs-on: ubuntu-latest
@@ -106,7 +108,6 @@ jobs:
           load: true
           tags: ${{ needs.prepare_environment.outputs.test_image_name }}
           cache-from: type=gha
-          file: ./.integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile
       - name: Download the docker image to podman cache
         run: |
           podman pull docker-daemon:${{ needs.prepare_environment.outputs.test_image_name }}
