@@ -55,11 +55,14 @@ jobs:
         run: |
           echo "Running maven dependency:go-offline"
           mvn dependency:go-offline -Dmaven.repo.local=./.m2
+          ls -la ./.m2
           # If a repository folder exists force copy the dependencies to the m2 folder
           if [ -d "./.m2/repository" ]; then
             echo "Copying dependencies from repository folder to m2 folder"
             cp -rf ./.m2/repository/* ./.m2/
           fi
+          ls -la ./.m2
+          exit 0
       - name: Build image for platforms ${{ needs.prepare_environment.outputs.build_platforms }}
         uses: docker/build-push-action@v5
         with:
@@ -97,7 +100,7 @@ jobs:
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
-          path: ~/.m2
+          path: ./.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Load the docker image from cache
