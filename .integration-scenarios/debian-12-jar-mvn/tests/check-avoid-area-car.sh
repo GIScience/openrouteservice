@@ -31,9 +31,6 @@ curl -X POST -s -o /dev/null -w '%{response_code}' \
 -d '{"coordinates":[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]],"options":{"avoid_polygons":{"type":"Polygon","coordinates":[[[8.68076562,49.4192374],[8.68076562,49.416990],[8.6859798,49.416990],[8.68076562,49.416990],[8.68076562,49.4192374]]]}}}'
 )
 
-ec=$?
-
-
 cleanupTest
 
 assertEquals "200" "$httpCode"
