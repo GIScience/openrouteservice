@@ -14,7 +14,7 @@ COPY ors-config.yml ors-config.yml
 
 ARG UNIT_TESTS=false
 # Build the project to cache the layers for faster builds
-RUN if [ "$UNIT_TESTS" = "true" ]; then mvn -B clean package -PbuildWar,apitests -DCI=true; else mvn clean package -DskipTests -PbuildWar; fi
+RUN if [ "$UNIT_TESTS" = "true" ]; then mvn -B clean package -PbuildWar,apitests -DCI=true -T $(nproc); else mvn clean package -DskipTests -PbuildWar -T $(nproc); fi
 
 # Copy the integration scenarios folder into the container. This changes often so keep it after the mvn build
 COPY .integration-scenarios .integration-scenarios
