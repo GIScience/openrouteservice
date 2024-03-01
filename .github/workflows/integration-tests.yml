@@ -24,7 +24,7 @@ jobs:
     steps:
       - run: |
           echo "Publish environment variables"
-  docker-build-cache:
+  container-build-cache:
     name: Docker Buildx cache
     runs-on: ubuntu-latest
     needs: prepare_environment
@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - prepare_environment
-      - docker-build-cache
+      - container-build-cache
     strategy:
       matrix:
         scenario: [ '0_*.sh', '1_*.sh', '2_*.sh' ]
