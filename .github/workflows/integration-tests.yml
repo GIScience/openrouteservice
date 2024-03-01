@@ -40,7 +40,7 @@ jobs:
 #      - name: Run integration tests
 #        run: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -t -p
   debian-12-jar-mvn-build-docker:
-    name: Build Docker Images for Integration Tests
+    name: Update dependencies in maven cache
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
