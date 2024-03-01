@@ -21,7 +21,7 @@ ${B}Options:${N}
     ${B}-b      ${N} -- Build docker containers
     ${B}-c      ${N} -- Clear graphs volume
     ${B}-C      ${N} -- Clear graphs volume before each test (caution when running tests in parallel)
-    ${B}-d <arg>${N} -- Base name for docker image, will be extended with 'jar'/'mvn', default: ${dockerImageBase}
+    ${B}-d <arg>${N} -- Base name for docker image, will be extended with '-jar'/'-mvn', default: ${dockerImageBase}
     ${B}-f      ${N} -- Fail fast
     ${B}-j      ${N} -- Run with ${B}java -jar${N}
     ${B}-m      ${N} -- Run with ${B}mvn spring-boot:run${N}
