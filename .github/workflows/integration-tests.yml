@@ -46,19 +46,24 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
-      - name: Build the podman image
+      - name: Cache the docker image
+        uses: actions/cache@v4
+        with:
+          path: /tmp/tomcat-test.tar
+          key: ${{ runner.os }}-tomcat-test-${{ needs.prepare_environment.outputs.test_image_name }}
+          restore-keys: |
+            ${{ runner.os }}-tomcat-test-
+      - name: Load the docker image from cache if available
+        run: |
+          if [ -f /tmp/tomcat-test.tar ]; then
+              podman load -i /tmp/tomcat-test.tar || echo "Could not load the image from cache. Building it."
+          fi
+      - name: Build the podman image for changes
         run: |
           ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i ${{ needs.prepare_environment.outputs.test_image_name }}
-          podman push ${{ needs.prepare_environment.outputs.test_image_name }} docker-daemon:${{ needs.prepare_environment.outputs.test_image_name }}
-      - name: Cache the docker image only
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: false
-          load: false
-          tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          cache-to: type=gha,mode=max
-          dockerfile: .integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile
+      - name: Export the podman image again
+        run: |
+          podman save -o /tmp/tomcat-test.tar docker-daemon:${{ needs.prepare_environment.outputs.test_image_name }}
   debian-12-tomcat-war-systemd:
     name: Run Debian 12 Tomcat WAR systemd integration tests
     runs-on: ubuntu-latest
@@ -84,17 +89,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'maven'
-      - name: Load the docker image from cache
-        uses: docker/build-push-action@v5
+      - name: Cache the docker image
+        uses: actions/cache@v4
         with:
-          context: .
-          push: false
-          load: true
-          tags: ${{ needs.prepare_environment.outputs.test_image_name }}
-          cache-from: type=gha
-          dockerfile: .integration-scenarios/debian-12-tomcat-war-systemd/Dockerfile
-      - name: Download the docker image to podman cache
+          path: /tmp/tomcat-test.tar
+          key: ${{ runner.os }}-tomcat-test-${{ needs.prepare_environment.outputs.test_image_name }}
+          restore-keys: |
+            ${{ runner.os }}-tomcat-test-
+      - name: Load the docker image from cache if available
         run: |
-          podman pull docker-daemon:${{ needs.prepare_environment.outputs.test_image_name }}
+          if [ -f /tmp/tomcat-test.tar ]; then
+              podman load -i /tmp/tomcat-test.tar || { echo "Could not load the image from cache. Building it."; exit 1; }
+          fi
       - name: Run integration tests
         run: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -t -g '${{ matrix.scenario }}'
