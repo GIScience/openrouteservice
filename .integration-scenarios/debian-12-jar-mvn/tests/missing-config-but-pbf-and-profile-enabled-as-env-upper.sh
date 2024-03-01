@@ -6,7 +6,8 @@ source $TESTROOT/files/test.conf
 prepareTest $1 $(basename $0)
 
 # Even if no yml config file is present, the ors is runnable
-# if at least one routing profile is enabled with a environment variable.
+# if at least one routing profile is enabled with a environment variable
+# and a source_file is also specified.
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
@@ -15,7 +16,7 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   "local/${IMAGE}:latest" &
 
 awaitOrsReady 60 "${HOST_PORT}"
-profiles=$(requestEnabledProfiles $HOST_PORT)
+profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
-assertEquals "driving-hgv" "$profiles"
+assertEquals "driving-hgv" "${profiles}"

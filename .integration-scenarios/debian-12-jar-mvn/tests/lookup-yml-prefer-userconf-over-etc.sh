@@ -29,7 +29,7 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   "local/${IMAGE}:latest"  &
 
 awaitOrsReady 60 "${HOST_PORT}"
-profiles=$(requestEnabledProfiles $HOST_PORT)
+profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
-assertEquals "driving-car" "$profiles"
+assertEquals "driving-car" "${profiles}"

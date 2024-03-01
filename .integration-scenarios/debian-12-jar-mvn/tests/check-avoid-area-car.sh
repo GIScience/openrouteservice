@@ -16,7 +16,7 @@ ors:
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
-  -v "${configCar}":$CONTAINER_WORK_DIR/ors-config.yml \
+  -v "${configCar}":${CONTAINER_WORK_DIR}/ors-config.yml \
   "local/${IMAGE}:latest" &
 
 awaitOrsReady 60 "${HOST_PORT}"
@@ -24,7 +24,7 @@ awaitOrsReady 60 "${HOST_PORT}"
 
 httpCode=$(
 curl -X POST -s -o /dev/null -w '%{response_code}' \
-"$(getOrsUrl $HOST_PORT)/directions/driving-car/geojson" \
+"$(getOrsUrl ${HOST_PORT})/directions/driving-car/geojson" \
 -H 'Content-Type: application/json; charset=utf-8' \
 -H 'Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8' \
 -H 'Authorization: 5b3ce3597851110001cf6248faf196eef8cb4eff986d68da3e856ca8' \

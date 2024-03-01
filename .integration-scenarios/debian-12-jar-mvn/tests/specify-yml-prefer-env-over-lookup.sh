@@ -21,7 +21,7 @@ ors:
       hgv:
         enabled: true")
 
-# A default yml $CONTAINER_WORK_DIR/ors-config.yml is present and would normally be used,
+# A default yml ${CONTAINER_WORK_DIR}/ors-config.yml is present and would normally be used,
 # but if the environment variable ORS_CONFIG_LOCATION is set, it should be preferred.
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
@@ -32,7 +32,7 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   "local/${IMAGE}:latest"  &
 
 awaitOrsReady 60 "${HOST_PORT}"
-profiles=$(requestEnabledProfiles $HOST_PORT)
+profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
-assertEquals "driving-hgv" "$profiles"
+assertEquals "driving-hgv" "${profiles}"

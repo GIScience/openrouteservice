@@ -21,10 +21,10 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
   -v "${configCar}":"${CONTAINER_CONF_DIR_USER}/ors-config.yml" \
   "local/${IMAGE}:latest" \
-  $(getProgramArguments $runType --ors.engine.profiles.hgv.enabled=true) &
+  $(getProgramArguments ${runType} --ors.engine.profiles.hgv.enabled=true) &
 
 awaitOrsReady 60 "${HOST_PORT}"
-profiles=$(requestEnabledProfiles $HOST_PORT)
+profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
-assertEquals 'driving-hgv driving-car' "$profiles"
+assertEquals 'driving-hgv driving-car' "${profiles}"

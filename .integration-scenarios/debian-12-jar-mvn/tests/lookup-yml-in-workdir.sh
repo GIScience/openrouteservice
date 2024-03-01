@@ -16,11 +16,11 @@ ors:
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
-  -v "${configCar}":$CONTAINER_WORK_DIR/ors-config.yml \
+  -v "${configCar}":${CONTAINER_WORK_DIR}/ors-config.yml \
   "local/${IMAGE}:latest" &
 
 awaitOrsReady 60 "${HOST_PORT}"
-profiles=$(requestEnabledProfiles $HOST_PORT)
+profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
-assertEquals "driving-car" "$profiles"
+assertEquals "driving-car" "${profiles}"

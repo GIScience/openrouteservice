@@ -21,7 +21,7 @@ ors:
       hgv:
         enabled: true")
 
-# A default yml $CONTAINER_WORK_DIR/ors-config.yml is present and would normally be used,
+# A default yml ${CONTAINER_WORK_DIR}/ors-config.yml is present and would normally be used,
 # but if a config file specified as run argument (first positional parameter)
 # the run argument should win.
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
@@ -30,10 +30,10 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${configCar}":${CONTAINER_WORK_DIR}/ors-config.yml \
   -v "${configHgv}":${CONTAINER_WORK_DIR}/config-hgv.yml \
   "local/${IMAGE}:latest" \
-  $(getProgramArguments $runType $CONTAINER_WORK_DIR/config-hgv.yml) &
+  $(getProgramArguments ${runType} ${CONTAINER_WORK_DIR}/config-hgv.yml) &
 
 awaitOrsReady 60 "${HOST_PORT}"
-profiles=$(requestEnabledProfiles $HOST_PORT)
+profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
-assertEquals "driving-hgv" "$profiles"
+assertEquals "driving-hgv" "${profiles}"
