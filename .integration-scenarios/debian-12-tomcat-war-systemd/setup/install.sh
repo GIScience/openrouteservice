@@ -186,7 +186,7 @@ for folder in "$TOMCAT_FOLDER/logs" "$TOMCAT_FOLDER/temp" "$TOMCAT_FOLDER/conf" 
 done
 
 # Populate the USER folders
-for folder in "$HOME_FOLDER/logs" "$HOME_FOLDER/graphs" "$HOME_FOLDER/files"; do
+for folder in "$HOME_FOLDER/logs" "$HOME_FOLDER/graphs"; do
     mkdir -p "$folder" || { log_error "Failed to create $folder"; exit 1; }
 done
 
@@ -247,7 +247,7 @@ if ! chmod 664 "/etc/systemd/system/openrouteservice.service"; then
     exit 1
 fi
 # Copy relevant files
-if ! cp -rf ors-api/src/test/files/heidelberg.osm.gz "$HOME_FOLDER/files/heidelberg.osm.gz"; then
+if ! cp -rf ors-api/src/test/files "$HOME_FOLDER/files"; then
     log_error "Failed to copy heidelberg.osm.gz."
     exit 1
 fi
