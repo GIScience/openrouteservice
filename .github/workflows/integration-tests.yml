@@ -8,32 +8,11 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-env:
-  TEST_IMAGE_NAME_WAR: 'local/integration-build-war:latest'
-  TEST_IMAGE_NAME_WAR_CACHE: '/tmp/integration-build-war.tar'
-  TEST_IMAGE_NAME_JAR: 'local/integration-build-jar:latest'
-  TEST_IMAGE_NAME_MVN: 'local/integration-build-mvn:latest'
-  BUILD_PLATFORMS: 'linux/amd64'
-
 
 jobs:
-  # This way the env variables are accessible in the individual jobs
-  prepare_environment:
-    name: Prepare the environment variables
-    runs-on: ubuntu-latest
-    outputs:
-      test_image_name_war: ${{ env.TEST_IMAGE_NAME_WAR }}
-      test_image_name_war_cache: ${{ env.TEST_IMAGE_NAME_WAR_CACHE }}
-      test_image_name_jar: ${{ env.TEST_IMAGE_NAME_JAR }}
-      test_image_name_mvn: ${{ env.TEST_IMAGE_NAME_MVN }}
-      build_platforms: ${{ env.BUILD_PLATFORMS }}
-    steps:
-      - run: |
-          echo "Publish environment variables"
   container-build-cache:
     name: Docker Buildx cache
     runs-on: ubuntu-latest
-    needs: prepare_environment
     strategy:
       matrix:
         scenario:
@@ -47,9 +26,9 @@ jobs:
           #          - scenario: debian-12-mvn
           #            build_command: -bjm ${{ needs.prepare_environment.outputs.test_image_name }}-mvn
           - scenario: debian-12-tomcat-war-systemd
-            cache: ${{ needs.prepare_environment.outputs.test_image_name_war_cache }}
-            image: ${{ needs.prepare_environment.outputs.test_image_name_war }}
-            build_command: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i ${{ needs.prepare_environment.outputs.test_image_name_war }}
+            cache: integration-build-war.tar
+            image: local/integration-build-war:latest
+            build_command: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i local/integration-build-war:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -91,12 +70,15 @@ jobs:
     name: Run Debian 12 Tomcat WAR systemd integration tests
     runs-on: ubuntu-latest
     needs:
-      - prepare_environment
       - container-build-cache
     strategy:
       matrix:
         test_case: [ '0_*.sh', '1_*.sh', '2_*.sh' ]
         image: [ ubuntu-latest ]
+    env:
+      cache: integration-build-war.tar
+      image: local/integration-build-war:latest
+      build_command: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -i local/integration-build-war:latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -115,17 +97,17 @@ jobs:
       - name: Cache the docker image
         uses: actions/cache@v4
         with:
-          path: ${{ needs.prepare_environment.outputs.test_image_name_war_cache }}
-          key: ${{ runner.os }}-tomcat-test-${{ matrix.image }}
+          path: ${{ env.cache }}
+          key: ${{ runner.os }}-tomcat-test-${{ env.image }}
           restore-keys: |
             ${{ runner.os }}-tomcat-test-
       - name: Load the docker image from cache if available
         run: |
-          if [ -f ${{ needs.prepare_environment.outputs.test_image_name_war_cache }} ]; then
-              podman load -i ${{ needs.prepare_environment.outputs.test_image_name_war_cache }} || { echo "Could not load the image from cache. Building it."; exit 1; }
+          if [ -f ${{ env.cache ]; then
+              podman load -i ${{ env.cache }} || { echo "Could not load the image from cache."; exit 1; }
           fi
       - name: Run integration tests
-        run: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -t -g '${{ matrix.test_case }}' -i ${{ needs.prepare_environment.outputs.test_image_name_war }}
+        run: ./.integration-scenarios/debian-12-tomcat-war-systemd/run.sh -t -g '${{ matrix.test_case }}' -i ${{ env.image }}
 
 #  debian-12-jar-mvn-run-tests:
 #    needs:
