@@ -1,0 +1,31 @@
+FROM docker.io/debian:bookworm-slim as final
+
+RUN apt-get update -y && \
+    apt-get install -y openjdk-17-jdk-headless maven
+
+ARG CONTAINER_CONF_DIR_USER=/root/.config/openrouteservice
+ARG CONTAINER_CONF_DIR_ETC=/etc/openrouteservice
+ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
+
+WORKDIR $CONTAINER_WORK_DIR
+
+COPY ors-api                ors-api
+COPY ors-engine             ors-engine
+COPY ors-report-aggregation ors-report-aggregation
+COPY pom.xml                pom.xml
+
+RUN mkdir graphs
+RUN mkdir -p "$CONTAINER_CONF_DIR_USER"
+RUN mkdir -p "$CONTAINER_CONF_DIR_ETC"
+
+RUN chmod -R 770 .
+RUN chmod -R 770 "$CONTAINER_CONF_DIR_USER"
+RUN chmod -R 770 "$CONTAINER_CONF_DIR_ETC"
+
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+RUN mvn clean compile
+
+EXPOSE 8082
+
+ENTRYPOINT [ "mvn", "spring-boot:run", "-DskiptTests", "-Dmaven.test.skip=true" ]
