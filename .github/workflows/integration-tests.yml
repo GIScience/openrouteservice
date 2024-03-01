@@ -53,24 +53,13 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Resolve missing dependencies
         run: |
-          echo "Creating temp m2 folders"
-          mkdir -p ./.m2 ./.m2_temp/repository
-          echo "Moving existing m2 folder to repository folder"
-          mv ./.m2/* ./.m2_temp/repository/
-          echo "Show folder contents"
-          ls -la ./.m2_temp/
           echo "Running maven dependency:go-offline"
-          mvn dependency:go-offline -Dmaven.repo.local=./.m2_temp/
+          mvn dependency:go-offline -Dmaven.repo.local=./.m2
           # If a repository folder exists force copy the dependencies to the m2 folder
-          if [ -d "./.m2_temp/repository" ]; then
+          if [ -d "./.m2/repository" ]; then
             echo "Copying dependencies from repository folder to m2 folder"
-            cp -rf ./.m2_temp/repository/* ./.m2/
-          else
-            echo "Copying dependencies from temp m2 folder to m2 folder"
-            cp -rf ./.m2_temp/* ./.m2/
+            cp -rf ./.m2/repository/* ./.m2/
           fi
-          echo "Removing temp m2 folders"
-          rm -rf ./.m2_temp
       - name: Build image for platforms ${{ needs.prepare_environment.outputs.build_platforms }}
         uses: docker/build-push-action@v5
         with:
