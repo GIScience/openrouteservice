@@ -50,7 +50,6 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.util.DebugUtility;
-import org.heigit.ors.util.GeomUtility;
 
 import java.util.*;
 
@@ -335,8 +334,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         int maxNodeId = graphHopperStorage.getNodes() - 1;
         int maxEdgeId = graphHopperStorage.getEdges() - 1;
 
-        SPTEntry goalEdge;
-
         double bufferSize = 0.0018;
 
         boolean useHighDetail = map.size() < 1000;
@@ -346,7 +343,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         }
 
         for (IntObjectCursor<SPTEntry> entry : map) {
-            goalEdge = entry.value;
+            SPTEntry goalEdge = entry.value;
             int edgeId = goalEdge.originalEdge;
             int nodeId = goalEdge.adjNode;
 
@@ -366,7 +363,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                     addBufferedEdgeGeometry(points, minSplitLength, iter, true, goalEdge, bufferSize);
                 }
             } else {
-                if ((minCost < isolineCost && maxCost >= isolineCost)) {
+                if (minCost < isolineCost && maxCost >= isolineCost) {
                     addBorderEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
                 }
             }
