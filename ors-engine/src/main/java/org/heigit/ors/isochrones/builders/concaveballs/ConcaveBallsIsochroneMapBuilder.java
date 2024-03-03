@@ -122,11 +122,9 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                 isochronesDifference = metersPerSecond * isochronesDifference;
             }
 
-            float smoothingFactor = parameters.getSmoothingFactor();
-            var smoothingDistance = convertSmoothingFactorToDistance(smoothingFactor, maxRadius);
-            var smoothingDistanceMeter = GeomUtility.degreesToMetres(smoothingDistance);
+            double smoothingDistance = convertSmoothingFactorToDistance(parameters.getSmoothingFactor(), maxRadius);
 
-            GeometryCollection points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85, smoothingDistanceMeter);
+            GeometryCollection points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85, smoothingDistance);
 
             if (LOGGER.isDebugEnabled()) {
                 sw.stop();

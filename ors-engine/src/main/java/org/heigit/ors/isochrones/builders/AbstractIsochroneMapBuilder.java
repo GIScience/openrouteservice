@@ -22,7 +22,7 @@ import java.util.List;
 import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
 
 public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder {
-    private static final double MAX_SPLIT_LENGTH = 20000.0;
+    private static final double MAX_SPLIT_LENGTH = 0.18;// corresponds to 20000 m
     protected static final DistanceCalc dcFast = new DistancePlaneProjection();
     protected GeometryFactory geometryFactory;
     protected RouteSearchContext searchContext;
@@ -141,12 +141,16 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
      * @param maxlim limit above which the edge will NOT be split anymore (in meters)
      */
     protected void splitLineSegment(double lat0, double lon0, double lat1, double lon1, List<Coordinate> points, double minlim, double maxlim) {
-        double dist = dcFast.calcDist(lat0, lon0, lat1, lon1);
+        double dx = (lon1 - lon0);
+        double dy = (lat1 - lat0);
+        double normLength = Math.sqrt((dx * dx) + (dy * dy));
 
-        if (dist > minlim && dist < maxlim) {
-            int n = (int) Math.ceil(dist / minlim);
+        if (minlim < normLength && normLength < maxlim) {
+            int n = (int) Math.ceil(normLength / minlim);
+            double dx2 = dx / n;
+            double dy2 = dy / n;
             for (int i = 1; i < n; i++) {
-                addPoint(points, lon0 + i * (lon1 - lon0) / n, lat0 + i * (lat1 - lat0) / n);
+                addPoint(points, lon0 + i * dx2, lat0 + i * dy2);
             }
         }
     }
