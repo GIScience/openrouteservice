@@ -66,7 +66,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private CellStorage cellStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
     private QueryGraph queryGraph;
-    private static final int MAX_EDGE_LENGTH_LIMIT = Integer.MAX_VALUE;
+    private static final int MAX_SEGMENT_LENGTH = Integer.MAX_VALUE;
     private static final double ACTIVE_CELL_APPROXIMATION_FACTOR = 0.99;
     private static final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
 
@@ -78,7 +78,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     @Override
     public void initialize(RouteSearchContext searchContext) {
         super.initialize(searchContext);
-        defaultSmoothingDistance = 0.010;// Use a default length of ~1000m
         var fastIsochroneFactory = ((ORSGraphHopper) searchContext.getGraphHopper()).getFastIsochroneFactory();
         this.cellStorage = fastIsochroneFactory.getCellStorage();
         this.isochroneNodeStorage = fastIsochroneFactory.getIsochroneNodeStorage();
@@ -283,7 +282,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 for (int i = 0; i < ringCoords.size(); i++) {
                     lat1 = ringCoords.get(i).y;
                     lon1 = ringCoords.get(i).x;
-                    splitLineSegment(lat0, lon0, lat1, lon1, contourCoords, minSplitLength, MAX_EDGE_LENGTH_LIMIT);
+                    splitLineSegment(lat0, lon0, lat1, lon1, contourCoords, minSplitLength, MAX_SEGMENT_LENGTH);
                     lon0 = lon1;
                     lat0 = lat1;
                 }
