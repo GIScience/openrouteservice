@@ -65,7 +65,7 @@ services:
   ors-app:
     container_name: ors-app
     ports:
-      - "8080:8080"
+      - "8080:8082"
       - "9001:9001"
     image: openrouteservice/openrouteservice:nightly // [!code --]
     # For versioned images see https://giscience.github.io/openrouteservice/run-instance/running-with-docker
@@ -107,7 +107,7 @@ command. To use a different version of openrouteservice, change the tag (after t
 mkdir -p docker/conf docker/elevation_cache docker/graphs docker/logs/ors docker/logs/tomcat
 docker run -dt -u "${UID}:${GID}" \
   --name ors-app \
-  -p 8080:8080 \
+  -p 8080:8082 \
   -v $PWD/docker/graphs:/home/ors/ors-core/data/graphs \
   -v $PWD/docker/elevation_cache:/home/ors/ors-core/data/elevation_cache \
   -v $PWD/docker/logs/ors:/home/ors/ors-core/logs/ors \
