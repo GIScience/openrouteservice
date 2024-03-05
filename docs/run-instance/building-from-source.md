@@ -20,7 +20,7 @@ cd openrouteservice
 
 This creates a directory named `openrouteservice` containing the downloaded source code. All following instructions will assume you are within that directory. 
 
-If you do not have git installed on your system, you can also download the packed (`.zip` and `.tar.gz`) source code file from the "Assets" section of the desired release from our github [releases](https://github.com/GIScience/openrouteservice/releases) page. Unpack the archive and run the following instructions within the directory you unpacked the source code into.
+If you do not have git installed on your system, you can also download the packed (`.zip` and `.tar.gz`) source code file from the "Assets" section of the desired release from our GitHub [releases](https://github.com/GIScience/openrouteservice/releases) page. Unpack the archive and run the following instructions within the directory you unpacked the source code into.
 
 ## Build JAR 
 
@@ -67,7 +67,7 @@ In [Configuration](configuration/index.md) you find the options how you can use 
 
 ## For developers
 
-If you need to customize openrouteservice more than what is possible by [Configuration](configuration/index.md) you might need to make changes to the code. If you implement features that might be useful for others as well, consider [contributing](../contributing/)! 
+If you need to customize openrouteservice more than what is possible by [Configuration](configuration/index.md) you might need to make changes to the code. If you implement features that might be useful for others as well, consider [contributing](/contributing/index.md)! 
 
 The following instructions are useful to get you set up to start modifying the code.
 

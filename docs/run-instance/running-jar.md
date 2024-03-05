@@ -10,7 +10,7 @@ To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](h
 
 ## Download
 
-Starting with version 8 you can download the ready to use JAR file from the "Assets" section of the desired release from our github [releases](https://github.com/GIScience/openrouteservice/releases) page.
+Starting with version 8 you can download the ready to use JAR file from the "Assets" section of the desired release from our GitHub [releases](https://github.com/GIScience/openrouteservice/releases) page.
 
 ## Build
 
