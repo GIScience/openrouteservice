@@ -17,8 +17,7 @@ npm run docs:dev
 To build the static files to `docs/.vitepress/dist` and preview the production version locally, use
 
 ```bash
-npm run docs:build
-npm run docs:preview
+npm run build-preview
 ```
 
 ::: info
