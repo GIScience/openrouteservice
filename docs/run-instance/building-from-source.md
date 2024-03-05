@@ -63,7 +63,7 @@ mvn spring-boot:run
 or in your IDE (see below). This will start openrouteservice on port `8082` with the default configuration `ors-config.yml` in the project root directory
 and a small OSM data set from Heidelberg.
 
-In [Configuration](configuration/index.md) you find the options how you can use customised configurations.  
+In the [Configuration](configuration/index.md) section you find the options how you can use customised configurations.  
 
 ## For developers
 
