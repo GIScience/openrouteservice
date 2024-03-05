@@ -52,3 +52,23 @@ jobs:
           asset_path: ors-api/target/ors.war
           asset_name: ors.war
           asset_content_type: application/java-archive
+
+      - name: Attach ors-config.yml to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./ors-config.yml
+          asset_name: ors-config.yml
+          asset_content_type: application/yaml
+
+      - name: Attach ors-config.env to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./ors-config.env
+          asset_name: ors-config.env
+          asset_content_type: text/plain
