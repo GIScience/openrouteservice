@@ -3,7 +3,7 @@
 ## Input Files
 
 The most important input file is the config file.
-In [Configuration](/run-instance/configuration/index.md) you find everything about configuration options and files.
+In the [Configuration](/run-instance/configuration/index.md) section you find everything about configuration options and files.
 
 Openrouteservice makes use of public open-source data. To generate the best routes, a number of different datasets are used.
 

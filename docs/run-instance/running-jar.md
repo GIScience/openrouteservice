@@ -10,7 +10,7 @@ To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](h
 
 ## Download
 
-Starting with version 8 you can download the ready to use JAR file from the "Assets" section of the desired release from our github [releases](https://github.com/GIScience/openrouteservice/releases) page.
+Starting with version 8 you can download the ready to use JAR file from the "Assets" section of the desired release from our GitHub [releases](https://github.com/GIScience/openrouteservice/releases) page.
 
 ## Build
 
@@ -32,7 +32,7 @@ The recommended way to configure an openrouteservice instance run plain using th
 wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/ors-config.yml
 ```
 
-For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](configuration/).
+For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](configuration/index.md).
 
 ## Troubleshoot
 

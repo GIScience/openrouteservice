@@ -12,7 +12,7 @@ can help with.
 
 Feel free to create an [issue](https://github.com/GIScience/openrouteservice/issues) and label it accordingly.
 If your issue regards the openrouteservice maps client on [maps.openrouteservice.org](https://maps.openrouteservice.org)
-please use the [corresponding repository](https://github.com/GIScience/ors-maps-client/issues).
+please use the [corresponding repository](https://github.com/GIScience/ors-map-client/issues).
 
 ## Contributing code
 

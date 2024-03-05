@@ -40,7 +40,7 @@ Which format to use in which scenario is documented in the config documentations
 [Docker](/run-instance/running-with-docker.md).
 
 * `.yml` is the default configuration format since version 8. You can find an [example configuration file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.yml) with all available configuration options. Only a minimal set of properties is active, all others are commented out.
-* `.env` files for Docker setup. There is also a [example env file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.env) that you can download and customize. 
+* `.env` files for Docker setup. There is also an [example env file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.env) that you can download and customize. 
 * `.json` config file: In the past openrouteservice was configured [via JSON file](json.md). This configuration method has been **deprecated** and will be eventually removed. Therefore, we strongly discourage you from using it. If you have an old JSON config, please consider to [migrate to the new config](migrate-from-json.md). 
 
 All of the above described config files can contain the same logic application properties.
@@ -116,7 +116,8 @@ The options in order of precedence (higher options win over lower) are:
   java -jar ors.jar 
   ```
   
-The option to configure using environment variables is especially useful in contexts where you want to run openrouteservice in containers such as with [docker](/run-instance/installation/running-with-docker.md). 
+The option to configure using environment variables is especially useful in contexts where you want to run
+openrouteservice in containers such as with [docker](/run-instance/running-with-docker.md). 
 
 Every property also corresponds to an environment variable name in *uppercase letters* and with *underscores* replacing *dots*, so e.g.
 - `ORS_ENGINE_SOURCE_FILE` replaces `ors.engine.source_file`

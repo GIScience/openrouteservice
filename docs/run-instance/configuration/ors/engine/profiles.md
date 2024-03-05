@@ -152,7 +152,7 @@ Properties beneath `ors.engine.profiles.*.ext_storages`:
 | Borders                | object | Borders allows the restriction of routes to not cross country borders, compatible for any profile type                       | [Borders](#borders)                               |
 
 
-Have a look at [this table](/api-reference/endpoints/directions/extra-info/#extra-info-availability) to check which external storages are enabled for the which profile by default.
+Have a look at [this table](/api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) to check which external storages are enabled for the which profile by default.
 
 
 ### RoadAccessRestrictions

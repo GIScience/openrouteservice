@@ -138,7 +138,6 @@ export default defineConfig({
                     {
                         text: 'Contributing', collapsed: true, link: '/contributing/',
                         items: [
-                            {text: 'Opening project in IntelliJ', link: '/contributing/opening-project-in-intellij'},
                             {text: 'Backend documentation', link: '/contributing/backend-documentation'},
                             {text: 'Contribution guidelines', link: 'https://github.com/GIScience/openrouteservice/blob/main/CONTRIBUTE.md'},
                             {text: 'Contributing translations', link: '/contributing/contributing-translations'},

@@ -279,11 +279,11 @@ The top level element.
 
 Array of message objects where each has
 
-| key       | type    | description                                                       | example value        |
-|-----------|---------|-------------------------------------------------------------------|----------------------| 
-| active    | boolean | Enables or disables this message                                  | `true`               |
-| text      | string  | The message text                                                  | `"The message text"` |
-| condition | object  | omittable; may contain any of the conditions from the table below |                      |
+| key       | type    | description                                                      | example value        |
+|-----------|---------|------------------------------------------------------------------|----------------------| 
+| active    | boolean | Enables or disables this message                                 | `true`               |
+| text      | string  | The message text                                                 | `"The message text"` |
+| condition | object  | optional; may contain any of the conditions from the table below |                      |
 
 | condition          | value                                                                                                                | description                                                         |
 |--------------------|----------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|
