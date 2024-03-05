@@ -39,7 +39,7 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${configPT}":"${CONTAINER_WORK_DIR}/ors-config.yml" \
   "local/${IMAGE}:latest" &
 
-awaitOrsReady 60 "${HOST_PORT}"
+awaitOrsReady 300 "${HOST_PORT}"
 profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
