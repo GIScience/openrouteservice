@@ -12,11 +12,6 @@ ors:
     profiles:
       public-transport:
         enabled: true
-        profile: public-transport
-        encoder_options:
-          block_fords: false
-        elevation: true
-        maximum_visited_nodes: 1000000
         gtfs_file: ors-api/src/test/files/vrn_gtfs_cut.zip")
 
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
