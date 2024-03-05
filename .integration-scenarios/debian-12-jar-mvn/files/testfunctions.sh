@@ -139,15 +139,21 @@ function getProgramArguments() {
     esac
 }
 
+function printError(){
+  message="$1"
+  echo -e "${FG_RED}ERROR: ${N}${B}${FG_RED}${message}"
+}
+
 function prepareTest() {
-  runType=$1
-  script=$2
+  script=$1
+  runType=$2
+  IMAGE=$3
+
+  if [ -z "$runType" ]; then printError "missing param 1: runType (jar|mvn)"; exit 1; fi
+  if [ -z "$IMAGE" ]; then printError "missing param 2: docker image"; exit 1; fi
+
   CONTAINER=${runType}-$(removeExtension "$(basename $script)")
   HOST_PORT=$(findFreePort 8082)
-  case $runType in
-    jar) IMAGE=$IMAGE_NAME_JAR;;
-    mvn) IMAGE=$IMAGE_NAME_MVN;;
-  esac
 
   mkdir -p ~/.m2
   M2_FOLDER="$(realpath ~/.m2)"

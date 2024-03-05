@@ -3,7 +3,7 @@
 TESTROOT="$( cd "$(dirname "$0")"/.. >/dev/null 2>&1 ; pwd -P )"
 source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
-prepareTest $1 $(basename $0)
+prepareTest $(basename $0) $*
 
 configPT=$(makeTempFile $(basename $0) "\
 ors:
@@ -26,11 +26,6 @@ ors:
         enabled: true
       public-transport:
         enabled: true
-        profile: public-transport
-        encoder_options:
-          block_fords: false
-        elevation: true
-        maximum_visited_nodes: 1000000
         gtfs_file: ors-api/src/test/files/vrn_gtfs_cut.zip
       walking:
         enabled: true
@@ -44,7 +39,7 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${configPT}":"${CONTAINER_WORK_DIR}/ors-config.yml" \
   "local/${IMAGE}:latest" &
 
-awaitOrsReady 60 "${HOST_PORT}"
+awaitOrsReady 300 "${HOST_PORT}"
 profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 

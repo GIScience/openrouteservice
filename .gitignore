@@ -2,6 +2,7 @@
 *.iml
 *.ipr
 .DS_Store
+**/.m2/
 
 graphs/
 graphs-*/
@@ -28,3 +29,4 @@ ors-config-repo/
 docs/.vitepress/dist
 docs/.vitepress/cache
 /.integration-scenarios/debian-12-jar-mvn/graphs_volume/
+/.integration-scenarios/debian-12-jar-mvn/tmp/

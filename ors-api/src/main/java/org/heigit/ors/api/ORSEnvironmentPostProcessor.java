@@ -36,6 +36,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
         // Override values from application.yml with contents of custom config yml file.
         List<String> configLocations = new ArrayList<>();
         log.info("");
+        log.info("Configuration lookup started.");
         if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
             configLocations.add(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY));
             log.info("Configuration file set by program argument.");
@@ -60,6 +61,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
                     break;
                 }
             } catch (IllegalStateException | IOException ignored) {
+                log.debug("Log file '%s' not found.".formatted(path));
             }
         }
         var relevantPrefixes = List.of(
@@ -73,7 +75,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
                 "spring.",
                 "SERVER_",
                 "server.");
-        var relevantENVs = System.getenv().entrySet().stream()
+        var relevantENVs = environment.getSystemProperties().entrySet().stream()
                 .filter(env -> relevantPrefixes.stream().anyMatch(env.getKey()::startsWith))
                 .sorted(Entry.comparingByKey()).toList();
         if (!relevantENVs.isEmpty()) {
@@ -81,6 +83,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
             log.info("Environment variables overriding openrouteservice configuration parameters detected: ");
             relevantENVs.forEach(env -> log.info("%s=%s".formatted(env.getKey(), env.getValue())));
         }
+        log.info("Configuration lookup finished.");
         log.info("");
     }
 }
