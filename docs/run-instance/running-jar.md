@@ -32,7 +32,7 @@ The recommended way to configure an openrouteservice instance run plain using th
 wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/ors-config.yml
 ```
 
-For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](configuration/).
+For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](configuration/index.md).
 
 ## Troubleshoot
 

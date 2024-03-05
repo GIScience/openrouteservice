@@ -116,7 +116,8 @@ The options in order of precedence (higher options win over lower) are:
   java -jar ors.jar 
   ```
   
-The option to configure using environment variables is especially useful in contexts where you want to run openrouteservice in containers such as with [docker](/run-instance/installation/running-with-docker.md). 
+The option to configure using environment variables is especially useful in contexts where you want to run
+openrouteservice in containers such as with [docker](/run-instance/running-with-docker.md). 
 
 Every property also corresponds to an environment variable name in *uppercase letters* and with *underscores* replacing *dots*, so e.g.
 - `ORS_ENGINE_SOURCE_FILE` replaces `ors.engine.source_file`
