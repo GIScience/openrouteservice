@@ -84,7 +84,7 @@ To run the project from within your IDE, you have to:
 5. Finalize the project import by clicking "Finish" in the last window.
 6. Configure your IDE to run `spring-boot:run` as the maven goal. Now you can run your application directly in IntelliJ.
 7. To use a different config file than ors-config.yml in the project directory, you can set the environment variable `ORS_CONFIG_LOCATION=<config>` in your run config. 
-7. You can run all tests via JUnit.
+8. You can run all tests via JUnit.
 
 
 ### Running Tests
