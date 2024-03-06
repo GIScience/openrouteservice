@@ -19,8 +19,8 @@ RUN mvn clean package -DskipTests
 COPY ./ors-config.yml /tmp/ors/example-ors-config.yml
 COPY ./ors-config.env /tmp/ors/example-ors-config.env
 # Rewrite the example config to use the right files in the container
-RUN sed -i "/ors.engine.source_file=.*/s/.*/ors.engine.source_file=\/heidelberg.osm.gz/" "/tmp/ors/example-ors-config.env" && \
-        sed -i "/    source_file:.*/s/.*/    source_file: \/heidelberg.osm.gz/" "/tmp/ors/example-ors-config.yml"
+RUN sed -i "/ors.engine.source_file=.*/s/.*/ors.engine.source_file=\/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.env" && \
+        sed -i "/    source_file:.*/s/.*/    source_file: \/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.yml"
 
 # build final image, just copying stuff inside
 FROM docker.io/amazoncorretto:21.0.2-alpine3.19 AS publish
