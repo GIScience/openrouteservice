@@ -195,9 +195,12 @@ success "BASE_FOLDER: ${BASE_FOLDER} exists and is writable."
 check_folder_writability "${ORS_HOME}" || critical "ORS_HOME: ${ORS_HOME} doesn't exist or is not writable."
 success "ORS_HOME: ${ORS_HOME} exists and is writable."
 
-mkdir -p "${ORS_HOME}"/{files,logs,config,graphs,elevation_cache} || warning "Could not create ${ORS_HOME} and folders"
-mkdir -p "${BASE_FOLDER}"/{files,logs,config,graphs,elevation_cache} || warning "Could not create ${BASE_FOLDER} and folders"
-debug "Populated ORS_HOME=${ORS_HOME} with the default folders: files, logs, config, graphs, elevation_cache"
+mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache} || warning "Could not create ${ORS_HOME} and folders"
+mkdir -p "${BASE_FOLDER}"/{files,logs,graphs,elevation_cache} || warning "Could not create ${BASE_FOLDER} and folders"
+debug "Populated ORS_HOME=${ORS_HOME} with the default folders: files, logs, graphs, elevation_cache"
+
+mkdir -p "/etc/openrouteservice" || warning "Could not create /etc/openrouteservice folder"
+debug "Created /etc/openrouteservice"
 
 # Check if the original jar file exists
 if [ ! -f "${original_jar_file}" ]; then
@@ -224,8 +227,8 @@ else
 fi
 
 # Update the example-ors-config.env and example-ors-config.yml files if they don't exist or have changed
-update_file "${ORS_HOME}/config/example-ors-config.env" "/example-ors-config.env" "true"
-update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml" "true"
+update_file "/etc/openrouteservice/example-ors-config.env" "/example-ors-config.env" "true"
+update_file "/etc/openrouteservice/example-ors-config.yml" "/example-ors-config.yml" "true"
 
 # The config situation is difficult due to the recent ors versions.
 # To ensure a smooth transition, we need to check if the user is using a .json file or a .yml file.
@@ -238,10 +241,15 @@ elif [[ "${ors_config_location}" = *.json ]] && [[ -f "${ors_config_location}" ]
   # Print the above warning message in individual warning calls
   warning ".json configurations are deprecated and will be removed in the future."
   print_migration_info="true"
+elif [[ -f /etc/openrouteservice/ors-config.yml ]]; then
+    success "Using existing /etc/openrouteservice/ors-config.yml"
+    ors_config_location="/etc/openrouteservice/ors-config.yml"
 else
-  debug "No implicit config file provided."
-  success "Default to config: ${ORS_HOME}/config/example-ors-config.yml"
-  ors_config_location="${ORS_HOME}/config/example-ors-config.yml"
+  warning "No config file found. Copying /etc/openrouteservice/example-ors-config.yml to /etc/openrouteservice/ors-config.yml"
+  warning "To adjust your config edit ors-config.yml in your 'config' docker volume or use environment variable configuration."
+  cp /etc/openrouteservice/example-ors-config.yml /etc/openrouteservice/ors-config.yml
+#  success "Default to config: /etc/openrouteservice/example-ors-config.yml"
+  ors_config_location="/etc/openrouteservice/ors-config.yml"
 fi
 
 # Get relevant configuration information from the .yml or .json file
@@ -359,11 +367,11 @@ if [ "${print_migration_info}" = "true" ]; then
   info "Configuring ors with a .json config is deprecated and will be removed in the future."
   info "You have the following options to configure ORS:"
   info "Method 1 yml config:"
-  info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.yml ./ors-config.yml"
-  info "> docker run --name example-ors-instance-conf-file -e ORS_CONFIG_LOCATION=${ORS_HOME}/config/ors-config.yml -v \$(pwd)/ors-config.yml:${ORS_HOME}/config/ors-config.yml heigit/openrouteservice:latest"
+  info "> docker cp ors-container-name:/etc/openrouteservice/example-ors-config.yml ./ors-config.yml"
+  info "> docker run --name example-ors-instance-conf-file -e ORS_CONFIG_LOCATION=/etc/openrouteservice/ors-config.yml -v \$(pwd)/ors-config.yml:/etc/openrouteservice/ors-config.yml openrouteservice/openrouteservice:latest"
   info "Method 2 environment variables:"
-  info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.env ./ors-config.env"
-  info "> docker run --name example-ors-instance-env-file --env-file ors-config.env heigit/openrouteservice:latest"
+  info "> docker cp ors-container-name:/etc/openrouteservice/example-ors-config.env ./ors-config.env"
+  info "> docker run --name example-ors-instance-env-file --env-file ors-config.env openrouteservice/openrouteservice:latest"
   info ">>> End of migration information <<<"
 fi
 

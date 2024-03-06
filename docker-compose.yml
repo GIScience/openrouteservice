@@ -18,14 +18,15 @@ services:
     volumes:  # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
       - ./graphs:/home/ors/graphs  # Mount graphs directory
       - ./elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory
-      - ./config:/home/ors/config  # Mount configuration directory
+      - ./config:/etc/openrouteservice  # Mount configuration directory
       - ./logs:/home/ors/logs  # Mount logs directory
       - ./files:/home/ors/files  # Mount files directory
     environment:
       REBUILD_GRAPHS: False  # Set to True to rebuild graphs on container start.
       CONTAINER_LOG_LEVEL: INFO  # Log level for the container. Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
-      ORS_CONFIG_LOCATION: /home/ors/config/example-ors-config.yml  # Location of the default ORS example configuration file in the docker container
-      # This config file will be reverted at each container start. If you want to use your own configuration file, create a copy in the container and rename this variable.
+      # If you don't want the default ors-config.yml you can specify a custom file name, that should match the file in
+      # your 'config' volume mount.
+      #ORS_CONFIG_LOCATION: /etc/openrouteservice/my-ors-config.yml  # Location of your ORS configuration file in the docker container
 
       # ------------------ JAVA OPTS ------------------ #
       # Configure the memory settings for JAVA or pass additional opts
