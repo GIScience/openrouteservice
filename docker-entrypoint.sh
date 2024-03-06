@@ -279,7 +279,7 @@ fi
 if [ -n "${ors_engine_source_file}" ]; then
   debug "OSM source file set to ${ors_engine_source_file}"
   # Check if it is the example file in root or the home folder
-  if [[ "${ors_engine_source_file}" = "/heidelberg.osm.gz" ]] || [[ "${ors_engine_source_file}" = "${ORS_HOME}/files/example-heidelberg.osm.gz" ]]; then
+  if [[ "${ors_engine_source_file}" = "${ORS_HOME}/files/example-heidelberg.osm.gz" ]]; then
     info "Default to example osm source file: \"${ors_engine_source_file}\""
   fi
 fi
