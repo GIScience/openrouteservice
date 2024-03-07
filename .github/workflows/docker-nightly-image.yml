@@ -35,7 +35,7 @@ jobs:
       new_commits: ${{ steps.check.outputs.NEW_COMMITS }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
           ref: ${{ inputs.branch || 'main' }}
@@ -58,7 +58,7 @@ jobs:
     if: inputs.ignore-24h-commit-check || needs.check-commits.outputs.new_commits == 'true'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
           ref: ${{ inputs.branch || 'main' }}

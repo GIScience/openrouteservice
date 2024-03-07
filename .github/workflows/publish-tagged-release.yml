@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.2.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up QEMU
@@ -70,7 +70,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
       - name: Checkout version if needed
         if: ${{ steps.prepare.outputs.build_version == 'true' }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: ${{ steps.previoustag.outputs.tag }}
       - name: Build and publish version if needed

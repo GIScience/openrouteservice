@@ -1,4 +1,4 @@
-name: Build and attach JAR and WAR artifacts to release
+name: Build the release artifacts and attach them to the release
 
 on:
   release:
@@ -9,46 +9,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Checkout
-        uses: actions/checkout@v2.2.0
-        with:
-          fetch-depth: 0
-
+          cache: 'maven'
+          cache-dependency-path: ./pom.xml
       - name: Build JAR
-        run: mvn clean package -DskipTests
-
-      - name: Attach JAR to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ors-api/target/ors.jar
-          asset_name: ors.jar
-          asset_content_type: application/java-archive
+        run: |
+          mvn clean package -DskipTests
+          # Copy the JAR to the root directory
+          cp ors-api/target/ors.jar ors.jar
 
       - name: Build WAR
-        run: mvn clean package -DskipTests -PbuildWar
+        run: |
+          mvn clean package -DskipTests -PbuildWar
+          # Copy the WAR to the root directory
+          cp ors-api/target/ors.war ors.war
 
-      - name: Attach WAR to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attach the files to the release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ors-api/target/ors.war
-          asset_name: ors.war
-          asset_content_type: application/java-archive
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            ./ors.jar
+            ./ors.war
+            ./ors-config.yml
+            ./ors-config.env
