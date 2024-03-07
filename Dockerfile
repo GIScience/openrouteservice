@@ -29,7 +29,7 @@ FROM docker.io/amazoncorretto:21.0.2-alpine3.19 AS publish
 ARG UID=1000
 ARG GID=1000
 ARG OSM_FILE=./ors-api/src/test/files/heidelberg.osm.gz
-ARG BASE_FOLDER=/home/ors
+ARG ORS_HOME=/home/ors
 
 # Set the default language
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
@@ -37,11 +37,11 @@ ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 # Setup the target system with the right user and folders.
 RUN apk update && apk add --no-cache bash openssl yq jq curl && \
     addgroup ors -g ${GID} && \
-    mkdir -p ${BASE_FOLDER}/logs ${BASE_FOLDER}/files ${BASE_FOLDER}/graphs ${BASE_FOLDER}/elevation_cache  && \
-    adduser -D -h ${BASE_FOLDER} -u ${UID} --system -G ors ors  && \
-    chown ors:ors ${BASE_FOLDER} \
+    mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache  && \
+    adduser -D -h ${ORS_HOME} -u ${UID} --system -G ors ors  && \
+    chown ors:ors ${ORS_HOME} \
     # Give all permissions to the user
-    && chmod -R 777 ${BASE_FOLDER}
+    && chmod -R 777 ${ORS_HOME}
 
 # Copy over the needed bits and pieces from the other stages.
 COPY --chown=ors:ors --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
@@ -54,8 +54,8 @@ COPY --chown=ors:ors ./docker-entrypoint.sh /entrypoint.sh
 ENV BUILD_GRAPHS="False"
 ENV REBUILD_GRAPHS="False"
 # Set the ARG to an ENV. Else it will be lost.
-ENV BASE_FOLDER=${BASE_FOLDER}
+ENV ORS_HOME=${ORS_HOME}
 
-WORKDIR ${BASE_FOLDER}
+WORKDIR ${ORS_HOME}
 # Start the container
 ENTRYPOINT ["/entrypoint.sh"]

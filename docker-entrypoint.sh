@@ -119,16 +119,6 @@ echo "# Container ENV #"
 echo "#################"
 # Validate the log level
 set_log_level
-# Print BASE_FOLDER
-success "BASE_FOLDER: ${BASE_FOLDER}"
-# Users should define ORS_HOME. If not, use /home/ors
-if [ -z "${ORS_HOME}" ]; then
-  debug "ORS_HOME not explicitly set. Using default: ${BASE_FOLDER}"
-  ORS_HOME=${BASE_FOLDER}
-  success "ORS_HOME: ${ORS_HOME}"
-else
-  success "Custom ORS_HOME: ${ORS_HOME}"
-fi
 
 # Set the jar file location
 original_jar_file=/ors.jar
@@ -180,23 +170,21 @@ if [[ -d /ors-core ]] || [[ -d /ors-conf ]]; then
   warning "Continuing with the new docker setup."
 fi
 
-# Fail if BASE_FOLDER env var is not set or if it is empty or set to /
-if [ -z "${BASE_FOLDER}" ] || [ "${BASE_FOLDER}" = "/" ]; then
-  critical "BASE_FOLDER is not set or empty or set to /. This is not allowed. Exiting."
-else
-  debug "BASE_FOLDER=${BASE_FOLDER} is set and not empty and not set to /"
+# Fail if ORS_HOME env var is not set or if it is empty or set to /
+if [ -z "${ORS_HOME}" ] || [ "${ORS_HOME}" = "/" ]; then
+  critical "ORS_HOME is not set or empty or set to /. This is not allowed. Exiting."
 fi
 
 mkdir -p "${ORS_HOME}" || critical "Could not create ${ORS_HOME}"
 
-# Make sure BASE_FOLDER and ORS_HOME exist and are writable
-check_folder_writability "${BASE_FOLDER}" || critical "BASE_FOLDER: ${BASE_FOLDER} doesn't exist or is not writable."
-success "BASE_FOLDER: ${BASE_FOLDER} exists and is writable."
+# Make sure ORS_HOME and ORS_HOME exist and are writable
+check_folder_writability "${ORS_HOME}" || critical "ORS_HOME: ${ORS_HOME} doesn't exist or is not writable."
+success "ORS_HOME: ${ORS_HOME} exists and is writable."
 check_folder_writability "${ORS_HOME}" || critical "ORS_HOME: ${ORS_HOME} doesn't exist or is not writable."
 success "ORS_HOME: ${ORS_HOME} exists and is writable."
 
 mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache,config} || warning "Could not create ${ORS_HOME} and folders"
-mkdir -p "${BASE_FOLDER}"/{files,logs,graphs,elevation_cache,config} || warning "Could not create ${BASE_FOLDER} and folders"
+mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache,config} || warning "Could not create ${ORS_HOME} and folders"
 debug "Populated ORS_HOME=${ORS_HOME} with the default folders: files, logs, graphs, elevation_cache"
 
 # Check if the original jar file exists
@@ -224,8 +212,8 @@ else
 fi
 
 # Update the example-ors-config.env and example-ors-config.yml files if they don't exist or have changed
-update_file "/home/ors/config/example-ors-config.env" "/example-ors-config.env" "true"
-update_file "/home/ors/config/example-ors-config.yml" "/example-ors-config.yml" "true"
+update_file "${ORS_HOME}/config/example-ors-config.env" "/example-ors-config.env" "true"
+update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml" "true"
 
 # The config situation is difficult due to the recent ors versions.
 # To ensure a smooth transition, we need to check if the user is using a .json file or a .yml file.
@@ -238,14 +226,14 @@ elif [[ "${ors_config_location}" = *.json ]] && [[ -f "${ors_config_location}" ]
   # Print the above warning message in individual warning calls
   warning ".json configurations are deprecated and will be removed in the future."
   print_migration_info="true"
-elif [[ -f /home/ors/config/ors-config.yml ]]; then
-    success "Using existing /home/ors/config/ors-config.yml"
-    ors_config_location="/home/ors/config/ors-config.yml"
+elif [[ -f ${ORS_HOME}/config/ors-config.yml ]]; then
+    success "Using existing ${ORS_HOME}/config/ors-config.yml"
+    ors_config_location="${ORS_HOME}/config/ors-config.yml"
 else
-  warning "No config file found. Copying /example-ors-config.yml to /home/ors/config/ors-config.yml"
+  warning "No config file found. Copying /example-ors-config.yml to ${ORS_HOME}/config/ors-config.yml"
   warning "To adjust your config edit ors-config.yml in your 'config' docker volume or use environment variable configuration."
-  update_file "/home/ors/config/ors-config.yml" "/example-ors-config.yml"
-  ors_config_location="/home/ors/config/ors-config.yml"
+  update_file "${ORS_HOME}/config/ors-config.yml" "/example-ors-config.yml"
+  ors_config_location="${ORS_HOME}/config/ors-config.yml"
 fi
 
 # Get relevant configuration information from the .yml or .json file
@@ -363,10 +351,10 @@ if [ "${print_migration_info}" = "true" ]; then
   info "Configuring ors with a .json config is deprecated and will be removed in the future."
   info "You have the following options to configure ORS:"
   info "Method 1 yml config:"
-  info "> docker cp ors-container-name:/home/ors/config/example-ors-config.yml ./ors-config.yml"
-  info "> docker run --name example-ors-instance-conf-file -e ORS_CONFIG_LOCATION=/home/ors/config/ors-config.yml -v \$(pwd)/ors-config.yml:/home/ors/config/ors-config.yml openrouteservice/openrouteservice:latest"
+  info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.yml ./ors-config.yml"
+  info "> docker run --name example-ors-instance-conf-file -e ORS_CONFIG_LOCATION=${ORS_HOME}/config/ors-config.yml -v \$(pwd)/ors-config.yml:${ORS_HOME}/config/ors-config.yml openrouteservice/openrouteservice:latest"
   info "Method 2 environment variables:"
-  info "> docker cp ors-container-name:/home/ors/config/example-ors-config.env ./ors-config.env"
+  info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.env ./ors-config.env"
   info "> docker run --name example-ors-instance-env-file --env-file ors-config.env openrouteservice/openrouteservice:latest"
   info ">>> End of migration information <<<"
 fi
