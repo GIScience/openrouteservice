@@ -20,11 +20,11 @@ services:
     #user: "1000:1000"
     volumes:  # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
       - ./ors:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory
-    #      - ./graphs:/home/ors/graphs  # Mount graphs directory
-    #      - ./elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory
-    #      - ./config:/home/ors/config  # Mount configuration directory
-    #      - ./logs:/home/ors/logs  # Mount logs directory
-    #      - ./files:/home/ors/files  # Mount files directory
+      #- ./graphs:/home/ors/graphs  # Mount graphs directory individually
+      #- ./elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory individually
+      #- ./config:/home/ors/config  # Mount configuration directory individually
+      #- ./logs:/home/ors/logs  # Mount logs directory individually
+      #- ./files:/home/ors/files  # Mount files directory individually
     environment:
       REBUILD_GRAPHS: False  # Set to True to rebuild graphs on container start.
       CONTAINER_LOG_LEVEL: INFO  # Log level for the container. Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
