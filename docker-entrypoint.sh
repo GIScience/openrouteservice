@@ -145,11 +145,16 @@ echo "###########################"
 echo "# Container sanity checks #"
 echo "###########################"
 info "Running container as user $(whoami) with id $(id -u) and group $(id -g)"
-if [[ $(id -u) -ne 0 ]] || [[ $(id -g) -ne 0 ]]; then
+if [[ $(id -u) -eq 0 ]] || [[ $(id -g) -eq 0 ]] ; then
+  debug "User and group are set to root with id 0 and group 0."
+elif [[ $(id -u) -eq 1000 ]] || [[ $(id -g) -eq 1000 ]] ; then
+  debug "User and group are set to 1000 and group 1000."
+else
   # Test if the user tampered with the user and group settings
   warning "Running container as user '$(whoami)' with id $(id -u) and group $(id -g)"
   warning "Changing these values is only recommended if you're an advanced docker user and can handle file permission issues yourself."
   warning "Consider leaving the user and group options as root with 0:0 or 1000:1000 or avoid that setting completely."
+  warning "If you need to change the user and group, make sure to rebuild the docker image with the appropriate UID,GID build args."
 fi
 
 if [[ -d /ors-core ]] || [[ -d /ors-conf ]]; then
