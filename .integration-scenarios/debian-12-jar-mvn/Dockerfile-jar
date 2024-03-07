@@ -32,7 +32,6 @@ COPY ors-api/src/test/files ors-api/src/test/files
 COPY ors-api/src/test/files/elevation elevation_cache
 
 RUN mkdir graphs
-RUN mkdir elevation_cache
 RUN mkdir -p "$CONTAINER_CONF_DIR_USER"
 RUN mkdir -p "$CONTAINER_CONF_DIR_ETC"
 
