@@ -68,18 +68,6 @@ function set_log_level() {
   success "CONTAINER_LOG_LEVEL: ${CONTAINER_LOG_LEVEL}. Set CONTAINER_LOG_LEVEL=DEBUG for more details."
 }
 
-check_folder_writability() {
-  local folder="$1"
-
-  if ! touch "${folder}"/.test 2>/dev/null; then
-    # Echo error with a red x instead of a check
-    return 1
-  else
-    rm -rf "${folder:?}"/.test
-    return 0
-  fi
-}
-
 update_file() {
   local target_file_path="$1"
   local original_file_path="$2"
@@ -177,8 +165,16 @@ fi
 
 mkdir -p "${ORS_HOME}" || critical "Could not create ${ORS_HOME}"
 
-# Make sure ORS_HOME and ORS_HOME exist and are writable
-check_folder_writability "${ORS_HOME}" || critical "ORS_HOME: ${ORS_HOME} doesn't exist or is not writable."
+# Make sure ORS_HOME is a directory
+if [ ! -d "${ORS_HOME}" ]; then
+  critical "ORS_HOME: ${ORS_HOME} doesn't exist. Exiting."
+elif [ ! -w "${ORS_HOME}" ]; then
+  error "ORS_HOME: ${ORS_HOME} is not writable."
+  error "Make sure the file permission of ${ORS_HOME} in your volume mount are set to $(id -u):$(id -g)."
+  error "Under linux the command for a volume would be: sudo chown -R $(id -u):$(id -g) /path/to/ors/volume"
+  critical "Exiting."
+fi
+
 success "ORS_HOME: ${ORS_HOME} exists and is writable."
 
 mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache,config} || warning "Could not create ${ORS_HOME} and folders"
