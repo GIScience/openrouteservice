@@ -29,6 +29,7 @@ WORKDIR $CONTAINER_WORK_DIR
 
 COPY --from=builder $CONTAINER_WORK_DIR/ors-api/target/ors.jar ors.jar
 COPY ors-api/src/test/files ors-api/src/test/files
+COPY ors-api/src/test/files/elevation elevation_cache
 
 RUN mkdir graphs
 RUN mkdir -p "$CONTAINER_CONF_DIR_USER"

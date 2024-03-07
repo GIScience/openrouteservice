@@ -25,8 +25,11 @@ ${B}Options:${N}
     ${B}-f      ${N} -- Fail fast
     ${B}-j      ${N} -- Run with ${B}java -jar${N}
     ${B}-m      ${N} -- Run with ${B}mvn spring-boot:run${N}
-    ${B}-t <arg>${N} -- Tests to run specified by globbing pattern (quote)
+    ${B}-t <arg>${N} -- Tests to run specified by globbing pattern
+                Quote patterns with '*' or use '%' which will be replaced by '*'
+                Multiple patterns can be defined in one argument, separated by blanks
     ${B}-v      ${N} -- Verbose: Print tests console output
+    ${B}-l      ${N} -- List tests and exit
     ${B}-h      ${N} -- Display this help and exit
 "
 }
@@ -83,7 +86,11 @@ function exitWithRunTypeMissing() {
     exit 1
 }
 
-while getopts :bcCd:fjmt:vh FLAG; do
+function listTests() {
+  ls -A ${TESTROOT}/tests
+}
+
+while getopts :bcCd:fjmt:vlh FLAG; do
   case $FLAG in
     b) wantBuildContainers=1;;
     c) clearGraphs=1;;
@@ -94,6 +101,9 @@ while getopts :bcCd:fjmt:vh FLAG; do
     m) mvn=1;;
     t) pattern="$OPTARG";;
     v) verbose=1;;
+    l)
+      listTests
+      exit 0;;
     h)
       printCliHelp
       exit 0;;
@@ -133,9 +143,12 @@ mkdir -p "${TESTROOT}/graphs_volume"
 hasErrors=0
 passed=0
 failed=0
-for testscript in ${TESTROOT}/tests/${pattern}; do
-  (($jar)) && runTest jar $testscript $dockerImageJar $verbose
-  (($mvn)) && runTest mvn $testscript $dockerImageMvn $verbose
+
+for word in $pattern; do
+  for testscript in ${TESTROOT}/tests/$(echo "$word" | sed s/%/\*/g ); do
+    (($jar)) && runTest jar $testscript $dockerImageJar $verbose
+    (($mvn)) && runTest mvn $testscript $dockerImageMvn $verbose
+  done
 done
 
 (($passed)) && passedText=", ${FG_GRN}${B}${passed} passed${N}"
