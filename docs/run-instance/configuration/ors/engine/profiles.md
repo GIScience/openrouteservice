@@ -58,7 +58,6 @@ Properties beneath `ors.engine.profiles.*.encoder_options`:
 | turn_costs               | boolean | Should turn restrictions be respected.                                                                                                                                           | `turn_costs=true`              |
 | problematic_speed_factor | number  | For wheelchair profile only! Travel speeds on edges classified as problematic for wheelchair users are multiplied by this factor, use to set slow traveling speeds on such ways  | `problematic_speed_factor=0.7` |
 | preferred_speed_factor   | number  | For wheelchair profile only! Travel speeds on edges classified as preferable for wheelchair users are multiplied by this factor, use to set faster traveling speeds on such ways | `preferred_speed_factor=1.2`   |
-use_acceleration
 
 ## preparation
 
