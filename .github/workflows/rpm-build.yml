@@ -28,7 +28,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Checkout
-        uses: actions/checkout@v2.2.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 

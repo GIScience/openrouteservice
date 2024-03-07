@@ -29,7 +29,7 @@ jobs:
       - prepare_environment
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Get and save the UID
@@ -74,7 +74,7 @@ jobs:
       - run: |
           echo "Run docker test for platform ${{ matrix.platform }}"
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Get and save the UID
