@@ -109,7 +109,7 @@ echo "#################"
 set_log_level
 
 # Set the jar file location
-original_jar_file=/ors.jar
+jar_file=/ors.jar
 BUILD_GRAPHS=${BUILD_GRAPHS:-"false"}
 REBUILD_GRAPHS=${REBUILD_GRAPHS:-"false"}
 # If BUILD_GRAPHS is set to true, we need to set ors_rebuild_graphs to true and print an info about migration to REBUILD_GRAPHS
@@ -187,12 +187,8 @@ mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache,config} || warning "Co
 debug "Populated ORS_HOME=${ORS_HOME} with the default folders: files, logs, graphs, elevation_cache"
 
 # Check if the original jar file exists
-if [ ! -f "${original_jar_file}" ]; then
-  critical "Original Jar file not found. This shouldn't happen. Exiting."
-else
-  success "Update ors.jar at ${ORS_HOME}/ors.jar"
-  cp -f "${original_jar_file}" "${ORS_HOME}/ors.jar" || warning "Could not copy ${original_jar_file} to ${ORS_HOME}/ors.jar"
-  jar_file="${ORS_HOME}/ors.jar"
+if [ ! -f "${jar_file}" ]; then
+  critical "Jar file not found. This shouldn't happen. Exiting."
 fi
 
 
