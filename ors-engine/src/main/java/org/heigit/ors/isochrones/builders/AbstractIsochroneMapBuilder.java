@@ -22,7 +22,7 @@ import java.util.List;
 import static org.locationtech.jts.algorithm.hull.ConcaveHull.concaveHullByLength;
 
 public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder {
-    private static final double MAX_SEGMENT_LENGTH = 0.18;// corresponds to 20000 m
+    private static final double MAX_SEGMENT_ANGLE = 0.18;// in degrees, corresponds to 20000 m
     protected static final DistanceCalc dcFast = new DistancePlaneProjection();
     protected GeometryFactory geometryFactory;
     protected RouteSearchContext searchContext;
@@ -170,7 +170,7 @@ public abstract class AbstractIsochroneMapBuilder implements IsochroneMapBuilder
                 lat1 = pl.getLat(i);
                 lon1 = pl.getLon(i);
                 addPoint(points, lon0, lat0);
-                splitLineSegment(lat0, lon0, lat1, lon1, points, minSplitLength, MAX_SEGMENT_LENGTH);
+                splitLineSegment(lat0, lon0, lat1, lon1, points, minSplitLength, MAX_SEGMENT_ANGLE);
                 lon0 = lon1;
                 lat0 = lat1;
             }
