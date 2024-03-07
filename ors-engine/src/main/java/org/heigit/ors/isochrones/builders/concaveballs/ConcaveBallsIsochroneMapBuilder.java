@@ -28,7 +28,6 @@ import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.isochrones.builders.AbstractIsochroneMapBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
-import org.heigit.ors.util.GeomUtility;
 import org.locationtech.jts.geom.*;
 
 import java.util.ArrayList;
@@ -122,11 +121,9 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                 isochronesDifference = metersPerSecond * isochronesDifference;
             }
 
-            float smoothingFactor = parameters.getSmoothingFactor();
-            var smoothingDistance = convertSmoothingFactorToDistance(smoothingFactor, maxRadius);
-            var smoothingDistanceMeter = GeomUtility.degreesToMetres(smoothingDistance);
+            double smoothingDistance = convertSmoothingFactorToDistance(parameters.getSmoothingFactor(), maxRadius);
 
-            GeometryCollection points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85, smoothingDistanceMeter);
+            GeometryCollection points = buildIsochrone(edgeMap, isoPoints, isoValue, prevCost, isochronesDifference, 0.85, smoothingDistance);
 
             if (LOGGER.isDebugEnabled()) {
                 sw.stop();
@@ -196,15 +193,12 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             bufferSize = 0.00018;
         }
 
-        int nodeId;
-        int edgeId;
-
         StopWatch sw = new StopWatch();
 
         for (IntObjectCursor<SPTEntry> entry : map) {
             SPTEntry goalEdge = entry.value;
-            edgeId = goalEdge.originalEdge;
-            nodeId = goalEdge.adjNode;
+            int edgeId = goalEdge.originalEdge;
+            int nodeId = goalEdge.adjNode;
 
             if (edgeId == -1 || nodeId == -1 || nodeId > maxNodeId || edgeId > maxEdgeId)
                 continue;
@@ -237,7 +231,7 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
                     }
                 }
             } else {
-                if ((minCost < isolineCost && maxCost >= isolineCost)) {
+                if (minCost < isolineCost && maxCost >= isolineCost) {
                     if (LOGGER.isDebugEnabled())
                         sw.start();
                     addBorderEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);

@@ -122,7 +122,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(40)).and(lessThan(50))))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(45)).and(lessThan(55))))
                 .body("features[0].properties.center.size()", is(2))
                 .body("bbox", hasItems(closeTo(8.652489f, 0.02f), closeTo(49.40263f, 0.02f), closeTo(8.708881f, 0.02f), closeTo(49.447865f, 0.02f)))
                 .body("features[0].type", is("Feature"))

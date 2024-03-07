@@ -50,7 +50,6 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.util.DebugUtility;
-import org.heigit.ors.util.GeomUtility;
 
 import java.util.*;
 
@@ -67,7 +66,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     private CellStorage cellStorage;
     private IsochroneNodeStorage isochroneNodeStorage;
     private QueryGraph queryGraph;
-    private static final int MAX_EDGE_LENGTH_LIMIT = Integer.MAX_VALUE;
+    private static final int MAX_SEGMENT_LENGTH = Integer.MAX_VALUE;
     private static final double ACTIVE_CELL_APPROXIMATION_FACTOR = 0.99;
     private static final Logger LOGGER = Logger.getLogger(FastIsochroneMapBuilder.class.getName());
 
@@ -79,7 +78,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
     @Override
     public void initialize(RouteSearchContext searchContext) {
         super.initialize(searchContext);
-        defaultSmoothingDistance = 0.010;// Use a default length of ~1000m
         var fastIsochroneFactory = ((ORSGraphHopper) searchContext.getGraphHopper()).getFastIsochroneFactory();
         this.cellStorage = fastIsochroneFactory.getCellStorage();
         this.isochroneNodeStorage = fastIsochroneFactory.getIsochroneNodeStorage();
@@ -200,13 +198,11 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 meanRadius = isoValue;
             }
 
-            float smoothingFactor = parameters.getSmoothingFactor();
-            var smoothingDistance = convertSmoothingFactorToDistance(smoothingFactor, maxRadius);
-            var smoothingDistanceMeter = GeomUtility.degreesToMetres(smoothingDistance);
+            double smoothingDistance = convertSmoothingFactorToDistance(parameters.getSmoothingFactor(), maxRadius);
 
             //Add previous isochrone interval polygon
             addPreviousIsochronePolygon(isochroneGeometries);
-            buildActiveCellsConcaveHulls(fastIsochroneAlgorithm, isochroneGeometries, snappedLoc, snappedPosition, isoValue, smoothingDistance, smoothingDistanceMeter);
+            buildActiveCellsConcaveHulls(fastIsochroneAlgorithm, isochroneGeometries, snappedLoc, snappedPosition, isoValue, smoothingDistance);
 
             if (!isochroneGeometries.isEmpty()) {
                 //Make a union of all now existing polygons to reduce coordinate list
@@ -218,8 +214,8 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 StopWatch finalConcaveHullStopWatch = new StopWatch();
                 if (DebugUtility.isDebug())
                     finalConcaveHullStopWatch.start();
-                isoPoints.addAll(createCoordinateListFromGeometry(preprocessedGeometry, smoothingDistanceMeter));
-                GeometryCollection points = buildIsochrone(new AccessibilityMap(new GHIntObjectHashMap<>(0), snappedPosition), isoPoints, isoValue, smoothingDistanceMeter);
+                isoPoints.addAll(createCoordinateListFromGeometry(preprocessedGeometry, smoothingDistance));
+                GeometryCollection points = buildIsochrone(new AccessibilityMap(new GHIntObjectHashMap<>(0), snappedPosition), isoPoints, isoValue, smoothingDistance);
                 addIsochrone(isochroneMap, points, isoValue, meanRadius, smoothingDistance);
                 if (DebugUtility.isDebug()) {
                     LOGGER.debug("Build final concave hull from " + points.getNumGeometries() + " points: " + finalConcaveHullStopWatch.stop().getSeconds());
@@ -241,7 +237,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         return edgeFilterSequence;
     }
 
-    private void buildActiveCellsConcaveHulls(FastIsochroneAlgorithm fastIsochroneAlgorithm, Set<Geometry> isochroneGeometries, Coordinate snappedLoc, GHPoint3D snappedPosition, double isoValue, double smoothingDistance, double minSplitLength) {
+    private void buildActiveCellsConcaveHulls(FastIsochroneAlgorithm fastIsochroneAlgorithm, Set<Geometry> isochroneGeometries, Coordinate snappedLoc, GHPoint3D snappedPosition, double isoValue, double smoothingDistance) {
         //Build concave hulls of all active cells individually
         StopWatch swActiveCellSeparate = new StopWatch();
         StopWatch swActiveCellBuild = new StopWatch();
@@ -258,8 +254,8 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 if (largestSubCellProcessed && splitMap.size() < getMinCellNodesNumber())
                     continue;
                 largestSubCellProcessed = true;
-                GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), isoValue, minSplitLength);
-                createPolyFromPoints(isochroneGeometries, points, smoothingDistance, minSplitLength);
+                GeometryCollection points = buildIsochrone(new AccessibilityMap(splitMap, snappedPosition), new ArrayList<>(), isoValue, smoothingDistance);
+                createPolyFromPoints(isochroneGeometries, points, smoothingDistance);
             }
             swActiveCellBuild.stop();
         }
@@ -286,7 +282,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                 for (int i = 0; i < ringCoords.size(); i++) {
                     lat1 = ringCoords.get(i).y;
                     lon1 = ringCoords.get(i).x;
-                    splitLineSegment(lat0, lon0, lat1, lon1, contourCoords, minSplitLength / 2, MAX_EDGE_LENGTH_LIMIT);
+                    splitLineSegment(lat0, lon0, lat1, lon1, contourCoords, minSplitLength, MAX_SEGMENT_LENGTH);
                     lon0 = lon1;
                     lat0 = lat1;
                 }
@@ -315,7 +311,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
             isochroneGeometries.add(previousIsochronePolygon);
     }
 
-    private void createPolyFromPoints(Set<Geometry> isochroneGeometries, GeometryCollection points, double smoothingDistance, double minSplitLength) {
+    private void createPolyFromPoints(Set<Geometry> isochroneGeometries, GeometryCollection points, double smoothingDistance) {
         if (points.isEmpty())
             return;
 
@@ -337,8 +333,6 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         int maxNodeId = graphHopperStorage.getNodes() - 1;
         int maxEdgeId = graphHopperStorage.getEdges() - 1;
 
-        SPTEntry goalEdge;
-
         double bufferSize = 0.0018;
 
         boolean useHighDetail = map.size() < 1000;
@@ -348,7 +342,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         }
 
         for (IntObjectCursor<SPTEntry> entry : map) {
-            goalEdge = entry.value;
+            SPTEntry goalEdge = entry.value;
             int edgeId = goalEdge.originalEdge;
             int nodeId = goalEdge.adjNode;
 
@@ -368,7 +362,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
                     addBufferedEdgeGeometry(points, minSplitLength, iter, true, goalEdge, bufferSize);
                 }
             } else {
-                if ((minCost < isolineCost && maxCost >= isolineCost)) {
+                if (minCost < isolineCost && maxCost >= isolineCost) {
                     addBorderEdgeGeometry(points, isolineCost, minSplitLength, iter, maxCost, minCost, bufferSize);
                 }
             }
