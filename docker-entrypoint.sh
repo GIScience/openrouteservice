@@ -156,7 +156,7 @@ info "Use 'CONTAINER_LOG_LEVEL=DEBUG' to see the full list of active environment
 echo "###########################"
 echo "# Container sanity checks #"
 echo "###########################"
-debug "Running container as user $(whoami) with id $(id -u) and group $(id -g)"
+info "Running container as user $(whoami) with id $(id -u) and group $(id -g)"
 if [[ $(id -u) -ne 0 ]] || [[ $(id -g) -ne 0 ]]; then
   # Test if the user tampered with the user and group settings
   warning "Running container as user '$(whoami)' with id $(id -u) and group $(id -g)"
