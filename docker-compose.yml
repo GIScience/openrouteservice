@@ -18,7 +18,7 @@ services:
     # The user command is useful if you want easier bind mount access or better security.
     #user: "1000:1000" # Run "mkdir -p ors && sudo chown -R 1000:1000 ors" before starting the container!
     volumes:  # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
-      - ./ors:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory
+      - ./ors-docker:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory
       #- ./graphs:/home/ors/graphs  # Mount graphs directory individually
       #- ./elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory individually
       #- ./config:/home/ors/config  # Mount configuration directory individually
