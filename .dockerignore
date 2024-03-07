@@ -25,6 +25,7 @@ ors-api/logs
 
 ors-api/target/
 ors-engine/target/
+ors-docker/**
 
 cgiar_provider/
 cgiar_cache/
