@@ -1,4 +1,4 @@
-name: Build and attach JAR and WAR artifacts to release
+name: Build the release artifacts and attach them to the release
 
 on:
   release:
@@ -14,61 +14,32 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          cache: 'maven'
 
       - name: Checkout
-        uses: actions/checkout@v2.2.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Build JAR
-        run: mvn clean package -DskipTests
-
-      - name: Attach JAR to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ors-api/target/ors.jar
-          asset_name: ors.jar
-          asset_content_type: application/java-archive
+        run: |
+          mvn clean package -DskipTests
+          # Copy the JAR to the root directory
+          cp ors-api/target/ors.jar ors.jar
 
       - name: Build WAR
-        run: mvn clean package -DskipTests -PbuildWar
+        run: |
+          mvn clean package -DskipTests -PbuildWar
+          # Copy the WAR to the root directory
+          cp ors-api/target/ors.war ors.war
 
-      - name: Attach WAR to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attach the files to the release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ors-api/target/ors.war
-          asset_name: ors.war
-          asset_content_type: application/java-archive
-
-      - name: Attach ors-config.yml to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./ors-config.yml
-          asset_name: ors-config.yml
-          asset_content_type: application/yaml
-
-      - name: Attach ors-config.env to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./ors-config.env
-          asset_name: ors-config.env
-          asset_content_type: text/plain
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            ./ors.jar
+            ./ors.war
+            ./ors-config.yml
+            ./ors-config.env
