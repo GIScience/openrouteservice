@@ -9,6 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -16,12 +20,6 @@ jobs:
           java-version: '17'
           cache: 'maven'
           cache-dependency-path: ./pom.xml
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Build JAR
         run: |
           mvn clean package -DskipTests
