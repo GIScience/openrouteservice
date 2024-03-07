@@ -180,8 +180,6 @@ mkdir -p "${ORS_HOME}" || critical "Could not create ${ORS_HOME}"
 # Make sure ORS_HOME and ORS_HOME exist and are writable
 check_folder_writability "${ORS_HOME}" || critical "ORS_HOME: ${ORS_HOME} doesn't exist or is not writable."
 success "ORS_HOME: ${ORS_HOME} exists and is writable."
-check_folder_writability "${ORS_HOME}" || critical "ORS_HOME: ${ORS_HOME} doesn't exist or is not writable."
-success "ORS_HOME: ${ORS_HOME} exists and is writable."
 
 mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache,config} || warning "Could not create ${ORS_HOME} and folders"
 mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache,config} || warning "Could not create ${ORS_HOME} and folders"
