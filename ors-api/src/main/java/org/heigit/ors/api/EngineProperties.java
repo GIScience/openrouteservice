@@ -56,7 +56,7 @@ public class EngineProperties {
     }
 
     public void setGraphsRootPath(String graphsRootPath) {
-        this.graphsRootPath = graphsRootPath;
+        this.graphsRootPath = Paths.get(graphsRootPath).toAbsolutePath().toString();
     }
 
     public String getGraphsDataAccess() {
@@ -108,8 +108,6 @@ public class EngineProperties {
                 if (!Helper.isEmpty(rootGraphsPath)) {
                     if (Helper.isEmpty(graphPath))
                         graphPath = Paths.get(rootGraphsPath, profileEntry.getKey()).toString();
-                    else if (!FileUtility.isAbsolutePath(graphPath))
-                        graphPath = Paths.get(rootGraphsPath, graphPath).toString();
                 }
                 convertedProfile.setGraphPath(graphPath);
                 convertedProfile.setEncoderOptions(profile.getEncoderOptionsString());
@@ -198,7 +196,7 @@ public class EngineProperties {
         }
 
         public void setCachePath(String cachePath) {
-            this.cachePath = cachePath;
+            this.cachePath = Paths.get(cachePath).toAbsolutePath().toString();
         }
 
         public String getDataAccess() {
@@ -312,7 +310,7 @@ public class EngineProperties {
         }
 
         public void setGraphPath(String graphPath) {
-            this.graphPath = graphPath;
+            this.graphPath = Paths.get(graphPath).toAbsolutePath().toString();
         }
 
         public Map<String, String> getEncoderOptions() {
@@ -486,7 +484,7 @@ public class EngineProperties {
         }
 
         public void setGtfsFile(String gtfsFile) {
-            this.gtfsFile = gtfsFile;
+            this.gtfsFile = Paths.get(gtfsFile).toAbsolutePath().toString();
         }
 
 //        For later use when refactoring RoutingManagerConfiguration

@@ -17,6 +17,7 @@ import com.typesafe.config.Config;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.locationtech.jts.geom.Envelope;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -124,7 +125,7 @@ public class RouteProfileConfiguration {
     }
 
     public void setGraphPath(String value) {
-        graphPath = value;
+        graphPath = Paths.get(value).toAbsolutePath().toString();
     }
 
     public String getGraphPath() {
@@ -229,7 +230,7 @@ public class RouteProfileConfiguration {
     }
 
     public void setElevationCachePath(String value) {
-        elevationCachePath = value;
+        elevationCachePath = Paths.get(value).toAbsolutePath().toString();
     }
 
     public String getElevationCachePath() {
