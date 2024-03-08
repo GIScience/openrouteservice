@@ -13,7 +13,7 @@ COPY pom.xml /tmp/ors/pom.xml
 COPY ors-report-aggregation /tmp/ors/ors-report-aggregation
 
 # Build the project
-RUN mvn clean package -DskipTests
+RUN mvn -q clean package -DskipTests
 
 # Copy the example config files to the build folder
 COPY ./ors-config.yml /tmp/ors/example-ors-config.yml

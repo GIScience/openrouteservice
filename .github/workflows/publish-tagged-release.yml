@@ -93,12 +93,12 @@ jobs:
           cache-dependency-path: ./pom.xml
       - name: Build JAR
         run: |
-          mvn clean package -DskipTests
+          mvn -q clean package -DskipTests
           # Copy the JAR to the root directory
           cp ors-api/target/ors.jar ors.jar
       - name: Build WAR
         run: |
-          mvn clean package -DskipTests -PbuildWar
+          mvn -q clean package -DskipTests -PbuildWar
           # Copy the WAR to the root directory
           cp ors-api/target/ors.war ors.war
       - name: Get the release tag
