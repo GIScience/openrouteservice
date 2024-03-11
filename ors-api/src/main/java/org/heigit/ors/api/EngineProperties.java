@@ -372,6 +372,7 @@ public class EngineProperties {
         }
 
         public void setExtStorages(Map<String, Map<String, String>> extStorages) {
+            // Todo write individual storage config classes
             this.extStorages = extStorages;
         }
 
