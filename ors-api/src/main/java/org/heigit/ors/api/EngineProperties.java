@@ -48,7 +48,7 @@ public class EngineProperties {
     }
 
     public void setSourceFile(String sourceFile) {
-        this.sourceFile = sourceFile;
+        this.sourceFile = Paths.get(sourceFile).toAbsolutePath().toString();
     }
 
     public String getGraphsRootPath() {
