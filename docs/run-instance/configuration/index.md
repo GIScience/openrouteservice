@@ -14,8 +14,6 @@ There are two (optional) ways for you to provide openrouteservice the location o
       ```
 If both are specified, the program argument wins. 
 
-[//]: # (TODO: test this)
-
 If no config location is specified, openrouteservice will look for a configuration file `ors-config.yml` in the locations below in that order.
 The first existing file is used as configuration.
 
@@ -24,8 +22,6 @@ The first existing file is used as configuration.
 | `./ors-config.yml`                          | Current working directory                   |
 | `~/.config/openrouteservice/ors-config.yml` | User configuration directory                |
 | `/etc/openrouteservice/ors-config.yml`      | Global configuration directory              |
-
-[//]: # (TODO: test this)
 
 ::: tip
 At program start openrouteservice reports which configuration file was loaded.

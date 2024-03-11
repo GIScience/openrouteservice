@@ -1,6 +1,8 @@
 # Building from Source
 
-If you need to customize your openrouteservice instance even further than what is possible by [configuration](/run-instance/configuration/index.md), or want to start [contributing](/contributing/index.md) to the openrouteservice project, the following section will give you starting points.
+If you need to customize your openrouteservice instance even further than what is possible by [configuration](/run-instance/configuration/index.md), you might need to make changes to the code. 
+If you implement features that might be useful for others as well, consider [contributing](/contributing/index.md)! The following instructions are useful to get you set up to start modifying the code.
+
 
 ## Prerequisites
 
@@ -22,36 +24,6 @@ This creates a directory named `openrouteservice` containing the downloaded sour
 
 If you do not have git installed on your system, you can also download the packed (`.zip` and `.tar.gz`) source code file from the "Assets" section of the desired release from our GitHub [releases](https://github.com/GIScience/openrouteservice/releases) page. Unpack the archive and run the following instructions within the directory you unpacked the source code into.
 
-## Build JAR 
-
-When your source code is set up, you can generate a runnable openrouteservice fat JAR:
-
-```shell
-mvn clean package -PbuildFatJar
-```
-
-Because JAR is the default, you can also run the command without `-PbuildFatJar`:
-
-```shell
-mvn clean package
-```
-
-You will find the fat JAR file in `ors-api/target/ors.jar`
-
-The chapter on [JAR](running-jar.md) artifact explains how to configure and run the JAR file.
-
-## Build WAR
-
-When your source code is set up, you can generate a deployable openrouteservice WAR:
-
-```shell
-mvn clean package -PbuildWar
-```
-
-You will find the WAR file in `ors-api/target/ors.war`
-
-The chapter on [WAR](running-war.md) artifact explains how to configure and deploy the WAR file.
-
 ## Run source code directly
 
 You should be able to run the application directly with  
@@ -65,11 +37,6 @@ and a small OSM data set from Heidelberg.
 
 In the [Configuration](configuration/index.md) section you find the options how you can use customised configurations.  
 
-## For developers
-
-If you need to customize openrouteservice more than what is possible by [Configuration](configuration/index.md) you might need to make changes to the code. If you implement features that might be useful for others as well, consider [contributing](/contributing/index.md)! 
-
-The following instructions are useful to get you set up to start modifying the code.
 
 ### Running from within IDE
 
@@ -216,3 +183,81 @@ If you need to make adjustments to our forked and edited [GraphHopper repository
 4. Test your new functionality and run all tests after rebasing your feature branch with the latest `main` branch. Adjust tests if necessary.
 
 5. If successful, create a PR for both [openrouteservice](https://github.com/GIScience/openrouteservice/pulls) and [GraphHopper](https://github.com/GIScience/graphhopper/pulls) against `master` and `ors_4.0` branches, respectively.
+
+
+## Build runnable artifacts
+
+### Build JAR
+
+When your source code is set up, you can generate a runnable openrouteservice fat JAR:
+
+```shell
+mvn clean package -PbuildFatJar
+```
+
+Because JAR is the default, you can also run the command without `-PbuildFatJar`:
+
+```shell
+mvn clean package
+```
+
+You will find the fat JAR file in `ors-api/target/ors.jar`
+
+The chapter on [JAR](running-jar.md) artifact explains how to configure and run the JAR file.
+
+
+### Build WAR
+
+When your source code is set up, you can generate a deployable openrouteservice WAR:
+
+```shell
+mvn clean package -PbuildWar
+```
+
+You will find the WAR file in `ors-api/target/ors.war`
+
+The chapter on [WAR](running-war.md) artifact explains how to configure and deploy the WAR file.
+
+
+### Build docker image
+
+::: tip
+This chapter only describes how to _build_ a docker container locally.
+Before you _run_ your custom docker image the first time, 
+please read [running prebuilt images](running-with-docker.md#running-prebuilt-images) 
+to learn the preconditions and how the dockerized openrouteservice is operated.
+:::
+
+To build a local openrouteservice docker image based on the local (modified) code, 
+it is convenient to use the docker compose file in the project directory. 
+When you are in the project directory and run the first time 
+
+```shell
+docker compose up 
+```
+
+your local docker image `local/openrouteservice:latest` will be built. If it already exists, the existing image will be used.
+
+To rebuild the image with docker compose, you can execute 
+
+```shell
+docker compose build 
+```
+
+or, of course, you can also use docker directly to build your image:
+
+```shell
+docker build . -t local/openrouteservice
+```
+
+When building the docker image locally, under the hood `mvn clean package` will be executed, 
+which compiles you local source code to a fat jar that will be placed in your docker image.
+
+If you don't want to build locally but instead run the nightly image,
+modify the `docker-compose.yml`:
+
+```yaml
+image: local/openrouteservice:latest // [!code --]
+image: openrouteservice/openrouteservice:nightly // [!code ++]
+```
+
