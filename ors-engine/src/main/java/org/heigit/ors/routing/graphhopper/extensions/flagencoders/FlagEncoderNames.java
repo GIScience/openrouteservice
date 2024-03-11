@@ -17,6 +17,7 @@ public class FlagEncoderNames {
     public static final String ROADBIKE_ORS = "roadbike" + ORS_SUFFIX;
     public static final String MTB_ORS = "mtb" + ORS_SUFFIX;
     public static final String BIKE_ELECTRO = "electrobike";
+    public static final String BIKE_CARGO = "cargobike";
 
     public static final String PEDESTRIAN_ORS = "pedestrian" + ORS_SUFFIX;
     public static final String HIKING_ORS = "hiking" + ORS_SUFFIX;

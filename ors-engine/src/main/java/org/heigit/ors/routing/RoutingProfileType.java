@@ -33,6 +33,7 @@ public class RoutingProfileType {
     public static final int CYCLING_MOUNTAIN = 11;
     public static final int CYCLING_ROAD = 12;
     public static final int CYCLING_ELECTRIC = 17;
+    public static final int CYCLING_CARGO = 18;
 
     // WALKING STUFF
     public static final int FOOT_WALKING = 20;
@@ -98,6 +99,7 @@ public class RoutingProfileType {
                 || routePref == CYCLING_MOUNTAIN
                 || routePref == CYCLING_ROAD
                 || routePref == CYCLING_ELECTRIC
+                || routePref == CYCLING_CARGO
                 || routePref == GH_BIKE
                 || routePref == GH_BIKE2
                 || routePref == GH_BIKE_MTB
@@ -119,6 +121,7 @@ public class RoutingProfileType {
             case CYCLING_MOUNTAIN -> "cycling-mountain";
             case CYCLING_ROAD -> "cycling-road";
             case CYCLING_ELECTRIC -> "cycling-electric";
+            case CYCLING_CARGO -> "cycling-cargo"; 
             case FOOT_WALKING -> "foot-walking";
             case FOOT_HIKING -> "foot-hiking";
             case FOOT_JOGGING -> "foot-jogging";
@@ -148,6 +151,7 @@ public class RoutingProfileType {
             case "cycling-mountain" -> CYCLING_MOUNTAIN;
             case "cycling-road" -> CYCLING_ROAD;
             case "cycling-electric" -> CYCLING_ELECTRIC;
+            case "cycling-cargo" -> CYCLING_CARGO;
             case "foot-walking" -> FOOT_WALKING;
             case "foot-hiking" -> FOOT_HIKING;
             case "foot-jogging" -> FOOT_JOGGING;
@@ -191,6 +195,7 @@ public class RoutingProfileType {
             case RoutingProfileType.GH_FOOT -> FlagEncoderNames.GH_FOOT;
             case RoutingProfileType.GH_HIKE -> FlagEncoderNames.GH_HIKE;
             case RoutingProfileType.CYCLING_ELECTRIC -> FlagEncoderNames.BIKE_ELECTRO;
+            case RoutingProfileType.CYCLING_CARGO-> FlagEncoderNames.BIKE_CARGO; 
             default -> FlagEncoderNames.UNKNOWN;
         };
     }
@@ -227,6 +232,7 @@ public class RoutingProfileType {
             case FlagEncoderNames.GH_FOOT -> RoutingProfileType.FOOT_WALKING;
             case FlagEncoderNames.GH_HIKE -> RoutingProfileType.FOOT_HIKING;
             case FlagEncoderNames.BIKE_ELECTRO -> RoutingProfileType.CYCLING_ELECTRIC;
+            case FlagEncoderNames.BIKE_CARGO -> RoutingProfileType.CYCLING_CARGO;
             default -> RoutingProfileType.UNKNOWN;
         };
     }

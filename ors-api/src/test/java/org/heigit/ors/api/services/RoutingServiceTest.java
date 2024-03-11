@@ -190,6 +190,7 @@ class RoutingServiceTest {
         assertEquals(BordersExtractor.Avoid.CONTROLLED, routingRequest.getSearchParameters().getAvoidBorders());
         assertArrayEquals(new int[]{115}, routingRequest.getSearchParameters().getAvoidCountries());
         assertEquals(AvoidFeatureFlags.getFromString("fords"), routingRequest.getSearchParameters().getAvoidFeatureTypes());
+        assertTrue(AvoidFeatureFlags.isValid(18,32));
 
         checkPolygon(routingRequest.getSearchParameters().getAvoidAreas(), geoJsonPolygon);
 
@@ -235,6 +236,24 @@ class RoutingServiceTest {
 
         WheelchairParameters params = (WheelchairParameters) routingRequest.getSearchParameters().getProfileParameters();
         assertEquals(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD.toString()), params.getSmoothnessType());
+        assertEquals(3.0f, params.getMaximumIncline(), 0);
+        assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
+        assertEquals(2.0f, params.getMinimumWidth(), 0);
+        assertEquals(WheelchairTypesEncoder.getSurfaceType("asphalt"), params.getSurfaceType());
+        assertTrue(params.isRequireSurfaceQualityKnown());
+        assertTrue(params.allowUnsuitable());
+    }
+
+    @Test
+    void TestCargoBikeParameters() throws Exception {
+        request.setProfile(APIEnums.Profile.CYCLING_CARGO);
+
+        request.getRouteOptions().getProfileParams().setRestrictions(vehicleParams);
+
+        RoutingRequest routingRequest = routingService.convertRouteRequest(request);
+
+        WheelchairParameters params = (WheelchairParameters) routingRequest.getSearchParameters().getProfileParameters();
+        assertEquals(WheelchairTypesEncoder.getSmoothnessType(APIEnums.SmoothnessTypes.SMOOTHNESS_GOOD), params.getSmoothnessType());
         assertEquals(3.0f, params.getMaximumIncline(), 0);
         assertEquals(1.0f, params.getMaximumSlopedKerb(), 0);
         assertEquals(2.0f, params.getMinimumWidth(), 0);

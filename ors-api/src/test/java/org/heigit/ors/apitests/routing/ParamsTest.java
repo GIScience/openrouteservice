@@ -781,6 +781,7 @@ class ParamsTest extends ServiceTest {
         JSONObject options = new JSONObject();
         JSONArray avoids = new JSONArray();
         avoids.put("steps");
+        avoids.put("junction");
         avoids.put("fords");
         options.put("avoid_features", avoids);
 
