@@ -1,8 +1,10 @@
 package org.heigit.ors.config;
 
+import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.util.StringUtility;
 
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -80,12 +82,16 @@ public class EngineConfig {
         }
 
         public EngineConfigBuilder setSourceFile(String sourceFile) {
-            this.sourceFile = sourceFile;
+            if (StringUtils.isNotBlank(sourceFile))
+                this.sourceFile = Paths.get(sourceFile).toAbsolutePath().toString();
+            else this.sourceFile = sourceFile;
             return this;
         }
 
         public EngineConfigBuilder setGraphsRootPath(String graphsRootPath) {
-            this.graphsRootPath = graphsRootPath;
+            if (StringUtils.isNotBlank(graphsRootPath))
+                this.graphsRootPath = Paths.get(graphsRootPath).toAbsolutePath().toString();
+            else this.graphsRootPath = graphsRootPath;
             return this;
         }
 
