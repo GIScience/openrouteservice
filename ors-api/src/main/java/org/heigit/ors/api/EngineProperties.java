@@ -373,6 +373,51 @@ public class EngineProperties {
 
         public void setExtStorages(Map<String, Map<String, String>> extStorages) {
             // Todo write individual storage config classes
+            // Iterate over each storage in the extStorages and overwrite all paths variables with absolute paths#
+            for (Map.Entry<String, Map<String, String>> storage : extStorages.entrySet()) {
+                if (storage.getKey().equals("HereTraffic")) {
+                    // Replace streets, ref_pattern pattern_15min and log_location with absolute paths
+                    String hereTrafficPath = storage.getValue().get("streets");
+                    if (hereTrafficPath != null) {
+                        storage.getValue().put("streets", Paths.get(hereTrafficPath).toAbsolutePath().toString());
+                    }
+                    String hereTrafficRefPattern = storage.getValue().get("ref_pattern");
+                    if (hereTrafficRefPattern != null) {
+                        storage.getValue().put("ref_pattern", Paths.get(hereTrafficRefPattern).toAbsolutePath().toString());
+                    }
+                    String hereTrafficPattern15min = storage.getValue().get("pattern_15min");
+                    if (hereTrafficPattern15min != null) {
+                        storage.getValue().put("pattern_15min", Paths.get(hereTrafficPattern15min).toAbsolutePath().toString());
+                    }
+                    String hereTrafficLogLocation = storage.getValue().get("log_location");
+                    if (hereTrafficLogLocation != null) {
+                        storage.getValue().put("log_location", Paths.get(hereTrafficLogLocation).toAbsolutePath().toString());
+                    }
+                }
+                if (storage.getKey().equals("Borders")) {
+                    // Replace boundaries, ids and openborders with absolute paths
+                    String bordersBoundaries = storage.getValue().get("boundaries");
+                    if (bordersBoundaries != null) {
+                        storage.getValue().put("boundaries", Paths.get(bordersBoundaries).toAbsolutePath().toString());
+                    }
+                    String bordersIds = storage.getValue().get("ids");
+                    if (bordersIds != null) {
+                        storage.getValue().put("ids", Paths.get(bordersIds).toAbsolutePath().toString());
+                    }
+                    String openBorders = storage.getValue().get("openborders");
+                    if (openBorders != null) {
+                        storage.getValue().put("openborders", Paths.get(openBorders).toAbsolutePath().toString());
+                    }
+                }
+
+                if (storage.getKey().equals("GreenIndex") || storage.getKey().equals("NoiseIndex") || storage.getKey().equals("csv") || storage.getKey().equals("ShadowIndex")) {
+                    // replace filepath
+                    String indexFilePath = storage.getValue().get("filepath");
+                    if (indexFilePath != null) {
+                        storage.getValue().put("filepath", Paths.get(indexFilePath).toAbsolutePath().toString());
+                    }
+                }
+            }
             this.extStorages = extStorages;
         }
 
