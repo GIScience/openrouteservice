@@ -128,7 +128,7 @@ When you have started the container as described, a directory `ors-docker` with 
 ### Avoid files owned by root
 
 With the default `docker-compose.yml`, the generated files are owned by root. 
-If you don't have root permissions (sudo) you e.g. cannot edit or add files in `ors-docker/config`. 
+If you don't have root permissions (sudo) or you just don't want root owned files in your bind-mounts from the container, e.g. cannot edit or add files in `ors-docker/config`, the container provides the possibility to be run with UID 1000 and GID 1000. To be able to access these files, you need to have either the UID 1000 or be part of the group 1000 on your docker host machine.
 Of course, you can configure openrouteservice with the help of the `docker-compose.yml` (see [here](#set-openrouteservice-properties-in-docker-composeyml)) or a referenced environment file (see [there](#set-openrouteservice-properties-in-an-environment-file)), 
 which needs not to be located in the config folder because the openrouteservice running inside docker don't need to 'see' the environment file. 
 
