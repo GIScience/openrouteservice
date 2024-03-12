@@ -146,7 +146,7 @@ To avoid root ownership of the generated folders and files,
     mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/files ors-docker/graphs ors-docker/logs
     ```
     If the folders already exist (owned by root) and you don't want to delete them, you can change their ownership (again root permissions required).
-3. When you now run `docker compose up -d`, the files and folders should be editable for your user. 
+3. When you now run `docker compose down && docker compose up -d`, the files and folders should be editable for your user. 
 
 As you can see in the `docker-compose.yml` snippet above, this works for the user with user-id 1000 and group-id 1000, which is the default for the first normal user on a linux host. 
 But if you have different user- and group-id, the formula does not work for you. 
@@ -337,6 +337,14 @@ The following example snippet of the modified `docker-compose.yml` shows a setup
       ors.engine.profiles.wheelchair.enabled: true
 ```
 
+::: warning Hint
+Remember that the container has to be created from new to make changes in `docker-compose.yml` take effect!
+`docker compose stop && docker compose start` or `docker compose restart` is not enough, you have to execute 
+```shell
+docker compose down && docker compose up
+```
+:::
+
 The syntax/name of the configuration properties is not yaml but instead the syntax from java properties files.
 But it is just a different syntax. The properties are the same as described in [Configuration > File Formats](/run-instance/configuration/index.md#file-formats).
 
@@ -369,3 +377,136 @@ If you want to use this configuration option and you start creating your environ
 you can use the file `ors-docker/config/example-ors-config.env` as template. 
 Copy it next to your `docker-compose.yml` or rename it.
 You should never edit the file `ors-docker/config/example-ors-config.env` because it will be replaced by openrouteservice in some cases!
+
+
+## Troubleshooting
+
+If openrouteservice cannot be started or does not operate as expected, most important is to check the logs.
+There are two ways to inspect the logs, with some differences: `docker compose logs` and `ors-docker/logs/ors.log`
+
+| `docker compose logs`                            | `ors-docker/logs/ors.log`                                                                       | 
+|--------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| logs from docker entrypoint and openrouteservice | logs from openrouteservice only                                                                 |
+| logs from the current container only             | logs from previous containers that were removed with e.g. `docker compose down` still available |
+
+We will focus here on the logs from docker compose because here is additional information available. 
+To see the container's entrypoint logs, change into your directory with the `docker-compose.yml` and run 
+```shell
+docker compose logs
+```
+
+The first logged lines are written by the entrypoint script inside the container, 
+which is executed on each container start, before the internal openrouteservice is started.
+Here you can gain an insight into the internal workings of the container:
+
+```shell
+ors-app  | 2024-03-12T08:13:19.118290567Z #################
+ors-app  | 2024-03-12T08:13:19.118317827Z # Container ENV #
+ors-app  | 2024-03-12T08:13:19.118320018Z #################
+ors-app  | 2024-03-12T08:13:19.118321664Z ✓ CONTAINER_LOG_LEVEL: INFO. Set CONTAINER_LOG_LEVEL=DEBUG for more details.
+ors-app  | 2024-03-12T08:13:19.125163248Z ⓘ Any config file settings can be overwritten by environment variables.
+ors-app  | 2024-03-12T08:13:19.125181048Z ⓘ Use 'CONTAINER_LOG_LEVEL=DEBUG' to see the full list of active environment variables for this container.
+ors-app  | 2024-03-12T08:13:19.125193428Z ###########################
+ors-app  | 2024-03-12T08:13:19.125195433Z # Container sanity checks #
+ors-app  | 2024-03-12T08:13:19.125208729Z ###########################
+ors-app  | 2024-03-12T08:13:19.127963029Z ⓘ Running container as user root with id 0 and group 0
+ors-app  | 2024-03-12T08:13:19.130316750Z ✓ ORS_HOME: /home/ors exists and is writable.
+ors-app  | 2024-03-12T08:13:19.134116420Z ✓ The file /home/ors/config/example-ors-config.env is up to date
+ors-app  | 2024-03-12T08:13:19.135634341Z ✓ The file /home/ors/config/example-ors-config.yml is up to date
+ors-app  | 2024-03-12T08:13:19.135753416Z ✓ Using existing /home/ors/config/ors-config.yml
+ors-app  | 2024-03-12T08:13:19.142101283Z ⓘ Default to graphs folder: /home/ors/graphs
+ors-app  | 2024-03-12T08:13:19.142118351Z ⓘ Default to example osm source file: "/home/ors/files/example-heidelberg.osm.gz"
+ors-app  | 2024-03-12T08:13:19.142119978Z ⓘ Any ENV variables will have precedence over configuration variables from config files.
+ors-app  | 2024-03-12T08:13:19.142151919Z ✓ All checks passed. For details set CONTAINER_LOG_LEVEL=DEBUG.
+ors-app  | 2024-03-12T08:13:19.142159578Z #####################################
+ors-app  | 2024-03-12T08:13:19.142160979Z # Container file system preparation #
+ors-app  | 2024-03-12T08:13:19.142162089Z #####################################
+ors-app  | 2024-03-12T08:13:19.199741022Z ✓ The file /home/ors/files/example-heidelberg.osm.gz is up to date
+ors-app  | 2024-03-12T08:13:19.199762468Z ✓ Container file system preparation complete. For details set CONTAINER_LOG_LEVEL=DEBUG.
+ors-app  | 2024-03-12T08:13:19.199764187Z #######################################
+ors-app  | 2024-03-12T08:13:19.199765671Z # Prepare CATALINA_OPTS and JAVA_OPTS #
+ors-app  | 2024-03-12T08:13:19.199766895Z #######################################
+ors-app  | 2024-03-12T08:13:19.200084573Z ✓ CATALINA_OPTS and JAVA_OPTS ready. For details set CONTAINER_LOG_LEVEL=DEBUG.
+ors-app  | 2024-03-12T08:13:19.200120626Z #####################
+ors-app  | 2024-03-12T08:13:19.200127702Z # ORS startup phase #
+ors-app  | 2024-03-12T08:13:19.200129261Z #####################
+ors-app  | 2024-03-12T08:13:19.200130392Z ✓ 🙭 Ready to start the ORS application 🙭
+```
+
+As explained in the log, by setting `CONTAINER_LOG_LEVEL=DEBUG` in the `docker-compose.yml` you get more information.
+This setting is only relevant for the entrypoint logging, it does not change the log level of openrouteservice.
+How you can achieve this is documented in the [logging documentation](/run-instance/configuration/spring/logging.md).
+
+::: warning Hint
+Remember that the container has to be created from new to make changes in `docker-compose.yml` take effect!
+`docker compose stop && docker compose start` or `docker compose restart` is not enough, you have to execute
+```shell
+docker compose down && docker compose up -d
+```
+:::
+
+::: details Follow logs
+If you want to watch the logs while openrouteservice is running, you can also 
+```shell
+docker compose logs -tf  
+```
+to follow the log. Press Ctrl+C to stop tailing the log, the container will not be stopped.   
+:::
+
+Important information, that you will find in the entrypoint section of the docker log:
+
+* The user that is used inside the container, with uid and gid
+* All environment variables inside the container (only with `CONTAINER_LOG_LEVEL=DEBUG`)
+* Information about resolved paths inside the container
+* Information about generation or replacement of example files 
+* Errors concerning the setup
+
+After the entrypoint section, there are the logs from openrouteservice itself.
+The openrouteservice startup log looks similar to this:
+```shell
+ors-app  | ▢ Startup command: java -Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g  -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost  -jar /ors.jar
+ors-app  | 
+ors-app  |   .   ____          _            __ _ _
+ors-app  |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+ors-app  | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ors-app  |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+ors-app  |   '  |____| .__|_| |_|_| |_\__, | / / / /
+ors-app  |  =========|_|==============|___/=/_/_/_/
+ors-app  |  :: Spring Boot ::                (v3.1.6)
+ors-app  | 
+ors-app  | 2024-03-12 10:54:45 INFO                                                  main [ o.h.o.a.Application                      ]   Starting Application v8.0-SNAPSHOT using Java 21.0.2 with PID 1 (/ors.jar started by root in /home/ors)
+ors-app  | 2024-03-12 10:54:45 INFO                                                  main [ o.h.o.a.Application                      ]   The following 1 profile is active: "default"
+ors-app  | 2024-03-12 10:54:45 INFO                                                  main [ o.h.o.a.ORSEnvironmentPostProcessor      ]   
+ors-app  | 2024-03-12 10:54:45 INFO                                                  main [ o.h.o.a.ORSEnvironmentPostProcessor      ]   Configuration lookup started.
+ors-app  | 2024-03-12 10:54:45 INFO                                                  main [ o.h.o.a.ORSEnvironmentPostProcessor      ]   Configuration file set by environment variable.
+ors-app  | 2024-03-12 10:54:45 INFO                                                  main [ o.h.o.a.ORSEnvironmentPostProcessor      ]   Loaded file '/home/ors/config/ors-config.yml'
+ors-app  | 2024-03-12 10:54:45 INFO                                                  main [ o.h.o.a.ORSEnvironmentPostProcessor      ]   Configuration lookup finished.
+ors-app  | 2024-03-12 10:54:45 INFO                                                  main [ o.h.o.a.ORSEnvironmentPostProcessor      ]   
+ors-app  | 2024-03-12 10:54:46 INFO                                              ORS-Init [ o.h.o.a.s.l.ORSInitContextListener       ]   Initializing ORS...
+ors-app  | 2024-03-12 10:54:46 INFO                                              ORS-Init [ o.h.o.r.RoutingProfileManager            ]   Total - 1024 MB, Free - 965.93 MB, Max: 2 GB, Used - 58.07 MB
+ors-app  | 2024-03-12 10:54:46 INFO                                              ORS-Init [ o.h.o.r.RoutingProfileManager            ]   ====> Initializing profiles from '/home/ors/files/example-heidelberg.osm.gz' (1 threads) ...
+ors-app  | 2024-03-12 10:54:46 INFO                                              ORS-Init [ o.h.o.r.RoutingProfileManager            ]   2 profile configurations submitted as tasks.
+ors-app  | 2024-03-12 10:54:46 INFO                                     ORS-pl-wheelchair [ o.h.o.r.RoutingProfile                   ]   [1] Profiles: 'wheelchair', location: './graphs/wheelchair'.
+ors-app  | 2024-03-12 10:54:47 INFO                                     ORS-pl-wheelchair [ o.h.o.r.g.e.ORSGraphHopper               ]   version v4.9.1|2024-01-17T09:08:46Z (7,20,5,4,5,7)
+ors-app  | 2024-03-12 10:54:47 INFO                                     ORS-pl-wheelchair [ o.h.o.r.g.e.ORSGraphHopper               ]   graph wheelchair|RAM_STORE|3D|turn_cost|,,,,, details:edges:0(0MB), nodes:0(0MB), name:(0MB), geo:0(0MB), bounds:1.7976931348623157E308,-1.7976931348623157E308,1.7976931348623157E308,-1.7976931348623157E308,1.7976931348623157E308,-1.7976931348623157E308
+ors-app  | 2024-03-12 10:54:47 INFO                                     ORS-pl-wheelchair [ o.h.o.r.g.e.ORSGraphHopper               ]   No custom areas are used, custom_areas.directory not given
+ors-app  | 2024-03-12 10:54:47 INFO                                     ORS-pl-wheelchair [ o.h.o.r.g.e.ORSGraphHopper               ]   start creating graph from /home/ors/files/example-heidelberg.osm.gz
+ors-app  | 2024-03-12 10:54:47 INFO                                     ORS-pl-wheelchair [ o.h.o.r.g.e.ORSGraphHopper               ]   using wheelchair|RAM_STORE|3D|turn_cost|,,,,, memory:totalMB:1024, usedMB:260
+ors-app  | 2024-03-12 10:54:47 INFO                                                  main [ o.h.o.a.Application                      ]   Started Application in 2.442 seconds (process running for 3.066)
+ors-app  | 2024-03-12 10:54:47 INFO                                                  main [ o.h.o.a.Application                      ]   openrouteservice {"build_date":"2024-03-08T15:01:47Z","version":"8.0"}
+```
+
+Most important information here:
+
+* The version of openrouteservice and java: `Starting Application v8.0-SNAPSHOT using Java 21.0.2` (you do not have to worry about the Java version in the Docker setup)
+* The evaluated configuration file: `Loaded file '/home/ors/config/ors-config.yml'` (this is the path inside the container)
+* Memory usage: `Total - 1024 MB, Free - 965.93 MB, Max: 2 GB, Used - 58.07 MB`
+* The evaluated OSM file: `====> Initializing profiles from '/home/ors/files/example-heidelberg.osm.gz'` (also internal path)
+* Potential errors with your setup
+
+And after the startup section you will find information about errors at run time.
+
+::: tip Hint
+The output `The following 1 profile is active: "default"` is from spring,
+it refers to the active **spring profile** and has nothing to do with routing profiles.
+:::
