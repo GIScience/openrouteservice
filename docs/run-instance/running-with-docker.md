@@ -66,8 +66,7 @@ Here is a basic example:
 ```shell
 # create directories for volumes to mount as local user
 mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/graphs ors-docker/files ors-docker/logs 
-docker run -dt -u "${UID}:${GID}" \
-  --name ors-app \
+docker run -dt --name ors-app \
   -p 8080:8082 \
   -v $PWD/ors-docker/config:/home/ors/config \
   -v $PWD/ors-docker/elevation_cache:/home/ors/elevation_cache \
