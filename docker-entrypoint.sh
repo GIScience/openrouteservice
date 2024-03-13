@@ -231,20 +231,20 @@ else
 fi
 
 # Get relevant configuration information from the .yml or .json file
-if [[ -z "${ors_engine_graphs_root_path}" ]] && [[ "${config_location}" = *.yml ]]; then
-  ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.engine.graphs_root_path')
+if [[ -z "${ors_engine_graphs_root_path}" ]]; then
+  if [[ "${config_location}" = *.yml ]]; then
+    ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.engine.graphs_root_path')
+  elif [[ "${config_location}" = *.json ]]; then
+    ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.services.routing.profiles.default_params.graphs_root_path')
+  fi
 fi
 
-if [[ -z "${ors_engine_graphs_root_path}" ]] && [[ "${config_location}" = *.json ]]; then
-  ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.services.routing.profiles.default_params.graphs_root_path')
-fi
-
-if [[ -z "${ors_engine_source_file}" ]] && [[ "${ors_config_location}" = *.yml ]]; then
-  ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.source_file')
-fi
-
-if [[ -z "${ors_engine_source_file}" ]] && [[ "${ors_config_location}" = *.json ]]; then
-  ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.services.routing.sources[0]')
+if [[ -z "${ors_engine_source_file}" ]]; then
+  if [[ "${ors_config_location}" = *.yml ]]; then
+    ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.source_file')
+  elif [[ "${ors_config_location}" = *.json ]]; then
+    ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.services.routing.sources[0]')
+  fi
 fi
 
 if [ -n "${ors_engine_graphs_root_path}" ]; then
