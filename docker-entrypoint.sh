@@ -130,10 +130,7 @@ ors_engine_graphs_root_path=$(env | grep "^ors\.engine\.graphs_root_path=" | awk
 ors_engine_elevation_cache_path=$(env | grep "^ors\.engine\.elevation\.cache_path=" | awk -F '=' '{print $2}')
 # get ors.engine.source_file
 ors_engine_source_file=$(env | grep "^ors\.engine\.source_file=" | awk -F '=' '{print $2}')
-# get ors_config_location
-ors_config_location=${ORS_CONFIG_LOCATION:-""}
-# Unset the ORS_CONFIG_LOCATION to not interfere with the spring-boot application
-unset ORS_CONFIG_LOCATION
+
 # Parse the ors.* properties
 env | while read -r line; do
   debug "${line}"
@@ -212,20 +209,24 @@ update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml
 # The config situation is difficult due to the recent ors versions.
 # To ensure a smooth transition, we need to check if the user is using a .json file or a .yml file.
 # If neither is set, we need to print a migration info and default to the example-ors-config.env file.
+# get ors_config_location
+ors_config_location=${ORS_CONFIG_LOCATION:-""}
+# Unset the ORS_CONFIG_LOCATION to not interfere with the spring-boot application
+unset ORS_CONFIG_LOCATION
 # Check if ors_config_location is a .json file and exists
 if [[ "${ors_config_location}" = *.yml ]] && [[ -f "${ors_config_location}" ]]; then
-  success "Using yml config: ${ors_config_location}"
+  success "Using yml config from ENV: ${ors_config_location}"
 elif [[ "${ors_config_location}" = *.json ]] && [[ -f "${ors_config_location}" ]]; then
-  success "Using json config: ${ors_config_location}"
+  success "Using json config from ENV: ${ors_config_location}"
   # Print the above warning message in individual warning calls
   warning ".json configurations are deprecated and will be removed in the future."
   print_migration_info="true"
 elif [[ -f ${ORS_HOME}/config/ors-config.yml ]]; then
-    success "Using existing ${ORS_HOME}/config/ors-config.yml"
+    success "Using the existing ors-config.yml from: ${ORS_HOME}/config/ors-config.yml"
     ors_config_location="${ORS_HOME}/config/ors-config.yml"
 else
   warning "No config file found. Copying /example-ors-config.yml to ${ORS_HOME}/config/ors-config.yml"
-  warning "To adjust your config edit ors-config.yml in your 'config' docker volume or use environment variable configuration."
+  warning "To adjust your config edit ors-config.yml in your 'config' docker volume or use the environment variable configuration."
   update_file "${ORS_HOME}/config/ors-config.yml" "/example-ors-config.yml"
   ors_config_location="${ORS_HOME}/config/ors-config.yml"
 fi
