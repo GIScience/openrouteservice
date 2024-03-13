@@ -65,7 +65,7 @@ services:
     # Be careful with long graph builds, as the healthcheck will fail and show 'unhealthy' during this time.
     # This is especially useful if you run your ORS container in a production environment.
     #healthcheck:
-    #  test: curl --fail http://localhost:8082/ors/v2/health || exit 1
+    #  test: wget --no-verbose --tries=1 --spider http://localhost:8082/ors/v2/health || exit 1
     #  start_period: 1m
     #  interval: 10s
     #  timeout: 2s
