@@ -182,9 +182,8 @@ fi
 
 success "ORS_HOME: ${ORS_HOME} exists and is writable."
 
-mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache,config} || warning "Could not create ${ORS_HOME} and folders"
-mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache,config} || warning "Could not create ${ORS_HOME} and folders"
-debug "Populated ORS_HOME=${ORS_HOME} with the default folders: files, logs, graphs, elevation_cache"
+mkdir -p "${ORS_HOME}"/{files,logs,graphs,elevation_cache,config} || warning "Could not create the default folders in ${ORS_HOME}: files, logs, graphs, elevation_cache, config"
+debug "Populated ORS_HOME=${ORS_HOME} with the default folders: files, logs, graphs, elevation_cache, config"
 
 # Check if the original jar file exists
 if [ ! -f "${jar_file}" ]; then
