@@ -35,7 +35,7 @@ ARG ORS_HOME=/home/ors
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 
 # Setup the target system with the right user and folders.
-RUN apk update && apk add --no-cache bash yq jq && \
+RUN apk update && apk add --no-cache bash yq jq curl && \
     addgroup ors -g ${GID} && \
     mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache  && \
     adduser -D -h ${ORS_HOME} -u ${UID} --system -G ors ors  && \
