@@ -123,14 +123,6 @@ else
   ors_rebuild_graphs="false"
 fi
 
-
-# get ors.engine.graphs_root_path=. Dot notations in bash are not allowed, so we need to use awk to parse it.
-ors_engine_graphs_root_path=$(env | grep "^ors\.engine\.graphs_root_path=" | awk -F '=' '{print $2}')
-# get ors.engine.elevation.cache_path
-ors_engine_elevation_cache_path=$(env | grep "^ors\.engine\.elevation\.cache_path=" | awk -F '=' '{print $2}')
-# get ors.engine.source_file
-ors_engine_source_file=$(env | grep "^ors\.engine\.source_file=" | awk -F '=' '{print $2}')
-
 # Parse the ors.* properties
 env | while read -r line; do
   debug "${line}"
@@ -187,6 +179,12 @@ if [ ! -f "${jar_file}" ]; then
   critical "Jar file not found. This shouldn't happen. Exiting."
 fi
 
+# get ors.engine.graphs_root_path=. Dot notations in bash are not allowed, so we need to use awk to parse it.
+ors_engine_graphs_root_path=$(env | grep "^ors\.engine\.graphs_root_path=" | awk -F '=' '{print $2}')
+# get ors.engine.elevation.cache_path
+ors_engine_elevation_cache_path=$(env | grep "^ors\.engine\.elevation\.cache_path=" | awk -F '=' '{print $2}')
+# get ors.engine.source_file
+ors_engine_source_file=$(env | grep "^ors\.engine\.source_file=" | awk -F '=' '{print $2}')
 
 # Check that ors_engine_graphs_root_path is not empty and not set to /
 if [ -n "${ors_engine_graphs_root_path}" ] && [ "${ors_engine_graphs_root_path}" = "/" ]; then
