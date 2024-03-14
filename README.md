@@ -62,7 +62,7 @@ sed -i='' "s/openrouteservice\/openrouteservice:latest/openrouteservice\/openrou
 docker compose up -d
 ```
 
-For more details, check the [docker installation guide](https://giscience.github.io/openrouteservice/run-instance/installation/running-with-docker).
+For more details, check the [docker installation guide](https://giscience.github.io/openrouteservice/run-instance/running-with-docker).
 
 For instructions on how to [build from source](https://giscience.github.io/openrouteservice/run-instance/installation/building-from-source) or [configure](https://giscience.github.io/openrouteservice/openrouteservice/run-instance/configuration/), visit our [Installation Instructions](https://giscience.github.io/openrouteservice/openrouteservice/run-instance/installation/).
 
@@ -74,7 +74,7 @@ Openrouteservice offers a set of endpoints for different spatial purposes. By de
 - `http://localhost:8080/ors/v2/isochrones`
 - `http://localhost:8080/ors/v2/matrix`
 
-You can find more information in the [Installation Instructions](https://giscience.github.io/openrouteservice/run-instance/installation/running-with-docker).
+You can find more information in the [Installation Instructions](https://giscience.github.io/openrouteservice/run-instance/running-with-docker).
 
 ## API Documentation
 

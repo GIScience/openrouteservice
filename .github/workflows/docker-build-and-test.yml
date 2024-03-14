@@ -38,7 +38,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         id: buildx
         with:
           install: true
@@ -95,7 +95,7 @@ jobs:
         with:
           platforms: ${{ matrix.platform }}
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         id: buildx
         with:
           install: true
@@ -116,16 +116,27 @@ jobs:
           cache-from: type=gha
       - name: Start container from previously build image and wait for successful checks
         run: |
-          mkdir -p $(pwd)/graphs $(pwd)/conf
-          chown -R $UID $(pwd)/graphs $(pwd)/conf
-          docker run -it --user $UID -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          mkdir -p $(pwd)/graphs $(pwd)/config
+          chown -R $UID $(pwd)/graphs $(pwd)/config
+          # Replace image: in the docker-compose.yml with the test image. The value of image: can vary.
+          sed -i "s|image:.*|image: ${{ needs.prepare_environment.outputs.test_image_name }}|" docker-compose.yml
+          # Start the first build with the docker-compose setup
+          docker compose up --build -d
+          # Wait for all logs to come in
+          sleep 5
+          docker compose logs ors-app
+           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
+          # Stop the compose setup and continue with docker run
+          docker compose down
+          # Start the container with the test image and the raw docker run command
+          docker run -it --user $UID -d -p 8080:8082 -v $(pwd)/graphs:/home/ors/graphs -v $(pwd)/config:/home/ors/config --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
           # Check for health to turn 200 after the graphs are build and spring-boot completely started
           ./.github/utils/url_check.sh 127.0.0.1 8080 /ors/v2/health 200 ${{ env.HEALTH_WAIT_TIME }}
           # Check for correct preflight settings to avoid CORS issues with ORIGIN wildcard from the example config
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 10
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.com" 200 10
           echo "Adjust the config file and set ORIGIN to https://example.org"
-          sudo yq '.ors.cors.allowed_origins = "https://example.org, https://test.com, http://localhost:8080"' -i ./conf/ors-config.yml
+          sudo yq '.ors.cors.allowed_origins = "https://example.org, https://test.com, http://localhost:8080"' -i $(pwd)/config/ors-config.yml
           # Restart the container to apply the config changes
           docker restart ors-instance
           # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
@@ -135,8 +146,8 @@ jobs:
           echo "Recreate the container to test if the graph can be properly read again"
           docker stop ors-instance
           docker container prune -f 
-          chown -R $UID $(pwd)/graphs $(pwd)/conf
-          docker run -it --user $UID -d -p 8080:8080 -v $(pwd)/graphs:/home/ors/ors-core/data/graphs -v $(pwd)/conf:/home/ors/ors-conf --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
+          chown -R $UID $(pwd)/graphs $(pwd)/config
+          docker run -it --user $UID -d -p 8080:8082 -v $(pwd)/graphs:/home/ors/graphs -v $(pwd)/config:/home/ors/config -e ors.cors.allowed_origins=https://example.org --name ors-instance ${{ needs.prepare_environment.outputs.test_image_name }}
           # Request preflight with https://example.com and https://example.org to see if it gets applied correctly
           ./.github/utils/cors_check.sh 127.0.0.1 8080 /ors/v2/isochrones/geojson "https://example.org" 200 50
           # It should fail with http code 403 for https://example.com since the Origin is not covered.

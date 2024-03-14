@@ -1,19 +1,24 @@
 # Running with Docker
 
-If Docker is available on your system, openrouteservice can be run within a container using prebuilt images from [dockerhub](https://hub.docker.com/r/openrouteservice/openrouteservice) or by building your own image from our source files.
+If Docker is available on your system, openrouteservice can be run within a container using prebuilt images
+from [dockerhub](https://hub.docker.com/r/openrouteservice/openrouteservice) or by building your own image from the
+source files.
 
 ## Prerequisites
 
-* [Docker](https://docs.docker.com/get-docker/) should be installed on your system.
+- [Docker](https://docs.docker.com/get-docker/)
+- an OSM extract, e.g. from [Geofabrik](http://download.geofabrik.de) or for small areas directly export
+from [osm.org](https://www.openstreetmap.org/export#map=15/49.4197/8.6893).
 
-## Running prebuilt images
+## Docker compose
 
 There are multiple ways with Docker to quickly have a running instance.
 
+### Prebuilt image
 1. Recommended: Run latest release version image using `docker compose`
 
     ```shell
-    # For latest release build
+    # For latest build
     wget https://raw.githubusercontent.com/GIScience/openrouteservice/main/docker-compose.yml
     docker compose up -d
     ```
@@ -31,9 +36,11 @@ There are multiple ways with Docker to quickly have a running instance.
     export ORS_TAG=nightly && docker compose up -d
     ```
 
-## Build image
+## Build local image
 
-To build your own image, you need to download the source code by following the instructions in chapter [Building from Source](/run-instance/building-from-source.md#download-source-code). You do not have to have Java or Maven installed on your system.  
+To build your own image, you need to download the source code by following the instructions in chapter
+[Building from Source](/run-instance/building-from-source.md#download-source-code).
+You do not have to have Java or Maven installed on your system.  
 
 After downloading the source, you can build your Docker image by running the following command in the source directory: 
 
@@ -50,7 +57,7 @@ export ORS_TAG=local && docker compose up -d
 
 ::: details Alternative: modify docker compose to build image 
 
-After downloading the code, open the file `docker-compose.yml`, remove line 8 and uncomment lines 11-14.
+After downloading the code, open the file `docker-compose.yml`, and apply the following changes:
 
 ```yaml
 version: '2.4'
@@ -58,10 +65,10 @@ services:
   ors-app:
     container_name: ors-app
     ports:
-      - "8080:8080"
+      - "8080:8082"
       - "9001:9001"
     image: openrouteservice/openrouteservice:nightly // [!code --]
-    # For versioned images see https://giscience.github.io/openrouteservice/run-instance/installation/running-with-docker
+    # For versioned images see https://giscience.github.io/openrouteservice/run-instance/running-with-docker
     user: "${UID:-0}:${GID:-0}"
 #    build: // [!code --]
 #      context: ./ // [!code --]
@@ -100,14 +107,14 @@ command. To use a different version of openrouteservice, change the tag (after t
 mkdir -p docker/conf docker/elevation_cache docker/graphs docker/logs/ors docker/logs/tomcat
 docker run -dt -u "${UID}:${GID}" \
   --name ors-app \
-  -p 8080:8080 \
+  -p 8080:8082 \
   -v $PWD/docker/graphs:/home/ors/ors-core/data/graphs \
   -v $PWD/docker/elevation_cache:/home/ors/ors-core/data/elevation_cache \
   -v $PWD/docker/logs/ors:/home/ors/ors-core/logs/ors \
   -v $PWD/docker/logs/tomcat:/home/ors/tomcat/logs \
   -v $PWD/docker/conf:/home/ors/ors-conf \
   -v $PWD/docker/data:/home/ors/ors-core/data \
-  #-e "BUILD_GRAPHS=True" \
+  #-e "REBUILD_GRAPHS=True" \
   -e "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g" \
   -e "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost" \
   openrouteservice/openrouteservice:latest 
@@ -155,7 +162,7 @@ the use of old format JSON files placed at `./docker/conf/ors-config.json`. All 
 will override settings in the proper YAML format.
 
 If you are making changes to anything relating to the OSM data or the settings that change how graphs are built, you
-need to delete the folders in `graphs` or set the environment variable `BUILD_GRAPHS=True` (see comment in Dockerfile or
+need to delete the folders in `graphs` or set the environment variable `REBUILD_GRAPHS=True` (see comment in Dockerfile or
 examples above). This makes it so that the graphs are built again with the new data/settings.
 
 ### Different OSM file
@@ -164,7 +171,7 @@ To change the OSM data that is used, you can either overwrite the `docker/data/o
 mount of `/home/ors/ors-core/data` to a directory containing a file `osm_file.pbf`, or volume mount something
 like  `/YOUR/PATH/TO/ANOTHER/OSM_FILE.pbf:/home/ors/ors-core/data/osm_file.pbf`.
 
-Make sure to set the environment variable `BUILD_GRAPHS=True` or empty the `docker/graphs/` directory before restarting
+Make sure to set the environment variable `REBUILD_GRAPHS=True` or empty the `docker/graphs/` directory before restarting
 the container.
 
 If you are building the Docker image locally, you can also point the build argument `OSM_FILE` to your desired OSM file
@@ -212,7 +219,7 @@ examples.
 
 ### Environment variables
 
-- `BUILD_GRAPHS`: Forces ORS to rebuild the routing graph(s) when set to `True`. Useful when another PBF is specified in
+- `REBUILD_GRAPHS`: Forces ORS to rebuild the routing graph(s) when set to `True`. Useful when another PBF is specified in
   the Docker volume mapping to `/home/ors/ors-core/data/osm_file.pbf`
 - `JAVA_OPTS`: Custom Java runtime options, such as `-Xms` or `-Xmx`
 - `CATALINA_OPTS`: Custom Catalina options
@@ -243,5 +250,5 @@ container. The new graphs will be reloaded into memory (the amount of time neede
 graphs and the type of hard drive) and then ready to use for routing. The downtime from reloading already built graphs
 is normally far less than the time needed to build the graphs. A thing to note though is that you should ensure that the
 config files and the amount of RAM allocated (as described earlier) is the same on both the builder and the request
-server else the newly built graphs may not load. **Also, ensure that `BUILD_GRAPHS` parameter in the `docker-compose`
+server else the newly built graphs may not load. **Also, ensure that `REBUILD_GRAPHS` parameter in the `docker-compose`
 file used by the request serving container is set to false else it will try to build the graphs for itself!**

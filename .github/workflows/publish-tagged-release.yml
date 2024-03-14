@@ -20,14 +20,9 @@ jobs:
         id: buildx
         with:
           install: true
-      - name: 'Get Previous tag'
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-      - name: 'Get next minor version'
-        id: semvers
-        uses: "WyriHaximus/github-action-next-semvers@v1"
-        with:
-          version: ${{ steps.previoustag.outputs.tag }}
+      - name: Get the release tag
+        id: get_tag
+        run: echo ::set-output name=tag::${{ github.event.release.tag_name }}
       - name: Prepare
         id: prepare
         run: |
@@ -42,13 +37,11 @@ jobs:
 
           DOCKER_IMAGE=openrouteservice/openrouteservice
           CURRENT_VERSIONS=$(test_version)
-          LATEST_IMAGE_VERSION=${{ steps.previoustag.outputs.tag }}
-          HIGHEST_IMAGE_VERSION=${{ steps.semvers.outputs.v_mayor }}
+          LATEST_IMAGE_VERSION=${{ steps.get_tag.outputs.tag }}
           DOCKER_PLATFORMS=linux/amd64,linux/arm64
           BUILD_VERSION=true
 
           TAGS_LATEST_VERSION="${DOCKER_IMAGE}:${LATEST_IMAGE_VERSION}"
-          TAGS_HIGHEST_VERSION="${DOCKER_IMAGE}:${HIGHEST_IMAGE_VERSION}"
           echo "HIGHEST MAYOR VERSION: $TAGS_HIGHEST_VERSION"
           TAGS_LATEST="${DOCKER_IMAGE}:latest"
 
@@ -60,7 +53,7 @@ jobs:
 
           echo ::set-output name=build_version::${BUILD_VERSION}
           echo ::set-output name=build_platforms::${DOCKER_PLATFORMS}
-            echo ::set-output name=buildx_tags_version::${TAGS_LATEST_VERSION}
+          echo ::set-output name=buildx_tags_version::${TAGS_LATEST_VERSION}
           echo ::set-output name=buildx_tags_latest::${TAGS_LATEST}
       - name: Login to DockerHub
         if: ${{ steps.prepare.outputs.build_version == 'true' }}
@@ -72,7 +65,7 @@ jobs:
         if: ${{ steps.prepare.outputs.build_version == 'true' }}
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.previoustag.outputs.tag }}
+          ref: ${{ steps.get_tag.outputs.tag }}
       - name: Build and publish version if needed
         if: ${{ steps.prepare.outputs.build_version == 'true' }}
         uses: docker/build-push-action@v4
@@ -83,3 +76,47 @@ jobs:
           platforms: ${{ steps.prepare.outputs.build_platforms }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+  build_and_publish_release_artifacts:
+    runs-on: ubuntu-latest
+    needs: build_and_publish_docker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+          cache-dependency-path: ./pom.xml
+      - name: Build JAR
+        run: |
+          mvn -q clean package -DskipTests
+          # Copy the JAR to the root directory
+          cp ors-api/target/ors.jar ors.jar
+      - name: Build WAR
+        run: |
+          mvn -q clean package -DskipTests -PbuildWar
+          # Copy the WAR to the root directory
+          cp ors-api/target/ors.war ors.war
+      - name: Get the release tag
+        id: get_tag
+        run: echo ::set-output name=tag::${{ github.event.release.tag_name }}
+      - name: Rewrite the docker-compose.yml image tag to the release tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          # Replace the image part
+          sed -i "s/local\/openrouteservice:latest/openrouteservice\/openrouteservice:${{ steps.get_tag.outputs.tag }}/g" docker-compose.yml
+      - name: Attach the files to the release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            ./ors.jar
+            ./ors.war
+            ./ors-config.yml
+            ./ors-config.env
+            ./docker-compose.yml

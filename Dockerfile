@@ -1,98 +1,61 @@
-# Image is reused in the workflow builds for main and the latest version
-FROM maven:3.8-openjdk-17-slim as base
-
+# Image is reused in the workflow builds for master and the latest version
+FROM docker.io/maven:3.8.7-openjdk-18-slim AS build
 ARG DEBIAN_FRONTEND=noninteractive
 
-
 # hadolint ignore=DL3002
 USER root
 
-# Install dependencies and locales
-# hadolint ignore=DL3008
-RUN apt-get update -qq && \
-    apt-get install -qq -y --no-install-recommends nano moreutils jq wget && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+WORKDIR /tmp/ors
 
-FROM base as tomcat
-ARG TOMCAT_MAJOR=10
-ARG TOMCAT_VERSION=10.1.11
+COPY ors-api /tmp/ors/ors-api
+COPY ors-engine /tmp/ors/ors-engine
+COPY pom.xml /tmp/ors/pom.xml
+COPY ors-report-aggregation /tmp/ors/ors-report-aggregation
 
-# hadolint ignore=DL3002
-USER root
+# Build the project
+RUN mvn -q clean package -DskipTests
 
-WORKDIR /tmp
-# Prepare tomcat
-RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-${TOMCAT_MAJOR}/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz -O /tmp/tomcat.tar.gz && \
-    tar xf tomcat.tar.gz && \
-    mv /tmp/apache-tomcat-${TOMCAT_VERSION}/ /tmp/tomcat && \
-    echo "org.apache.catalina.level = WARNING" >> /tmp/tomcat/conf/logging.properties
-
-FROM base as build
-
-# hadolint ignore=DL3002
-USER root
-
-ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
-ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
-
-WORKDIR /ors-core
-
-COPY ors-api /ors-core/ors-api
-COPY ors-engine /ors-core/ors-engine
-COPY pom.xml /ors-core/pom.xml
-COPY ors-report-aggregation /ors-core/ors-report-aggregation
-
-# Build the project and ignore the report aggregation module as not needed for the API build war
-RUN mvn package -DskipTests -P buildWar
+# Copy the example config files to the build folder
+COPY ./ors-config.yml /tmp/ors/example-ors-config.yml
+COPY ./ors-config.env /tmp/ors/example-ors-config.env
+# Rewrite the example config to use the right files in the container
+RUN sed -i "/ors.engine.source_file=.*/s/.*/ors.engine.source_file=\/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.env" && \
+        sed -i "/    source_file:.*/s/.*/    source_file: \/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.yml"
 
 # build final image, just copying stuff inside
-FROM amazoncorretto:17.0.7-alpine3.17 as publish
+FROM docker.io/amazoncorretto:21.0.2-alpine3.19 AS publish
 
 # Build ARGS
 ARG UID=1000
 ARG GID=1000
 ARG OSM_FILE=./ors-api/src/test/files/heidelberg.osm.gz
-ARG BASE_FOLDER=/home/ors
-
-# Runtime ENVs for tomcat
-ENV CATALINA_BASE=${BASE_FOLDER}/tomcat
-ENV CATALINA_HOME=${BASE_FOLDER}/tomcat
-ENV CATALINA_PID=${BASE_FOLDER}/tomcat/temp/tomcat.pid
+ARG ORS_HOME=/home/ors
 
 # Set the default language
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 
 # Setup the target system with the right user and folders.
-RUN apk add --no-cache bash=~'5' openssl=~'3' && \
-    addgroup -g ${GID} ors && \
-    adduser -D -h ${BASE_FOLDER} -u ${UID} -G ors ors &&  \
-    mkdir -p ${BASE_FOLDER}/ors-core/logs ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/ors-core/data ${BASE_FOLDER}/tomcat/logs &&  \
-    chown -R ors ${BASE_FOLDER}/tomcat ${BASE_FOLDER}/ors-core/logs ${BASE_FOLDER}/ors-conf ${BASE_FOLDER}/ors-core/data ${BASE_FOLDER}/tomcat/logs
-
-WORKDIR ${BASE_FOLDER}
+RUN apk update && apk add --no-cache bash yq jq && \
+    addgroup ors -g ${GID} && \
+    mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache  && \
+    adduser -D -h ${ORS_HOME} -u ${UID} --system -G ors ors  && \
+    chown ors:ors ${ORS_HOME} \
+    # Give all permissions to the user
+    && chmod -R 777 ${ORS_HOME}
 
 # Copy over the needed bits and pieces from the other stages.
-COPY --chown=ors:ors --from=tomcat /tmp/tomcat ${BASE_FOLDER}/tomcat
-COPY --chown=ors:ors --from=build /ors-core/ors-api/target/ors.war ${BASE_FOLDER}/tomcat/webapps/ors.war
-COPY --chown=ors:ors ./docker-entrypoint.sh ${BASE_FOLDER}/docker-entrypoint.sh
-COPY --chown=ors:ors ./ors-config.yml ${BASE_FOLDER}/tmp/ors-config.yml
-COPY --chown=ors:ors ./$OSM_FILE ${BASE_FOLDER}/tmp/osm_file.pbf
+COPY --chown=ors:ors --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
+COPY --chown=ors:ors --from=build /tmp/ors/example-ors-config.yml /example-ors-config.yml
+COPY --chown=ors:ors --from=build /tmp/ors/example-ors-config.env /example-ors-config.env
+COPY --chown=ors:ors ./$OSM_FILE /heidelberg.osm.gz
+COPY --chown=ors:ors ./docker-entrypoint.sh /entrypoint.sh
 
-USER ${UID}:${GID}
-
-# Rewrite the '    source_file:  ors-api/src/test/files/heidelberg.osm.gz' line in the config file to '    source_file:  ${BASE_FOLDER}/ors-core/data/osm_file.pbf'
-RUN sed -i "s|    source_file:  ors-api/src/test/files/heidelberg.osm.gz|    source_file:  ${BASE_FOLDER}/ors-core/data/osm_file.pbf|g" ${BASE_FOLDER}/tmp/ors-config.yml
-# Rewrite the '#    graphs_root_path: ./graphs' line in the config file to '    graphs_root_path: ${BASE_FOLDER}/ors-core/data/graphs'
-RUN sed -i "s|#    graphs_root_path: ./graphs|    graphs_root_path: ${BASE_FOLDER}/ors-core/data/graphs|g" ${BASE_FOLDER}/tmp/ors-config.yml
-# Rewrite the '#    elevation:' line in the config file to '    elevation:'
-RUN sed -i "s|#    elevation:|    elevation:|g" ${BASE_FOLDER}/tmp/ors-config.yml
-# Rewrite the '#      cache_path: ./elevation_cache' line in the config file to '      cache_path: ${BASE_FOLDER}/ors-core/data/elevation_cache'
-RUN sed -i "s|#      cache_path: ./elevation_cache|      cache_path: ${BASE_FOLDER}/ors-core/data/elevation_cache|g" ${BASE_FOLDER}/tmp/ors-config.yml
 
 ENV BUILD_GRAPHS="False"
-ENV ORS_CONFIG_LOCATION=ors-conf/ors-config.yml
+ENV REBUILD_GRAPHS="False"
+# Set the ARG to an ENV. Else it will be lost.
+ENV ORS_HOME=${ORS_HOME}
 
+WORKDIR ${ORS_HOME}
 # Start the container
-ENTRYPOINT ["/home/ors/docker-entrypoint.sh"]
-CMD ["/home/ors"]
+ENTRYPOINT ["/entrypoint.sh"]
