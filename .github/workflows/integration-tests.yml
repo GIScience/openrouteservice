@@ -62,7 +62,7 @@ jobs:
     strategy:
       matrix:
         runtype: [ '-m' , '-j' ]
-        testgroup: [ build-all-graphs*, arg-overrides*, check*, lookup-yml*, missing-config*, specify-yml* ]
+        testgroup: [ build-all-graphs*, arg-overrides*, check*, config*, lookup*, missing*, specify* ]
     steps:
       - uses: actions/checkout@v4
         with:
