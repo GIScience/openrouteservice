@@ -295,7 +295,7 @@ openrouteservice will then re-build all activated graphs on the next startup.
 ### Use (customized) config file
 
 As described in [Configuration > File location](/run-instance/configuration/index.md#file-location), 
-when openrouteservice is startet, it looks for a file named `ors-config.yml` in different directories and uses the file, if it exists.
+when openrouteservice is started, it looks for a file named `ors-config.yml` in different directories and uses the file, if it exists.
 Alternatively, an individually named or located configuration file (YAML or the deprecated JSON config) can be used by setting the environment variable `ORS_CONFIG_LOCATION`.
 
 In the Docker version, there is an initialization script that is executed on each container start, 
