@@ -83,7 +83,7 @@ docker run -dt --name ors-app \
 
 ## What you get
 
-After some seconds, your openrouteservice should be running:
+After some time, your openrouteservice should be running:
 ```shell
 curl http://localhost:8080/ors/v2/health
 {"status":"ready"}
