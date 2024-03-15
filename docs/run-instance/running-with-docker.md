@@ -398,8 +398,8 @@ To see the container's entrypoint logs, change into your directory with the `doc
 docker compose logs
 ```
 
-The first logged lines are written by the entrypoint script inside the container, 
-which is executed on each container start, before the internal openrouteservice is started.
+The first logged lines are written by the entrypoint script inside the container
+which is executed on each container start _before_ the internal openrouteservice is started.
 Here you can gain an insight into the internal workings of the container:
 
 ```shell
