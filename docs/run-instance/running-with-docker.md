@@ -223,7 +223,7 @@ With these changes, a `source_file` configured in `ors-config.yml`:
      source_file: ./files/andorra-latest.osm.pbf
 ```
 
-References now the file `/data/osm/andorra-latest.osm.pbf` on the host file system.
+now references the file `/data/osm/andorra-latest.osm.pbf` on the host file system.
 
 ::: warning Note
 When individual host directories are mounted to the internal sub directories of `/home/ors`,
