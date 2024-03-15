@@ -16,7 +16,7 @@ services:
     image: local/openrouteservice:latest
     # Advanced option! If you different ids to 0:0 and 1000:1000, you have to rebuild the container with the build args UID,GID.
     # The user command is useful if you want easier bind mount access or better security.
-    #user: "1000:1000" # Run "mkdir -p ors && sudo chown -R 1000:1000 ors" before starting the container!
+    #user: "1000:1000" # Run "mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/files ors-docker/graphs ors-docker/logs && sudo chown -R 1000:1000 ors" before starting the container!
     volumes:  # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
       - ./ors-docker:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory
       #- ./graphs:/home/ors/graphs  # Mount graphs directory individually
