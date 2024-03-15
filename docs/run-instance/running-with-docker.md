@@ -278,7 +278,7 @@ When using the openrouteservice docker image, you have several configuration opt
 
 * You can use a configuration file as you would do when running openrouteservice as JAR or WAR. If you are the owner of the files in `ors-docker/config`, this is straight forward (see [above](#avoid-files-owned-by-root)).
 * You can set configuration properties as environment variables in the `docker-compose.yml` 
-* or in an environment file. This is good practice for docker containers in general and the preferred way to configure dockered openrouteservice when the files are oned by root.  
+* or you can set configuration properties in an environment file. This is good practice for docker containers in general and the preferred way to configure dockered openrouteservice when the files are owned by root.  
 
 The following sections explain the options in more detail.
 For detailed information on the settings you can make, see the chapter
