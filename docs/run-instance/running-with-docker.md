@@ -217,7 +217,7 @@ the paths on the host system are defined before the colon, the (unchanged) direc
       - /data/osm:/home/ors/files // [!code ++]
 ```
 
-The source_file configured in `ors-config.yml`:
+With these changes, a `source_file` configured in `ors-config.yml`:
 
 ```yaml
      source_file: ./files/andorra-latest.osm.pbf
