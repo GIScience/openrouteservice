@@ -299,7 +299,7 @@ when openrouteservice is started, it looks for a file named `ors-config.yml` in 
 Alternatively, an individually named or located configuration file (YAML or the deprecated JSON config) can be used by setting the environment variable `ORS_CONFIG_LOCATION`.
 
 In the Docker version, there is an initialization script that is executed on each container start, 
-which is doing slightly different automagic:
+which is using a slightly different approach:
 
 * It checks, if `ORS_CONFIG_LOCATION` is set and if the referenced file (YAML or the deprecated JSON config) can be found (the path is evaluated from inside the container).
   If this is the case, this config will be used.
