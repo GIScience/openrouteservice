@@ -43,6 +43,12 @@ export default defineConfig({
             {text: 'API Playground', link: 'https://openrouteservice.org/dev/#/api-docs'},
             {text: 'Forum', link: 'https://ask.openrouteservice.org'},
         ],
+	// undocumented options for NotFound-Page
+	notFound: {
+		title: 'MAYBE YOU CLICKED AN OLD LINK?',
+		quote: 'We recently reworked most of our documentation. You probably ended up here by clicking an old link somewhere, e.g. in the forum. Let us know how you got here and we\'ll fix it. Click the link below and check "Getting Started" - this will help you figure out where to find what you came for.',
+		linkText: 'Documentation Home',
+	},
         sidebar: [
             {
                 text: 'Home', link: '/',
