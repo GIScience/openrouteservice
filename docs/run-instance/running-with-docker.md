@@ -334,10 +334,10 @@ The following example snippet of the modified `docker-compose.yml` shows a setup
       ors.engine.source_file: /home/ors/files/andorra-latest.osm.pbf
       ors.engine.profiles.car.enabled: false
       ors.engine.profiles.wheelchair.enabled: true
-        # Here you can also set more advanced spring and tomcat properties, such as proxy settings.
-        # See the spring documentation for a complete list of options: https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html
-        #server.tomcat.remote-ip-header=x-your-remote-ip-header
-        #server.tomcat.protocol-header=x-your-protocol-header
+      # Here you can also set more advanced spring and tomcat properties, such as proxy settings.
+      # See the spring documentation for a complete list of options: https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html
+      #server.tomcat.remote-ip-header=x-your-remote-ip-header
+      #server.tomcat.protocol-header=x-your-protocol-header
 ```
 
 ::: warning Hint
