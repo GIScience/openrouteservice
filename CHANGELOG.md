@@ -78,6 +78,7 @@ RELEASING:
 - separate docker image build from test workflow. Build nightly on schedule if there are changes to main ([#1689](https://github.com/GIScience/openrouteservice/pull/1689))
 - refactor isochrone builder classes ([#1699](https://github.com/GIScience/openrouteservice/pull/1699))
 - unify edge splitting across isochrone builders, and split edges based on coordinates rather than their actual distance in meters ([#1708](https://github.com/GIScience/openrouteservice/pull/1708))
+- add missing encoder_options to the documentation [#1752](https://github.com/GIScience/openrouteservice/pull/1752)
 
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
