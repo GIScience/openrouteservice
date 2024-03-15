@@ -301,7 +301,7 @@ Alternatively, an individually named or located configuration file (YAML or the 
 In the Docker version, there is an initialization script that is executed on each container start, 
 which is using a slightly different approach:
 
-* It checks, if `ORS_CONFIG_LOCATION` is set and if the referenced file (YAML or the deprecated JSON config) can be found (the path is evaluated from inside the container).
+* It checks if `ORS_CONFIG_LOCATION` is set and if the referenced file (YAML or the deprecated JSON config) can be found (the path is evaluated from [inside the container](#directories-inside-the-container-and-on-the-host)).
   If this is the case, this config will be used.
 * Otherwise, the file `/home/ors/config/ors-config.yml` or `/home/ors/config/ors-config.json` is searched (path inside container). If it is there, it will be loaded.  
   If not, it will be added as copy of `/home/ors/config/example-ors-config.yml` **and also be loaded!**  
