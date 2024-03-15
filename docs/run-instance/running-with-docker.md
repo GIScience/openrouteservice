@@ -232,7 +232,7 @@ no directory can be mounted directly to the internal `/home/ors`!
 
 ## Use Volumes
 
-Instead using bind mounts, you can use volumes. Uncomment **and complete** the volume definition in the `docker-compose.yml` (see [docker compose documentation](https://docs.docker.com/compose/compose-file/07-volumes/)):
+Instead of using bind mounts, you can use volumes. Uncomment **and complete** the volume definition in the `docker-compose.yml` (see [docker compose documentation](https://docs.docker.com/compose/compose-file/07-volumes/)):
 
 ```yaml
 # ----------------- Docker Volumes configuration ------------------- #
