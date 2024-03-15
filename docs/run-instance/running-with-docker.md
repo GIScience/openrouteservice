@@ -392,7 +392,7 @@ There are two ways to inspect the logs, with some differences: `docker compose l
 | logs from docker entrypoint and openrouteservice | logs from openrouteservice only                                                                 |
 | logs from the current container only             | logs from previous containers that were removed with e.g. `docker compose down` still available |
 
-We will focus here on the logs from docker compose because here is additional information available. 
+This section will focus on the logs from docker because they contain additional information.
 To see the container's entrypoint logs, change into your directory with the `docker-compose.yml` and run 
 ```shell
 docker compose logs
