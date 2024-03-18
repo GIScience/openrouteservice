@@ -341,7 +341,7 @@ The following example snippet of the modified `docker-compose.yml` shows a setup
 ```
 
 ::: warning Hint
-Remember that the container has to be created from new to make changes in `docker-compose.yml` take effect!
+Remember that the container has to be newly created for the changes in `docker-compose.yml` to take effect!
 `docker compose stop && docker compose start` or `docker compose restart` is not enough, you have to execute 
 ```shell
 docker compose down && docker compose up
