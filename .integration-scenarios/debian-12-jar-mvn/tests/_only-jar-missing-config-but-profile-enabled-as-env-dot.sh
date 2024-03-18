@@ -11,6 +11,7 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
   --env ors.engine.profiles.hgv.enabled=true \
+  --env ors.engine.source_file=ors-api/src/test/files/heidelberg.osm.gz \
   "local/${IMAGE}:latest" &
 
 awaitOrsReady 60 "${HOST_PORT}"
