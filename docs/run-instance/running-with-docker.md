@@ -353,7 +353,7 @@ But it is just a different syntax. The properties are the same as described in [
 
 ### Set openrouteservice properties in an Environment file
 
-Configuring properties in `docker-compose.yml` is a good way to set a hand full of properties.
+Configuring properties in `docker-compose.yml` is a good way to set a handful of properties.
 If you want to customize a big number of properties or if you maybe have different configurations in use,
 it is more convenient to save the properties to a separate file.
 
