@@ -384,7 +384,7 @@ You should never edit the file `ors-docker/config/example-ors-config.env` becaus
 
 ## Troubleshooting
 
-If openrouteservice cannot be started or does not operate as expected, most important is to check the logs.
+If openrouteservice cannot be started or does not operate as expected, it is most important to check the logs.
 There are two ways to inspect the logs, with some differences: `docker compose logs` and `ors-docker/logs/ors.log`
 
 | `docker compose logs`                            | `ors-docker/logs/ors.log`                                                                       | 

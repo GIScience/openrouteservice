@@ -45,7 +45,7 @@ Go to the [API Reference](https://giscience.github.io/openrouteservice/api-refer
 
 ## Installation
 
-You can easily run openrouteservice yourself! We suggest using docker to install and launch openrouteservice backend. In short, a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) will get everything done for you. 
+You can easily run openrouteservice yourself! We suggest using docker to install and launch openrouteservice. In short, a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) will get everything done for you. 
 
 Only use nightly (main branch) if you know what you do. We recommend running docker compose with the latest release version:
 
