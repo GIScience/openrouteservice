@@ -377,7 +377,7 @@ The env file has to be referenced in the `docker-compose.yml`:
 ```
 
 If you want to use this configuration option and you start creating your environment file, 
-you can use the file `ors-docker/config/example-ors-config.env` as template. 
+you can use the file `ors-docker/config/example-ors-config.env` as a template. 
 Copy it next to your `docker-compose.yml` or rename it.
 You should never edit the file `ors-docker/config/example-ors-config.env` because it will be replaced by openrouteservice in some cases!
 
