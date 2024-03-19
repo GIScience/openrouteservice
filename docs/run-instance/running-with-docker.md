@@ -441,10 +441,10 @@ This setting is only relevant for the entrypoint logging, it does not change the
 How you can achieve this is documented in the [logging documentation](/run-instance/configuration/spring/logging.md).
 
 ::: warning Hint
-Remember that the container has to be created from new to make changes in `docker-compose.yml` take effect!
-`docker compose stop && docker compose start` or `docker compose restart` is not enough, you have to execute
+Remember that the container has to be newly created for the changes in `docker-compose.yml` to take effect!
+`docker compose stop && docker compose start` or `docker compose restart` is not enough, you have to execute 
 ```shell
-docker compose down && docker compose up -d
+docker compose down && docker compose up
 ```
 :::
 
