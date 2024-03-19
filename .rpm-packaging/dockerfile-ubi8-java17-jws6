@@ -10,26 +10,29 @@ ARG REDHAT_ACTIVATION_KEY_NAME
 # Taken from here: https://serverfault.com/questions/1106847/rhel-9-in-docker-container-on-macos-subscription-manager-is-disabled-when-runni
 RUN sed -i 's/\(def in_container():\)/\1\n    return False/g' /usr/lib64/python*/*-packages/rhsm/config.py && \
     # Login to redhat. Register returns a non-zero exit code, even if it succeeds, so we need to catch it.
-    # This is only needed if we have special repositories that are not available in the base image, e.g. for jws5* \
+    # This is only needed if we have special repositories that are not available in the base image \
     subscription-manager register --org=$REDHAT_ORG --activationkey=$REDHAT_ACTIVATION_KEY_NAME && \
     # Attach to the rhel8 repositories of the access key and unregister if it fails
     subscription-manager attach || subscription-manager unregister && \
     # Update the system and unregister if it fails
-    yum update -y && yum groupinstall jws5 -y && yum install policycoreutils-python-utils -y && yum install jws5-tomcat-selinux -y || subscription-manager unregister && \
+    yum update -y && yum groupinstall jws6 -y && yum install policycoreutils-python-utils -y && yum install jws6-tomcat-selinux -y || subscription-manager unregister && \
     # give user root the passwort "root"
     echo "root:root" | chpasswd && \
     # Unregister from redhat in any case in the end to avoid too many registered systems
     subscription-manager unregister && \
     echo "Done"
 
-ARG JWS57_INSTALLATION_DIRECTORY=/var/opt/rh/scls
+ARG JWS_INSTALLATION_DIRECTORY=/var/opt/rh/scls
 
-# Download and install tomcat
-RUN chown -R tomcat:tomcat $JWS57_INSTALLATION_DIRECTORY/
+# Chown the installation directory
+RUN chown -R tomcat:tomcat $JWS_INSTALLATION_DIRECTORY/
+
+# install java-17-openjdk-headless
+RUN yum install java-17-openjdk-headless -y
 
 EXPOSE 8080
 # Become tomcat that was created by the postinstall script
 USER tomcat
 CMD ["/usr/sbin/init"]
 
-#EnvironmentFile=/etc/opt/rh/scls/jws5/tomcat/conf.d/*.conf
+#EnvironmentFile=/etc/opt/rh/scls/jws6/tomcat/conf.d/*.conf
