@@ -10,50 +10,49 @@
 [![LICENSE](https://img.shields.io/github/license/GIScience/openrouteservice)](LICENSE)
 
 Openrouteservice is a highly customizable, performant routing service written in Java. 
-It provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org): 
+It uses a [forked and edited version of graphhopper 4.0](https://github.com/GIScience/graphhopper) 
+and provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org): 
 
 * [Directions Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/): Get directions for different modes of transport
 * [Isochrones Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/isochrones/): Obtain areas of reachability from given locations
 * [Matrix Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/matrix/): Obtain one-to-many, many-to-one and many-to-many matrices for time and distance
-* [Snapping Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/snapping/): Snap coordinates to the graph edges _(/!\ not available in our live API)_
+* [Snapping Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/snapping/)¹: Snap coordinates to the graph edges  
+* [Export Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/export/)¹: Export the base graph for different modes of transport
+* [Health Endpoint](https://giscience.github.io/openrouteservice/api-reference/endpoints/health/)¹: Get information on the health of the running openrouteservice instance
+* [Status Endpoint](https://giscience.github.io/openrouteservice/api-reference/endpoints/status/)¹: Get information on the status of the openrouteservice instance
 
-Furthermore, there are technical endpoints that are **not available in our live API**:
+¹) **Snapping, Export, Health and Status Endpoint are not available in our public openrouteservice API aka "live API"!** 
+You can use them by running your own instance of openrouteservice.
 
-* [Export Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/export/): Export the base graph for different modes of transport
-* [Health Endpoint](https://giscience.github.io/openrouteservice/api-reference/endpoints/health/): Get information on the health of the running openrouteservice instance
-* [Status Endpoint](https://giscience.github.io/openrouteservice/api-reference/endpoints/status/): Get information on the status of the openrouteservice instance
+And to avoid any misunderstandings, it should also be mentioned at this point that our live API provides several other endpoints 
+that are **not part of openrouteservice software/repository**:
 
-And there are services that are not part of openrouteservice itself, that we have **included in our public API** for convenience:
+* [openpoiservice](https://github.com/GIScience/openpoiservice): A stand-alone service from HeiGIT that returns points of interest in the area surrounding a geometry
+* [openelevationservice](https://github.com/GIScience/openelevationservice): A stand-alone service from HeiGIT that returns the elevation for point or line geometries
+* [Pelias](https://www.pelias.io): A (reverse) geocoder hosted by HeiGIT that resolves geographic coordinates to addresses and vice versa
+* [VROOM](https://github.com/VROOM-Project/vroom): The Vehicle Routing Open-source Optimization Machine hosted by HeiGIT 
 
-* [POI Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/poi/): Stand-Alone service from HeiGIT that returns points of interest in the area surrounding a geometry
-* [Elevation Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/elevation/): Stand-Alone service from HeiGIT that returns the elevation for point or line geometries
-* [Geocoding Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/geocoder/): Third Party Service ([Pelias](https://www.pelias.io)) hosted by HeiGIT that resolves geographic coordinates to addresses and vice versa
-* [Optimization Service](https://giscience.github.io/openrouteservice/api-reference/endpoints/optimization/): Third Party Service ([VROOM](https://github.com/VROOM-Project/vroom)) hosted by HeiGIT that optimizes routes for vehicle fleets
+To play around with openrouteservice you may use our [demonstration server](https://maps.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/ors-map-client). 
+Or simply [sign up](https://openrouteservice.org/dev/#/signup) for an API key and fire your requests against the API directly.
+You can also do this in our [API Playground](https://openrouteservice.org/dev/#/api-docs) - take a look at the [API Reference](https://giscience.github.io/openrouteservice/api-reference/) to get more information.
 
-To play around with openrouteservice you may use our [demonstration server](https://maps.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/ors-map-client). Or simply [sign up](https://openrouteservice.org/dev/#/signup) for an API key and fire your requests against the API directly.
 ![map-client-isochrones](docs/public/map-client-isochrones.png)
-
-Please note that openrouteservice uses a forked and edited version of [graphhopper 4.0](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
-
-
-## API Documentation
-
-For an easy and interactive way to test the api, visit our [API Playground](https://openrouteservice.org/dev/#/api-docs).
-After obtaining your key you can try out the different endpoints instantly and start firing requests.
-Go to the [API Reference](https://giscience.github.io/openrouteservice/api-reference/) for more information.
 
 
 ## Installation
 
-You can easily run openrouteservice yourself! We suggest using docker to install and launch openrouteservice. In short, a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) will get everything done for you. 
+You can easily [run openrouteservice](https://giscience.github.io/openrouteservice/run-instance/) yourself! 
 
-Only use nightly (main branch) if you know what you do. We recommend running docker compose with the latest release version:
+**tl;dr:** We suggest [using docker](https://giscience.github.io/openrouteservice/run-instance/running-with-docker) to install and launch openrouteservice. 
+In short, a machine with a working [docker installation](https://www.digitalocean.com/community/tutorial_collections/how-to-install-and-use-docker) will get everything done for you. 
 
 Change to the directory where you want to install your local openrouteservice and first create some directories, where openrouteservice will persist its data:
 ```shell
 mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/graphs ors-docker/files ors-docker/logs
 ```
 
+Only use nightly (main branch) if you know what you do. 
+We recommend running docker compose with the latest release version. 
 Get the docker compose file for a release, e.g. v8.0.0: 
 ```shell
 wget https://github.com/GIScience/openrouteservice/releases/download/v8.0.0/docker-compose.yml
@@ -67,32 +66,19 @@ docker compose up -d
 This will pull the openrouteservice docker image of the selected version and start it up using an example setup
 and the provided test OSM file for Heidelberg/Germany and surrounding area.
 
-To see the container's logs, run
+To see the container's logs, run:
 ```shell
 docker compose logs 
 ```
-or
-```shell
-docker compose logs -tf  
-```
-to follow the log. You can stop tailing the output with `CTRL+C`, the docker container will continue running.
 
-To stop the container, execute
-```shell
-docker compose stop 
-```
-or
+Stop the container with:
 ```shell
 docker compose down
 ```
-to stop and remove the container. Removing the container is necessary, when you want to take changes on the `docker-compose.yml` to take effect.
-
-For instructions on how to configure openrouteservice, how to build from source and for other ways to operate openrouteservice, 
-take a look at [Running your own openrouteservice instance](https://giscience.github.io/openrouteservice/run-instance/).
 
 ## Usage
 
-Openrouteservice offers a set of endpoints for different spatial purposes. By default, they will be available on port 8080:
+The above mentioned endpoints will be available on port 8080:
 
 - `http://localhost:8080/ors/v2/directions`
 - `http://localhost:8080/ors/v2/isochrones`
