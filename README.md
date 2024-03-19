@@ -25,7 +25,7 @@ and provides global spatial services by consuming user-generated and collaborati
 You can use them by running your own instance of openrouteservice.
 
 And to avoid any misunderstandings, it should also be mentioned at this point that our live API provides several other endpoints 
-that are **not part of openrouteservice software/repository**:
+that are **not part of the openrouteservice software/repository**:
 
 * [openpoiservice](https://github.com/GIScience/openpoiservice): A stand-alone service from HeiGIT that returns points of interest in the area surrounding a geometry
 * [openelevationservice](https://github.com/GIScience/openelevationservice): A stand-alone service from HeiGIT that returns the elevation for point or line geometries
