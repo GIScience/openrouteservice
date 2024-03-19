@@ -58,3 +58,22 @@ in Heidelberg.
 curl 'http://localhost:8080/ors/v2/directions/driving-car?start=8.681495,49.41461&end=8.687872,49.420318'
 ```
 
+
+## Instance infrastructure
+
+Though having a single instance of openrouteservice works great for smaller datasets or when the graph data doesn't need updating, in many
+real world implementations having just the one instance isn't the most suitable solution. If you have one instance,
+then all building and serving of routes happens through that single instance, meaning that when you rebuild graphs, you
+can't make any requests to that instance for things like directions as there are no complete graphs that can be used to
+generate routes with. If it is important that you have graph updates from new data whilst ensuring that there is a
+minimal amount of time during which users cannot make requests, we would recommend having two instances - one that is
+permanently active for serving requests, and one that gets fired up to rebuild graphs.
+
+In that setup, when graphs have been built you can simply stop the container serving requests, replace the graphs used (
+they are mapped to a folder on the host machine which is defined in the `docker-compose` file), and then restart the
+"request" instance. The new graphs will be reloaded into memory (the amount of time needed for this depends on the size of the
+graphs and the type of hard drive) and then ready to use for routing. The downtime from reloading already built graphs
+is normally far less than the time needed to build the graphs. A thing to note though is that you should ensure that the
+config files and the amount of RAM allocated (as described earlier) is the same on both the builder and the request
+server else the newly built graphs may not load. **Also, ensure that `REBUILD_GRAPHS` parameter used by the request serving container 
+is set to false else it will try to build the graphs for itself!**

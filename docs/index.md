@@ -22,7 +22,7 @@ features:
     - title: Installation
       details: Set up your own openrouteservice instance.
       linkText: Instructions
-      link: /run-instance/installation/
+      link: /run-instance/
     - title: Data Sources
       details: Find all information on the data used by the openrouteservice here.
       linkText: Data

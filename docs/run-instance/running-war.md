@@ -42,7 +42,3 @@ ORS_CONFIG_LOCATION=/path/to/ors-config.yml
 ```
 
 For details on how to make openrouteservice apply the settings in the configuration file (there are multiple options) see chapter [Configuration](configuration/index.md).
-
-## Troubleshoot
-
-

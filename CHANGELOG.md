@@ -80,7 +80,8 @@ RELEASING:
 - unify edge splitting across isochrone builders, and split edges based on coordinates rather than their actual distance in meters ([#1708](https://github.com/GIScience/openrouteservice/pull/1708))
 - add missing encoder_options to the documentation [#1752](https://github.com/GIScience/openrouteservice/pull/1752)
 - add config tests for json config [#1749](https://github.com/GIScience/openrouteservice/pull/1749)
- 
+- adapted documentation to new docker setup ([#1746](https://github.com/GIScience/openrouteservice/pull/1746))
+
 ### Deprecated
 - JSON configuration and related classes ([#1506](https://github.com/GIScience/openrouteservice/pull/1506))
 
