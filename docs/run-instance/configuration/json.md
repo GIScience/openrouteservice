@@ -1,13 +1,13 @@
 # Configuration via `ors-config.json`
 
 :::warning
-The ors-config.json is deprecated!
+The ors-config.json is deprecated! [Migrate to ors-config.yml](https://github.com/GIScience/ors-config-migration#usage).
 :::
 
 The "old" configuration method is supported for a while for convenience. 
 The description below is kept as long as openrouteservice still supports configuration via JSON file, 
 but we do **not** recommend using this configuration method. 
-Please consider to [migrate JSON configuration](migrate-from-json.md) to the new style.
+Please consider [migrating your JSON configuration](https://github.com/GIScience/ors-config-migration#usage) to the new style.
 Note that currently all settings in a provided JSON configuration file will **override** any settings in the YAML file.
 
 ## ors
