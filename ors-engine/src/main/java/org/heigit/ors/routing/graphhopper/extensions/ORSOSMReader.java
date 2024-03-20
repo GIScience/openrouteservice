@@ -39,6 +39,7 @@ public class ORSOSMReader extends OSMReader {
     private boolean processNodeTags;
     private final OSMDataReaderContext readerCntx;
 
+    //FIXME: big regular hashmaps should be avoided because they don't support MMAP
     private final HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
 
     private boolean processGeom = false;
@@ -67,6 +68,7 @@ public class ORSOSMReader extends OSMReader {
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof BordersGraphStorageBuilder) {
+                extraTagKeys.add("country");
                 this.processGeom = true;
             }
 

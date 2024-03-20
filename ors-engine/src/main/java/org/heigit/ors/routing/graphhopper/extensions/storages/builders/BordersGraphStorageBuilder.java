@@ -27,6 +27,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
 
@@ -42,6 +43,9 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private static final String PARAM_KEY_OPEN_BORDERS = "openborders";
     private static final String TAG_KEY_COUNTRY1 = "country1";
     private static final String TAG_KEY_COUNTRY2 = "country2";
+    private static final int EMPTY_NODE = -1;
+    private static final int TOWER_NODE = -2;
+    private HashMap<Integer, String> wayNodeTags;
 
     private BordersGraphStorage storage;
     private CountryBordersReader cbReader;
@@ -138,6 +142,24 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
                 way.setTag(TAG_KEY_COUNTRY2, countries[0]);
             }
         }
+
+        wayNodeTags = new HashMap<>();
+        if (nodeTags != null) {
+            for (Integer internalNodeId : nodeTags.keySet()) {
+                int nodeId = convertTowerNodeId(internalNodeId);
+                if (nodeId == EMPTY_NODE)// skip non-tower nodes
+                    continue;
+                Map<String, String> tagPairs = nodeTags.get(internalNodeId);
+                wayNodeTags.put(nodeId, tagPairs.get("country"));
+            }
+        }
+    }
+
+    private int convertTowerNodeId(int id) {
+        if (id < TOWER_NODE)
+            return -id - 3;
+
+        return EMPTY_NODE;
     }
 
     /**
@@ -169,6 +191,22 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             } finally {
                 if (start != end) {
                     type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
+                }
+                storage.setEdgeValue(edge.getEdge(), type, start, end);
+            }
+
+            int egdeId1 = edge.getBaseNode();
+            int edgeId2 = edge.getAdjNode();
+            String countryCode1 = wayNodeTags.get(egdeId1);
+            String countryCode2 = wayNodeTags.get(edgeId2);
+            try {
+                start = Short.parseShort(String.valueOf(cbReader.getCountryIdByISOCode(countryCode1)));
+                end = Short.parseShort(String.valueOf(cbReader.getCountryIdByISOCode(countryCode2)));
+            } catch (Exception ignore) {
+                // do nothing
+            } finally {
+                if (start != end) {
+                    type = (short) 1;//FIXME (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
                 }
                 storage.setEdgeValue(edge.getEdge(), type, start, end);
             }
