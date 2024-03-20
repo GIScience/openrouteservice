@@ -1603,6 +1603,46 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test// Only delivery HGVs are allowed on Alstater Straße (https://www.openstreetmap.org/way/31791684)
+    void testHGVDelivery() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.672016,49.382663|8.667426,49.380285"));
+        body.put("preference", "shortest");
+        body.put("instructions", false);
+        body.put("units", "m");
+
+        JSONObject options = new JSONObject();
+        options.put("vehicle_type", "hgv");
+        body.put("options", options);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(619, 1)))
+                .statusCode(200);
+
+        options.put("vehicle_type", "delivery");
+        body.put("options", options);
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(494, 1)))
+                .statusCode(200);
+    }
     @Test
     void testHGVWidthRestriction() { // check route
         JSONObject body = new JSONObject();
