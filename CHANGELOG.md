@@ -111,6 +111,7 @@ RELEASING:
 - fix isochrones snapping ([#1566](https://github.com/GIScience/openrouteservice/pull/1566))
 - fix fast-isochrones snapping ([#1572](https://github.com/GIScience/openrouteservice/pull/1572))
 - endpoint property 'isochrone' to 'isochrones' ([#1683](https://github.com/GIScience/openrouteservice/pull/1683))
+- correctly resolve access to ways with `hgv=delivery` tag ([#1748](https://github.com/GIScience/openrouteservice/pull/1748))
 
 ## [7.1.1] - 2023-11-13
 ### Changed
