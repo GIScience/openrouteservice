@@ -28,7 +28,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder {
-    private static final String VAL_DELIVERY = "delivery";
     private boolean includeRestrictions = true;
     private HeavyVehicleAttributesGraphStorage storage;
     private int hgvType = 0;
@@ -51,7 +50,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
         motorVehicleRestrictedValues.add("restricted");
         motorVehicleRestrictedValues.add("military");
 
-        motorVehicleHgvValues.addAll(Arrays.asList("hgv", "goods", "bus", "agricultural", "forestry", VAL_DELIVERY));
+        motorVehicleHgvValues.addAll(Arrays.asList("hgv", "goods", "bus", "agricultural", "forestry", "delivery"));
 
         noValues.addAll(Arrays.asList("no", "private"));
         yesValues.addAll(Arrays.asList("yes", "designated"));
@@ -179,22 +178,13 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
                 }
 
                 if (motorVehicleHgvValues.contains(key)) {
-
-                    // TODO: the following implementation does not pick up access:destination
-                    String hgvTag = getHeavyVehicleValue(key, "hgv", value);
-                    String goodsTag = getHeavyVehicleValue(key, "goods", value);
-                    String busTag = getHeavyVehicleValue(key, "bus", value);
-                    String agriculturalTag = getHeavyVehicleValue(key, "agricultural", value);
-                    String forestryTag = getHeavyVehicleValue(key, "forestry", value);
-                    String deliveryTag = getHeavyVehicleValue(key, VAL_DELIVERY, value);
-
-                    setFlagsFromTag(goodsTag, HeavyVehicleAttributes.GOODS);
-                    setFlagsFromTag(hgvTag, HeavyVehicleAttributes.HGV);
-                    setFlagsFromTag(busTag, HeavyVehicleAttributes.BUS);
-                    setFlagsFromTag(agriculturalTag, HeavyVehicleAttributes.AGRICULTURE);
-                    setFlagsFromTag(forestryTag, HeavyVehicleAttributes.FORESTRY);
-                    setFlagsFromTag(deliveryTag, HeavyVehicleAttributes.DELIVERY);
-
+                    //TODO: account for <vehicle_type>:[forward/backward] keys
+                    //TODO: allow access:<vehicle_type> as described in #703. Might be necessary to adjust the upstream PBF parsing part as well.
+                    String vehicleType = getVehicleType(key, value);
+                    String accessValue = getVehicleAccess(vehicleType, value);
+                    setAccessFlags(vehicleType, accessValue);
+                    if (vehicleType.equals(value))// e.g. hgv=delivery implies that hgv other than delivery vehicles are blocked
+                        setAccessFlags(key, "no");
                 } else if (key.equals("hazmat") && "no".equals(value)) {
                     hgvType |= HeavyVehicleAttributes.HAZMAT;
                 }
@@ -206,40 +196,33 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
         storage.setEdgeValue(edge.getEdge(), hgvType, hgvDestination, restrictionValues);
     }
 
-    private String getHeavyVehicleValue(String key, String hv, String value) {
-        if (value.equals(hv))
-            return value;
-        else if (key.equals(hv)) {
-            if (yesValues.contains(value))
-                return "yes";
-            else if (noValues.contains(value))
-                return "no";
-        } else if (key.equals(hv + ":forward") || key.equals(hv + ":backward"))
-            return value;
+    private String getVehicleType(String key, String value) {
+        return motorVehicleHgvValues.contains(value) ? value : key;// hgv=[delivery/agricultural/forestry]
+    }
+
+    private String getVehicleAccess(String vehicleType, String value) {
+        if (vehicleType.equals(value) || yesValues.contains(value))
+            return "yes";
+        else if (noValues.contains(value))
+           return "no";
 
         return null;
     }
 
     /**
-     * Toggle the bit corresponding to a given hgv type defined by {@code flag} inside binary restriction masks based on
-     * the value of {@code tag}. "no" sets the bit in {@code _hgvType}, while "yes" unsets it.
-     * <p>
-     * When the value is "destination" (or "delivery" for hgv delivery) values in both {@code _hgvType} and
-     * {@code  _hgvDestination} are set.
+     * Toggle on/off the bit corresponding to a given hgv type defined by {@code flag} inside binary restriction masks
+     * based on the value of {@code tag}. "no" sets the bit in {@code _hgvType}, while "yes" unsets it.
      *
-     * @param tag  a String describing the access restriction
-     * @param flag hgv type as defined in {@code HeavyVehicleAttributes}
+     * @param vehicle a String describing one of the vehicle types defined in {@code HeavyVehicleAttributes}
+     * @param access a String describing the access restriction
      */
-    private void setFlagsFromTag(String tag, int flag) {
-        if (tag != null) {
-            if ("no".equals(tag))
+    private void setAccessFlags(String vehicle, String access) {
+        int flag = HeavyVehicleAttributes.getFromString(vehicle);
+        if (access != null) {
+            if ("no".equals(access))
                 hgvType |= flag;
-            else if ("yes".equals(tag))
+            else if ("yes".equals(access))
                 hgvType &= ~flag;
-            else if ("destination".equals(tag) || (flag == HeavyVehicleAttributes.DELIVERY && VAL_DELIVERY.equals(tag))) {
-                hgvType |= flag;
-                hgvDestination |= flag;
-            }
         }
     }
 

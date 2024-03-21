@@ -336,12 +336,12 @@ success "CATALINA_OPTS and JAVA_OPTS ready. For details set CONTAINER_LOG_LEVEL=
 # Print the migration info if print_migration_info is set to true but not if PRINT_MIGRATION_INFO is set to False
 if [ "${print_migration_info}" = "true" ]; then
   info "##########################################"
-  info "# Config migration and usage information #"
+  info "# Config options and migration information #"
   info "##########################################"
   info ">>> Migration information <<<"
-  info "Find detailed information for migrating to ORS version 8 at: "# TODO
-  info ">>> Config migration <<<"
-  info "Configuring ors with a .json config is deprecated and will be removed in the future."
+  warning "Configuring ors with a .json config is deprecated and will be removed in the future."
+  info "You can use the ors-config-migration tool to migrate your .json config to .yml: https://github.com/GIScience/ors-config-migration#usage"
+  info ">>> Config options <<<"
   info "You have the following options to configure ORS:"
   info "Method 1 yml config:"
   info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.yml ./ors-config.yml"
