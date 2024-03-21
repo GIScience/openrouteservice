@@ -35,6 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 
+## [8.0.0] - 2024-03-21
 ### Added
 - snapping service endpoints for returning nearest points on the graph ([#1519](https://github.com/GIScience/openrouteservice/issues/1519))
 - workflow for RPM packaging ([#1490](https://github.com/GIScience/openrouteservice/pull/1490))
@@ -741,7 +742,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.0.0...HEAD
+[8.0.0]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...v8.0.0
 [7.1.1]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/GIScience/openrouteservice/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/GIScience/openrouteservice/compare/v7.0.0...v7.0.1
