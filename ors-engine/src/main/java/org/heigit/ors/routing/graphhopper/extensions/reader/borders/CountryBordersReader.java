@@ -43,8 +43,8 @@ public class CountryBordersReader {
 
     private final HashMap<String, CountryInfo> ids = new HashMap<>();
     private final HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
-    private final HashMap<String, Integer> isoCodes = new HashMap<>();
-
+    private final Map<String, Short> isoCodes = new HashMap<>();
+    private Map<Short, String> names = new HashMap<>();
     private final HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
 
     // Package scoped for testing purposes
@@ -108,8 +108,8 @@ public class CountryBordersReader {
     public void addId(String id, String localName, String englishName, String cca2, String cca3) {
         if (!ids.containsKey(localName)) {
             ids.put(localName, new CountryInfo(id, localName, englishName));
-            isoCodes.put(cca2.trim().toUpperCase(), Integer.parseInt(id));
-            isoCodes.put(cca3.trim().toUpperCase(), Integer.parseInt(id));
+            isoCodes.put(cca2.trim().toUpperCase(), Short.parseShort(id));
+            isoCodes.put(cca3.trim().toUpperCase(), Short.parseShort(id));
         }
     }
 
@@ -346,6 +346,10 @@ public class CountryBordersReader {
             return "";
     }
 
+    public String getName(short id) {
+        return names.get(id);
+    }
+
     /**
      * Get whether a border between two specified countries is open or closed
      *
@@ -370,8 +374,8 @@ public class CountryBordersReader {
      * @param code The code to look up
      * @return The ID of the country or 0 if not found
      */
-    public static int getCountryIdByISOCode(String code) {
-        return currentInstance != null ? currentInstance.isoCodes.getOrDefault(code.toUpperCase(), 0) : 0;
+    public static short getCountryIdByISOCode(String code) {
+        return currentInstance != null ? currentInstance.isoCodes.getOrDefault(code.toUpperCase(), (short) 0) : 0;
     }
 
     /**
@@ -388,23 +392,24 @@ public class CountryBordersReader {
         int isoCCA2 = 0;
         int isoCCA3 = 0;
         for (List<String> col : data) {
-            if (col.size() >= 3) {
-                ids.put(col.get(1), new CountryInfo(col.get(0), col.get(1), col.get(2)));
-                countries++;
-            }
-            int intID = 0;
+            short shortID = 0;
             try {
-                intID = Integer.parseInt(col.get(0));
+                shortID = Short.parseShort(col.get(0));
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid country ID " + col.get(0));
                 continue;
             }
+            if (col.size() >= 3) {
+                ids.put(col.get(1), new CountryInfo(col.get(0), col.get(1), col.get(2)));
+                names.put(shortID, col.get(2));
+                countries++;
+            }
             if (col.size() >= 4 && !col.get(3).trim().isEmpty()) {
-                isoCodes.put(col.get(3).trim().toUpperCase(), intID);
+                isoCodes.put(col.get(3).trim().toUpperCase(), shortID);
                 isoCCA2++;
             }
             if (col.size() == 5 && !col.get(4).trim().isEmpty()) {
-                isoCodes.put(col.get(4).trim().toUpperCase(), intID);
+                isoCodes.put(col.get(4).trim().toUpperCase(), shortID);
                 isoCCA3++;
             }
         }

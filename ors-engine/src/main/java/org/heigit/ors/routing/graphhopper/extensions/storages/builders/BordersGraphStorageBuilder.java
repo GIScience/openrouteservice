@@ -141,6 +141,9 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
                 way.setTag(TAG_KEY_COUNTRY1, countries[0]);
                 way.setTag(TAG_KEY_COUNTRY2, countries[0]);
             }
+            //DEBUG OUTPUT
+            if (countries.length > 0)
+                System.out.println(way.getId() + ": " + String.join(",", countries));
         }
 
         wayNodeTags = new HashMap<>();
@@ -200,13 +203,13 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             String countryCode1 = wayNodeTags.get(egdeId1);
             String countryCode2 = wayNodeTags.get(edgeId2);
             try {
-                start = Short.parseShort(String.valueOf(cbReader.getCountryIdByISOCode(countryCode1)));
-                end = Short.parseShort(String.valueOf(cbReader.getCountryIdByISOCode(countryCode2)));
+                start = cbReader.getCountryIdByISOCode(countryCode1);
+                end = cbReader.getCountryIdByISOCode(countryCode2);
             } catch (Exception ignore) {
                 // do nothing
             } finally {
                 if (start != end) {
-                    type = (short) 1;//FIXME (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
+                    type = cbReader.isOpen(cbReader.getName(start), cbReader.getName(end)) ? (short) 2 : (short) 1;
                 }
                 storage.setEdgeValue(edge.getEdge(), type, start, end);
             }
