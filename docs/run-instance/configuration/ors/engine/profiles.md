@@ -53,15 +53,15 @@ Properties for each (enabled) profile are set under `ors.engine.profiles.<profil
 
 Properties beneath `ors.engine.profiles.*.encoder_options`:
 
-| key                      | type    | profiles         | description                                                                                                                                                                                                                   | example value |
-|--------------------------|---------|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| block_fords              | boolean | *                | Do not route through fords.                                                                                                                                                                                                   | `true`        |
-| consider_elevation       | boolean | bike-*           | The maximum possible speed is the bike-type specific maximum downhill speed, which is higher than the usual maximum speed.                                                                                                    | `true`        |
-| maximum_grade_level      | number  | car, hgv         | Relates to the quality of tracks as described in [tracktype](https://wiki.openstreetmap.org/wiki/Key:tracktype). Specifying e.g. maximum_grade_level=1 means that tracktype=grade2 and below won't be considered for routing. | `3`           |
-| preferred_speed_factor   | number  | wheelchair       | Travel speeds on edges classified as preferable for wheelchair users are multiplied by this factor, use to set faster traveling speeds on such ways                                                                           | `1.2`         |
-| problematic_speed_factor | number  | wheelchair       | Travel speeds on edges classified as problematic for wheelchair users are multiplied by this factor, use to set slow traveling speeds on such ways                                                                            | `0.7`         |
-| turn_costs               | boolean | car, hgv, bike-* | Should turn restrictions be respected.                                                                                                                                                                                        | `true`        |
-| use_acceleration         | boolean | car, hgv         | Models how a vehicle would accelerate on the road segment to the maximum allowed speed. In practice it reduces speed on shorter road segments such as ones between nearby intersections in a city.                            | `true`        |
+| key                      | type    | profiles         | description                                                                                                                                                                                                                  | example value |
+|--------------------------|---------|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| block_fords              | boolean | *                | Do not route through fords                                                                                                                                                                                                   | `true`        |
+| consider_elevation       | boolean | bike-*           | The maximum possible speed is the bike-type specific maximum downhill speed, which is higher than the usual maximum speed                                                                                                    | `true`        |
+| maximum_grade_level      | number  | car, hgv         | Relates to the quality of tracks as described in [tracktype](https://wiki.openstreetmap.org/wiki/Key:tracktype). Specifying e.g. maximum_grade_level=1 means that tracktype=grade2 and below won't be considered for routing | `3`           |
+| preferred_speed_factor   | number  | wheelchair       | Travel speeds on edges classified as preferable for wheelchair users are multiplied by this factor, use to set faster traveling speeds on such ways                                                                          | `1.2`         |
+| problematic_speed_factor | number  | wheelchair       | Travel speeds on edges classified as problematic for wheelchair users are multiplied by this factor, use to set slow traveling speeds on such ways                                                                           | `0.7`         |
+| turn_costs               | boolean | car, hgv, bike-* | Should turn restrictions be respected                                                                                                                                                                                        | `true`        |
+| use_acceleration         | boolean | car, hgv         | Models how a vehicle would accelerate on the road segment to the maximum allowed speed. In practice it reduces speed on shorter road segments such as ones between nearby intersections in a city                            | `true`        |
 
 ## preparation
 
@@ -112,6 +112,17 @@ Properties beneath `ors.engine.profiles.*.preparation.methods.core`:
 ## execution
 
 Properties beneath `ors.engine.profiles.*.execution` are relevant when querying services.
+
+### methods.astar
+
+Parameters for beeline approximation in the A* routing algorithm.
+
+Properties beneath `ors.engine.profiles.*.execution.methods.astar`:
+
+| key           | type   | description                                                                                                                                 | default value           |
+|---------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------|-------------------------| 
+| approximation | string | Method to use for distance approximation. Can be either the faster `BeelineSimplification` or the more precise but slower `BeelineAccurate` | `BeelineSimplification` |
+| epsilon       | number | Factor to use for distance approximation                                                                                                    | `1`                     |
 
 ### methods.lm
 
