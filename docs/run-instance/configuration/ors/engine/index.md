@@ -3,6 +3,12 @@
 
 Engine properties are required at graph-build time during startup.
 
+::: warning
+If you specified `profile_default` settings they might not be taken into account!
+This will be fixed in the next patch release.
+As a workaround, you can move all `profile_default` settings to the specific profile where you need them to work.
+:::
+
 | key                | type    | description                                                                                                                                                                                                                                                                                          | default value                              |
 |--------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
 | init_threads       | number  | The number of threads used to initialize (build/load) graphs. Higher numbers requires more RAM                                                                                                                                                                                                       | `1`                                        |
