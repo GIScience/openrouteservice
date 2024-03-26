@@ -42,6 +42,7 @@ import java.util.MissingResourceException;
 public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     static final Logger LOGGER = Logger.getLogger(BordersGraphStorageBuilder.class.getName());
 
+    private static final String PARAM_KEY_IDS = "ids";
     private static final String PARAM_KEY_BOUNDARIES = "boundaries";
     private static final String PARAM_KEY_OPEN_BORDERS = "openborders";
     private static final String TAG_KEY_COUNTRY1 = "country1";
@@ -52,6 +53,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
     private BordersGraphStorage storage;
     private CountryBordersReader cbReader;
+    private boolean preprocessed;
 
     private final GeometryFactory gf;
 
@@ -87,18 +89,20 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             String countryIdsFile = "";
             String openBordersFile = "";
 
+            preprocessed = parameters.getPreprocessed();
+
             if (parameters.getBoundaries() != null)
                 bordersFile = parameters.getBoundaries().toString();
-            else {
+            else if (!preprocessed) {
                 ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
                 // We cannot continue without the information
-                throw new MissingResourceException("A boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
+                throw new MissingResourceException("An OSM file enriched with country tags or a boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
             }
 
             if (parameters.getIds() != null)
                 countryIdsFile = parameters.getIds().toString();
             else
-                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, "ids");
+                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_IDS);
 
             if (parameters.getOpenborders() != null)
                 openBordersFile = parameters.getOpenborders().toString();
@@ -142,7 +146,10 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags) {
         // Process the way using the geometry provided
         // if we don't have the reader object, then we can't do anything
-        if (cbReader != null) {
+        if (cbReader == null)
+            return;
+
+        if (!preprocessed) {
             String[] countries = findBorderCrossing(coords);
             // If we find that the length of countries is more than one, then it does cross a border
             if (countries.length > 1 && !countries[0].equals(countries[1])) {
@@ -155,16 +162,17 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             //DEBUG OUTPUT
             if (countries.length > 0)
                 System.out.println(way.getId() + ": " + String.join(",", countries));
-        }
-
-        wayNodeTags = new HashMap<>();
-        if (nodeTags != null) {
-            for (Integer internalNodeId : nodeTags.keySet()) {
-                int nodeId = convertTowerNodeId(internalNodeId);
-                if (nodeId == EMPTY_NODE)// skip non-tower nodes
-                    continue;
-                Map<String, String> tagPairs = nodeTags.get(internalNodeId);
-                wayNodeTags.put(nodeId, tagPairs.get("country"));
+        } else {
+            wayNodeTags = new HashMap<>();
+            if (nodeTags != null) {
+                for (Map.Entry<Integer, Map<String, String>> entry : nodeTags.entrySet()) {
+                    int internalNodeId = entry.getKey();
+                    int nodeId = convertTowerNodeId(internalNodeId);
+                    if (nodeId == EMPTY_NODE)// skip non-tower nodes
+                        continue;
+                    Map<String, String> tagPairs = entry.getValue();
+                    wayNodeTags.put(nodeId, tagPairs.get("country"));
+                }
             }
         }
     }
@@ -190,39 +198,40 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         // Make sure we actually have the storage initialised - if there were errors accessing the data then this could be the case
         if (storage != null) {
             // If there is no border crossing then we set the edge value to be 0
-
-            // First get the start and end countries - if they are equal, then there is no crossing
-            String startVal = way.getTag(TAG_KEY_COUNTRY1);
-            String endVal = way.getTag(TAG_KEY_COUNTRY2);
             short type = BordersGraphStorage.NO_BORDER;
             short start = 0;
             short end = 0;
-            try {
-                start = Short.parseShort(cbReader.getId(startVal));
-                end = Short.parseShort(cbReader.getId(endVal));
-            } catch (Exception ignore) {
-                // do nothing
-            } finally {
-                if (start != end) {
-                    type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
+            if (!preprocessed) {
+                // First get the start and end countries - if they are equal, then there is no crossing
+                String startVal = way.getTag(TAG_KEY_COUNTRY1);
+                String endVal = way.getTag(TAG_KEY_COUNTRY2);
+                try {
+                    start = Short.parseShort(cbReader.getId(startVal));
+                    end = Short.parseShort(cbReader.getId(endVal));
+                } catch (Exception ignore) {
+                    // do nothing
+                } finally {
+                    if (start != end) {
+                        type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
+                    }
+                    storage.setEdgeValue(edge.getEdge(), type, start, end);
                 }
-                storage.setEdgeValue(edge.getEdge(), type, start, end);
-            }
-
-            int egdeId1 = edge.getBaseNode();
-            int edgeId2 = edge.getAdjNode();
-            String countryCode1 = wayNodeTags.get(egdeId1);
-            String countryCode2 = wayNodeTags.get(edgeId2);
-            try {
-                start = cbReader.getCountryIdByISOCode(countryCode1);
-                end = cbReader.getCountryIdByISOCode(countryCode2);
-            } catch (Exception ignore) {
-                // do nothing
-            } finally {
-                if (start != end) {
-                    type = cbReader.isOpen(cbReader.getName(start), cbReader.getName(end)) ? (short) 2 : (short) 1;
+            } else {
+                int egdeId1 = edge.getBaseNode();
+                int edgeId2 = edge.getAdjNode();
+                String countryCode1 = wayNodeTags.getOrDefault(egdeId1, "");
+                String countryCode2 = wayNodeTags.getOrDefault(edgeId2, "");
+                try {
+                    start = CountryBordersReader.getCountryIdByISOCode(countryCode1);
+                    end = CountryBordersReader.getCountryIdByISOCode(countryCode2);
+                } catch (Exception ignore) {
+                    // do nothing
+                } finally {
+                    if (start != end) {
+                        type = cbReader.isOpen(cbReader.getName(start), cbReader.getName(end)) ? (short) 2 : (short) 1;
+                    }
+                    storage.setEdgeValue(edge.getEdge(), type, start, end);
                 }
-                storage.setEdgeValue(edge.getEdge(), type, start, end);
             }
         }
     }

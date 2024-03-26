@@ -33,11 +33,10 @@ public class CountryBordersReader implements Serializable {
     public static final String INTERNATIONAL_NAME = "INTERNATIONAL";
     public static final String INTERNATIONAL_ID = "-1";
     public static final String KEY_PROPERTIES = "properties";
+    private static final String NAME_FIELD = "name";
+    private static final String HIERARCHY_ID_FIELD = "hierarchy";
 
     private final String borderFile;
-    private final String nameField;
-    private final String hierarchyIdField;
-
     private final String idsPath;
     private final String openPath;
 
@@ -55,8 +54,6 @@ public class CountryBordersReader implements Serializable {
      */
     public CountryBordersReader() {
         borderFile = "";
-        nameField = "name";
-        hierarchyIdField = "hierarchy";
         idsPath = "";
         openPath = "";
 
@@ -72,17 +69,16 @@ public class CountryBordersReader implements Serializable {
      */
     public CountryBordersReader(String filepath, String idsPath, String openPath) throws IOException {
         borderFile = filepath;
-        nameField = "name";
-        hierarchyIdField = "hierarchy";
-
         this.idsPath = idsPath;
         this.openPath = openPath;
 
         try {
-            JSONObject data = readBordersData();
-            LOGGER.info("Border geometries read");
+            if (!"".equals(borderFile)) {
+                JSONObject data = readBordersData();
+                LOGGER.info("Border geometries read");
 
-            createGeometries(data);
+                createGeometries(data);
+            }
 
             readIds();
             LOGGER.info("Border ids data read");
@@ -228,13 +224,13 @@ public class CountryBordersReader implements Serializable {
                 Geometry geom = GeometryJSON.parse(obj.getJSONObject("geometry"));
 
                 // Also need the id of the country and its hierarchy id
-                String id = obj.getJSONObject(KEY_PROPERTIES).getString(nameField);
+                String id = obj.getJSONObject(KEY_PROPERTIES).getString(NAME_FIELD);
 
                 Long hId = -1L;
 
                 // If there is no hierarchy info, then we set the id of the hierarchy to be a default of 1
-                if (obj.getJSONObject(KEY_PROPERTIES).has(hierarchyIdField))
-                    hId = obj.getJSONObject(KEY_PROPERTIES).getLong(hierarchyIdField);
+                if (obj.getJSONObject(KEY_PROPERTIES).has(HIERARCHY_ID_FIELD))
+                    hId = obj.getJSONObject(KEY_PROPERTIES).getLong(HIERARCHY_ID_FIELD);
 
                 // Create the borders object
                 CountryBordersPolygon c = new CountryBordersPolygon(id, geom);
