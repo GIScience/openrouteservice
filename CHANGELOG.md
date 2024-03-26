@@ -34,6 +34,8 @@ RELEASING:
  -->
 
 ## [Unreleased]
+### Added
+- documentation for A* config parameters ([#1759](https://github.com/GIScience/openrouteservice/pull/1759))
 
 ## [8.0.0] - 2024-03-21
 ### Added
