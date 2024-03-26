@@ -27,6 +27,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
 
@@ -38,13 +39,18 @@ import java.util.MissingResourceException;
 public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     static final Logger LOGGER = Logger.getLogger(BordersGraphStorageBuilder.class.getName());
 
+    private static final String PARAM_KEY_PREPROCESSED = "preprocessed";
     private static final String PARAM_KEY_BOUNDARIES = "boundaries";
     private static final String PARAM_KEY_OPEN_BORDERS = "openborders";
     private static final String TAG_KEY_COUNTRY1 = "country1";
     private static final String TAG_KEY_COUNTRY2 = "country2";
+    private static final int EMPTY_NODE = -1;
+    private static final int TOWER_NODE = -2;
+    private HashMap<Integer, String> wayNodeTags;
 
     private BordersGraphStorage storage;
     private CountryBordersReader cbReader;
+    private boolean preprocessed;
 
     private final GeometryFactory gf;
 
@@ -75,7 +81,9 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             String countryIdsFile = "";
             String openBordersFile = "";
 
-            if (parameters.containsKey(PARAM_KEY_BOUNDARIES))
+            if (parameters.containsKey(PARAM_KEY_PREPROCESSED))
+                preprocessed = true;
+            else if (parameters.containsKey(PARAM_KEY_BOUNDARIES))
                 bordersFile = parameters.get(PARAM_KEY_BOUNDARIES);
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
@@ -127,7 +135,10 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags) {
         // Process the way using the geometry provided
         // if we don't have the reader object, then we can't do anything
-        if (cbReader != null) {
+        if (cbReader == null)
+            return;
+
+        if (!preprocessed) {
             String[] countries = findBorderCrossing(coords);
             // If we find that the length of countries is more than one, then it does cross a border
             if (countries.length > 1 && !countries[0].equals(countries[1])) {
@@ -137,7 +148,29 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
                 way.setTag(TAG_KEY_COUNTRY1, countries[0]);
                 way.setTag(TAG_KEY_COUNTRY2, countries[0]);
             }
+            //DEBUG OUTPUT
+            if (countries.length > 0)
+                System.out.println(way.getId() + ": " + String.join(",", countries));
+        } else {
+            wayNodeTags = new HashMap<>();
+            if (nodeTags != null) {
+                for (Map.Entry<Integer, Map<String, String>> entry : nodeTags.entrySet()) {
+                    int internalNodeId = entry.getKey();
+                    int nodeId = convertTowerNodeId(internalNodeId);
+                    if (nodeId == EMPTY_NODE)// skip non-tower nodes
+                        continue;
+                    Map<String, String> tagPairs = entry.getValue();
+                    wayNodeTags.put(nodeId, tagPairs.get("country"));
+                }
+            }
         }
+    }
+
+    private int convertTowerNodeId(int id) {
+        if (id < TOWER_NODE)
+            return -id - 3;
+
+        return EMPTY_NODE;
     }
 
     /**
@@ -154,23 +187,40 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         // Make sure we actually have the storage initialised - if there were errors accessing the data then this could be the case
         if (storage != null) {
             // If there is no border crossing then we set the edge value to be 0
-
-            // First get the start and end countries - if they are equal, then there is no crossing
-            String startVal = way.getTag(TAG_KEY_COUNTRY1);
-            String endVal = way.getTag(TAG_KEY_COUNTRY2);
             short type = BordersGraphStorage.NO_BORDER;
             short start = 0;
             short end = 0;
-            try {
-                start = Short.parseShort(cbReader.getId(startVal));
-                end = Short.parseShort(cbReader.getId(endVal));
-            } catch (Exception ignore) {
-                // do nothing
-            } finally {
-                if (start != end) {
-                    type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
+            if (!preprocessed) {
+                // First get the start and end countries - if they are equal, then there is no crossing
+                String startVal = way.getTag(TAG_KEY_COUNTRY1);
+                String endVal = way.getTag(TAG_KEY_COUNTRY2);
+                try {
+                    start = Short.parseShort(cbReader.getId(startVal));
+                    end = Short.parseShort(cbReader.getId(endVal));
+                } catch (Exception ignore) {
+                    // do nothing
+                } finally {
+                    if (start != end) {
+                        type = (cbReader.isOpen(cbReader.getEngName(startVal), cbReader.getEngName(endVal))) ? (short) 2 : (short) 1;
+                    }
+                    storage.setEdgeValue(edge.getEdge(), type, start, end);
                 }
-                storage.setEdgeValue(edge.getEdge(), type, start, end);
+            } else {
+                int egdeId1 = edge.getBaseNode();
+                int edgeId2 = edge.getAdjNode();
+                String countryCode1 = wayNodeTags.get(egdeId1);
+                String countryCode2 = wayNodeTags.get(edgeId2);
+                try {
+                    start = CountryBordersReader.getCountryIdByISOCode(countryCode1);
+                    end = CountryBordersReader.getCountryIdByISOCode(countryCode2);
+                } catch (Exception ignore) {
+                    // do nothing
+                } finally {
+                    if (start != end) {
+                        type = cbReader.isOpen(cbReader.getName(start), cbReader.getName(end)) ? (short) 2 : (short) 1;
+                    }
+                    storage.setEdgeValue(edge.getEdge(), type, start, end);
+                }
             }
         }
     }
