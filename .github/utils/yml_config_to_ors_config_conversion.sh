@@ -35,9 +35,6 @@ sed -i -e '/^#ors:/s/^#//' -e '/^#.*engine:/s/^#//' -e '/^#.*source_file:/s/^#//
 
 echo "- Uncomment subsequent lines for profiles.car.enabled in ors.engine"
 sed -i -e 's/^#    profiles:/    profiles:/' "$output_file"
-sed -i -e 's/^#      car:/      car:/' "$output_file"
-
-echo "- enable ors.engine.profiles.car"
-yq -i '.ors.engine.profiles.car.enabled = true' "$output_file" || exit 1
+sed -i -e 's/^#      car:/      car:\n        enabled: true/' "$output_file"
 
 echo "Parsing complete. Result saved to $output_file"
