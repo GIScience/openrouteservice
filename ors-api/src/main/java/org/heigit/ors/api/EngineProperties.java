@@ -100,12 +100,13 @@ public class EngineProperties {
         if (profiles != null) {
             for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
                 ProfileProperties profile = profileEntry.getValue();
-                if (!profile.isEnabled()) {
+                boolean enabled = profile.enabled != null ? profile.enabled : profileDefault.isEnabled();
+                if (!enabled) {
                     continue;
                 }
                 RouteProfileConfiguration convertedProfile = new RouteProfileConfiguration();
                 convertedProfile.setName(profileEntry.getKey());
-                convertedProfile.setEnabled(profile.enabled != null ? profile.enabled : profileDefault.isEnabled());
+                convertedProfile.setEnabled(enabled);
                 convertedProfile.setProfiles(profile.getProfile());
                 String graphPath = profile.getGraphPath();
                 String rootGraphsPath = getGraphsRootPath();
