@@ -119,7 +119,7 @@ ors:
       cache_path: ./elevation_cache
     profile_default:
       enabled: false
-      elevation: false
+      elevation: true
       elevation_smoothing: false
       encoder_flags_size: 8
       instructions: true
@@ -151,10 +151,9 @@ ors:
           lm:
             active_landmarks: 8
     profiles:
+      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific.
       car:
-        enabled: false
         profile: driving-car
-        elevation: true
         encoder_options:
           turn_costs: true
           block_fords: false
@@ -190,15 +189,11 @@ ors:
           RoadAccessRestrictions:
             use_for_warnings: true
       hgv:
-        enabled: false
         profile: driving-hgv
-        encoder_flags_size: 8
         encoder_options:
           turn_costs: true
           block_fords: false
           use_acceleration: true
-        maximum_distance: 100000
-        elevation: true
         preparation:
           min_network_size: 200
           methods:
@@ -222,85 +217,71 @@ ors:
             restrictions: true
           WaySurfaceType:
       bike-regular:
-        enabled: false
         profile: cycling-regular
         encoder_options:
           consider_elevation: true
           turn_costs: true
           block_fords: false
-        elevation: true
         ext_storages:
           WayCategory:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
       bike-mountain:
-        enabled: false
         profile: cycling-mountain
         encoder_options:
           consider_elevation: true
           turn_costs: true
           block_fords: false
-        elevation: true
         ext_storages:
           WayCategory:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
       bike-road:
-        enabled: false
         profile: cycling-road
         encoder_options:
           consider_elevation: true
           turn_costs: true
           block_fords: false
-        elevation: true
         ext_storages:
           WayCategory:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
       bike-electric:
-        enabled: false
         profile: cycling-electric
         encoder_options:
           consider_elevation: true
           turn_costs: true
           block_fords: false
-        elevation: true
         ext_storages:
           WayCategory:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
       walking:
-        enabled: false
         profile: foot-walking
         encoder_options:
           block_fords: false
-        elevation: true
         ext_storages:
           WayCategory:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
       hiking:
-        enabled: false
         profile: foot-hiking
         encoder_options:
           block_fords: false
-        elevation: true
         ext_storages:
           WayCategory:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
       wheelchair:
-        enabled: false
         profile: wheelchair
         encoder_options:
           block_fords: true
-        elevation: true
         maximum_snapping_radius: 50
         ext_storages:
           WayCategory:
@@ -309,7 +290,6 @@ ors:
             KerbsOnCrossings: true
           OsmId:
       public-transport:
-        enabled: false
         profile: public-transport
         encoder_options:
           block_fords: false
