@@ -55,12 +55,17 @@ public class ORSInitContextListener implements ServletContextListener {
             try {
                 LOGGER.info("Initializing ORS...");
                 new RoutingProfileManager(config);
+                // TODO if feasible, move the preparation mode check to Application.java after the
+                //  RoutingProfileManagerStatus.hasFailed() check.
                 if (engineProperties.isPreparationMode()) {
+                    if (RoutingProfileManagerStatus.hasFailed()) {
+                        System.exit(1);
+                    }
                     LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
                     System.exit(0);
                 }
             } catch (Exception e) {
-                LOGGER.warn("Unable to initialize ORS due to an unexpected exeception: " + e);
+                LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
             }
         };
         Thread thread = new Thread(runnable);
@@ -81,4 +86,4 @@ public class ORSInitContextListener implements ServletContextListener {
             LOGGER.error(e.getMessage());
         }
     }
-} 
+}

@@ -37,6 +37,9 @@ RELEASING:
 ### Added
 - documentation for A* config parameters ([#1759](https://github.com/GIScience/openrouteservice/pull/1759))
 
+### Fixed
+- preparation mode exiting with code 0 on fail ([#1772](https://github.com/GIScience/openrouteservice/pull/1772))
+
 ## [8.0.0] - 2024-03-21
 ### Added
 - snapping service endpoints for returning nearest points on the graph ([#1519](https://github.com/GIScience/openrouteservice/issues/1519))
