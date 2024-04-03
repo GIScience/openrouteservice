@@ -65,7 +65,7 @@ public class ORSInitContextListener implements ServletContextListener {
                     System.exit(0);
                 }
             } catch (Exception e) {
-                LOGGER.warn("Unable to initialize ORS due to an unexpected exeception: " + e);
+                LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
             }
         };
         Thread thread = new Thread(runnable);
