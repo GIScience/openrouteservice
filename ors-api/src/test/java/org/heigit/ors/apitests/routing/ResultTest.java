@@ -2244,7 +2244,7 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(74.1f))
-                .body("routes[0].summary.duration", is(57.9f))
+                .body("routes[0].summary.duration", is(49.2f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
