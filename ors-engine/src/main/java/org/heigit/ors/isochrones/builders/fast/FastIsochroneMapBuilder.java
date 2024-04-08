@@ -99,15 +99,17 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         double metersPerSecond = maxSpeed / 3.6;
         // only needed for reachfactor property
         double meanMetersPerSecond = meanSpeed / 3.6;
+        GraphHopper gh = searchContext.getGraphHopper();
+        GraphHopperStorage graphHopperStorage = gh.getGraphHopperStorage();
 
-        Weighting weighting = ORSWeightingFactory.createIsochroneWeighting(searchContext, parameters.getRangeType());
+        EncodingManager encodingManager = searchContext.getGraphHopper().getEncodingManager();
+        Weighting weighting = new ORSWeightingFactory(graphHopperStorage, encodingManager).createIsochroneWeighting(searchContext, parameters.getRangeType());
 
         Coordinate loc = parameters.getLocation();
 
         FlagEncoder encoder = searchContext.getEncoder();
         String profileName = ProfileTools.makeProfileName(encoder.toString(), weighting.getName(), false);
-        GraphHopper gh = searchContext.getGraphHopper();
-        GraphHopperStorage graphHopperStorage = gh.getGraphHopperStorage();
+
         EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, graphHopperStorage.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(profileName)));
 
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();

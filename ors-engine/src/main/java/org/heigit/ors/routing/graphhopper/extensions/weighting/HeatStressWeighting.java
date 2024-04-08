@@ -22,7 +22,7 @@ public class HeatStressWeighting extends FastestWeighting {
         heatStressStorage = GraphStorageUtils.getGraphExtension(graphStorage, CsvGraphStorage.class);
         buffer = new byte[heatStressStorage.numEntries()];
 
-        weightingFactor = map.getDouble("factor", 1);
+        weightingFactor = map.getDouble("factor", 5);
         this.columnName = map.getString("column", "");
         this.columnIndex = heatStressStorage.columnIndex(columnName);
     }
