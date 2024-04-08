@@ -33,6 +33,7 @@ import org.heigit.ors.routing.algorithms.TDDijkstraCostCondition;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
+import org.heigit.ors.routing.graphhopper.extensions.weighting.AdditionWeighting;
 import org.heigit.ors.routing.traffic.TrafficSpeedCalculator;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
@@ -50,8 +51,14 @@ public class GraphEdgeMapFinder {
         FlagEncoder encoder = searchCntx.getEncoder();
         GraphHopperStorage graph = gh.getGraphHopperStorage();
         EncodingManager encodingManager = gh.getEncodingManager();
-        Weighting weighting = new ORSWeightingFactory(graph, encodingManager).createIsochroneWeighting(searchCntx, parameters.getRangeType());
+        boolean shouldApplySoftWeightings = searchCntx.getProperties().getBool("custom_weightings", false);
+        Weighting weighting = new ORSWeightingFactory(graph, encodingManager).createIsochroneWeighting(searchCntx, parameters.getRangeType(), shouldApplySoftWeightings);
         String profileName = ProfileTools.makeProfileName(encoder.toString(), weighting.getName(), false);
+        if (shouldApplySoftWeightings) {
+            // Create a weighting from the superweighting to get the name. This is a bit convoluted, as the access is protected in GH code.
+            Weighting superNamedWeighting = new ORSWeightingFactory(graph, encodingManager).createIsochroneWeighting(searchCntx, parameters.getRangeType());
+            profileName = ProfileTools.makeProfileName(encoder.toString(), superNamedWeighting.getName(), false);
+        }
         EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, encodingManager.getBooleanEncodedValue(Subnetwork.key(profileName)));
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
         EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph, defaultSnapFilter);

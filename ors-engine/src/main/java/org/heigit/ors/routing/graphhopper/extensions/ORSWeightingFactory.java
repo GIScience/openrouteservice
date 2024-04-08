@@ -139,12 +139,26 @@ public class ORSWeightingFactory implements WeightingFactory {
             result = new ORSFastestWeighting(encoder);
         }
 
+
+
         return result;
     }
 
-    public static Weighting createIsochroneWeighting(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
+    public Weighting createIsochroneWeighting(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
         if (travelRangeType == TravelRangeType.TIME) {
             return new ORSFastestWeighting(searchContext.getEncoder());
+        } else {
+            return new ShortestWeighting(searchContext.getEncoder());
+        }
+    }
+
+    public Weighting createIsochroneWeighting(RouteSearchContext searchContext, TravelRangeType travelRangeType, boolean applySoftWeightings) {
+        if (travelRangeType == TravelRangeType.TIME) {
+            Weighting weighting = new ORSFastestWeighting(searchContext.getEncoder());
+            if (applySoftWeightings) {
+                weighting = applySoftWeightings(searchContext.getProperties(), searchContext.getEncoder(), weighting);
+            }
+            return weighting;
         } else {
             return new ShortestWeighting(searchContext.getEncoder());
         }
