@@ -28,6 +28,7 @@ import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LandmarkStorage;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.CHConfig;
@@ -496,7 +497,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     public final boolean isFastIsochroneAvailable(RouteSearchContext searchContext, TravelRangeType travelRangeType) {
-        return eccentricity != null && eccentricity.isAvailable(ORSWeightingFactory.createIsochroneWeighting(searchContext, travelRangeType));
+        GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
+        EncodingManager encodingManager = searchContext.getGraphHopper().getEncodingManager();
+        return eccentricity != null && eccentricity.isAvailable(new ORSWeightingFactory(graph, encodingManager).createIsochroneWeighting(searchContext, travelRangeType));
     }
 
     /**
