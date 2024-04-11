@@ -1,0 +1,149 @@
+ors:
+  engine:
+    profiles:
+      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific.
+      car:
+        profile: driving-car
+        enabled: true
+        encoder_options:
+          turn_costs: true
+          block_fords: false
+          use_acceleration: true
+        preparation:
+          min_network_size: 200
+          methods:
+            ch:
+              enabled: true
+              threads: 1
+              weightings: fastest
+            lm:
+              enabled: false
+              threads: 1
+              weightings: fastest,shortest
+              landmarks: 16
+            core:
+              enabled: true
+              threads: 1
+              weightings: fastest,shortest
+              landmarks: 64
+              lmsets: highways;allow_all
+        execution:
+          methods:
+            lm:
+              active_landmarks: 6
+            core:
+              active_landmarks: 6
+        ext_storages:
+          WayCategory:
+          HeavyVehicle:
+          WaySurfaceType:
+          RoadAccessRestrictions:
+            use_for_warnings: true
+      hgv:
+        profile: driving-hgv
+        encoder_options:
+          turn_costs: true
+          block_fords: false
+          use_acceleration: true
+        preparation:
+          min_network_size: 200
+          methods:
+            ch:
+              enabled: true
+              threads: 1
+              weightings: recommended
+            core:
+              enabled: true
+              threads: 1
+              weightings: recommended,shortest
+              landmarks: 64
+              lmsets: highways;allow_all
+        execution:
+          methods:
+            core:
+              active_landmarks: 6
+        ext_storages:
+          WayCategory:
+          HeavyVehicle:
+            restrictions: true
+          WaySurfaceType:
+      bike-regular:
+        profile: cycling-regular
+        encoder_options:
+          consider_elevation: true
+          turn_costs: true
+          block_fords: false
+        ext_storages:
+          WayCategory:
+          WaySurfaceType:
+          HillIndex:
+          TrailDifficulty:
+      bike-mountain:
+        profile: cycling-mountain
+        encoder_options:
+          consider_elevation: true
+          turn_costs: true
+          block_fords: false
+        ext_storages:
+          WayCategory:
+          WaySurfaceType:
+          HillIndex:
+          TrailDifficulty:
+      bike-road:
+        profile: cycling-road
+        encoder_options:
+          consider_elevation: true
+          turn_costs: true
+          block_fords: false
+        ext_storages:
+          WayCategory:
+          WaySurfaceType:
+          HillIndex:
+          TrailDifficulty:
+      bike-electric:
+        profile: cycling-electric
+        encoder_options:
+          consider_elevation: true
+          turn_costs: true
+          block_fords: false
+        ext_storages:
+          WayCategory:
+          WaySurfaceType:
+          HillIndex:
+          TrailDifficulty:
+      walking:
+        profile: foot-walking
+        encoder_options:
+          block_fords: false
+        ext_storages:
+          WayCategory:
+          WaySurfaceType:
+          HillIndex:
+          TrailDifficulty:
+      hiking:
+        profile: foot-hiking
+        encoder_options:
+          block_fords: false
+        ext_storages:
+          WayCategory:
+          WaySurfaceType:
+          HillIndex:
+          TrailDifficulty:
+      wheelchair:
+        profile: wheelchair
+        encoder_options:
+          block_fords: true
+        maximum_snapping_radius: 50
+        ext_storages:
+          WayCategory:
+          WaySurfaceType:
+          Wheelchair:
+            KerbsOnCrossings: true
+          OsmId:
+      public-transport:
+        profile: public-transport
+        encoder_options:
+          block_fords: false
+        elevation: true
+        maximum_visited_nodes: 1000000
+        gtfs_file: ors-api/src/test/files/vrn_gtfs_cut.zip
