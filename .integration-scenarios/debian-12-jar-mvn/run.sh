@@ -69,12 +69,15 @@ function runTest() {
     else
       $testscript "${runType}" "${imageName}" 1>/dev/null 2>&1
     fi
-
-    if (($?)); then
+    testStatus=$?
+    if [ $testStatus -eq 1 ]; then
       hasErrors=1
       ((failed++))
       echo -e "${FG_RED}${B}failed${N}"
       (($failFast)) && exit 1
+    elif [ $testStatus -eq 2 ]; then
+      ((skipped++))
+      echo -e "${FG_ORA}${B}skipped${N}"
     else
       ((passed++))
       echo -e "${FG_GRN}passed${N}"
@@ -145,6 +148,7 @@ yq -i '.ors.engine.profiles.car.enabled = true' $TESTROOT/tmp/ors-config.yml
 
 hasErrors=0
 passed=0
+skipped=0
 failed=0
 
 for word in $pattern; do
@@ -155,8 +159,9 @@ for word in $pattern; do
 done
 
 (($passed)) && passedText=", ${FG_GRN}${B}${passed} passed${N}"
+(($skipped)) && skippedText=", ${FG_ORA}${B}${skipped} skipped${N}"
 (($failed)) && failedText=", ${FG_RED}${B}${failed} failed${N}"
 
-total=$(($passed + $failed))
-echo -e "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}done, ${total} test$( (($total-1)) && echo "s") executed${passedText}${failedText}"
+total=$(($passed + $skipped + $failed))
+echo -e "${FG_BLU}$(date +%Y-%m-%dT%H:%M:%S)${N} ${B}done, ${total} test$( (($total-1)) && echo "s") executed${passedText}${skippedText}${failedText}"
 exit $hasErrors

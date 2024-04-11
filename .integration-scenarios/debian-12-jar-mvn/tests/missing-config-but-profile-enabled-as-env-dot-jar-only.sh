@@ -5,6 +5,11 @@ source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
 prepareTest $(basename $0) $*
 
+if [ "$runType" = "mvn" ]; then
+  echo "skipping - mvn does not support env variables with dot notation"
+  exit 2;
+fi
+
 # Even if no yml config file is present, the ors is runnable
 # if at least one routing profile is enabled with a environment variable.
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
