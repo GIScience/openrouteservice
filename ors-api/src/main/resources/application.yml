@@ -143,3 +143,24 @@ ors:
         methods:
           lm:
             active_landmarks: 8
+    profiles:
+      car:
+        profile: driving-car
+      hgv:
+        profile: driving-hgv
+      bike-regular:
+        profile: cycling-regular
+      bike-mountain:
+        profile: cycling-mountain
+      bike-road:
+        profile: cycling-road
+      bike-electric:
+        profile: cycling-electric
+      walking:
+        profile: foot-walking
+      hiking:
+        profile: foot-hiking
+      wheelchair:
+        profile: wheelchair
+      public-transport:
+        profile: public-transport
