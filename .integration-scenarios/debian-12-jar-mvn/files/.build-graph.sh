@@ -13,7 +13,6 @@ prepareTest $callingScript $runType $image
 orsConfig=$(makeTempFile $callingScript "\
 ors:
   engine:
-    source_file:  ors-api/src/test/files/heidelberg.osm.gz
     profiles:
       ${enabledProfile}:
         enabled: true")

@@ -8,7 +8,6 @@ prepareTest $(basename $0) $*
 configPT=$(makeTempFile $(basename $0) "\
 ors:
   engine:
-    source_file: ors-api/src/test/files/heidelberg.osm.gz
     profiles:
       bike-electric:
         enabled: true
@@ -26,7 +25,6 @@ ors:
         enabled: true
       public-transport:
         enabled: true
-        gtfs_file: ors-api/src/test/files/vrn_gtfs_cut.zip
       walking:
         enabled: true
       wheelchair:

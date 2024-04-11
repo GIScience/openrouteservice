@@ -8,12 +8,8 @@ prepareTest $(basename $0) $*
 configPT=$(makeTempFile $(basename $0) "\
 ors:
   engine:
-    source_file: ors-api/src/test/files/heidelberg.osm.gz
     profile_default:
       enabled: true
-    profiles:
-      public-transport:
-        gtfs_file: ors-api/src/test/files/vrn_gtfs_cut.zip
 ")
 
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \

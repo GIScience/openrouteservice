@@ -8,7 +8,6 @@ prepareTest $(basename $0) $*
 configCar=$(makeTempFile $(basename $0) "\
 ors:
   engine:
-    source_file:  ors-api/src/test/files/heidelberg.osm.gz
     profiles:
       car:
         enabled: true")
@@ -16,7 +15,6 @@ ors:
 configHgv=$(makeTempFile $(basename $0) "\
 ors:
   engine:
-    source_file:  ors-api/src/test/files/heidelberg.osm.gz
     profiles:
       hgv:
         enabled: true")
