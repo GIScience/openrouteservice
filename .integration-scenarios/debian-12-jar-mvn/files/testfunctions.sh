@@ -207,6 +207,15 @@ function makeTempFile() {
   echo "$tempFile"
 }
 
+function makeTempCopy() {
+  script=$1
+  sourceFile=$2
+  mkdir -p "$TESTROOT/tmp"
+  tempFile=$(mktemp "${TESTROOT}/tmp/${script}-$(basename $sourceFile).XXXXXXXXX")
+  cat "$sourceFile" >> $tempFile
+  echo "$tempFile"
+}
+
 function deleteTempFiles() {
   script=$1
   rm "${TESTROOT}/tmp/${script}".*
