@@ -11,7 +11,7 @@ mvn=0
 verbose=0
 pattern=""
 
-function printCliHelp() { # TODO adapt
+function printCliHelp() {
   echo -e "\
 ${B}$SCRIPT${N} - run ors tests in containers
 
@@ -139,6 +139,9 @@ fi
 if [ -z "$pattern" ]; then echo -e "${B}No tests specified!${N}"; exit 0; fi
 
 mkdir -p "${TESTROOT}/graphs_volume"
+
+cp $TESTROOT/../../ors-api/src/main/resources/application.yml $TESTROOT/tmp/ors-config.yml
+yq -i '.ors.engine.profiles.car.enabled = true' $TESTROOT/tmp/ors-config.yml
 
 hasErrors=0
 passed=0
