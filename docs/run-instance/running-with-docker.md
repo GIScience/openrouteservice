@@ -357,7 +357,7 @@ Configuring properties in `docker-compose.yml` is a good way to set a handful of
 If you want to customize a great number of properties or if you maybe have different configurations in use,
 it is more convenient to save the properties to a separate file.
 
-The properties that were set in in the `docker-compose.yml` snippet in the previous section could instead be set in a separete file `ors-config.env`.
+The properties that were set in the `docker-compose.yml` snippet in the previous section could instead be set in a separate file `ors-config.env`.
 The only difference is, that equal signs are used instead of colons:
 
 ```
