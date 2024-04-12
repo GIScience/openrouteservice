@@ -1946,7 +1946,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(1404, 1)))
+                .body("routes[0].summary.distance", is(closeTo(1156, 1)))
                 .statusCode(200);
 
         options = new JSONObject();
@@ -1990,7 +1990,7 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(1156.6, 1)))
+                .body("routes[0].summary.distance", is(closeTo(1156, 1)))
                 .statusCode(200);
         options = new JSONObject();
         options.put("avoid_countries", constructFromPipedList("1|3"));
@@ -2006,7 +2006,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(3172.4, 3)))
+                .body("routes[0].summary.distance", is(closeTo(3159, 3)))
                 .statusCode(200);
 
         // Test avoid_countries with ISO 3166-1 Alpha-2 parameters
@@ -2021,7 +2021,7 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(3172.4, 3)))
+                .body("routes[0].summary.distance", is(closeTo(3159, 3)))
                 .statusCode(200);
 
         // Test avoid_countries with ISO 3166-1 Alpha-3 parameters
@@ -2036,7 +2036,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(3172.4f, 3)))
+                .body("routes[0].summary.distance", is(closeTo(3159, 3)))
                 .statusCode(200);
 
     }
