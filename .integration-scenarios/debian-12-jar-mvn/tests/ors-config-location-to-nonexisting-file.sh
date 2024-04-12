@@ -12,26 +12,21 @@ ors:
       car:
         enabled: true")
 
-configHgv=$(makeTempFile $(basename $0) "\
-ors:
-  engine:
-    profiles:
-      hgv:
-        enabled: true")
-
-# A default yml ${CONTAINER_WORK_DIR}/ors-config.yml is present and would normally be used,
-# but if a config file specified as run argument (first positional parameter)
-# the run argument should win.
+# The profile configured as run argument should be preferred over environment variable.
+# The default yml file should not be used when ORS_CONFIG_LOCATION is set,
+# even if the file does not exist. Fallback to default ors-config.yml is not desired!
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
   -v "${configCar}":${CONTAINER_WORK_DIR}/ors-config.yml \
-  -v "${configHgv}":${CONTAINER_WORK_DIR}/config-hgv.yml \
+  --env ORS_CONFIG_LOCATION=${CONTAINER_WORK_DIR}/nonexisting.yml \
   "local/${IMAGE}:latest" \
-  $(getProgramArguments ${runType} ${CONTAINER_WORK_DIR}/config-hgv.yml) &
+  $(getProgramArguments ${runType} ${CONTAINER_WORK_DIR}/config-car.yml) &
 
-awaitOrsReady 60 "${HOST_PORT}"
-profiles=$(requestEnabledProfiles ${HOST_PORT})
+
+# expect process finished timout
+res=$(expectOrsStartupFails 60 "$CONTAINER" )
+# stop container if was not finished
 cleanupTest
 
-assertEquals "driving-hgv" "${profiles}"
+assertEquals "terminated" "$res"

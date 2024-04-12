@@ -5,21 +5,17 @@ source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
 prepareTest $(basename $0) $*
 
-configCar=$(makeTempFile $(basename $0) "\
-ors:
-  engine:
-    profiles:
-      car:
-        enabled: true")
-
+# Even if no yml config file is present, the ors is runnable
+# if at least one routing profile is enabled with a environment variable
+# and a source_file is also specified.
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
-  -v "${configCar}":"${CONTAINER_CONF_DIR_USER}/ors-config.yml" \
+  --env ORS_ENGINE_PROFILES_HGV_ENABLED=true \
   "local/${IMAGE}:latest" &
 
 awaitOrsReady 60 "${HOST_PORT}"
 profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
-assertEquals "driving-car" "${profiles}"
+assertEquals "driving-hgv" "${profiles}"

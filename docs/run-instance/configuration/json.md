@@ -10,6 +10,15 @@ but we do **not** recommend using this configuration method.
 Please consider [migrating your JSON configuration](https://github.com/GIScience/ors-config-migration#usage) to the new style.
 Note that currently all settings in a provided JSON configuration file will **override** any settings in the YAML file.
 
+:::warning
+Since openrouteservice v8.0.1 some profile defaults were removed. 
+You have to set those properties in you profiles explicitly. 
+We recommend to [transform the json configuration to YAML](https://github.com/GIScience/ors-config-migration#usage) 
+and then compare the transformed file with the default `ors-config.yml` for the openrouteservice version you are using (>v8.0.0).
+You can download `ors-config.yml` as release asset from [github](https://github.com/GIScience/openrouteservice/releases).
+Note, that some profile properties can be defined in the yaml in `ors.engine.profile_default` as default for all profiles, where these properties are not set explicitly.
+:::
+
 ## ors
 
 The top level element.

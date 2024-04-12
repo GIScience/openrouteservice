@@ -5,17 +5,21 @@ source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
 prepareTest $(basename $0) $*
 
-# Even if no yml config file is present, the ors is runnable
-# if at least one routing profile is enabled with a environment variable.
+configPT=$(makeTempFile $(basename $0) "\
+ors:
+  engine:
+    profile_default:
+      enabled: true
+")
+
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
-  --env ors.engine.profiles.hgv.enabled=true \
-  --env ors.engine.source_file=ors-api/src/test/files/heidelberg.osm.gz \
+  -v "${configPT}":"${CONTAINER_WORK_DIR}/ors-config.yml" \
   "local/${IMAGE}:latest" &
 
-awaitOrsReady 60 "${HOST_PORT}"
+awaitOrsReady 300 "${HOST_PORT}"
 profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
-assertEquals "driving-hgv" "${profiles}"
+assertSortedWordsEquals "foot-walking wheelchair foot-hiking public-transport cycling-electric cycling-mountain driving-car driving-hgv cycling-regular cycling-road" "${profiles}"

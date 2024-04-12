@@ -27,4 +27,4 @@ awaitOrsReady 60 "${HOST_PORT}"
 profiles=$(requestEnabledProfiles ${HOST_PORT})
 cleanupTest
 
-assertEquals 'driving-hgv driving-car' "${profiles}"
+assertSortedWordsEquals 'driving-hgv driving-car' "${profiles}"

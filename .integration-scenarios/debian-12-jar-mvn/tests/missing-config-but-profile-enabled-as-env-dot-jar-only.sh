@@ -5,14 +5,17 @@ source $TESTROOT/files/testfunctions.sh
 source $TESTROOT/files/test.conf
 prepareTest $(basename $0) $*
 
+if [ "$runType" = "mvn" ]; then
+  echo "skipping - mvn does not support env variables with dot notation"
+  exit 2;
+fi
+
 # Even if no yml config file is present, the ors is runnable
-# if at least one routing profile is enabled with a environment variable
-# and a source_file is also specified.
+# if at least one routing profile is enabled with a environment variable.
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
-  --env ORS_ENGINE_PROFILES_HGV_ENABLED=true \
-  --env ORS_ENGINE_SOURCE_FILE=ors-api/src/test/files/heidelberg.osm.gz \
+  --env ors.engine.profiles.hgv.enabled=true \
   "local/${IMAGE}:latest" &
 
 awaitOrsReady 60 "${HOST_PORT}"
