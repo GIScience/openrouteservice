@@ -159,9 +159,6 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
                 way.setTag(TAG_KEY_COUNTRY1, countries[0]);
                 way.setTag(TAG_KEY_COUNTRY2, countries[0]);
             }
-            //DEBUG OUTPUT
-            if (countries.length > 0)
-                System.out.println(way.getId() + ": " + String.join(",", countries));
         } else {
             wayNodeTags = new HashMap<>();
             if (nodeTags != null) {
