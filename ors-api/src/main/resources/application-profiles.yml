@@ -1,7 +1,12 @@
 ors:
   engine:
     profiles:
-      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific.
+      # All properties defined in `ors.engine.profile_default` can also be set in each profile to overwrite the defaults profile-specific.
+      # E.g. to enable a profile, add `enabled: true` to the profile. Or to enable all profiles, you could just set `enabled: true` in `ors.engine.profile_default`.
+      # Recommended profile specific values below. Note, that
+      #     - `encoder_options` and `ext_storages` cannot be set in profile_default
+      # `   - `profile` cannot be overridden in ors-config.yml/ors-config.env for our standard profile keys:
+      #        car, hgv, bike-regular, bike-mountain, bike-road, bike-electric, walking, hiking, wheelchair, public-transport
       car:
         profile: driving-car
         enabled: true
