@@ -39,6 +39,7 @@ RELEASING:
 
 ### Fixed
 - preparation mode exiting with code 0 on fail ([#1772](https://github.com/GIScience/openrouteservice/pull/1772))
+- some properties cannot be set in ors-config ors.engine.profile_default (Issue [#1762](https://github.com/GIScience/openrouteservice/issues/1762))
 
 ## [8.0.0] - 2024-03-21
 ### Added
