@@ -36,6 +36,7 @@ RELEASING:
 ## [Unreleased]
 ### Added
 - documentation for A* config parameters ([#1759](https://github.com/GIScience/openrouteservice/pull/1759))
+- keep-alive-timeout for spring internal tomcat ([#1780](https://github.com/GIScience/openrouteservice/pull/1780))
 
 ### Fixed
 - preparation mode exiting with code 0 on fail ([#1772](https://github.com/GIScience/openrouteservice/pull/1772))
