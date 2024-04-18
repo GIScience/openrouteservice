@@ -209,5 +209,5 @@ function makeTempFile() {
 
 function deleteTempFiles() {
   script=$1
-  rm "${TESTROOT}/tmp/${script}".*
+  rm "${TESTROOT}/tmp/${script}"*
 }
