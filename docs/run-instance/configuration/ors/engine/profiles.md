@@ -24,8 +24,8 @@ In the directions endpoint, the profiles are addressed by their encoder name (e.
 :::
 
 ::: warning
-If you specified `profile_default` settings they might not be taken into account (v8.0.0)! 
-This will be fixed in the next patch release.
+If you specified `profile_default` settings in your ors-config.yml or ors-config.env, they might not be taken into account (since v8.0.0)! 
+This will be fixed in on of the next releases.
 As a workaround, you can move all `profile_default` settings to the specific profile where you need them to work.
 :::
 
