@@ -179,7 +179,7 @@ function prepareTest() {
   if [ -z "$IMAGE" ]; then printError "missing param 2: docker image"; exit 1; fi
 
   CONTAINER=${runType}-$(removeExtension "$(basename $script)")
-  HOST_PORT=$(findFreePort 8082)
+  HOST_PORT=$(findFreePort 8083)
 
   mkdir -p ~/.m2
   M2_FOLDER="$(realpath ~/.m2)"
