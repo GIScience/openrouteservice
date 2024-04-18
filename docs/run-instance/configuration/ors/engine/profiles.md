@@ -4,7 +4,7 @@
 The profiles object contains key-object-pairs for each profile you are using.
 
 There are some default profile keys, where flag encoders (specified in `ors.engine.profiles.*.profile`) are predefined and not changeable. 
-These standard profiles are already predefined in our standard ors-config.yml with recommended default-specific settings:
+These standard profiles are already predefined in our standard ors-config.yml with recommended profile-specific settings:
 
 | `*` in `ors.engine.profiles.*` | flag encoder `ors.engine.profiles.*.profile` |
 |--------------------------------|----------------------------------------------|
