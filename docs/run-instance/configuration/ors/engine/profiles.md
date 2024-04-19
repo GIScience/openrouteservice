@@ -20,7 +20,7 @@ These standard profiles are:
 | `public-transport`             | `public-transport`                           | 
 
 ::: warning
-The predefined settings override settings specified in the `profile_default` in your ors-config.yml or ors-config.env!  
+The predefined settings override settings specified in the `profile_default` in your ors-config.yml or ors-config.env!   
 If you want to specify your own profile settings based on your specific `profile_default` values, you can work around this by naming your profile differently, e.g. `custom-car` instead of `car`. 
 Note that the profile name can be chosen freely but cannot contain special characters that cannot be used for directory names on your operating system. 
 :::
