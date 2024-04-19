@@ -183,7 +183,7 @@ ors:
 #          WaySurfaceType:
 #          RoadAccessRestrictions:
 #            use_for_warnings: true
-#        enabled: true
+        enabled: true
 #      hgv:
 #        profile: driving-hgv
 #        encoder_options:
