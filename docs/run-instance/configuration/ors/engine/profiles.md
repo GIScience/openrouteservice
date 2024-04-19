@@ -3,8 +3,8 @@
 
 The profiles object contains key-object-pairs for each profile you are using.
 
-There are some default profile keys, where flag encoders (specified in `ors.engine.profiles.*.profile`) are predefined and not changeable. 
-These standard profiles are already predefined in our standard ors-config.yml with recommended profile-specific settings:
+There are some default profile keys in our standard ors-config.yml with flag encoders and recommended profile-specific settings predefined. 
+These standard profiles are:
 
 | `*` in `ors.engine.profiles.*` | flag encoder `ors.engine.profiles.*.profile` |
 |--------------------------------|----------------------------------------------|
@@ -20,13 +20,13 @@ These standard profiles are already predefined in our standard ors-config.yml wi
 | `public-transport`             | `public-transport`                           | 
 
 ::: warning
-In the directions endpoint, the profiles are addressed by their encoder name (e.g. `driving-car`)!
+The predefined settings override settings specified in the `profile_default` in your ors-config.yml or ors-config.env! This also means that you cannot enable all default profiles by simply setting `profile_default.enabled` to `true`.  
+If you want to specify your own profile settings based on your specific `profile_default` values, you can work around this by naming your profile differently, e.g. `custom-car` instead of `car`. 
+Note that the profile name can be chosen freely but cannot contain special characters that cannot be used for directory names on your operating system. 
 :::
 
 ::: warning
-If you specified `profile_default` settings in your ors-config.yml or ors-config.env, they might not be taken into account (since v8.0.0)! 
-This will be fixed in on of the next releases.
-As a workaround, you can move all `profile_default` settings to the specific profile where you need them to work.
+In the directions endpoint, the profiles are addressed by their encoder name (e.g. `driving-car`)!
 :::
 
 Properties for each (enabled) profile are set under `ors.engine.profiles.<profile>`, e.g.
