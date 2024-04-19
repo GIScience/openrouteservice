@@ -9,30 +9,15 @@ configPT=$(makeTempFile $(basename $0) "\
 ors:
   engine:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
+    profile_default:
+      enabled: true
     profiles:
-      bike-electric:
-        enabled: true
-      bike-mountain:
-        enabled: true
-      bike-regular:
-        enabled: true
-      bike-road:
-        enabled: true
-      car:
-        enabled: true
-      hgv:
-        enabled: true
-      hiking:
-        enabled: true
       public-transport:
-        enabled: true
         gtfs_file: ors-api/src/test/files/vrn_gtfs_cut.zip
-      walking:
-        enabled: true
-      wheelchair:
-        enabled: true
 ")
 
+# When profile_default.enabled: true
+# then all profiles should be enabled
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \

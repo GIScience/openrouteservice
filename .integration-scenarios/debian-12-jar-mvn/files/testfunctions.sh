@@ -85,18 +85,44 @@ function expectOrsStartupFails() {
   fi
 }
 
+function assertSortedWordsEquals() {
+  expected=$1
+  received=$2
+  sorted_expected=$(echo "$expected" | tr ' ' '\n' | sort | tr '\n' ' ')
+  sorted_received=$(echo "$received" | tr ' ' '\n' | sort | tr '\n' ' ')
+  assertEquals "$sorted_expected" "$sorted_received"
+}
+
 function assertEquals() {
   expected=$1
   received=$2
+  check=$3
+  if [ -n "$check" ]; then checkMsg="Checking '$check': "; fi
   if [ "$expected" != "$received" ]; then
-    echo -e "${FG_RED}ASSERTION ERROR:${N}"
+    echo -e "${FG_RED}ASSERTION ERROR:${N} ${checkMsg}"
     echo -e "expected: '${FG_GRN}${expected}${N}'"
     echo -e "received: '${FG_RED}${received}${N}'"
     exit 1
   else
-    echo -e "${FG_GRN}received '$received' as expected${N}"
-    exit 0
+    echo -e "${FG_GRN}${checkMsg}Received '${received}' as expected${N}"
   fi
+}
+
+function assertContains() {
+  expected=$1
+  received=$2
+  num=$(echo "${received}" | grep -c "${expected}")
+  if [[ $num -eq 0 ]]; then
+    echo -e "${FG_RED}ASSERTION ERROR:${N}: '${expected}' not contained as expected${N} $num"
+    exit 1
+  else
+    echo -e "${FG_GRN}'${expected}' is contained as expected${N}"
+  fi
+}
+
+function requestStatusString() {
+  port=$1
+  echo $(curl --silent $(getOrsUrl $port)/status | jq . )
 }
 
 function requestEnabledProfiles() {
@@ -153,7 +179,7 @@ function prepareTest() {
   if [ -z "$IMAGE" ]; then printError "missing param 2: docker image"; exit 1; fi
 
   CONTAINER=${runType}-$(removeExtension "$(basename $script)")
-  HOST_PORT=$(findFreePort 8082)
+  HOST_PORT=$(findFreePort 8083)
 
   mkdir -p ~/.m2
   M2_FOLDER="$(realpath ~/.m2)"
@@ -183,5 +209,5 @@ function makeTempFile() {
 
 function deleteTempFiles() {
   script=$1
-  rm "${TESTROOT}/tmp/${script}".*
+  rm "${TESTROOT}/tmp/${script}"*
 }
