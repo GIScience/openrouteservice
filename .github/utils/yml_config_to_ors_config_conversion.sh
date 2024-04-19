@@ -37,7 +37,8 @@ echo "- Uncomment ors, engine and source_file"
 sed -i -e '/^#ors:/s/^#//' -e '/^#.*engine:/s/^#//' -e '/^#.*source_file:/s/^#//' "$output_file"
 
 echo "- Uncomment subsequent lines for profiles.car.enabled in ors.engine"
-sed -i -e '/^#.*profiles:/s/^#//' "$output_file"
-sed -i -e '/^#.*car:.*/s/^#//' "$output_file"
+sed -i -e '/^#    profiles:/s/^#//' "$output_file"
+sed -i -e '/^#      car:.*/s/^#//' "$output_file"
+sed -i -e '/^#        car:.*/s/^#//' "$output_file"
 
 echo "Parsing complete. Result saved to $output_file"
