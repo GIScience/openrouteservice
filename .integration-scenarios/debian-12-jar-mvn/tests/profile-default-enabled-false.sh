@@ -16,15 +16,15 @@ ors:
         gtfs_file: ors-api/src/test/files/vrn_gtfs_cut.zip
 ")
 
+# When profiles are not enabled as default and none is explicitly enabled,
+# then ORS should not start up
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
   -v "${configPT}":"${CONTAINER_WORK_DIR}/ors-config.yml" \
   "local/${IMAGE}:latest" &
 
-# expect process finished timout
 res=$(expectOrsStartupFails 300 "$CONTAINER" )
-# stop container if was not finished
 cleanupTest
 
 assertEquals "terminated" "$res"

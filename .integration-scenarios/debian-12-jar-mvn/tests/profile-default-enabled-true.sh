@@ -16,6 +16,8 @@ ors:
         gtfs_file: ors-api/src/test/files/vrn_gtfs_cut.zip
 ")
 
+# When profile_default.enabled: true
+# then all profiles should be enabled
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
