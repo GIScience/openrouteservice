@@ -18,6 +18,9 @@ cp $input_file $output_file
 echo ""
 echo "Replace parameters:"
 
+echo "- enable ors.engine.profiles.car"
+yq -i '.ors.engine.profiles.car.enabled = true' "$output_file" || exit 1
+
 echo "- set ors.engine.source_file to ors-api/src/test/files/heidelberg.osm.gz"
 yq -i '.ors.engine.source_file = "ors-api/src/test/files/heidelberg.osm.gz"' "$output_file" || exit 1
 
