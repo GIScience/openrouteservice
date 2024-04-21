@@ -65,7 +65,7 @@ and the following additional rule which replace the check for `ford`:
 Definitions:  
 _restrictions_ = `[bicycle, vehicle, access]`  
 _restrictedValues_ = `[private, no, restricted, military, emergency]`  
-_intendedValues_ = `[yes, designated, official, permissive]`  
+_intendedValues_ = `[yes, designated, official, permissive, destination]`  
 _wayTypesWithDefaultSpeed_ = `[unclassified, tertiary_link, primary_link, bridleway, tertiary, living_street, trunk, motorway_link, steps, motorway, secondary, path, residential, road, service, footway, pedestrian, track, secondary_link, cycleway, trunk_link, primary]`  
 
 | Tag combination                                                                                                                                                                                                                      |       Reject       |       Accept       |    Conditional     |

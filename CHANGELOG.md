@@ -38,6 +38,7 @@ RELEASING:
 - documentation for A* config parameters ([#1759](https://github.com/GIScience/openrouteservice/pull/1759))
 - documentation for non-positive values of `maximum_grade_level` encoder config parameter ([#1775](https://github.com/GIScience/openrouteservice/pull/1775))
 - keep-alive-timeout for spring internal tomcat ([#1780](https://github.com/GIScience/openrouteservice/pull/1780))
+- support bicycle=destination for bike profiles ([#1782](https://github.com/GIScience/openrouteservice/issues/1782))
 
 ### Fixed
 - preparation mode exiting with code 0 on fail ([#1772](https://github.com/GIScience/openrouteservice/pull/1772))

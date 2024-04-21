@@ -133,6 +133,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         intendedValues.add(KEY_DESIGNATED);
         intendedValues.add(KEY_OFFICIAL);
         intendedValues.add("permissive");
+        intendedValues.add("destination");
 
         oppositeLanes.add("opposite");
         oppositeLanes.add("opposite_lane");

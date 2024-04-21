@@ -46,6 +46,12 @@ class RegularBikeFlagEncoderTest {
         way.setTag("bicycle", "yes");
         assertTrue(flagEncoder.getAccess(way).isWay());
 
+        way.setTag("bicycle", "permissive");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+
+        way.setTag("bicycle", "destination");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+
         way.setTag("bicycle", "no");
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }
