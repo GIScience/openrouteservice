@@ -18,6 +18,12 @@
             <groupId>org.heigit.ors</groupId>
             <artifactId>ors-engine</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.heigit.ors</groupId>
