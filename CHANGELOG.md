@@ -43,6 +43,9 @@ RELEASING:
 - preparation mode exiting with code 0 on fail ([#1772](https://github.com/GIScience/openrouteservice/pull/1772))
 - some more properties can be defined in a user's ors-config.yml/env ors.engine.profile_default without side effects (Issue [#1762](https://github.com/GIScience/openrouteservice/issues/1762))
 
+### Security
+- Fix CVEs GHSA-hgjh-9rj2-g67j, GHSA-ccgv-vj62-xf9h, GHSA-7w75-32cg-r6g2, GHSA-v682-8vv8-vpwr ([#1788](https://github.com/GIScience/openrouteservice/pull/1788))
+
 ## [8.0.0] - 2024-03-21
 ### Added
 - snapping service endpoints for returning nearest points on the graph ([#1519](https://github.com/GIScience/openrouteservice/issues/1519))
