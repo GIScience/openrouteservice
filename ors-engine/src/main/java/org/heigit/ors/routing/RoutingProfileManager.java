@@ -609,7 +609,7 @@ public class RoutingProfileManager {
         if (rp == null)
             throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
 
-        return rp.computeMatrix(req);
+        return req.computeMatrix(rp);
     }
 
     public ExportResult computeExport(ExportRequest req) throws Exception {
