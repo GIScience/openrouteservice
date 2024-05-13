@@ -31,9 +31,9 @@ At program start openrouteservice reports which configuration file was loaded.
 
 Depending on the artifact type, the configuration properties can be specified in different formats.
 Which format to use in which scenario is documented in the config documentations for 
-[JAR](/run-instance/running-jar.md),
-[WAR](/run-instance/running-war.md) and 
-[Docker](/run-instance/running-with-docker.md).
+[JAR](../running-jar.md),
+[WAR](../running-war.md) and 
+[Docker](../running-with-docker.md).
 
 * `.yml` is the default configuration format since version 8. You can find an [example configuration file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.yml) with all available configuration options. Only a minimal set of properties is active, all others are commented out.
 * `.env` files for Docker setup. There is also an [example env file](https://github.com/GIScience/openrouteservice/blob/main/ors-config.env) that you can download and customize. 
@@ -80,7 +80,7 @@ The properties are organized in a hierarchical structure, with the following one
     * [ors.messages](ors/messages/index.md): System messages that can be sent with API responses following simple rules.
 
 At the very least, openrouteservice needs the configuration to contain an enabled [profile](ors/engine/profiles.md) and the
-reference to an [OSM data file](/run-instance/data.md#osm-data) to run properly. Therefore, the minimal valid content of such a file
+reference to an [OSM data file](../data.md#osm-data) to run properly. Therefore, the minimal valid content of such a file
 would be, e.g.:
 
 ```yaml
@@ -113,7 +113,7 @@ The options in order of precedence (higher options win over lower) are:
   ```
   
 The option to configure using environment variables is especially useful in contexts where you want to run
-openrouteservice in containers such as with [docker](/run-instance/running-with-docker.md). 
+openrouteservice in containers such as with [docker](../running-with-docker.md). 
 
 Every property also corresponds to an environment variable name in *uppercase letters* and with *underscores* replacing *dots*, so e.g.
 - `ORS_ENGINE_SOURCE_FILE` replaces `ors.engine.source_file`

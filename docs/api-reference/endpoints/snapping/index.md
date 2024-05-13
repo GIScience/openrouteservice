@@ -3,7 +3,7 @@
 :::warning NOTE
 This endpoint is not available in the public API,
 but you can use it when running an own instance of openrouteservice.
-You can easily create requests with the [swagger-ui](/api-reference/index.md#swagger-ui).
+You can easily create requests with the [swagger-ui](../../index.md#swagger-ui).
 :::
 
 The snapping endpoint can be used to snap points to the edges of the street network for a specific means of transportation.
