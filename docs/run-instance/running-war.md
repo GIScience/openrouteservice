@@ -16,7 +16,7 @@ Starting with version 8 you can download the ready to use WAR from the "Assets" 
 
 ## Build
 
-How this is done is independent of the artifact type you want to use and is documented in [Building from Source](/run-instance/building-from-source.md).
+How this is done is independent of the artifact type you want to use and is documented in [Building from Source](building-from-source.md).
 
 ## Run
 

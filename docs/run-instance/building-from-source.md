@@ -1,7 +1,7 @@
 # Building from Source
 
-If you need to customize your openrouteservice instance even further than what is possible by [configuration](/run-instance/configuration/index.md), you might need to make changes to the code. 
-If you implement features that might be useful for others as well, consider [contributing](/contributing/index.md)! The following instructions are useful to get you set up to start modifying the code.
+If you need to customize your openrouteservice instance even further than what is possible by [configuration](configuration/index.md), you might need to make changes to the code. 
+If you implement features that might be useful for others as well, consider [contributing](../contributing/index.md)! The following instructions are useful to get you set up to start modifying the code.
 
 
 ## Prerequisites
