@@ -23,7 +23,7 @@ RUN sed -i "/ors.engine.source_file=.*/s/.*/ors.engine.source_file=\/home\/ors\/
         sed -i "/    source_file:.*/s/.*/    source_file: \/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.yml"
 
 # build final image, just copying stuff inside
-FROM docker.io/amazoncorretto:21.0.2-alpine3.19 AS publish
+FROM docker.io/amazoncorretto:21.0.3-alpine3.19 AS publish
 
 # Build ARGS
 ARG UID=1000
@@ -35,7 +35,7 @@ ARG ORS_HOME=/home/ors
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 
 # Setup the target system with the right user and folders.
-RUN apk update && apk add --no-cache bash yq jq && \
+RUN apk update && apk add --no-cache openssl bash yq jq  && \
     addgroup ors -g ${GID} && \
     mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache  && \
     adduser -D -h ${ORS_HOME} -u ${UID} --system -G ors ors  && \
