@@ -35,6 +35,20 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
+- for new features.
+### Changed
+- existing functionality.
+### Deprecated
+- soon-to-be removed features.
+### Removed
+- now removed features.
+### Fixed
+- any bug.
+### Security
+- in case of vulnerabilities. (Use for vulnerability fixes)
+
+## [8.0.1] - 2024-05-14
+### Added
 - documentation for A* config parameters ([#1759](https://github.com/GIScience/openrouteservice/pull/1759))
 - documentation for non-positive values of `maximum_grade_level` encoder config parameter ([#1775](https://github.com/GIScience/openrouteservice/pull/1775))
 - keep-alive-timeout for spring internal tomcat ([#1780](https://github.com/GIScience/openrouteservice/pull/1780))
@@ -754,7 +768,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.0.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.0.1...HEAD
+[8.0.1]: https://github.com/GIScience/openrouteservice/compare/v8.0.0...v8.0.1
 [8.0.0]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...v8.0.0
 [7.1.1]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/GIScience/openrouteservice/compare/v7.0.1...v7.1.0
