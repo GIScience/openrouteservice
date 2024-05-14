@@ -16,29 +16,21 @@ package org.heigit.ors.routing;
 import com.google.common.base.Strings;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
-import com.graphhopper.GraphHopper;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.gtfs.*;
-import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
-import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
 import org.apache.log4j.Logger;
-import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.exceptions.IncompatibleParameterException;
 import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.export.ExportRequest;
-import org.heigit.ors.export.ExportResult;
-import org.heigit.ors.export.ExportWarning;
 import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
@@ -46,9 +38,6 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -58,7 +47,6 @@ import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
-import org.locationtech.jts.geom.Coordinate;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -560,91 +548,6 @@ public class RoutingProfile {
         }
 
         return result;
-    }
-
-    public ExportResult computeExport(ExportRequest req) throws Exception {
-        ExportResult res = new ExportResult();
-
-        GraphHopper gh = getGraphhopper();
-        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
-
-        PMap hintsMap = new PMap();
-        int weightingMethod = WeightingMethod.FASTEST;
-        ProfileTools.setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
-        String profileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
-        Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
-
-        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
-
-
-        // filter graph for nodes in Bounding Box
-        LocationIndex index = gh.getLocationIndex();
-        NodeAccess nodeAccess = graph.getNodeAccess();
-        BBox bbox = req.getBoundingBox();
-
-        ArrayList<Integer> nodesInBBox = new ArrayList<>();
-        index.query(bbox, edgeId -> {
-            // According to GHUtility.getEdgeFromEdgeKey, edgeIds are calculated as edgeKey/2.
-            EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
-            int baseNode = edge.getBaseNode();
-            int adjNode = edge.getAdjNode();
-
-            if (bbox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
-                nodesInBBox.add(baseNode);
-            }
-            if (bbox.contains(nodeAccess.getLat(adjNode), nodeAccess.getLon(adjNode))) {
-                nodesInBBox.add(adjNode);
-            }
-        });
-
-        LOGGER.debug("Found %d nodes in bbox.".formatted(nodesInBBox.size()));
-
-        if (nodesInBBox.isEmpty()) {
-            // without nodes, no export can be calculated
-            res.setWarning(new ExportWarning(ExportWarning.EMPTY_BBOX));
-            return res;
-        }
-
-        // calculate node coordinates
-        for (int from : nodesInBBox) {
-            Coordinate coord = new Coordinate(nodeAccess.getLon(from), nodeAccess.getLat(from));
-            res.addLocation(from, coord);
-
-            EdgeIterator iter = explorer.setBaseNode(from);
-            while (iter.next()) {
-                int to = iter.getAdjNode();
-                if (nodesInBBox.contains(to)) {
-                    double weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
-                    Pair<Integer, Integer> p = new Pair<>(from, to);
-                    res.addEdge(p, weight);
-
-                    if (req.debug()) {
-                        Map<String, Object> extra = new HashMap<>();
-                        extra.put("edge_id", iter.getEdge());
-                        WheelchairAttributesGraphStorage storage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), WheelchairAttributesGraphStorage.class);
-                        if (storage != null) {
-                            WheelchairAttributes attributes = new WheelchairAttributes();
-                            byte[] buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
-                            storage.getEdgeValues(iter.getEdge(), attributes, buffer);
-                            if (attributes.hasValues()) {
-                                extra.put("incline", attributes.getIncline());
-                                extra.put("surface_quality_known", attributes.isSurfaceQualityKnown());
-                                extra.put("suitable", attributes.isSuitable());
-                            }
-                        }
-                        OsmIdGraphStorage storage2 = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
-                        if (storage2 != null) {
-                            extra.put("osm_id", storage2.getEdgeValue(iter.getEdge()));
-                        }
-                        res.addEdgeExtra(p, extra);
-                    }
-                }
-            }
-        }
-
-        return res;
     }
 
     public RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {

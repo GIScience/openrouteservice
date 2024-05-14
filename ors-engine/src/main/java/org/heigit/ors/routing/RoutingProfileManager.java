@@ -617,7 +617,7 @@ public class RoutingProfileManager {
 
         if (rp == null)
             throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
-        return rp.computeExport(req);
+        return req.computeExport(rp);
     }
 
 }
