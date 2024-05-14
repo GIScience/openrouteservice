@@ -1,13 +1,11 @@
 package org.heigit.ors.api.services;
 
-import com.graphhopper.GraphHopper;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.PointNotFoundException;
 import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.snapping.SnappingErrorCodes;

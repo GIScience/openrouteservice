@@ -166,7 +166,7 @@ public class RoutingProfileManager {
     }
 
     public RoutingProfile getProfileFromType(int profileType, boolean chEnabled) {
-        return routingProfiles.getRouteProfile(profileType);
+        return routingProfiles.getRouteProfile(profileType, chEnabled);
     }
 
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
