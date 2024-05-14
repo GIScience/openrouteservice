@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
-import org.heigit.ors.api.requests.export.ExportRequest;
+import org.heigit.ors.api.requests.export.ExportApiRequest;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
 import org.heigit.ors.api.services.ExportService;
 import org.heigit.ors.exceptions.*;
@@ -68,7 +68,7 @@ public class ExportAPI {
 
     @PostMapping
     @Operation(hidden = true)
-    public String getPostMapping(@RequestBody ExportRequest request) throws MissingParameterException {
+    public String getPostMapping(@RequestBody ExportApiRequest request) throws MissingParameterException {
         throw new MissingParameterException(ExportErrorCodes.MISSING_PARAMETER, "profile");
     }
 
@@ -97,7 +97,7 @@ public class ExportAPI {
             )
             })
     public JsonExportResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-                                         @Parameter(description = "The request payload", required = true) @RequestBody ExportRequest request) throws StatusCodeException {
+                                         @Parameter(description = "The request payload", required = true) @RequestBody ExportApiRequest request) throws StatusCodeException {
         return getJsonExport(profile, request);
     }
 
@@ -116,7 +116,7 @@ public class ExportAPI {
             })
     public JsonExportResponse getJsonExport(
             @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-            @Parameter(description = "The request payload", required = true) @RequestBody ExportRequest request) throws StatusCodeException {
+            @Parameter(description = "The request payload", required = true) @RequestBody ExportApiRequest request) throws StatusCodeException {
         request.setProfile(profile);
         request.setResponseType(APIEnums.ExportResponseType.JSON);
 

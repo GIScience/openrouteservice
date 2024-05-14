@@ -3,9 +3,11 @@ package org.heigit.ors.api.services;
 import com.graphhopper.GraphHopper;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.PointNotFoundException;
 import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.snapping.SnappingErrorCodes;
@@ -23,10 +25,10 @@ public class SnappingService extends ApiService {
         SnappingRequest snappingRequest = this.convertSnappingRequest(snappingApiRequest);
 
         try {
-            RoutingProfileManager rpm = RoutingProfileManager.getInstance();
-            RoutingProfile rp = rpm.getProfiles().getRouteProfile(snappingRequest.getProfileType());
-            GraphHopper gh = rp.getGraphhopper();
-            return snappingRequest.computeResult(gh);
+            RoutingProfile rp = RoutingProfileManager.getInstance().getProfileFromType(snappingRequest.getProfileType());
+            if (rp == null)
+                throw new InternalServerException(SnappingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+            return snappingRequest.computeResult(rp);
         } catch (PointNotFoundException e) {
             throw new StatusCodeException(StatusCode.NOT_FOUND, SnappingErrorCodes.POINT_NOT_FOUND, e.getMessage());
         } catch (StatusCodeException e) {

@@ -13,6 +13,7 @@ import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.util.ProfileTools;
+import org.heigit.ors.routing.RoutingProfile;
 import org.locationtech.jts.geom.Coordinate;
 
 public class SnappingRequest extends ServiceRequest {
@@ -38,7 +39,8 @@ public class SnappingRequest extends ServiceRequest {
         return maximumSearchRadius;
     }
 
-    public SnappingResult computeResult(GraphHopper gh) throws Exception {
+    public SnappingResult computeResult(RoutingProfile rp) throws Exception {
+        GraphHopper gh = rp.getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(getProfileType());
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         PMap hintsMap = new PMap();

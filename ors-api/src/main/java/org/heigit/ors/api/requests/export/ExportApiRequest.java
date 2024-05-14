@@ -12,7 +12,7 @@ import java.util.List;
 
 @Schema(title = "Graph export Service", name = "graphExportService", description = "Graph export service endpoint.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class ExportRequest extends APIRequest {
+public class ExportApiRequest extends APIRequest {
     public static final String PARAM_ID = "id";
     public static final String PARAM_BBOX = "bbox";
     public static final String PARAM_PROFILE = "profile";
@@ -45,7 +45,7 @@ public class ExportRequest extends APIRequest {
     private boolean debug;
 
     @JsonCreator
-    public ExportRequest(@JsonProperty(value = PARAM_BBOX, required = true) List<List<Double>> bbox) {
+    public ExportApiRequest(@JsonProperty(value = PARAM_BBOX, required = true) List<List<Double>> bbox) {
         this.bbox = bbox;
     }
 
