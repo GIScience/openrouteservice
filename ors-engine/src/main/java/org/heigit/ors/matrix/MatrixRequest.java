@@ -116,6 +116,13 @@ public class MatrixRequest extends ServiceRequest {
         return weightingMethod;
     }
 
+    /**
+     * Return weightingMethod or sane default if method is UNKNOWN.
+     */
+    public int getWeightingMethodOrDefault() {
+        return weightingMethod == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : weightingMethod;
+    }
+
     public void setWeightingMethod(int weightingMethod) {
         this.weightingMethod = weightingMethod;
     }
@@ -184,26 +191,25 @@ public class MatrixRequest extends ServiceRequest {
         String encoderName = RoutingProfileType.getEncoderName(getProfileType());
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         PMap hintsMap = new PMap();
-        int weightingMethod = getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : getWeightingMethod();
-        ProfileTools.setWeightingMethod(hintsMap, weightingMethod, getProfileType(), false);
-        ProfileTools.setWeighting(hintsMap, weightingMethod, getProfileType(), false);
-        String CHProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
-        String CoreProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), true);
+        ProfileTools.setWeightingMethod(hintsMap, getWeightingMethodOrDefault(), getProfileType(), false);
+        ProfileTools.setWeighting(hintsMap, getWeightingMethodOrDefault(), getProfileType(), false);
+        String chProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
+        String coreProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), true);
 
         //TODO Refactoring : probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
         try {
             // RPHAST
-            if (!getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && routingProfile.hasCHProfile(CHProfileName)) {
-                return computeRPHASTMatrix(gh, flagEncoder, CHProfileName);
+            if (!getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && routingProfile.hasCHProfile(chProfileName)) {
+                return computeRPHASTMatrix(gh, flagEncoder, chProfileName);
             }
             // Core
-            else if (getSearchParameters().getDynamicSpeeds() && routingProfile.getGraphhopper().isCoreAvailable(CoreProfileName)) {
-                return computeCoreMatrix(gh, flagEncoder, hintsMap, CoreProfileName, routingProfile);
+            else if (getSearchParameters().getDynamicSpeeds() && routingProfile.getGraphhopper().isCoreAvailable(coreProfileName)) {
+                return computeCoreMatrix(gh, flagEncoder, hintsMap, coreProfileName, routingProfile);
             }
             // Dijkstra
             else {
                 // use CHProfileName (w/o turn costs) since Dijkstra is node-based so turn restrictions are not used.
-                return computeDijkstraMatrix(gh, flagEncoder, hintsMap, CHProfileName);
+                return computeDijkstraMatrix(gh, flagEncoder, hintsMap, chProfileName);
             }
         } catch (PointNotFoundException e) {
             throw e;
@@ -228,9 +234,9 @@ public class MatrixRequest extends ServiceRequest {
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), getResolveLocations());
         MatrixSearchContext mtxSearchCntx = builder.create(routingCHGraph.getBaseGraph(), routingCHGraph, routingCHGraph.getWeighting(), profileName, getSources(), getDestinations(), getMaximumSearchRadius());
 
-        RPHASTMatrixAlgorithm algorithm = new RPHASTMatrixAlgorithm();
-        algorithm.init(this, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, routingCHGraph.getWeighting());
-        return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), getMetrics());
+        RPHASTMatrixAlgorithm algo = new RPHASTMatrixAlgorithm();
+        algo.init(this, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, routingCHGraph.getWeighting());
+        return algo.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), getMetrics());
     }
 
     /**
@@ -249,9 +255,9 @@ public class MatrixRequest extends ServiceRequest {
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), getResolveLocations());
         MatrixSearchContext mtxSearchCntx = builder.create(graph, null, weighting, profileName, getSources(), getDestinations(), getMaximumSearchRadius());
 
-        DijkstraMatrixAlgorithm algorithm = new DijkstraMatrixAlgorithm();
-        algorithm.init(this, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-        return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), getMetrics());
+        DijkstraMatrixAlgorithm algo = new DijkstraMatrixAlgorithm();
+        algo.init(this, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
+        return algo.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), getMetrics());
     }
 
     /**
@@ -274,8 +280,8 @@ public class MatrixRequest extends ServiceRequest {
         MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), edgeFilter, getResolveLocations());
         MatrixSearchContext mtxSearchCntx = builder.create(graph.getBaseGraph(), graph, weighting, profileName, getSources(), getDestinations(), getMaximumSearchRadius());
 
-        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
-        algorithm.init(this, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, weighting, edgeFilter);
-        return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), getMetrics());
+        CoreMatrixAlgorithm algo = new CoreMatrixAlgorithm();
+        algo.init(this, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, weighting, edgeFilter);
+        return algo.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), getMetrics());
     }
 }
