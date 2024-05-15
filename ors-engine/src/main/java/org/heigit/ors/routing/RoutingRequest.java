@@ -14,6 +14,7 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.util.Helper;
+import org.apache.log4j.Logger;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.ServiceRequest;
 import org.locationtech.jts.geom.Coordinate;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RoutingRequest extends ServiceRequest {
+    public static final Logger LOGGER = Logger.getLogger(RoutingRequest.class);
     public static final String ATTR_DETOURFACTOR = "detourfactor";
 
     private Coordinate[] coordinates;

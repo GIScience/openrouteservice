@@ -434,6 +434,15 @@ public class RoutingProfile {
         mGraphHopper.close();
     }
 
+    public String getAstarApproximation() {
+        return astarApproximation;
+    }
+
+    public Double getAstarEpsilon() {
+        return astarEpsilon;
+    }
+
+
     /**
      * This function creates the actual {@link IsochroneMap}.
      * It is important, that whenever attributes contains pop_total it must also contain pop_area. If not the data won't be complete.
@@ -666,7 +675,7 @@ public class RoutingProfile {
         return resp;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
+    public GHResponse computeRoute(RoutingRequest rq, double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
                                    double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify)
             throws Exception {
 
@@ -674,11 +683,12 @@ public class RoutingProfile {
 
         try {
             int profileType = searchParams.getProfileType();
+            ORSGraphHopper gh = getGraphhopper();
             if (profileType == RoutingProfileType.PUBLIC_TRANSPORT) {
                 StopWatch stopWatch = (new StopWatch()).start();
-                PtRouter ptRouter = new PtRouterImpl.Factory(mGraphHopper.getConfig(), new TranslationMap().doImport(), mGraphHopper.getGraphHopperStorage(), mGraphHopper.getLocationIndex(), mGraphHopper.getGtfsStorage())
+                PtRouter ptRouter = new PtRouterImpl.Factory(gh.getConfig(), new TranslationMap().doImport(), gh.getGraphHopperStorage(), gh.getLocationIndex(), gh.getGtfsStorage())
                         .createWithoutRealtimeFeed();
-                Request ptRequest = createPTRequest(lat0, lon0, lat1, lon1, searchParams);
+                Request ptRequest = createPTRequest(rq, lat0, lon0, lat1, lon1, searchParams);
                 GHResponse res = ptRouter.route(ptRequest);
                 res.addDebugInfo("Request total:" + stopWatch.stop().getSeconds() + "s");
                 return res;
@@ -686,7 +696,7 @@ public class RoutingProfile {
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = createSearchContext(searchParams);
 
-            int flexibleMode = searchParams.hasFlexibleMode() || config.isEnforceTurnCosts() ? ProfileTools.KEY_FLEX_PREPROCESSED : ProfileTools.KEY_FLEX_STATIC;
+            int flexibleMode = searchParams.hasFlexibleMode() || getConfiguration().isEnforceTurnCosts() ? ProfileTools.KEY_FLEX_PREPROCESSED : ProfileTools.KEY_FLEX_STATIC;
             boolean optimized = searchParams.getOptimized();
 
             GHRequest req;
@@ -748,10 +758,10 @@ public class RoutingProfile {
                 req.getHints().putObject(key, time.atZone(ZoneId.of("Europe/Berlin")).toInstant());
             }
 
-            if (astarEpsilon != null)
-                req.getHints().putObject("astarbi.epsilon", astarEpsilon);
-            if (astarApproximation != null)
-                req.getHints().putObject("astarbi.approximation", astarApproximation);
+            if (getAstarEpsilon() != null)
+                req.getHints().putObject("astarbi.epsilon", getAstarEpsilon());
+            if (getAstarApproximation() != null)
+                req.getHints().putObject("astarbi.approximation", getAstarApproximation());
 
             if (searchParams.getAlternativeRoutesCount() > 0) {
                 req.setAlgorithm("alternative_route");
@@ -762,30 +772,30 @@ public class RoutingProfile {
 
             if (searchParams.hasMaximumSpeed()) {
                 req.getHints().putObject("maximum_speed", searchParams.getMaximumSpeed());
-                req.getHints().putObject("maximum_speed_lower_bound", config.getMaximumSpeedLowerBound());
+                req.getHints().putObject("maximum_speed_lower_bound", getConfiguration().getMaximumSpeedLowerBound());
             }
 
             if (directedSegment) {
-                resp = mGraphHopper.constructFreeHandRoute(req);
+                resp = gh.constructFreeHandRoute(req);
             } else {
-                mGraphHopper.getRouterConfig().setSimplifyResponse(geometrySimplify);
-                resp = mGraphHopper.route(req);
+                gh.getRouterConfig().setSimplifyResponse(geometrySimplify);
+                resp = gh.route(req);
             }
             if (DebugUtility.isDebug() && !directedSegment) {
-                LOGGER.info("visited nodes: " + resp.getHints().getObject("visited_nodes.sum", null));
+                RoutingRequest.LOGGER.info("visited nodes: " + resp.getHints().getObject("visited_nodes.sum", null));
             }
             if (DebugUtility.isDebug() && directedSegment) {
-                LOGGER.info("skipped segment: " + resp.getHints().getString("skipped_segment", null));
+                RoutingRequest.LOGGER.info("skipped segment: " + resp.getHints().getString("skipped_segment", null));
             }
         } catch (Exception ex) {
-            LOGGER.error(ex);
+            RoutingRequest.LOGGER.error(ex);
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to compute a route");
         }
 
         return resp;
     }
 
-    private Request createPTRequest(double lat0, double lon0, double lat1, double lon1, RouteSearchParameters params) throws IncompatibleParameterException {
+    public Request createPTRequest(RoutingRequest rq, double lat0, double lon0, double lat1, double lon1, RouteSearchParameters params) throws IncompatibleParameterException {
         List<GHLocation> points = Arrays.asList(new GHPointLocation(new GHPoint(lat0, lon0)), new GHPointLocation(new GHPoint(lat1, lon1)));
 
         // GH uses pt.earliest_departure_time for both departure and arrival.
@@ -847,7 +857,7 @@ public class RoutingProfile {
         ptRequest.setAccessProfile("foot_fastest");
         ptRequest.setEgressProfile("foot_fastest");
 
-        ptRequest.setMaxVisitedNodes(config.getMaximumVisitedNodesPT());
+        ptRequest.setMaxVisitedNodes(getConfiguration().getMaximumVisitedNodesPT());
 
         return ptRequest;
     }
@@ -861,7 +871,7 @@ public class RoutingProfile {
      * @param useCore Should Core be enabled
      * @param useALT  Should ALT be enabled
      */
-    private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH) {
+    public void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH) {
         String profileName = req.getProfile();
 
         //Priority: CH->Core->ALT
