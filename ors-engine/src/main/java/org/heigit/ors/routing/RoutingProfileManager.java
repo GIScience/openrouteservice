@@ -313,7 +313,7 @@ public class RoutingProfileManager {
                 }
             }
 
-            GHResponse gr = rp.computeRoute(req, c0.y, c0.x, c1.y, c1.x, bearings, radiuses, skipSegments.contains(i), searchParams, req.getGeometrySimplify());
+            GHResponse gr = req.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, skipSegments.contains(i), searchParams, req.getGeometrySimplify(), rp);
 
             if (gr.hasErrors()) {
                 if (!gr.getErrors().isEmpty()) {
