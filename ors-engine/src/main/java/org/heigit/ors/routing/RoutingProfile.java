@@ -43,10 +43,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStor
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
-import org.heigit.ors.util.DebugUtility;
-import org.heigit.ors.util.ProfileTools;
-import org.heigit.ors.util.StringUtility;
-import org.heigit.ors.util.TimeUtility;
+import org.heigit.ors.util.*;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -71,13 +68,11 @@ public class RoutingProfile {
     private final Integer[] mRoutePrefs;
     private final RouteProfileConfiguration config;
     private final ORSGraphHopper mGraphHopper;
-    private Integer mUseCounter;
     private String astarApproximation;
     private Double astarEpsilon;
 
     public RoutingProfile(EngineConfig engineConfig, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) throws Exception {
         mRoutePrefs = rpc.getProfilesTypes();
-        mUseCounter = 0;
 
         mGraphHopper = initGraphHopper(engineConfig, rpc, loadCntx);
 
@@ -381,10 +376,6 @@ public class RoutingProfile {
         return ghConfig;
     }
 
-    private static boolean supportWeightingMethod(int profileType) {
-        return RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isPedestrian(profileType);
-    }
-
     public boolean hasCHProfile(String profileName) {
         boolean hasCHProfile = false;
         for (CHProfile chProfile : getGraphhopper().getCHPreparationHandler().getCHProfiles()) {
@@ -649,7 +640,7 @@ public class RoutingProfile {
             if (props != null && !props.isEmpty())
                 req.getHints().putAll(props);
 
-            if (supportWeightingMethod(profileType))
+            if (TemporaryUtilShelter.supportWeightingMethod(profileType))
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, false);
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
@@ -720,11 +711,11 @@ public class RoutingProfile {
             if (props != null && !props.isEmpty())
                 req.getHints().putAll(props);
 
-            if (supportWeightingMethod(profileType)) {
-                ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
+            if (TemporaryUtilShelter.supportWeightingMethod(profileType)) {
+                ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, TemporaryUtilShelter.hasTimeDependentSpeed(searchParams, searchCntx));
                 if (requiresTimeDependentWeighting(searchParams, searchCntx))
                     flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
-                flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
+                flexibleMode = TemporaryUtilShelter.getFlexibilityMode(flexibleMode, searchParams, profileType);
             } else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
@@ -862,29 +853,6 @@ public class RoutingProfile {
     }
 
     /**
-     * Get the flexibility mode necessary for the searchParams.
-     * Reults in usage of CH, Core or ALT/AStar
-     *
-     * @param flexibleMode initial flexibleMode
-     * @param searchParams RouteSearchParameters
-     * @param profileType  Necessary for HGV
-     * @return flexibility as int
-     */
-    private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType) {
-        if (searchParams.requiresDynamicPreprocessedWeights() || profileType == RoutingProfileType.WHEELCHAIR)
-            flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
-
-        if (searchParams.requiresFullyDynamicWeights())
-            flexibleMode = ProfileTools.KEY_FLEX_FULLY;
-        //If we have special weightings, we have to fall back to ALT with Beeline
-        ProfileParameters profileParams = searchParams.getProfileParameters();
-        if (profileParams != null && profileParams.hasWeightings())
-            flexibleMode = ProfileTools.KEY_FLEX_FULLY;
-
-        return flexibleMode;
-    }
-
-    /**
      * Set the speedup techniques used for calculating the route.
      * Reults in usage of CH, Core or ALT/AStar, if they are enabled.
      *
@@ -916,12 +884,6 @@ public class RoutingProfile {
             if (!mGraphHopper.isCoreAvailable(profileName) && mGraphHopper.isCoreAvailable(profileNameNoTC))
                 req.setProfile(profileNameNoTC);
         }
-    }
-
-    boolean hasTimeDependentSpeed(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
-        FlagEncoder flagEncoder = searchCntx.getEncoder();
-        String key = EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED);
-        return searchParams.isTimeDependent() && flagEncoder.hasEncodedValue(key);
     }
 
     boolean requiresTimeDependentWeighting(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
