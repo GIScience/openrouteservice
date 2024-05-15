@@ -24,15 +24,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.exceptions.*;
-import org.heigit.ors.export.ExportErrorCodes;
-import org.heigit.ors.export.ExportRequest;
-import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.mapmatching.MapMatchingRequest;
-import org.heigit.ors.matrix.MatrixErrorCodes;
-import org.heigit.ors.matrix.MatrixRequest;
-import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
@@ -165,6 +159,14 @@ public class RoutingProfileManager {
 
     public RoutingProfilesCollection getProfiles() {
         return routingProfiles;
+    }
+
+    public RoutingProfile getProfileFromType(int profileType) {
+        return routingProfiles.getRouteProfile(profileType);
+    }
+
+    public RoutingProfile getProfileFromType(int profileType, boolean chEnabled) {
+        return routingProfiles.getRouteProfile(profileType, chEnabled);
     }
 
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
@@ -311,7 +313,7 @@ public class RoutingProfileManager {
                 }
             }
 
-            GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, skipSegments.contains(i), searchParams, req.getGeometrySimplify());
+            GHResponse gr = req.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, skipSegments.contains(i), searchParams, req.getGeometrySimplify(), rp);
 
             if (gr.hasErrors()) {
                 if (!gr.getErrors().isEmpty()) {
@@ -601,23 +603,6 @@ public class RoutingProfileManager {
         RoutingProfile rp = routingProfiles.getRouteProfile(profileType, false);
 
         return rp.buildIsochrone(parameters);
-    }
-
-    public MatrixResult computeMatrix(MatrixRequest req) throws Exception {
-        RoutingProfile rp = routingProfiles.getRouteProfile(req.getProfileType(), !req.getFlexibleMode());
-
-        if (rp == null)
-            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
-
-        return rp.computeMatrix(req);
-    }
-
-    public ExportResult computeExport(ExportRequest req) throws Exception {
-        RoutingProfile rp = routingProfiles.getRouteProfile((req.getProfileType()));
-
-        if (rp == null)
-            throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
-        return rp.computeExport(req);
     }
 
 }

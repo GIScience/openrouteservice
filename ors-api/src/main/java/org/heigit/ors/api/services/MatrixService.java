@@ -4,6 +4,7 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
@@ -13,6 +14,7 @@ import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.MatrixSearchParameters;
 import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RoutingErrorCodes;
+import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.locationtech.jts.geom.Coordinate;
@@ -36,7 +38,10 @@ public class MatrixService extends ApiService {
         org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest(matrixRequest);
 
         try {
-            return RoutingProfileManager.getInstance().computeMatrix(coreRequest);
+            RoutingProfile rp = RoutingProfileManager.getInstance().getProfileFromType(coreRequest.getProfileType(), !coreRequest.getFlexibleMode());
+            if (rp == null)
+                throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+            return coreRequest.computeMatrix(rp);
         } catch (StatusCodeException e) {
             throw e;
         } catch (Exception e) {
