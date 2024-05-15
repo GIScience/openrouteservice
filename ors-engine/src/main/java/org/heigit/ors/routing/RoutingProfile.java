@@ -443,18 +443,6 @@ public class RoutingProfile {
         mGraphHopper.close();
     }
 
-    private synchronized boolean isGHUsed() {
-        return mUseCounter > 0;
-    }
-
-    private synchronized void beginUseGH() {
-        mUseCounter++;
-    }
-
-    private synchronized void endUseGH() {
-        mUseCounter--;
-    }
-
     /**
      * This function creates the actual {@link IsochroneMap}.
      * It is important, that whenever attributes contains pop_total it must also contain pop_area. If not the data won't be complete.
@@ -493,17 +481,13 @@ public class RoutingProfile {
 
         IsochroneMap result;
 
-        beginUseGH();
-
         try {
             RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());
 
             IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
             result = isochroneMapBuilderFactory.buildMap(parameters);
 
-            endUseGH();
         } catch (Exception ex) {
-            endUseGH();
             if (DebugUtility.isDebug()) {
                 LOGGER.error(ex);
             }
@@ -634,8 +618,6 @@ public class RoutingProfile {
             bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
         GHResponse resp;
 
-        beginUseGH();
-
         try {
             int profileType = searchParams.getProfileType();
             int weightingMethod = searchParams.getWeightingMethod();
@@ -685,13 +667,8 @@ public class RoutingProfile {
             mGraphHopper.getRouterConfig().setSimplifyResponse(geometrySimplify);
             resp = mGraphHopper.route(req);
 
-            endUseGH();
-
         } catch (Exception ex) {
-            endUseGH();
-
             LOGGER.error(ex);
-
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to compute a route");
         }
 
@@ -703,8 +680,6 @@ public class RoutingProfile {
             throws Exception {
 
         GHResponse resp;
-
-        beginUseGH();
 
         try {
             int profileType = searchParams.getProfileType();
@@ -811,12 +786,8 @@ public class RoutingProfile {
             if (DebugUtility.isDebug() && directedSegment) {
                 LOGGER.info("skipped segment: " + resp.getHints().getString("skipped_segment", null));
             }
-            endUseGH();
         } catch (Exception ex) {
-            endUseGH();
-
             LOGGER.error(ex);
-
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to compute a route");
         }
 
@@ -975,14 +946,11 @@ public class RoutingProfile {
     public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
         IsochroneMap result;
 
-        beginUseGH();
         try {
             RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());
             IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
             result = isochroneMapBuilderFactory.buildMap(parameters);
-            endUseGH();
         } catch (Exception ex) {
-            endUseGH();
             if (DebugUtility.isDebug()) {
                 LOGGER.error(ex);
             }
