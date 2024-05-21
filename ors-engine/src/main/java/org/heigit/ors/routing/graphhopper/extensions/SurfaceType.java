@@ -13,34 +13,47 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-public class SurfaceType {
+public enum SurfaceType {
 
     //Keep in sync with documentation: surface.md
 
-    public static final int UNKNOWN = 0;
-    public static final int PAVED = 1;
-    public static final int UNPAVED = 2;
-    public static final int ASPHALT = 3;
-    public static final int CONCRETE = 4;
-    public static final int COBBLESTONE = 5;
-    public static final int METAL = 6;
-    public static final int WOOD = 7;
-    public static final int COMPACTED_GRAVEL = 8;
-    public static final int FINE_GRAVEL = 9;
-    public static final int GRAVEL = 10;
-    public static final int DIRT = 11;
-    public static final int GROUND = 12;
-    public static final int ICE = 13;
-    public static final int PAVING_STONE = 14;
-    public static final int SAND = 15;
-    public static final int WOODCHIPS = 16;
-    public static final int GRASS = 17;
-    public static final int GRASS_PAVER = 18;
+    UNKNOWN(0),
+    PAVED(1),
+    UNPAVED(2),
+    ASPHALT(3),
+    CONCRETE(4),
+    COBBLESTONE(5),
+    METAL(6),
+    WOOD(7),
+    COMPACTED_GRAVEL(8),
+    FINE_GRAVEL(9),
+    GRAVEL(10),
+    DIRT(11),
+    GROUND(12),
+    ICE(13),
+    PAVING_STONE(14),
+    SAND(15),
+    WOODCHIPS(16),
+    GRASS(17),
+    GRASS_PAVER(18);
 
-    private SurfaceType() {
+    private final byte value;
+
+    private static final SurfaceType values[] = values();
+
+    private SurfaceType(int value) {
+        this.value = (byte) value;
     }
 
-    public static int getFromString(String surface) {
+    public byte value() {
+        return value;
+    }
+
+    public static SurfaceType getFromId(int id) {
+        return values[id];
+    }
+
+    public static SurfaceType getFromString(String surface) {
 
         if (surface.contains(";"))
             surface = surface.split(";")[0];
