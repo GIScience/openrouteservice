@@ -180,7 +180,7 @@ class RPHASTMatrixTest {
 
         MultiTreeSPEntry[] destTreesSwapped = algorithmSwapped.calcPaths(srcIdsSwapped, dstIdsSwapped);
 
-        RPHASTAlgorithm algorithm = new RPHASTAlgorithm(routingCHGraph, weighting, TraversalMode.NODE_BASED, true);
+        RPHASTAlgorithm algorithm = new RPHASTAlgorithm(routingCHGraph, weighting, TraversalMode.NODE_BASED, false);
 
         int[] srcIds = new int[]{2, 3};
         int[] dstIds = new int[]{1};
