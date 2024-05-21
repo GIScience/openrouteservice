@@ -22,18 +22,15 @@ public enum SurfaceType {
     UNPAVED(2),
     ASPHALT(3),
     CONCRETE(4),
-    COBBLESTONE(5),
     METAL(6),
     WOOD(7),
     COMPACTED_GRAVEL(8),
-    FINE_GRAVEL(9),
     GRAVEL(10),
     DIRT(11),
     GROUND(12),
     ICE(13),
     PAVING_STONE(14),
     SAND(15),
-    WOODCHIPS(16),
     GRASS(17),
     GRASS_PAVER(18);
 
@@ -73,7 +70,7 @@ public enum SurfaceType {
                 || "sett".equalsIgnoreCase(surface)) {
             return SurfaceType.PAVING_STONE;
         } else if ("cobblestone".equalsIgnoreCase(surface)) {
-            return SurfaceType.COBBLESTONE;
+            return SurfaceType.PAVING_STONE;
         } else if ("metal".equalsIgnoreCase(surface)) {
             return SurfaceType.METAL;
         } else if ("wood".equalsIgnoreCase(surface)) {
@@ -81,7 +78,7 @@ public enum SurfaceType {
         } else if ("compacted".equalsIgnoreCase(surface) || "pebblestone".equalsIgnoreCase(surface)) {
             return SurfaceType.COMPACTED_GRAVEL;
         } else if ("fine_gravel".equalsIgnoreCase(surface)) {
-            return SurfaceType.FINE_GRAVEL;
+            return SurfaceType.GRAVEL;
         } else if ("gravel".equalsIgnoreCase(surface)) {
             return SurfaceType.GRAVEL;
         } else if ("dirt".equalsIgnoreCase(surface)) {
@@ -94,7 +91,7 @@ public enum SurfaceType {
         } else if ("sand".equalsIgnoreCase(surface)) {
             return SurfaceType.SAND;
         } else if ("woodchips".equalsIgnoreCase(surface)) {
-            return SurfaceType.WOODCHIPS;
+            return SurfaceType.UNPAVED;
         } else if ("grass".equalsIgnoreCase(surface)) {
             return SurfaceType.GRASS;
         } else if ("grass_paver".equalsIgnoreCase(surface)) {
