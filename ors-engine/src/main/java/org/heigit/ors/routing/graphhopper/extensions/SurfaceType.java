@@ -36,13 +36,13 @@ public enum SurfaceType {
 
     private final byte value;
 
-    private static final SurfaceType values[] = values();
+    private static final SurfaceType[] values = values();
 
     private SurfaceType(int value) {
         this.value = (byte) value;
     }
 
-    public byte value() {   
+    public byte value() {
         return value;
     }
 
@@ -54,54 +54,26 @@ public enum SurfaceType {
 
         if (surface.contains(";"))
             surface = surface.split(";")[0];
+        if (surface.contains(":"))
+            surface = surface.split(":")[0];
 
-        switch (surface.toLowerCase()) {
-            case "paved":
-                return SurfaceType.PAVED;
-            case "unpaved", "woodchips":
-                return SurfaceType.UNPAVED;
-            case "asphalt":
-                return SurfaceType.ASPHALT;
-            case "concrete":
-            case "concrete:lanes":
-            case "concrete:plates":
-                return SurfaceType.CONCRETE;
-            case "paving_stones":
-            case "paving_stones:20":
-            case "paving_stones:30":
-            case "paving_stones:50":
-            case "paved_stones":
-            case "cobblestone:flattened":
-            case "sett":
-            case "cobblestone":
-                return SurfaceType.PAVING_STONE;
-            case "metal":
-                return SurfaceType.METAL;
-            case "wood":
-                return SurfaceType.WOOD;
-            case "compacted":
-            case "pebblestone":
-                return SurfaceType.COMPACTED_GRAVEL;
-            case "fine_gravel":
-            case "gravel":
-                return SurfaceType.GRAVEL;
-            case "dirt":
-                return SurfaceType.DIRT;
-            case "ground":
-            case "earth":
-            case "mud":
-                return SurfaceType.GROUND;
-            case "ice":
-            case "snow":
-                return SurfaceType.ICE;
-            case "sand":
-                return SurfaceType.SAND;
-            case "grass":
-                return SurfaceType.GRASS;
-            case "grass_paver":
-                return SurfaceType.GRASS_PAVER;
-        }
-
-        return SurfaceType.UNKNOWN;
+        return switch (surface.toLowerCase()) {
+            case "paved" -> SurfaceType.PAVED;
+            case "unpaved", "woodchips" -> SurfaceType.UNPAVED;
+            case "asphalt" -> SurfaceType.ASPHALT;
+            case "concrete" -> SurfaceType.CONCRETE;
+            case "paving_stones", "paved_stones", "sett", "cobblestone" -> SurfaceType.PAVING_STONE;
+            case "metal" -> SurfaceType.METAL;
+            case "wood" -> SurfaceType.WOOD;
+            case "compacted", "pebblestone" -> SurfaceType.COMPACTED_GRAVEL;
+            case "gravel", "fine_gravel" -> SurfaceType.GRAVEL;
+            case "dirt" -> SurfaceType.DIRT;
+            case "ground", "earth", "mud" -> SurfaceType.GROUND;
+            case "ice", "snow" -> SurfaceType.ICE;
+            case "sand" -> SurfaceType.SAND;
+            case "grass" -> SurfaceType.GRASS;
+            case "grass_paver" -> SurfaceType.GRASS_PAVER;
+            default -> SurfaceType.UNKNOWN;
+        };
     }
 }
