@@ -42,7 +42,7 @@ public enum SurfaceType {
         this.value = (byte) value;
     }
 
-    public byte value() {
+    public byte value() {   
         return value;
     }
 
@@ -55,47 +55,51 @@ public enum SurfaceType {
         if (surface.contains(";"))
             surface = surface.split(";")[0];
 
-        if ("paved".equalsIgnoreCase(surface)) {
-            return SurfaceType.PAVED;
-        } else if ("unpaved".equalsIgnoreCase(surface)) {
-            return SurfaceType.UNPAVED;
-        } else if ("asphalt".equalsIgnoreCase(surface)) {
-            return SurfaceType.ASPHALT;
-        } else if ("concrete".equalsIgnoreCase(surface) || "concrete:lanes".equalsIgnoreCase(surface)
-                || "concrete:plates".equalsIgnoreCase(surface)) {
-            return SurfaceType.CONCRETE;
-        } else if ("paving_stones".equalsIgnoreCase(surface) || "paving_stones:20".equalsIgnoreCase(surface) || "paving_stones:30".equalsIgnoreCase(surface) || "paving_stones:50".equalsIgnoreCase(surface) || "paved_stones".equalsIgnoreCase(surface)) {
-            return SurfaceType.PAVING_STONE;
-        } else if ("cobblestone:flattened".equalsIgnoreCase(surface)
-                || "sett".equalsIgnoreCase(surface)) {
-            return SurfaceType.PAVING_STONE;
-        } else if ("cobblestone".equalsIgnoreCase(surface)) {
-            return SurfaceType.PAVING_STONE;
-        } else if ("metal".equalsIgnoreCase(surface)) {
-            return SurfaceType.METAL;
-        } else if ("wood".equalsIgnoreCase(surface)) {
-            return SurfaceType.WOOD;
-        } else if ("compacted".equalsIgnoreCase(surface) || "pebblestone".equalsIgnoreCase(surface)) {
-            return SurfaceType.COMPACTED_GRAVEL;
-        } else if ("fine_gravel".equalsIgnoreCase(surface)) {
-            return SurfaceType.GRAVEL;
-        } else if ("gravel".equalsIgnoreCase(surface)) {
-            return SurfaceType.GRAVEL;
-        } else if ("dirt".equalsIgnoreCase(surface)) {
-            return SurfaceType.DIRT;
-        } else if ("ground".equalsIgnoreCase(surface) || "earth".equalsIgnoreCase(surface)
-                || "mud".equalsIgnoreCase(surface)) {
-            return SurfaceType.GROUND;
-        } else if ("ice".equalsIgnoreCase(surface) || "snow".equalsIgnoreCase(surface)) {
-            return SurfaceType.ICE;
-        } else if ("sand".equalsIgnoreCase(surface)) {
-            return SurfaceType.SAND;
-        } else if ("woodchips".equalsIgnoreCase(surface)) {
-            return SurfaceType.UNPAVED;
-        } else if ("grass".equalsIgnoreCase(surface)) {
-            return SurfaceType.GRASS;
-        } else if ("grass_paver".equalsIgnoreCase(surface)) {
-            return SurfaceType.GRASS_PAVER;
+        switch (surface.toLowerCase()) {
+            case "paved":
+                return SurfaceType.PAVED;
+            case "unpaved", "woodchips":
+                return SurfaceType.UNPAVED;
+            case "asphalt":
+                return SurfaceType.ASPHALT;
+            case "concrete":
+            case "concrete:lanes":
+            case "concrete:plates":
+                return SurfaceType.CONCRETE;
+            case "paving_stones":
+            case "paving_stones:20":
+            case "paving_stones:30":
+            case "paving_stones:50":
+            case "paved_stones":
+            case "cobblestone:flattened":
+            case "sett":
+            case "cobblestone":
+                return SurfaceType.PAVING_STONE;
+            case "metal":
+                return SurfaceType.METAL;
+            case "wood":
+                return SurfaceType.WOOD;
+            case "compacted":
+            case "pebblestone":
+                return SurfaceType.COMPACTED_GRAVEL;
+            case "fine_gravel":
+            case "gravel":
+                return SurfaceType.GRAVEL;
+            case "dirt":
+                return SurfaceType.DIRT;
+            case "ground":
+            case "earth":
+            case "mud":
+                return SurfaceType.GROUND;
+            case "ice":
+            case "snow":
+                return SurfaceType.ICE;
+            case "sand":
+                return SurfaceType.SAND;
+            case "grass":
+                return SurfaceType.GRASS;
+            case "grass_paver":
+                return SurfaceType.GRASS_PAVER;
         }
 
         return SurfaceType.UNKNOWN;
