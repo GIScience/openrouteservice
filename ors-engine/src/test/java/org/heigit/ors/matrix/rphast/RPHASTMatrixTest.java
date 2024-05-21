@@ -2,6 +2,7 @@ package org.heigit.ors.matrix.rphast;
 
 import com.graphhopper.routing.ch.NodeOrderingProvider;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
+import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
@@ -9,6 +10,10 @@ import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
+import org.heigit.ors.matrix.MatrixLocations;
+import org.heigit.ors.matrix.MatrixSearchContext;
+import org.heigit.ors.matrix.MatrixSearchContextBuilder;
+import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import org.heigit.ors.routing.algorithms.RPHASTAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntry;
 import org.heigit.ors.util.DebugUtility;
@@ -154,6 +159,38 @@ class RPHASTMatrixTest {
         algorithm.prepare(srcIds, dstIds);
         algorithm.setMaxVisitedNodes(33);
         assertThrows(MaxVisitedNodesExceededException.class, () -> algorithm.calcPaths(srcIds, dstIds));
+    }
+
+    @Test
+    void testSwap() {
+        /**
+         * First calculate the distances with sources and destinations swapped (ids are swapped "manually")
+         * After we compare with the non-swapped results.
+         */
+        ToyGraphCreationUtil.createTwoWayGraph(g, encodingManager);
+        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
+        prepare.doWork();
+
+        RPHASTAlgorithm algorithmSwapped = new RPHASTAlgorithm(routingCHGraph, weighting, TraversalMode.NODE_BASED, true);
+
+        int[] srcIdsSwapped = new int[]{1};
+        int[] dstIdsSwapped = new int[]{2, 3};
+
+        algorithmSwapped.prepare(srcIdsSwapped, dstIdsSwapped);
+
+        MultiTreeSPEntry[] destTreesSwapped = algorithmSwapped.calcPaths(srcIdsSwapped, dstIdsSwapped);
+
+        RPHASTAlgorithm algorithm = new RPHASTAlgorithm(routingCHGraph, weighting, TraversalMode.NODE_BASED, true);
+
+        int[] srcIds = new int[]{2, 3};
+        int[] dstIds = new int[]{1};
+
+        algorithm.prepare(srcIds, dstIds);
+
+        MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, dstIds);
+
+        // TODO assert that both are equal and take the long way around the one-way-edges.
+//        assertEquals()
     }
 
 

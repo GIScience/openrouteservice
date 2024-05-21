@@ -36,6 +36,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
     private MultiTreeSPEntry currFrom;
     private PriorityQueue<MultiTreeSPEntry> prioQueue;
     private SubGraph targetGraph;
+    private boolean swap;
     private boolean finishedFrom;
     private boolean finishedTo;
     private int visitedCountFrom;
@@ -49,8 +50,11 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
     private double tmpWeight;
 
     public RPHASTAlgorithm(RoutingCHGraph graph, Weighting weighting, TraversalMode traversalMode) {
+        this(graph, weighting, traversalMode, false);
+    }
+    public RPHASTAlgorithm(RoutingCHGraph graph, Weighting weighting, TraversalMode traversalMode, boolean swap) {
         super(graph, weighting, traversalMode);
-
+        this.swap = swap;
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
 
         initCollections(size);
@@ -84,13 +88,16 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 
         addNodes(targetGraph, localPrioQueue, targets);
 
+        RoutingCHEdgeExplorer edgeExplorer = swap ? graph.createOutEdgeExplorer()
+                : graph.createInEdgeExplorer();
+
         while (!localPrioQueue.isEmpty()) {
             int node = localPrioQueue.poll();
-            RoutingCHEdgeIterator iter = inEdgeExplorer.setBaseNode(node);
+            RoutingCHEdgeIterator iter = edgeExplorer.setBaseNode(node);
             downwardEdgeFilter.setBaseNode(node);
 
             while (iter.next()) {
-                if (!downwardEdgeFilter.accept(iter))
+                if (!downwardEdgeFilter.accept(iter, swap))
                     continue;
 
                 if (targetGraph.addEdge(node, iter, true))
@@ -175,7 +182,9 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
                 throw new IllegalStateException("Edge-based behavior not supported");
         }
 
-        outEdgeExplorer = graph.createOutEdgeExplorer();
+//        outEdgeExplorer = graph.createOutEdgeExplorer();
+        outEdgeExplorer = swap ? graph.createInEdgeExplorer()
+                : graph.createOutEdgeExplorer();
         runUpwardSearch();
         if (!upwardEdgeFilter.isHighestNodeFound())
             throw new IllegalStateException("First RPHAST phase was not successful.");
@@ -214,10 +223,10 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
         upwardEdgeFilter.setBaseNode(currEdge.getAdjNode());
 
         while (iter.next()) {
-            if (!upwardEdgeFilter.accept(iter))
+            if (!upwardEdgeFilter.accept(iter, swap))
                 continue;
 
-            edgeWeight = iter.getWeight(false);
+            edgeWeight = iter.getWeight(swap);
 //            edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
 
             if (!Double.isInfinite(edgeWeight)) {
@@ -273,7 +282,7 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
 
         while (iter.next()) {
 //            edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
-            edgeWeight = iter.getWeight(false);
+            edgeWeight = iter.getWeight(swap);
             if (!Double.isInfinite(edgeWeight)) {
                 MultiTreeSPEntry ee = bestWeightMap.get(iter.getAdjNode());
 

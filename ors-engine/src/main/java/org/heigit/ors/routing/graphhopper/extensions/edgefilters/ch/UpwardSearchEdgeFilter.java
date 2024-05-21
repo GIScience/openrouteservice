@@ -36,4 +36,14 @@ public class UpwardSearchEdgeFilter extends CHLevelEdgeFilter {
         else
             return false;
     }
+
+    public boolean accept(RoutingCHEdgeIteratorState edgeIterState, boolean swap) {
+        int adj = edgeIterState.getAdjNode();
+
+        if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
+            return swap ? isAccessible(edgeIterState, true) : isAccessible(edgeIterState, false);
+//			return edgeIterState.get(accessEnc);
+        else
+            return false;
+    }
 }
