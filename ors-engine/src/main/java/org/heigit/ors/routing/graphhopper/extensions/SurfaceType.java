@@ -67,7 +67,7 @@ public enum SurfaceType {
             case "wood" -> SurfaceType.WOOD;
             case "compacted", "pebblestone" -> SurfaceType.COMPACTED_GRAVEL;
             case "gravel", "fine_gravel" -> SurfaceType.GRAVEL;
-            case "dirt", "earth" -> SurfaceType.DIRT;
+            case "dirt", "earth", "soil" -> SurfaceType.DIRT;
             case "ground", "mud" -> SurfaceType.GROUND;
             case "ice", "snow" -> SurfaceType.ICE;
             case "sand" -> SurfaceType.SAND;
