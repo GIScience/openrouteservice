@@ -60,7 +60,7 @@ public class CellStorage implements Storable<CellStorage> {
      */
     public CellStorage(int nodeCount, Directory dir, IsochroneNodeStorage isochroneNodeStorage) {
         this.isochroneNodeStorage = isochroneNodeStorage;
-        cells = dir.find("cells");
+        cells = dir.create("cells");
         byteCount = 4;
         this.nodeCount = nodeCount;
     }
