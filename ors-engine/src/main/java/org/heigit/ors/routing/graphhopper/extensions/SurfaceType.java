@@ -62,7 +62,7 @@ public enum SurfaceType {
             case "unpaved", "woodchips" -> SurfaceType.UNPAVED;
             case "asphalt" -> SurfaceType.ASPHALT;
             case "concrete" -> SurfaceType.CONCRETE;
-            case "paving_stones", "paved_stones", "sett", "cobblestone" -> SurfaceType.PAVING_STONE;
+            case "paving_stones", "paved_stones", "sett", "cobblestone", "unhewn_cobblestone", "bricks", "brick" -> SurfaceType.PAVING_STONE;
             case "metal" -> SurfaceType.METAL;
             case "wood" -> SurfaceType.WOOD;
             case "compacted", "pebblestone" -> SurfaceType.COMPACTED_GRAVEL;
