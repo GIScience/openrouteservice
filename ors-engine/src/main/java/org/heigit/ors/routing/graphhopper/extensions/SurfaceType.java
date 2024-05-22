@@ -59,7 +59,7 @@ public enum SurfaceType {
 
         return switch (surface.toLowerCase()) {
             case "paved" -> SurfaceType.PAVED;
-            case "unpaved", "woodchips" -> SurfaceType.UNPAVED;
+            case "unpaved", "woodchips", "rock", "rocks", "stone", "shells", "salt" -> SurfaceType.UNPAVED;
             case "asphalt" -> SurfaceType.ASPHALT;
             case "concrete" -> SurfaceType.CONCRETE;
             case "paving_stones", "paved_stones", "sett", "cobblestone", "unhewn_cobblestone", "bricks", "brick" -> SurfaceType.PAVING_STONE;
