@@ -38,7 +38,7 @@ public class TollwaysGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ext_tolls storage must be initialized only once.");
 
-        this.edges = dir.find("ext_tolls");
+        this.edges = dir.create("ext_tolls");
     }
 
     protected final int nextBlockEntryIndex(int size) {

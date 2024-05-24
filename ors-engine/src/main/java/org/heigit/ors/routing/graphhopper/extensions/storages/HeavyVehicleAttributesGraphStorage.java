@@ -51,7 +51,7 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ext_hgv storage must be initialized only once.");
 
-        this.orsEdges = dir.find("ext_hgv");
+        this.orsEdges = dir.create("ext_hgv");
     }
 
     private int nextBlockEntryIndex(int size) {

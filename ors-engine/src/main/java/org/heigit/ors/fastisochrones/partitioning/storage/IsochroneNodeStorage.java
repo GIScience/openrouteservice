@@ -39,7 +39,7 @@ public class IsochroneNodeStorage implements Storable<IsochroneNodeStorage> {
     private final IntSet cellIdsSet = new IntHashSet();
 
     public IsochroneNodeStorage(int nodeCount, Directory dir) {
-        isochroneNodes = dir.find("isochronenodes");
+        isochroneNodes = dir.create("isochronenodes");
         this.nodeCount = nodeCount;
         // 5 bytes per node for its cell id.
         // 1 byte for isBordernode,

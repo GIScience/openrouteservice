@@ -58,7 +58,7 @@ public class EccentricityStorage implements Storable<EccentricityStorage> {
         //A map of nodeId to pointer is stored in the first block.
         //The second block stores 2 values for each pointer, full reachability and eccentricity
         final String name = FileUtility.weightingToFileName(weighting);
-        eccentricities = dir.find("eccentricities_" + name);
+        eccentricities = dir.create("eccentricities_" + name);
         this.weighting = weighting;
         this.isochroneNodeStorage = isochroneNodeStorage;
         this.nodeCount = nodeCount;

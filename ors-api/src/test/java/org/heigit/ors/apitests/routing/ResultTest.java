@@ -958,8 +958,8 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
-                .body("routes[0].extras.surface.values.size()", is(38))
-                .body("routes[0].extras.surface.values[18][1]", is(181))
+                .body("routes[0].extras.surface.values.size()", is(32))
+                .body("routes[0].extras.surface.values[18][1]", is(237))
                 .body("routes[0].extras.suitability.values[18][0]", is(359))
                 .body("routes[0].extras.containsKey('steepness')", is(true))
                 .statusCode(200);

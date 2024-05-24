@@ -47,7 +47,7 @@ public class HillIndexGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
 
-        this.orsEdges = dir.find("ext_hillindex");
+        this.orsEdges = dir.create("ext_hillindex");
     }
 
     public HillIndexGraphStorage create(long initBytes) {

@@ -1,8 +1,10 @@
 package org.heigit.ors.routing.util;
 
+import org.heigit.ors.routing.graphhopper.extensions.SurfaceType;
+
 public class WaySurfaceDescription {
     private byte wayType;
-    private byte surfaceType;
+    private SurfaceType surfaceType;
 
     public byte getWayType() {
         return wayType;
@@ -12,16 +14,16 @@ public class WaySurfaceDescription {
         this.wayType = (byte) wayType;
     }
 
-    public byte getSurfaceType() {
+    public SurfaceType getSurfaceType() {
         return surfaceType;
     }
 
-    public void setSurfaceType(int surfaceType) {
-        this.surfaceType = (byte) surfaceType;
+    public void setSurfaceType(SurfaceType surfaceType) {
+        this.surfaceType = surfaceType;
     }
 
     public void reset() {
         wayType = 0;
-        surfaceType = 0;
+        surfaceType = SurfaceType.UNKNOWN;
     }
 }

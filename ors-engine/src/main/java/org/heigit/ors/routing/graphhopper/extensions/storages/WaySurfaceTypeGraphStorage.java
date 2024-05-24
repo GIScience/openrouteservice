@@ -13,10 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages;
 
-import com.graphhopper.storage.DataAccess;
-import com.graphhopper.storage.Directory;
-import com.graphhopper.storage.Graph;
-import com.graphhopper.storage.GraphExtension;
+import com.graphhopper.storage.*;
+import org.heigit.ors.routing.graphhopper.extensions.SurfaceType;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 
 public class WaySurfaceTypeGraphStorage implements GraphExtension {
@@ -42,7 +40,18 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
 
-        this.orsEdges = dir.find("ext_waysurface");
+        this.orsEdges = dir.create("ext_waysurface");
+    }
+
+    /**
+     * initializes the extended storage to be empty - required for testing purposes as the ext_storage aren't created
+     * at the time tests are run
+     */
+    public void init() {
+        if (edgesCount > 0)
+            throw new AssertionError("The ORS storage must be initialized only once.");
+        Directory d = new RAMDirectory();
+        this.orsEdges = d.create("");
     }
 
     protected final int nextBlockEntryIndex(int size) {
@@ -93,7 +102,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 
         // add entry
         long edgePointer = (long) edgeId * edgeEntryBytes;
-        byteValues[0] = (byte) ((wayDesc.getWayType() << 4) | wayDesc.getSurfaceType() & 0xff);
+        byteValues[0] = (byte) ((wayDesc.getWayType() << 4) | wayDesc.getSurfaceType().ordinal() & 0xff);
         orsEdges.setBytes(edgePointer + efWaytype, byteValues, 1);
     }
 
@@ -105,7 +114,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
         byte compValue = buffer[0];
         WaySurfaceDescription res = new WaySurfaceDescription();
         res.setWayType((compValue & 0b11110000) >> 4);
-        res.setSurfaceType(compValue & 0b00001111);
+        res.setSurfaceType(SurfaceType.getFromId(compValue & 0b00001111));
 
         return res;
     }

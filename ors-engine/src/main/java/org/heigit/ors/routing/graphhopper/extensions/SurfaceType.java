@@ -13,81 +13,67 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-public class SurfaceType {
+public enum SurfaceType {
 
     //Keep in sync with documentation: surface.md
 
-    public static final int UNKNOWN = 0;
-    public static final int PAVED = 1;
-    public static final int UNPAVED = 2;
-    public static final int ASPHALT = 3;
-    public static final int CONCRETE = 4;
-    public static final int COBBLESTONE = 5;
-    public static final int METAL = 6;
-    public static final int WOOD = 7;
-    public static final int COMPACTED_GRAVEL = 8;
-    public static final int FINE_GRAVEL = 9;
-    public static final int GRAVEL = 10;
-    public static final int DIRT = 11;
-    public static final int GROUND = 12;
-    public static final int ICE = 13;
-    public static final int PAVING_STONE = 14;
-    public static final int SAND = 15;
-    public static final int WOODCHIPS = 16;
-    public static final int GRASS = 17;
-    public static final int GRASS_PAVER = 18;
+    UNKNOWN(0),
+    PAVED(1),
+    UNPAVED(2),
+    ASPHALT(3),
+    CONCRETE(4),
+    METAL(6),
+    WOOD(7),
+    COMPACTED_GRAVEL(8),
+    GRAVEL(10),
+    DIRT(11),
+    GROUND(12),
+    ICE(13),
+    PAVING_STONE(14),
+    SAND(15),
+    GRASS(17),
+    GRASS_PAVER(18);
 
-    private SurfaceType() {
+    private final byte value;
+
+    private static final SurfaceType[] values = values();
+
+    private SurfaceType(int value) {
+        this.value = (byte) value;
     }
 
-    public static int getFromString(String surface) {
+    public byte value() {
+        return value;
+    }
+
+    public static SurfaceType getFromId(int id) {
+        return values[id];
+    }
+
+    public static SurfaceType getFromString(String surface) {
 
         if (surface.contains(";"))
             surface = surface.split(";")[0];
+        if (surface.contains(":"))
+            surface = surface.split(":")[0];
 
-        if ("paved".equalsIgnoreCase(surface)) {
-            return SurfaceType.PAVED;
-        } else if ("unpaved".equalsIgnoreCase(surface)) {
-            return SurfaceType.UNPAVED;
-        } else if ("asphalt".equalsIgnoreCase(surface)) {
-            return SurfaceType.ASPHALT;
-        } else if ("concrete".equalsIgnoreCase(surface) || "concrete:lanes".equalsIgnoreCase(surface)
-                || "concrete:plates".equalsIgnoreCase(surface)) {
-            return SurfaceType.CONCRETE;
-        } else if ("paving_stones".equalsIgnoreCase(surface) || "paving_stones:20".equalsIgnoreCase(surface) || "paving_stones:30".equalsIgnoreCase(surface) || "paving_stones:50".equalsIgnoreCase(surface) || "paved_stones".equalsIgnoreCase(surface)) {
-            return SurfaceType.PAVING_STONE;
-        } else if ("cobblestone:flattened".equalsIgnoreCase(surface)
-                || "sett".equalsIgnoreCase(surface)) {
-            return SurfaceType.PAVING_STONE;
-        } else if ("cobblestone".equalsIgnoreCase(surface)) {
-            return SurfaceType.COBBLESTONE;
-        } else if ("metal".equalsIgnoreCase(surface)) {
-            return SurfaceType.METAL;
-        } else if ("wood".equalsIgnoreCase(surface)) {
-            return SurfaceType.WOOD;
-        } else if ("compacted".equalsIgnoreCase(surface) || "pebblestone".equalsIgnoreCase(surface)) {
-            return SurfaceType.COMPACTED_GRAVEL;
-        } else if ("fine_gravel".equalsIgnoreCase(surface)) {
-            return SurfaceType.FINE_GRAVEL;
-        } else if ("gravel".equalsIgnoreCase(surface)) {
-            return SurfaceType.GRAVEL;
-        } else if ("dirt".equalsIgnoreCase(surface)) {
-            return SurfaceType.DIRT;
-        } else if ("ground".equalsIgnoreCase(surface) || "earth".equalsIgnoreCase(surface)
-                || "mud".equalsIgnoreCase(surface)) {
-            return SurfaceType.GROUND;
-        } else if ("ice".equalsIgnoreCase(surface) || "snow".equalsIgnoreCase(surface)) {
-            return SurfaceType.ICE;
-        } else if ("sand".equalsIgnoreCase(surface)) {
-            return SurfaceType.SAND;
-        } else if ("woodchips".equalsIgnoreCase(surface)) {
-            return SurfaceType.WOODCHIPS;
-        } else if ("grass".equalsIgnoreCase(surface)) {
-            return SurfaceType.GRASS;
-        } else if ("grass_paver".equalsIgnoreCase(surface)) {
-            return SurfaceType.GRASS_PAVER;
-        }
-
-        return SurfaceType.UNKNOWN;
+        return switch (surface.toLowerCase()) {
+            case "paved" -> SurfaceType.PAVED;
+            case "unpaved", "woodchips", "rock", "rocks", "stone", "shells", "salt" -> SurfaceType.UNPAVED;
+            case "asphalt", "chipseal", "bitmac", "tarmac" -> SurfaceType.ASPHALT;
+            case "concrete", "cement" -> SurfaceType.CONCRETE;
+            case "paving_stones", "paved_stones", "sett", "cobblestone", "unhewn_cobblestone", "bricks", "brick" -> SurfaceType.PAVING_STONE;
+            case "metal" -> SurfaceType.METAL;
+            case "wood" -> SurfaceType.WOOD;
+            case "compacted", "pebblestone" -> SurfaceType.COMPACTED_GRAVEL;
+            case "gravel", "fine_gravel" -> SurfaceType.GRAVEL;
+            case "dirt", "earth", "soil" -> SurfaceType.DIRT;
+            case "ground", "mud" -> SurfaceType.GROUND;
+            case "ice", "snow" -> SurfaceType.ICE;
+            case "sand" -> SurfaceType.SAND;
+            case "grass" -> SurfaceType.GRASS;
+            case "grass_paver" -> SurfaceType.GRASS_PAVER;
+            default -> SurfaceType.UNKNOWN;
+        };
     }
 }

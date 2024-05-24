@@ -49,14 +49,14 @@ public class RoadAccessRestrictionsGraphStorage implements GraphExtension, Warni
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
         Directory d = new RAMDirectory();
-        this.edges = d.find("");
+        this.edges = d.create("");
     }
 
     public void init(Graph graph, Directory dir) {
         if (edgesCount > 0)
             throw new AssertionError("The ext_road_access_restrictions storage must be initialized only once.");
 
-        this.edges = dir.find("ext_road_access_restrictions");
+        this.edges = dir.create("ext_road_access_restrictions");
     }
 
     public void setEdgeValue(int edgeId, int restriction) {
