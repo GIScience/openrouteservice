@@ -20,6 +20,7 @@ public class SnappingRequest extends ServiceRequest {
     private final int profileType;
     private final Coordinate[] locations;
     private final double maximumSearchRadius;
+    private int maximumLocations;
 
     public SnappingRequest(int profileType, Coordinate[] locations, double maximumSearchRadius) {
         this.profileType = profileType;
@@ -37,6 +38,14 @@ public class SnappingRequest extends ServiceRequest {
 
     public double getMaximumSearchRadius() {
         return maximumSearchRadius;
+    }
+
+    public void setMaximumLocations(int maximumLocations) {
+        this.maximumLocations = maximumLocations;
+    }
+
+    public int getMaximumLocations() {
+        return maximumLocations;
     }
 
     public SnappingResult computeResult(RoutingProfile rp) throws Exception {

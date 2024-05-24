@@ -36,21 +36,8 @@ class ParamsTest extends ServiceTest {
 
     private static final String locationParameter = "locations";
     private static final String radiusParameter = "radius";
-
-    /**
-     * radiusParameter
-     * Generates a JSONArray with fake locations for testing purposes.
-     *
-     * @param maximumSize The maximum size of the JSONArray.
-     * @return A JSONArray containing fake locations with the specified size.
-     */
-    private static JSONArray fakeLocations(int maximumSize) {
-        JSONArray overloadedLocations = new JSONArray();
-        for (int i = 0; i < maximumSize; i++) {
-            overloadedLocations.put(invalidLocation());
-        }
-        return overloadedLocations;
-    }
+    private static final String profile_car = RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR);
+    private static final String profile_hgv = RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV);
 
     private static JSONArray location2m() {
         JSONArray coord2 = new JSONArray();
@@ -88,7 +75,7 @@ class ParamsTest extends ServiceTest {
     private static JSONObject validBody() {
         return new JSONObject()
                 .put(locationParameter, createLocations(location94m(), location2m()))
-                .put(radiusParameter, "300");
+                .put(radiusParameter, "350");
     }
 
     /**
@@ -105,21 +92,21 @@ class ParamsTest extends ServiceTest {
      */
     public static Stream<Arguments> snappingEndpointSuccessTestProvider() {
         return Stream.of(
-                Arguments.of(Arrays.asList(false, false), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                Arguments.of(Arrays.asList(false, false), profile_hgv, new JSONObject()
                         .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "-1")),
-                Arguments.of(Arrays.asList(false, false), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                Arguments.of(Arrays.asList(false, false), profile_hgv, new JSONObject()
                         .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "0")),
-                Arguments.of(Arrays.asList(false, false), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                Arguments.of(Arrays.asList(false, false), profile_hgv, new JSONObject()
                         .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "1")),
-                Arguments.of(Arrays.asList(false, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                Arguments.of(Arrays.asList(false, true), profile_hgv, new JSONObject()
                         .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "10")),
-                Arguments.of(Arrays.asList(true, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
-                        .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "300")),
-                Arguments.of(Arrays.asList(true, false, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                Arguments.of(Arrays.asList(true, true), profile_hgv, new JSONObject()
+                        .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "350")),
+                Arguments.of(Arrays.asList(true, false, true), profile_hgv, new JSONObject()
                         .put(locationParameter, createLocations(location2m(), location94m(), location2m())).put(radiusParameter, "10")),
-                Arguments.of(Arrays.asList(true, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                Arguments.of(Arrays.asList(true, true), profile_hgv, new JSONObject()
                         .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "400")),
-                Arguments.of(Arrays.asList(true, true), RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), new JSONObject()
+                Arguments.of(Arrays.asList(true, true), profile_hgv, new JSONObject()
                         .put(locationParameter, createLocations(location94m(), location2m())).put(radiusParameter, "1000"))
         );
     }
@@ -135,14 +122,14 @@ class ParamsTest extends ServiceTest {
     @MethodSource("snappingEndpointSuccessTestProvider")
     void testSnappingSuccessJson(List<Boolean> expectedSnapped, String profile, JSONObject body) {
         String endPoint = "json";
-        ValidatableResponse result = doRequestAndExceptSuccess(body, profile, endPoint);
+        ValidatableResponse result = doRequestAndExpectSuccess(body, profile, endPoint);
         validateJsonResponse(expectedSnapped, result);
     }
 
     @Test
     void testMissingPathParameterFormat_defaultsToJson() {
         JSONObject body = validBody();
-        ValidatableResponse result = doRequestAndExceptSuccess(body, RoutingProfileType.getName(RoutingProfileType.DRIVING_HGV), null);
+        ValidatableResponse result = doRequestAndExpectSuccess(body, profile_hgv, null);
         validateJsonResponse(Arrays.asList(true, true), result);
     }
 
@@ -178,7 +165,7 @@ class ParamsTest extends ServiceTest {
     @MethodSource("snappingEndpointSuccessTestProvider")
     void testSnappingSuccessGeojson(List<Boolean> expectedSnapped, String profile, JSONObject body) {
         String endPoint = "geojson";
-        ValidatableResponse result = doRequestAndExceptSuccess(body, profile, endPoint);
+        ValidatableResponse result = doRequestAndExpectSuccess(body, profile, endPoint);
 
         result.body("any { it.key == 'features' }", is(true));
         result.body("any { it.key == 'type' }", is(true));
@@ -203,7 +190,7 @@ class ParamsTest extends ServiceTest {
         }
     }
 
-    private ValidatableResponse doRequestAndExceptSuccess(JSONObject body, String profile, String endPoint) {
+    private ValidatableResponse doRequestAndExpectSuccess(JSONObject body, String profile, String endPoint) {
         String url = getEndPointPath() + "/{profile}";
         if (StringUtils.isNotBlank(endPoint))
             url = "%s/%s".formatted(url, endPoint);
@@ -263,13 +250,12 @@ class ParamsTest extends ServiceTest {
      */
     public static Stream<Arguments> snappingEndpointExceptionTestProvider() {
         // Create fake locations for testing
-        JSONArray oneFakeLocation = fakeLocations(1);
-        JSONArray tenFakeLocations = fakeLocations(10);
+        JSONArray oneFakeLocation = createLocations(invalidLocation());
+        JSONArray validAndFakeLocations = createLocations(location2m(), invalidLocation());
+        JSONArray fourValidLocations = createLocations(location2m(), location94m(), location2m(), location94m());
 
         // Create a broken fake location with invalid coordinates
-        JSONArray brokenFakeLocation = new JSONArray();
-        brokenFakeLocation.put(0.0);
-        brokenFakeLocation.put(0.0);
+        JSONArray brokenFakeLocation = invalidLocation();
 
         JSONArray invalidCoords = new JSONArray();
         JSONArray invalidCoord1 = new JSONArray();
@@ -279,34 +265,37 @@ class ParamsTest extends ServiceTest {
         JSONArray correctTestLocations = createLocations(location94m(), location2m());
         // Return a stream of test arguments
         return Stream.of(
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()),
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, profile_car, new JSONObject()),
                 // Check exception for one fake location to ensure single locations are checked
-                Arguments.of(POINT_NOT_FOUND, NOT_FOUND, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                Arguments.of(POINT_NOT_FOUND, NOT_FOUND, profile_car, new JSONObject()
                         .put(locationParameter, oneFakeLocation)),
-                // Check exception for ten fake locations to ensure multiple locations are checked
-                Arguments.of(POINT_NOT_FOUND, NOT_FOUND, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
-                        .put(locationParameter, tenFakeLocations)),
+                // Check exception for one  fake locations to ensure multiple locations are checked
+                Arguments.of(POINT_NOT_FOUND, NOT_FOUND, profile_car, new JSONObject()
+                        .put(locationParameter, validAndFakeLocations)),
                 // Check exception for broken location to ensure invalid locations are checked
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, profile_car, new JSONObject()
                         .put(locationParameter, brokenFakeLocation)),
                 // Check exception for wrong profile to ensure invalid profiles are checked
                 Arguments.of(INVALID_PARAMETER_VALUE, BAD_REQUEST, "driving-foo", new JSONObject()
                         .put(locationParameter, correctTestLocations)),
+                // Check exception for exceeded number of maximum locations
+                Arguments.of(PARAMETER_VALUE_EXCEEDS_MAXIMUM, BAD_REQUEST, profile_car, new JSONObject()
+                        .put(locationParameter, fourValidLocations)),
                 // Check exception for unknown parameter to ensure unknown parameters are checked
-                Arguments.of(UNKNOWN_PARAMETER, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                Arguments.of(UNKNOWN_PARAMETER, BAD_REQUEST, profile_car, new JSONObject()
                         .put(locationParameter, correctTestLocations).put("unknown", "unknown")),
                 // Check exception for invalid locations parameter (only one ccordinate)
-                Arguments.of(INVALID_PARAMETER_VALUE, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
-                        .put(locationParameter, invalidCoords).put(radiusParameter, "300")),
+                Arguments.of(INVALID_PARAMETER_VALUE, BAD_REQUEST, profile_car, new JSONObject()
+                        .put(locationParameter, invalidCoords).put(radiusParameter, "350")),
                 // Check exception for invalid locations parameter (only one ccordinate)
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
-                        .put(locationParameter, "noJsonArray").put(radiusParameter, "300")),
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, profile_car, new JSONObject()
+                        .put(locationParameter, "noJsonArray").put(radiusParameter, "350")),
                 // Check exception for invalid radius
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, profile_car, new JSONObject()
                         .put(locationParameter, correctTestLocations).put(radiusParameter, "notANumber")),
                 // Check exception for missing locations parameter
-                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, RoutingProfileType.getName(RoutingProfileType.DRIVING_CAR), new JSONObject()
-                        .put(radiusParameter, "300")
+                Arguments.of(INVALID_PARAMETER_FORMAT, BAD_REQUEST, profile_car, new JSONObject()
+                        .put(radiusParameter, "350")
                 ));
     }
 

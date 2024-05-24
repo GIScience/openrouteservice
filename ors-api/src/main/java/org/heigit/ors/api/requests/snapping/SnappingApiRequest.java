@@ -33,7 +33,7 @@ public class SnappingApiRequest extends APIRequest {
     @Schema(name = PARAM_MAXIMUM_SEARCH_RADIUS, description = "Maximum radius in meters around given coordinates to search for graph edges.",
         example ="350", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_MAXIMUM_SEARCH_RADIUS)
-    private double maximumSearchRadius;
+    private double maximumSearchRadius = 350;//TODO: allow profile-specific value set in config file, see #1798
 
     @JsonCreator
     public SnappingApiRequest(@JsonProperty(value = PARAM_LOCATIONS, required = true) List<List<Double>> locations) {

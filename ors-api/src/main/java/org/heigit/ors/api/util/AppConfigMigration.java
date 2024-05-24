@@ -20,6 +20,7 @@ public class AppConfigMigration {
     public static final String PARAM_STATISTICS_PROVIDERS = "statistics_providers.";
     public static final String SERVICE_NAME_MATRIX = "matrix";
     public static final String SERVICE_NAME_ROUTING = "routing";
+    private static final String SERVICE_NAME_SNAP = "snap";
     private static final String PARAM_ENABLED = "enabled";
     private static final String PARAM_ATTRIBUTION = "attribution";
     private static final String PARAM_MAXIMUM_RANGE_DISTANCE = "maximum_range_distance";
@@ -173,12 +174,15 @@ public class AppConfigMigration {
 
 // ### Snap ###
         EndpointsProperties.EndpointSnapProperties snap = endpoints.getSnap();
-        value = config.getServiceParameter("snap", "enabled");
+        value = config.getServiceParameter(SERVICE_NAME_SNAP, "enabled");
         if (value != null)
             snap.setEnabled(Boolean.parseBoolean(value));
-        value = config.getServiceParameter("snap", "attribution");
+        value = config.getServiceParameter(SERVICE_NAME_SNAP, "attribution");
         if (value != null)
             snap.setAttribution(value);
+        value = config.getServiceParameter(SERVICE_NAME_SNAP, "maximum_locations");
+        if (value != null)
+            snap.setMaximumLocations(Integer.parseInt(value));
 
 // ### Matrix ###
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();

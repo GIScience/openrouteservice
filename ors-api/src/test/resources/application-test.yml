@@ -10,6 +10,8 @@ ors:
       maximum_visited_nodes: 50000
     isochrones:
       maximum_intervals: 10
+    snap:
+      maximum_locations: 3
 
   engine:
     source_file: ./src/test/files/heidelberg.osm.gz

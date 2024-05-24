@@ -121,13 +121,14 @@ Endpoints.
 
 [//]: # (keep in sync with org.heigit.ors.snapping.SnappingErrorCodes)
 
-| Error Code | Description                    |
-|:----------:|--------------------------------|
-|    8000    | Unable to parse JSON request.  |
-|    8001    | Required parameter is missing. |
-|    8002    | Invalid parameter format.      |
-|    8003    | Invalid parameter value.       |
-|    8004    | Unknown parameter.             |
-|    8006    | Unsupported export format.     |
-|    8010    | Point not found.               |
-|    8099    | Unknown internal error.        |
+| Error Code | Description                                           |
+|:----------:|-------------------------------------------------------|
+|    8000    | Unable to parse JSON request.                         |
+|    8001    | Required parameter is missing.                        |
+|    8002    | Invalid parameter format.                             |
+|    8003    | Invalid parameter value.                              |
+|    8004    | Parameter value exceeds the maximum configured limit. |
+|    8007    | Unsupported export format.                            |
+|    8010    | Point not found.                                      |
+|    8011    | Unknown parameter.                                    |
+|    8099    | Unknown internal error.                               |

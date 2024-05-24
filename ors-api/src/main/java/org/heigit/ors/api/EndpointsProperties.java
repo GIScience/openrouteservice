@@ -445,6 +445,7 @@ public class EndpointsProperties {
     public static class EndpointSnapProperties {
         private boolean enabled;
         private String attribution;
+        private int maximumLocations;
 
         public boolean isEnabled() {
             return enabled;
@@ -462,5 +463,11 @@ public class EndpointsProperties {
             this.attribution = attribution;
         }
 
+        public int getMaximumLocations() {
+            return maximumLocations;
+        }
+        public void setMaximumLocations(int maximumLocations) {
+            this.maximumLocations = maximumLocations;
+        }
     }
 }

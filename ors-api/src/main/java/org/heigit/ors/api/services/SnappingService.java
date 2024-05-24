@@ -1,17 +1,18 @@
 package org.heigit.ors.api.services;
 
+import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.common.StatusCode;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.exceptions.PointNotFoundException;
-import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.*;
+import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.snapping.SnappingErrorCodes;
 import org.heigit.ors.snapping.SnappingRequest;
 import org.heigit.ors.snapping.SnappingResult;
 import org.locationtech.jts.geom.Coordinate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,9 +20,14 @@ import java.util.List;
 @Service
 public class SnappingService extends ApiService {
 
+    @Autowired
+    public SnappingService(EndpointsProperties endpointsProperties) {
+        this.endpointsProperties = endpointsProperties;
+    }
+
     public SnappingResult generateSnappingFromRequest(SnappingApiRequest snappingApiRequest) throws StatusCodeException {
         SnappingRequest snappingRequest = this.convertSnappingRequest(snappingApiRequest);
-
+        validateAgainstConfig(snappingRequest);
         try {
             RoutingProfile rp = RoutingProfileManager.getInstance().getProfileFromType(snappingRequest.getProfileType());
             if (rp == null)
@@ -46,7 +52,8 @@ public class SnappingService extends ApiService {
 
         SnappingRequest snappingRequest = new SnappingRequest(profileType,
                 convertLocations(snappingApiRequest.getLocations()), snappingApiRequest.getMaximumSearchRadius());
-
+        EndpointsProperties.EndpointSnapProperties snapProperties = endpointsProperties.getSnap();
+        snappingRequest.setMaximumLocations(snapProperties.getMaximumLocations());
         if (snappingApiRequest.hasId())
             snappingRequest.setId(snappingApiRequest.getId());
         return snappingRequest;
@@ -70,4 +77,10 @@ public class SnappingService extends ApiService {
         return new Coordinate(location.get(0), location.get(1));
     }
 
+    private void validateAgainstConfig(SnappingRequest snappingRequest) throws StatusCodeException {
+        int numberOfLocations = snappingRequest.getLocations().length;
+        int maximumLocations = snappingRequest.getMaximumLocations();
+        if (numberOfLocations > maximumLocations)
+            throw new ParameterOutOfRangeException(SnappingErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, SnappingApiRequest.PARAM_LOCATIONS, Integer.toString(numberOfLocations), Integer.toString(maximumLocations));
+    }
 }
