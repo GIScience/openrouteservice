@@ -35,14 +35,16 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
-- document which values of OSM key `surface` are being considered for way surface categories ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
+- document which values of OSM tag `surface` are considered for way surface categories ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
+- config parameter `maximum_locations` to snapping endpoint ([#1796](https://github.com/GIScience/openrouteservice/pull/1796))
 ### Changed
-- way surface is now being determined based only on the value of OSM `surface` tag; when the tag is not present the surface is reported as "Unknown" and is no longer being inferred from the way type ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
+- determine way surface based only on the value of OSM tag `surface`; if the tag is not present, the surface is reported as "Unknown" and no longer inferred from the way type ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 - improved performance of RPHAST matrix queries in the case when the number of sources is higher than the number of destinations
+- revise snap endpoint error codes ([#1796](https://github.com/GIScience/openrouteservice/pull/1796))
 ### Deprecated
 - soon-to-be removed features.
 ### Removed
-- way surface categories "Fine gravel", "Cobblestone" and "Woodchips" have been merged with existing categories "Gravel", "Paving stones" and "Unpaved", respectively ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
+- merge way surface categories "Fine gravel", "Cobblestone" and "Woodchips" with existing ones "Gravel", "Paving stones" and "Unpaved", respectively ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 ### Fixed
 - reliable encoding of way type and surface ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 ### Security
