@@ -21,7 +21,7 @@ public class SnappingApiRequest extends APIRequest {
     private APIEnums.Profile profile;
 
     @Schema(name = PARAM_LOCATIONS, description = "The locations to be snapped as array of `longitude/latitude` pairs.",
-            example = "[[8.681495,49.41461],[8.686507,49.41943]]",
+            example = "[[8.669629,49.413025],[8.675841,49.418532],[8.665144,49.415594]]",
             requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_LOCATIONS)
     private List<List<Double>> locations; //apparently, this has to be a non-primitive type…
@@ -31,7 +31,7 @@ public class SnappingApiRequest extends APIRequest {
     private APIEnums.SnappingResponseType responseType = APIEnums.SnappingResponseType.JSON;
 
     @Schema(name = PARAM_MAXIMUM_SEARCH_RADIUS, description = "Maximum radius in meters around given coordinates to search for graph edges.",
-        example ="300", requiredMode = Schema.RequiredMode.REQUIRED)
+        example ="350", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(PARAM_MAXIMUM_SEARCH_RADIUS)
     private double maximumSearchRadius;
 
