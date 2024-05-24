@@ -35,15 +35,15 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
-- for new features.
+- document which values of OSM key `surface` are being considered for way surface categories ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 ### Changed
-- existing functionality.
+- way surface is now being determined based only on the value of OSM `surface` tag; when the tag is not present the surface is reported as "Unknown" and is no longer being inferred from the way type ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 ### Deprecated
 - soon-to-be removed features.
 ### Removed
-- now removed features.
+- way surface categories "Fine gravel", "Cobblestone" and "Woodchips" have been merged with existing categories "Gravel", "Paving stones" and "Unpaved", respectively ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 ### Fixed
-- any bug.
+- reliable encoding of way type and surface ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 ### Security
 - in case of vulnerabilities. (Use for vulnerability fixes)
 
