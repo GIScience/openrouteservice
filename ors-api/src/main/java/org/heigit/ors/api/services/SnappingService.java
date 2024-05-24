@@ -1,11 +1,9 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.*;
-import org.heigit.ors.isochrones.IsochronesErrorCodes;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.snapping.SnappingErrorCodes;

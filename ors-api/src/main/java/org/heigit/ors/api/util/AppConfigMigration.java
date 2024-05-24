@@ -25,7 +25,7 @@ public class AppConfigMigration {
     private static final String PARAM_ATTRIBUTION = "attribution";
     private static final String PARAM_MAXIMUM_RANGE_DISTANCE = "maximum_range_distance";
     private static final String PARAM_MAXIMUM_RANGE_TIME = "maximum_range_time";
-
+    private static final String PARAM_MAXIMUM_LOCATIONS = "maximum_locations";
 
     private static final AppConfig config = AppConfig.getGlobal();
 
@@ -86,7 +86,7 @@ public class AppConfigMigration {
         String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_ENABLED);
         if (value != null)
             isochrones.setEnabled(Boolean.parseBoolean(value));
-        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_LOCATIONS);
         if (!StringUtility.isNullOrEmpty(value))
             isochrones.setMaximumLocations(Integer.parseInt(value));
         value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "allow_compute_area");
@@ -174,13 +174,13 @@ public class AppConfigMigration {
 
 // ### Snap ###
         EndpointsProperties.EndpointSnapProperties snap = endpoints.getSnap();
-        value = config.getServiceParameter(SERVICE_NAME_SNAP, "enabled");
+        value = config.getServiceParameter(SERVICE_NAME_SNAP, PARAM_ENABLED);
         if (value != null)
             snap.setEnabled(Boolean.parseBoolean(value));
-        value = config.getServiceParameter(SERVICE_NAME_SNAP, "attribution");
+        value = config.getServiceParameter(SERVICE_NAME_SNAP, PARAM_ATTRIBUTION);
         if (value != null)
             snap.setAttribution(value);
-        value = config.getServiceParameter(SERVICE_NAME_SNAP, "maximum_locations");
+        value = config.getServiceParameter(SERVICE_NAME_SNAP, PARAM_MAXIMUM_LOCATIONS);
         if (value != null)
             snap.setMaximumLocations(Integer.parseInt(value));
 
