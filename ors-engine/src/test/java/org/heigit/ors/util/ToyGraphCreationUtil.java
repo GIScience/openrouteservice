@@ -1,10 +1,13 @@
 package org.heigit.ors.util;
 
+import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
+import org.locationtech.jts.geomgraph.Edge;
 
 public class ToyGraphCreationUtil {
     private static GraphHopperStorage createGHStorage(EncodingManager encodingManager) {
@@ -218,6 +221,40 @@ public class ToyGraphCreationUtil {
                 g.edge(4, 3).setDistance(2),
                 g.edge(5, 1).setDistance(2)
         );
+        return g;
+    }
+
+    public static GraphHopperStorage createSimpleGraphWithAccessRestrictions(GraphHopperStorage g, EncodingManager encodingManager) {
+        // 5--1---2
+        //     \ /|
+        //      0 |
+        //     /  |
+        //    4---3
+        FlagEncoder encoder = encodingManager.getEncoder("car");
+        DecimalEncodedValue speedEnc = encodingManager.getEncoder("car").getAverageSpeedEnc();
+        EdgeIteratorState edge0 = GHUtility.setSpeed(60, true, true, encoder, g.edge(0, 1).setDistance(1));
+        edge0.set(speedEnc, 60);
+
+        EdgeIteratorState edge1 = GHUtility.setSpeed(60, true, true, encoder, g.edge(0, 2).setDistance(1));
+        edge1.set(speedEnc, 60);
+
+        EdgeIteratorState edge2 = GHUtility.setSpeed(60, true, true, encoder, g.edge(0, 4).setDistance(10));
+        edge2.set(speedEnc, 60);
+
+        EdgeIteratorState edge3 = GHUtility.setSpeed(60, true, true, encoder, g.edge(1, 2).setDistance(1));
+        edge3.set(speedEnc, 60);
+
+        EdgeIteratorState edge4 = GHUtility.setSpeed(60, true, false, encoder, g.edge(2, 3).setDistance(1));
+        edge4.set(speedEnc, 60);
+        edge4.setReverse(speedEnc, 0);
+
+        EdgeIteratorState edge5 = GHUtility.setSpeed(60, true, true, encoder, g.edge(4, 3).setDistance(1));
+        edge5.set(speedEnc, 60);
+
+        EdgeIteratorState edge6 = GHUtility.setSpeed(60, true, true, encoder, g.edge(5, 1).setDistance(1));
+        edge6.set(speedEnc, 60);
+
+
         return g;
     }
 
