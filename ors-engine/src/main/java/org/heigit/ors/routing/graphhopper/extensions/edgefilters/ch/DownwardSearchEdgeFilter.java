@@ -42,7 +42,7 @@ public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
         int adj = edgeIterState.getAdjNode();
 
         if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-            return swap ? isAccessible(edgeIterState, true) : isAccessible(edgeIterState, false);
+            return swap ? isAccessible(edgeIterState, false) : isAccessible(edgeIterState, true);
         else
             return false;
     }
