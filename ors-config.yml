@@ -96,9 +96,10 @@ ors:
 #        maximum_range_time:
 #          - profiles: driving-car, driving-hgv
 #            value: 10800
-#    Snap:
+#    snap:
 #      enabled: true
 #      attribution: openrouteservice.org, OpenStreetMap contributors
+#      maximum_locations: 5000
 #  ##### ORS engine settings #####
   engine:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
