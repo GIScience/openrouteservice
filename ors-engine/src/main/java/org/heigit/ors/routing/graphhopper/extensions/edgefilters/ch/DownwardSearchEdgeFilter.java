@@ -13,18 +13,13 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 
 public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
-    protected final BooleanEncodedValue accessEnc;
 
-
-    public DownwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
-        super(g, encoder);
-        accessEnc = encoder.getAccessEnc();
+    public DownwardSearchEdgeFilter(RoutingCHGraph g) {
+        super(g);
     }
 
     @Override

@@ -13,14 +13,12 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch;
 
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.CHEdgeFilter;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 public abstract class CHLevelEdgeFilter implements CHEdgeFilter {
-    protected final FlagEncoder encoder;
     protected final RoutingCHGraph graph;
     protected final int maxNodes;
     protected int highestNode = -1;
@@ -28,10 +26,9 @@ public abstract class CHLevelEdgeFilter implements CHEdgeFilter {
     protected int baseNode;
     protected int baseNodeLevel = -1;
 
-    protected CHLevelEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
+    protected CHLevelEdgeFilter(RoutingCHGraph g) {
         graph = g;
         maxNodes = GraphUtils.getBaseGraph(g).getNodes();
-        this.encoder = encoder;
     }
 
     @Override

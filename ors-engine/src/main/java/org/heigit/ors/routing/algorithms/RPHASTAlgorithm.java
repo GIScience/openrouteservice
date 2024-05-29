@@ -15,7 +15,6 @@ package org.heigit.ors.routing.algorithms;
 
 import com.carrotsearch.hppc.IntObjectMap;
 import com.graphhopper.coll.GHIntObjectHashMap;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.RoutingCHEdgeExplorer;
@@ -58,10 +57,9 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
         int size = Math.min(Math.max(200, graph.getNodes() / 10), 2000);
 
         initCollections(size);
-        FlagEncoder encoder = weighting.getFlagEncoder();
 
-        upwardEdgeFilter = new UpwardSearchEdgeFilter(graph, encoder);
-        downwardEdgeFilter = new DownwardSearchEdgeFilter(graph, encoder);
+        upwardEdgeFilter = new UpwardSearchEdgeFilter(graph);
+        downwardEdgeFilter = new DownwardSearchEdgeFilter(graph);
     }
 
     protected void initCollections(int size) {

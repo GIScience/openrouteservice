@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters.core;
 
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.RoutingCHEdgeIteratorState;
 import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSearchEdgeFilter;
@@ -21,12 +20,12 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.ch.DownwardSear
 public class ExclusiveDownwardSearchEdgeFilter extends DownwardSearchEdgeFilter {
     private boolean swap = false;
 
-    public ExclusiveDownwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder) {
-        super(g, encoder);
+    public ExclusiveDownwardSearchEdgeFilter(RoutingCHGraph g) {
+        super(g);
     }
 
-    public ExclusiveDownwardSearchEdgeFilter(RoutingCHGraph g, FlagEncoder encoder, boolean swap) {
-        this(g, encoder);
+    public ExclusiveDownwardSearchEdgeFilter(RoutingCHGraph g, boolean swap) {
+        this(g);
         this.swap = swap;
     }
 
