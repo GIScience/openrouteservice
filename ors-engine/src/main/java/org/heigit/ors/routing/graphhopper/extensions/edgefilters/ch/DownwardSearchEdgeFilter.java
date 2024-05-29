@@ -29,20 +29,14 @@ public class DownwardSearchEdgeFilter extends CHLevelEdgeFilter {
 
     @Override
     public boolean accept(RoutingCHEdgeIteratorState edgeIterState) {
-        int adj = edgeIterState.getAdjNode();
-
-        if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-            return isAccessible(edgeIterState, true);
-//            return edgeIterState.getReverse(accessEnc);
-        else
-            return false;
+        return accept(edgeIterState, false);
     }
 
     public boolean accept(RoutingCHEdgeIteratorState edgeIterState, boolean swap) {
         int adj = edgeIterState.getAdjNode();
 
         if (baseNode >= maxNodes || adj >= maxNodes || baseNodeLevel <= graph.getLevel(adj))
-            return swap ? isAccessible(edgeIterState, false) : isAccessible(edgeIterState, true);
+            return isAccessible(edgeIterState, !swap);
         else
             return false;
     }
