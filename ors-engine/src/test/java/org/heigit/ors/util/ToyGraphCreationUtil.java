@@ -7,7 +7,6 @@ import com.graphhopper.storage.GraphBuilder;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
-import org.locationtech.jts.geomgraph.Edge;
 
 public class ToyGraphCreationUtil {
     private static GraphHopperStorage createGHStorage(EncodingManager encodingManager) {
