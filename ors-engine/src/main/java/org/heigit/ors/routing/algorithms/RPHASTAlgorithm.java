@@ -180,7 +180,6 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
                 throw new IllegalStateException("Edge-based behavior not supported");
         }
 
-//        outEdgeExplorer = graph.createOutEdgeExplorer();
         outEdgeExplorer = swap ? graph.createInEdgeExplorer()
                 : graph.createOutEdgeExplorer();
         runUpwardSearch();
@@ -225,7 +224,6 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
                 continue;
 
             edgeWeight = iter.getWeight(swap);
-//            edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
 
             if (!Double.isInfinite(edgeWeight)) {
                 MultiTreeSPEntry ee = shortestWeightMap.get(iter.getAdjNode());
@@ -279,7 +277,6 @@ public class RPHASTAlgorithm extends AbstractManyToManyRoutingAlgorithm {
             return;
 
         while (iter.next()) {
-//            edgeWeight = weighting.calcEdgeWeight(iter, false, 0);
             edgeWeight = iter.getWeight(swap);
             if (!Double.isInfinite(edgeWeight)) {
                 MultiTreeSPEntry ee = bestWeightMap.get(iter.getAdjNode());
