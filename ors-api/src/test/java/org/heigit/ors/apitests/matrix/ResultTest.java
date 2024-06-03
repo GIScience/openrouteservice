@@ -876,6 +876,31 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testSwap() {
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locations5"));
+        body.put("sources", new JSONArray(new int[]{0, 1, 4}));
+        body.put("destinations", new JSONArray(new int[]{2, 3}));
+        body.put("metrics", getParameter("metricsDuration"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'durations' }", is(true))
+                .body("durations[0][0]", is(closeTo(726.88, 2)))
+                .body("durations[0][1]", is(closeTo(672.3, 2)))
+                .body("durations[1][0]", is(closeTo(625.37, 2)))
+                .body("durations[1][1]", is(closeTo(570.8, 2)))
+                .statusCode(200);
+    }
+
+    @Test
     void expectTurnRestrictionDurations() {
         JSONObject body = new JSONObject();
         JSONObject options = new JSONObject();
