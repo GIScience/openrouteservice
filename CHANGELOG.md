@@ -35,7 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
-- document which values of OSM key `surface` are being considered for way surface categories ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
+- Bla
 ### Changed
 - way surface is now being determined based only on the value of OSM `surface` tag; when the tag is not present the surface is reported as "Unknown" and is no longer being inferred from the way type ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 - improved performance of RPHAST matrix queries in the case when the number of sources is higher than the number of destinations
