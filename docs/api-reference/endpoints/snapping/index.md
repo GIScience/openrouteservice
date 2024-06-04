@@ -1,15 +1,9 @@
 # Snapping Endpoint
 
-:::warning NOTE
-This endpoint is not available in the public API,
-but you can use it when running an own instance of openrouteservice.
-You can easily create requests with the [swagger-ui](../../index.md#swagger-ui).
-:::
-
 The snapping endpoint can be used to snap points to the edges of the street network for a specific means of transportation.
 
 The endpoint returns a list of points snapped to the nearest edge in the graph as JSON or GeoJSON.
-In case an appropriate snapping point cannot be found within the specified search radius, "null" is returned.
+In case an appropriate snapping point cannot be found within the specified search radius, `null` is returned.
 
 The routing profile has to be specified as path parameter. 
 The list of points to be snapped has to be specified as parameter `locations` in the request body, 
@@ -19,7 +13,7 @@ Another required request body parameter is the `radius` in meters.
 The result contains the snapped points in the same order as their origin position in the request.
 
 In the following example request and result, the first point cannot be snapped within the search radius
-and therefore the first entry in the result `locations` is null.
+and therefore the first entry in the result `locations` is `null`.
 
 Request:
 ```shell

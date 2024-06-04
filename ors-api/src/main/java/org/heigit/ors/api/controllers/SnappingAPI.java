@@ -46,7 +46,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Tag(name = "Snapping Service", description = "Snap coordinates to the graph edges.")
+@Tag(name = "Snapping Service", description = "Snap coordinates to the road network.")
 @RequestMapping("/v2/snap")
 @ApiResponse(responseCode = "400", description = "The request is incorrect and therefore can not be processed.")
 @ApiResponse(responseCode = "404", description = "An element could not be found. If possible, a more detailed error code is provided.")
@@ -92,7 +92,7 @@ public class SnappingAPI {
     @PostMapping(value = "/{profile}")
     @Operation(
             description = """
-                    Returns a list of points snapped to the nearest edge in the graph. In case an appropriate
+                    Returns a list of points snapped to the nearest edge in the routing graph. In case an appropriate
                     snapping point cannot be found within the specified search radius, "null" is returned.
                     """,
             summary = "Snapping Service"
@@ -106,14 +106,14 @@ public class SnappingAPI {
             )
             })
     public JsonSnappingResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
-                                         @Parameter(description = "The request payload", required = true) @RequestBody SnappingApiRequest request) throws StatusCodeException {
+                                           @Parameter(description = "The request payload", required = true) @RequestBody SnappingApiRequest request) throws StatusCodeException {
         return getJsonSnapping(profile, request);
     }
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
     @Operation(
             description = """
-                    Returns a list of points snapped to the nearest edge in the graph. In case an appropriate
+                    Returns a list of points snapped to the nearest edge in the routing graph. In case an appropriate
                     snapping point cannot be found within the specified search radius, "null" is returned.
                     """,
             summary = "Snapping Service JSON"
@@ -137,10 +137,10 @@ public class SnappingAPI {
         return new JsonSnappingResponse(result, request, systemMessageProperties, endpointsProperties);
     }
 
-@PostMapping(value = "/{profile}/geojson", produces = {"application/json;charset=UTF-8"})
+    @PostMapping(value = "/{profile}/geojson", produces = {"application/json;charset=UTF-8"})
     @Operation(
             description = """
-                    Returns a GeoJSON FeatureCollection of points snapped to the nearest edge in the graph.
+                    Returns a GeoJSON FeatureCollection of points snapped to the nearest edge in the routing graph.
                     In case an appropriate snapping point cannot be found within the specified search radius,
                     it is omitted from the features array. The features provide the 'source_id' property, to match
                     the results with the input location array (IDs start at 0).

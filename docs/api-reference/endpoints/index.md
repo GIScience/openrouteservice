@@ -12,7 +12,7 @@ Openrouteservice offers a set of endpoints for different spatial purposes:
 * [Directions Service](directions/index.md): Get directions for different modes of transport
 * [Isochrones Service](isochrones/index.md): Obtain areas of reachability from given locations
 * [Matrix Service](matrix/index.md): Obtain one-to-many, many-to-one and many-to-many matrices for time and distance
-* [Snapping Service](snapping/index.md): Snap coordinates to the graph edges _(:warning: not available in our live API)_
+* [Snapping Service](snapping/index.md): Snap coordinates to the road network
 
 ## Technical Endpoints
 

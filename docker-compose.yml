@@ -52,6 +52,7 @@ services:
       #ors.engine.graphs_root_path: /home/ors/graphs
       #ors.engine.elevation.cache_path: /home/ors/elevation_cache
       #ors.engine.profiles.car.enabled: true
+      #logging.level.org.heigit: INFO
 
     # ----------------- ENV file configuration ------------------- #
     # Too many variables for your 'environment:' section?
