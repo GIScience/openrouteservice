@@ -120,6 +120,7 @@ jobs:
           chown -R $UID $(pwd)/graphs $(pwd)/config
           # Replace image: in the docker-compose.yml with the test image. The value of image: can vary.
           sed -i "s|image:.*|image: ${{ needs.prepare_environment.outputs.test_image_name }}|" docker-compose.yml
+          sed -i "s|#logging.level.org.heigit: INFO|logging.level.org.heigit: DEBUG|" docker-compose.yml
           # Start the first build with the docker-compose setup
           docker compose up --build -d
           # Wait for all logs to come in
