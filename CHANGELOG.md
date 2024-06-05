@@ -50,14 +50,10 @@ RELEASING:
 - improved performance of RPHAST matrix queries in the case when the number of sources is higher than the number of destinations ([#1795](https://github.com/GIScience/openrouteservice/pull/1795))
 - revise snap endpoint error codes ([#1796](https://github.com/GIScience/openrouteservice/pull/1796))
 - refactor: Cleanup routing profile management ([#1790](https://github.com/GIScience/openrouteservice/pull/1790))
-### Deprecated
-- soon-to-be removed features.
 ### Removed
 - merge way surface categories "Fine gravel", "Cobblestone" and "Woodchips" with existing ones "Gravel", "Paving stones" and "Unpaved", respectively ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 ### Fixed
 - reliable encoding of way type and surface ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
-### Security
-- in case of vulnerabilities. (Use for vulnerability fixes)
 
 ## [8.0.1] - 2024-05-14
 ### Added
