@@ -35,20 +35,25 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [8.1.0] - 2024-06-05
+### Added
 - document which values of OSM tag `surface` are considered for way surface categories ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 - config parameter `maximum_locations` to snapping endpoint ([#1796](https://github.com/GIScience/openrouteservice/pull/1796))
 ### Changed
 - determine way surface based only on the value of OSM tag `surface`; if the tag is not present, the surface is reported as "Unknown" and no longer inferred from the way type ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
-- improved performance of RPHAST matrix queries in the case when the number of sources is higher than the number of destinations
+- improved performance of RPHAST matrix queries in the case when the number of sources is higher than the number of destinations ([#1795](https://github.com/GIScience/openrouteservice/pull/1795))
 - revise snap endpoint error codes ([#1796](https://github.com/GIScience/openrouteservice/pull/1796))
-### Deprecated
-- soon-to-be removed features.
+- refactor: Cleanup routing profile management ([#1790](https://github.com/GIScience/openrouteservice/pull/1790))
 ### Removed
 - merge way surface categories "Fine gravel", "Cobblestone" and "Woodchips" with existing ones "Gravel", "Paving stones" and "Unpaved", respectively ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
 ### Fixed
 - reliable encoding of way type and surface ([#1794](https://github.com/GIScience/openrouteservice/pull/1794))
-### Security
-- in case of vulnerabilities. (Use for vulnerability fixes)
 
 ## [8.0.1] - 2024-05-14
 ### Added
@@ -771,7 +776,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.0.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.0...HEAD
+[8.1.0]: https://github.com/GIScience/openrouteservice/compare/v8.0.1...v8.1.0
 [8.0.1]: https://github.com/GIScience/openrouteservice/compare/v8.0.0...v8.0.1
 [8.0.0]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...v8.0.0
 [7.1.1]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...v7.1.1
