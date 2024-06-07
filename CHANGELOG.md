@@ -39,6 +39,7 @@ RELEASING:
 ### Deprecated
 ### Removed
 ### Fixed
+- allow bikes on highways under construction if access is explicitly set ([#1805](https://github.com/GIScience/openrouteservice/pull/1805))
 ### Security
 
 ## [8.1.0] - 2024-06-05
