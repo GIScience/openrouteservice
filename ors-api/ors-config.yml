@@ -24,13 +24,7 @@ ors:
     max_number_of_graph_backups: 0
     elevation:
       cache_path: ./ors-core/data/elevation_cache
-    graphservice:
-      schedule:
-        # HINT default is never (there is no Feb 31)
-        download:
-          cron: 0 0 * 31 2 *
-        activate:
-          cron: 0 0 * 31 2 *
+
     profiles:
       car:
         profile: driving-car

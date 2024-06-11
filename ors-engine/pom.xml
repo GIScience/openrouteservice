@@ -80,10 +80,6 @@
         </plugins>
     </build>
 
-    <properties>
-        <jupiter.version>5.9.3</jupiter.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>javax.annotation</groupId>
@@ -307,14 +303,14 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${jupiter.version}</version>
+            <version>${junit-version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${jupiter.version}</version>
+            <version>${junit-version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -379,15 +375,11 @@
             <artifactId>json</artifactId>
         </dependency>
 
-        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-        -->
-
-        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -396,7 +388,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
         </dependency>
-        -->
 
         <!-- TODO: remove this if nothing breaks
         <dependency>
@@ -411,19 +402,20 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>-->
 
-        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
-        -->
 
-        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
-        -->
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
 
         <!-- TODO: remove this if nothing breaks
         <dependency>

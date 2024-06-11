@@ -42,11 +42,7 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.routing.util.RoutingProfileHashBuilder;
-import org.heigit.ors.util.DebugUtility;
-import org.heigit.ors.util.ProfileTools;
-import org.heigit.ors.util.StringUtility;
-import org.heigit.ors.util.TimeUtility;
-import org.locationtech.jts.geom.Coordinate;
+import org.heigit.ors.util.*;
 
 import java.io.File;
 import java.nio.file.Files;

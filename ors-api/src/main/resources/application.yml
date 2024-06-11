@@ -112,8 +112,8 @@ ors:
     source_file:
     init_threads: 1
     preparation_mode: false
-    source_file:
     max_number_of_graph_backups: 0
+    graphs_extent: heidelberg
     graphs_root_path: ./graphs
     graphs_data_access: RAM_STORE
     elevation:
@@ -122,6 +122,13 @@ ors:
       cache_clear: false
       provider: multi
       cache_path: ./elevation_cache
+    graphservice:
+      schedule:
+        # HINT default is never (there is no Feb 31)
+        download:
+          cron: 0 0 * 31 2 *
+        activate:
+          cron: 0 0 * 31 2 *
     profile_default:
       enabled: false
       elevation: true

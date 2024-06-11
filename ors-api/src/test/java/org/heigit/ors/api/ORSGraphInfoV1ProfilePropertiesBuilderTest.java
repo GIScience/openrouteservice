@@ -4,6 +4,7 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1Profil
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Paths;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -105,7 +106,7 @@ class ORSGraphInfoV1ProfilePropertiesBuilderTest {
         EngineProperties.ProfileProperties overrideProperties = new EngineProperties.ProfileProperties();
         overrideProperties.setGtfsFile(OVERRIDE_STRING);
         ORSGraphInfoV1ProfileProperties opp = buildDefaultWithOverride(overrideProperties);
-        assertEquals(OVERRIDE_STRING, opp.gtfsFile());
+        assertEquals(Paths.get(OVERRIDE_STRING).toAbsolutePath().toString(), opp.gtfsFile());
     }
 
     @Test
