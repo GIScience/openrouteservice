@@ -105,11 +105,16 @@ public class ORSInitContextListener implements ServletContextListener {
         String accessScheme;
         String repoBaseUrlString = null;
         String repoName = null;
+        int port = -1;
         sourceFilePropertyValue = sourceFilePropertyValue.trim();
         try {
             URI uri = new URI(sourceFilePropertyValue);
             accessScheme = uri.getScheme();
             repoBaseUrlString = uri.getHost();
+            port = uri.getPort();
+            if (port != -1){
+                repoBaseUrlString = repoBaseUrlString + ":" + port;
+            }
             if (accessScheme == null || repoBaseUrlString == null) {
                 throw new URISyntaxException(sourceFilePropertyValue, "URI does not contain a valid schema or host");
             }

@@ -23,6 +23,7 @@ class ORSInitContextListenerTest {
             "' https://example.com/test-repo ',  https://example.com, test-repo, true",
             "https://example.com/test-repos/, https://example.com, test-repos, true",
             "http://example.com/test-repo/,  http://example.com, test-repo, true",
+            "http://example.com:8080/test-repo/,  http://example.com:8080, test-repo, true",
             "/foo/test-repo/,  null, null, false"
     })
     void extractSourceFileElements_withURL(String url, String expectedBaseUrl, String expectedRepoName, Boolean isUrl){
