@@ -1,28 +1,16 @@
 package org.heigit.ors.api.services;
 
-import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.util.AccessFilter;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.util.PMap;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.common.StatusCode;
-import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.exceptions.PointNotFoundException;
-import org.heigit.ors.exceptions.StatusCodeException;
-import org.heigit.ors.matrix.MatrixSearchContext;
-import org.heigit.ors.matrix.MatrixSearchContextBuilder;
+import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
-import org.heigit.ors.routing.RoutingProfileType;
-import org.heigit.ors.routing.WeightingMethod;
-import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.snapping.SnappingErrorCodes;
 import org.heigit.ors.snapping.SnappingRequest;
 import org.heigit.ors.snapping.SnappingResult;
-import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,14 +18,19 @@ import java.util.List;
 @Service
 public class SnappingService extends ApiService {
 
+    @Autowired
+    public SnappingService(EndpointsProperties endpointsProperties) {
+        this.endpointsProperties = endpointsProperties;
+    }
+
     public SnappingResult generateSnappingFromRequest(SnappingApiRequest snappingApiRequest) throws StatusCodeException {
         SnappingRequest snappingRequest = this.convertSnappingRequest(snappingApiRequest);
-
+        validateAgainstConfig(snappingRequest);
         try {
-            RoutingProfileManager rpm = RoutingProfileManager.getInstance();
-            RoutingProfile rp = rpm.getProfiles().getRouteProfile(snappingRequest.getProfileType());
-            GraphHopper gh = rp.getGraphhopper();
-            return computeResult(snappingRequest, gh);
+            RoutingProfile rp = RoutingProfileManager.getInstance().getProfileFromType(snappingRequest.getProfileType());
+            if (rp == null)
+                throw new InternalServerException(SnappingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+            return snappingRequest.computeResult(rp);
         } catch (PointNotFoundException e) {
             throw new StatusCodeException(StatusCode.NOT_FOUND, SnappingErrorCodes.POINT_NOT_FOUND, e.getMessage());
         } catch (StatusCodeException e) {
@@ -57,7 +50,8 @@ public class SnappingService extends ApiService {
 
         SnappingRequest snappingRequest = new SnappingRequest(profileType,
                 convertLocations(snappingApiRequest.getLocations()), snappingApiRequest.getMaximumSearchRadius());
-
+        EndpointsProperties.EndpointSnapProperties snapProperties = endpointsProperties.getSnap();
+        snappingRequest.setMaximumLocations(snapProperties.getMaximumLocations());
         if (snappingApiRequest.hasId())
             snappingRequest.setId(snappingApiRequest.getId());
         return snappingRequest;
@@ -81,21 +75,10 @@ public class SnappingService extends ApiService {
         return new Coordinate(location.get(0), location.get(1));
     }
 
-    public SnappingResult computeResult(SnappingRequest snappingRequest, GraphHopper gh) throws Exception {
-        String encoderName = RoutingProfileType.getEncoderName(snappingRequest.getProfileType());
-        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-        PMap hintsMap = new PMap();
-        int weightingMethod = WeightingMethod.RECOMMENDED; // Only needed to create the profile string
-        ProfileTools.setWeightingMethod(hintsMap, weightingMethod, snappingRequest.getProfileType(), false);
-        ProfileTools.setWeighting(hintsMap, weightingMethod, snappingRequest.getProfileType(), false);
-        String profileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
-        GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
-        String graphDate = ghStorage.getProperties().get("datareader.import.date");
-
-        // TODO: replace usage of matrix search context by snapping-specific class
-        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(ghStorage, gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), true);
-        Weighting weighting = new ORSWeightingFactory(ghStorage, gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
-        MatrixSearchContext mtxSearchCntx = builder.create(ghStorage.getBaseGraph(), null, weighting, profileName, snappingRequest.getLocations(), snappingRequest.getLocations(), snappingRequest.getMaximumSearchRadius());
-        return new SnappingResult(mtxSearchCntx.getSources().getLocations(), graphDate);
+    private void validateAgainstConfig(SnappingRequest snappingRequest) throws StatusCodeException {
+        int numberOfLocations = snappingRequest.getLocations().length;
+        int maximumLocations = snappingRequest.getMaximumLocations();
+        if (numberOfLocations > maximumLocations)
+            throw new ParameterOutOfRangeException(SnappingErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM, SnappingApiRequest.PARAM_LOCATIONS, Integer.toString(numberOfLocations), Integer.toString(maximumLocations));
     }
 }

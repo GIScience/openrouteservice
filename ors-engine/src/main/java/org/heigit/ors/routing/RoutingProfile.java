@@ -13,48 +13,29 @@
  */
 package org.heigit.ors.routing;
 
+import com.google.common.base.Strings;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
-import com.graphhopper.GraphHopper;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
-import com.graphhopper.gtfs.*;
-import com.graphhopper.routing.util.AccessFilter;
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
-import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
 import com.typesafe.config.Config;
 import org.apache.log4j.Logger;
-import org.heigit.ors.common.Pair;
 import org.heigit.ors.config.EngineConfig;
-import org.heigit.ors.exceptions.IncompatibleParameterException;
 import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
-import org.heigit.ors.exceptions.PointNotFoundException;
-import org.heigit.ors.export.ExportRequest;
-import org.heigit.ors.export.ExportResult;
-import org.heigit.ors.export.ExportWarning;
 import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import org.heigit.ors.matrix.*;
-import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
-import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
-import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -72,7 +53,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.*;
 import java.util.*;
 
 
@@ -91,7 +71,6 @@ public class RoutingProfile {
     private final Integer[] mRoutePrefs;
     private final RouteProfileConfiguration config;
     private final ORSGraphHopper mGraphHopper;
-    private Integer mUseCounter;
     private String astarApproximation;
     private Double astarEpsilon;
 
@@ -100,7 +79,6 @@ public class RoutingProfile {
         //        addProfileHash(rpc);
 
         mRoutePrefs = rpc.getProfilesTypes();
-        mUseCounter = 0;
 
         mGraphHopper = initGraphHopper(engineConfig, rpc, loadCntx);
 
@@ -117,7 +95,8 @@ public class RoutingProfile {
 
     public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration routeProfileConfiguration, RoutingProfileLoadContext loadCntx) throws Exception {
         String osmFile = engineConfig.getSourceFile();
-        ORSGraphHopperConfig args = createGHSettings(osmFile, routeProfileConfiguration);
+        String dataAccessType = Strings.isNullOrEmpty(routeProfileConfiguration.getGraphDataAccess()) ? engineConfig.getGraphsDataAccess() : routeProfileConfiguration.getGraphDataAccess();
+        ORSGraphHopperConfig args = createGHSettings(osmFile, dataAccessType, routeProfileConfiguration);
 
         int profileId;
         synchronized (lockObj) {
@@ -181,9 +160,9 @@ public class RoutingProfile {
         return gh;
     }
 
-    private static ORSGraphHopperConfig createGHSettings(String sourceFile, RouteProfileConfiguration config) {
+    private static ORSGraphHopperConfig createGHSettings(String sourceFile, String dataAccessType, RouteProfileConfiguration config) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
-        ghConfig.putObject("graph.dataaccess", "RAM_STORE");
+        ghConfig.putObject("graph.dataaccess", dataAccessType);
         ghConfig.putObject("datareader.file", sourceFile);
         ghConfig.putObject("graph.location", config.getGraphPath());
         ghConfig.putObject("graph.bytes_for_flags", config.getEncoderFlagsSize());
@@ -277,8 +256,6 @@ public class RoutingProfile {
             Config opts = config.getPreparationOpts();
             if (opts.hasPath("min_network_size"))
                 ghConfig.putObject("prepare.min_network_size", opts.getInt("min_network_size"));
-            if (opts.hasPath("min_one_way_network_size"))
-                ghConfig.putObject("prepare.min_one_way_network_size", opts.getInt("min_one_way_network_size"));
 
             if (opts.hasPath("methods")) {
                 if (opts.hasPath(ProfileTools.KEY_METHODS_CH)) {
@@ -377,9 +354,6 @@ public class RoutingProfile {
             Config opts = config.getExecutionOpts();
             if (opts.hasPath(ProfileTools.KEY_METHODS_CORE)) {
                 Config coreOpts = opts.getConfig(ProfileTools.KEY_METHODS_CORE);
-                if (coreOpts.hasPath(ProfileTools.KEY_DISABLING_ALLOWED))
-                    ghConfig.putObject("routing.core.disabling_allowed", coreOpts.getBoolean(ProfileTools.KEY_DISABLING_ALLOWED));
-
                 if (coreOpts.hasPath(ProfileTools.KEY_ACTIVE_LANDMARKS))
                     ghConfig.putObject("routing.corelm.active_landmarks", coreOpts.getInt(ProfileTools.KEY_ACTIVE_LANDMARKS));
             }
@@ -410,11 +384,7 @@ public class RoutingProfile {
         return ghConfig;
     }
 
-    private static boolean supportWeightingMethod(int profileType) {
-        return RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType) || RoutingProfileType.isPedestrian(profileType);
-    }
-
-    private boolean hasCHProfile(String profileName) {
+    public boolean hasCHProfile(String profileName) {
         boolean hasCHProfile = false;
         for (CHProfile chProfile : getGraphhopper().getCHPreparationHandler().getCHProfiles()) {
             if (profileName.equals(chProfile.getProfile()))
@@ -472,17 +442,14 @@ public class RoutingProfile {
         mGraphHopper.close();
     }
 
-    private synchronized boolean isGHUsed() {
-        return mUseCounter > 0;
+    public String getAstarApproximation() {
+        return astarApproximation;
     }
 
-    private synchronized void beginUseGH() {
-        mUseCounter++;
+    public Double getAstarEpsilon() {
+        return astarEpsilon;
     }
 
-    private synchronized void endUseGH() {
-        mUseCounter--;
-    }
 
     /**
      * This function creates the actual {@link IsochroneMap}.
@@ -522,17 +489,13 @@ public class RoutingProfile {
 
         IsochroneMap result;
 
-        beginUseGH();
-
         try {
             RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());
 
             IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
             result = isochroneMapBuilderFactory.buildMap(parameters);
 
-            endUseGH();
         } catch (Exception ex) {
-            endUseGH();
             if (DebugUtility.isDebug()) {
                 LOGGER.error(ex);
             }
@@ -579,197 +542,7 @@ public class RoutingProfile {
         return result;
     }
 
-    /**
-     * Compute a NxM matrix from a request using any of the three available approaches.
-     * For performance reasons, RPHAST is preferred over CoreMatrix, which is preferred over DijkstraMatrix, depending on request conditions.
-     *
-     * @param req The MatrixRequest object containing details which define which approach should be used.
-     * @return A MatrixResult object, possibly with both time and distance values for all combinations of N and M input locations
-     * @throws Exception
-     */
-    public MatrixResult computeMatrix(MatrixRequest req) throws Exception {
-        GraphHopper gh = getGraphhopper();
-        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-        PMap hintsMap = new PMap();
-        int weightingMethod = req.getWeightingMethod() == WeightingMethod.UNKNOWN ? WeightingMethod.RECOMMENDED : req.getWeightingMethod();
-        ProfileTools.setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
-        ProfileTools.setWeighting(hintsMap, weightingMethod, req.getProfileType(), false);
-        String CHProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
-        String CoreProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), true);
-
-        //TODO Refactoring : probably remove MatrixAlgorithmFactory alltogether as the checks for algorithm choice have to be performed here again. Or combine in a single check nicely
-        try {
-            // RPHAST
-            if (!req.getFlexibleMode() && gh.getCHPreparationHandler().isEnabled() && hasCHProfile(CHProfileName)) {
-                return computeRPHASTMatrix(req, gh, flagEncoder, CHProfileName);
-            }
-            // Core
-            else if (req.getSearchParameters().getDynamicSpeeds() && mGraphHopper.isCoreAvailable(CoreProfileName)) {
-                return computeCoreMatrix(req, gh, flagEncoder, hintsMap, CoreProfileName);
-            }
-            // Dijkstra
-            else {
-                // use CHProfileName (w/o turn costs) since Dijkstra is node-based so turn restrictions are not used.
-                return computeDijkstraMatrix(req, gh, flagEncoder, hintsMap, CHProfileName);
-            }
-        } catch (PointNotFoundException e) {
-            throw e;
-        } catch (MaxVisitedNodesExceededException e) {
-            throw new InternalServerException(MatrixErrorCodes.MAX_VISITED_NODES_EXCEEDED, "Unable to compute a distance/duration matrix: " + e.getMessage());
-        } catch (Exception ex) {
-            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix: " + ex.getMessage());
-        }
-    }
-
-    /**
-     * Compute a matrix based on a contraction hierarchies graph using the RPHAST algorithm. This is fast, but inflexible.
-     *
-     * @param req
-     * @param gh
-     * @param flagEncoder
-     * @param profileName
-     * @return
-     * @throws Exception
-     */
-    private MatrixResult computeRPHASTMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, String profileName) throws Exception {
-        RoutingCHGraph routingCHGraph = gh.getGraphHopperStorage().getRoutingCHGraph(profileName);
-        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
-        MatrixSearchContext mtxSearchCntx = builder.create(routingCHGraph.getBaseGraph(), routingCHGraph, routingCHGraph.getWeighting(), profileName, req.getSources(), req.getDestinations(), req.getMaximumSearchRadius());
-
-        RPHASTMatrixAlgorithm algorithm = new RPHASTMatrixAlgorithm();
-        algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, routingCHGraph.getWeighting());
-        return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-    }
-
-    /**
-     * Compute a matrix based on a core contracted graph, which is slower than RPHAST, but offers all the flexibility of the core
-     *
-     * @return
-     */
-    private MatrixResult computeCoreMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, PMap hintsMap, String profileName) throws Exception {
-        Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
-        RoutingCHGraph graph = ((ORSGraphHopperStorage) gh.getGraphHopperStorage()).getCoreGraph(profileName);
-        RouteSearchContext searchCntx = createSearchContext(req.getSearchParameters());
-        PMap additionalHints = searchCntx.getProperties();
-        EdgeFilter edgeFilter = new ORSEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, gh.getGraphHopperStorage());
-
-        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), edgeFilter, req.getResolveLocations());
-        MatrixSearchContext mtxSearchCntx = builder.create(graph.getBaseGraph(), graph, weighting, profileName, req.getSources(), req.getDestinations(), req.getMaximumSearchRadius());
-
-        CoreMatrixAlgorithm algorithm = new CoreMatrixAlgorithm();
-        algorithm.init(req, gh, mtxSearchCntx.getRoutingCHGraph(), flagEncoder, weighting, edgeFilter);
-        return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-    }
-
-    /**
-     * Compute a matrix based on the normal graph. Slow, but highly flexible in terms of request parameters.
-     *
-     * @param req
-     * @param gh
-     * @param flagEncoder
-     * @param hintsMap
-     * @param profileName
-     * @return
-     * @throws Exception
-     */
-    private MatrixResult computeDijkstraMatrix(MatrixRequest req, GraphHopper gh, FlagEncoder flagEncoder, PMap hintsMap, String profileName) throws Exception {
-        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
-        Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
-        MatrixSearchContextBuilder builder = new MatrixSearchContextBuilder(gh.getGraphHopperStorage(), gh.getLocationIndex(), AccessFilter.allEdges(flagEncoder.getAccessEnc()), req.getResolveLocations());
-        MatrixSearchContext mtxSearchCntx = builder.create(graph, null, weighting, profileName, req.getSources(), req.getDestinations(), req.getMaximumSearchRadius());
-
-        DijkstraMatrixAlgorithm algorithm = new DijkstraMatrixAlgorithm();
-        algorithm.init(req, gh, mtxSearchCntx.getGraph(), flagEncoder, weighting);
-        return algorithm.compute(mtxSearchCntx.getSources(), mtxSearchCntx.getDestinations(), req.getMetrics());
-    }
-
-    public ExportResult computeExport(ExportRequest req) throws Exception {
-        ExportResult res = new ExportResult();
-
-        GraphHopper gh = getGraphhopper();
-        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
-        Graph graph = gh.getGraphHopperStorage().getBaseGraph();
-
-        PMap hintsMap = new PMap();
-        int weightingMethod = WeightingMethod.FASTEST;
-        ProfileTools.setWeightingMethod(hintsMap, weightingMethod, req.getProfileType(), false);
-        String profileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
-        Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
-
-        FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
-        EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
-
-
-        // filter graph for nodes in Bounding Box
-        LocationIndex index = gh.getLocationIndex();
-        NodeAccess nodeAccess = graph.getNodeAccess();
-        BBox bbox = req.getBoundingBox();
-
-        ArrayList<Integer> nodesInBBox = new ArrayList<>();
-        index.query(bbox, edgeId -> {
-            // According to GHUtility.getEdgeFromEdgeKey, edgeIds are calculated as edgeKey/2.
-            EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
-            int baseNode = edge.getBaseNode();
-            int adjNode = edge.getAdjNode();
-
-            if (bbox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
-                nodesInBBox.add(baseNode);
-            }
-            if (bbox.contains(nodeAccess.getLat(adjNode), nodeAccess.getLon(adjNode))) {
-                nodesInBBox.add(adjNode);
-            }
-        });
-
-        LOGGER.debug("Found %d nodes in bbox.".formatted(nodesInBBox.size()));
-
-        if (nodesInBBox.isEmpty()) {
-            // without nodes, no export can be calculated
-            res.setWarning(new ExportWarning(ExportWarning.EMPTY_BBOX));
-            return res;
-        }
-
-        // calculate node coordinates
-        for (int from : nodesInBBox) {
-            Coordinate coord = new Coordinate(nodeAccess.getLon(from), nodeAccess.getLat(from));
-            res.addLocation(from, coord);
-
-            EdgeIterator iter = explorer.setBaseNode(from);
-            while (iter.next()) {
-                int to = iter.getAdjNode();
-                if (nodesInBBox.contains(to)) {
-                    double weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
-                    Pair<Integer, Integer> p = new Pair<>(from, to);
-                    res.addEdge(p, weight);
-
-                    if (req.debug()) {
-                        Map<String, Object> extra = new HashMap<>();
-                        extra.put("edge_id", iter.getEdge());
-                        WheelchairAttributesGraphStorage storage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), WheelchairAttributesGraphStorage.class);
-                        if (storage != null) {
-                            WheelchairAttributes attributes = new WheelchairAttributes();
-                            byte[] buffer = new byte[WheelchairAttributesGraphStorage.BYTE_COUNT];
-                            storage.getEdgeValues(iter.getEdge(), attributes, buffer);
-                            if (attributes.hasValues()) {
-                                extra.put("incline", attributes.getIncline());
-                                extra.put("surface_quality_known", attributes.isSurfaceQualityKnown());
-                                extra.put("suitable", attributes.isSuitable());
-                            }
-                        }
-                        OsmIdGraphStorage storage2 = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
-                        if (storage2 != null) {
-                            extra.put("osm_id", storage2.getEdgeValue(iter.getEdge()));
-                        }
-                        res.addEdgeExtra(p, extra);
-                    }
-                }
-            }
-        }
-
-        return res;
-    }
-
-    private RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
+    public RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
         PMap props = new PMap();
 
         int profileType = searchParams.getProfileType();
@@ -853,8 +626,6 @@ public class RoutingProfile {
             bearing, RouteSearchParameters searchParams, Boolean geometrySimplify) throws Exception {
         GHResponse resp;
 
-        beginUseGH();
-
         try {
             int profileType = searchParams.getProfileType();
             int weightingMethod = searchParams.getWeightingMethod();
@@ -886,7 +657,7 @@ public class RoutingProfile {
             if (props != null && !props.isEmpty())
                 req.getHints().putAll(props);
 
-            if (supportWeightingMethod(profileType))
+            if (TemporaryUtilShelter.supportWeightingMethod(profileType))
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, false);
             else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
@@ -904,232 +675,12 @@ public class RoutingProfile {
             mGraphHopper.getRouterConfig().setSimplifyResponse(geometrySimplify);
             resp = mGraphHopper.route(req);
 
-            endUseGH();
-
         } catch (Exception ex) {
-            endUseGH();
-
             LOGGER.error(ex);
-
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to compute a route");
         }
 
         return resp;
-    }
-
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
-                                   double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify)
-            throws Exception {
-
-        GHResponse resp;
-
-        beginUseGH();
-
-        try {
-            int profileType = searchParams.getProfileType();
-            if (profileType == RoutingProfileType.PUBLIC_TRANSPORT) {
-                StopWatch stopWatch = (new StopWatch()).start();
-                PtRouter ptRouter = new PtRouterImpl.Factory(mGraphHopper.getConfig(), new TranslationMap().doImport(), mGraphHopper.getGraphHopperStorage(), mGraphHopper.getLocationIndex(), mGraphHopper.getGtfsStorage())
-                        .createWithoutRealtimeFeed();
-                Request ptRequest = createPTRequest(lat0, lon0, lat1, lon1, searchParams);
-                GHResponse res = ptRouter.route(ptRequest);
-                res.addDebugInfo("Request total:" + stopWatch.stop().getSeconds() + "s");
-                return res;
-            }
-            int weightingMethod = searchParams.getWeightingMethod();
-            RouteSearchContext searchCntx = createSearchContext(searchParams);
-
-            int flexibleMode = searchParams.hasFlexibleMode() || config.isEnforceTurnCosts() ? ProfileTools.KEY_FLEX_PREPROCESSED : ProfileTools.KEY_FLEX_STATIC;
-            boolean optimized = searchParams.getOptimized();
-
-            GHRequest req;
-            if (bearings == null || bearings[0] == null)
-                req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1));
-            else if (bearings[1] == null)
-                req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), Double.NaN);
-            else
-                req = new GHRequest(new GHPoint(lat0, lon0), new GHPoint(lat1, lon1), bearings[0].getValue(), bearings[1].getValue());
-
-            req.setEncoderName(searchCntx.getEncoder().toString());
-            req.setProfile(searchCntx.profileName());
-            req.setAlgorithm(Parameters.Algorithms.ASTAR_BI);
-
-            if (radiuses != null)
-                req.setMaxSearchDistance(radiuses);
-
-            PMap props = searchCntx.getProperties();
-
-            req.setAdditionalHints(props);
-
-            if (props != null && !props.isEmpty())
-                req.getHints().putAll(props);
-
-            if (supportWeightingMethod(profileType)) {
-                ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, hasTimeDependentSpeed(searchParams, searchCntx));
-                if (requiresTimeDependentWeighting(searchParams, searchCntx))
-                    flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
-                flexibleMode = getFlexibilityMode(flexibleMode, searchParams, profileType);
-            } else
-                throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
-
-            if (flexibleMode == ProfileTools.KEY_FLEX_STATIC)
-                //Speedup order: useCH, useCore, useALT
-                // TODO Future improvement: profileNameCH is an ugly hack and is required because of the hard-coded turnCost=false for CH
-                setSpeedups(req, true, true, true, searchCntx.profileNameCH());
-
-            if (flexibleMode == ProfileTools.KEY_FLEX_PREPROCESSED) {
-                setSpeedups(req, false, optimized, true, searchCntx.profileNameCH());
-            }
-
-            //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
-            if (flexibleMode == ProfileTools.KEY_FLEX_FULLY)
-                setSpeedups(req, false, false, true, searchCntx.profileNameCH());
-
-            if (searchParams.isTimeDependent()) {
-                req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
-
-                String key;
-                LocalDateTime time;
-                if (searchParams.hasDeparture()) {
-                    key = RouteRequestParameterNames.PARAM_DEPARTURE;
-                    time = searchParams.getDeparture();
-                } else {
-                    key = RouteRequestParameterNames.PARAM_ARRIVAL;
-                    time = searchParams.getArrival();
-                }
-
-                req.getHints().putObject(key, time.atZone(ZoneId.of("Europe/Berlin")).toInstant());
-            }
-
-            if (astarEpsilon != null)
-                req.getHints().putObject("astarbi.epsilon", astarEpsilon);
-            if (astarApproximation != null)
-                req.getHints().putObject("astarbi.approximation", astarApproximation);
-
-            if (searchParams.getAlternativeRoutesCount() > 0) {
-                req.setAlgorithm("alternative_route");
-                req.getHints().putObject("alternative_route.max_paths", searchParams.getAlternativeRoutesCount());
-                req.getHints().putObject("alternative_route.max_weight_factor", searchParams.getAlternativeRoutesWeightFactor());
-                req.getHints().putObject("alternative_route.max_share_factor", searchParams.getAlternativeRoutesShareFactor());
-            }
-
-            if (searchParams.hasMaximumSpeed()) {
-                req.getHints().putObject("maximum_speed", searchParams.getMaximumSpeed());
-                req.getHints().putObject("maximum_speed_lower_bound", config.getMaximumSpeedLowerBound());
-            }
-
-            if (directedSegment) {
-                resp = mGraphHopper.constructFreeHandRoute(req);
-            } else {
-                mGraphHopper.getRouterConfig().setSimplifyResponse(geometrySimplify);
-                resp = mGraphHopper.route(req);
-            }
-            if (DebugUtility.isDebug() && !directedSegment) {
-                LOGGER.info("visited nodes: " + resp.getHints().getObject("visited_nodes.sum", null));
-            }
-            if (DebugUtility.isDebug() && directedSegment) {
-                LOGGER.info("skipped segment: " + resp.getHints().getString("skipped_segment", null));
-            }
-            endUseGH();
-        } catch (Exception ex) {
-            endUseGH();
-
-            LOGGER.error(ex);
-
-            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to compute a route");
-        }
-
-        return resp;
-    }
-
-    private Request createPTRequest(double lat0, double lon0, double lat1, double lon1, RouteSearchParameters params) throws IncompatibleParameterException {
-        List<GHLocation> points = Arrays.asList(new GHPointLocation(new GHPoint(lat0, lon0)), new GHPointLocation(new GHPoint(lat1, lon1)));
-
-        // GH uses pt.earliest_departure_time for both departure and arrival.
-        // We need to check which is used here (and issue an exception if it's both) and consequently parse it and set arrive_by.
-        Instant departureTime = null;
-        boolean arrive_by = false;
-        if (params.hasDeparture() && params.hasArrival()) {
-            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequestParameterNames.PARAM_DEPARTURE, RouteRequestParameterNames.PARAM_ARRIVAL);
-        } else if (params.hasArrival()) {
-            departureTime = params.getArrival().toInstant(ZoneOffset.UTC);
-            arrive_by = true;
-        } else if (params.hasDeparture()) {
-            departureTime = params.getDeparture().toInstant(ZoneOffset.UTC);
-        } else {
-            // pt.earliest_departure_time is @NotNull, we need to emulate that here.
-            departureTime = Instant.now();
-        }
-
-        Request ptRequest = new Request(points, departureTime);
-        ptRequest.setArriveBy(arrive_by);
-
-        // schedule is called profile in GraphHopper
-        if (params.hasSchedule()) {
-            ptRequest.setProfileQuery(params.getSchedule());
-        } else {
-            ptRequest.setProfileQuery(false);
-        }
-
-        // scheduleDuration is called profileDuration accordingly
-        if (params.hasScheduleDuration()) {
-            ptRequest.setMaxProfileDuration(params.getScheduleDuaration());
-        }
-
-        // this will default to false
-        ptRequest.setIgnoreTransfers(params.getIgnoreTransfers());
-
-        // TODO: check whether language can be parsed in RouteResultBuilder
-        // language is called locale in GraphHopper
-        // if (params.hasLanguage()) {
-        //    ptRequest.setLocale(Helper.getLocale(params.getLanguage().toString()));
-        // }
-
-        // scheduleRows is called limitSolutions in GraphHopper
-        if (params.hasScheduleRows()) {
-            ptRequest.setLimitSolutions(params.getScheduleRows());
-        }
-
-        // setLimitTripTime missing from documentation
-        // according to GraphHopper
-
-        // walkingTime is called limit_street_time in GraphHopper
-        if (params.hasWalkingTime()) {
-            ptRequest.setLimitStreetTime(params.getWalkingTime());
-        } else {
-            ptRequest.setLimitStreetTime(Duration.ofMinutes(15));
-        }
-
-        // default to foot access and egress
-        ptRequest.setAccessProfile("foot_fastest");
-        ptRequest.setEgressProfile("foot_fastest");
-
-        ptRequest.setMaxVisitedNodes(config.getMaximumVisitedNodesPT());
-
-        return ptRequest;
-    }
-
-    /**
-     * Get the flexibility mode necessary for the searchParams.
-     * Reults in usage of CH, Core or ALT/AStar
-     *
-     * @param flexibleMode initial flexibleMode
-     * @param searchParams RouteSearchParameters
-     * @param profileType  Necessary for HGV
-     * @return flexibility as int
-     */
-    private int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType) {
-        if (searchParams.requiresDynamicPreprocessedWeights() || profileType == RoutingProfileType.WHEELCHAIR)
-            flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
-
-        if (searchParams.requiresFullyDynamicWeights())
-            flexibleMode = ProfileTools.KEY_FLEX_FULLY;
-        //If we have special weightings, we have to fall back to ALT with Beeline
-        ProfileParameters profileParams = searchParams.getProfileParameters();
-        if (profileParams != null && profileParams.hasWeightings())
-            flexibleMode = ProfileTools.KEY_FLEX_FULLY;
-
-        return flexibleMode;
     }
 
     /**
@@ -1141,7 +692,7 @@ public class RoutingProfile {
      * @param useCore Should Core be enabled
      * @param useALT  Should ALT be enabled
      */
-    private void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH) {
+    public void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH) {
         String profileName = req.getProfile();
 
         //Priority: CH->Core->ALT
@@ -1166,12 +717,6 @@ public class RoutingProfile {
         }
     }
 
-    boolean hasTimeDependentSpeed(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
-        FlagEncoder flagEncoder = searchCntx.getEncoder();
-        String key = EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED);
-        return searchParams.isTimeDependent() && flagEncoder.hasEncodedValue(key);
-    }
-
     boolean requiresTimeDependentWeighting(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
         if (!searchParams.isTimeDependent())
             return false;
@@ -1194,14 +739,11 @@ public class RoutingProfile {
     public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
         IsochroneMap result;
 
-        beginUseGH();
         try {
             RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());
             IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
             result = isochroneMapBuilderFactory.buildMap(parameters);
-            endUseGH();
         } catch (Exception ex) {
-            endUseGH();
             if (DebugUtility.isDebug()) {
                 LOGGER.error(ex);
             }

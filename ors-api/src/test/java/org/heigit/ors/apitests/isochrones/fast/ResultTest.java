@@ -122,7 +122,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(80)).and(lessThan(90))))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(45)).and(lessThan(55))))
                 .body("features[0].properties.center.size()", is(2))
                 .body("bbox", hasItems(closeTo(8.652489f, 0.02f), closeTo(49.40263f, 0.02f), closeTo(8.708881f, 0.02f), closeTo(49.447865f, 0.02f)))
                 .body("features[0].type", is("Feature"))
@@ -346,7 +346,7 @@ class ResultTest extends ServiceTest {
                 .body("features[1].geometry.type", is("Polygon"))
                 .body("features[2].type", is("Feature"))
                 .body("features[2].geometry.type", is("Polygon"))
-                .body("features[2].geometry.coordinates[0].size()", is(both(greaterThan(65)).and(lessThan(85))))
+                .body("features[2].geometry.coordinates[0].size()", is(both(greaterThan(35)).and(lessThan(45))))
                 .body("features[2].properties.contours.size()", is(2))
                 .body("features[2].properties.containsKey('area')", is(true))
                 .body("features[0].properties.area", is(both(greaterThan(8000000f)).and(lessThan(15000000f))))
@@ -379,7 +379,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(60)).and(lessThan(80))))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(40)).and(lessThan(60))))
                 .statusCode(200);
 
         body.put("smoothing", "100");
@@ -392,7 +392,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(55)).and(lessThan(85))))
+                .body("features[0].geometry.coordinates[0].size()", is(both(greaterThan(15)).and(lessThan(25))))
                 .statusCode(200);
     }
 

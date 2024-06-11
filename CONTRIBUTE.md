@@ -32,7 +32,7 @@ We :heart: pull requests! We also aspire to make our commit history cleaner and 
 We'd like all pull requests to adhere to the following rules:
 
 - a PR has to **close an issue**. If there is none yet for yours, please [create one](https://github.com/GIScience/openrouteservice/issues/new)
-- branch off [master](https://github.com/GIScience/openrouteservice/tree/master)
+- branch off [main](https://github.com/GIScience/openrouteservice/tree/main)
 - name your branch according to `<[hotfix/bugfix/feat/algo]>/<issue#>-<purpose>`, e.g. `feat/#381-simplify_geometry`
 - if you introduce new functions/classes, write unit or API tests
 - **limit the number of commits to a minimum**, i.e. use [`git commit --amend [--no-edit]`](https://www.atlassian.com/git/tutorials/rewriting-history#git-commit--amend)
@@ -42,17 +42,17 @@ We'd like all pull requests to adhere to the following rules:
 ```
 git checkout feat/#123-add-great-feature
 git stash
-git rebase master
+git rebase main
 git stash pop
 ```
 
 Be extra careful using `rebase` commands when collaborating on a branch with other people.
 
-**Don't merge** `master` branch into your feature branch.
+**Don't merge** `main` branch into your feature branch.
 
 ### Contributing code
 
-For a short explanation on how to set up, deploy and test **openrouteservice** locally for development, see our [installation instructions](https://GIScience.github.io/openrouteservice/installation/Building-from-Source).
+For a short explanation on how to set up, deploy and test **openrouteservice** locally for development, see our [installation instructions](https://giscience.github.io/openrouteservice/run-instance/building-from-source).
 
 Though there are no concrete rules for code that is contributed, we have a few general styles that should be adopted:
 

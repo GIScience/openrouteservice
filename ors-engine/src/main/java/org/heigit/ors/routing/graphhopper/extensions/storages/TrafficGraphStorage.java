@@ -441,9 +441,9 @@ public class TrafficGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
 
-        this.orsEdgesProperties = dir.find("ext_traffic_edge_properties");
-        this.orsEdgesTrafficLinkLookup = dir.find("ext_traffic_edges_traffic_lookup");
-        this.orsSpeedPatternLookup = dir.find("ext_traffic_pattern_lookup");
+        this.orsEdgesProperties = dir.create("ext_traffic_edge_properties");
+        this.orsEdgesTrafficLinkLookup = dir.create("ext_traffic_edges_traffic_lookup");
+        this.orsSpeedPatternLookup = dir.create("ext_traffic_pattern_lookup");
     }
 
     /**
@@ -454,20 +454,9 @@ public class TrafficGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
         Directory d = new RAMDirectory();
-        this.orsEdgesProperties = d.find("");
-        this.orsEdgesTrafficLinkLookup = d.find("");
-        this.orsSpeedPatternLookup = d.find("");
-    }
-
-    /**
-     * sets the segment size in all additional data storages
-     *
-     * @param bytes Size in bytes.
-     */
-    public void setSegmentSize(int bytes) {
-        orsEdgesProperties.setSegmentSize(bytes);
-        orsEdgesTrafficLinkLookup.setSegmentSize(bytes);
-        orsSpeedPatternLookup.setSegmentSize(bytes);
+        this.orsEdgesProperties = d.create("");
+        this.orsEdgesTrafficLinkLookup = d.create("");
+        this.orsSpeedPatternLookup = d.create("");
     }
 
     /**
@@ -582,6 +571,13 @@ public class TrafficGraphStorage implements GraphExtension {
                 orsEdgesTrafficLinkLookup.setBytes(edgePointer + LOCATION_TRAFFIC_MAXSPEED + directionOffset, this.speedValue, 1);
             }
         }
+    }
+
+    /**
+     * @return number of processed traffic patterns
+     */
+    public int getPatternCount() {
+        return patternCount;
     }
 
     public void setZoneId(ZoneId zoneId) {

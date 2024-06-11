@@ -20,11 +20,12 @@ public class AppConfigMigration {
     public static final String PARAM_STATISTICS_PROVIDERS = "statistics_providers.";
     public static final String SERVICE_NAME_MATRIX = "matrix";
     public static final String SERVICE_NAME_ROUTING = "routing";
+    private static final String SERVICE_NAME_SNAP = "snap";
     private static final String PARAM_ENABLED = "enabled";
     private static final String PARAM_ATTRIBUTION = "attribution";
     private static final String PARAM_MAXIMUM_RANGE_DISTANCE = "maximum_range_distance";
     private static final String PARAM_MAXIMUM_RANGE_TIME = "maximum_range_time";
-
+    private static final String PARAM_MAXIMUM_LOCATIONS = "maximum_locations";
 
     private static final AppConfig config = AppConfig.getGlobal();
 
@@ -81,11 +82,11 @@ public class AppConfigMigration {
             endpoints.setSwaggerDocumentationUrl(swaggerDocumentationUrl);
 
 // ### Isochrones ###
-        EndpointsProperties.EndpointIsochroneProperties isochrones = endpoints.getIsochrone();
+        EndpointsProperties.EndpointIsochronesProperties isochrones = endpoints.getIsochrones();
         String value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_ENABLED);
         if (value != null)
             isochrones.setEnabled(Boolean.parseBoolean(value));
-        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "maximum_locations");
+        value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, PARAM_MAXIMUM_LOCATIONS);
         if (!StringUtility.isNullOrEmpty(value))
             isochrones.setMaximumLocations(Integer.parseInt(value));
         value = config.getServiceParameter(SERVICE_NAME_ISOCHRONES, "allow_compute_area");
@@ -140,7 +141,7 @@ public class AppConfigMigration {
                 fastisochrones.setMaximumRangeTimeDefault(def);
         }
 
-        Map<String, EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties> statisticsProviderPropertiesMap = new HashMap<>();
+        Map<String, EndpointsProperties.EndpointIsochronesProperties.StatisticsProviderProperties> statisticsProviderPropertiesMap = new HashMap<>();
         Map<String, Object> providers = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, "statistics_providers", false);
         if (providers != null) {
             for (Map.Entry<String, Object> entry : providers.entrySet()) {
@@ -148,7 +149,7 @@ public class AppConfigMigration {
                 Map<String, Object> provider = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey(), false);
 
                 if (provider.containsKey("provider_name") && provider.containsKey("provider_parameters") && provider.containsKey("property_mapping")) {
-                    EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties statisticsProviderProperties = new EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties();
+                    EndpointsProperties.EndpointIsochronesProperties.StatisticsProviderProperties statisticsProviderProperties = new EndpointsProperties.EndpointIsochronesProperties.StatisticsProviderProperties();
                     statisticsProviderProperties.setProviderName(provider.get("provider_name").toString());
                     Map<String, Object> providerParams = config.getServiceParametersMap(SERVICE_NAME_ISOCHRONES, PARAM_STATISTICS_PROVIDERS + entry.getKey() + ".provider_parameters", false);
                     statisticsProviderProperties.setProviderParameters(providerParams);
@@ -173,12 +174,15 @@ public class AppConfigMigration {
 
 // ### Snap ###
         EndpointsProperties.EndpointSnapProperties snap = endpoints.getSnap();
-        value = config.getServiceParameter("snap", "enabled");
+        value = config.getServiceParameter(SERVICE_NAME_SNAP, PARAM_ENABLED);
         if (value != null)
             snap.setEnabled(Boolean.parseBoolean(value));
-        value = config.getServiceParameter("snap", "attribution");
+        value = config.getServiceParameter(SERVICE_NAME_SNAP, PARAM_ATTRIBUTION);
         if (value != null)
             snap.setAttribution(value);
+        value = config.getServiceParameter(SERVICE_NAME_SNAP, PARAM_MAXIMUM_LOCATIONS);
+        if (value != null)
+            snap.setMaximumLocations(Integer.parseInt(value));
 
 // ### Matrix ###
         EndpointsProperties.EndpointMatrixProperties matrix = endpoints.getMatrix();

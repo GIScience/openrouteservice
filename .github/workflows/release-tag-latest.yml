@@ -1,0 +1,25 @@
+name: Sync Semver to major and latest tags
+# ... TODO
+on:
+  release:
+    types:
+      - released
+      - edited
+  push:
+    tags:
+      - 'v?[0-9]+.[0-9]+.[0-9]+'
+    branches:
+      - 'main'
+      - 'releases/**'
+    paths-ignore:
+      - '**'
+
+jobs:
+  actions-tagger:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: Actions-R-Us/actions-tagger@v2
+        with:
+          publish_latest_tag: true

@@ -12,7 +12,7 @@
     "tertiary_link": 18,
     "unclassified": 16,
     "residential": 18,
-    "living_street": 12,
+    "living_street": 6,
     "cycleway": 18,
     "path": 10,
     "service": 14,
@@ -20,7 +20,9 @@
     "track": 12,
     "footway": 6,
     "pedestrian": 6,
-    "steps": 2
+    "bridleway": 6,
+    "steps": 2,
+    "construction": 10
   },
   "surface": {
     "asphalt": 18,

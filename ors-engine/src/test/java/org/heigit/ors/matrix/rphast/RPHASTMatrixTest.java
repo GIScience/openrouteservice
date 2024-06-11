@@ -156,6 +156,38 @@ class RPHASTMatrixTest {
         assertThrows(MaxVisitedNodesExceededException.class, () -> algorithm.calcPaths(srcIds, dstIds));
     }
 
+    @Test
+    void testSwapRPHASTAlgorithm() {
+        /**
+         * First calculate the distances with sources and destinations swapped (ids are swapped "manually")
+         * After we compare with the non-swapped results.
+         */
+        ToyGraphCreationUtil.createSimpleGraphWithAccessRestrictions(g, encodingManager);
+        PrepareContractionHierarchies prepare = createPrepareContractionHierarchies(g);
+        prepare.doWork();
+
+        RPHASTAlgorithm algorithmSwapped = new RPHASTAlgorithm(routingCHGraph, weighting, TraversalMode.NODE_BASED, true);
+
+        int[] srcIdsSwapped = new int[]{2};
+        int[] dstIdsSwapped = new int[]{4, 3};
+
+        algorithmSwapped.prepare(srcIdsSwapped, dstIdsSwapped);
+
+        MultiTreeSPEntry[] destTreesSwapped = algorithmSwapped.calcPaths(srcIdsSwapped, dstIdsSwapped);
+
+        RPHASTAlgorithm algorithm = new RPHASTAlgorithm(routingCHGraph, weighting, TraversalMode.NODE_BASED, false);
+
+        int[] srcIds = new int[]{4, 3};
+        int[] dstIds = new int[]{2};
+
+        algorithm.prepare(srcIds, dstIds);
+
+        MultiTreeSPEntry[] destTrees = algorithm.calcPaths(srcIds, dstIds);
+
+        assertEquals(destTreesSwapped[0].getItem(0).getWeight(), destTrees[0].getItem(0).getWeight());
+        assertEquals(destTreesSwapped[1].getItem(0).getWeight(), destTrees[0].getItem(1).getWeight());
+    }
+
 
     private PrepareContractionHierarchies createPrepareContractionHierarchies(GraphHopperStorage g) {
         return createPrepareContractionHierarchies(g, chConfig);

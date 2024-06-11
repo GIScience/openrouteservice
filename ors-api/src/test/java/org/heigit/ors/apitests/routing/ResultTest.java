@@ -107,7 +107,7 @@ class ResultTest extends ServiceTest {
         coordFootBridge1.put(49.415036);
         coordsFootBridge.put(coordFootBridge1);
         JSONArray coordFootBridge2 = new JSONArray();
-        coordFootBridge2.put( 8.692765);
+        coordFootBridge2.put(8.692765);
         coordFootBridge2.put(49.410540);
         coordsFootBridge.put(coordFootBridge2);
 
@@ -497,8 +497,8 @@ class ResultTest extends ServiceTest {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         String xsdSchema = """
                 <?xml version="1.0" encoding="UTF-8"?>
-                <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-                    <xs:element name="gpx" type="ors:gpxType" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                    <xs:element name="gpx" type="ors:gpxType" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                     <xs:complexType name="extensionsType">
                         <xs:sequence>
                             <xs:element type="xs:string" name="distance" minOccurs="0"/>
@@ -537,7 +537,7 @@ class ResultTest extends ServiceTest {
                             <xs:element type="xs:string" name="distance-units" minOccurs="0"/>
                             <xs:element type="xs:string" name="instructions" minOccurs="0"/>
                             <xs:element type="xs:string" name="elevation" minOccurs="0"/>
-                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd" minOccurs="0"/>
+                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd" minOccurs="0"/>
                             <xs:element type="xs:string" name="system-message" minOccurs="0"/>
                         </xs:sequence>
                     </xs:complexType>
@@ -545,11 +545,11 @@ class ResultTest extends ServiceTest {
                         <xs:sequence>
                             <xs:element type="xs:string" name="name"/>
                             <xs:element type="xs:string" name="desc"/>
-                            <xs:element type="ors:authorType" name="author" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:copyrightType" name="copyright" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:authorType" name="author" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:copyrightType" name="copyright" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                             <xs:element type="xs:string" name="time"/>
-                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:boundsType" name="bounds" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                     </xs:complexType>
                     <xs:complexType name="boundsType">
@@ -571,9 +571,9 @@ class ResultTest extends ServiceTest {
                     </xs:complexType>
                     <xs:complexType name="gpxType">
                         <xs:sequence>
-                            <xs:element type="ors:metadataType" name="metadata" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:rteType" name="rte" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:metadataType" name="metadata" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:rteType" name="rte" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                         <xs:attribute type="xs:string" name="version"/>
                         <xs:attribute type="xs:string" name="creator"/>
@@ -589,8 +589,8 @@ class ResultTest extends ServiceTest {
                     <xs:complexType name="authorType">
                         <xs:sequence>
                             <xs:element type="xs:string" name="name"/>
-                            <xs:element type="ors:emailType" name="email" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:linkType" name="link" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:emailType" name="email" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:linkType" name="link" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                     </xs:complexType>
                     <xs:complexType name="copyrightType">
@@ -605,15 +605,15 @@ class ResultTest extends ServiceTest {
                             <xs:element type="xs:decimal" name="ele" minOccurs="0"/>
                             <xs:element type="xs:string" name="name"/>
                             <xs:element type="xs:string" name="desc"/>
-                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                         <xs:attribute type="xs:string" name="lat" use="optional"/>
                         <xs:attribute type="xs:string" name="lon" use="optional"/>
                     </xs:complexType>
                     <xs:complexType name="rteType">
                         <xs:sequence>
-                            <xs:element type="ors:rteptType" name="rtept" maxOccurs="unbounded" minOccurs="0" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
-                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:rteptType" name="rtept" maxOccurs="unbounded" minOccurs="0" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
+                            <xs:element type="ors:extensionsType" name="extensions" xmlns:ors="https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:schema>
@@ -652,6 +652,8 @@ class ResultTest extends ServiceTest {
                 .body("features[0].containsKey('properties')", is(true))
                 .body("features[0].properties.containsKey('summary')", is(true))
                 .body("features[0].containsKey('bbox')", is(true))
+                .body("features[0].properties.containsKey('transfers')", is(false))
+                .body("features[0].properties.containsKey('fare')", is(false))
                 .body("features[0].properties.containsKey('way_points')", is(true))
                 .body("features[0].properties.containsKey('segments')", is(true))
                 .body("features[0].properties.containsKey('extras')", is(true))
@@ -780,6 +782,8 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].segments.size()", is(2))
                 .body("routes[0].containsKey('summary')", is(true))
+                .body("routes[0].summary.containsKey('transfers')", is(false))
+                .body("routes[0].summary.containsKey('fare')", is(false))
                 .body("routes[0].summary.containsKey('distance')", is(true))
                 .body("routes[0].summary.containsKey('duration')", is(true))
                 .body("routes[0].summary.containsKey('ascent')", is(true))
@@ -812,6 +816,29 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].segments[0].duration", is(closeTo(1397.0f, 1)))
                 .body("routes[0].segments[1].distance", is(closeTo(6377.1f, 1)))
                 .body("routes[0].segments[1].duration", is(closeTo(1337.6f, 1)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testNoLegsIfNotPT() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesLong"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].containsKey('legs')", is(false))
                 .statusCode(200);
     }
 
@@ -854,7 +881,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(closeTo(8.678615,0.1), closeTo(49.388405,0.5), closeTo(106.83,1), closeTo(8.719662,0.1), closeTo(49.424603,0.5), closeTo(411.73,4)))
+                .body("routes[0].bbox", hasItems(closeTo(8.678615, 0.1), closeTo(49.388405, 0.5), closeTo(106.83, 1), closeTo(8.719662, 0.1), closeTo(49.424603, 0.5), closeTo(411.73, 4)))
                 .statusCode(200);
     }
 
@@ -877,7 +904,7 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].bbox", hasItems(closeTo(8.678615,0.1), closeTo(49.388405f,0.5), closeTo(106.83f, 1), closeTo(8.719662f, 0.1), closeTo(49.424603f,0.5), closeTo(411.73f, 4)))
+                .body("routes[0].bbox", hasItems(closeTo(8.678615, 0.1), closeTo(49.388405f, 0.5), closeTo(106.83f, 1), closeTo(8.719662f, 0.1), closeTo(49.424603f, 0.5), closeTo(411.73f, 4)))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_before", is(0))
                 .body("routes[0].segments[0].steps[0].maneuver.bearing_after", is(175))
                 .body("routes[0].segments[0].steps[0].maneuver.containsKey('location')", is(true))
@@ -931,8 +958,8 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].containsKey('extras')", is(true))
-                .body("routes[0].extras.surface.values.size()", is(38))
-                .body("routes[0].extras.surface.values[18][1]", is(181))
+                .body("routes[0].extras.surface.values.size()", is(32))
+                .body("routes[0].extras.surface.values[18][1]", is(237))
                 .body("routes[0].extras.suitability.values[18][0]", is(359))
                 .body("routes[0].extras.containsKey('steepness')", is(true))
                 .statusCode(200);
@@ -1576,6 +1603,46 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test// Only delivery HGVs are allowed on Alstater Straße (https://www.openstreetmap.org/way/31791684)
+    void testHGVDelivery() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.672016,49.382663|8.667426,49.380285"));
+        body.put("preference", "shortest");
+        body.put("instructions", false);
+        body.put("units", "m");
+
+        JSONObject options = new JSONObject();
+        options.put("vehicle_type", "hgv");
+        body.put("options", options);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(619, 1)))
+                .statusCode(200);
+
+        options.put("vehicle_type", "delivery");
+        body.put("options", options);
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(494, 1)))
+                .statusCode(200);
+    }
     @Test
     void testHGVWidthRestriction() { // check route
         JSONObject body = new JSONObject();
@@ -3697,7 +3764,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(497.5f,4)))
+                .body("routes[0].summary.distance", is(closeTo(497.5f, 4)))
                 .body("routes[0].summary.duration", is(closeTo(61.9f, 0.6)))
                 .statusCode(200);
 
@@ -3711,8 +3778,8 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(497.5f,4)))
-                .body("routes[0].summary.duration", is(closeTo(81.1f,0.8)))
+                .body("routes[0].summary.distance", is(closeTo(497.5f, 4)))
+                .body("routes[0].summary.duration", is(closeTo(81.1f, 0.8)))
                 .statusCode(200);
     }
 
@@ -3745,6 +3812,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes.size()", is(3))
                 .body("routes[0].summary.transfers", is(2))
+                .body("routes[0].summary.containsKey('fare')", is(true))
                 .body("routes[0].legs.size()", is(6))
                 .body("routes[0].legs[0].containsKey('arrival')", is(true))
                 .body("routes[0].legs[0].containsKey('departure')", is(true))
@@ -3788,6 +3856,7 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'features' }", is(true))
                 .body("features.size()", is(3))
                 .body("features[0].properties.transfers", is(2))
+                .body("features[0].properties.containsKey('fare')", is(true))
                 .body("features[0].properties.legs.size()", is(6))
                 .body("features[0].properties.legs[0].containsKey('arrival')", is(true))
                 .body("features[0].properties.legs[0].containsKey('departure')", is(true))

@@ -18,10 +18,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.SPTEntry;
 import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.querygraph.QueryGraph;
-import com.graphhopper.routing.util.DefaultSnapFilter;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.routing.util.TraversalMode;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -35,6 +32,7 @@ import org.heigit.ors.routing.algorithms.DijkstraCostCondition;
 import org.heigit.ors.routing.algorithms.TDDijkstraCostCondition;
 import org.heigit.ors.routing.graphhopper.extensions.AccessibilityMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
+import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.routing.traffic.TrafficSpeedCalculator;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
@@ -50,10 +48,11 @@ public class GraphEdgeMapFinder {
     public static AccessibilityMap findEdgeMap(RouteSearchContext searchCntx, IsochroneSearchParameters parameters) throws Exception {
         GraphHopper gh = searchCntx.getGraphHopper();
         FlagEncoder encoder = searchCntx.getEncoder();
-        Weighting weighting = createWeighting(parameters, encoder);
-        String profileName = ProfileTools.makeProfileName(encoder.toString(), weighting.getName(), false);
         GraphHopperStorage graph = gh.getGraphHopperStorage();
-        EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, graph.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(profileName)));
+        EncodingManager encodingManager = gh.getEncodingManager();
+        Weighting weighting = new ORSWeightingFactory(graph, encodingManager).createIsochroneWeighting(searchCntx, parameters.getRangeType());
+        String profileName = ProfileTools.makeProfileName(encoder.toString(), weighting.getName(), false);
+        EdgeFilter defaultSnapFilter = new DefaultSnapFilter(weighting, encodingManager.getBooleanEncodedValue(Subnetwork.key(profileName)));
         ORSEdgeFilterFactory edgeFilterFactory = new ORSEdgeFilterFactory();
         EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchCntx.getProperties(), encoder, graph, defaultSnapFilter);
 
@@ -114,10 +113,5 @@ public class GraphEdgeMapFinder {
         tdDijkstraCostCondition.calcPath(fromId, toId, zdt.toInstant().toEpochMilli());
         IntObjectMap<SPTEntry> edgeMap = tdDijkstraCostCondition.getMap();
         return new AccessibilityMap(edgeMap, tdDijkstraCostCondition.getCurrentEdge(), snappedPosition);
-    }
-
-    private static Weighting createWeighting(IsochroneSearchParameters parameters, FlagEncoder encoder) {
-        return parameters.getRangeType() == TravelRangeType.TIME ? new FastestWeighting(encoder)
-                : new ShortestWeighting(encoder);
     }
 }

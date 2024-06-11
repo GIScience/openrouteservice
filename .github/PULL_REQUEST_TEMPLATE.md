@@ -1,7 +1,7 @@
 ### Pull Request Checklist
 <!--- Please make sure you have completed the following items BEFORE submitting a pull request (put an x in each box
 when you have checked you have done them): -->
-- [ ] 1. I have [**rebased**][rebase] the latest version of the master branch into my feature branch and all conflicts
+- [ ] 1. I have [**rebased**][rebase] the latest version of the main branch into my feature branch and all conflicts
          have been resolved.
 - [ ] 2. I have added information about the change/addition to functionality to the CHANGELOG.md file under the
          [Unreleased] heading.
@@ -36,6 +36,6 @@ Fixes # .
 ### Required changes to ors config (if applicable)
 -
 
-[config]: https://GIScience.github.io/openrouteservice/installation/Configuration.html
+[config]: https://GIScience.github.io/openrouteservice/run-instance/configuration/
 [api]: https://gitlab.gistools.geog.uni-heidelberg.de/giscience/openrouteservice-infrastructure/ors-docs-api#test-new-ors-documentation
-[rebase]: https://github.com/GIScience/openrouteservice/blob/master/CONTRIBUTE.md#pull-request-guidelines
+[rebase]: https://github.com/GIScience/openrouteservice/blob/main/CONTRIBUTE.md#pull-request-guidelines

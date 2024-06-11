@@ -23,6 +23,8 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.routing.RouteResult;
 
+import java.util.Objects;
+
 
 @Schema(description = "Contains total sums of duration, route distance and actual distance of the route.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -54,27 +56,21 @@ public class JSONSummary {
 
     @JsonProperty(value = "transfers")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
-    protected int transfers;
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NotMinusOne.class)
+    protected int transfers = -1;
 
-    public int getTransfers() {
-        return transfers;
-    }
+    @JsonProperty(value = "fare")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NotMinusOne.class)
+    protected int fare = -1;
 
     public void setTransfers(int transfers) {
         this.transfers = transfers;
     }
 
-    public int getFare() {
-        return fare;
-    }
-
     public void setFare(int fare) {
         this.fare = fare;
     }
-
-    @JsonProperty(value = "fare")
-    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
-    protected int fare;
 
     public JSONSummary(Double distance, Double duration) {
         this.distance = distance;
@@ -114,5 +110,12 @@ public class JSONSummary {
 
     public Double getAscent() {
         return ascent;
+    }
+
+    public static class NotMinusOne {
+        @Override
+        public boolean equals(Object other) {
+            return Objects.equals(other, -1);
+        }
     }
 }

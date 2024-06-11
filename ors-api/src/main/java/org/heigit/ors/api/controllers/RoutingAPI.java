@@ -36,7 +36,7 @@ import org.heigit.ors.api.responses.routing.json.JSONRouteResponse;
 import org.heigit.ors.api.services.RoutingService;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.locationtech.jts.geom.Coordinate;
@@ -101,7 +101,7 @@ public class RoutingAPI {
                     """, summary = "Directions Service")
     @ApiResponse(
             responseCode = "200",
-            description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
+            description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/extra-info/).",
             content = {@Content(
                     mediaType = "application/geo+json",
                     schema = @Schema(implementation = GeoJSONRouteResponse.class)
@@ -125,7 +125,7 @@ public class RoutingAPI {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Standard response for successfully processed requests. Returns JSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
+            description = "Standard response for successfully processed requests. Returns JSON. The decoded values of the extra information can be found [here](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/extra-info/).",
             content = {@Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = JSONRouteResponse.class)
@@ -161,7 +161,7 @@ public class RoutingAPI {
 
     @PostMapping(value = "/{profile}/gpx", produces = "application/gpx+xml;charset=UTF-8")
     @Operation(
-            description = "Returns a route between two or more locations for a selected profile and its settings as GPX. The schema can be found [here](https://raw.githubusercontent.com/GIScience/openrouteservice-schema/master/gpx/v1/ors-gpx.xsd)",
+            description = "Returns a route between two or more locations for a selected profile and its settings as GPX. The schema can be found [here](https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v1/ors-gpx.xsd)",
             summary = "Directions Service GPX"
     )
     @ApiResponse(
@@ -191,7 +191,7 @@ public class RoutingAPI {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://GIScience.github.io/openrouteservice/documentation/extra-info/Extra-Info.html).",
+            description = "Standard response for successfully processed requests. Returns GeoJSON. The decoded values of the extra information can be found [here](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/extra-info/).",
             content = {@Content(
                     mediaType = "application/geo+json",
                     schema = @Schema(implementation = GeoJSONRouteResponse.class)

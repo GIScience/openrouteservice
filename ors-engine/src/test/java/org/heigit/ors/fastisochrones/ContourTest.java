@@ -39,7 +39,7 @@ class ContourTest {
         Contour contour = new Contour(graphHopperStorage, graphHopperStorage.getBaseGraph().getNodeAccess(), ins, cs);
         contour.calculateContour();
         List<Double> coordinatesCell2 = cs.getCellContourOrder(2);
-        assertEquals(9638, coordinatesCell2.size());
+        assertEquals(9618, coordinatesCell2.size());
         assertEquals(3.0, coordinatesCell2.get(0), 1e-3);
         assertEquals(1.0, coordinatesCell2.get(1), 1e-3);
         assertEquals(3.0, coordinatesCell2.get(2), 1e-3);

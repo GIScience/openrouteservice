@@ -14,6 +14,9 @@
 package org.heigit.ors.routing;
 
 public class AvoidFeatureFlags {
+
+    //Keep in sync with documentation: waycategory.md
+
     public static final int HIGHWAYS = 1;
     public static final int TOLLWAYS = 2;
     public static final int STEPS = 4;

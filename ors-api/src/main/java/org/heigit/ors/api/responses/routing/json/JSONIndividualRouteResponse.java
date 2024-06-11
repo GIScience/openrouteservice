@@ -62,8 +62,9 @@ public class JSONIndividualRouteResponse extends JSONBasedIndividualRouteRespons
 
     @Schema(description = "List containing the legs the route consists of.")
     @JsonProperty("legs")
-    @JsonInclude()
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<JSONLeg> legs;
+
     private final Map<String, JSONExtra> extras;
 
     @Schema(description = "Departure date and time",

@@ -1,8 +1,6 @@
 logging:
-  config: classpath:log4j.properties
-  log4j2:
-    config:
-      override: classpath:logs/UNITTEST_LOGGING.json
+  level:
+    org.heigit: WARN
 
 spring:
   main:

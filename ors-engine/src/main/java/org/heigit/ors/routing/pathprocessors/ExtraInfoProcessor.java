@@ -389,7 +389,7 @@ public class ExtraInfoProcessor implements PathProcessor {
             ((AppendableRouteExtraInfoBuilder) waySuitabilityInfoBuilder).append((AppendableRouteExtraInfoBuilder) more.waySuitabilityInfoBuilder);
         if (wayCategoryInfo != null)
             ((AppendableRouteExtraInfoBuilder) wayCategoryInfoBuilder).append((AppendableRouteExtraInfoBuilder) more.wayCategoryInfoBuilder);
-        if (avgSpeedInfo != null)
+        if (avgSpeedInfo != null) //TODO remove this? avgSpeed is not extra info, but regular routing attribute
             ((AppendableRouteExtraInfoBuilder) avgSpeedInfoBuilder).append((AppendableRouteExtraInfoBuilder) more.avgSpeedInfoBuilder);
         if (greenInfo != null)
             ((AppendableRouteExtraInfoBuilder) greenInfoBuilder).append((AppendableRouteExtraInfoBuilder) more.greenInfoBuilder);
@@ -438,7 +438,7 @@ public class ExtraInfoProcessor implements PathProcessor {
             WaySurfaceDescription wsd = extWaySurface.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 
             if (surfaceInfoBuilder != null)
-                surfaceInfoBuilder.addSegment(wsd.getSurfaceType(), wsd.getSurfaceType(), geom, dist);
+                surfaceInfoBuilder.addSegment(wsd.getSurfaceType().value(), wsd.getSurfaceType().value(), geom, dist);
 
             if (wayTypeInfo != null)
                 wayTypeInfoBuilder.addSegment(wsd.getWayType(), wsd.getWayType(), geom, dist);

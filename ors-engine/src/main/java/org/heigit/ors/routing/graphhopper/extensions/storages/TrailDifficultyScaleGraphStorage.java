@@ -39,17 +39,13 @@ public class TrailDifficultyScaleGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ext_traildifficulty storage must be initialized only once.");
 
-        this.edges = dir.find("ext_traildifficulty");
+        this.edges = dir.create("ext_traildifficulty");
     }
 
     protected final int nextBlockEntryIndex(int size) {
         int res = edgeEntryIndex;
         edgeEntryIndex += size;
         return res;
-    }
-
-    public void setSegmentSize(int bytes) {
-        edges.setSegmentSize(bytes);
     }
 
     public TrailDifficultyScaleGraphStorage create(long initBytes) {

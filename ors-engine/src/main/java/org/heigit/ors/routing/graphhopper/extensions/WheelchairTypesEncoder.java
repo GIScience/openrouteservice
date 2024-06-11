@@ -13,7 +13,8 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.exceptions.ParameterValueException;
+import org.heigit.ors.routing.GenericErrorCodes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -154,15 +155,19 @@ public final class WheelchairTypesEncoder {
 
     public static int getEncodedType(WheelchairAttributes.Attribute attribute, String value) throws Exception {
         return switch (attribute) {
-            case SMOOTHNESS -> getSmoothnessType(APIEnums.SmoothnessTypes.forValue(value));
+            case SMOOTHNESS -> { int smoothness = getSmoothnessType(value);
+                    if (smoothness==-1)
+                        throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, "surface_type", value);
+                    yield smoothness;
+                }
             case SURFACE -> getSurfaceType(value);
             case TRACK -> getTrackType(value);
             default -> throw new Exception("Attribute is not a recognised encoded type");
         };
     }
 
-    public static int getSmoothnessType(APIEnums.SmoothnessTypes smoothnessType) {
-        return SMOOTHNESS_MAP.getOrDefault(smoothnessType.toString(), -1);
+    public static int getSmoothnessType(String value)  {
+        return SMOOTHNESS_MAP.getOrDefault(value.toLowerCase(), -1);
     }
 
     public static int getTrackType(String value) {

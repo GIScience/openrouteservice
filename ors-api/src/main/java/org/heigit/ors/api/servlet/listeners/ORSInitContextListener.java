@@ -26,6 +26,7 @@ import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.EngineProperties;
 import org.heigit.ors.api.services.GraphService;
+import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfile;
@@ -54,20 +55,13 @@ public class ORSInitContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
-        if (LOGGER.isDebugEnabled()) {
-            if (!StringUtility.isNullOrEmpty(System.getenv(ORS_CONFIG_LOCATION_ENV))) {
-                LOGGER.debug("Configuration loaded by ENV, location: " + System.getenv(ORS_CONFIG_LOCATION_ENV));
-            }
-            if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
-                LOGGER.debug("Configuration loaded by ARG, location: " + System.getProperty(ORS_CONFIG_LOCATION_PROPERTY));
-            }
-        }
         SourceFileElements sourceFileElements = extractSourceFileElements(engineProperties.getSourceFile());
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
                 .setInitializationThreads(engineProperties.getInitThreads())
                 .setPreparationMode(engineProperties.isPreparationMode())
                 .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
                 .setGraphsRootPath(engineProperties.getGraphsRootPath())
+                .setGraphsDataAccess(engineProperties.getGraphsDataAccess())
                 .setMaxNumberOfGraphBackups(engineProperties.getMaxNumberOfGraphBackups())
                 .setSourceFile(sourceFileElements.localOsmFilePath)
                 .setGraphsRepoUrl(sourceFileElements.repoBaseUrlString)
@@ -89,8 +83,17 @@ public class ORSInitContextListener implements ServletContextListener {
                         }
                     }
                 }
+                // TODO if feasible, move the preparation mode check to Application.java after the
+                //  RoutingProfileManagerStatus.hasFailed() check.
+                if (engineProperties.isPreparationMode()) {
+                    if (RoutingProfileManagerStatus.hasFailed()) {
+                        System.exit(1);
+                    }
+                    LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
+                    System.exit(0);
+                }
             } catch (Exception e) {
-                LOGGER.warn("Unable to initialize ORS due to an unexpected exeception: " + e);
+                LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
             }
         };
         Thread thread = new Thread(runnable);
@@ -143,7 +146,7 @@ public class ORSInitContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent contextEvent) {
         try {
-            LOGGER.info("Shutting down ORS and releasing resources.");
+            LOGGER.info("Shutting down openrouteservice %s and releasing resources.".formatted(AppInfo.getEngineInfo()));
             FormatUtility.unload();
             if (RoutingProfileManagerStatus.isReady())
                 RoutingProfileManager.getInstance().destroy();
@@ -153,4 +156,4 @@ public class ORSInitContextListener implements ServletContextListener {
             LOGGER.error(e.getMessage());
         }
     }
-} 
+}

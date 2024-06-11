@@ -1,0 +1,107 @@
+{
+    "instructions": {
+        "numerals": {
+            "1": "1.",
+            "2": "2.",
+            "3": "3.",
+            "4": "4.",
+            "5": "5.",
+            "6": "6.",
+            "7": "7.",
+            "8": "8.",
+            "9": "9.",
+            "10": "10."
+        },
+        "directions": {
+            "north": "nord",
+            "northeast": "nordøst",
+            "east": "øst",
+            "southeast": "sørøst",
+            "south": "sør",
+            "southwest": "sørvest",
+            "west": "vest",
+            "northwest": "nordvest"
+        },
+        "turn_maneuvers": {
+            "left": "venstre",
+            "right": "høyre",
+            "sharp_left": "skarp venstre",
+            "sharp_right": "skarp høyre",
+            "slight_left": "svak venstre",
+            "slight_right": "svak høyre",
+            "straight": "rett fram",
+            "uturn": "u-sving"
+        },
+        "actions": {
+            "arrive": {
+                "default": {
+                    "default": "Ankom ditt bestemmelsessted",
+                    "name": "Ankom {way_name}"
+                },
+                "left": {
+                    "default": "Ankom ditt bestemmelsessted, på venstre side",
+                    "name": "Ankom {way_name}, på venstre side"
+                },
+                "right": {
+                    "default": "Ankom ditt bestemmelsessted, på høyre side",
+                    "name": "Ankom {way_name}, på høyre side"
+                },
+                "straight": {
+                    "default": "Ankom ditt bestemmelsessted, rett fram",
+                    "name": "Ankom {way_name}, rett fram"
+                }
+            },
+            "depart": {
+                "default": {
+                    "default": "Ta av {direction}",
+                    "name": "Ta av {direction} på {way_name}"
+                }
+            },
+            "roundabout": {
+                "default": {
+                    "exit": {
+                        "default": "Kjør inn i rundkjøringen og ta {exit_number} avkjørsel",
+                        "name": "Kjør inn i rundkjøringen og ta {exit_number} avkjørsel mot {way_name}"
+                    },
+                    "default": {
+                        "default": "Kjør inn i rundkjøringen",
+                        "name": "Kjør inn i rundkjøringen og ta av mot {way_name}"
+                    }
+                }
+            },
+            "turn": {
+                "default": {
+                    "default": "Ta {turn_maneuver}",
+                    "name": "Ta {turn_maneuver} mot {way_name}"
+                }
+            },
+            "continue": {
+                "default": {
+                    "default": "Fortsett {turn_maneuver}",
+                    "name": "Fortsett {turn_maneuver} mot {way_name}"
+                },
+                "uturn": {
+                    "default": "Gjør en u-sving",
+                    "name": "Gjør en u-sving mot {way_name}"
+                }
+            },
+            "keep": {
+                "default": {
+                    "default": "Hold {turn_maneuver}",
+                    "name": "Hold {turn_maneuver} mot {way_name}"
+                }
+            },
+            "pt": {
+                "start": {
+                    "default": "Gå på {name}",
+                    "headsign": "Gå på {name} rettet mot {headsign}"
+                },
+                "transfer": {
+                    "default": "Bytt til {name}",
+                    "headsign": "Bytt til {name} rettet mot {headsign}"
+                },
+                "end": "Gå av på {name}"
+            }
+        }
+    }
+}

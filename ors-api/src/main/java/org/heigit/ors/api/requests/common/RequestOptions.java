@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RequestProfileParams;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.json.simple.JSONObject;
 
@@ -55,7 +55,7 @@ public class RequestOptions implements RouteRequestParameterNames {
 
     @Schema(name = PARAM_AVOID_COUNTRIES, description = """
             List of countries to exclude from matrix with `driving-*` profiles. Can be used together with `'avoid_borders': 'controlled'`. \
-            `[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://GIScience.github.io/openrouteservice/documentation/routing-options/Country-List.html). \
+            `[ 11, 193 ]` would exclude Austria and Switzerland. List of countries and application examples can be found [here](https://giscience.github.io/openrouteservice/technical-details/country-list). \
             Also, ISO standard country codes cna be used in place of the numerical ids, for example, DE or DEU for Germany. \
             """,
             extensions = {@Extension(name = "validWhen", properties = {

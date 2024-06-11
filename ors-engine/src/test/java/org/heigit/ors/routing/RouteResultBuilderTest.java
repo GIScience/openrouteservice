@@ -20,21 +20,21 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class RouteResultBuilderTest {
     private RoutingRequest request1;
     private RoutingRequest request2;
+    private static final String OSM_ID = "osmid"; // TODO: find a better solution than a hardcoded string
 
-
-    public RouteResultBuilderTest() throws Exception {
+    public RouteResultBuilderTest() {
         init();
     }
 
     @BeforeEach
-    void init() throws Exception {
+    void init() {
         Coordinate[] coordinates = new Coordinate[2];
         coordinates[0] = new Coordinate(12.3, 45.6);
         coordinates[1] = new Coordinate(23.4, 56.7);
         request1 = new RoutingRequest();
         request1.setCoordinates(coordinates);
         request1.setAttributes(new String[]{"detourfactor"});
-        request1.setExtraInfo(RouteExtraInfoFlag.getFromString("osmid"));
+        request1.setExtraInfo(RouteExtraInfoFlag.getFromString(OSM_ID));
         request1.setIncludeManeuvers(true);
 
         coordinates = new Coordinate[2];
@@ -105,7 +105,7 @@ class RouteResultBuilderTest {
         List<GHResponse> responseList = new ArrayList<>();
         List<RouteExtraInfo> extrasList = new ArrayList<>();
         RouteResultBuilder builder = new RouteResultBuilder();
-        extrasList.add(new RouteExtraInfo(APIEnums.ExtraInfo.OSM_ID.toString()));
+        extrasList.add(new RouteExtraInfo("osmid"));
         responseList.add(constructResponse(request1));
         //noinspection unchecked
         RouteResult result = builder.createMergedRouteResultFromBestPaths(responseList, request1, new List[]{extrasList});
@@ -126,7 +126,7 @@ class RouteResultBuilderTest {
         assertEquals(10, result.getSegments().get(0).getSteps().get(1).getType(), "Single response should return valid RouteResult (segments[0].steps[1].type = 10)");
         assertEquals(0, result.getSegments().get(0).getSteps().get(1).getManeuver().getBearingAfter(), "Single response should return valid RouteResult (segments[0].steps[1].maneuver.bearingAfter = 0)");
         assertEquals(1, result.getExtraInfo().size(), "Single response should return valid RouteResult (extrainfo.size = 1)");
-        assertEquals(APIEnums.ExtraInfo.OSM_ID.toString(), result.getExtraInfo().get(0).getName(), "Single response should return valid RouteResult (extrainfo[0].name = 'osmid)");
+        assertEquals(OSM_ID, result.getExtraInfo().get(0).getName(), "Single response should return valid RouteResult (extrainfo[0].name = 'osmid)");
         assertEquals(2, result.getWayPointsIndices().size(), "Single response should return valid RouteResult (waypointindices.size = 2)");
     }
 
@@ -136,7 +136,7 @@ class RouteResultBuilderTest {
         List<GHResponse> responseList = new ArrayList<>();
         List<RouteExtraInfo> extrasList = new ArrayList<>();
         RouteResultBuilder builder = new RouteResultBuilder();
-        extrasList.add(new RouteExtraInfo(APIEnums.ExtraInfo.OSM_ID.toString()));
+        extrasList.add(new RouteExtraInfo(OSM_ID));
         responseList.add(constructResponse(request1));
         responseList.add(constructResponse(request2));
         //noinspection unchecked
@@ -168,7 +168,7 @@ class RouteResultBuilderTest {
         assertEquals(10, result.getSegments().get(1).getSteps().get(1).getType(), "Two responses should return merged RouteResult (segments[1].steps[1].type = 10)");
         assertEquals(0, result.getSegments().get(1).getSteps().get(1).getManeuver().getBearingAfter(), "Two responses should return merged RouteResult (segments[1].steps[1].maneuver.bearingAfter = 0)");
         assertEquals(1, result.getExtraInfo().size(), "Two responses should return merged RouteResult (extrainfo.size = 1)");
-        assertEquals(APIEnums.ExtraInfo.OSM_ID.toString(), result.getExtraInfo().get(0).getName(), "Two responses should return merged RouteResult (extrainfo[0].name = 'osmid)");
+        assertEquals(OSM_ID, result.getExtraInfo().get(0).getName(), "Two responses should return merged RouteResult (extrainfo[0].name = 'osmid)");
         assertEquals(3, result.getWayPointsIndices().size(), "Two responses should return merged RouteResult (waypointindices.size = 3)");
 
     }
@@ -178,7 +178,7 @@ class RouteResultBuilderTest {
         List<GHResponse> responseList = new ArrayList<>();
         List<RouteExtraInfo> extrasList = new ArrayList<>();
         RouteResultBuilder builder = new RouteResultBuilder();
-        extrasList.add(new RouteExtraInfo(APIEnums.ExtraInfo.OSM_ID.toString()));
+        extrasList.add(new RouteExtraInfo(OSM_ID));
         List<Integer> skipSegments = new ArrayList<>();
         skipSegments.add(1);
         request1.setSkipSegments(skipSegments);

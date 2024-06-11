@@ -3,7 +3,7 @@ package org.heigit.ors.api.requests.common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 
 public class APIRequest {
     public static final String PARAM_ID = "id";

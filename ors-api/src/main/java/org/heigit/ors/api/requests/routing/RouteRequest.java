@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileType;
@@ -189,7 +189,7 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     private boolean hasUseContractionHierarchies = false;
 
     @Schema(name = PARAM_OPTIONS,
-            description = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
+            description = "For advanced options formatted as json object. For structure refer to the [these examples](https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/routing-options#examples).",
             example = "{\"avoid_borders\":\"controlled\"}")
     @JsonProperty(PARAM_OPTIONS)
     private RouteRequestOptions routeOptions;

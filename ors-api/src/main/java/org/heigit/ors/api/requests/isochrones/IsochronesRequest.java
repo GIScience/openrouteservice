@@ -28,7 +28,7 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochroneRequest;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RoutingProfileType;
 
 import java.time.LocalDateTime;

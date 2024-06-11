@@ -14,6 +14,9 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 public class WayType {
+
+    //Keep in sync with documentation: waytype.md
+
     public static final int UNKNOWN = 0;
     public static final int STATE_ROAD = 1;
     public static final int ROAD = 2;

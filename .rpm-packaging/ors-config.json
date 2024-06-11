@@ -98,7 +98,6 @@
             "maximum_speed_lower_bound": 80,
             "preparation": {
               "min_network_size": 200,
-              "min_one_way_network_size": 200,
               "methods": {
                 "lm": {
                   "enabled": true,
@@ -111,7 +110,6 @@
             "execution": {
               "methods": {
                 "lm": {
-                  "disabling_allowed": true,
                   "active_landmarks": 8
                 }
               }
@@ -127,7 +125,6 @@
               "maximum_snapping_radius": 350,
               "preparation": {
                 "min_network_size": 200,
-                "min_one_way_network_size": 200,
                 "methods": {
                   "ch": {
                     "enabled": true,
@@ -151,15 +148,10 @@
               },
               "execution": {
                 "methods": {
-                  "ch": {
-                    "disabling_allowed": true
-                  },
                   "lm": {
-                    "disabling_allowed": true,
                     "active_landmarks": 6
                   },
                   "core": {
-                    "disabling_allowed": true,
                     "active_landmarks": 6
                   }
                 }
@@ -183,7 +175,6 @@
               "elevation": true,
               "preparation": {
                 "min_network_size": 200,
-                "min_one_way_network_size": 200,
                 "methods": {
                   "ch": {
                     "enabled": true,
@@ -201,11 +192,7 @@
               },
               "execution": {
                 "methods": {
-                  "ch": {
-                    "disabling_allowed": true
-                  },
                   "core": {
-                    "disabling_allowed": true,
                     "active_landmarks": 6
                   }
                 }

@@ -71,6 +71,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     public static final String KEY_SEGREGATED = "segregated";
     public static final String KEY_ONEWAY_BICYCLE = "oneway:bicycle";
     public static final String KEY_BRIDLEWAY = "bridleway";
+    public static final String KEY_CONSTRUCTION = "construction";
 
     // Pushing section highways are parts where you need to get off your bike and push it (German: Schiebestrecke)
     protected final HashSet<String> pushingSectionsHighways = new HashSet<>();
@@ -231,6 +232,8 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         setHighwaySpeed("unclassified", 16);
         // unknown road:
         setHighwaySpeed("road", 12);
+        // sometimes roads allow bicycles during construction
+        setHighwaySpeed(KEY_CONSTRUCTION, 10);
 
         setHighwaySpeed("trunk", 18);
         setHighwaySpeed("trunk_link", 18);
@@ -352,7 +355,10 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         }
 
         // accept only if explicitly tagged for bike usage
-        if (KEY_MOTORWAY.equals(highwayValue) || KEY_MOTORWAY_LINK.equals(highwayValue) || KEY_BRIDLEWAY.equals(highwayValue)) {
+        if (KEY_MOTORWAY.equals(highwayValue)
+                || KEY_MOTORWAY_LINK.equals(highwayValue)
+                || KEY_BRIDLEWAY.equals(highwayValue)
+                || KEY_CONSTRUCTION.equals(highwayValue)) {
             return EncodingManager.Access.CAN_SKIP;
         }
 

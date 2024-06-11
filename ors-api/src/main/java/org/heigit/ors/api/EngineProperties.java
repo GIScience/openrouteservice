@@ -2,6 +2,7 @@ package org.heigit.ors.api;
 
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1ProfileProperties;
@@ -25,6 +26,7 @@ public class EngineProperties {
     private String graphsExtent;
     private String graphsRootPath;
     private int maxNumberOfGraphBackups;
+    private String graphsDataAccess;
     private ElevationProperties elevation;
     private ProfileProperties profileDefault;
     private Map<String, ProfileProperties> profiles;
@@ -50,7 +52,9 @@ public class EngineProperties {
     }
 
     public void setSourceFile(String sourceFile) {
-        this.sourceFile = sourceFile;
+        if (StringUtils.isNotBlank(sourceFile))
+            this.sourceFile = Paths.get(sourceFile).toAbsolutePath().toString();
+        else this.sourceFile = sourceFile;
     }
 
     public String getGraphsExtent() {
@@ -66,7 +70,17 @@ public class EngineProperties {
     }
 
     public void setGraphsRootPath(String graphsRootPath) {
-        this.graphsRootPath = graphsRootPath;
+        if (StringUtils.isNotBlank(graphsRootPath))
+            this.graphsRootPath = Paths.get(graphsRootPath).toAbsolutePath().toString();
+        else this.graphsRootPath = graphsRootPath;
+    }
+
+    public String getGraphsDataAccess() {
+        return graphsDataAccess;
+    }
+
+    public void setGraphsDataAccess(String graphsDataAccess) {
+        this.graphsDataAccess = graphsDataAccess;
     }
 
     public int getMaxNumberOfGraphBackups() {
@@ -106,18 +120,20 @@ public class EngineProperties {
         if (profiles != null) {
             for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
                 ProfileProperties profile = profileEntry.getValue();
+                boolean enabled = profile.enabled != null ? profile.enabled : profileDefault.isEnabled();
+                if (!enabled) {
+                    continue;
+                }
                 RouteProfileConfiguration convertedProfile = new RouteProfileConfiguration();
                 convertedProfile.setOrsGraphInfoV1ProfileProperties(ORSGraphInfoV1ProfilePropertiesBuilder.from(profileDefault).overrideWith(profile).build());
                 convertedProfile.setName(profileEntry.getKey());
-                convertedProfile.setEnabled(profile.enabled != null ? profile.enabled : profileDefault.isEnabled());
+                convertedProfile.setEnabled(enabled);
                 convertedProfile.setProfiles(profile.getProfile());
                 String graphPath = profile.getGraphPath();
                 String rootGraphsPath = getGraphsRootPath();
                 if (!Helper.isEmpty(rootGraphsPath)) {
                     if (Helper.isEmpty(graphPath))
                         graphPath = Paths.get(rootGraphsPath, profileEntry.getKey()).toString();
-                    else if (!FileUtility.isAbsolutePath(graphPath))
-                        graphPath = Paths.get(rootGraphsPath, graphPath).toString();
                 }
                 convertedProfile.setGraphPath(graphPath);
                 convertedProfile.setGraphsExtent(graphsExtent);
@@ -207,7 +223,9 @@ public class EngineProperties {
         }
 
         public void setCachePath(String cachePath) {
-            this.cachePath = cachePath;
+            if (StringUtils.isNotBlank(cachePath))
+                this.cachePath = Paths.get(cachePath).toAbsolutePath().toString();
+            else this.cachePath = cachePath;
         }
 
         public String getDataAccess() {
@@ -230,7 +248,8 @@ public class EngineProperties {
         private Boolean optimize;
         private String graphPath;
         private Map<String, String> encoderOptions;
-        //        For later use when refactoring RoutingManagerConfiguration
+
+        //TODO: For later use when refactoring RoutingManagerConfiguration
 //        private PreparationProperties preparation;
 //        private ExecutionProperties execution;
         private Map<String, Object> preparation;
@@ -351,7 +370,9 @@ public class EngineProperties {
         }
 
         public void setGraphPath(String graphPath) {
-            this.graphPath = graphPath;
+            if (StringUtils.isNotBlank(graphPath))
+                this.graphPath = Paths.get(graphPath).toAbsolutePath().toString();
+            else this.graphPath = graphPath;
         }
 
         public Map<String, String> getEncoderOptions() {
@@ -359,11 +380,11 @@ public class EngineProperties {
         }
 
         public String getEncoderOptionsString() {
-            if (encoderOptions == null || encoderOptions.size() == 0)
+            if (encoderOptions == null || encoderOptions.isEmpty())
                 return "";
             StringBuilder output = new StringBuilder();
             for (Map.Entry<String, String> entry : encoderOptions.entrySet()) {
-                if (output.length() > 0) {
+                if (!output.isEmpty()) {
                     output.append("|");
                 }
                 output.append(entry.getKey()).append("=").append(entry.getValue());
@@ -413,6 +434,52 @@ public class EngineProperties {
         }
 
         public void setExtStorages(Map<String, Map<String, String>> extStorages) {
+            // Todo write individual storage config classes
+            // Iterate over each storage in the extStorages and overwrite all paths variables with absolute paths#
+            for (Map.Entry<String, Map<String, String>> storage : extStorages.entrySet()) {
+                if (storage.getKey().equals("HereTraffic")) {
+                    // Replace streets, ref_pattern pattern_15min and log_location with absolute paths
+                    String hereTrafficPath = storage.getValue().get("streets");
+                    if (StringUtils.isNotBlank(hereTrafficPath)) {
+                        storage.getValue().put("streets", Paths.get(hereTrafficPath).toAbsolutePath().toString());
+                    }
+                    String hereTrafficRefPattern = storage.getValue().get("ref_pattern");
+                    if (StringUtils.isNotBlank(hereTrafficRefPattern)) {
+                        storage.getValue().put("ref_pattern", Paths.get(hereTrafficRefPattern).toAbsolutePath().toString());
+                    }
+                    String hereTrafficPattern15min = storage.getValue().get("pattern_15min");
+                    if (StringUtils.isNotBlank(hereTrafficPattern15min)) {
+                        storage.getValue().put("pattern_15min", Paths.get(hereTrafficPattern15min).toAbsolutePath().toString());
+                    }
+                    String hereTrafficLogLocation = storage.getValue().get("log_location");
+                    if (StringUtils.isNotBlank(hereTrafficLogLocation)) {
+                        storage.getValue().put("log_location", Paths.get(hereTrafficLogLocation).toAbsolutePath().toString());
+                    }
+                }
+                if (storage.getKey().equals("Borders")) {
+                    // Replace boundaries, ids and openborders with absolute paths
+                    String bordersBoundaries = storage.getValue().get("boundaries");
+                    if (StringUtils.isNotBlank(bordersBoundaries)) {
+                        storage.getValue().put("boundaries", Paths.get(bordersBoundaries).toAbsolutePath().toString());
+                    }
+                    String bordersIds = storage.getValue().get("ids");
+                    if (StringUtils.isNotBlank(bordersIds)) {
+                        storage.getValue().put("ids", Paths.get(bordersIds).toAbsolutePath().toString());
+                    }
+                    String openBorders = storage.getValue().get("openborders");
+                    if (StringUtils.isNotBlank(openBorders)) {
+                        storage.getValue().put("openborders", Paths.get(openBorders).toAbsolutePath().toString());
+                    }
+                }
+
+                if (storage.getKey().equals("GreenIndex") || storage.getKey().equals("NoiseIndex") || storage.getKey().equals("csv") || storage.getKey().equals("ShadowIndex")) {
+                    // replace filepath
+                    String indexFilePath = storage.getValue().get("filepath");
+                    if (indexFilePath != null) {
+                        storage.getValue().put("filepath", Paths.get(indexFilePath).toAbsolutePath().toString());
+                    }
+                }
+            }
             this.extStorages = extStorages;
         }
 
@@ -525,7 +592,9 @@ public class EngineProperties {
         }
 
         public void setGtfsFile(String gtfsFile) {
-            this.gtfsFile = gtfsFile;
+            if (StringUtils.isNotBlank(gtfsFile))
+                this.gtfsFile = Paths.get(gtfsFile).toAbsolutePath().toString();
+            else this.gtfsFile = gtfsFile;
         }
 
 //        For later use when refactoring RoutingManagerConfiguration

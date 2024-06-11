@@ -26,7 +26,7 @@ import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.matrix.MatrixErrorCodes;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -107,7 +107,7 @@ public class MatrixRequest extends APIRequest {
     private boolean hasOptimized = false;
 
     @Schema(name = PARAM_OPTIONS,
-            description = "For advanced options formatted as json object. For structure refer to the [these examples](https://GIScience.github.io/openrouteservice/documentation/routing-options/Examples.html).",
+            description = "For advanced options formatted as json object. For structure refer to the [these examples](src/main/java/org/heigit/ors/api/requests/matrix/MatrixRequest.java).",
             example = "{\"avoid_borders\":\"controlled\"}",
             hidden = true)
     @JsonProperty(PARAM_OPTIONS)

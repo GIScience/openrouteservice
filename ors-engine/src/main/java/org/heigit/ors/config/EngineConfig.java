@@ -1,5 +1,6 @@
 package org.heigit.ors.config;
 
+import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.util.StringUtility;
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -36,6 +38,7 @@ public class EngineConfig {
     private final String graphsRepoName;
     private final String graphsRepoUrl;
     private final String graphsExtent;
+    private final String graphsDataAccess;
     private final boolean elevationPreprocessed;
     private final RouteProfileConfiguration[] profiles;
 
@@ -57,6 +60,10 @@ public class EngineConfig {
 
     public String getGraphsRootPath() {
         return graphsRootPath;
+    }
+
+    public String getGraphsDataAccess() {
+        return graphsDataAccess;
     }
 
     public String getGraphsRepoName() {
@@ -90,6 +97,7 @@ public class EngineConfig {
         this.graphsRepoName = builder.graphsRepoName;
         this.graphsExtent = builder.graphsExtent;
         this.profiles = builder.profiles;
+        this.graphsDataAccess = builder.graphsDataAccess;
     }
 
     public static class EngineConfigBuilder {
@@ -102,6 +110,7 @@ public class EngineConfig {
         private String graphsRepoUrl;
         private String graphsRepoName;
         private String graphsExtent;
+        private String graphsDataAccess;
         private boolean elevationPreprocessed;
         private RouteProfileConfiguration[] profiles;
 
@@ -121,7 +130,9 @@ public class EngineConfig {
         }
 
         public EngineConfigBuilder setSourceFile(String sourceFile) {
-            this.sourceFile = sourceFile;
+            if (StringUtils.isNotBlank(sourceFile))
+                this.sourceFile = Paths.get(sourceFile).toAbsolutePath().toString();
+            else this.sourceFile = sourceFile;
             return this;
         }
 
@@ -131,7 +142,14 @@ public class EngineConfig {
         }
 
         public EngineConfigBuilder setGraphsRootPath(String graphsRootPath) {
-            this.graphsRootPath = graphsRootPath;
+            if (StringUtils.isNotBlank(graphsRootPath))
+                this.graphsRootPath = Paths.get(graphsRootPath).toAbsolutePath().toString();
+            else this.graphsRootPath = graphsRootPath;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphsDataAccess(String graphsDataAccess) {
+            this.graphsDataAccess = graphsDataAccess;
             return this;
         }
 

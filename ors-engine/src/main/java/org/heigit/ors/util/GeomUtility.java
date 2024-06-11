@@ -31,7 +31,7 @@ import org.opengis.referencing.operation.TransformException;
 
 
 public class GeomUtility {
-
+    private static final int ONE_DEGREE_LATITUDE_IN_METRES = 111139;// One degree latitude is approximately 111,139 metres on a spherical earth
     private static final GeometryFactory geometryFactory = new GeometryFactory();
 
     private static MathTransform transformWgs84Sphericalmercator = null;// CRS.findMathTransform(DefaultGeographicCRS.WGS84,
@@ -134,8 +134,11 @@ public class GeomUtility {
     }
 
     public static double metresToDegrees(double metres) {
-        // One degree latitude is approximately 111,139 metres on a spherical earth
-        return metres / 111139;
+        return metres / ONE_DEGREE_LATITUDE_IN_METRES;
+    }
+
+    public static double degreesToMetres(double degrees) {
+        return degrees * ONE_DEGREE_LATITUDE_IN_METRES;
     }
 
     public static double getArea(Geometry geom, boolean inMeters) throws InternalServerException {

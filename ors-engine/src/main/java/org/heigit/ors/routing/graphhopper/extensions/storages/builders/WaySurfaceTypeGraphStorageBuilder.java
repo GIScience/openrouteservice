@@ -59,14 +59,7 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
         }
         waySurfaceDesc.setWayType(wayType);
 
-        int surfaceType = way.hasTag(TAG_SURFACE) ? SurfaceType.getFromString(way.getTag(TAG_SURFACE)) : SurfaceType.UNKNOWN;
-        if (surfaceType == SurfaceType.UNKNOWN) {
-            if (wayType == WayType.ROAD || wayType == WayType.STATE_ROAD || wayType == WayType.STREET) {
-                surfaceType = SurfaceType.PAVED;
-            } else if (wayType == WayType.PATH) {
-                surfaceType = SurfaceType.UNPAVED;
-            }
-        }
+        SurfaceType surfaceType = way.hasTag(TAG_SURFACE) ? SurfaceType.getFromString(way.getTag(TAG_SURFACE)) : SurfaceType.UNKNOWN;
         waySurfaceDesc.setSurfaceType(surfaceType);
 
     }

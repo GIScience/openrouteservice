@@ -1,5 +1,6 @@
 package org.heigit.ors.api.services;
 
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.common.RequestOptions;
@@ -326,7 +327,7 @@ public class ApiService {
         if (restrictions.hasTrackType())
             params.setTrackType(WheelchairTypesEncoder.getTrackType(restrictions.getTrackType()));
         if (restrictions.hasSmoothnessType())
-            params.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(restrictions.getSmoothnessType()));
+            params.setSmoothnessType(WheelchairTypesEncoder.getSmoothnessType(restrictions.getSmoothnessType().toString()));
         if (restrictions.hasMaxSlopedKerb())
             params.setMaximumSlopedKerb(restrictions.getMaxSlopedKerb());
         if (restrictions.hasMaxIncline())

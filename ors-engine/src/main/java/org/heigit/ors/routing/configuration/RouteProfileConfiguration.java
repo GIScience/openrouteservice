@@ -14,10 +14,12 @@
 package org.heigit.ors.routing.configuration;
 
 import com.typesafe.config.Config;
+import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1ProfileProperties;
 import org.locationtech.jts.geom.Envelope;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,8 +68,9 @@ public class RouteProfileConfiguration {
 
     private int maximumVisitedNodesPT = 1000000;
 
-    private boolean turnCostEnabled = false;
+    private boolean turnCostEnabled = false;//FIXME: even though the field is read by external methods, its setter is never called.
     private boolean enforceTurnCosts = false;
+    private String graphDataAccess = "";
 
     private ORSGraphInfoV1ProfileProperties orsGraphInfoV1ProfileProperties;
 
@@ -127,7 +130,9 @@ public class RouteProfileConfiguration {
     }
 
     public void setGraphPath(String value) {
-        graphPath = value;
+        if (StringUtils.isNotBlank(value))
+            graphPath = Paths.get(value).toAbsolutePath().toString();
+        else graphPath = value;
     }
 
     public String getGraphPath() {
@@ -240,7 +245,9 @@ public class RouteProfileConfiguration {
     }
 
     public void setElevationCachePath(String value) {
-        elevationCachePath = value;
+        if (StringUtils.isNotBlank(value))
+            elevationCachePath = Paths.get(value).toAbsolutePath().toString();
+        else elevationCachePath = value;
     }
 
     public String getElevationCachePath() {
@@ -386,5 +393,56 @@ public class RouteProfileConfiguration {
 
     public void setOrsGraphInfoV1ProfileProperties(ORSGraphInfoV1ProfileProperties orsGraphInfoV1ProfileProperties) {
         this.orsGraphInfoV1ProfileProperties = orsGraphInfoV1ProfileProperties;
+    }
+
+    public String getGraphDataAccess() {
+        return graphDataAccess;
+    }
+
+    public void setGraphDataAccess(String graphDataAccess) {
+        this.graphDataAccess = graphDataAccess;
+    }
+
+    @Override
+    public String toString() {
+        return "RouteProfileConfiguration{" +
+                "name='" + name + '\'' +
+                ", enabled=" + enabled +
+                ", profiles='" + profiles + '\'' +
+                ", graphPath='" + graphPath + '\'' +
+                ", extStorages=" + extStorages +
+                ", graphBuilders=" + graphBuilders +
+                ", maximumDistance=" + maximumDistance +
+                ", maximumDistanceDynamicWeights=" + maximumDistanceDynamicWeights +
+                ", maximumDistanceAvoidAreas=" + maximumDistanceAvoidAreas +
+                ", maximumDistanceAlternativeRoutes=" + maximumDistanceAlternativeRoutes +
+                ", maximumDistanceRoundTripRoutes=" + maximumDistanceRoundTripRoutes +
+                ", maximumWayPoints=" + maximumWayPoints +
+                ", instructions=" + instructions +
+                ", optimize=" + optimize +
+                ", encoderFlagsSize=" + encoderFlagsSize +
+                ", encoderOptions='" + encoderOptions + '\'' +
+                ", gtfsFile='" + gtfsFile + '\'' +
+                ", isochronePreparationOpts=" + isochronePreparationOpts +
+                ", preparationOpts=" + preparationOpts +
+                ", executionOpts=" + executionOpts +
+                ", elevationProvider='" + elevationProvider + '\'' +
+                ", elevationCachePath='" + elevationCachePath + '\'' +
+                ", elevationDataAccess='" + elevationDataAccess + '\'' +
+                ", elevationCacheClear=" + elevationCacheClear +
+                ", elevationSmoothing=" + elevationSmoothing +
+                ", interpolateBridgesAndTunnels=" + interpolateBridgesAndTunnels +
+                ", maximumSnappingRadius=" + maximumSnappingRadius +
+                ", extent=" + extent +
+                ", hasMaximumSnappingRadius=" + hasMaximumSnappingRadius +
+                ", locationIndexResolution=" + locationIndexResolution +
+                ", locationIndexSearchIterations=" + locationIndexSearchIterations +
+                ", maximumSpeedLowerBound=" + maximumSpeedLowerBound +
+                ", trafficExpirationMin=" + trafficExpirationMin +
+                ", maximumVisitedNodesPT=" + maximumVisitedNodesPT +
+                ", turnCostEnabled=" + turnCostEnabled +
+                ", enforceTurnCosts=" + enforceTurnCosts +
+                ", graphDataAccess='" + graphDataAccess + '\'' +
+                '}';
     }
 }

@@ -3,13 +3,13 @@
         <relativePath>../pom.xml</relativePath>
         <artifactId>openrouteservice</artifactId>
         <groupId>org.heigit.ors</groupId>
-        <version>8.0-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>ors-report-aggregation</artifactId>
-    <version>8.0-SNAPSHOT</version>
+    <version>8.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
 
@@ -18,12 +18,18 @@
             <groupId>org.heigit.ors</groupId>
             <artifactId>ors-engine</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.heigit.ors</groupId>
             <artifactId>ors-api</artifactId>
             <version>${project.version}</version>
-            <type>war</type>
+            <type>${packagingValue}</type>
         </dependency>
     </dependencies>
 

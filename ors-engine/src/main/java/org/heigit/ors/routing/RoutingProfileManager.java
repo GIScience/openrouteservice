@@ -14,25 +14,29 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.GHResponse;
-import com.graphhopper.util.*;
+import com.graphhopper.util.AngleCalc;
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
+import com.graphhopper.util.PointList;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.exceptions.*;
-import org.heigit.ors.export.ExportErrorCodes;
-import org.heigit.ors.export.ExportRequest;
-import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.mapmatching.MapMatchingRequest;
-import org.heigit.ors.matrix.*;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
-import org.heigit.ors.util.*;
+import org.heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.RuntimeUtility;
+import org.heigit.ors.util.StringUtility;
+import org.heigit.ors.util.TimeUtility;
 import org.locationtech.jts.geom.Coordinate;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +114,9 @@ public class RoutingProfileManager {
                         LOGGER.warn("Routing profile has already been added.");
                 } catch (ExecutionException e) {
                     LOGGER.debug(e);
+                    if (ExceptionUtils.indexOfThrowable(e, FileNotFoundException.class) != -1) {
+                        throw new IllegalStateException("Output files can not be written. Make sure ors.engine.graphs_data_access is set to a writable type! ");
+                    }
                     throw e;
                 } catch (InterruptedException e) {
                     LOGGER.debug(e);
@@ -129,9 +136,9 @@ public class RoutingProfileManager {
             Thread.currentThread().interrupt();
             return;
         } catch (Exception ex) {
-            fail("Failed to initialize RoutingProfileManager instance. " + ex.getMessage());
+            fail("Unhandled exception at RoutingProfileManager initialization: " + ex.getMessage());
             Thread.currentThread().interrupt();
-            return;
+            System.exit(1);
         }
         RuntimeUtility.clearMemory(LOGGER);
 
@@ -152,6 +159,14 @@ public class RoutingProfileManager {
 
     public RoutingProfilesCollection getProfiles() {
         return routingProfiles;
+    }
+
+    public RoutingProfile getProfileFromType(int profileType) {
+        return routingProfiles.getRouteProfile(profileType);
+    }
+
+    public RoutingProfile getProfileFromType(int profileType, boolean chEnabled) {
+        return routingProfiles.getRouteProfile(profileType, chEnabled);
     }
 
     public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
@@ -298,7 +313,7 @@ public class RoutingProfileManager {
                 }
             }
 
-            GHResponse gr = rp.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, skipSegments.contains(i), searchParams, req.getGeometrySimplify());
+            GHResponse gr = req.computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, skipSegments.contains(i), searchParams, req.getGeometrySimplify(), rp);
 
             if (gr.hasErrors()) {
                 if (!gr.getErrors().isEmpty()) {
@@ -588,23 +603,6 @@ public class RoutingProfileManager {
         RoutingProfile rp = routingProfiles.getRouteProfile(profileType, false);
 
         return rp.buildIsochrone(parameters);
-    }
-
-    public MatrixResult computeMatrix(MatrixRequest req) throws Exception {
-        RoutingProfile rp = routingProfiles.getRouteProfile(req.getProfileType(), !req.getFlexibleMode());
-
-        if (rp == null)
-            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
-
-        return rp.computeMatrix(req);
-    }
-
-    public ExportResult computeExport(ExportRequest req) throws Exception {
-        RoutingProfile rp = routingProfiles.getRouteProfile((req.getProfileType()));
-
-        if (rp == null)
-            throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
-        return rp.computeExport(req);
     }
 
 }

@@ -15,7 +15,7 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
 import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
-import org.heigit.ors.routing.APIEnums;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
@@ -151,7 +151,7 @@ public class IsochronesService extends ApiService {
 
     IsochroneRequest convertIsochroneRequest(IsochronesRequest isochronesRequest) throws Exception {
         IsochroneRequest convertedIsochroneRequest = new IsochroneRequest();
-        EndpointsProperties.EndpointIsochroneProperties isochroneProperties = endpointsProperties.getIsochrone();
+        EndpointsProperties.EndpointIsochronesProperties isochroneProperties = endpointsProperties.getIsochrones();
         convertedIsochroneRequest.setMaximumLocations(isochroneProperties.getMaximumLocations());
         convertedIsochroneRequest.setAllowComputeArea(isochroneProperties.isAllowComputeArea());
         convertedIsochroneRequest.setMaximumIntervals(isochroneProperties.getMaximumIntervals());
@@ -195,12 +195,12 @@ public class IsochronesService extends ApiService {
 
     }
 
-    Map<String, StatisticsProviderConfiguration> constructStatisticsProvidersConfiguration(Map<String, EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties> statsProperties) {
+    Map<String, StatisticsProviderConfiguration> constructStatisticsProvidersConfiguration(Map<String, EndpointsProperties.EndpointIsochronesProperties.StatisticsProviderProperties> statsProperties) {
         Map<String, StatisticsProviderConfiguration> statsProviders = new HashMap<>();
 
         if (statsProperties != null) {
             int id = 0;
-            for (EndpointsProperties.EndpointIsochroneProperties.StatisticsProviderProperties providerProperties : statsProperties.values()) {
+            for (EndpointsProperties.EndpointIsochronesProperties.StatisticsProviderProperties providerProperties : statsProperties.values()) {
                 Map<String, String> propertyMapping = providerProperties.getPropertyMapping();
                 Map<String, String> propMapping = new HashMap<>();
                 for (Map.Entry<String, String> propEntry : propertyMapping.entrySet())

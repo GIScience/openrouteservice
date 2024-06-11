@@ -1,9 +1,3 @@
-logging:
-  config: classpath:log4j.properties
-  log4j2:
-    config:
-      override: classpath:logs/TEST_LOGGING.json
-
 ors:
   cors:
     allowed_origins: https://example.org, https://test.com, http://localhost:8080, http://127.0.0.1:8082
@@ -14,8 +8,10 @@ ors:
     matrix:
       maximum_routes: 200
       maximum_visited_nodes: 50000
-    isochrone:
+    isochrones:
       maximum_intervals: 10
+    snap:
+      maximum_locations: 3
 
   engine:
     source_file: ./src/test/files/heidelberg.osm.gz
@@ -36,6 +32,7 @@ ors:
           maxcellnodes: 5000
     profiles:
       car:
+        enabled: true
         profile: driving-car
         encoder_options:
           turn_costs: true
@@ -46,7 +43,6 @@ ors:
           conditional_speed: true
         preparation:
           min_network_size: 200
-          min_one_way_network_size: 200
           methods:
             ch:
               enabled: true
@@ -67,7 +63,6 @@ ors:
             lm:
               active_landmarks: 8
             core:
-              disabling_allowed: true
               active_landmarks: 6
         ext_storages:
           WayCategory:
@@ -90,6 +85,7 @@ ors:
             output_log: false
             log_location: ors/traffic_log
       hgv:
+        enabled: true
         profile: driving-hgv
         maximum_speed_lower_bound: 75
         encoder_options:
@@ -98,7 +94,6 @@ ors:
           use_acceleration: true
         preparation:
           min_network_size: 200
-          min_one_way_network_size: 200
           methods:
             ch:
               enabled: true
@@ -124,7 +119,6 @@ ors:
             lm:
               active_landmarks: 8
             core:
-              disabling_allowed: true
               active_landmarks: 6
         ext_storages:
           WayCategory:
@@ -145,6 +139,7 @@ ors:
             output_log: false
             log_location: ors/traffic_log
       bike-regular:
+        enabled: true
         profile: cycling-regular
         encoder_options:
           consider_elevation: false
@@ -152,7 +147,6 @@ ors:
           block_fords: false
         preparation:
           min_network_size: 200
-          min_one_way_network_size: 200
           methods:
             core:
               enabled: true
@@ -162,7 +156,6 @@ ors:
         execution:
           methods:
             core:
-              disabling_allowed: true
               active_landmarks: 6
         ext_storages:
           WayCategory:
@@ -170,6 +163,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       bike-mountain:
+        enabled: true
         profile: cycling-mountain
         maximum_snapping_radius: 10
         encoder_options:
@@ -182,6 +176,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       bike-road:
+        enabled: true
         profile: cycling-road
         encoder_options:
           consider_elevation: false
@@ -193,6 +188,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       bike-electric:
+        enabled: true
         profile: cycling-electric
         encoder_options:
           consider_elevation: false
@@ -204,6 +200,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       walking:
+        enabled: true
         profile: foot-walking
         interpolate_bridges_and_tunnels: false
         encoder_options:
@@ -222,6 +219,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       hiking:
+        enabled: true
         profile: foot-hiking
         encoder_options:
           block_fords: false
@@ -237,6 +235,7 @@ ors:
           HillIndex:
           TrailDifficulty:
       wheelchair:
+        enabled: true
         profile: wheelchair
         maximum_snapping_radius: 50
         encoder_options:
@@ -248,6 +247,7 @@ ors:
           WayCategory:
           OsmId:
       public-transport:
+        enabled: true
         profile: public-transport
         encoder_options:
           block_fords: false

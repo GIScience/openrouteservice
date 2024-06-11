@@ -5,50 +5,51 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [ "main" ]
   pull_request:
+    branches: [ "main" ]
 
 jobs:
   run_tests:
     name: Run unit and integration tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v1
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-    - name: Cache Maven packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-    - name: Test, build, run API tests
-      run: mvn -B verify -Papitests -DCI=true
-    - name: Run tests with pre-built graphs from previous run
-      run: mvn -B verify -Papitests jacoco:report
-    - name: run SonarLint checks
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      if: env.SONAR_TOKEN != null
-      run: mvn -B package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-    - name: Rocket.Chat Notification
-      uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
-      env:
-        ROCKETCHAT_WEBHOOK: ${{ secrets.ROCKETCHAT_WEBHOOK }}
-      if: env.ROCKETCHAT_WEBHOOK != null
-      with:
-        type: ${{ job.status }}
-        job_name: '*ORS CI Test*'
-        token: ${{ secrets.PROJECT_AUTOMATION }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Test, build, run API tests
+        run: mvn -B verify -Papitests -DCI=true
+      - name: Run tests with pre-built graphs from previous run
+        run: mvn -B verify -Papitests jacoco:report
+      - name: run SonarLint checks
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        if: env.SONAR_TOKEN != null
+        run: mvn -B package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      - name: Rocket.Chat Notification
+        uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
+        env:
+          ROCKETCHAT_WEBHOOK: ${{ secrets.ROCKETCHAT_WEBHOOK }}
+        if: env.ROCKETCHAT_WEBHOOK != null
+        with:
+          type: ${{ job.status }}
+          job_name: '*ORS CI Test*'
+          token: ${{ secrets.PROJECT_AUTOMATION }}
