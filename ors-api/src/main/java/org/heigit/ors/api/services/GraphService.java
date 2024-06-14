@@ -28,6 +28,11 @@ public class GraphService {
     @Scheduled(cron = "${ors.engine.graph_management.download_schedule:0 0 0 31 2 *}")//Default is "never"
     public void checkForUpdatesInRepo() {
 
+        if (restartAttemptWasBlocked.get()) {
+            LOGGER.debug("Skipping scheduled repository check, waiting for restart...");
+            return;
+        }
+
         LOGGER.debug("Scheduled repository check...");
 
         for (ORSGraphManager orsGraphManager : graphManagers) {
