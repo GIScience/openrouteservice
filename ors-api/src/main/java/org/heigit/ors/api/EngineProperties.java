@@ -23,13 +23,20 @@ public class EngineProperties {
     private int initThreads;
     private boolean preparationMode;
     private String sourceFile;
-    private String graphsExtent;
     private String graphsRootPath;
-    private int maxNumberOfGraphBackups;
     private String graphsDataAccess;
     private ElevationProperties elevation;
     private ProfileProperties profileDefault;
     private Map<String, ProfileProperties> profiles;
+    private GraphManagementProperties graphManagement;
+
+    public GraphManagementProperties getGraphManagement() {
+        return graphManagement;
+    }
+
+    public void setGraphManagement(GraphManagementProperties graphManagement) {
+        this.graphManagement = graphManagement;
+    }
 
     public int getInitThreads() {
         return initThreads;
@@ -57,14 +64,6 @@ public class EngineProperties {
         else this.sourceFile = sourceFile;
     }
 
-    public String getGraphsExtent() {
-        return graphsExtent;
-    }
-
-    public void setGraphsExtent(String graphsExtent) {
-        this.graphsExtent = graphsExtent;
-    }
-
     public String getGraphsRootPath() {
         return graphsRootPath;
     }
@@ -83,13 +82,6 @@ public class EngineProperties {
         this.graphsDataAccess = graphsDataAccess;
     }
 
-    public int getMaxNumberOfGraphBackups() {
-        return maxNumberOfGraphBackups;
-    }
-
-    public void setMaxNumberOfGraphBackups(int maxNumberOfGraphBackups) {
-        this.maxNumberOfGraphBackups = maxNumberOfGraphBackups;
-    }
 
     public ElevationProperties getElevation() {
         return elevation;
@@ -136,7 +128,7 @@ public class EngineProperties {
                         graphPath = Paths.get(rootGraphsPath, profileEntry.getKey()).toString();
                 }
                 convertedProfile.setGraphPath(graphPath);
-                convertedProfile.setGraphsExtent(graphsExtent);
+                convertedProfile.setGraphsExtent(graphManagement.extent);
                 convertedProfile.setEncoderOptions(profile.getEncoderOptionsString());
                 convertedProfile.setOptimize(profile.optimize != null ? profile.optimize : profileDefault.getOptimize());
                 convertedProfile.setEncoderFlagsSize(profile.encoderFlagsSize != null ? profile.encoderFlagsSize : profileDefault.getEncoderFlagsSize());
@@ -234,6 +226,54 @@ public class EngineProperties {
 
         public void setDataAccess(String dataAccess) {
             this.dataAccess = dataAccess;
+        }
+    }
+
+    public static class GraphManagementProperties {
+        private String repositoryPath;
+        private String repositoryUrl;
+        private String repositoryName;
+        private Integer maxBackups;
+        private String extent;
+
+        public String getRepositoryPath() {
+            return repositoryPath;
+        }
+
+        public void setRepositoryPath(String repositoryPath) {
+            this.repositoryPath = repositoryPath;
+        }
+
+        public String getRepositoryUrl() {
+            return repositoryUrl;
+        }
+
+        public void setRepositoryUrl(String repositoryUrl) {
+            this.repositoryUrl = repositoryUrl;
+        }
+
+        public String getRepositoryName() {
+            return repositoryName;
+        }
+
+        public void setRepositoryName(String repositoryName) {
+            this.repositoryName = repositoryName;
+        }
+
+        public Integer getMaxBackups() {
+            return maxBackups;
+        }
+
+        public void setMaxBackups(Integer maxBackups) {
+            this.maxBackups = maxBackups;
+        }
+
+        public String getExtent() {
+            return extent;
+        }
+
+        public void setExtent(String extent) {
+            this.extent = extent;
         }
     }
 

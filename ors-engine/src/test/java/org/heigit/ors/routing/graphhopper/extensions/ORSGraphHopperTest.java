@@ -153,12 +153,28 @@ class ORSGraphHopperTest {
     @Test
     public void importOrLoad_orsGraphManagerCreated() throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
-        ORSGraphHopper gh = createORSGraphHopper(ghConfig);
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
+                .setGraphsRepoUrl("repoUrl")
+                .setGraphsRepoName("repoName")
+                .setGraphsRepoPath("repoPath")
+                .buildWithAppConfigOverride();
+        ORSGraphHopper gh = createORSGraphHopper(ghConfig, engineConfig);
 
         gh.importOrLoad();
 
         ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
         assertNotNull(orsGraphManager);
+    }
+
+    @Test
+    public void importOrLoad_orsGraphManagerNotCreated() throws Exception {
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
+        ORSGraphHopper gh = createORSGraphHopper(ghConfig);
+
+        gh.importOrLoad();
+
+        ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
+        assertNull(orsGraphManager);
     }
 
     @Test
@@ -239,14 +255,17 @@ class ORSGraphHopperTest {
     }
 
     private static ORSGraphHopper createORSGraphHopper(ORSGraphHopperConfig ghConfig) throws Exception {
+        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init().buildWithAppConfigOverride();
+        return createORSGraphHopper(ghConfig, engineConfig);
+    }
+
+    private static ORSGraphHopper createORSGraphHopper(ORSGraphHopperConfig ghConfig, EngineConfig engineConfig) throws Exception {
         RouteProfileConfiguration rpc = new RouteProfileConfiguration();
         rpc.setName("whocares");
         rpc.setEnabled(true);
         rpc.setProfiles("driving-car");
         GraphProcessContext gpc = new GraphProcessContext(rpc);
         gpc.setGetElevationFromPreprocessedData(true);
-
-        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init().buildWithAppConfigOverride();
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineConfig);
         gh.init(ghConfig);

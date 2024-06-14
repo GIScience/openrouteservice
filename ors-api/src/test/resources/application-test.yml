@@ -16,7 +16,14 @@ ors:
   engine:
     source_file: ./src/test/files/heidelberg.osm.gz
     graphs_root_path: graphs-apitests
-    max_number_of_graph_backups: 0
+    graph_management:
+      repository_path:
+      repository_url:
+      repository_name:
+      extent: heidelberg
+      max_backups: 0
+      download_schedule: '0 0 0 31 2 *'
+      activation_schedule: '0 0 0 31 2 *'
     elevation:
       cache_path: ./src/test/files/elevation
     profile_default:

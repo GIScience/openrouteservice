@@ -37,10 +37,15 @@ public class EngineConfig {
     private final String graphsRootPath;
     private final String graphsRepoName;
     private final String graphsRepoUrl;
+    private final String graphsRepoPath;
     private final String graphsExtent;
     private final String graphsDataAccess;
     private final boolean elevationPreprocessed;
     private final RouteProfileConfiguration[] profiles;
+
+    public String getGraphsRepoPath() {
+        return graphsRepoPath;
+    }
 
     public int getInitializationThreads() {
         return initializationThreads;
@@ -94,6 +99,7 @@ public class EngineConfig {
         this.elevationPreprocessed = builder.elevationPreprocessed;
         this.graphsRootPath = builder.graphsRootPath;
         this.graphsRepoUrl = builder.graphsRepoUrl;
+        this.graphsRepoPath = builder.graphsRepoPath;
         this.graphsRepoName = builder.graphsRepoName;
         this.graphsExtent = builder.graphsExtent;
         this.profiles = builder.profiles;
@@ -108,6 +114,7 @@ public class EngineConfig {
         private int maxNumberOfGraphBackups;
         private String graphsRootPath;
         private String graphsRepoUrl;
+        private String graphsRepoPath;
         private String graphsRepoName;
         private String graphsExtent;
         private String graphsDataAccess;
@@ -155,6 +162,11 @@ public class EngineConfig {
 
         public EngineConfigBuilder setGraphsRepoName(String repoName) {
             this.graphsRepoName = repoName;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphsRepoPath(String repoPath) {
+            this.graphsRepoPath = repoPath;
             return this;
         }
 

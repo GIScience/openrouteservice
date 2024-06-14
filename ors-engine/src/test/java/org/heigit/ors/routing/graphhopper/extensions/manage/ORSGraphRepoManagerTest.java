@@ -39,14 +39,15 @@ class ORSGraphRepoManagerTest {
     ORSGraphFileManager orsGraphFileManager;
     private static final String GRAPHS_REPO_BASE_URL = "https://example.com";
     private static final String GRAPHS_REPO_NAME = "test-repo";
+    private static final String GRAPHS_REPO_PATH = "some/path/12345";
     private static final String GRAPHS_COVERAGE = "planet";
     private static final String GRAPHS_VERSION = "1";
     private static final String VEHICLE = "car";
     @TempDir(cleanup = CleanupMode.ON_SUCCESS)
     private static Path TEMP_DIR;
-    private static final long EARLIER_DATE = 1692373000111L;
-    private static final long MIDDLE_DATE = 1692373000222L;
-    private static final long LATER_DATE = 1692373000333L;
+    private static final long EARLIER_DATE = 1692373111000L;
+    private static final long MIDDLE_DATE = 1692373222000L;
+    private static final long LATER_DATE = 1692373333000L;
 
     String vehicleDirAbsPath, hashDirAbsPath;
     File localDir, vehicleDir, hashDir, downloadedGraphInfoV1File, localGraphInfoV1File;
@@ -73,6 +74,7 @@ class ORSGraphRepoManagerTest {
         EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
                 .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
+                .setGraphsRepoPath(GRAPHS_REPO_PATH)
                 .setGraphsExtent(GRAPHS_COVERAGE)
                 .buildWithAppConfigOverride();
 
@@ -88,7 +90,7 @@ class ORSGraphRepoManagerTest {
         hashDir = new File(hashDirAbsPath);
         hashDir.mkdirs();
         ORSGraphInfoV1 localOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateLocal));
-        localGraphInfoV1File = new File(hashDir, hash + ".json");
+        localGraphInfoV1File = new File(hashDir, orsGraphFileManager.createGraphInfoFileName());
         new ObjectMapper().writeValue(localGraphInfoV1File, localOrsGraphInfoV1Object);
     }
 
@@ -97,7 +99,7 @@ class ORSGraphRepoManagerTest {
     }
 
     void simulateFindLatestGraphInfoAsset(String hash, Long osmDateRemote) throws IOException {
-        String graphInfoAssetName = hash + ".json";
+        String graphInfoAssetName = orsGraphFileManager.createGraphInfoFileName();
         String graphInfoAssetUrl = String.join("/", GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, VEHICLE, graphInfoAssetName);
 
         ORSGraphInfoV1 downloadedOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateRemote));

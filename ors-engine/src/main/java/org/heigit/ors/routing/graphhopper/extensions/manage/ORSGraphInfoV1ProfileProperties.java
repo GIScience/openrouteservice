@@ -1,5 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+
+import java.awt.*;
 import java.util.Map;
 
 public record ORSGraphInfoV1ProfileProperties (

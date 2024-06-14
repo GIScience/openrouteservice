@@ -1,10 +1,9 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.commons.io.FileUtils;
 import org.heigit.ors.config.EngineConfig;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -42,9 +42,9 @@ class ORSGraphFileManagerTest {
     @TempDir(cleanup = CleanupMode.ON_SUCCESS)
     private static Path TEMP_DIR;
 
-    private static final long EARLIER_DATE = 1692373000111L;
-    private static final long MIDDLE_DATE = 1692373000222L;
-    private static final long LATER_DATE = 1692373000333L;
+    private static final long EARLIER_DATE = 1692373111000L;
+    private static final long MIDDLE_DATE = 1692373222000L;
+    private static final long LATER_DATE = 1692373333000L;
 
     String vehicleDirAbsPath, hashDirAbsPath;
     File localDir, vehicleDir, hashDir, downloadedGraphInfoV1File, localGraphInfoV1File;
@@ -120,7 +120,7 @@ class ORSGraphFileManagerTest {
     }
 
     void simulateFindLatestGraphInfoAsset(String hash, Long osmDateRemote) throws IOException {
-        String graphInfoAssetName = hash + ".json";
+        String graphInfoAssetName = orsGraphFileManager.createGraphInfoFileName();
         String graphInfoAssetUrl = String.join("/", GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, VEHICLE, graphInfoAssetName);
 
         ORSGraphInfoV1 downloadedOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateRemote));
@@ -132,6 +132,48 @@ class ORSGraphFileManagerTest {
 
         doReturn(assetXO).when(orsGraphRepoManager).findLatestGraphInfoAsset(graphInfoAssetName);
         lenient().doNothing().when(orsGraphRepoManager).downloadAsset(anyString(), any());
+    }
+
+    private static @NotNull ORSGraphInfoV1 createOrsGraphInfoV1() {
+        ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1();
+        orsGraphInfoV1.setOsmDate(new Date(EARLIER_DATE));
+        orsGraphInfoV1.setImportDate(new Date(LATER_DATE));
+        orsGraphInfoV1.setProfileProperties(new ORSGraphInfoV1ProfileProperties(
+                "profile", true, true, true, true, true, true, true,
+                "graphPath",
+                Map.of("k1", "v1", "k2", "v2"),
+                Map.of("k1", "v1", "k2", "v2"),
+                Map.of("k1", "v1", "k2", "v2"),
+                Map.of("k1", Map.of("k1", "v1", "k2", "v2"), "k2", Map.of("k1", "v1", "k2", "v2")),
+                1d, 2d, 3d, 4d, 5d, 6d,
+                1, 2, 3, 4, 5, 6,
+                true, "gtfsFile"
+        ));
+        return orsGraphInfoV1;
+    }
+
+    @Test
+    void writeOrsGraphInfoV1() {
+        String hash = "1a2b3c";
+        setupORSGraphManager(hash);
+
+        File testFile = new File(vehicleDir, "writeOrsGraphInfoV1.yml");
+        ORSGraphInfoV1 orsGraphInfoV1 = createOrsGraphInfoV1();
+        assertFalse(testFile.exists());
+        orsGraphFileManager.writeOrsGraphInfoV1(orsGraphInfoV1, testFile);
+        assertTrue(testFile.exists());
+    }
+
+    @Test
+    void readOrsGraphInfoV1() {
+        String hash = "1a2b3c";
+        setupORSGraphManager(hash);
+
+        File writtenTestFile = new File(vehicleDir, "readOrsGraphInfoV1.yml");
+        ORSGraphInfoV1 writtenOrsGraphInfoV1 = createOrsGraphInfoV1();
+        orsGraphFileManager.writeOrsGraphInfoV1(writtenOrsGraphInfoV1, writtenTestFile);
+        ORSGraphInfoV1 readOrsGraphInfoV1 = orsGraphFileManager.readOrsGraphInfoV1(writtenTestFile);
+        assertThat(readOrsGraphInfoV1).usingRecursiveComparison().isEqualTo(writtenOrsGraphInfoV1);
     }
 
     @Test
@@ -287,6 +329,6 @@ class ORSGraphFileManagerTest {
         // Initialize again
         orsGraphFileManager.initialize();
         assertTrue(testFolder.toFile().canWrite());
-        assertTrue(orsGraphFileManager.hasLocalGraph());
+        assertTrue(orsGraphFileManager.hasLocalGraphDirectory());
     }
 }

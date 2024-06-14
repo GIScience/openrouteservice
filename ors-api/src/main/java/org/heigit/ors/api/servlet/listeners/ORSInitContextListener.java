@@ -35,13 +35,6 @@ import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.util.FormatUtility;
-import org.heigit.ors.util.StringUtility;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_ENV;
-import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY;
 
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
@@ -55,18 +48,18 @@ public class ORSInitContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
-        SourceFileElements sourceFileElements = extractSourceFileElements(engineProperties.getSourceFile());
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
                 .setInitializationThreads(engineProperties.getInitThreads())
                 .setPreparationMode(engineProperties.isPreparationMode())
                 .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
                 .setGraphsRootPath(engineProperties.getGraphsRootPath())
                 .setGraphsDataAccess(engineProperties.getGraphsDataAccess())
-                .setMaxNumberOfGraphBackups(engineProperties.getMaxNumberOfGraphBackups())
-                .setSourceFile(sourceFileElements.localOsmFilePath)
-                .setGraphsRepoUrl(sourceFileElements.repoBaseUrlString)
-                .setGraphsRepoName(sourceFileElements.repoName)
-                .setGraphsExtent(engineProperties.getGraphsExtent())
+                .setMaxNumberOfGraphBackups(engineProperties.getGraphManagement().getMaxBackups())
+                .setSourceFile(engineProperties.getSourceFile())
+                .setGraphsRepoUrl(engineProperties.getGraphManagement().getRepositoryUrl())
+                .setGraphsRepoPath(engineProperties.getGraphManagement().getRepositoryPath())
+                .setGraphsRepoName(engineProperties.getGraphManagement().getRepositoryName())
+                .setGraphsExtent(engineProperties.getGraphManagement().getExtent())
                 .setProfiles(engineProperties.getConvertedProfiles())
                 .buildWithAppConfigOverride();
         Runnable runnable = () -> {
@@ -99,48 +92,6 @@ public class ORSInitContextListener implements ServletContextListener {
         Thread thread = new Thread(runnable);
         thread.setName("ORS-Init");
         thread.start();
-    }
-
-    record SourceFileElements(String repoBaseUrlString, String repoName, String localOsmFilePath) {
-    }
-
-    SourceFileElements extractSourceFileElements(String sourceFilePropertyValue) {
-        String accessScheme;
-        String repoBaseUrlString = null;
-        String repoName = null;
-        int port = -1;
-        sourceFilePropertyValue = sourceFilePropertyValue.trim();
-        try {
-            URI uri = new URI(sourceFilePropertyValue);
-            accessScheme = uri.getScheme();
-            repoBaseUrlString = uri.getHost();
-            port = uri.getPort();
-            if (port != -1){
-                repoBaseUrlString = repoBaseUrlString + ":" + port;
-            }
-            if (accessScheme == null || repoBaseUrlString == null) {
-                throw new URISyntaxException(sourceFilePropertyValue, "URI does not contain a valid schema or host");
-            }
-            repoBaseUrlString = accessScheme + "://" + repoBaseUrlString;
-
-            String[] pathElements = uri.getPath().split("/");
-            if (pathElements.length == 0) {
-                throw new URISyntaxException(sourceFilePropertyValue, "URI does not contain a path");
-            }
-            // Append all path elements except the last one to the repoBaseUrlString. The last one is the repoName.
-            for (int i = 0; i < pathElements.length; i++) {
-                if (i == pathElements.length - 1) {
-                    repoName = pathElements[i];
-                    break;
-                } else if (!pathElements[i].isBlank()) {
-                    repoBaseUrlString += "/" + pathElements[i];
-                }
-            }
-        } catch (URISyntaxException e) {
-            LOGGER.debug("Configuration property 'source_file' does not contain a URL, using value as local osm file path");
-            return new SourceFileElements(repoBaseUrlString, repoName, sourceFilePropertyValue);
-        }
-        return new SourceFileElements(repoBaseUrlString, repoName, "");
     }
 
     @Override

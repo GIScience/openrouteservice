@@ -25,7 +25,7 @@ public class GraphService {
     AtomicBoolean restartAttemptWasBlocked = new AtomicBoolean(false);
 
     @Async
-    @Scheduled(cron = "${ors.engine.graphservice.schedule.download.cron:0 0 0 31 2 *}")//Default is "never"
+    @Scheduled(cron = "${ors.engine.graph_management.download_schedule:0 0 0 31 2 *}")//Default is "never"
     public void checkForUpdatesInRepo() {
 
         LOGGER.debug("Scheduled repository check...");
@@ -43,7 +43,7 @@ public class GraphService {
     }
 
     @Async
-    @Scheduled(cron = "${ors.engine.graphservice.schedule.activate.cron:0 0 0 31 2 *}")//Default is "never"
+    @Scheduled(cron = "${ors.engine.graph_management.activation_schedule:0 0 0 31 2 *}")//Default is "never"
     public void checkForDownloadedGraphsToActivate() {
 
         LOGGER.debug("Restart check...");

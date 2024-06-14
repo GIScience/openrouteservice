@@ -13,8 +13,6 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.graphhopper.*;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
@@ -59,6 +57,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphFileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
@@ -232,11 +231,13 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     private void writeOrsGraphInfoFileIfNotExists(GraphHopper gh, String hash, String hashDirAbsPath) {
-        if (engineConfig.getProfiles()==null) return;
-        if (engineConfig.getProfiles().length==0) return;
+        if (engineConfig.getProfiles()==null)
+            return;
+        if (engineConfig.getProfiles().length==0)
+            return;
 
         File graphDir = new File(hashDirAbsPath);
-        File orsGraphInfoFile = new File(graphDir, hash+".yml");
+        File orsGraphInfoFile = new File(graphDir, ORSGraphFileManager.createGraphInfoFileName(hash));
         if (!graphDir.exists() || !graphDir.isDirectory() || !graphDir.canWrite() ) {
             LOGGER.debug("Graph directory {} not existing or not writeable", orsGraphInfoFile.getAbsolutePath());
             return;
@@ -253,14 +254,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1(getDateFromGhProperty(gh, "datareader.data.date"));
         orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
+        orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
         orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.get().getOrsGraphInfoV1ProfileProperties());
 
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        try {
-            mapper.writeValue(orsGraphInfoFile, orsGraphInfoV1);
-        } catch (IOException e) {
-            LOGGER.error("Could not write file {}", orsGraphInfoFile.getAbsolutePath());
-        }
+        ORSGraphFileManager.writeOrsGraphInfoV1(orsGraphInfoV1, orsGraphInfoFile);
     }
 
     Date getDateFromGhProperty(GraphHopper gh, String ghProperty) {
@@ -276,7 +273,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     boolean useGraphRepository() {
-        return StringUtils.isBlank(getOSMFile());
+        if (StringUtils.isBlank(engineConfig.getGraphsRepoName())) return false;
+
+        return StringUtils.isNotBlank(engineConfig.getGraphsRepoUrl()) ||
+                StringUtils.isNotBlank(engineConfig.getGraphsRepoPath());
     }
 
     public String extendGraphhopperLocation(String hash) {

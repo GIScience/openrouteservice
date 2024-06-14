@@ -55,7 +55,7 @@
         <!--graphhopper.version>v4.9-SNAPSHOT</graphhopper.version-->
         <slf4j.version>2.0.7</slf4j.version>
         <log4j.version>2.20.0</log4j.version>
-        <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
+        <fasterxml.jackson.version>2.17.1</fasterxml.jackson.version>
         <commons-io.version>2.11.0</commons-io.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
         <jts.version>1.19.0</jts.version>

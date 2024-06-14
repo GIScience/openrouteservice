@@ -1,6 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.graphhopper.util.Unzipper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
@@ -18,7 +20,7 @@ public class ORSGraphFileManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphFileManager.class.getName());
     private static final String GRAPH_DOWNLOAD_FILE_EXTENSION = "ghz";
-    private static final String GRAPH_INFO_FILE_EXTENSION = "json";
+    private static final String GRAPH_INFO_FILE_EXTENSION = "yml";
     private static final String INCOMPLETE_EXTENSION = "incomplete";
     private String hash;
     private String hashDirAbsPath;
@@ -57,7 +59,11 @@ public class ORSGraphFileManager {
         return vehicleGraphDirAbsPath;
     }
 
-    String createGraphInfoFileName() {
+    public String createGraphInfoFileName() {
+        return createGraphInfoFileName(this.hash);
+    }
+
+    public static String createGraphInfoFileName(String hash) {
         return hash + "." + GRAPH_INFO_FILE_EXTENSION;
     }
 
@@ -87,6 +93,10 @@ public class ORSGraphFileManager {
     }
 
     boolean hasLocalGraph() {
+        return getHashDirectory().exists() && getHashDirectory().isDirectory() && getHashDirectory().listFiles().length > 0;
+    }
+
+    boolean hasLocalGraphDirectory() {
         return getHashDirectory().exists() && getHashDirectory().isDirectory();
     }
 
@@ -208,7 +218,7 @@ public class ORSGraphFileManager {
         LOGGER.trace("[%s] Checking active graph info...".formatted(getProfileWithHash()));
         File activeGraphDirectory = getHashDirectory();
 
-        if (!hasLocalGraph()) {
+        if (!hasLocalGraphDirectory()) {
             LOGGER.trace("[%s] No active graph directory found".formatted(getProfileWithHash()));
             return new GraphInfo().withLocalDirectory(activeGraphDirectory);
         }
@@ -242,16 +252,19 @@ public class ORSGraphFileManager {
 
     ORSGraphInfoV1 readOrsGraphInfoV1(File inputFile) {
         try {
-            return new ObjectMapper().readValue(inputFile, ORSGraphInfoV1.class);
+            return new ObjectMapper(new YAMLFactory())
+                    .readValue(inputFile, ORSGraphInfoV1.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    void writeOrsGraphInfoV1(ORSGraphInfoV1 orsGraphInfoV1, File outputFile) {
+    public static void writeOrsGraphInfoV1(ORSGraphInfoV1 orsGraphInfoV1, File outputFile) {
         try {
-            new ObjectMapper().writeValue(outputFile, orsGraphInfoV1);
+            new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER))
+                    .writeValue(outputFile, orsGraphInfoV1);
         } catch (IOException e) {
+            LOGGER.error("Could not write file {}".formatted(outputFile.getAbsolutePath()));
             throw new RuntimeException(e);
         }
     }
@@ -319,5 +332,6 @@ public class ORSGraphFileManager {
                     targetDirectoryAbsPath));
             throw new RuntimeException("Caught ", ioException);
         }
+        LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next restart check or application start".formatted(getProfileWithHash(), extractionDirectoryAbsPath));
     }
 }

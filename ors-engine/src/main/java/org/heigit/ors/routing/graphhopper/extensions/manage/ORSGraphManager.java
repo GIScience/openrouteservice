@@ -44,6 +44,10 @@ public class ORSGraphManager {
         return fileManager.hasLocalGraph();
     }
 
+    public boolean hasLocalGraphDirectory() {
+        return fileManager.hasLocalGraphDirectory();
+    }
+
     public boolean hasGraphDownloadFile() {
         return fileManager.hasGraphDownloadFile();
     }
@@ -74,6 +78,14 @@ public class ORSGraphManager {
 
     public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {
         this.graphsRepoGraphVersion = graphsRepoGraphVersion;
+    }
+
+    public ORSGraphFileManager getFileManager() {
+        return fileManager;
+    }
+
+    public ORSGraphRepoManager getRepoManager() {
+        return repoManager;
     }
 
     public void manageStartup() {

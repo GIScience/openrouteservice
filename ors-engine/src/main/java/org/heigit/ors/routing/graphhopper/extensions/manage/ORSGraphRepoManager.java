@@ -26,6 +26,7 @@ public class ORSGraphRepoManager {
     private int connectionTimeoutMillis = 2000;
     private int readTimeoutMillis = 200000;
     private String graphsRepoBaseUrl;
+    private String graphsRepoPath;
     private String graphsRepoName;
     private String graphsRepoCoverage;
     private String graphsRepoGraphVersion;
@@ -45,6 +46,7 @@ public class ORSGraphRepoManager {
 
     void initialize(EngineConfig engineConfig) {
         this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
+        this.graphsRepoPath = engineConfig.getGraphsRepoPath();
         this.graphsRepoName = engineConfig.getGraphsRepoName();
         this.graphsRepoCoverage = engineConfig.getGraphsExtent();
     }
@@ -63,6 +65,14 @@ public class ORSGraphRepoManager {
 
     String getProfileWithHash() {
         return fileManager.getProfileWithHash();
+    }
+
+    public String getGraphsRepoPath() {
+        return graphsRepoPath;
+    }
+
+    public void setGraphsRepoPath(String graphsRepoPath) {
+        this.graphsRepoPath = graphsRepoPath;
     }
 
     String createDownloadPathFilterPattern() {
@@ -147,7 +157,7 @@ public class ORSGraphRepoManager {
             List<AssetXO> items = new ArrayList<>();
             String continuationToken = null;
             do {
-                LOGGER.debug("[%s] Trying to call nexus api with graphsRepoBaseUrl=%s graphsRepoName=%s graphsRepoCoverage=%s, graphsRepoGraphVersion=%s, continuationToken=%s".formatted(
+                LOGGER.trace("[%s] Trying to call nexus api with graphsRepoBaseUrl=%s graphsRepoName=%s graphsRepoCoverage=%s, graphsRepoGraphVersion=%s, continuationToken=%s".formatted(
                         getProfileWithHash(), graphsRepoBaseUrl, graphsRepoName, graphsRepoCoverage, graphsRepoGraphVersion, continuationToken));
                 PageAssetXO assets = assetsApi.getAssets(graphsRepoName, continuationToken);
                 LOGGER.trace("[%s] Received assets: %s".formatted(getProfileWithHash(), assets.toString()));
@@ -156,7 +166,7 @@ public class ORSGraphRepoManager {
                 }
                 continuationToken = assets.getContinuationToken();
             } while (!isBlank(continuationToken));
-            LOGGER.debug("[%s] Found %d items total".formatted(getProfileWithHash(), items.size()));
+            LOGGER.trace("[%s] Found %d items total".formatted(getProfileWithHash(), items.size()));
 
             return filterLatestAsset(fileName, items);
 
@@ -180,7 +190,7 @@ public class ORSGraphRepoManager {
         String fileName = fileManager.createGraphInfoFileName();
         AssetXO latestGraphInfoAsset = findLatestGraphInfoAsset(fileName);
         if (latestGraphInfoAsset == null) {
-            LOGGER.warn("[%s] No graphInfo found in remote repository".formatted(getProfileWithHash()));
+            LOGGER.info("[%s] No graphInfo found in remote repository".formatted(getProfileWithHash()));
             return latestGraphInfoInRepo;
         }
 
