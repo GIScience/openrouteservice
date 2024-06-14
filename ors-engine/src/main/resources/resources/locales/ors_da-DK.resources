@@ -1,0 +1,107 @@
+{
+    "instructions": {
+        "numerals": {
+            "1": "1.",
+            "2": "2.",
+            "3": "3.",
+            "4": "4.",
+            "5": "5.",
+            "6": "6.",
+            "7": "7.",
+            "8": "8.",
+            "9": "9.",
+            "10": "10."
+        },
+        "directions": {
+            "north": "nord",
+            "northeast": "nordøst",
+            "east": "øst",
+            "southeast": "sydøst",
+            "south": "syd",
+            "southwest": "sydvest",
+            "west": "vest",
+            "northwest": "nordvest"
+        },
+        "turn_maneuvers": {
+            "left": "venstre",
+            "right": "højre",
+            "sharp_left": "skarp venstre",
+            "sharp_right": "skarp højre",
+            "slight_left": "let venstre",
+            "slight_right": "let højre",
+            "straight": "ligeud",
+            "uturn": "U-vending"
+        },
+        "actions": {
+            "arrive": {
+                "default": {
+                    "default": "Ankom til din destination",
+                    "name": "Ankom til {way_name}"
+                },
+                "left": {
+                    "default": "Ankom til din destination, på venstre side",
+                    "name": "Ankom til {way_name}, på venstre side"
+                },
+                "right": {
+                    "default": "Ankom til din destination, på højre side",
+                    "name": "Ankom til {way_name}, på højre side"
+                },
+                "straight": {
+                    "default": "Ankom til din destination, lige frem",
+                    "name": "Ankom til {way_name}, lige frem"
+                }
+            },
+            "depart": {
+                "default": {
+                    "default": "Kør mod {direction}",
+                    "name": "Kør mod {direction} på {way_name}"
+                }
+            },
+            "roundabout": {
+                "default": {
+                    "exit": {
+                        "default": "Kør ind i rundkørslen og tag {exit_number} afkørsel",
+                        "name": "Kør ind i rundkørslen og tag {exit_number} afkørsel mod {way_name}"
+                    },
+                    "default": {
+                        "default": "Kør ind i rundkørslen",
+                        "name": "Kør ind i rundkørslen og kør ud mod {way_name}"
+                    }
+                }
+            },
+            "turn": {
+                "default": {
+                    "default": "Drej {turn_maneuver}",
+                    "name": "Drej {turn_maneuver} mod {way_name}"
+                }
+            },
+            "continue": {
+                "default": {
+                    "default": "Fortsæt {turn_maneuver}",
+                    "name": "Fortsæt {turn_maneuver} mod {way_name}"
+                },
+                "uturn": {
+                    "default": "Lav en U-vending",
+                    "name": "Lav en U-vending mod {way_name}"
+                }
+            },
+            "keep": {
+                "default": {
+                    "default": "Hold {turn_maneuver}",
+                    "name": "Hold {turn_maneuver} mod {way_name}"
+                }
+            },
+            "pt": {
+                "start": {
+                    "default": "Stig på {name}",
+                    "headsign": "Stig på {name} mod {headsign}"
+                },
+                "transfer": {
+                    "default": "Skift til {name}",
+                    "headsign": "Skift til {name} mod {headsign}"
+                },
+                "end": "Stå af ved {name}"
+            }
+        }
+    }
+}
