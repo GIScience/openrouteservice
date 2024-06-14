@@ -64,11 +64,15 @@ public class GraphService {
 
         for (ORSGraphManager orsGraphManager : graphManagers) {
             if (orsGraphManager.isActive() || orsGraphManager.hasGraphDownloadFile()) {
-                LOGGER.info("Restart check: [%s] Download or extraction in progress".formatted(orsGraphManager.getProfileWithHash()));
+                if (!restartAttemptWasBlocked.get()) {
+                    LOGGER.info("Restart check: [%s] Download or extraction in progress".formatted(orsGraphManager.getProfileWithHash()));
+                }
                 restartAllowed = false;
             }
             if (orsGraphManager.hasDownloadedExtractedGraph()) {
-                LOGGER.info("Restart check: [%s] Downloaded extracted graph available".formatted(orsGraphManager.getProfileWithHash()));
+                if (!restartAttemptWasBlocked.get()) {
+                    LOGGER.info("Restart check: [%s] Downloaded extracted graph available".formatted(orsGraphManager.getProfileWithHash()));
+                }
                 restartNeeded = true;
             }
         }
