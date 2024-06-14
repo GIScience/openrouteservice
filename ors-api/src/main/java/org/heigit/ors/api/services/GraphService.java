@@ -28,12 +28,16 @@ public class GraphService {
     @Scheduled(cron = "${ors.engine.graph_management.download_schedule:0 0 0 31 2 *}")//Default is "never"
     public void checkForUpdatesInRepo() {
 
+        LOGGER.debug("Scheduled repository check...");
+
         if (restartAttemptWasBlocked.get()) {
-            LOGGER.debug("Skipping scheduled repository check, waiting for restart...");
+            LOGGER.warn("Skipping scheduled repository check, waiting for restart...");
             return;
         }
-
-        LOGGER.debug("Scheduled repository check...");
+        if (isUpdateLocked()) {
+            LOGGER.warn("Scheduled repository skipped: lock found - remove lock file manually!");
+            return;
+        }
 
         for (ORSGraphManager orsGraphManager : graphManagers) {
             if (orsGraphManager.isActive()) {
@@ -53,6 +57,8 @@ public class GraphService {
 
         LOGGER.debug("Restart check...");
 
+        // Even if restart is locked: Do the checks to start repeatedRestartAttempts.
+
         boolean restartNeeded = false;
         boolean restartAllowed = true;
 
@@ -67,15 +73,25 @@ public class GraphService {
             }
         }
 
-        if (restartNeeded && restartAllowed) {
-            LOGGER.info("Restart check done: restarting openrouteservice");
-            restartApplication();
-        } else if (!restartAllowed) {
-            LOGGER.info("Restart check: Restart currently not allowed, retrying every minute...");
-            restartAttemptWasBlocked.set(true);
-        } else {
-            LOGGER.info("Restart check done: no downloaded graphs found, no restart required");
+        if (!restartNeeded) {
+            LOGGER.info("Restart check done: No downloaded graphs found, no restart required");
+            return;
         }
+
+        if (!restartAllowed) {
+            LOGGER.info("Restart check done: Restart currently not allowed, retrying every minute...");
+            restartAttemptWasBlocked.set(true);
+            return;
+        }
+
+        if (isRestartLocked()) {
+            LOGGER.warn("Restart check done: Restart lock found - remove lock file manually! Retrying every minute...");
+            restartAttemptWasBlocked.set(true);
+            return;
+        }
+
+        LOGGER.info("Restart check done: Restarting openrouteservice");
+        restartApplication();
     }
 
     @Async
@@ -85,6 +101,24 @@ public class GraphService {
             LOGGER.info("Repeated attempt to restart application");
             checkForDownloadedGraphsToActivate();
         }
+    }
+
+    private boolean isUpdateLocked() {
+        for (ORSGraphManager orsGraphManager : graphManagers) {
+            if (orsGraphManager.hasUpdateLock()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isRestartLocked() {
+        for (ORSGraphManager orsGraphManager : graphManagers) {
+            if (orsGraphManager.hasRestartLock()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void restartApplication() {

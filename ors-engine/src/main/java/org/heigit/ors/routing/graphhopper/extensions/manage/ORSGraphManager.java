@@ -3,9 +3,12 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
 
+import java.io.File;
+
 public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
+    private String graphsRootPath;
     private String graphsRepoGraphVersion;
     private String hash;
     private String hashDirAbsPath;
@@ -23,6 +26,7 @@ public class ORSGraphManager {
         this.hashDirAbsPath = localPath;
         this.routeProfileName = routeProfileName;
         this.vehicleGraphDirAbsPath = vehicleGraphDirAbsPath;
+        this.graphsRootPath = engineConfig.getGraphsRootPath();
         initialize(engineConfig);
     }
 
@@ -121,4 +125,15 @@ public class ORSGraphManager {
         repoManager.downloadGraphIfNecessary();
         fileManager.extractDownloadedGraph();
     }
+
+    public boolean hasUpdateLock() {
+        File restartLockFile = new File(new File(graphsRootPath), "update.lock");
+        return restartLockFile.exists();
+    }
+
+    public boolean hasRestartLock() {
+        File restartLockFile = new File(new File(graphsRootPath), "restart.lock");
+        return restartLockFile.exists();
+    }
+
 }
