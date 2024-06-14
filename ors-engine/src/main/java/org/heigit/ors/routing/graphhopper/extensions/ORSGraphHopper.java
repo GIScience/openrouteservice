@@ -69,7 +69,6 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTraff
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.heigit.ors.routing.util.RoutingProfileHashBuilder;
 import org.heigit.ors.util.CoordTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -181,7 +180,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             throw new IllegalStateException("graph is already successfully loaded");
         }
 
-        String hash = createProfileHash();
+        String hash = config.getString("profile.hash", "invalid_profile_hash");
         String vehicleDirAbsPath = getGraphHopperLocation();
         String hashDirAbsPath = extendGraphhopperLocation(hash);
 
@@ -284,29 +283,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         this.setGraphHopperLocation(extendedPath);
         LOGGER.info("Extended graphHopperLocation with hash: {}", hash);
         return extendedPath;
-    }
-
-    String createProfileHash() {
-        // File name or hash should not be contained in the hash, same hast should map to different graphs built off different files for the same region/profile pair.
-        Map<String, Object> configWithoutFilePath = config.asPMap().toMap();
-        configWithoutFilePath.remove("datareader.file");
-        configWithoutFilePath.remove("graph.dataaccess");
-        configWithoutFilePath.remove("graph.location");
-        configWithoutFilePath.remove("graph.elevation.provider");
-        configWithoutFilePath.remove("graph.elevation.cache_dir");
-        configWithoutFilePath.remove("graph.elevation.dataaccess");
-        configWithoutFilePath.remove("graph.elevation.clear");
-        RoutingProfileHashBuilder builder = RoutingProfileHashBuilder.builder()
-                .withNamedString("profiles", config.getProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()))
-                .withNamedString("chProfiles", config.getCHProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
-                .withNamedString("lmProfiles", config.getLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
-                .withMapStringObject(configWithoutFilePath, "pMap");
-        if (config instanceof ORSGraphHopperConfig orsConfig) {
-            builder.withNamedString("coreProfiles", orsConfig.getCoreProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
-                    .withNamedString("coreLMProfiles", orsConfig.getCoreLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
-                    .withNamedString("fastisochroneProfiles", orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));
-        }
-        return builder.build();
     }
 
     @Override
