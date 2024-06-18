@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class APIMatrixRequestProfileConverterTest {
     private APIEnums.Profile cyclingElectric;
+    private APIEnums.Profile cyclingCargo;
     private APIEnums.Profile cyclingMountain;
     private APIEnums.Profile cyclingRegular;
     private APIEnums.Profile cyclingRoad;
@@ -23,6 +24,7 @@ class APIMatrixRequestProfileConverterTest {
     @BeforeEach
     void setUp() {
         cyclingElectric = APIEnums.Profile.CYCLING_ELECTRIC;
+        cyclingCargo = APIEnums.Profile.CYCLING_CARGO;
         cyclingMountain = APIEnums.Profile.CYCLING_MOUNTAIN;
         cyclingRegular = APIEnums.Profile.CYCLING_REGULAR;
         cyclingRoad = APIEnums.Profile.CYCLING_ROAD;
@@ -42,6 +44,7 @@ class APIMatrixRequestProfileConverterTest {
         assertEquals(cyclingRoad, apiRequestProfileConverter.convert("cycling-road"));
         assertEquals(cyclingMountain, apiRequestProfileConverter.convert("cycling-mountain"));
         assertEquals(cyclingElectric, apiRequestProfileConverter.convert("cycling-electric"));
+        assertEquals(cyclingCargo, apiRequestProfileConverter.convert("cycling-cargo"));
         assertEquals(footWalking, apiRequestProfileConverter.convert("foot-walking"));
         assertEquals(footHiking, apiRequestProfileConverter.convert("foot-hiking"));
         assertEquals(wheelchair, apiRequestProfileConverter.convert("wheelchair"));

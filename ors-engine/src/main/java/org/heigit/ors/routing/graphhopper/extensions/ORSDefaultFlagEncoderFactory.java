@@ -57,6 +57,14 @@ public class ORSDefaultFlagEncoderFactory extends DefaultFlagEncoderFactory impl
                 }
                 return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.ElectroBikeFlagEncoder(configuration);
 
+            case FlagEncoderNames.BIKE_CARGO:
+                // MARQ24 hardcoded "ignore" consider_elevation for the NextGenMountainBike FlagEncoder - when
+                // consider_elevation is enabled we have various detours (over smaler tracks)
+                if (configuration.getBool(KEY_CONSIDER_ELEVATION, false)) {
+                    configuration.remove(KEY_CONSIDER_ELEVATION);
+                }
+                return new org.heigit.ors.routing.graphhopper.extensions.flagencoders.bike.CargoBikeFlagEncoder(configuration);
+
             case FlagEncoderNames.ROADBIKE_ORS:
                 // MARQ24 hardcoded "ignore" consider_elevation for the NextGenRoadbike FlagEncoder - when
                 // consider_elevation is enabled we have various detours (over smaler tracks)

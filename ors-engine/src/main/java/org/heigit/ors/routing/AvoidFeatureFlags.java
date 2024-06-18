@@ -22,9 +22,10 @@ public class AvoidFeatureFlags {
     public static final int STEPS = 4;
     public static final int FERRIES = 8;
     public static final int FORDS = 16;
+    public static final int JUNCTION = 32;
 
     private static final int DRIVING_FEATURES = HIGHWAYS | TOLLWAYS | FERRIES | FORDS;
-    private static final int CYCLING_FEATURES = STEPS | FERRIES | FORDS;
+    private static final int CYCLING_FEATURES = STEPS | FERRIES | FORDS | JUNCTION;
     private static final int WALKING_FEATURES = STEPS | FERRIES | FORDS;
     private static final int WHEELCHAIR_FEATURES = WALKING_FEATURES;
 
@@ -38,6 +39,7 @@ public class AvoidFeatureFlags {
             case "ferries" -> FERRIES;
             case "steps" -> STEPS;
             case "fords" -> FORDS;
+            case "junction" -> JUNCTION;
             default -> 0;
         };
     }
