@@ -37,7 +37,8 @@ public class ORSOSMReader extends OSMReader {
 
     private final GraphProcessContext procCntx;
     private boolean processNodeTags;
-
+    private static final String KEY_COUNTRY = "country";
+    private Map<Long, String> countries;
     private final GHLongObjectHashMap<Map<String, String>> nodeTags = new GHLongObjectHashMap<>(200, 0.5);
     private boolean processGeom = false;
     private boolean processSimpleGeom = false;
@@ -64,7 +65,7 @@ public class ORSOSMReader extends OSMReader {
         // Look if we should do border processing - if so then we have to process the geometry
         for (GraphStorageBuilder b : this.procCntx.getStorageBuilders()) {
             if (b instanceof BordersGraphStorageBuilder) {
-                extraTagKeys.add("country");
+                this.countries = new HashMap<>();
                 this.processGeom = true;
             }
 
@@ -121,6 +122,11 @@ public class ORSOSMReader extends OSMReader {
                 nodeTags.put(node.getId(), tagValues);
             }
         }
+
+        if (countries != null  && node.hasTag(KEY_COUNTRY)) {
+            countries.put(node.getId(), node.getTag(KEY_COUNTRY));
+        }
+
         return node;
     }
 
@@ -186,8 +192,14 @@ public class ORSOSMReader extends OSMReader {
                 int internalId = getNodeMap().get(id);
                 Map<String, String> tagsForNode = nodeTags.get(id);
 
+                if (countries != null && countries.containsKey(id)) {
+                    if (tagsForNode == null)
+                        tagsForNode = new HashMap<>();
+                    tagsForNode.put(KEY_COUNTRY, countries.get(id));
+                }
+
                 if (tagsForNode != null) {
-                    tags.put(internalId, nodeTags.get(id));
+                    tags.put(internalId, tagsForNode);
                 }
             }
         }
