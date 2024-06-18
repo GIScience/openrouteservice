@@ -23,7 +23,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.codehaus.commons.nullanalysis.NotNull;
 import org.heigit.ors.api.converters.APIRequestProfileConverter;
 import org.heigit.ors.api.converters.APIRequestSingleCoordinateConverter;
-import org.heigit.ors.api.util.AppConfigMigration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -57,7 +56,7 @@ public class ApiConfig implements WebMvcConfigurer {
      */
     @Bean
     public WebMvcConfigurer corsConfigurer(CorsProperties corsProps) {
-        final CorsProperties corsProperties = AppConfigMigration.overrideCorsProperties(corsProps);
+        final CorsProperties corsProperties = corsProps;
 
         return new WebMvcConfigurer() {
             @Override

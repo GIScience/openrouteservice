@@ -19,7 +19,6 @@ import com.graphhopper.storage.StorableProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
@@ -47,7 +46,7 @@ public class StatusAPI {
     private final EndpointsProperties endpointsProperties;
 
     public StatusAPI(EndpointsProperties endpointsProperties) {
-        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+        this.endpointsProperties = endpointsProperties;
     }
 
     @GetMapping

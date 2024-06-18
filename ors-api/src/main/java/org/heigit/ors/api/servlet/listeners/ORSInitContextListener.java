@@ -50,7 +50,7 @@ public class ORSInitContextListener implements ServletContextListener {
                 .setGraphsRootPath(engineProperties.getGraphsRootPath())
                 .setGraphsDataAccess(engineProperties.getGraphsDataAccess())
                 .setProfiles(engineProperties.getConvertedProfiles())
-                .buildWithAppConfigOverride();
+                .build();
         Runnable runnable = () -> {
             try {
                 LOGGER.info("Initializing ORS...");

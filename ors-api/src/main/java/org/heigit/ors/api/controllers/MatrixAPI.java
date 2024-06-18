@@ -27,17 +27,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.responses.matrix.json.JSONMatrixResponse;
 import org.heigit.ors.api.services.MatrixService;
-import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixResult;
-import org.heigit.ors.api.APIEnums;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -62,7 +61,7 @@ public class MatrixAPI {
     private final MatrixService matrixService;
 
     public MatrixAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, MatrixService matrixService) {
-        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+        this.endpointsProperties = endpointsProperties;
         this.systemMessageProperties = systemMessageProperties;
         this.matrixService = matrixService;
     }
