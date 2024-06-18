@@ -35,6 +35,7 @@ RELEASING:
 
 ## [Unreleased]
 ### Added
+- added danish tranlations
 ### Changed
 ### Deprecated
 ### Removed
