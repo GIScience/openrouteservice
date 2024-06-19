@@ -33,6 +33,7 @@ public interface RouteRequestParameterNames {
     String PARAM_VEHICLE_TYPE = "vehicle_type";
     String PARAM_PROFILE_PARAMS = "profile_params";
     String PARAM_AVOID_POLYGONS = "avoid_polygons";
+    String PARAM_PREFER_POLYGONS = "prefer_polygons";
     // Fields specific to GraphHopper GTFS
     String PARAM_SCHEDULE = "schedule";
     String PARAM_SCHEDULE_DURATION = "schedule_duration";

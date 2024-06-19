@@ -14,6 +14,7 @@
 package org.heigit.ors.routing;
 
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.WeightedPolygon;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
@@ -33,6 +34,7 @@ public class RouteSearchParameters {
     private int weightingMethod = WeightingMethod.RECOMMENDED;
     private Boolean considerTurnRestrictions = false;
     private Polygon[] avoidAreas;
+    private WeightedPolygon[] preferAreas;
     private int avoidFeaturesTypes;
     private int vehicleType = HeavyVehicleAttributes.UNKNOWN;
     private ProfileParameters profileParams;
@@ -96,6 +98,9 @@ public class RouteSearchParameters {
 
     public void setAvoidAreas(Polygon[] avoidAreas) {
         this.avoidAreas = avoidAreas;
+    }
+    public void setPreferAreas(WeightedPolygon[] preferAreas) {
+        this.preferAreas = preferAreas;
     }
 
     public boolean hasAvoidAreas() {

@@ -14,6 +14,7 @@ import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
+import org.heigit.ors.routing.graphhopper.extensions.WeightedPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.parameters.ProfileParameters;
@@ -124,6 +125,54 @@ public class ApiService {
         return avoidAreas;
     }
 
+    protected WeightedPolygon[] convertAndValidatePreferAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+        WeightedPolygon[] preferAreas = convertPreferAreas(geoJson);
+        validateAreaLimits(preferAreas, profileType);
+        return preferAreas;
+    }
+
+    protected WeightedPolygon[] convertPreferAreas(JSONObject geoJson) throws StatusCodeException {
+        // Extract the "features" array from the input GeoJSON
+        List<JSONObject> features = (List<JSONObject>) geoJson.get("features");
+
+        // Prepare the list to hold the WeightedPolygon objects
+        List<WeightedPolygon> weightedPolygons = new ArrayList<>();
+
+        for (JSONObject feature : features) {
+            JSONObject geometry = (JSONObject) feature.get("geometry");
+            JSONObject properties = (JSONObject) feature.get("properties");
+
+            // Extract the weight from the properties
+            double weight = (double) properties.get("weight");
+
+            // Create a new JSONObject for the geometry
+            org.json.JSONObject complexJson = new org.json.JSONObject();
+            complexJson.put("type", geometry.get("type"));
+            List<List<List<Double[]>>> coordinates = (List<List<List<Double[]>>>) geometry.get("coordinates");
+            complexJson.put("coordinates", coordinates);
+
+            Geometry convertedGeom;
+            try {
+                convertedGeom = GeometryJSON.parse(complexJson);
+            } catch (Exception e) {
+                throw new ParameterValueException(GenericErrorCodes.INVALID_JSON_FORMAT, RequestOptions.PARAM_PREFER_POLYGONS);
+            }
+
+            if (convertedGeom instanceof Polygon) {
+                weightedPolygons.add(new WeightedPolygon((Polygon) convertedGeom, weight));
+            } else if (convertedGeom instanceof MultiPolygon multiPoly) {
+                for (int j = 0; j < multiPoly.getNumGeometries(); j++) {
+                    weightedPolygons.add(new WeightedPolygon((Polygon) multiPoly.getGeometryN(j), weight));
+                }
+            } else {
+                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_PREFER_POLYGONS);
+            }
+        }
+
+        // Convert the list to an array and return
+        return weightedPolygons.toArray(new WeightedPolygon[0]);
+    }
+
     protected void validateAreaLimits(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
         double areaLimit = getMaximumAvoidPolygonArea();
         double extentLimit = getMaximumAvoidPolygonExtent();
@@ -200,6 +249,9 @@ public class ApiService {
 
         if (options.hasAvoidPolygonFeatures())
             params.setAvoidAreas(convertAndValidateAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
+
+        if (options.hasPreferPolygonFeatures())
+            params.setPreferAreas(convertAndValidatePreferAreas(options.getPreferPolygonFeatures(), params.getProfileType()));
 
         if (options.hasAvoidCountries())
             params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));

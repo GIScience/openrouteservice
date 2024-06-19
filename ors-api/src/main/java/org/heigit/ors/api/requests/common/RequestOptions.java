@@ -92,8 +92,12 @@ public class RequestOptions implements RouteRequestParameterNames {
     @Schema(name = PARAM_AVOID_POLYGONS, description = "Comprises areas to be avoided for the route. Formatted in GeoJSON as either a Polygon or Multipolygon object.")
     @JsonProperty(PARAM_AVOID_POLYGONS)
     private JSONObject avoidPolygonFeatures;
+    @Schema(name = PARAM_PREFER_POLYGONS, description = "Comprises areas to be preferred for the route. Formatted in GeoJSON as a FeatureCollection. Each feature has a properties field, which in turn has a weight.")
+    @JsonProperty(PARAM_PREFER_POLYGONS)
+    private JSONObject preferPolygonFeatures;
     @JsonIgnore
     private boolean hasAvoidPolygonFeatures = false;
+    private boolean hasPreferPolygonFeatures = false;
 
     public APIEnums.AvoidFeatures[] getAvoidFeatures() {
         return avoidFeatures;
@@ -144,6 +148,10 @@ public class RequestOptions implements RouteRequestParameterNames {
         return avoidPolygonFeatures;
     }
 
+    public JSONObject getPreferPolygonFeatures() {
+        return preferPolygonFeatures;
+    }
+
     public void setAvoidPolygonFeatures(JSONObject avoidPolygonFeatures) {
         this.avoidPolygonFeatures = avoidPolygonFeatures;
         hasAvoidPolygonFeatures = true;
@@ -171,5 +179,9 @@ public class RequestOptions implements RouteRequestParameterNames {
 
     public boolean hasAvoidPolygonFeatures() {
         return hasAvoidPolygonFeatures;
+    }
+
+    public boolean hasPreferPolygonFeatures() {
+        return hasPreferPolygonFeatures;
     }
 }
