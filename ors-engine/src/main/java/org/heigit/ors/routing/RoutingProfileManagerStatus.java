@@ -16,6 +16,7 @@ package org.heigit.ors.routing;
 public class RoutingProfileManagerStatus {
     private static boolean ready = false;
     private static boolean failed = false;
+    private static boolean shutdown = false;
 
     private RoutingProfileManagerStatus() {
     }
@@ -34,5 +35,13 @@ public class RoutingProfileManagerStatus {
 
     public static void setFailed(boolean failed) {
         RoutingProfileManagerStatus.failed = failed;
+    }
+
+    public static boolean isShutdown() {
+        return shutdown;
+    }
+
+    public static void setShutdown(boolean shutdown) {
+        RoutingProfileManagerStatus.shutdown = shutdown;
     }
 }

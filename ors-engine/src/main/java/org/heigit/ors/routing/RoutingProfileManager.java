@@ -155,6 +155,7 @@ public class RoutingProfileManager {
         LOGGER.error(message);
         LOGGER.error("");
         RoutingProfileManagerStatus.setFailed(true);
+        RoutingProfileManagerStatus.setShutdown(true);
     }
 
     public RoutingProfilesCollection getProfiles() {

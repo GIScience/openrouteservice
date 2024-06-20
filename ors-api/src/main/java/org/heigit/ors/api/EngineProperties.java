@@ -1,5 +1,6 @@
 package org.heigit.ors.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class EngineProperties {
 
     private int initThreads;
+    private boolean configOutputMode;
     private boolean preparationMode;
     private String sourceFile;
     private String graphsRootPath;
@@ -41,6 +43,14 @@ public class EngineProperties {
 
     public void setPreparationMode(boolean preparationMode) {
         this.preparationMode = preparationMode;
+    }
+
+    public boolean isConfigOutputMode() {
+        return configOutputMode;
+    }
+
+    public void setConfigOutputMode(boolean configOutputMode) {
+        this.configOutputMode = configOutputMode;
     }
 
     public String getSourceFile() {
@@ -95,6 +105,7 @@ public class EngineProperties {
         this.profiles = profiles;
     }
 
+    @JsonIgnore
     public RouteProfileConfiguration[] getConvertedProfiles() {
         List<RouteProfileConfiguration> convertedProfiles = new ArrayList<>();
         if (profiles != null) {

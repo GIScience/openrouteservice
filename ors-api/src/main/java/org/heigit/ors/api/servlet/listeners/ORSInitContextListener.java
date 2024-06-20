@@ -20,11 +20,23 @@
  */
 package org.heigit.ors.api.servlet.listeners;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.CorsProperties;
+import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.EngineProperties;
+import org.heigit.ors.api.SystemMessageProperties;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
@@ -32,12 +44,21 @@ import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.FormatUtility;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
     private final EngineProperties engineProperties;
+    private final EndpointsProperties endpointsProperties;
+    private final CorsProperties corsProperties;
+    private final SystemMessageProperties systemMessageProperties;
 
-    public ORSInitContextListener(EngineProperties engineProperties) {
+    public ORSInitContextListener(EngineProperties engineProperties, EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties) {
         this.engineProperties = engineProperties;
+        this.endpointsProperties = endpointsProperties;
+        this.corsProperties = corsProperties;
+        this.systemMessageProperties = systemMessageProperties;
     }
 
     @Override
@@ -51,27 +72,60 @@ public class ORSInitContextListener implements ServletContextListener {
                 .setGraphsDataAccess(engineProperties.getGraphsDataAccess())
                 .setProfiles(engineProperties.getConvertedProfiles())
                 .buildWithAppConfigOverride();
-        Runnable runnable = () -> {
+
+        if (engineProperties.isConfigOutputMode()) {
+            YAMLFactory yf = new YAMLFactory()
+                    .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                    .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
+            ObjectMapper mapper = new ObjectMapper(yf).setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            try (FileOutputStream fos = new FileOutputStream("ors-config-example.yml"); JsonGenerator generator = mapper.createGenerator(fos)){
+                LOGGER.info("Writing output configuration file.");
+                ORSConfigBundle ors = new ORSConfigBundle(corsProperties, systemMessageProperties, endpointsProperties, engineProperties);
+                ConfigBundle configBundle = new ConfigBundle(ors);
+                generator.writeObject(configBundle);
+                if (LOGGER.isDebugEnabled()) {
+                    System.out.println(mapper.writeValueAsString(configBundle));
+                }
+            } catch (IOException e) {
+                LOGGER.error("Failed to write output configuration file.", e);
+            }
+            RoutingProfileManagerStatus.setShutdown(true);
+            return;
+        }
+
+        new Thread(() -> {
             try {
                 LOGGER.info("Initializing ORS...");
                 new RoutingProfileManager(config);
-                // TODO if feasible, move the preparation mode check to Application.java after the
-                //  RoutingProfileManagerStatus.hasFailed() check.
                 if (engineProperties.isPreparationMode()) {
-                    if (RoutingProfileManagerStatus.hasFailed()) {
-                        System.exit(1);
-                    }
                     LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
-                    System.exit(0);
+                    RoutingProfileManagerStatus.setShutdown(true);
                 }
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
             }
-        };
-        Thread thread = new Thread(runnable);
-        thread.setName("ORS-Init");
-        thread.start();
+        }, "ORS-Init").start();
     }
+
+    record ORSConfigBundle(
+            @JsonIgnoreProperties({"$$beanFactory"})
+            CorsProperties cors,
+            @JsonIgnore
+            @JsonIgnoreProperties({"$$beanFactory"})
+            SystemMessageProperties messages,
+            @JsonIgnore
+            @JsonIgnoreProperties({"$$beanFactory"})
+            EndpointsProperties endpoints,
+            @JsonIgnore
+            @JsonIgnoreProperties({"$$beanFactory"})
+            EngineProperties engine
+            ) {}
+
+    record ConfigBundle(
+            @JsonProperty
+            ORSConfigBundle ors
+            ) {}
 
     @Override
     public void contextDestroyed(ServletContextEvent contextEvent) {
