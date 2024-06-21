@@ -28,7 +28,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
@@ -37,6 +36,7 @@ import org.heigit.ors.api.CorsProperties;
 import org.heigit.ors.api.EndpointsProperties;
 import org.heigit.ors.api.EngineProperties;
 import org.heigit.ors.api.SystemMessageProperties;
+import org.heigit.ors.api.config.CustomYAMLFactory;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
@@ -46,6 +46,8 @@ import org.heigit.ors.util.FormatUtility;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
 
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
@@ -74,9 +76,10 @@ public class ORSInitContextListener implements ServletContextListener {
                 .buildWithAppConfigOverride();
 
         if (engineProperties.isConfigOutputMode()) {
-            YAMLFactory yf = new YAMLFactory()
-                    .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
-                    .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
+            YAMLFactory yf = new CustomYAMLFactory()
+                    .disable(WRITE_DOC_START_MARKER)
+                    .disable(SPLIT_LINES)
+                    .enable(MINIMIZE_QUOTES);
             ObjectMapper mapper = new ObjectMapper(yf).setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             try (FileOutputStream fos = new FileOutputStream("ors-config-example.yml"); JsonGenerator generator = mapper.createGenerator(fos)){
