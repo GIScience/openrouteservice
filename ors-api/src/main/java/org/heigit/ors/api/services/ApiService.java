@@ -29,6 +29,7 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Polygon;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -133,22 +134,23 @@ public class ApiService {
 
     protected WeightedPolygon[] convertPreferAreas(JSONObject geoJson) throws StatusCodeException {
         // Extract the "features" array from the input GeoJSON
-        List<JSONObject> features = (List<JSONObject>) geoJson.get("features");
+        ArrayList<LinkedHashMap> features = (ArrayList<LinkedHashMap>) geoJson.get("features");
 
         // Prepare the list to hold the WeightedPolygon objects
         List<WeightedPolygon> weightedPolygons = new ArrayList<>();
 
-        for (JSONObject feature : features) {
-            JSONObject geometry = (JSONObject) feature.get("geometry");
-            JSONObject properties = (JSONObject) feature.get("properties");
+        for (LinkedHashMap feature : features) {
+
+            LinkedHashMap geometry = (LinkedHashMap) feature.get("geometry");
+            LinkedHashMap properties = (LinkedHashMap) feature.get("properties");
 
             // Extract the weight from the properties
             double weight = (double) properties.get("weight");
 
             // Create a new JSONObject for the geometry
             org.json.JSONObject complexJson = new org.json.JSONObject();
+            List<List<Double[]>> coordinates = (List<List<Double[]>>) geometry.get("coordinates");
             complexJson.put("type", geometry.get("type"));
-            List<List<List<Double[]>>> coordinates = (List<List<List<Double[]>>>) geometry.get("coordinates");
             complexJson.put("coordinates", coordinates);
 
             Geometry convertedGeom;
@@ -463,6 +465,11 @@ public class ApiService {
                 ProfileWeighting pw = new ProfileWeighting("csv");
                 pw.addParameter("column", weightings.getCsvColumn());
                 pw.addParameter(factorKey, weightings.getCsvFactor());
+                params.add(pw);
+            }
+            if (weightings.hasPreferAreas()) {
+                ProfileWeighting pw = new ProfileWeighting("prefer_areas");
+                pw.addParameter("prefer_areas", true);
                 params.add(pw);
             }
         } catch (InternalServerException e) {

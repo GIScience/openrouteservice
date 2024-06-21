@@ -566,6 +566,10 @@ public class RoutingProfile {
             props.putObject("avoid_areas", searchParams.getAvoidAreas());
         }
 
+        if (searchParams.hasPreferAreas()) {
+            props.putObject("prefer_areas", searchParams.getPreferAreas());
+        }
+
         /* Heavy vehicle filter */
         if (profileType == RoutingProfileType.DRIVING_HGV) {
             props.putObject("edgefilter_hgv", searchParams.getVehicleType());

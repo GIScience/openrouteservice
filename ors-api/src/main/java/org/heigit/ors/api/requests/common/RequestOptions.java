@@ -97,6 +97,7 @@ public class RequestOptions implements RouteRequestParameterNames {
     private JSONObject preferPolygonFeatures;
     @JsonIgnore
     private boolean hasAvoidPolygonFeatures = false;
+    @JsonIgnore
     private boolean hasPreferPolygonFeatures = false;
 
     public APIEnums.AvoidFeatures[] getAvoidFeatures() {
@@ -155,6 +156,11 @@ public class RequestOptions implements RouteRequestParameterNames {
     public void setAvoidPolygonFeatures(JSONObject avoidPolygonFeatures) {
         this.avoidPolygonFeatures = avoidPolygonFeatures;
         hasAvoidPolygonFeatures = true;
+    }
+
+    public void setPreferPolygonFeatures(JSONObject avoidPolygonFeatures) {
+        this.preferPolygonFeatures = avoidPolygonFeatures;
+        hasPreferPolygonFeatures = true;
     }
 
     public boolean hasAvoidFeatures() {

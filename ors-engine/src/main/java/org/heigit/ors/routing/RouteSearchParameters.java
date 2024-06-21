@@ -96,6 +96,10 @@ public class RouteSearchParameters {
         return avoidAreas;
     }
 
+    public WeightedPolygon[] getPreferAreas() {
+        return preferAreas;
+    }
+
     public void setAvoidAreas(Polygon[] avoidAreas) {
         this.avoidAreas = avoidAreas;
     }
@@ -105,6 +109,10 @@ public class RouteSearchParameters {
 
     public boolean hasAvoidAreas() {
         return avoidAreas != null && avoidAreas.length > 0;
+    }
+
+    public boolean hasPreferAreas() {
+        return preferAreas != null && preferAreas.length > 0;
     }
 
     public int getAvoidFeatureTypes() {
@@ -324,6 +332,7 @@ public class RouteSearchParameters {
      */
     public boolean requiresFullyDynamicWeights() {
         return hasAvoidAreas()
+                || hasPreferAreas()
                 || hasBearings()
                 || hasContinueStraight()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings())

@@ -203,6 +203,12 @@ public class ORSWeightingFactory implements WeightingFactory {
                             softWeightings.add(new HeatStressWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
                     case "shadow" ->
                             softWeightings.add(new ShadowWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                    case "prefer_areas" -> {
+                        if (map.get("weighting_#prefer_areas#prefer_areas") != null && map.get("prefer_areas") != null) {
+                            map.put("weighting_#prefer_areas#prefer_areas", map.get("prefer_areas"));
+                        }
+                        softWeightings.add(new PreferAreasWeighting(encoder, getWeightingProps(weightingName, map), ghStorage));
+                    }
                     default -> {
                     }
                 }

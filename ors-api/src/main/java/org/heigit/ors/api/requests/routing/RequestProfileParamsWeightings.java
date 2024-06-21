@@ -31,6 +31,7 @@ public class RequestProfileParamsWeightings {
     private static final String PARAM_CSV_FACTOR = "csv_factor";
     private static final String PARAM_CSV_COLUMN = "csv_column";
     public static final String PARAM_SHADOW_INDEX = "shadow";
+    private static final String PARAM_PREFER_AREAS = "prefer_areas";
 
     @Schema(name = PARAM_STEEPNESS_DIFFICULTY, description = """
             Specifies the fitness level for `cycling-*` profiles.
@@ -94,6 +95,14 @@ public class RequestProfileParamsWeightings {
     @JsonIgnore
     private boolean hasShadowIndex = false;
 
+    @Schema(name = PARAM_PREFER_AREAS, description = """
+            Specifies the preference value for provided polygonal areas.
+
+            factor: Multiplication factor range from 0 to inf."""
+            )
+    @JsonProperty(PARAM_PREFER_AREAS)
+    private boolean preferAreas;
+
     public Integer getSteepnessDifficulty() {
         return steepnessDifficulty;
     }
@@ -147,6 +156,14 @@ public class RequestProfileParamsWeightings {
         hasShadowIndex = true;
     }
 
+    public boolean getPreferIndex() {
+        return preferAreas;
+    }
+
+    public void setPreferIndex(boolean preferAreas) {
+        this.preferAreas = preferAreas;
+    }
+
     public boolean hasSteepnessDifficulty() {
         return hasSteepnessDifficulty;
     }
@@ -166,4 +183,9 @@ public class RequestProfileParamsWeightings {
     public boolean hasShadowIndex() {
         return hasShadowIndex;
     }
+
+    public boolean hasPreferAreas() {
+        return preferAreas;
+    }
+
 }
