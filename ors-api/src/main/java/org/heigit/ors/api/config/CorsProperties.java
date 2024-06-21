@@ -1,8 +1,7 @@
-package org.heigit.ors.api;
+package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.heigit.ors.api.config.InlineArraySerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 

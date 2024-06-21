@@ -1,7 +1,7 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestRoundTripOptions;
 import org.heigit.ors.common.StatusCode;

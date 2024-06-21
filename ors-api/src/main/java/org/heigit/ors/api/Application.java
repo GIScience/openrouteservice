@@ -2,6 +2,10 @@ package org.heigit.ors.api;
 
 import jakarta.servlet.ServletContextListener;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.config.CorsProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.EngineProperties;
+import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.StringUtility;

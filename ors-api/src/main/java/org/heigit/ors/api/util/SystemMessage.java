@@ -1,7 +1,7 @@
 package org.heigit.ors.api.util;
 
 import org.apache.log4j.Logger;
-import org.heigit.ors.api.SystemMessageProperties;
+import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RouteRequest;

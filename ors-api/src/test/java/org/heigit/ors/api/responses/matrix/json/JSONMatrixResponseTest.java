@@ -1,7 +1,8 @@
 package org.heigit.ors.api.responses.matrix.json;
 
-import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.SystemMessageProperties;
+import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.api.responses.matrix.MatrixResponseInfo;
@@ -9,7 +10,6 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.ResolvedLocation;
-import org.heigit.ors.api.APIEnums;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;

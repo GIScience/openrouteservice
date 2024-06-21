@@ -1,6 +1,6 @@
 package org.heigit.ors.api.converters;
 
-import org.heigit.ors.api.EngineProperties;
+import org.heigit.ors.api.config.EngineProperties;
 import org.heigit.ors.util.StringUtility;
 import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 import org.springframework.core.convert.converter.Converter;

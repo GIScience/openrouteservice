@@ -1,6 +1,7 @@
 package org.heigit.ors.api.services;
 
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -15,7 +16,6 @@ import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
 import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
-import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;

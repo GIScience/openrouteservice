@@ -2,7 +2,7 @@ package org.heigit.ors.api.services;
 
 import com.google.common.primitives.Doubles;
 import com.graphhopper.util.shapes.BBox;
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.export.ExportApiRequest;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.InternalServerException;

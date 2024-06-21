@@ -18,7 +18,7 @@ package org.heigit.ors.api.controllers;
 import com.graphhopper.storage.StorableProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.localization.LocalizationManager;

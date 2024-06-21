@@ -2,8 +2,8 @@ package org.heigit.ors.api.util;
 
 import com.typesafe.config.ConfigObject;
 import org.apache.log4j.Logger;
-import org.heigit.ors.api.CorsProperties;
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.config.CorsProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.config.AppConfig;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.util.StringUtility;

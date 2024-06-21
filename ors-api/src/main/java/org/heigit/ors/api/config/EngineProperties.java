@@ -1,4 +1,4 @@
-package org.heigit.ors.api;
+package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.graphhopper.util.Helper;

@@ -1,4 +1,4 @@
-package org.heigit.ors.api;
+package org.heigit.ors.api.config;
 
 import org.heigit.ors.routing.RoutingProfileType;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -16,8 +16,8 @@
 package org.heigit.ors.api.responses.matrix;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.SystemMessageProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.matrix.MatrixResult;
 
