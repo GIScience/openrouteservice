@@ -2,10 +2,7 @@ package org.heigit.ors.api;
 
 import jakarta.servlet.ServletContextListener;
 import org.apache.log4j.Logger;
-import org.heigit.ors.api.config.CorsProperties;
-import org.heigit.ors.api.config.EndpointsProperties;
-import org.heigit.ors.api.config.EngineProperties;
-import org.heigit.ors.api.config.SystemMessageProperties;
+import org.heigit.ors.api.config.*;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.StringUtility;
@@ -37,9 +34,9 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean("orsInitContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties, EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties) {
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties, EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener(engineProperties, endpointsProperties, corsProperties, systemMessageProperties));
+        bean.setListener(new ORSInitContextListener(engineProperties, endpointsProperties, corsProperties, systemMessageProperties, loggingProperties));
         return bean;
     }
 }

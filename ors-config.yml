@@ -35,19 +35,19 @@
 #  packages-to-scan: org.heigit.ors
 #  pathsToMatch: /v2/**
 ##### Logging settings #####
-logging:
-  file:
-    name: ./logs/ors.log
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} %highlight{%-7p} %style{%50t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} %p [%-40.40c{1.}] - %m%n"
-  level:
-    root: WARN
-    org.heigit: DEBUG
+#logging:
+#  file:
+#    name: ./logs/ors.log
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss} %highlight{%-7p} %style{%50t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
+#    file: "%d{yyyy-MM-dd HH:mm:ss} %p [%-40.40c{1.}] - %m%n"
+#  level:
+#    root: WARN
+#    org.heigit: INFO
 ##### openrouteservice specific settings #####
 ors:
-  cors:
-    allowed_origins: '*'
+#  cors:
+#    allowed_origins: "*"
 #    allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
 #    preflight_max_age: 600
 #  messages:
@@ -104,7 +104,7 @@ ors:
   engine:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
 #    init_threads: 1
-    config_output_mode: true
+#    preparation_mode: false
 #    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
 #    elevation:

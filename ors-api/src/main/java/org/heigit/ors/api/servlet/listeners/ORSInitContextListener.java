@@ -51,12 +51,14 @@ public class ORSInitContextListener implements ServletContextListener {
     private final EndpointsProperties endpointsProperties;
     private final CorsProperties corsProperties;
     private final SystemMessageProperties systemMessageProperties;
+    private final LoggingProperties loggingProperties;
 
-    public ORSInitContextListener(EngineProperties engineProperties, EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties) {
+    public ORSInitContextListener(EngineProperties engineProperties, EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties) {
         this.engineProperties = engineProperties;
         this.endpointsProperties = endpointsProperties;
         this.corsProperties = corsProperties;
         this.systemMessageProperties = systemMessageProperties;
+        this.loggingProperties = loggingProperties;
     }
 
     @Override
@@ -78,10 +80,10 @@ public class ORSInitContextListener implements ServletContextListener {
                     .enable(MINIMIZE_QUOTES);
             ObjectMapper mapper = new ObjectMapper(yf).setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-            try (FileOutputStream fos = new FileOutputStream("ors-config-example.yml"); JsonGenerator generator = mapper.createGenerator(fos)){
+            try (FileOutputStream fos = new FileOutputStream("ors-config-example.yml"); JsonGenerator generator = mapper.createGenerator(fos)) {
                 LOGGER.info("Writing output configuration file.");
                 ORSConfigBundle ors = new ORSConfigBundle(corsProperties, systemMessageProperties, endpointsProperties, engineProperties);
-                ConfigBundle configBundle = new ConfigBundle(ors);
+                ConfigBundle configBundle = new ConfigBundle(loggingProperties, ors);
                 generator.writeObject(configBundle);
                 if (LOGGER.isDebugEnabled()) {
                     System.out.println(mapper.writeValueAsString(configBundle));
@@ -119,12 +121,17 @@ public class ORSInitContextListener implements ServletContextListener {
             @JsonIgnore
             @JsonIgnoreProperties({"$$beanFactory"})
             EngineProperties engine
-            ) {}
+    ) {
+    }
 
     record ConfigBundle(
             @JsonProperty
+            @JsonIgnoreProperties({"$$beanFactory"})
+            LoggingProperties logging,
+            @JsonProperty
             ORSConfigBundle ors
-            ) {}
+    ) {
+    }
 
     @Override
     public void contextDestroyed(ServletContextEvent contextEvent) {
