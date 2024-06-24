@@ -67,31 +67,35 @@ class ORSGraphRepoManagerTest {
     }
 
     void setupORSGraphManager(String hash) {
-        File localDir = TEMP_DIR.toFile();
-        vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
+        hashDir = new File(hashDirAbsPath);
+        hashDir.mkdir();
 
         EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
                 .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
                 .setGraphsRepoPath(GRAPHS_REPO_PATH)
                 .setGraphsExtent(GRAPHS_COVERAGE)
-                .buildWithAppConfigOverride();
+                .setGraphsRootPath(localDir.getAbsolutePath())
+                .build();
 
-        orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
-        orsGraphRepoManager.initialize(engineConfig);
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineConfig.getGraphsRootPath(), VEHICLE, hash);
+        orsGraphFileManager = new ORSGraphFileManager(engineConfig, VEHICLE, orsGraphFolderStrategy);
+        orsGraphFileManager.initialize();
+
+        //ORSGraphRepoManager is mocked, empty default constructor was called -> set fields here:
+        orsGraphRepoManager.setGraphsRepoPath(engineConfig.getGraphsRepoPath());
+        orsGraphRepoManager.setGraphsRepoBaseUrl(engineConfig.getGraphsRepoUrl());
+        orsGraphRepoManager.setGraphsRepoName(engineConfig.getGraphsRepoName());
+        orsGraphRepoManager.setGraphsRepoCoverage(engineConfig.getGraphsExtent());
         orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
-        orsGraphRepoManager.setRouteProfileName(VEHICLE);
-        orsGraphRepoManager.setFileManager(orsGraphFileManager);
+        orsGraphRepoManager.setOrsGraphFileManager(orsGraphFileManager);
     }
 
-    void setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
-        if (hash == null) return;
-        hashDir = new File(hashDirAbsPath);
-        hashDir.mkdirs();
-        ORSGraphInfoV1 localOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateLocal));
-        localGraphInfoV1File = new File(hashDir, orsGraphFileManager.createGraphInfoFileName());
-        new ObjectMapper().writeValue(localGraphInfoV1File, localOrsGraphInfoV1Object);
+    void setupActiveGraphDirectory(String hash, Long osmDateLocal) throws IOException {
+        ORSGraphInfoV1 activeGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateLocal));
+        localGraphInfoV1File = orsGraphFileManager.getActiveGraphInfoFile();
+        new ObjectMapper().writeValue(localGraphInfoV1File, activeGraphInfoV1Object);
     }
 
     void setupNoRemoteFiles() {
@@ -99,8 +103,8 @@ class ORSGraphRepoManagerTest {
     }
 
     void simulateFindLatestGraphInfoAsset(String hash, Long osmDateRemote) throws IOException {
-        String graphInfoAssetName = orsGraphFileManager.createGraphInfoFileName();
-        String graphInfoAssetUrl = String.join("/", GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, VEHICLE, graphInfoAssetName);
+        String graphInfoAssetName = orsGraphFileManager.getGraphInfoFileNameInRepository();
+        String graphInfoAssetUrl = String.join("/", GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, orsGraphFileManager.getProfileDescriptiveName(), graphInfoAssetName);
 
         ORSGraphInfoV1 downloadedOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateRemote));
         downloadedGraphInfoV1File = new File(vehicleDirAbsPath + "/" + graphInfoAssetName);
@@ -117,7 +121,7 @@ class ORSGraphRepoManagerTest {
     void downloadGraphIfNecessary_localDataExists_noRemoteData() throws IOException {
         String hash = "abc123";
         setupORSGraphManager(hash);
-        setupLocalGraphDirectory(hash, EARLIER_DATE);
+        setupActiveGraphDirectory(hash, EARLIER_DATE);
         setupNoRemoteFiles();
 
         orsGraphRepoManager.downloadGraphIfNecessary();
@@ -140,7 +144,7 @@ class ORSGraphRepoManagerTest {
     void downloadGraphIfNecessary_localDate1_remoteDate2() throws IOException {
         String hash = "xyz111";
         setupORSGraphManager(hash);
-        setupLocalGraphDirectory(hash, EARLIER_DATE);
+        setupActiveGraphDirectory(hash, EARLIER_DATE);
         simulateFindLatestGraphInfoAsset(hash, LATER_DATE);
 
         orsGraphRepoManager.downloadGraphIfNecessary();
@@ -156,7 +160,7 @@ class ORSGraphRepoManagerTest {
     void downloadGraphIfNecessary_localDate1_remoteDate1() throws IOException {
         String hash = "xyz222";
         setupORSGraphManager(hash);
-        setupLocalGraphDirectory(hash, EARLIER_DATE);
+        setupActiveGraphDirectory(hash, EARLIER_DATE);
         simulateFindLatestGraphInfoAsset(hash, EARLIER_DATE);
 
         orsGraphRepoManager.downloadGraphIfNecessary();
@@ -168,7 +172,7 @@ class ORSGraphRepoManagerTest {
     void downloadGraphIfNecessary_localDate2_remoteDate1() throws IOException {
         String hash = "xyz333";
         setupORSGraphManager(hash);
-        setupLocalGraphDirectory(hash, LATER_DATE);
+        setupActiveGraphDirectory(hash, LATER_DATE);
         simulateFindLatestGraphInfoAsset(hash, EARLIER_DATE);
 
         orsGraphRepoManager.downloadGraphIfNecessary();
@@ -178,26 +182,26 @@ class ORSGraphRepoManagerTest {
 
     @Test
     void filterLatestAsset() {
-        String hash = "abc123";
+        String hash = "b6714103ccd4";
         setupORSGraphManager(hash);
         List<AssetXO> items = Arrays.asList(
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202201011200/abc123.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202201011200/abc123.json"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202301011200/abc123.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202301011200/abc123.json"),//this one
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202301011200/wrong.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/abc123/202301011200/wrong.json"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/wrong/202301011200/abc123.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/wrong/202301011200/abc123.json"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/wrong/abc123/202301011200/abc123.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/wrong/abc123/202301011200/abc123.json"),
-                new AssetXO().path("https://example.com/test-repo/planet/wrong/car/abc123/202301011200/abc123.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/wrong/car/abc123/202301011200/abc123.json"),
-                new AssetXO().path("https://example.com/test-repo/wrong/1/car/abc123/202301011200/abc123.ghz"),
-                new AssetXO().path("https://example.com/test-repo/wrong/1/car/abc123/202301011200/abc123.json")
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202201011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202201011200/b6714103ccd4.yml"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/b6714103ccd4.yml"), //this one is expected
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/wrong.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/wrong.yml"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/wrong/202301011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/car/wrong/202301011200/b6714103ccd4.yml"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/wrong/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/wrong/b6714103ccd4/202301011200/b6714103ccd4.yml"),
+                new AssetXO().path("https://example.com/test-repo/planet/wrong/car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/wrong/car/b6714103ccd4/202301011200/b6714103ccd4.yml"),
+                new AssetXO().path("https://example.com/test-repo/wrong/1/car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/wrong/1/car/b6714103ccd4/202301011200/b6714103ccd4.yml")
         );
-        AssetXO filtered = orsGraphRepoManager.filterLatestAsset("abc123.json", items);
-        assertEquals("https://example.com/test-repo/planet/1/car/abc123/202301011200/abc123.json", filtered.getPath());
+        AssetXO filtered = orsGraphRepoManager.filterLatestAsset("b6714103ccd4.yml", items);
+        assertEquals("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/b6714103ccd4.yml", filtered.getPath());
     }
 
     @ParameterizedTest

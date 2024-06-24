@@ -49,7 +49,7 @@ class ORSGraphManagerTest {
         FileUtils.deleteDirectory(vehicleDir);
     }
 
-    void setupORSGraphManager(String hash) {
+    private void setupORSGraphManager(String hash) {
         File localDir = TEMP_DIR.toFile();
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
 
@@ -59,18 +59,15 @@ class ORSGraphManagerTest {
                 .setGraphsExtent(GRAPHS_COVERAGE)
                 .buildWithAppConfigOverride();
 
-        orsGraphManager = new ORSGraphManager();
-        orsGraphManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
-        orsGraphManager.setRouteProfileName(VEHICLE);
-        orsGraphManager.setHash(hash);
-        hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
-        orsGraphManager.setVehicleGraphDirAbsPath(vehicleDirAbsPath);
-        orsGraphManager.setHashDirAbsPath(hashDirAbsPath);
-        orsGraphManager.initialize(engineConfig);
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineConfig.getGraphsRootPath(), VEHICLE, hash);
+        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineConfig, VEHICLE, orsGraphFolderStrategy);
+        ORSGraphRepoManager orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, orsGraphFileManager);
+        this.orsGraphManager = new ORSGraphManager(engineConfig, orsGraphFileManager, orsGraphRepoManager);
+        this.orsGraphManager.manageStartup();
     }
 
     @Test
-    public void testSomething() {
+    public void testSomething() {//TODO
 
     }
 

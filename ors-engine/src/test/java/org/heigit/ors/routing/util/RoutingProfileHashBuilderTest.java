@@ -1,9 +1,13 @@
 package org.heigit.ors.routing.util;
 
+import com.graphhopper.config.CHProfile;
+import com.graphhopper.config.LMProfile;
+import com.graphhopper.config.Profile;
+import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -110,4 +114,90 @@ class RoutingProfileHashBuilderTest {
         assertEquals("mapOfMaps(emptyMap(),filledMap(blank= ,empty=EMPTY,null=null,value=value),nullMap())", RoutingProfileHashBuilder.builder().withMapOfMaps(mapOfMaps, "mapOfMaps").getConcatenatedValues());
     }
 
+    static class CountingHashCollector {
+        public int callCount = 0;
+        public Set<String> hashes = new HashSet<>();
+        void createHashAndCount(ORSGraphHopperConfig ghConfig){
+            callCount++;
+            String profileHash = RoutingProfileHashBuilder.builder(ghConfig).build();
+            hashes.add(profileHash);
+            System.out.println(profileHash);
+        }
+    }
+
+    private static ORSGraphHopperConfig createORSGraphHopperConfig() {
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
+        ghConfig.putObject("datareader.file", "src/test/files/preprocessed_osm_data.pbf");
+        return ghConfig;
+    }
+
+    private static ORSGraphHopperConfig createORSGraphHopperConfigWithoutOsmFile() {
+        ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
+        ghConfig.putObject("graph.dataaccess", "RAM");
+        ghConfig.putObject("graph.location", "unittest.testgraph");
+        ghConfig.setProfiles(List.of(new Profile("blah").setVehicle("car").setWeighting("fastest").setTurnCosts(true)));
+        return ghConfig;
+    }
+
+    @Test
+    public void createProfileHashWithORSGraphHopperConfig() {
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
+        CountingHashCollector collector = new CountingHashCollector();
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getProfiles().get(0).setName("changed");
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getProfiles().get(0).setVehicle("changed");
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getProfiles().get(0).setTurnCosts(!ghConfig.getProfiles().get(0).isTurnCosts());
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getProfiles().get(0).setWeighting("changed");
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getCHProfiles().add(new CHProfile("added"));
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getLMProfiles().add(new LMProfile("added"));
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getLMProfiles().get(0).setPreparationProfile("changed");
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getLMProfiles().get(0).setPreparationProfile("this");
+        ghConfig.getLMProfiles().get(0).setMaximumLMWeight(ghConfig.getLMProfiles().get(0).getMaximumLMWeight()-1);
+        collector.createHashAndCount(ghConfig);
+
+        PMap pMap = ghConfig.asPMap();
+        assertNotNull(pMap);
+
+        ghConfig.getFastisochroneProfiles().add(new Profile("added"));
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getFastisochroneProfiles().get(0).setVehicle("changed");
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getFastisochroneProfiles().get(0).setTurnCosts(!ghConfig.getProfiles().get(0).isTurnCosts());
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getFastisochroneProfiles().get(0).setWeighting("changed");
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getCoreProfiles().add(new CHProfile("added"));
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getCoreLMProfiles().add(new LMProfile("added"));
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getCoreLMProfiles().get(0).setPreparationProfile("changed");
+        collector.createHashAndCount(ghConfig);
+
+        ghConfig.getCoreLMProfiles().get(0).setPreparationProfile("this");
+        ghConfig.getCoreLMProfiles().get(0).setMaximumLMWeight(ghConfig.getLMProfiles().get(0).getMaximumLMWeight()-1);
+        collector.createHashAndCount(ghConfig);
+
+        assertEquals(collector.hashes.size(), collector.callCount);
+    }
 }

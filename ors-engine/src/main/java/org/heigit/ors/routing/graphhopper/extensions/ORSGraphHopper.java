@@ -38,7 +38,6 @@ import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
-import org.apache.commons.lang3.StringUtils;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.config.EngineConfig;
@@ -50,16 +49,13 @@ import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphFileManager;
-import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
-import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
+import org.heigit.ors.routing.graphhopper.extensions.manage.*;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
@@ -79,8 +75,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -181,18 +175,12 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             throw new IllegalStateException("graph is already successfully loaded");
         }
 
-        String hash = createProfileHash();
-        String vehicleDirAbsPath = getGraphHopperLocation();
-        String hashDirAbsPath = extendGraphhopperLocation(hash);
-
-        if (useGraphRepository()) {
-            orsGraphManager = new ORSGraphManager(engineConfig, routeProfileName, hash, hashDirAbsPath, vehicleDirAbsPath);
-            orsGraphManager.manageStartup();
-        }
+        initializeGraphManagement();
+        adaptGraphhopperLocation();
 
         GraphHopper gh = super.importOrLoad();
 
-        writeOrsGraphInfoFileIfNotExists(gh, hash, hashDirAbsPath);
+        writeOrsGraphInfoFileIfNotExists(gh);
 
         if ((tmcEdges != null) && (osmId2EdgeIds != null)) {
             java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
@@ -230,83 +218,24 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return gh;
     }
 
-    private void writeOrsGraphInfoFileIfNotExists(GraphHopper gh, String hash, String hashDirAbsPath) {
-        if (engineConfig.getProfiles()==null)
-            return;
-        if (engineConfig.getProfiles().length==0)
-            return;
-
-        File graphDir = new File(hashDirAbsPath);
-        File orsGraphInfoFile = new File(graphDir, ORSGraphFileManager.createGraphInfoFileName(hash));
-        if (!graphDir.exists() || !graphDir.isDirectory() || !graphDir.canWrite() ) {
-            LOGGER.debug("Graph directory {} not existing or not writeable", orsGraphInfoFile.getAbsolutePath());
-            return;
-        }
-        if (orsGraphInfoFile.exists()) {
-            LOGGER.debug("GraphInfo-File {} already existing", orsGraphInfoFile.getAbsolutePath());
-            return;
-        }
-        Optional<RouteProfileConfiguration> routeProfileConfiguration = Arrays.stream(engineConfig.getProfiles()).filter(prconf -> this.routeProfileName.equals(prconf.getName())).findFirst();
-        if (routeProfileConfiguration.isEmpty()) {
-            LOGGER.debug("Configuration for profile {} does not exist, could not write GraphInfo-File", this.routeProfileName);
-            return;
-        }
-
-        ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1(getDateFromGhProperty(gh, "datareader.data.date"));
-        orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
-        orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
-        orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.get().getOrsGraphInfoV1ProfileProperties());
-
-        ORSGraphFileManager.writeOrsGraphInfoV1(orsGraphInfoV1, orsGraphInfoFile);
+    private void initializeGraphManagement() {
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineConfig.getGraphsRootPath(), routeProfileName, RoutingProfileHashBuilder.builder(config).build());
+        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineConfig, routeProfileName, orsGraphFolderStrategy);
+        orsGraphFileManager.initialize();
+        ORSGraphRepoManager orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, orsGraphFileManager);
+        this.orsGraphManager = new ORSGraphManager(engineConfig, orsGraphFileManager, orsGraphRepoManager);
+        this.orsGraphManager.manageStartup();
     }
 
-    Date getDateFromGhProperty(GraphHopper gh, String ghProperty) {
-        try {
-            String importDateString = gh.getGraphHopperStorage().getProperties().get(ghProperty);
-            if (StringUtils.isBlank(importDateString)) {
-                return null;
-            }
-            DateFormat f = Helper.createFormatter();
-            return f.parse(importDateString);
-        } catch (ParseException e) {}
-        return null;
+    private String adaptGraphhopperLocation() {
+        String adaptedPath = getOrsGraphManager().getActiveGraphDirAbsPath();
+        this.setGraphHopperLocation(adaptedPath);
+        LOGGER.info("adapted graphHopperLocation: {}", adaptedPath);
+        return adaptedPath;
     }
 
-    boolean useGraphRepository() {
-        if (StringUtils.isBlank(engineConfig.getGraphsRepoName())) return false;
-
-        return StringUtils.isNotBlank(engineConfig.getGraphsRepoUrl()) ||
-                StringUtils.isNotBlank(engineConfig.getGraphsRepoPath());
-    }
-
-    public String extendGraphhopperLocation(String hash) {
-        String extendedPath = String.join("/", getGraphHopperLocation(), hash);
-        this.setGraphHopperLocation(extendedPath);
-        LOGGER.info("Extended graphHopperLocation with hash: {}", hash);
-        return extendedPath;
-    }
-
-    String createProfileHash() {
-        // File name or hash should not be contained in the hash, same hast should map to different graphs built off different files for the same region/profile pair.
-        Map<String, Object> configWithoutFilePath = config.asPMap().toMap();
-        configWithoutFilePath.remove("datareader.file");
-        configWithoutFilePath.remove("graph.dataaccess");
-        configWithoutFilePath.remove("graph.location");
-        configWithoutFilePath.remove("graph.elevation.provider");
-        configWithoutFilePath.remove("graph.elevation.cache_dir");
-        configWithoutFilePath.remove("graph.elevation.dataaccess");
-        configWithoutFilePath.remove("graph.elevation.clear");
-        RoutingProfileHashBuilder builder = RoutingProfileHashBuilder.builder()
-                .withNamedString("profiles", config.getProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()))
-                .withNamedString("chProfiles", config.getCHProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
-                .withNamedString("lmProfiles", config.getLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
-                .withMapStringObject(configWithoutFilePath, "pMap");
-        if (config instanceof ORSGraphHopperConfig orsConfig) {
-            builder.withNamedString("coreProfiles", orsConfig.getCoreProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
-                    .withNamedString("coreLMProfiles", orsConfig.getCoreLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
-                    .withNamedString("fastisochroneProfiles", orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));
-        }
-        return builder.build();
+    private void writeOrsGraphInfoFileIfNotExists(GraphHopper gh) {
+        orsGraphManager.writeOrsGraphInfoFileIfNotExists(gh);
     }
 
     @Override

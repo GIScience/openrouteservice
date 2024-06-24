@@ -19,7 +19,9 @@ public class GraphService {
     public List<ORSGraphManager> graphManagers = new ArrayList<>();
 
     public void addGraphhopperLocation(ORSGraphManager orsGraphManager) {
-        graphManagers.add(orsGraphManager);
+        if (orsGraphManager.useGraphRepository()) {
+            graphManagers.add(orsGraphManager);
+        }
     }
 
     AtomicBoolean restartAttemptWasBlocked = new AtomicBoolean(false);
@@ -40,10 +42,10 @@ public class GraphService {
         }
 
         for (ORSGraphManager orsGraphManager : graphManagers) {
-            if (orsGraphManager.isActive()) {
-                LOGGER.info("Scheduled repository check: [%s] Download or extraction in progress".formatted(orsGraphManager.getProfileWithHash()));
+            if (orsGraphManager.isBusy()) {
+                LOGGER.info("Scheduled repository check: [%s] Download or extraction in progress".formatted(orsGraphManager.getQualifiedProfileName()));
             } else {
-                LOGGER.info("Scheduled repository check: [%s] Checking for update.".formatted(orsGraphManager.getProfileWithHash()));
+                LOGGER.info("Scheduled repository check: [%s] Checking for update.".formatted(orsGraphManager.getQualifiedProfileName()));
                 orsGraphManager.downloadAndExtractLatestGraphIfNecessary();
             }
         }
@@ -63,15 +65,15 @@ public class GraphService {
         boolean restartAllowed = true;
 
         for (ORSGraphManager orsGraphManager : graphManagers) {
-            if (orsGraphManager.isActive() || orsGraphManager.hasGraphDownloadFile()) {
+            if (orsGraphManager.isBusy() || orsGraphManager.hasGraphDownloadFile()) {
                 if (!restartAttemptWasBlocked.get()) {
-                    LOGGER.info("Restart check: [%s] Download or extraction in progress".formatted(orsGraphManager.getProfileWithHash()));
+                    LOGGER.info("Restart check: [%s] Download or extraction in progress".formatted(orsGraphManager.getQualifiedProfileName()));
                 }
                 restartAllowed = false;
             }
             if (orsGraphManager.hasDownloadedExtractedGraph()) {
                 if (!restartAttemptWasBlocked.get()) {
-                    LOGGER.info("Restart check: [%s] Downloaded extracted graph available".formatted(orsGraphManager.getProfileWithHash()));
+                    LOGGER.info("Restart check: [%s] Downloaded extracted graph available".formatted(orsGraphManager.getQualifiedProfileName()));
                 }
                 restartNeeded = true;
             }

@@ -1,6 +1,12 @@
 package org.heigit.ors.routing.util;
 
+import com.graphhopper.GraphHopperConfig;
+import com.graphhopper.config.CHProfile;
+import com.graphhopper.config.LMProfile;
+import com.graphhopper.config.Profile;
 import org.apache.commons.lang3.StringUtils;
+import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.springframework.util.DigestUtils;
 
 import java.util.*;
@@ -17,6 +23,72 @@ public class RoutingProfileHashBuilder {
     public static RoutingProfileHashBuilder builder(){
         return new RoutingProfileHashBuilder();
     }
+
+    public static RoutingProfileHashBuilder builder(RouteProfileConfiguration routeProfileConfiguration) {
+        RoutingProfileHashBuilder hashBuilder = RoutingProfileHashBuilder.builder()
+                .withString(routeProfileConfiguration.getName())
+                .withBoolean(routeProfileConfiguration.getEnabled())
+                .withString(routeProfileConfiguration.getProfiles())
+//                .withString(routeProfileConfiguration.getGraphPath())
+                .withMapOfMaps(routeProfileConfiguration.getExtStorages(), "extStorages")
+                .withMapOfMaps(routeProfileConfiguration.getGraphBuilders(), "graphBuilders")
+                .withDouble(routeProfileConfiguration.getMaximumDistance())
+                .withDouble(routeProfileConfiguration.getMaximumDistanceDynamicWeights())
+                .withDouble(routeProfileConfiguration.getMaximumDistanceAvoidAreas())
+                .withDouble(routeProfileConfiguration.getMaximumDistanceAlternativeRoutes())
+                .withDouble(routeProfileConfiguration.getMaximumDistanceRoundTripRoutes())
+                .withDouble(routeProfileConfiguration.getMaximumWayPoints())
+                .withBoolean(routeProfileConfiguration.getInstructions())
+                .withBoolean(routeProfileConfiguration.getOptimize())
+                .withInteger(routeProfileConfiguration.getEncoderFlagsSize())
+                .withString(routeProfileConfiguration.getEncoderOptions())
+                .withString(routeProfileConfiguration.getGtfsFile())
+                .withObject(routeProfileConfiguration.getIsochronePreparationOpts())
+                .withObject(routeProfileConfiguration.getPreparationOpts())
+                .withObject(routeProfileConfiguration.getExecutionOpts())
+                .withString(routeProfileConfiguration.getElevationProvider())
+                .withString(routeProfileConfiguration.getElevationCachePath())
+                .withString(routeProfileConfiguration.getElevationDataAccess())
+                .withBoolean(routeProfileConfiguration.getElevationCacheClear())
+                .withBoolean(routeProfileConfiguration.getElevationSmoothing())
+                .withBoolean(routeProfileConfiguration.getInterpolateBridgesAndTunnels())
+                .withInteger(routeProfileConfiguration.getMaximumSnappingRadius())
+//                .withObject(routeProfileConfiguration.getExtent())
+                .withBoolean(routeProfileConfiguration.hasMaximumSnappingRadius())
+                .withInteger(routeProfileConfiguration.getLocationIndexResolution())
+                .withInteger(routeProfileConfiguration.getLocationIndexSearchIterations())
+                .withDouble(routeProfileConfiguration.getMaximumSpeedLowerBound())
+//                .withInteger(routeProfileConfiguration.getTrafficExpirationMin())
+                .withInteger(routeProfileConfiguration.getMaximumVisitedNodesPT())
+                .withBoolean(routeProfileConfiguration.isTurnCostEnabled())
+                .withBoolean(routeProfileConfiguration.isEnforceTurnCosts());
+
+        return hashBuilder;
+    }
+
+    public static RoutingProfileHashBuilder builder(GraphHopperConfig config) {
+        // File name or hash should not be contained in the hash, same hast should map to different graphs built off different files for the same region/profile pair.
+        Map<String, Object> configWithoutFilePath = config.asPMap().toMap();
+        configWithoutFilePath.remove("datareader.file");
+        configWithoutFilePath.remove("graph.dataaccess");
+        configWithoutFilePath.remove("graph.location");
+        configWithoutFilePath.remove("graph.elevation.provider");
+        configWithoutFilePath.remove("graph.elevation.cache_dir");
+        configWithoutFilePath.remove("graph.elevation.dataaccess");
+        configWithoutFilePath.remove("graph.elevation.clear");
+        RoutingProfileHashBuilder builder = RoutingProfileHashBuilder.builder()
+                .withNamedString("profiles", config.getProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()))
+                .withNamedString("chProfiles", config.getCHProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
+                .withNamedString("lmProfiles", config.getLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
+                .withMapStringObject(configWithoutFilePath, "pMap");
+        if (config instanceof ORSGraphHopperConfig orsConfig) {
+            builder.withNamedString("coreProfiles", orsConfig.getCoreProfiles().stream().map(CHProfile::toString).sorted().collect(Collectors.joining()))
+                    .withNamedString("coreLMProfiles", orsConfig.getCoreLMProfiles().stream().map(LMProfile::toString).sorted().collect(Collectors.joining()))
+                    .withNamedString("fastisochroneProfiles", orsConfig.getFastisochroneProfiles().stream().map(Profile::toString).sorted().collect(Collectors.joining()));
+        }
+        return builder;
+    }
+
     public String build(){
         String joinedString = getConcatenatedValues();
         byte[] bytes = joinedString.getBytes();

@@ -70,7 +70,7 @@ public class ORSInitContextListener implements ServletContextListener {
                     for (RoutingProfile profile : routingProfileManager.getProfiles().getUniqueProfiles()) {
                         ORSGraphHopper orsGraphHopper = profile.getGraphhopper();
                         ORSGraphManager orsGraphManager = orsGraphHopper.getOrsGraphManager();
-                        if (orsGraphManager != null) {
+                        if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
                             LOGGER.debug("Adding orsGraphManager for profile %s to GraphService".formatted(profile.getConfiguration().getName()));
                             graphService.addGraphhopperLocation(orsGraphManager);
                         }

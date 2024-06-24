@@ -1,5 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import com.graphhopper.GraphHopper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
 
@@ -8,132 +10,94 @@ import java.io.File;
 public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
-    private String graphsRootPath;
-    private String graphsRepoGraphVersion;
-    private String hash;
-    private String hashDirAbsPath;
-    private String vehicleGraphDirAbsPath;
-    private String routeProfileName;
+    private static final String UPDATE_LOCKFILE_NAME = "update.lock";
+    private static final String RESTART_LOCKFILE_NAME = "restart.lock";
 
-    private ORSGraphFileManager fileManager;
-    private ORSGraphRepoManager repoManager;
+    private EngineConfig engineConfig;
+    private ORSGraphFileManager orsGraphFileManager;
+    private ORSGraphRepoManager orsGraphRepoManager;
 
-    public ORSGraphManager() {}
-
-    public ORSGraphManager(EngineConfig engineConfig, String routeProfileName, String hash, String localPath, String vehicleGraphDirAbsPath) {
-        this.graphsRepoGraphVersion = EngineConfig.GRAPH_VERSION;
-        this.hash = hash;
-        this.hashDirAbsPath = localPath;
-        this.routeProfileName = routeProfileName;
-        this.vehicleGraphDirAbsPath = vehicleGraphDirAbsPath;
-        this.graphsRootPath = engineConfig.getGraphsRootPath();
-        initialize(engineConfig);
+    public ORSGraphManager() {
     }
 
-    void initialize(EngineConfig engineConfig) {
-        fileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleGraphDirAbsPath, routeProfileName);
-        fileManager.initialize();
-        repoManager = new ORSGraphRepoManager(engineConfig, fileManager, routeProfileName, graphsRepoGraphVersion);
+    public ORSGraphManager(EngineConfig engineConfig, ORSGraphFileManager orsGraphFileManager, ORSGraphRepoManager orsGraphRepoManager) {
+        this.engineConfig = engineConfig;
+        this.orsGraphFileManager = orsGraphFileManager;
+        this.orsGraphRepoManager = orsGraphRepoManager;
     }
 
-    public String getProfileWithHash() {
-        return fileManager.getProfileWithHash();
+    public String getQualifiedProfileName() {
+        return orsGraphFileManager.getProfileDescriptiveName();
     }
 
-    public boolean isActive() {
-        return fileManager.isActive();
+    public String getActiveGraphDirAbsPath() {
+        return orsGraphFileManager.getActiveGraphDirAbsPath();
     }
 
-    public boolean hasLocalGraph() {
-        return fileManager.hasLocalGraph();
-    }
-
-    public boolean hasLocalGraphDirectory() {
-        return fileManager.hasLocalGraphDirectory();
+    public boolean isBusy() {
+        return orsGraphFileManager.isBusy();
     }
 
     public boolean hasGraphDownloadFile() {
-        return fileManager.hasGraphDownloadFile();
+        return orsGraphFileManager.hasGraphDownloadFile();
     }
 
     public boolean hasDownloadedExtractedGraph() {
-        return fileManager.hasDownloadedExtractedGraph();
+        return orsGraphFileManager.hasDownloadedExtractedGraph();
     }
 
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
+    public boolean useGraphRepository() {
+        if (StringUtils.isBlank(engineConfig.getGraphsRepoName())) return false;
 
-    public void setHashDirAbsPath(String hashDirAbsPath) {
-        this.hashDirAbsPath = hashDirAbsPath;
-    }
-
-    public void setVehicleGraphDirAbsPath(String vehicleGraphDirAbsPath) {
-        this.vehicleGraphDirAbsPath = vehicleGraphDirAbsPath;
-    }
-
-    public void setRouteProfileName(String routeProfileName) {
-        this.routeProfileName = routeProfileName;
-    }
-
-    public String getRouteProfileName() {
-        return routeProfileName;
-    }
-
-    public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {
-        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
-    }
-
-    public ORSGraphFileManager getFileManager() {
-        return fileManager;
-    }
-
-    public ORSGraphRepoManager getRepoManager() {
-        return repoManager;
+        return StringUtils.isNotBlank(engineConfig.getGraphsRepoUrl()) ||
+                StringUtils.isNotBlank(engineConfig.getGraphsRepoPath());
     }
 
     public void manageStartup() {
-        fileManager.cleanupIncompleteFiles();
+        orsGraphFileManager.cleanupIncompleteFiles();
 
-        boolean hasLocalGraph = fileManager.hasLocalGraph();
-        boolean hasDownloadedExtractedGraph = fileManager.hasDownloadedExtractedGraph();
+        boolean hasActiveGraph = orsGraphFileManager.hasActiveGraph();
+        boolean hasDownloadedExtractedGraph = orsGraphFileManager.hasDownloadedExtractedGraph();
 
-        if (!hasLocalGraph && !hasDownloadedExtractedGraph) {
-            LOGGER.info("[%s] No local graph or extracted downloaded graph found - trying to download and extract graph from repository".formatted(getProfileWithHash()));
+        if (!hasActiveGraph && !hasDownloadedExtractedGraph && useGraphRepository()) {
+            LOGGER.info("[%s] No local graph or extracted downloaded graph found - trying to download and extract graph from repository".formatted(getQualifiedProfileName()));
             downloadAndExtractLatestGraphIfNecessary();
-            fileManager.activateNewGraph();
+            orsGraphFileManager.activateExtractedDownloadedGraph();
         }
-        if (!hasLocalGraph && hasDownloadedExtractedGraph) {
-            LOGGER.info("[%s] Found extracted downloaded graph only".formatted(getProfileWithHash()));
-            fileManager.activateNewGraph();
+        if (!hasActiveGraph && hasDownloadedExtractedGraph) {
+            LOGGER.info("[%s] Found extracted downloaded graph only".formatted(getQualifiedProfileName()));
+            orsGraphFileManager.activateExtractedDownloadedGraph();
         }
-        if (hasLocalGraph && hasDownloadedExtractedGraph) {
-            LOGGER.info("[%s] Found local graph and extracted downloaded graph".formatted(getProfileWithHash()));
-            fileManager.backupExistingGraph();
-            fileManager.activateNewGraph();
+        if (hasActiveGraph && hasDownloadedExtractedGraph) {
+            LOGGER.info("[%s] Found local graph and extracted downloaded graph".formatted(getQualifiedProfileName()));
+            orsGraphFileManager.backupExistingGraph();
+            orsGraphFileManager.activateExtractedDownloadedGraph();
         }
-        if (hasLocalGraph && !hasDownloadedExtractedGraph) {
-            LOGGER.info("[%s] Found local graph only".formatted(getProfileWithHash()));
+        if (hasActiveGraph && !hasDownloadedExtractedGraph) {
+            LOGGER.info("[%s] Found local graph only".formatted(getQualifiedProfileName()));
         }
     }
 
     public void downloadAndExtractLatestGraphIfNecessary() {
-        if (fileManager.isActive()) {
-            LOGGER.info("[%s] ORSGraphManager is active - skipping download".formatted(getProfileWithHash()));
+        if (orsGraphFileManager.isBusy()) {
+            LOGGER.info("[%s] ORSGraphManager is busy - skipping download".formatted(getQualifiedProfileName()));
             return;
         }
-        repoManager.downloadGraphIfNecessary();
-        fileManager.extractDownloadedGraph();
+        orsGraphRepoManager.downloadGraphIfNecessary();
+        orsGraphFileManager.extractDownloadedGraph();
     }
 
     public boolean hasUpdateLock() {
-        File restartLockFile = new File(new File(graphsRootPath), "update.lock");
+        File restartLockFile = new File(orsGraphFileManager.getProfileGraphsDirAbsPath() + File.separator + UPDATE_LOCKFILE_NAME);
         return restartLockFile.exists();
     }
 
     public boolean hasRestartLock() {
-        File restartLockFile = new File(new File(graphsRootPath), "restart.lock");
+        File restartLockFile = new File(orsGraphFileManager.getProfileGraphsDirAbsPath() + File.separator + RESTART_LOCKFILE_NAME);
         return restartLockFile.exists();
     }
 
+    public void writeOrsGraphInfoFileIfNotExists(GraphHopper gh) {
+        orsGraphFileManager.writeOrsGraphInfoFileIfNotExists(gh);
+    }
 }

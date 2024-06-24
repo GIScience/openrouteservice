@@ -33,7 +33,10 @@ class ORSGraphFileManagerTest {
 
     @Spy
     ORSGraphRepoManager orsGraphRepoManager;
+
+    ORSGraphFolderStrategy orsGraphFolderStrategy;
     ORSGraphFileManager orsGraphFileManager;
+
     private static final String GRAPHS_REPO_BASE_URL = "https://example.com";
     private static final String GRAPHS_REPO_NAME = "test-repo";
     private static final String GRAPHS_COVERAGE = "planet";
@@ -96,12 +99,10 @@ class ORSGraphFileManagerTest {
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
-        orsGraphFileManager = new ORSGraphFileManager(engineConfig, hash, hashDirAbsPath, vehicleDirAbsPath, VEHICLE);
+        orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(localDir.getAbsolutePath(), VEHICLE, hash);
+        orsGraphFileManager = new ORSGraphFileManager(engineConfig, VEHICLE, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        orsGraphRepoManager.initialize(engineConfig);
-        orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
-        orsGraphRepoManager.setRouteProfileName(VEHICLE);
-        orsGraphRepoManager.setFileManager(orsGraphFileManager);
+        orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, orsGraphFileManager);
     }
 
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
@@ -120,7 +121,7 @@ class ORSGraphFileManagerTest {
     }
 
     void simulateFindLatestGraphInfoAsset(String hash, Long osmDateRemote) throws IOException {
-        String graphInfoAssetName = orsGraphFileManager.createGraphInfoFileName();
+        String graphInfoAssetName = orsGraphFileManager.getGraphInfoFileNameInRepository();
         String graphInfoAssetUrl = String.join("/", GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, VEHICLE, graphInfoAssetName);
 
         ORSGraphInfoV1 downloadedOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateRemote));
@@ -316,11 +317,11 @@ class ORSGraphFileManagerTest {
         Files.setPosixFilePermissions(testFolder, perms);
 
         setupORSGraphManager("foo", getEngineConfig(), testFolder.toString());
-        assertTrue(orsGraphFileManager.getVehicleGraphDirAbsPath().contains(testFolder.toString()));
+        assertTrue(orsGraphFileManager.getProfileGraphsDirAbsPath().contains(testFolder.toString()));
 
         // Assert that the folder has no write permissions
         assertFalse(testFolder.toFile().canWrite());
-        assertFalse(orsGraphFileManager.hasLocalGraph());
+        assertFalse(orsGraphFileManager.hasActiveGraph());
 
         // Set write permissions
         perms.add(PosixFilePermission.OWNER_WRITE);
@@ -329,6 +330,6 @@ class ORSGraphFileManagerTest {
         // Initialize again
         orsGraphFileManager.initialize();
         assertTrue(testFolder.toFile().canWrite());
-        assertTrue(orsGraphFileManager.hasLocalGraphDirectory());
+        assertTrue(orsGraphFileManager.hasActiveGraphDirectory());
     }
 }

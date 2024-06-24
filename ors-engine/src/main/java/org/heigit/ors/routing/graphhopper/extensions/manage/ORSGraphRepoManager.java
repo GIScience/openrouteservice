@@ -30,41 +30,42 @@ public class ORSGraphRepoManager {
     private String graphsRepoName;
     private String graphsRepoCoverage;
     private String graphsRepoGraphVersion;
-    private String routeProfileName;
-    private ORSGraphFileManager fileManager;
-
+    private ORSGraphFileManager orsGraphFileManager;
 
     public ORSGraphRepoManager() {
     }
 
-    public ORSGraphRepoManager(EngineConfig engineConfig, ORSGraphFileManager fileManager, String routeProfileName, String graphsRepoGraphVersion) {
-        this.fileManager = fileManager;
-        this.routeProfileName = routeProfileName;
-        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
-        initialize(engineConfig);
-    }
-
-    void initialize(EngineConfig engineConfig) {
+    public ORSGraphRepoManager(EngineConfig engineConfig, String graphsRepoGraphVersion, ORSGraphFileManager orsGraphFileManager) {
         this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
         this.graphsRepoPath = engineConfig.getGraphsRepoPath();
         this.graphsRepoName = engineConfig.getGraphsRepoName();
         this.graphsRepoCoverage = engineConfig.getGraphsExtent();
+        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
+        this.orsGraphFileManager = orsGraphFileManager;
+    }
+
+    public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
+        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
+    }
+
+    public void setGraphsRepoName(String graphsRepoName) {
+        this.graphsRepoName = graphsRepoName;
+    }
+
+    public void setGraphsRepoCoverage(String graphsRepoCoverage) {
+        this.graphsRepoCoverage = graphsRepoCoverage;
     }
 
     public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {
         this.graphsRepoGraphVersion = graphsRepoGraphVersion;
     }
 
-    public void setRouteProfileName(String routeProfileName) {
-        this.routeProfileName = routeProfileName;
-    }
-
-    public void setFileManager(ORSGraphFileManager fileManager) {
-        this.fileManager = fileManager;
+    public void setOrsGraphFileManager(ORSGraphFileManager orsGraphFileManager) {
+        this.orsGraphFileManager = orsGraphFileManager;
     }
 
     String getProfileWithHash() {
-        return fileManager.getProfileWithHash();
+        return orsGraphFileManager.getProfileDescriptiveName();
     }
 
     public String getGraphsRepoPath() {
@@ -75,8 +76,8 @@ public class ORSGraphRepoManager {
         this.graphsRepoPath = graphsRepoPath;
     }
 
-    String createDownloadPathFilterPattern() {
-        return ".*%s/%s/%s/%s/[0-9]{12,}/.*".formatted(graphsRepoCoverage, graphsRepoGraphVersion, routeProfileName, fileManager.getHash());
+    String createDownloadPathFilterPattern() {//TODO don't use orsGraphFileManager.getProfileDescriptiveName()
+        return ".*%s/%s/%s/[0-9]{12,}/.*".formatted(graphsRepoCoverage, graphsRepoGraphVersion, orsGraphFileManager.getProfileDescriptiveName());
     }
 
     public void downloadGraphIfNecessary() {
@@ -84,32 +85,32 @@ public class ORSGraphRepoManager {
             LOGGER.debug("[%s] ORSGraphManager is not configured - skipping check".formatted(getProfileWithHash()));
             return;
         }
-        if (fileManager.isActive()) {
-            LOGGER.debug("[%s] ORSGraphManager is active - skipping check".formatted(getProfileWithHash()));
+        if (orsGraphFileManager.isBusy()) {
+            LOGGER.debug("[%s] ORSGraphManager is busy - skipping check".formatted(getProfileWithHash()));
             return;
         }
 
         LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileWithHash()));
         try {
-            ORSGraphInfoV1 persistedRemoteGraphInfo = fileManager.getPreviouslyDownloadedRemoteGraphInfo();
-            File graphDownloadFile = fileManager.getGraphDownloadFile();
-            GraphInfo activeGraphInfo = fileManager.getActiveGraphInfo();
-            GraphInfo downloadedGraphInfo = fileManager.getDownloadedGraphInfo();
-            GraphInfo remoteGraphInfo = downloadLatestGraphInfoFromRepository();
+            ORSGraphInfoV1 previouslyDownloadedGraphInfo = orsGraphFileManager.getDownloadedGraphInfo();
+            File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
+            GraphInfo activeGraphInfo = orsGraphFileManager.getActiveGraphInfo();
+            GraphInfo downloadedExtractedGraphInfo = orsGraphFileManager.getDownloadedExtractedGraphInfo();
+            GraphInfo newlyDownloadedGraphInfo = downloadLatestGraphInfoFromRepository();
 
             if (!shouldDownloadGraph(
-                    getDateOrEpocStart(remoteGraphInfo),
+                    getDateOrEpocStart(newlyDownloadedGraphInfo),
                     getDateOrEpocStart(activeGraphInfo),
-                    getDateOrEpocStart(downloadedGraphInfo),
-                    getDateOrEpocStart(graphDownloadFile, persistedRemoteGraphInfo))) {
+                    getDateOrEpocStart(downloadedExtractedGraphInfo),
+                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphInfo))) {
                 return;
             }
 
-            String downloadUrl = fileManager.createGraphUrlFromGraphInfoUrl(remoteGraphInfo);
-            LOGGER.info("[%s] Downloading %s to file %s".formatted(getProfileWithHash(), downloadUrl, graphDownloadFile.getAbsolutePath()));
+            String downloadUrl = orsGraphFileManager.createGraphUrlFromGraphInfoUrl(newlyDownloadedGraphInfo);
+            LOGGER.info("[%s] Downloading %s to file %s".formatted(getProfileWithHash(), downloadUrl, downloadedCompressedGraphFile.getAbsolutePath()));
 
             long start = System.currentTimeMillis();
-            downloadAsset(downloadUrl, graphDownloadFile);
+            downloadAsset(downloadUrl, downloadedCompressedGraphFile);
             long end = System.currentTimeMillis();
             LOGGER.info("[%s] Download finished after %d ms".formatted(getProfileWithHash(), end - start));
         } catch (Exception e) {
@@ -187,21 +188,21 @@ public class ORSGraphRepoManager {
         GraphInfo latestGraphInfoInRepo = new GraphInfo();
         LOGGER.debug("[%s] Checking latest graphInfo in remote repository...".formatted(getProfileWithHash()));
 
-        String fileName = fileManager.createGraphInfoFileName();
+        String fileName = orsGraphFileManager.getDownloadedGraphInfoFileName();
         AssetXO latestGraphInfoAsset = findLatestGraphInfoAsset(fileName);
         if (latestGraphInfoAsset == null) {
             LOGGER.info("[%s] No graphInfo found in remote repository".formatted(getProfileWithHash()));
             return latestGraphInfoInRepo;
         }
 
-        File downloadedFile = new File(fileManager.getVehicleGraphDirAbsPath(), fileName);
+        File downloadedFile = orsGraphFileManager.getDownloadedGraphInfoFile();
         downloadAsset(latestGraphInfoAsset.getDownloadUrl(), downloadedFile);
 
         try {
             URL url = new URL(latestGraphInfoAsset.getDownloadUrl());
             latestGraphInfoInRepo.setRemoteUrl(url);
 
-            ORSGraphInfoV1 orsGraphInfoV1 = fileManager.readOrsGraphInfoV1(downloadedFile);
+            ORSGraphInfoV1 orsGraphInfoV1 = orsGraphFileManager.readOrsGraphInfoV1(downloadedFile);
             latestGraphInfoInRepo.withPersistedInfo(orsGraphInfoV1);
         } catch (MalformedURLException e) {
             LOGGER.error("[%s] Invalid download URL for graphInfo asset: %s".formatted(getProfileWithHash(), latestGraphInfoAsset.getDownloadUrl()));
@@ -225,7 +226,7 @@ public class ORSGraphRepoManager {
     }
 
     void downloadAsset(String downloadUrl, File outputFile) {
-        File tempDownloadFile = fileManager.asIncompleteFile(outputFile);
+        File tempDownloadFile = orsGraphFileManager.asIncompleteFile(outputFile);
         if (StringUtils.isNotBlank(downloadUrl)) {
             try {
                 FileUtils.copyURLToFile(

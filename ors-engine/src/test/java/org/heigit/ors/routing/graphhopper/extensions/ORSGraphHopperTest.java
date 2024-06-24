@@ -3,21 +3,16 @@ package org.heigit.ors.routing.graphhopper.extensions;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
-import com.graphhopper.config.CHProfile;
-import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
-import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -129,29 +124,16 @@ class ORSGraphHopperTest {
     public void profileHashAddedToGraphHopperLocation() throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
         ORSGraphHopper gh = createORSGraphHopper(ghConfig);
-
         String pathBefore = gh.getGraphHopperLocation();
-        String profileHash = gh.createProfileHash();
         gh.importOrLoad();
         String pathAfter = gh.getGraphHopperLocation();
 
         assertNotEquals(pathAfter, pathBefore);
-        assertEquals("%s/%s".formatted(pathBefore, profileHash), pathAfter);
-    }
-
-    static class CountingHashCollector {
-        public int callCount = 0;
-        public Set<String> hashes = new HashSet<>();
-        void createHashAndCount(ORSGraphHopper gh){
-            callCount++;
-            String profileHash = gh.createProfileHash();
-            hashes.add(profileHash);
-            System.out.println(profileHash);
-        }
+        assertEquals("graphs-apitests/car/04083c1a1ccfe4c733fb251778e8de1e", pathAfter);
     }
 
     @Test
-    public void importOrLoad_orsGraphManagerCreated() throws Exception {
+    public void importOrLoad_orsGraphManagerCreated_usesRepo() throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
         EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
                 .setGraphsRepoUrl("repoUrl")
@@ -164,94 +146,20 @@ class ORSGraphHopperTest {
 
         ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
         assertNotNull(orsGraphManager);
+        assertTrue(orsGraphManager.useGraphRepository());
     }
 
     @Test
-    public void importOrLoad_orsGraphManagerNotCreated() throws Exception {
+    public void importOrLoad_orsGraphManagerCreated_notUsingRepo() throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
         ORSGraphHopper gh = createORSGraphHopper(ghConfig);
 
         gh.importOrLoad();
 
         ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
-        assertNull(orsGraphManager);
-    }
-
-    @Test
-    public void createProfileHash() throws Exception {
-        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
-        ORSGraphHopper gh = createORSGraphHopper(ghConfig);
-        CountingHashCollector collector = new CountingHashCollector();
-        collector.createHashAndCount(gh);
-
-        gh.getConfig().getProfiles().get(0).setName("changed");
-        collector.createHashAndCount(gh);
-
-        gh.getConfig().getProfiles().get(0).setVehicle("changed");
-        collector.createHashAndCount(gh);
-
-        gh.getConfig().getProfiles().get(0).setTurnCosts(!gh.getConfig().getProfiles().get(0).isTurnCosts());
-        collector.createHashAndCount(gh);
-
-        gh.getConfig().getProfiles().get(0).setWeighting("changed");
-        collector.createHashAndCount(gh);
-
-        gh.getConfig().getCHProfiles().add(new CHProfile("added"));
-        collector.createHashAndCount(gh);
-
-        gh.getConfig().getLMProfiles().add(new LMProfile("added"));
-        collector.createHashAndCount(gh);
-
-        gh.getConfig().getLMProfiles().get(0).setPreparationProfile("changed");
-        collector.createHashAndCount(gh);
-
-        gh.getConfig().getLMProfiles().get(0).setPreparationProfile("this");
-        gh.getConfig().getLMProfiles().get(0).setMaximumLMWeight(gh.getConfig().getLMProfiles().get(0).getMaximumLMWeight()-1);
-        collector.createHashAndCount(gh);
-
-        PMap pMap = gh.getConfig().asPMap();
-        //TODO modify and createHashAndCount
-        assertNotNull(pMap);
-
-//        ORSGraphHopperConfig newConfig = createORSGraphHopperConfig();
-//        gh = createORSGraphHopper(newConfig);
-//        newConfig.putObject("prepare.min_one_way_network_size", gh.getMinNetworkSize()+1);
-//        gh.init(newConfig);
-//        collector.createHashAndCount(gh);
-//
-//        gh.setMinOneWayNetworkSize(gh.getMinOneWayNetworkSize()+1);
-//        collector.createHashAndCount(gh);
-//
-
-
-        ORSGraphHopperConfig config = (ORSGraphHopperConfig) gh.getConfig();
-
-        config.getFastisochroneProfiles().add(new Profile("added"));
-        collector.createHashAndCount(gh);
-
-        config.getFastisochroneProfiles().get(0).setVehicle("changed");
-        collector.createHashAndCount(gh);
-
-        config.getFastisochroneProfiles().get(0).setTurnCosts(!gh.getConfig().getProfiles().get(0).isTurnCosts());
-        collector.createHashAndCount(gh);
-
-        config.getFastisochroneProfiles().get(0).setWeighting("changed");
-        collector.createHashAndCount(gh);
-
-        config.getCoreProfiles().add(new CHProfile("added"));
-        collector.createHashAndCount(gh);
-
-        config.getCoreLMProfiles().add(new LMProfile("added"));
-        collector.createHashAndCount(gh);
-
-        config.getCoreLMProfiles().get(0).setPreparationProfile("changed");
-        collector.createHashAndCount(gh);
-
-        config.getCoreLMProfiles().get(0).setPreparationProfile("this");
-        config.getCoreLMProfiles().get(0).setMaximumLMWeight(gh.getConfig().getLMProfiles().get(0).getMaximumLMWeight()-1);
-        collector.createHashAndCount(gh);
-
-        assertEquals(collector.hashes.size(), collector.callCount);
+        orsGraphManager.useGraphRepository();
+        assertNotNull(orsGraphManager);
+        assertFalse(orsGraphManager.useGraphRepository());
     }
 
     private static ORSGraphHopper createORSGraphHopper(ORSGraphHopperConfig ghConfig) throws Exception {
@@ -270,6 +178,7 @@ class ORSGraphHopperTest {
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineConfig);
         gh.init(ghConfig);
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
+        gh.setRouteProfileName("car");
         return gh;
     }
 
