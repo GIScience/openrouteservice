@@ -120,12 +120,6 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
     }
 
-    String createGraphUrlFromGraphInfoUrl(GraphInfo remoteGraphInfo) {
-        String url = remoteGraphInfo.getRemoteUrl().toString();
-        String urlWithoutExtension = url.substring(0, url.lastIndexOf('.'));
-        return urlWithoutExtension + "." + GRAPH_DOWNLOAD_FILE_EXTENSION;
-    }
-
     void backupExistingGraph() {
         if (!hasActiveGraph()) {
             deleteOldestBackups();
@@ -308,14 +302,14 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         if (engineConfig.getProfiles().length==0)
             return;
 
-        File graphDir = new File(getActiveGraphDirAbsPath());
-        File orsGraphInfoFile = getDownloadedGraphInfoFile();
-        if (!graphDir.exists() || !graphDir.isDirectory() || !graphDir.canWrite() ) {
-            LOGGER.debug("Graph directory %s not existing or not writeable".formatted(orsGraphInfoFile.getName()));
+        File activeGraphDirectory = getActiveGraphDirectory();
+        File activeGraphInfoFile = getActiveGraphInfoFile();
+        if (!activeGraphDirectory.exists() || !activeGraphDirectory.isDirectory() || !activeGraphDirectory.canWrite() ) {
+            LOGGER.debug("Graph directory %s not existing or not writeable".formatted(activeGraphInfoFile.getName()));
             return;
         }
-        if (orsGraphInfoFile.exists()) {
-            LOGGER.debug("GraphInfo-File %s already existing".formatted(orsGraphInfoFile.getName()));
+        if (activeGraphInfoFile.exists()) {
+            LOGGER.debug("GraphInfo-File %s already existing".formatted(activeGraphInfoFile.getName()));
             return;
         }
         Optional<RouteProfileConfiguration> routeProfileConfiguration = Arrays.stream(engineConfig.getProfiles()).filter(prconf -> this.routeProfileName.equals(prconf.getName())).findFirst();
@@ -329,7 +323,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
         orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.get().getOrsGraphInfoV1ProfileProperties());
 
-        ORSGraphFileManager.writeOrsGraphInfoV1(orsGraphInfoV1, orsGraphInfoFile);
+        ORSGraphFileManager.writeOrsGraphInfoV1(orsGraphInfoV1, activeGraphInfoFile);
     }
 
     Date getDateFromGhProperty(GraphHopper gh, String ghProperty) {

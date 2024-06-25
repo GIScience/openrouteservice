@@ -41,6 +41,7 @@ class ORSGraphRepoManagerTest {
     private static final String GRAPHS_REPO_NAME = "test-repo";
     private static final String GRAPHS_REPO_PATH = "some/path/12345";
     private static final String GRAPHS_COVERAGE = "planet";
+    private static final String GRAPHS_PROFILE_GROUP = "traffic";
     private static final String GRAPHS_VERSION = "1";
     private static final String VEHICLE = "car";
     @TempDir(cleanup = CleanupMode.ON_SUCCESS)
@@ -76,6 +77,7 @@ class ORSGraphRepoManagerTest {
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
                 .setGraphsRepoPath(GRAPHS_REPO_PATH)
                 .setGraphsExtent(GRAPHS_COVERAGE)
+                .setGraphsProfileGroup(GRAPHS_PROFILE_GROUP)
                 .setGraphsRootPath(localDir.getAbsolutePath())
                 .build();
 
@@ -88,8 +90,13 @@ class ORSGraphRepoManagerTest {
         orsGraphRepoManager.setGraphsRepoBaseUrl(engineConfig.getGraphsRepoUrl());
         orsGraphRepoManager.setGraphsRepoName(engineConfig.getGraphsRepoName());
         orsGraphRepoManager.setGraphsRepoCoverage(engineConfig.getGraphsExtent());
+        orsGraphRepoManager.setGraphsProfileGroup(engineConfig.getGraphsProfileGroup());
         orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
         orsGraphRepoManager.setOrsGraphFileManager(orsGraphFileManager);
+        orsGraphRepoManager.setRouteProfileName(VEHICLE);
+
+        ORSGraphRepoStrategy repoStrategy = new HashBasedRepoStrategy(hash);
+        orsGraphRepoManager.setOrsGraphRepoStrategy(repoStrategy);
     }
 
     void setupActiveGraphDirectory(String hash, Long osmDateLocal) throws IOException {
@@ -99,7 +106,7 @@ class ORSGraphRepoManagerTest {
     }
 
     void setupNoRemoteFiles() {
-        doReturn(null).when(orsGraphRepoManager).findLatestGraphInfoAsset(anyString());
+        doReturn(null).when(orsGraphRepoManager).findLatestGraphInfoAsset();
     }
 
     void simulateFindLatestGraphInfoAsset(String hash, Long osmDateRemote) throws IOException {
@@ -113,7 +120,7 @@ class ORSGraphRepoManagerTest {
         AssetXO assetXO = new AssetXO();
         assetXO.setDownloadUrl(graphInfoAssetUrl);
 
-        doReturn(assetXO).when(orsGraphRepoManager).findLatestGraphInfoAsset(graphInfoAssetName);
+        doReturn(assetXO).when(orsGraphRepoManager).findLatestGraphInfoAsset();
         lenient().doNothing().when(orsGraphRepoManager).downloadAsset(anyString(), any());
     }
 
@@ -200,7 +207,7 @@ class ORSGraphRepoManagerTest {
                 new AssetXO().path("https://example.com/test-repo/wrong/1/car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
                 new AssetXO().path("https://example.com/test-repo/wrong/1/car/b6714103ccd4/202301011200/b6714103ccd4.yml")
         );
-        AssetXO filtered = orsGraphRepoManager.filterLatestAsset("b6714103ccd4.yml", items);
+        AssetXO filtered = orsGraphRepoManager.filterLatestAsset(items);
         assertEquals("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/b6714103ccd4.yml", filtered.getPath());
     }
 

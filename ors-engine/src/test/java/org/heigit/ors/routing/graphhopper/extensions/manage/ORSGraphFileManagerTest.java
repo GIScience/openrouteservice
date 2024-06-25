@@ -102,7 +102,7 @@ class ORSGraphFileManagerTest {
         orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(localDir.getAbsolutePath(), VEHICLE, hash);
         orsGraphFileManager = new ORSGraphFileManager(engineConfig, VEHICLE, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, orsGraphFileManager);
+        orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, VEHICLE, new NamedGraphsRepoStrategy(VEHICLE), orsGraphFileManager);
     }
 
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
@@ -117,7 +117,7 @@ class ORSGraphFileManagerTest {
     }
 
     void setupNoRemoteFiles() {
-        doReturn(null).when(orsGraphRepoManager).findLatestGraphInfoAsset(anyString());
+        doReturn(null).when(orsGraphRepoManager).findLatestGraphInfoAsset();
     }
 
     void simulateFindLatestGraphInfoAsset(String hash, Long osmDateRemote) throws IOException {
@@ -131,7 +131,7 @@ class ORSGraphFileManagerTest {
         AssetXO assetXO = new AssetXO();
         assetXO.setDownloadUrl(graphInfoAssetUrl);
 
-        doReturn(assetXO).when(orsGraphRepoManager).findLatestGraphInfoAsset(graphInfoAssetName);
+        doReturn(assetXO).when(orsGraphRepoManager).findLatestGraphInfoAsset();
         lenient().doNothing().when(orsGraphRepoManager).downloadAsset(anyString(), any());
     }
 

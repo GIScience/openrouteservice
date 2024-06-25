@@ -61,7 +61,7 @@ class ORSGraphManagerTest {
 
         ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineConfig.getGraphsRootPath(), VEHICLE, hash);
         ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineConfig, VEHICLE, orsGraphFolderStrategy);
-        ORSGraphRepoManager orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, orsGraphFileManager);
+        ORSGraphRepoManager orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, VEHICLE, new NamedGraphsRepoStrategy(VEHICLE), orsGraphFileManager);
         this.orsGraphManager = new ORSGraphManager(engineConfig, orsGraphFileManager, orsGraphRepoManager);
         this.orsGraphManager.manageStartup();
     }

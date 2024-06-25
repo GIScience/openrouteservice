@@ -88,12 +88,12 @@ public class ORSGraphManager {
     }
 
     public boolean hasUpdateLock() {
-        File restartLockFile = new File(orsGraphFileManager.getProfileGraphsDirAbsPath() + File.separator + UPDATE_LOCKFILE_NAME);
+        File restartLockFile = new File(orsGraphFileManager.getGraphsRootDirAbsPath() + File.separator + UPDATE_LOCKFILE_NAME);
         return restartLockFile.exists();
     }
 
     public boolean hasRestartLock() {
-        File restartLockFile = new File(orsGraphFileManager.getProfileGraphsDirAbsPath() + File.separator + RESTART_LOCKFILE_NAME);
+        File restartLockFile = new File(orsGraphFileManager.getGraphsRootDirAbsPath() + File.separator + RESTART_LOCKFILE_NAME);
         return restartLockFile.exists();
     }
 

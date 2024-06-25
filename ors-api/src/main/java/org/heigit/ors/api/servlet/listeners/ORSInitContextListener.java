@@ -60,6 +60,7 @@ public class ORSInitContextListener implements ServletContextListener {
                 .setGraphsRepoPath(engineProperties.getGraphManagement().getRepositoryPath())
                 .setGraphsRepoName(engineProperties.getGraphManagement().getRepositoryName())
                 .setGraphsExtent(engineProperties.getGraphManagement().getExtent())
+                .setGraphsProfileGroup(engineProperties.getGraphManagement().getProfileGroup())
                 .setProfiles(engineProperties.getConvertedProfiles())
                 .buildWithAppConfigOverride();
         Runnable runnable = () -> {

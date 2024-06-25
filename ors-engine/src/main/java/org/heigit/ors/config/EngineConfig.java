@@ -39,6 +39,7 @@ public class EngineConfig {
     private final String graphsRepoUrl;
     private final String graphsRepoPath;
     private final String graphsExtent;
+    private final String graphsProfileGroup;
     private final String graphsDataAccess;
     private final boolean elevationPreprocessed;
     private final RouteProfileConfiguration[] profiles;
@@ -83,6 +84,10 @@ public class EngineConfig {
         return graphsExtent;
     }
 
+    public String getGraphsProfileGroup() {
+        return graphsProfileGroup;
+    }
+
     public boolean isElevationPreprocessed() {
         return elevationPreprocessed;
     }
@@ -102,6 +107,7 @@ public class EngineConfig {
         this.graphsRepoPath = builder.graphsRepoPath;
         this.graphsRepoName = builder.graphsRepoName;
         this.graphsExtent = builder.graphsExtent;
+        this.graphsProfileGroup = builder.graphsProfileGroup;
         this.profiles = builder.profiles;
         this.graphsDataAccess = builder.graphsDataAccess;
     }
@@ -117,6 +123,7 @@ public class EngineConfig {
         private String graphsRepoPath;
         private String graphsRepoName;
         private String graphsExtent;
+        private String graphsProfileGroup;
         private String graphsDataAccess;
         private boolean elevationPreprocessed;
         private RouteProfileConfiguration[] profiles;
@@ -177,6 +184,11 @@ public class EngineConfig {
 
         public EngineConfigBuilder setGraphsExtent(String extent) {
             this.graphsExtent = extent;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphsProfileGroup(String profileGroup) {
+            this.graphsProfileGroup = profileGroup;
             return this;
         }
 

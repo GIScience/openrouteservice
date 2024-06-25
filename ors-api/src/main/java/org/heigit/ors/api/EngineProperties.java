@@ -234,6 +234,7 @@ public class EngineProperties {
         private String repositoryUrl;
         private String repositoryName;
         private Integer maxBackups;
+        private String profileGroup;
         private String extent;
 
         public String getRepositoryPath() {
@@ -274,6 +275,14 @@ public class EngineProperties {
 
         public void setExtent(String extent) {
             this.extent = extent;
+        }
+
+        public String getProfileGroup() {
+            return profileGroup;
+        }
+
+        public void setProfileGroup(String profileGroup) {
+            this.profileGroup = profileGroup;
         }
     }
 

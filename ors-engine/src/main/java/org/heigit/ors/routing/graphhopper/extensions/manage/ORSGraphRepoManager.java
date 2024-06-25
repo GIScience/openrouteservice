@@ -25,22 +25,28 @@ public class ORSGraphRepoManager {
     private static final Logger LOGGER = Logger.getLogger(ORSGraphRepoManager.class.getName());
     private int connectionTimeoutMillis = 2000;
     private int readTimeoutMillis = 200000;
+    private String routeProfileName;
     private String graphsRepoBaseUrl;
     private String graphsRepoPath;
     private String graphsRepoName;
+    private String graphsProfileGroup;
     private String graphsRepoCoverage;
     private String graphsRepoGraphVersion;
     private ORSGraphFileManager orsGraphFileManager;
+    private ORSGraphRepoStrategy orsGraphRepoStrategy;
 
     public ORSGraphRepoManager() {
     }
 
-    public ORSGraphRepoManager(EngineConfig engineConfig, String graphsRepoGraphVersion, ORSGraphFileManager orsGraphFileManager) {
+    public ORSGraphRepoManager(EngineConfig engineConfig, String graphsRepoGraphVersion, String routeProfileName, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
         this.graphsRepoPath = engineConfig.getGraphsRepoPath();
         this.graphsRepoName = engineConfig.getGraphsRepoName();
         this.graphsRepoCoverage = engineConfig.getGraphsExtent();
+        this.graphsProfileGroup = engineConfig.getGraphsProfileGroup();
         this.graphsRepoGraphVersion = graphsRepoGraphVersion;
+        this.routeProfileName = routeProfileName;
+        this.orsGraphRepoStrategy = orsGraphRepoStrategy;
         this.orsGraphFileManager = orsGraphFileManager;
     }
 
@@ -76,8 +82,29 @@ public class ORSGraphRepoManager {
         this.graphsRepoPath = graphsRepoPath;
     }
 
-    String createDownloadPathFilterPattern() {//TODO don't use orsGraphFileManager.getProfileDescriptiveName()
-        return ".*%s/%s/%s/[0-9]{12,}/.*".formatted(graphsRepoCoverage, graphsRepoGraphVersion, orsGraphFileManager.getProfileDescriptiveName());
+    public void setRouteProfileName(String routeProfileName) {
+        this.routeProfileName = routeProfileName;
+    }
+
+    public void setGraphsProfileGroup(String graphsProfileGroup) {
+        this.graphsProfileGroup = graphsProfileGroup;
+    }
+
+    public void setOrsGraphRepoStrategy(ORSGraphRepoStrategy orsGraphRepoStrategy) {
+        this.orsGraphRepoStrategy = orsGraphRepoStrategy;
+    }
+
+    String createDownloadPathFilterPattern() {
+        String assetFilterPattern = orsGraphRepoStrategy.getAssetFilterPattern(
+                this.graphsRepoName,
+                this.graphsRepoCoverage,
+                this.graphsRepoGraphVersion,
+                this.graphsProfileGroup,
+                this.routeProfileName,
+                this.orsGraphRepoStrategy.getRepoGraphInfoFileName()
+        );
+        LOGGER.trace("assetFilterPattern: " + assetFilterPattern);
+        return assetFilterPattern;
     }
 
     public void downloadGraphIfNecessary() {
@@ -106,8 +133,8 @@ public class ORSGraphRepoManager {
                 return;
             }
 
-            String downloadUrl = orsGraphFileManager.createGraphUrlFromGraphInfoUrl(newlyDownloadedGraphInfo);
-            LOGGER.info("[%s] Downloading %s to file %s".formatted(getProfileWithHash(), downloadUrl, downloadedCompressedGraphFile.getAbsolutePath()));
+            String downloadUrl = createGraphUrlFromGraphInfoUrl(newlyDownloadedGraphInfo);
+            LOGGER.info("[%s] Downloading %s to file %s".formatted(getProfileWithHash(), downloadUrl, downloadedCompressedGraphFile.getName()));
 
             long start = System.currentTimeMillis();
             downloadAsset(downloadUrl, downloadedCompressedGraphFile);
@@ -116,6 +143,12 @@ public class ORSGraphRepoManager {
         } catch (Exception e) {
             LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileWithHash()), e);
         }
+    }
+
+    String createGraphUrlFromGraphInfoUrl(GraphInfo remoteGraphInfo) {
+        String url = remoteGraphInfo.getRemoteUrl().toString();
+        String urlWithoutFileName = url.substring(0, url.lastIndexOf('/'));
+        return urlWithoutFileName + "/" + orsGraphRepoStrategy.getRepoCompressedGraphFileName();
     }
 
     public boolean shouldDownloadGraph(Date remoteDate, Date activeDate, Date downloadedExtractedDate, Date downloadedCompressedDate) {
@@ -148,7 +181,7 @@ public class ORSGraphRepoManager {
         return Arrays.stream(dates).max(Date::compareTo).orElse(new Date(0L));
     }
 
-    AssetXO findLatestGraphInfoAsset(String fileName) {
+    AssetXO findLatestGraphInfoAsset() {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
         defaultClient.setBasePath(graphsRepoBaseUrl);
 
@@ -169,7 +202,7 @@ public class ORSGraphRepoManager {
             } while (!isBlank(continuationToken));
             LOGGER.trace("[%s] Found %d items total".formatted(getProfileWithHash(), items.size()));
 
-            return filterLatestAsset(fileName, items);
+            return filterLatestAsset(items);
 
         } catch (ApiException e) {
             LOGGER.error("[%s] Exception when calling AssetsApi#getAssets".formatted(getProfileWithHash()));
@@ -188,8 +221,7 @@ public class ORSGraphRepoManager {
         GraphInfo latestGraphInfoInRepo = new GraphInfo();
         LOGGER.debug("[%s] Checking latest graphInfo in remote repository...".formatted(getProfileWithHash()));
 
-        String fileName = orsGraphFileManager.getDownloadedGraphInfoFileName();
-        AssetXO latestGraphInfoAsset = findLatestGraphInfoAsset(fileName);
+        AssetXO latestGraphInfoAsset = findLatestGraphInfoAsset();
         if (latestGraphInfoAsset == null) {
             LOGGER.info("[%s] No graphInfo found in remote repository".formatted(getProfileWithHash()));
             return latestGraphInfoInRepo;
@@ -211,14 +243,13 @@ public class ORSGraphRepoManager {
         return latestGraphInfoInRepo;
     }
 
-    AssetXO filterLatestAsset(String fileName, List<AssetXO> items) {
+    AssetXO filterLatestAsset(List<AssetXO> items) {
         String downloadPathFilterPattern = createDownloadPathFilterPattern();
-        LOGGER.debug("[%s] Filtering %d assets for pattern '%s' and fileName=%s".formatted(getProfileWithHash(), items.size(), downloadPathFilterPattern, fileName));
+        LOGGER.debug("[%s] Filtering %d assets for pattern '%s'".formatted(getProfileWithHash(), items.size(), downloadPathFilterPattern));
 
         // paths like https://repo.heigit.org/ors-graphs-traffic/planet/3/car/5a5af307fbb8019bfb69d4916f55ddeb/202212312359/5a5af307fbb8019bfb69d4916f55ddeb.json
         Optional<AssetXO> first = items.stream()
                 .filter(assetXO -> assetXO.getPath().matches(downloadPathFilterPattern))
-                .filter(assetXO -> assetXO.getPath().endsWith(fileName))
                 .sorted((a1, a2) -> a2.getPath().compareTo(a1.getPath()))//sort reverse: latest date (path parameter) first
                 .findFirst();
 

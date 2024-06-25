@@ -219,10 +219,16 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     private void initializeGraphManagement() {
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineConfig.getGraphsRootPath(), routeProfileName, RoutingProfileHashBuilder.builder(config).build());
+//        ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(routeProfileName, engineConfig.getGraphsRootPath(), engineConfig.getGraphsRepoName());
+//        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(routeProfileName);
+
+        String hash = RoutingProfileHashBuilder.builder(config).build();
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineConfig.getGraphsRootPath(), routeProfileName, hash);
+        ORSGraphRepoStrategy orsGraphRepoStrategy = new HashBasedRepoStrategy(hash);
+
         ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineConfig, routeProfileName, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        ORSGraphRepoManager orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, orsGraphFileManager);
+        ORSGraphRepoManager orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, routeProfileName, orsGraphRepoStrategy, orsGraphFileManager);
         this.orsGraphManager = new ORSGraphManager(engineConfig, orsGraphFileManager, orsGraphRepoManager);
         this.orsGraphManager.manageStartup();
     }
