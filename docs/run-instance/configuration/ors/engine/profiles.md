@@ -160,8 +160,12 @@ Properties beneath `ors.engine.profiles.*.execution.methods.core`:
 
 ## ext_storages
 
-For each profile it can be defined which external storages for extra info should be included in the graph.
-This makes those information available as `extra_info` in a routing response.
+For each profile it can be defined which auxiliary metadata should be included in the graph.
+This information is made available as `extra_info` in a routing response.
+Additionally, data from `WayCategory` and `Tollways` is being used to filter out certain roads via
+[`avoid_features`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-features) api query
+parameter, and `Borders` is necessary for the functionality behind [`avoid_borders`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-borders)
+and [`avoid_countries`](directions/routing-options#options-avoid-countries) query parameters.
 
 To do so, add a key from the list below.
 Leave its value empty, unless you want to specify further options (currently only available for
@@ -171,17 +175,18 @@ Properties beneath `ors.engine.profiles.*.ext_storages`:
 
 | key                    | type   | description                                                                                                                  | example value                                     |
 |------------------------|--------|------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
-| WayCategory            | object | Returns the way category in the route response, Compatible for any profile type                                              |                                                   |
-| WaySurfaceType         | object | Returns the way surface in the route response, Compatible for any profile type                                               |                                                   |
-| HillIndex              | object | Returns the ascent/descent in the route response, Compatible for any profile type                                            |                                                   |
-| TrailDifficulty        | object | Returns the trail difficulty in the route response, Compatible for profile-hiking                                            |                                                   |
+| WayCategory            | object | Returns the way category in the route response, compatible with any profile type                                             |                                                   |
+| WaySurfaceType         | object | Returns the way surface in the route response, compatible with any profile type                                              |                                                   |
+| Tollways               | object | Returns way tolls in the route response, compatible with driving profiles                                                    |                                                   |
+| HillIndex              | object | Returns the ascent/descent in the route response, sompatible with any profile type                                           |                                                   |
+| TrailDifficulty        | object | Returns the trail difficulty in the route response, compatible with profile-hiking                                           |                                                   |
 | RoadAccessRestrictions | object | RoadAccessRestrictions are where roads are restricted to certain vehicles to certain circumstances, e.g. access=destination. | [RoadAccessRestrictions](#roadaccessrestrictions) |
 | Wheelchair             | object | Compatible for wheelchair                                                                                                    | [Wheelchair](#wheelchair)                         |
 | OsmId                  | object | Returns the OsmId of the way, Compatible for wheelchair                                                                      |                                                   |
-| Borders                | object | Borders allows the restriction of routes to not cross country borders, compatible for any profile type                       | [Borders](#borders)                               |
+| Borders                | object | Borders allows the restriction of routes to not cross country borders, compatible with any profile type                      | [Borders](#borders)                               |
 
 
-Have a look at [this table](../../../../api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) to check which external storages are enabled for the which profile by default.
+Have a look at [this table](../../../../api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) to check which external storages are enabled for which profile by default.
 
 
 ### RoadAccessRestrictions
