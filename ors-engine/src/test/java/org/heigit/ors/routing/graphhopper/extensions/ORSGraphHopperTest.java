@@ -76,6 +76,7 @@ class ORSGraphHopperTest {
     void buildGraphWithPreprocessedData() throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
         ORSGraphHopper gh = createORSGraphHopper(ghConfig);
+        gh.initializeGraphManagement();
         gh.importOrLoad();
         ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
         assertEquals(419, storage.getNodes());
@@ -121,15 +122,29 @@ class ORSGraphHopperTest {
     }
 
     @Test
-    public void profileHashAddedToGraphHopperLocation() throws Exception {
+    public void profileHashAddedToGraphHopperLocationWithDeepHashStrategy() throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
         ORSGraphHopper gh = createORSGraphHopper(ghConfig);
         String pathBefore = gh.getGraphHopperLocation();
+        gh.initializeGraphManagementWithDeepHashBasedStructure();
         gh.importOrLoad();
         String pathAfter = gh.getGraphHopperLocation();
 
         assertNotEquals(pathAfter, pathBefore);
         assertEquals("graphs-apitests/car/04083c1a1ccfe4c733fb251778e8de1e", pathAfter);
+    }
+
+    @Test
+    public void noProfileHashAddedToGraphHopperLocationWithFlatStrategy() throws Exception {
+        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
+        ORSGraphHopper gh = createORSGraphHopper(ghConfig);
+        String pathBefore = gh.getGraphHopperLocation();
+        gh.initializeGraphManagementWithFlatStructure();
+        gh.importOrLoad();
+        String pathAfter = gh.getGraphHopperLocation();
+
+        assertNotEquals(pathAfter, pathBefore);
+        assertEquals("graphs-apitests/car", pathAfter);
     }
 
     @Test
@@ -141,7 +156,7 @@ class ORSGraphHopperTest {
                 .setGraphsRepoPath("repoPath")
                 .buildWithAppConfigOverride();
         ORSGraphHopper gh = createORSGraphHopper(ghConfig, engineConfig);
-
+        gh.initializeGraphManagement();
         gh.importOrLoad();
 
         ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
@@ -153,7 +168,7 @@ class ORSGraphHopperTest {
     public void importOrLoad_orsGraphManagerCreated_notUsingRepo() throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
         ORSGraphHopper gh = createORSGraphHopper(ghConfig);
-
+        gh.initializeGraphManagement();
         gh.importOrLoad();
 
         ORSGraphManager orsGraphManager = gh.getOrsGraphManager();

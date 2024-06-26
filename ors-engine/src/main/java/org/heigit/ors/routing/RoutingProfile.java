@@ -127,6 +127,8 @@ public class RoutingProfile {
         }
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 
+        gh.initializeGraphManagement();
+
         gh.importOrLoad();
         // store CountryBordersReader for later use
         for (GraphStorageBuilder builder : gpc.getStorageBuilders()) {
