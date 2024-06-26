@@ -118,8 +118,9 @@ ors:
       repository_path:
       repository_url:
       repository_name:
-      max_backups: 0
       extent:
+      profile_group:
+      max_backups: 0
       # HINT default is never (there is no Feb 31)
       download_schedule: '0 * * 31 2 *'
       activation_schedule: '0 0 * 31 2 *'
