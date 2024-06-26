@@ -24,6 +24,9 @@ yq -i '.ors.engine.profiles.car.enabled = true' "$output_file" || exit 1
 echo "- set ors.engine.source_file to ors-api/src/test/files/heidelberg.osm.gz"
 yq -i '.ors.engine.source_file = "ors-api/src/test/files/heidelberg.osm.gz"' "$output_file" || exit 1
 
+echo "- remove .ors.engine.graph_management"
+yq -i 'del(.ors.engine.graph_management)' "$output_file" || exit 1
+
 ###########################
 ### Convert input file ####
 ###########################
