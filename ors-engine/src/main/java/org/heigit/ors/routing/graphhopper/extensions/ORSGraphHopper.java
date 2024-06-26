@@ -227,8 +227,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     public void initializeGraphManagementWithFlatStructure() {
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(engineConfig.getGraphsRootPath(), routeProfileName, engineConfig.getGraphsRepoName());
-        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(routeProfileName);
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(engineConfig, routeProfileName);
+        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(engineConfig, routeProfileName);
         initializeGraphManagement(orsGraphFolderStrategy, orsGraphRepoStrategy);
     }
 

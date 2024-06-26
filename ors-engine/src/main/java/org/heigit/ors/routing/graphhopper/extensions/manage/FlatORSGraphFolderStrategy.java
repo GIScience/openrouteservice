@@ -1,5 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import org.heigit.ors.config.EngineConfig;
+
 import java.io.File;
 
 
@@ -8,11 +10,31 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
     private final String graphsRootAbsPath;
     private final String routeProfileName;
     private final String repoName;
+    private final String extend;
+    private final String graphVersion;
+    private final String profileGroup;
 
-    public FlatORSGraphFolderStrategy(String graphsRootAbsPath, String routeProfileName, String repoName) {
-        this.graphsRootAbsPath = graphsRootAbsPath;
+    public FlatORSGraphFolderStrategy(EngineConfig engineConfig, String routeProfileName) {
+        this.graphsRootAbsPath = engineConfig.getGraphsRootPath();
         this.routeProfileName = routeProfileName;
-        this.repoName = repoName;
+        this.profileGroup = engineConfig.getGraphsProfileGroup();
+        this.extend = engineConfig.getGraphsExtent();
+        this.graphVersion = EngineConfig.GRAPH_VERSION;
+        this.repoName = engineConfig.getGraphsRepoName();
+    }
+
+    private String getConcatenatedLocalFileName() {
+        return String.join("_",
+                repoName,
+                profileGroup,
+                extend,
+                graphVersion,
+                routeProfileName
+        );
+    }
+
+    private String getConcatenatedLocalFileName(String extension) {
+        return getConcatenatedLocalFileName() + "." + extension;
     }
 
     @Override
@@ -62,7 +84,7 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
 
     @Override
     public String getDownloadedGraphInfoFileName() {
-        return routeProfileName + "_" + repoName + "." + GRAPH_INFO_FILE_EXTENSION;
+        return getConcatenatedLocalFileName(GRAPH_INFO_FILE_EXTENSION);
     }
 
     @Override
@@ -72,7 +94,7 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
 
     @Override
     public String getDownloadedCompressedGraphFileName() {
-        return routeProfileName + "_" + repoName + "." + GRAPH_DOWNLOAD_FILE_EXTENSION;
+        return getConcatenatedLocalFileName(GRAPH_DOWNLOAD_FILE_EXTENSION);
     }
 
     @Override

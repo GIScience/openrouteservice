@@ -1,12 +1,20 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import org.heigit.ors.config.EngineConfig;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FlatORSGraphFolderStrategyTest {
 
-    FlatORSGraphFolderStrategy strategy = new FlatORSGraphFolderStrategy("/data/graphs", "bobbycar", "the-repo");
+    FlatORSGraphFolderStrategy strategy = new FlatORSGraphFolderStrategy
+            (EngineConfig.EngineConfigBuilder.init()
+                    .setGraphsRootPath( "/data/graphs")
+                    .setGraphsRepoName("vendor.org")
+                    .setGraphsProfileGroup("fun")
+                    .setGraphsExtent("disneyland")
+                    .build(),
+                    "bobbycar");
 
     @Test
     void getProfileDescriptiveName() {
@@ -55,22 +63,22 @@ class FlatORSGraphFolderStrategyTest {
 
     @Test
     void getDownloadedGraphInfoFileName() {
-        assertEquals("bobbycar_the-repo.yml", strategy.getDownloadedGraphInfoFileName());
+        assertEquals("vendor.org_fun_disneyland_0_bobbycar.yml", strategy.getDownloadedGraphInfoFileName());
     }
 
     @Test
     void getDownloadedGraphInfoFileAbsPath() {
-        assertEquals("/data/graphs/bobbycar_the-repo.yml", strategy.getDownloadedGraphInfoFileAbsPath());
+        assertEquals("/data/graphs/vendor.org_fun_disneyland_0_bobbycar.yml", strategy.getDownloadedGraphInfoFileAbsPath());
     }
 
     @Test
     void getDownloadedCompressedGraphFileName() {
-        assertEquals("bobbycar_the-repo.ghz", strategy.getDownloadedCompressedGraphFileName());
+        assertEquals("vendor.org_fun_disneyland_0_bobbycar.ghz", strategy.getDownloadedCompressedGraphFileName());
     }
 
     @Test
     void getDownloadedCompressedGraphFileAbsPath() {
-        assertEquals("/data/graphs/bobbycar_the-repo.ghz", strategy.getDownloadedCompressedGraphFileAbsPath());
+        assertEquals("/data/graphs/vendor.org_fun_disneyland_0_bobbycar.ghz", strategy.getDownloadedCompressedGraphFileAbsPath());
     }
 
     @Test
