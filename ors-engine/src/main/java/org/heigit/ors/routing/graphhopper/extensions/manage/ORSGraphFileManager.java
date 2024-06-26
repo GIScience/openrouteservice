@@ -43,11 +43,11 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public void initialize() {
-        File vehicleGraphDir = getActiveGraphDirectory();
-        if (!vehicleGraphDir.exists()) {
-            LOGGER.info("[%s] Creating vehicle graph directory %s".formatted(getProfileDescriptiveName(), getActiveGraphDirName()));
-            if (!vehicleGraphDir.mkdirs()) {
-                LOGGER.error("[%s] Could not create vehicle graph directory %s".formatted(getProfileDescriptiveName(), getActiveGraphDirName()));
+        File activeGraphDirectory = getActiveGraphDirectory();
+        if (!activeGraphDirectory.exists()) {
+            LOGGER.info("[%s] Creating graph directory %s".formatted(getProfileDescriptiveName(), getActiveGraphDirName()));
+            if (!activeGraphDirectory.mkdirs()) {
+                LOGGER.error("[%s] Could not create graph directory %s".formatted(getProfileDescriptiveName(), getActiveGraphDirName()));
             }
         }
     }
