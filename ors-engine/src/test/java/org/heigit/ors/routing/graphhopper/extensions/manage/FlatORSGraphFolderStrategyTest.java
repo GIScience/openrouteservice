@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FlatORSGraphFolderStrategyTest {
 
-    FlatORSGraphFolderStrategy strategy = new FlatORSGraphFolderStrategy("bobbycar", "/data/graphs", "the-repo");
+    FlatORSGraphFolderStrategy strategy = new FlatORSGraphFolderStrategy("/data/graphs", "bobbycar", "the-repo");
 
     @Test
     void getProfileDescriptiveName() {

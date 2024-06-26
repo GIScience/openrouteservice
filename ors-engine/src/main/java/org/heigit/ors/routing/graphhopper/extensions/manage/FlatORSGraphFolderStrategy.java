@@ -9,7 +9,7 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
     private final String routeProfileName;
     private final String repoName;
 
-    public FlatORSGraphFolderStrategy(String routeProfileName, String graphsRootAbsPath, String repoName) {
+    public FlatORSGraphFolderStrategy(String graphsRootAbsPath, String routeProfileName, String repoName) {
         this.graphsRootAbsPath = graphsRootAbsPath;
         this.routeProfileName = routeProfileName;
         this.repoName = repoName;
