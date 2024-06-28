@@ -1,6 +1,7 @@
-package org.heigit.ors.routing.graphhopper.extensions.manage;
+package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphFolderStrategy;
 
 import java.io.File;
 
