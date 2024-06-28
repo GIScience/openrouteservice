@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
-import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 
 import java.io.File;

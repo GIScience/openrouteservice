@@ -1,4 +1,4 @@
-package org.heigit.ors.routing.graphhopper.extensions.manage;
+package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import java.io.File;
 

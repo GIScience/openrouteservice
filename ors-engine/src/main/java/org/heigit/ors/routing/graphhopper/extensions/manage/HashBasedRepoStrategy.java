@@ -1,5 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;
+
 public class HashBasedRepoStrategy implements ORSGraphRepoStrategy {
 
     private String hash;

@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.HashSubDirBasedORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
+import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

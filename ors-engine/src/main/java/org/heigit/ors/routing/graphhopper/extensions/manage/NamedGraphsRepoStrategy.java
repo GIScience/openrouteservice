@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;
 
 public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
 
