@@ -32,7 +32,7 @@ import static org.mockito.Mockito.lenient;
 class ORSGraphFileManagerTest {
 
     @Spy
-    ORSGraphRepoManager orsGraphRepoManager;
+    NexusRepoManager orsGraphRepoManager;
 
     ORSGraphFolderStrategy orsGraphFolderStrategy;
     ORSGraphFileManager orsGraphFileManager;
@@ -104,7 +104,7 @@ class ORSGraphFileManagerTest {
         orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(localDir.getAbsolutePath(), VEHICLE, hash);
         orsGraphFileManager = new ORSGraphFileManager(engineConfig, VEHICLE, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        orsGraphRepoManager = new ORSGraphRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, VEHICLE, new NamedGraphsRepoStrategy(engineConfig, VEHICLE), orsGraphFileManager);
+        orsGraphRepoManager = new NexusRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, VEHICLE, new NamedGraphsRepoStrategy(engineConfig, VEHICLE), orsGraphFileManager);
     }
 
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {

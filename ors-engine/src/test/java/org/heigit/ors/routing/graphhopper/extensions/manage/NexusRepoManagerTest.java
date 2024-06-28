@@ -32,10 +32,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ORSGraphRepoManagerTest {
+class NexusRepoManagerTest {
 
     @Spy
-    ORSGraphRepoManager orsGraphRepoManager;
+    NexusRepoManager orsGraphRepoManager;
     ORSGraphFileManager orsGraphFileManager;
     private static final String GRAPHS_REPO_BASE_URL = "https://example.com";
     private static final String GRAPHS_REPO_NAME = "test-repo";
