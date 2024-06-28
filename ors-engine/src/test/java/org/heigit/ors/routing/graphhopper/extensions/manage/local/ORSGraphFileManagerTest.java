@@ -1,9 +1,9 @@
-package org.heigit.ors.routing.graphhopper.extensions.manage;
+package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.heigit.ors.config.EngineConfig;
-import org.heigit.ors.routing.graphhopper.extensions.manage.local.HashSubDirBasedORSGraphFolderStrategy;
+import org.heigit.ors.routing.graphhopper.extensions.manage.*;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

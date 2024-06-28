@@ -45,17 +45,17 @@ public class GraphInfo {
         return remoteUrl != null;
     }
 
-    GraphInfo withRemoteUrl(URL url) {
+    public GraphInfo withRemoteUrl(URL url) {
         this.remoteUrl = url;
         return this;
     }
 
-    GraphInfo withLocalDirectory(File directory) {
+    public GraphInfo withLocalDirectory(File directory) {
         this.localDirectory = directory;
         return this;
     }
 
-    GraphInfo withPersistedInfo(ORSGraphInfoV1 persistedGraphInfo) {
+    public GraphInfo withPersistedInfo(ORSGraphInfoV1 persistedGraphInfo) {
         this.persistedGraphInfo = persistedGraphInfo;
         return this;
     }

@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.Configuration;
@@ -182,7 +183,7 @@ public class NexusRepoManager implements ORSGraphRepoManager {
         return Arrays.stream(dates).max(Date::compareTo).orElse(new Date(0L));
     }
 
-    AssetXO findLatestGraphInfoAsset() {
+    public AssetXO findLatestGraphInfoAsset() {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
         defaultClient.setBasePath(graphsRepoBaseUrl);
 
@@ -257,7 +258,7 @@ public class NexusRepoManager implements ORSGraphRepoManager {
         return first.orElse(null);
     }
 
-    void downloadAsset(String downloadUrl, File outputFile) {
+    public void downloadAsset(String downloadUrl, File outputFile) {
         File tempDownloadFile = orsGraphFileManager.asIncompleteFile(outputFile);
         if (StringUtils.isNotBlank(downloadUrl)) {
             try {

@@ -1,4 +1,4 @@
-package org.heigit.ors.routing.graphhopper.extensions.manage;
+package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -12,6 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphFolderStrategy;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -52,15 +55,15 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
     }
 
-    boolean hasActiveGraph() {
+    public boolean hasActiveGraph() {
         return isExistingDirectoryWithFiles(getActiveGraphDirectory());
     }
 
-    boolean hasActiveGraphDirectory() {
+    public boolean hasActiveGraphDirectory() {
         return isExistingDirectory(getActiveGraphDirectory());
     }
 
-    boolean hasGraphDownloadFile() {
+    public boolean hasGraphDownloadFile() {
         return getDownloadedCompressedGraphFile().exists();
     }
 
@@ -76,7 +79,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return isExistingDirectory(directory) && directory.listFiles().length > 0;
     }
 
-    File asIncompleteFile(File file){
+    public File asIncompleteFile(File file){
         return new File(file.getAbsolutePath() + "." + INCOMPLETE_EXTENSION);
     }
 
@@ -90,7 +93,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                 asIncompleteFile(getDownloadedExtractedGraphDirectory()).exists();
     }
 
-    void cleanupIncompleteFiles() {
+    public void cleanupIncompleteFiles() {
         File incompleteDownloadFile = asIncompleteFile(getDownloadedCompressedGraphFile());
         if (incompleteDownloadFile.exists()) {
             LOGGER.info("[%s] Deleted incomplete graph download file from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteDownloadFile.getAbsolutePath()));
@@ -120,7 +123,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
     }
 
-    void backupExistingGraph() {
+    public void backupExistingGraph() {
         if (!hasActiveGraph()) {
             deleteOldestBackups();
             return;
@@ -149,7 +152,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         deleteOldestBackups();
     }
 
-    void deleteOldestBackups() {
+    public void deleteOldestBackups() {
         List<File> existingBackups = findGraphBackupsSortedByName();
         int numBackupsToDelete = existingBackups.size() - Math.max(maxNumberOfGraphBackups, 0);
         if (numBackupsToDelete < 1) {
@@ -166,7 +169,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
     }
 
-    List<File> findGraphBackupsSortedByName() {
+    public List<File> findGraphBackupsSortedByName() {
         File vehicleDir = getProfileGraphsDirectory();
         FilenameFilter filter = new RegexFileFilter("^%s_\\d{4}-\\d{2}-\\d{2}_\\d{6}$".formatted(getActiveGraphDirName()));
         File[] obj = vehicleDir.listFiles(filter);
@@ -176,7 +179,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return Arrays.asList(Objects.requireNonNull(obj)).stream().sorted(Comparator.comparing(File::getName)).toList();
     }
 
-    GraphInfo getActiveGraphInfo() {
+    public GraphInfo getActiveGraphInfo() {
         LOGGER.trace("[%s] Checking active graph info...".formatted(getProfileDescriptiveName()));
         File activeGraphDirectory = getActiveGraphDirectory();
 
@@ -188,7 +191,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return getGraphInfo(getActiveGraphInfoFile());
     }
 
-    GraphInfo getDownloadedExtractedGraphInfo() {
+    public GraphInfo getDownloadedExtractedGraphInfo() {
         LOGGER.trace("[%s] Checking downloaded graph info...".formatted(getProfileDescriptiveName()));
         File downloadedExtractedGraphDirectory = getDownloadedExtractedGraphDirectory();
 
@@ -212,7 +215,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return new GraphInfo().withLocalDirectory(graphDirectory).withPersistedInfo(graphInfoV1);
     }
 
-    ORSGraphInfoV1 readOrsGraphInfoV1(File graphInfoFile) {
+    public ORSGraphInfoV1 readOrsGraphInfoV1(File graphInfoFile) {
         try {
             return new ObjectMapper(new YAMLFactory())
                     .readValue(graphInfoFile, ORSGraphInfoV1.class);
@@ -231,7 +234,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
     }
 
-    ORSGraphInfoV1 getDownloadedGraphInfo() {
+    public ORSGraphInfoV1 getDownloadedGraphInfo() {
         LOGGER.trace("[%s] Checking graph info of previous check ...".formatted(getProfileDescriptiveName()));
         File downloadedGraphInfoFile = getDownloadedGraphInfoFile();
         if (downloadedGraphInfoFile.exists()) {
