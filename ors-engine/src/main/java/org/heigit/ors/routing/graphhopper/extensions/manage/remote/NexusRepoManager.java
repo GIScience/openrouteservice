@@ -1,9 +1,11 @@
-package org.heigit.ors.routing.graphhopper.extensions.manage;
+package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
@@ -158,14 +160,14 @@ public class NexusRepoManager implements ORSGraphRepoManager {
         return remoteDate.after(newestLocalDate);
     }
 
-    Date getDateOrEpocStart(GraphInfo graphInfo) {
+    public Date getDateOrEpocStart(GraphInfo graphInfo) {
         return Optional.ofNullable(graphInfo)
                 .map(GraphInfo::getPersistedGraphInfo)
                 .map(ORSGraphInfoV1::getOsmDate)
                 .orElse(new Date(0L));
     }
 
-    Date getDateOrEpocStart(File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo) {
+    public Date getDateOrEpocStart(File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo) {
         if (persistedDownloadFile==null) {
             return new Date(0L);
         }
@@ -245,7 +247,7 @@ public class NexusRepoManager implements ORSGraphRepoManager {
         return latestGraphInfoInRepo;
     }
 
-    AssetXO filterLatestAsset(List<AssetXO> items) {
+    public AssetXO filterLatestAsset(List<AssetXO> items) {
         String downloadPathFilterPattern = createDownloadPathFilterPattern();
         LOGGER.debug("[%s] Filtering %d assets for pattern '%s'".formatted(getProfileDescriptiveName(), items.size(), downloadPathFilterPattern));
 

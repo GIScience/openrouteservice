@@ -1,8 +1,10 @@
-package org.heigit.ors.routing.graphhopper.extensions.manage;
+package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.HashSubDirBasedORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;

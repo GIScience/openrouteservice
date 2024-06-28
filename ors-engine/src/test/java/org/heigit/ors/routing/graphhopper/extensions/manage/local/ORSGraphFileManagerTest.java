@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.routing.graphhopper.extensions.manage.*;
+import org.heigit.ors.routing.graphhopper.extensions.manage.remote.NamedGraphsRepoStrategy;
+import org.heigit.ors.routing.graphhopper.extensions.manage.remote.NexusRepoManager;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
