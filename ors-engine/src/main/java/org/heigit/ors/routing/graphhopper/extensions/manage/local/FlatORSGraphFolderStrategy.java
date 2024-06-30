@@ -19,7 +19,7 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
         this.routeProfileName = routeProfileName;
         this.profileGroup = engineConfig.getGraphsProfileGroup();
         this.extend = engineConfig.getGraphsExtent();
-        this.graphVersion = EngineConfig.GRAPH_VERSION;
+        this.graphVersion = engineConfig.getGraphVersion();
         this.repoName = engineConfig.getGraphsRepoName();
     }
 

@@ -41,13 +41,13 @@ public class NexusRepoManager implements ORSGraphRepoManager {
     public NexusRepoManager() {
     }
 
-    public NexusRepoManager(EngineConfig engineConfig, String graphsRepoGraphVersion, String routeProfileName, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+    public NexusRepoManager(EngineConfig engineConfig, String routeProfileName, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
         this.graphsRepoPath = engineConfig.getGraphsRepoPath();
         this.graphsRepoName = engineConfig.getGraphsRepoName();
         this.graphsRepoCoverage = engineConfig.getGraphsExtent();
         this.graphsProfileGroup = engineConfig.getGraphsProfileGroup();
-        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
+        this.graphsRepoGraphVersion = engineConfig.getGraphVersion();
         this.routeProfileName = routeProfileName;
         this.orsGraphRepoStrategy = orsGraphRepoStrategy;
         this.orsGraphFileManager = orsGraphFileManager;

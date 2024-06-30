@@ -13,6 +13,7 @@ class FlatORSGraphFolderStrategyTest {
                     .setGraphsRepoName("vendor.org")
                     .setGraphsProfileGroup("fun")
                     .setGraphsExtent("disneyland")
+                    .setGraphVersion("0")
                     .build(),
                     "bobbycar");
 

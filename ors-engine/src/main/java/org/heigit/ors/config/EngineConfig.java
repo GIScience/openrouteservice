@@ -34,6 +34,7 @@ public class EngineConfig {
     private final boolean preparationMode;
     private final String sourceFile;
     private final int maxNumberOfGraphBackups;
+    private final String graphVersion;
     private final String graphsRootPath;
     private final String graphsRepoName;
     private final String graphsRepoUrl;
@@ -62,6 +63,10 @@ public class EngineConfig {
 
     public int getMaxNumberOfGraphBackups() {
         return maxNumberOfGraphBackups;
+    }
+
+    public String getGraphVersion() {
+        return graphVersion;
     }
 
     public String getGraphsRootPath() {
@@ -102,6 +107,7 @@ public class EngineConfig {
         this.sourceFile = builder.sourceFile;
         this.maxNumberOfGraphBackups = builder.maxNumberOfGraphBackups;
         this.elevationPreprocessed = builder.elevationPreprocessed;
+        this.graphVersion = builder.graphVersion;
         this.graphsRootPath = builder.graphsRootPath;
         this.graphsRepoUrl = builder.graphsRepoUrl;
         this.graphsRepoPath = builder.graphsRepoPath;
@@ -118,6 +124,7 @@ public class EngineConfig {
         private boolean preparationMode;
         private String sourceFile;
         private int maxNumberOfGraphBackups;
+        private String graphVersion;
         private String graphsRootPath;
         private String graphsRepoUrl;
         private String graphsRepoPath;
@@ -152,6 +159,11 @@ public class EngineConfig {
 
         public EngineConfigBuilder setMaxNumberOfGraphBackups(int maxNumberOfGraphBackups) {
             this.maxNumberOfGraphBackups = maxNumberOfGraphBackups;
+            return this;
+        }
+
+        public EngineConfigBuilder setGraphVersion(String graphVersion) {
+            this.graphVersion = graphVersion;
             return this;
         }
 

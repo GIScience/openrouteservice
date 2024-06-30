@@ -87,6 +87,7 @@ class ORSGraphFileManagerTest {
                 .setGraphsRepoName(GRAPHS_REPO_NAME)
                 .setGraphsExtent(GRAPHS_COVERAGE)
                 .setGraphsProfileGroup(GRAPHS_PROFILE_GROUP)
+                .setGraphVersion(GRAPHS_VERSION)
                 .setMaxNumberOfGraphBackups(3)
                 .buildWithAppConfigOverride();
     }
@@ -107,7 +108,7 @@ class ORSGraphFileManagerTest {
         orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(localDir.getAbsolutePath(), VEHICLE, hash);
         orsGraphFileManager = new ORSGraphFileManager(engineConfig, VEHICLE, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        orsGraphRepoManager = new NexusRepoManager(engineConfig, EngineConfig.GRAPH_VERSION, VEHICLE, new NamedGraphsRepoStrategy(engineConfig, VEHICLE), orsGraphFileManager);
+        orsGraphRepoManager = new NexusRepoManager(engineConfig, VEHICLE, new NamedGraphsRepoStrategy(engineConfig, VEHICLE), orsGraphFileManager);
     }
 
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {

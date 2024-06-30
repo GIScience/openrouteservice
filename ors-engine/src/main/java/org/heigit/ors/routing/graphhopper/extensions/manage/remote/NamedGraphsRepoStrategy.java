@@ -14,7 +14,7 @@ public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
     public NamedGraphsRepoStrategy(EngineConfig engineConfig, String routeProfileName) {
         this.repoName = engineConfig.getGraphsRepoName();
         this.profileGroup = engineConfig.getGraphsProfileGroup();
-        this.graphVersion = EngineConfig.GRAPH_VERSION;
+        this.graphVersion = engineConfig.getGraphVersion();
         this.extend = engineConfig.getGraphsExtent();
         this.routeProfileName = routeProfileName;
     }
