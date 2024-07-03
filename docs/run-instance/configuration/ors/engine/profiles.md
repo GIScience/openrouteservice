@@ -163,8 +163,7 @@ Properties beneath `ors.engine.profiles.*.execution.methods.core`:
 For each profile it can be defined which auxiliary metadata should be included in the graph.
 This information is made available as `extra_info` in a routing response.
 Additionally, data from `WayCategory` and `Tollways` is being used to filter out certain roads via
-[`avoid_features`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-features) api query
-parameter, and `Borders` is necessary for the functionality behind [`avoid_borders`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-borders)
+the [`avoid_features`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-features) query parameter, and `Borders` is necessary for the functionality behind [`avoid_borders`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-borders)
 and [`avoid_countries`](directions/routing-options#options-avoid-countries) query parameters.
 
 To do so, add a key from the list below.
@@ -178,7 +177,7 @@ Properties beneath `ors.engine.profiles.*.ext_storages`:
 | WayCategory            | object | Returns the way category in the route response, compatible with any profile type                                             |                                                   |
 | WaySurfaceType         | object | Returns the way surface in the route response, compatible with any profile type                                              |                                                   |
 | Tollways               | object | Returns way tolls in the route response, compatible with driving profiles                                                    |                                                   |
-| HillIndex              | object | Returns the ascent/descent in the route response, sompatible with any profile type                                           |                                                   |
+| HillIndex              | object | Returns the ascent/descent in the route response, compatible with any profile type                                           |                                                   |
 | TrailDifficulty        | object | Returns the trail difficulty in the route response, compatible with profile-hiking                                           |                                                   |
 | RoadAccessRestrictions | object | RoadAccessRestrictions are where roads are restricted to certain vehicles to certain circumstances, e.g. access=destination. | [RoadAccessRestrictions](#roadaccessrestrictions) |
 | Wheelchair             | object | Compatible for wheelchair                                                                                                    | [Wheelchair](#wheelchair)                         |

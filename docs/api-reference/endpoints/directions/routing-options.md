@@ -6,7 +6,7 @@ The `options` parameter is a JSON object, multiple of the here mentioned paramet
 For structure refer to the [examples](#examples).
 
 ::: warning
-Some of the options below rely on auxiliary data included on the graph, see [External storages](../../../run-instance/configuration/ors/engine/profiles.md#ext_storages)
+Some of the options below rely on auxiliary data included in the graph, see [External storages](../../../run-instance/configuration/ors/engine/profiles.md#ext_storages)
 :::
 
 ## Available parameters
