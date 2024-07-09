@@ -30,6 +30,8 @@ do
   thread_times+=("Threads: ${thread} [${iteration_times[@]}]")
 done
 
+docker rm --force ors-instance
+
 echo ">>>>>>>> Results <<<<<<<<"
 echo "${thread_times[@]}"
 
