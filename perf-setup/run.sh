@@ -10,6 +10,7 @@ trap ctrl_c INT
 function ctrl_c() {
         echo ">>>>>>>> Results <<<<<<<<"
         echo "${thread_times[@]}"
+        exit 1
 }
 
 for thread in "${max_threads[@]}"
