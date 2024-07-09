@@ -90,6 +90,7 @@ public class FastIsochroneFactory {
 
     public void prepare(final StorableProperties properties) {
         ExecutorService threadPool = Executors.newFixedThreadPool(1);
+        // TODO talk with hendrik why this is a thread pool?
         ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
         final String name = "PreparePartition";
         completionService.submit(() -> {

@@ -12,6 +12,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
+import org.heigit.ors.fastisochrones.partitioning.PreparePartition;
 import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceSet;
@@ -19,6 +20,8 @@ import org.heigit.ors.fastisochrones.storage.BorderNodeDistanceStorage;
 import org.heigit.ors.fastisochrones.storage.EccentricityStorage;
 import org.heigit.ors.routing.algorithms.DijkstraOneToManyAlgorithm;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +47,7 @@ public class Eccentricity extends AbstractEccentricity {
     //This is needed to get a better estimate on the eccentricity, but not run a Dijkstra on the whole graph to find it.
     private static final int ECCENTRICITY_DIJKSTRA_LIMIT_FACTOR = 10;
     private final LocationIndex locationIndex;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Eccentricity.class);
 
     public Eccentricity(GraphHopperStorage graphHopperStorage, LocationIndex locationIndex, IsochroneNodeStorage isochroneNodeStorage, CellStorage cellStorage) {
         super(graphHopperStorage);
@@ -60,6 +64,8 @@ public class Eccentricity extends AbstractEccentricity {
         Graph graph = ghStorage.getBaseGraph();
         if (!eccentricityStorage.loadExisting())
             eccentricityStorage.init();
+
+        LOGGER.info("Using {} threads for calcEccentricities", Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
 
         ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
@@ -135,6 +141,7 @@ public class Eccentricity extends AbstractEccentricity {
         if (!borderNodeDistanceStorage.loadExisting())
             borderNodeDistanceStorage.init();
 
+        LOGGER.info("Using {} threads for calcBorderNodeDistances", Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
         ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
 
