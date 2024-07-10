@@ -16,10 +16,11 @@ function ctrl_c() {
 
 docker build -t openrouteservice:local -f ../Dockerfile ..
 
+echo "Starting ORS instance with $MAX_ITERATIONS iterations"
 for i in $(seq 1 "$MAX_ITERATIONS"); do
+  echo "Iteration $i"
   start_time=$(date +%s)
   docker rm --force ors-instance || true
-  echo "Starting ORS instance with $i iterations"
   docker run -it --user $UID -d -p 8082:8082 --env-file ./config.env -v "${OSM_FILE}":/home/ors/files/osm.pbf:ro --name ors-instance openrouteservice:local
   ../.github/utils/url_check.sh 127.0.0.1 8082 /ors/v2/health 200 1800 10 3
   end_time=$(date +%s)
