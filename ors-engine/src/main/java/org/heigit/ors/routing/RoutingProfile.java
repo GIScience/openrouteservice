@@ -216,8 +216,10 @@ public class RoutingProfile {
 
             if (prepareFI) {
                 //Copied from core
-                if (fastisochroneOpts.hasPath(ProfileTools.KEY_THREADS))
-                    ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getInt(ProfileTools.KEY_THREADS));
+                LOGGER.warn("Hardcoded threads for FastIsochrone preparation: 50");
+                ghConfig.putObject("prepare.fastisochrone.threads", 50);
+//                if (fastisochroneOpts.hasPath(ProfileTools.KEY_THREADS))
+//                    ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getInt(ProfileTools.KEY_THREADS));
                 if (fastisochroneOpts.hasPath(ProfileTools.KEY_MAXCELLNODES))
                     ghConfig.putObject("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(ProfileTools.KEY_MAXCELLNODES)));
                 if (fastisochroneOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
@@ -258,8 +260,10 @@ public class RoutingProfile {
                     }
 
                     if (prepareCH) {
-                        if (chOpts.hasPath(ProfileTools.KEY_THREADS))
-                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(ProfileTools.KEY_THREADS));
+                        LOGGER.warn("Hardcoded threads for CH preparation: 50");
+                        ghConfig.putObject("prepare.ch.threads", 50);
+//                        if (chOpts.hasPath(ProfileTools.KEY_THREADS))
+//                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(ProfileTools.KEY_THREADS));
                         if (chOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
                             List<CHProfile> chProfiles = new ArrayList<>();
                             String chWeightingsString = StringUtility.trimQuotes(chOpts.getString(ProfileTools.KEY_WEIGHTINGS));
@@ -279,8 +283,10 @@ public class RoutingProfile {
                     }
 
                     if (prepareLM) {
-                        if (lmOpts.hasPath(ProfileTools.KEY_THREADS))
-                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(ProfileTools.KEY_THREADS));
+                        LOGGER.warn("Hardcoded threads for LM preparation: 50");
+                        ghConfig.putObject("prepare.lm.threads", 50);
+//                        if (lmOpts.hasPath(ProfileTools.KEY_THREADS))
+//                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(ProfileTools.KEY_THREADS));
                         if (lmOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
                             List<LMProfile> lmProfiles = new ArrayList<>();
                             String lmWeightingsString = StringUtility.trimQuotes(lmOpts.getString(ProfileTools.KEY_WEIGHTINGS));
@@ -308,8 +314,9 @@ public class RoutingProfile {
                             String[] threads = coreOpts.getString(ProfileTools.KEY_THREADS).split(",");
                             int threadsCH = Integer.parseInt(threads[0]);
                             int threadsLM = threads.length > 1 ? Integer.parseInt(threads[1]) : threadsCH;
-                            ghConfig.putObject("prepare.core.threads", threadsCH);
-                            ghConfig.putObject("prepare.corelm.threads", threadsLM);
+                            LOGGER.warn("Hardcoded threads for Core preparation: 50");
+                            ghConfig.putObject("prepare.core.threads", 50);
+                            ghConfig.putObject("prepare.corelm.threads", 50);
                         }
                         if (coreOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
                             List<CHProfile> coreProfiles = new ArrayList<>();
