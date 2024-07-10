@@ -38,4 +38,4 @@ docs/
 Dockerfile
 envs/
 .jqwik-database
-perf-setup
+perf-setup/
