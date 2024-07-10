@@ -60,7 +60,7 @@ public class PreparePartition {
     private int[] runInertialFlow() {
         int[] nodeToCellArray = new int[ghStorage.getNodes()];
         int min = Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors());
-        LOGGER.info("Using {} threads for partitioning", min);
+        LOGGER.warn("Using {} threads for partitioning", min);
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(min);
         InverseSemaphore inverseSemaphore = new InverseSemaphore();
         inverseSemaphore.beforeSubmit();

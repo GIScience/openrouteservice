@@ -65,7 +65,7 @@ public class Eccentricity extends AbstractEccentricity {
         if (!eccentricityStorage.loadExisting())
             eccentricityStorage.init();
 
-        LOGGER.info("Using {} threads for calcEccentricities", Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
+        LOGGER.warn("Using {} threads for calcEccentricities", Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
 
         ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
@@ -141,7 +141,7 @@ public class Eccentricity extends AbstractEccentricity {
         if (!borderNodeDistanceStorage.loadExisting())
             borderNodeDistanceStorage.init();
 
-        LOGGER.info("Using {} threads for calcBorderNodeDistances", Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
+        LOGGER.warn("Using {} threads for calcBorderNodeDistances", Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
         ExecutorService threadPool = java.util.concurrent.Executors.newFixedThreadPool(Math.min(getMaxThreadCount(), Runtime.getRuntime().availableProcessors()));
         ExecutorCompletionService<String> completionService = new ExecutorCompletionService<>(threadPool);
 
