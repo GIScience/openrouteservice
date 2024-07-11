@@ -27,6 +27,7 @@ for i in $(seq 1 "$MAX_ITERATIONS"); do
   docker run -it --user $UID -d -p 8082:8082 -p 9001:9001 -e XMX="${XMX}" -v ./config.yml:/home/ors/config/ors-config.yml -v "${OSM_FILE}":/home/ors/files/osm.pbf:ro --name ors-instance openrouteservice:local
   ../.github/utils/url_check.sh 127.0.0.1 8082 /ors/v2/health 200 1800 10 3
   end_time=$(date +%s)
+  echo "ORS Graph build in $((end_time - start_time))s"
   iteration_times+="$((end_time - start_time))s "
 done
 thread_times+=("Iteration timings: ${thread} [${iteration_times[@]}]")
