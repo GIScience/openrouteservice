@@ -23,8 +23,8 @@ for i in $(seq 1 "$MAX_ITERATIONS"); do
   echo "Iteration $i"
   start_time=$(date +%s)
   docker rm --force ors-instance || true
-#  docker run -it --user $UID -d -p 8082:8082 --env-file ./config.env -e XMX="${XMX}" -v ./ors.jar:/ors.jar -v "${OSM_FILE}":/home/ors/files/osm.pbf:ro --name ors-instance openrouteservice:local
-  docker run -it --user $UID -d -p 8082:8082 --env-file ./config.env -e XMX="${XMX}" -v "${OSM_FILE}":/home/ors/files/osm.pbf:ro --name ors-instance openrouteservice:local
+#  docker run -it --user $UID -d -p 8082:8082 -p 9001:9001 --env-file ./config.env -e XMX="${XMX}" -v ./ors.jar:/ors.jar -v "${OSM_FILE}":/home/ors/files/osm.pbf:ro --name ors-instance openrouteservice:local
+  docker run -it --user $UID -d -p 8082:8082 -p 9001:9001 --env-file ./config.env -e XMX="${XMX}" -v "${OSM_FILE}":/home/ors/files/osm.pbf:ro --name ors-instance openrouteservice:local
   ../.github/utils/url_check.sh 127.0.0.1 8082 /ors/v2/health 200 1800 10 3
   end_time=$(date +%s)
   iteration_times+="$((end_time - start_time))s "
