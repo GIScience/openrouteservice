@@ -28,7 +28,7 @@ for i in $(seq 1 "$MAX_ITERATIONS"); do
 done
 thread_times+=("Iteration timings: ${thread} [${iteration_times[@]}]")
 
-docker rm --force ors-instance
+docker stop ors-instance
 
 echo ">>>>>>>> Results <<<<<<<<"
 echo "${thread_times[@]}"
