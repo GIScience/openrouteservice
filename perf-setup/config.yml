@@ -16,6 +16,7 @@ ors:
   engine:
     source_file: /home/ors/files/osm.pbf
     graphs_root_path: graphs-apitests
+    graphs_data_access: RAM_STORE # MMAP
 #    elevation:
 #      cache_path: ./src/test/files/elevation
     profile_default:
