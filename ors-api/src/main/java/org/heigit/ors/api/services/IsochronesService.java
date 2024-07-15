@@ -2,6 +2,7 @@ package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
 import org.heigit.ors.api.requests.routing.RouteRequestOptions;
@@ -205,8 +206,8 @@ public class IsochronesService extends ApiService {
                 Map<String, String> propMapping = new HashMap<>();
                 for (Map.Entry<String, String> propEntry : propertyMapping.entrySet())
                     propMapping.put(propEntry.getValue(), propEntry.getKey());
-                if (propMapping.size() > 0) {
-                    StatisticsProviderConfiguration provConfig = new StatisticsProviderConfiguration(id++, providerProperties.getProviderName(), providerProperties.getProviderParameters(), propMapping, providerProperties.getAttribution());
+                if (!propMapping.isEmpty()) {
+                    StatisticsProviderConfiguration provConfig = new StatisticsProviderConfiguration(id++, providerProperties.getProviderName(), getProviderParametersMap(providerProperties.getProviderParameters()), propMapping, providerProperties.getAttribution());
                     for (Map.Entry<String, String> property : propMapping.entrySet())
                         statsProviders.put(property.getKey().toLowerCase(), provConfig);
                 }
@@ -214,6 +215,20 @@ public class IsochronesService extends ApiService {
         }
 
         return statsProviders;
+    }
+
+    Map<String, Object> getProviderParametersMap(EndpointsProperties.EndpointIsochronesProperties.ProviderParametersProperties providerParameters) {
+        // TODO: this is ugly, refactor StatisticsProvideConfiguration at some point
+        Map<String, Object> map = new HashMap<>();
+        map.put("host", providerParameters.getHost());
+        map.put("port", providerParameters.getPort());
+        map.put("user", providerParameters.getUser());
+        map.put("password", providerParameters.getPassword());
+        map.put("db_name", providerParameters.getDbName());
+        map.put("table_name", providerParameters.getTableName());
+        map.put("geometry_column", providerParameters.getGeometryColumn());
+        map.put("postgis_version", providerParameters.getPostgisVersion());
+        return map;
     }
 
     TravellerInfo constructTravellerInfo(IsochronesRequest isochronesRequest, Double[] coordinate) throws Exception {
@@ -243,11 +258,11 @@ public class IsochronesService extends ApiService {
         try {
             profileType = convertToIsochronesProfileType(isochronesRequest.getProfile());
         } catch (Exception e) {
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_PROFILE);
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, APIRequest.PARAM_PROFILE);
         }
 
         if (profileType == RoutingProfileType.UNKNOWN)
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_PROFILE);
+            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, APIRequest.PARAM_PROFILE);
         routeSearchParameters.setProfileType(profileType);
 
         if (isochronesRequest.hasOptions()) {

@@ -1,5 +1,9 @@
 package org.heigit.ors.api.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +22,7 @@ public class EndpointsProperties {
     private EndpointMatrixProperties matrix;
     private EndpointIsochronesProperties isochrones;
     private EndpointSnapProperties snap;
+    @JsonIgnore
     private String swaggerDocumentationUrl;
 
     public void setSwaggerDocumentationUrl(String swaggerDocumentationUrl) {
@@ -69,6 +74,7 @@ public class EndpointsProperties {
     }
 
     public static class EndpointDefaultProperties {
+        @JsonProperty("attribution")
         private String attribution;
 
         public String getAttribution() {
@@ -83,14 +89,23 @@ public class EndpointsProperties {
     public static class EndpointRoutingProperties {
         private boolean enabled;
         private String attribution;
+        @JsonProperty("gpx_name")
         private String gpxName;
+        @JsonProperty("gpx_description")
         private String gpxDescription;
+        @JsonProperty("gpx_base_url")
         private String gpxBaseUrl;
+        @JsonProperty("gpx_support_mail")
         private String gpxSupportMail;
+        @JsonProperty("gpx_author")
         private String gpxAuthor;
+        @JsonProperty("gpx_content_licence")
         private String gpxContentLicence;
+        @JsonProperty("maximum_avoid_polygon_area")
         private double maximumAvoidPolygonArea;
+        @JsonProperty("maximum_avoid_polygon_extent")
         private double maximumAvoidPolygonExtent;
+        @JsonProperty("maximum_alternative_routes")
         private int maximumAlternativeRoutes;
 
         public boolean isEnabled() {
@@ -188,12 +203,17 @@ public class EndpointsProperties {
     public static class EndpointMatrixProperties {
         private boolean enabled;
         private String attribution;
+        @JsonProperty("maximum_routes")
         private int maximumRoutes = 2500;
+        @JsonProperty("maximum_routes_flexible")
         private int maximumRoutesFlexible = 25;
+        @JsonProperty("maximum_visited_nodes")
         private int maximumVisitedNodes = 100000;
+        @JsonProperty("maximum_search_radius")
         private double maximumSearchRadius = 2000;
         // TODO: this parameter is only used in a binary check for infinity (==-1);
         //       Can't we reduce it to a boolean "forbid_u_turns"?
+        @JsonProperty("u_turn_costs")
         private double uTurnCost = INFINITE_U_TURN_COSTS;
 
 
@@ -241,6 +261,7 @@ public class EndpointsProperties {
             this.maximumSearchRadius = maximumSearchRadius;
         }
 
+        @JsonProperty("u_turn_costs")
         public double getUTurnCost() {
             return uTurnCost;
         }
@@ -251,9 +272,13 @@ public class EndpointsProperties {
     }
 
     public static class MaximumRangeProperties {
+        @JsonProperty("maximum_range_distance_default")
         private int maximumRangeDistanceDefault;
+        @JsonProperty("maximum_range_distance")
         private List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeDistance;
+        @JsonProperty("maximum_range_time_default")
         private int maximumRangeTimeDefault;
+        @JsonProperty("maximum_range_time")
         private List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeTime;
 
         public int getMaximumRangeDistanceDefault() {
@@ -294,12 +319,14 @@ public class EndpointsProperties {
                     profileMaxRangeTimes.put(RoutingProfileType.getFromString(profile), maximumRangePropertiesEntry.getValue());
         }
 
+        @JsonIgnore
         private final Map<Integer, Integer> profileMaxRangeDistances = new HashMap<>();
 
         public Map<Integer, Integer> getProfileMaxRangeDistances() {
             return profileMaxRangeDistances;
         }
 
+        @JsonIgnore
         private final Map<Integer, Integer> profileMaxRangeTimes = new HashMap<>();
 
         public Map<Integer, Integer> getProfileMaxRangeTimes() {
@@ -307,6 +334,7 @@ public class EndpointsProperties {
         }
 
         public static class MaximumRangePropertiesEntry {
+            @JsonSerialize(using = InlineArraySerializer.class)
             private List<String> profiles;
             private int value;
 
@@ -328,13 +356,18 @@ public class EndpointsProperties {
         }
     }
 
+    @JsonPropertyOrder({"enabled", "attribution", "maximum_locations", "maximum_intervals", "allow_compute_area", "maximum_range_distance_default", "maximum_range_distance", "maximum_range_time_default", "maximum_range_time", "fastisochrones"})
     public static class EndpointIsochronesProperties extends MaximumRangeProperties {
         private boolean enabled;
         private String attribution;
+        @JsonProperty("maximum_locations")
         private int maximumLocations;
+        @JsonProperty("allow_compute_area")
         private boolean allowComputeArea = true;
+        @JsonProperty("maximum_intervals")
         private int maximumIntervals = 1;
         private MaximumRangeProperties fastisochrones;
+        @JsonProperty("statistics_providers")
         private Map<String, StatisticsProviderProperties> statisticsProviders = new HashMap<>();
 
         public boolean isEnabled() {
@@ -395,10 +428,13 @@ public class EndpointsProperties {
 
         public static class StatisticsProviderProperties {
             private boolean enabled;
-            private String providerName;
-            private Map<String, Object> providerParameters;
-            private Map<String, String> propertyMapping;
             private String attribution;
+            @JsonProperty("provider_name")
+            private String providerName;
+            @JsonProperty("provider_parameters")
+            private ProviderParametersProperties providerParameters;
+            @JsonProperty("property_mapping")
+            private Map<String, String> propertyMapping;
 
             public boolean isEnabled() {
                 return enabled;
@@ -416,11 +452,11 @@ public class EndpointsProperties {
                 this.providerName = providerName;
             }
 
-            public Map<String, Object> getProviderParameters() {
+            public ProviderParametersProperties getProviderParameters() {
                 return providerParameters;
             }
 
-            public void setProviderParameters(Map<String, Object> providerParameters) {
+            public void setProviderParameters(ProviderParametersProperties providerParameters) {
                 this.providerParameters = providerParameters;
             }
 
@@ -440,11 +476,95 @@ public class EndpointsProperties {
                 this.attribution = attribution;
             }
         }
+
+        public static class ProviderParametersProperties {
+            @JsonProperty("host")
+            private String host;
+            @JsonProperty("port")
+            private Integer port;
+            @JsonProperty("user")
+            private String user;
+            @JsonProperty("password")
+            private String password;
+            @JsonProperty("db_name")
+            private String dbName;
+            @JsonProperty("table_name")
+            private String tableName;
+            @JsonProperty("geometry_column")
+            private String geometryColumn;
+            @JsonProperty("postgis_version")
+            private String postgisVersion;
+
+            public String getHost() {
+                return host;
+            }
+
+            public void setHost(String host) {
+                this.host = host;
+            }
+
+            public Integer getPort() {
+                return port;
+            }
+
+            public void setPort(Integer port) {
+                this.port = port;
+            }
+
+            public String getUser() {
+                return user;
+            }
+
+            public void setUser(String user) {
+                this.user = user;
+            }
+
+            public String getPassword() {
+                return password;
+            }
+
+            public void setPassword(String password) {
+                this.password = password;
+            }
+
+            public String getDbName() {
+                return dbName;
+            }
+
+            public void setDbName(String dbName) {
+                this.dbName = dbName;
+            }
+
+            public String getTableName() {
+                return tableName;
+            }
+
+            public void setTableName(String tableName) {
+                this.tableName = tableName;
+            }
+
+            public String getGeometryColumn() {
+                return geometryColumn;
+            }
+
+            public void setGeometryColumn(String geometryColumn) {
+                this.geometryColumn = geometryColumn;
+            }
+
+            public String getPostgisVersion() {
+                return postgisVersion;
+            }
+
+            public void setPostgisVersion(String postgisVersion) {
+                this.postgisVersion = postgisVersion;
+            }
+        }
     }
 
     public static class EndpointSnapProperties {
         private boolean enabled;
         private String attribution;
+        @JsonProperty("maximum_locations")
         private int maximumLocations;
 
         public boolean isEnabled() {
@@ -466,6 +586,7 @@ public class EndpointsProperties {
         public int getMaximumLocations() {
             return maximumLocations;
         }
+
         public void setMaximumLocations(int maximumLocations) {
             this.maximumLocations = maximumLocations;
         }

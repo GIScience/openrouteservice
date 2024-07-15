@@ -111,7 +111,7 @@ public class SystemMessage {
     private static void loadMessages(SystemMessageProperties messageProperties) {
         messages = new ArrayList<>();
 
-        for (SystemMessageProperties.MessageObject message : messageProperties.getMessages()) {
+        for (SystemMessageProperties.MessageObject message : messageProperties) {
             try {
                 if (message.isActive()) {
                     List<SystemMessage.Condition> conditions = new ArrayList<>();

@@ -20,7 +20,6 @@
  */
 package org.heigit.ors.api.servlet.listeners;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -43,6 +42,7 @@ import org.heigit.ors.util.FormatUtility;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
 import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
 
 public class ORSInitContextListener implements ServletContextListener {
@@ -52,13 +52,15 @@ public class ORSInitContextListener implements ServletContextListener {
     private final CorsProperties corsProperties;
     private final SystemMessageProperties systemMessageProperties;
     private final LoggingProperties loggingProperties;
+    private final ServerProperties serverProperties;
 
-    public ORSInitContextListener(EngineProperties engineProperties, EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties) {
+    public ORSInitContextListener(EngineProperties engineProperties, EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties) {
         this.engineProperties = engineProperties;
         this.endpointsProperties = endpointsProperties;
         this.corsProperties = corsProperties;
         this.systemMessageProperties = systemMessageProperties;
         this.loggingProperties = loggingProperties;
+        this.serverProperties = serverProperties;
     }
 
     @Override
@@ -78,12 +80,13 @@ public class ORSInitContextListener implements ServletContextListener {
                     .disable(WRITE_DOC_START_MARKER)
                     .disable(SPLIT_LINES)
                     .enable(MINIMIZE_QUOTES);
-            ObjectMapper mapper = new ObjectMapper(yf).setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            ObjectMapper mapper = new ObjectMapper(yf)
+                    .configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
             mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
             try (FileOutputStream fos = new FileOutputStream("ors-config-example.yml"); JsonGenerator generator = mapper.createGenerator(fos)) {
-                LOGGER.info("Writing output configuration file.");
+                LOGGER.info("Output configuration file");
                 ORSConfigBundle ors = new ORSConfigBundle(corsProperties, systemMessageProperties, endpointsProperties, engineProperties);
-                ConfigBundle configBundle = new ConfigBundle(loggingProperties, ors);
+                ConfigBundle configBundle = new ConfigBundle(serverProperties, loggingProperties, ors);
                 generator.writeObject(configBundle);
                 if (LOGGER.isDebugEnabled()) {
                     System.out.println(mapper.writeValueAsString(configBundle));
@@ -112,19 +115,20 @@ public class ORSInitContextListener implements ServletContextListener {
     record ORSConfigBundle(
             @JsonIgnoreProperties({"$$beanFactory"})
             CorsProperties cors,
-            @JsonIgnore
+            @JsonInclude(JsonInclude.Include.CUSTOM)
             @JsonIgnoreProperties({"$$beanFactory"})
             SystemMessageProperties messages,
-            @JsonIgnore
             @JsonIgnoreProperties({"$$beanFactory"})
             EndpointsProperties endpoints,
-            @JsonIgnore
             @JsonIgnoreProperties({"$$beanFactory"})
             EngineProperties engine
     ) {
     }
 
     record ConfigBundle(
+            @JsonProperty
+            @JsonIgnoreProperties({"$$beanFactory"})
+            ServerProperties server,
             @JsonProperty
             @JsonIgnoreProperties({"$$beanFactory"})
             LoggingProperties logging,

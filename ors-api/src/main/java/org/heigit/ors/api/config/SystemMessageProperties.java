@@ -3,22 +3,13 @@ package org.heigit.ors.api.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Configuration
-@ConfigurationProperties(prefix = "ors")
-public class SystemMessageProperties {
-    private List<MessageObject> messages;
-
-    public List<MessageObject> getMessages() {
-        return messages;
-    }
-
-    public void setMessages(List<MessageObject> messages) {
-        this.messages = messages;
-    }
-
+@ConfigurationProperties(prefix = "ors.messages")
+public class SystemMessageProperties extends ArrayList<SystemMessageProperties.MessageObject> {
     public static class MessageObject {
         private boolean active;
         private String text;
