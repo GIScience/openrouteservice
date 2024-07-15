@@ -28,7 +28,6 @@ import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.mapmatching.MapMatchingRequest;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.heigit.ors.routing.configuration.RoutingManagerConfiguration;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
@@ -67,12 +66,7 @@ public class RoutingProfileManager {
         RuntimeUtility.printRAMInfo("", LOGGER);
         long startTime = System.currentTimeMillis();
         try {
-            // RoutingManagerConfiguration can be thrown away entirely after config migration
-            RoutingManagerConfiguration rmc = RoutingManagerConfiguration.loadFromFile(config.getGraphsRootPath());
-            RouteProfileConfiguration[] routeProfileConfigurations = rmc.getProfiles();
-            if (routeProfileConfigurations.length == 0) {
-                routeProfileConfigurations = config.getProfiles();
-            }
+            RouteProfileConfiguration[] routeProfileConfigurations = config.getProfiles();
             if (routeProfileConfigurations.length == 0) {
                 fail("No profiles configured. Exiting.");
                 return;

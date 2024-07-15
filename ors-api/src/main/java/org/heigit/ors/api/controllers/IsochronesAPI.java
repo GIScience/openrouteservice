@@ -34,7 +34,6 @@ import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochronesResponse;
 import org.heigit.ors.api.services.IsochronesService;
-import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
@@ -62,7 +61,7 @@ public class IsochronesAPI {
     private final IsochronesService isochronesService;
 
     public IsochronesAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, IsochronesService isochronesService) {
-        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+        this.endpointsProperties = endpointsProperties;
         this.systemMessageProperties = systemMessageProperties;
         this.isochronesService = isochronesService;
     }

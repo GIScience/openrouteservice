@@ -123,7 +123,6 @@ public class SystemMessage {
                 LOGGER.warn("Invalid SystemMessage object in ors config %s.".formatted(message.toString().substring(18)));
             }
         }
-        AppConfigMigration.loadSystemMessagesfromAppConfig(messages);
         if (!messages.isEmpty())
             LOGGER.info("SystemMessage loaded %s messages.".formatted(messages.size()));
     }

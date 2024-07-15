@@ -2,11 +2,8 @@ package org.heigit.ors.config;
 
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.heigit.ors.util.StringUtility;
 
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
 
 public class EngineConfig {
     // Migration guide: 1. add field and getter, assign in constructor
@@ -111,34 +108,6 @@ public class EngineConfig {
         }
 
         public EngineConfig build() {
-            return new EngineConfig(this);
-        }
-
-        public EngineConfig buildWithAppConfigOverride() {
-            AppConfig deprecatedAppConfig = AppConfig.getGlobal();
-            final String SERVICE_NAME_ROUTING = "routing";
-
-// Migration guide: 4. add fetching from old AppConfig
-            String value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "init_threads");
-            if (value != null)
-                this.initializationThreads = Integer.parseInt(value);
-
-            value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "mode");
-            if (value != null)
-                this.preparationMode = "preparation".equalsIgnoreCase(value);
-
-            List<String> sources = deprecatedAppConfig.getServiceParametersList(SERVICE_NAME_ROUTING, "sources");
-            if (!sources.isEmpty())
-                this.sourceFile = sources.get(0);
-
-            value = deprecatedAppConfig.getServiceParameter(SERVICE_NAME_ROUTING, "elevation_preprocessed");
-            if (value != null)
-                elevationPreprocessed = "true".equalsIgnoreCase(value);
-
-            Map<String, Object> defaultParams = deprecatedAppConfig.getServiceParametersMap(SERVICE_NAME_ROUTING, "profiles.default_params", true);
-            if (defaultParams != null && defaultParams.containsKey("graphs_root_path"))
-                graphsRootPath = StringUtility.trim(defaultParams.get("graphs_root_path").toString(), '"');
-
             return new EngineConfig(this);
         }
     }

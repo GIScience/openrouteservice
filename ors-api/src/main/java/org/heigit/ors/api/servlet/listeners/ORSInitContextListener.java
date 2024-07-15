@@ -73,7 +73,7 @@ public class ORSInitContextListener implements ServletContextListener {
                 .setGraphsRootPath(engineProperties.getGraphsRootPath())
                 .setGraphsDataAccess(engineProperties.getGraphsDataAccess())
                 .setProfiles(engineProperties.getConvertedProfiles())
-                .buildWithAppConfigOverride();
+                .build();
 
         if (engineProperties.isConfigOutputMode()) {
             YAMLFactory yf = new CustomYAMLFactory()

@@ -23,7 +23,6 @@ import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.servers.ServerVariable;
 import io.swagger.v3.oas.models.servers.ServerVariables;
 import jakarta.servlet.ServletContext;
-import org.heigit.ors.api.util.AppConfigMigration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +45,7 @@ public class OpenAPIConfig {
     EndpointsProperties endpointsProperties;
 
     public OpenAPIConfig(EndpointsProperties endpointsProperties) {
-        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+        this.endpointsProperties = endpointsProperties;
     }
 
 

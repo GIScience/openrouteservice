@@ -35,7 +35,6 @@ import org.heigit.ors.api.responses.routing.geojson.GeoJSONRouteResponse;
 import org.heigit.ors.api.responses.routing.gpx.GPXRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONRouteResponse;
 import org.heigit.ors.api.services.RoutingService;
-import org.heigit.ors.api.util.AppConfigMigration;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RoutingErrorCodes;
@@ -65,7 +64,7 @@ public class RoutingAPI {
     private final RoutingService routingService;
 
     public RoutingAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, RoutingService routingService) {
-        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+        this.endpointsProperties = endpointsProperties;
         this.systemMessageProperties = systemMessageProperties;
         this.routingService = routingService;
     }
