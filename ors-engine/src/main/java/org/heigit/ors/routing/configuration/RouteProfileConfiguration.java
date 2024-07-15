@@ -72,7 +72,7 @@ public class RouteProfileConfiguration {
 
     public RouteProfileConfiguration() {
         extStorages = new HashMap<>();
-        graphBuilders = new HashMap<>();
+//        graphBuilders = new HashMap<>();
     }
 
     public static boolean hasTurnCosts(String encoderOptions) {

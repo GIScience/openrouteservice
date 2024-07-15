@@ -1,55 +1,65 @@
 package org.heigit.ors.config;
 
+import com.typesafe.config.Config;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.locationtech.jts.geom.Envelope;
 
 import java.nio.file.Paths;
+import java.util.Map;
 
-public class EngineConfig {
-    private final int initializationThreads;
-    private final boolean preparationMode;
-    private final String sourceFile;
-    private final String graphsRootPath;
-    private final String graphsDataAccess;
-    private final boolean elevationPreprocessed;
-    private final RouteProfileConfiguration[] profiles;
+public class ProfileConfig {
 
-    public int getInitializationThreads() {
-        return initializationThreads;
-    }
+    // TODO this is supposed to replace RouteProfileConfiguration, also checking all params if still needed.
+    private String name = "";
+    private boolean enabled = true;
+    private String profiles = ""; // comma separated
+    private String graphPath;
+    private Map<String, Map<String, String>> extStorages;
+    private Map<String, Map<String, String>> graphBuilders;
+    private Double maximumDistance = 0.0;
+    private Double maximumDistanceDynamicWeights = 0.0;
+    private Double maximumDistanceAvoidAreas = 0.0;
+    private Double maximumDistanceAlternativeRoutes = 0.0;
+    private Double maximumDistanceRoundTripRoutes = 0.0;
+    private Integer maximumWayPoints = 0;
+    private boolean instructions = true;
+    private boolean optimize = false;
 
-    public boolean isPreparationMode() {
-        return preparationMode;
-    }
+    private int encoderFlagsSize = 4;
+    private String encoderOptions = "";
+    private String gtfsFile = "";
+    private Config isochronePreparationOpts;
+    private Config preparationOpts;
+    private Config executionOpts;
 
-    public String getSourceFile() {
-        return sourceFile;
-    }
+    private String elevationProvider = null;
+    private String elevationCachePath = null;
+    private String elevationDataAccess = "MMAP";
+    private boolean elevationCacheClear = true;
+    private boolean elevationSmoothing = true;
+    private boolean interpolateBridgesAndTunnels = true;
+    private int maximumSnappingRadius = 350;
 
-    public String getGraphsRootPath() {
-        return graphsRootPath;
-    }
+    private Envelope extent;
+    private boolean hasMaximumSnappingRadius = false;
 
-    public String getGraphsDataAccess() {
-        return graphsDataAccess;
-    }
+    private int locationIndexResolution = 500;
+    private int locationIndexSearchIterations = 4;
 
-    public boolean isElevationPreprocessed() {
-        return elevationPreprocessed;
-    }
+    private double maximumSpeedLowerBound = 80;
 
-    public RouteProfileConfiguration[] getProfiles() {
-        return profiles;
-    }
+    private final int trafficExpirationMin = 15;
 
-    public EngineConfig(EngineConfigBuilder builder) {
-        this.initializationThreads = builder.initializationThreads;
-        this.preparationMode = builder.preparationMode;
-        this.sourceFile = builder.sourceFile;
-        this.elevationPreprocessed = builder.elevationPreprocessed;
-        this.graphsRootPath = builder.graphsRootPath;
-        this.profiles = builder.profiles;
-        this.graphsDataAccess = builder.graphsDataAccess;
+    private int maximumVisitedNodesPT = 1000000;
+
+    private boolean turnCostEnabled = false;//FIXME: even though the field is read by external methods, its setter is never called.
+    private boolean enforceTurnCosts = false;
+    private String graphDataAccess = "";
+
+
+
+    public ProfileConfig(EngineConfigBuilder builder) {
     }
 
     public static class EngineConfigBuilder {
@@ -104,8 +114,8 @@ public class EngineConfig {
             return this;
         }
 
-        public EngineConfig build() {
-            return new EngineConfig(this);
+        public ProfileConfig build() {
+            return new ProfileConfig(this);
         }
     }
 }

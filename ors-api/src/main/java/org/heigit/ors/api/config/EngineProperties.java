@@ -1,6 +1,8 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -10,24 +12,47 @@ import org.heigit.ors.util.ProfileTools;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 @Configuration
 @ConfigurationProperties(prefix = "ors.engine")
 public class EngineProperties {
 
-    private int initThreads;
-    private boolean configOutputMode;
-    private boolean preparationMode;
-    private String sourceFile;
-    private String graphsRootPath;
-    private String graphsDataAccess;
+    @JsonProperty("source_file")
+    private String sourceFile = "ors-api/src/test/files/heidelberg.osm.gz";
+    @JsonProperty("init_threads")
+    private int initThreads = 1;
+    @JsonProperty("preparation_mode")
+    private boolean preparationMode = false;
+    @JsonProperty("config_output_mode")
+    private boolean configOutputMode = false;
+    @JsonProperty("graphs_root_path")
+    private String graphsRootPath = "./graphs";
+    @JsonProperty("graphs_data_access")
+    private String graphsDataAccess = "RAM_STORE";
+
+    @JsonProperty("elevation")
     private ElevationProperties elevation;
+    @JsonProperty("profile_default")
     private ProfileProperties profileDefault;
+    @JsonProperty("profiles")
     private Map<String, ProfileProperties> profiles;
+
+    public String getSourceFile() {
+        return sourceFile;
+    }
+
+    public void setSourceFile(String sourceFile) {
+        if (StringUtils.isNotBlank(sourceFile))
+            this.sourceFile = Paths.get(sourceFile).toAbsolutePath().toString();
+        else this.sourceFile = sourceFile;
+    }
 
     public int getInitThreads() {
         return initThreads;
@@ -51,16 +76,6 @@ public class EngineProperties {
 
     public void setConfigOutputMode(boolean configOutputMode) {
         this.configOutputMode = configOutputMode;
-    }
-
-    public String getSourceFile() {
-        return sourceFile;
-    }
-
-    public void setSourceFile(String sourceFile) {
-        if (StringUtils.isNotBlank(sourceFile))
-            this.sourceFile = Paths.get(sourceFile).toAbsolutePath().toString();
-        else this.sourceFile = sourceFile;
     }
 
     public String getGraphsRootPath() {
@@ -111,14 +126,14 @@ public class EngineProperties {
         if (profiles != null) {
             for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
                 ProfileProperties profile = profileEntry.getValue();
-                boolean enabled = profile.enabled != null ? profile.enabled : profileDefault.isEnabled();
+                boolean enabled = profile.enabled != null ? profile.enabled : profileDefault.getEnabled();
                 if (!enabled) {
                     continue;
                 }
                 RouteProfileConfiguration convertedProfile = new RouteProfileConfiguration();
                 convertedProfile.setName(profileEntry.getKey());
                 convertedProfile.setEnabled(enabled);
-                convertedProfile.setProfiles(profile.getProfile());
+                convertedProfile.setProfiles(profile.getEncoderName());
                 String graphPath = profile.getGraphPath();
                 String rootGraphsPath = getGraphsRootPath();
                 if (!Helper.isEmpty(rootGraphsPath)) {
@@ -143,7 +158,7 @@ public class EngineProperties {
                 convertedProfile.setEnforceTurnCosts(profile.forceTurnCosts != null ? profile.forceTurnCosts : profileDefault.getForceTurnCosts());
                 convertedProfile.setGtfsFile(profile.gtfsFile != null ? profile.gtfsFile : profile.getGtfsFile());
                 convertedProfile.setMaximumVisitedNodesPT(profile.maximumVisitedNodes != null ? profile.maximumVisitedNodes : profileDefault.getMaximumVisitedNodes());
-                if (profile.elevation != null && profile.elevation || profileDefault.isElevation()) {
+                if (profile.elevation != null && profile.elevation || profileDefault.getElevation()) {
                     convertedProfile.setElevationProvider(elevation.getProvider());
                     convertedProfile.setElevationCachePath(elevation.getCachePath());
                     convertedProfile.setElevationDataAccess(elevation.getDataAccess());
@@ -177,11 +192,15 @@ public class EngineProperties {
     }
 
     public static class ElevationProperties {
-        private boolean preprocessed;
-        private boolean cacheClear;
-        private String provider;
-        private String cachePath;
-        private String dataAccess;
+        private boolean preprocessed = false;
+        @JsonProperty("data_access")
+        private String dataAccess = "MMAP";
+        @JsonProperty("cache_clear")
+        private boolean cacheClear = false;
+        @JsonProperty("provider")
+        private String provider = "multi";
+        @JsonProperty("cache_path")
+        private String cachePath = "./elevation_cache";
 
         public boolean isPreprocessed() {
             return preprocessed;
@@ -189,6 +208,14 @@ public class EngineProperties {
 
         public void setPreprocessed(boolean preprocessed) {
             this.preprocessed = preprocessed;
+        }
+
+        public String getDataAccess() {
+            return dataAccess;
+        }
+
+        public void setDataAccess(String dataAccess) {
+            this.dataAccess = dataAccess;
         }
 
         public boolean isCacheClear() {
@@ -217,110 +244,140 @@ public class EngineProperties {
             else this.cachePath = cachePath;
         }
 
-        public String getDataAccess() {
-            return dataAccess;
-        }
-
-        public void setDataAccess(String dataAccess) {
-            this.dataAccess = dataAccess;
-        }
     }
 
+    @JsonInclude(NON_NULL)
     public static class ProfileProperties {
-        private String profile;
         private Boolean enabled;
+        @JsonProperty("encoder_name")
+        private String encoderName;
+        @JsonProperty("elevation")
         private Boolean elevation;
+        @JsonProperty("elevation_smoothing")
         private Boolean elevationSmoothing;
-        private Boolean traffic;
-        private Boolean interpolateBridgesAndTunnels;
+        @JsonProperty("encoder_flags_size")
+        private Integer encoderFlagsSize;
+        @JsonProperty("instructions")
         private Boolean instructions;
+        @JsonProperty("optimize")
         private Boolean optimize;
+        @JsonProperty("traffic")
+        private Boolean traffic;
+        @JsonProperty("interpolate_bridges_and_tunnels")
+        private Boolean interpolateBridgesAndTunnels;
+        @JsonProperty("force_turn_costs")
+        private Boolean forceTurnCosts;
+        @JsonProperty("graph_paths")
         private String graphPath;
-        private Map<String, String> encoderOptions;
+        @JsonProperty("location_index_resolution")
+        private Integer locationIndexResolution;
+        @JsonProperty("location_index_search_iterations")
+        private Integer locationIndexSearchIterations;
+        @JsonProperty("gtfs_file")
+        private String gtfsFile;
+
+        @JsonProperty("maximum_distance")
+        private Double maximumDistance;
+        @JsonProperty("maximum_distance_dynamic_weights")
+        private Double maximumDistanceDynamicWeights;
+        @JsonProperty("maximum_distance_avoid_areas")
+        private Double maximumDistanceAvoidAreas;
+        @JsonProperty("maximum_distance_alternative_routes")
+        private Double maximumDistanceAlternativeRoutes;
+        @JsonProperty("maximum_distance_round_trip_routes")
+        private Double maximumDistanceRoundTripRoutes;
+        @JsonProperty("maximum_speed_lower_bound")
+        private Double maximumSpeedLowerBound;
+        @JsonProperty("maximum_way_points")
+        private Integer maximumWayPoints;
+        @JsonProperty("maximum_snapping_radius")
+        private Integer maximumSnappingRadius;
+        @JsonProperty("maximum_visited_nodes")
+        private Integer maximumVisitedNodes;
+
+        @JsonProperty("encoder_options")
+        private EncoderOptionsProperties encoderOptions;
 
         //TODO: For later use when refactoring RoutingManagerConfiguration
 //        private PreparationProperties preparation;
 //        private ExecutionProperties execution;
+        @JsonProperty("preparation")
         private Map<String, Object> preparation;
+        @JsonProperty("execution")
         private Map<String, Object> execution;
+        @JsonProperty("ext_storages")
         private Map<String, Map<String, String>> extStorages;
-        private Double maximumDistance;
-        private Double maximumDistanceDynamicWeights;
-        private Double maximumDistanceAvoidAreas;
-        private Double maximumDistanceAlternativeRoutes;
-        private Double maximumDistanceRoundTripRoutes;
-        private Double maximumSpeedLowerBound;
-        private Integer maximumWayPoints;
-        private Integer maximumSnappingRadius;
-        private Integer maximumVisitedNodes;
-        private Integer encoderFlagsSize;
-        private Integer locationIndexResolution = 500;
-        private Integer locationIndexSearchIterations = 4;
-        private Boolean forceTurnCosts;
-        private String gtfsFile;
 
-        public String getProfile() {
-            return profile;
+        public Boolean getEnabled() {
+            return enabled;
         }
 
-        public void setProfile(String profile) {
-            this.profile = profile;
-        }
-
-        public boolean isEnabled() {
-            return enabled != null && enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
+        public void setEnabled(Boolean enabled) {
             this.enabled = enabled;
         }
 
-        public boolean isElevation() {
-            return elevation != null && elevation;
+        public String getEncoderName() {
+            return encoderName;
         }
 
-        public void setElevation(boolean elevation) {
+        public void setEncoderName(String encoderName) {
+            this.encoderName = encoderName;
+        }
+
+        public Boolean getElevation() {
+            return elevation;
+        }
+
+        public void setElevation(Boolean elevation) {
             this.elevation = elevation;
         }
 
         public Boolean getElevationSmoothing() {
-            return elevationSmoothing != null && elevationSmoothing;
+            return elevationSmoothing;
         }
 
         public void setElevationSmoothing(Boolean elevationSmoothing) {
             this.elevationSmoothing = elevationSmoothing;
         }
 
-        public boolean isTraffic() {
-            return traffic != null && traffic;
+        public Integer getEncoderFlagsSize() {
+            return encoderFlagsSize;
         }
 
-        public void setTraffic(boolean traffic) {
-            this.traffic = traffic;
+        public void setEncoderFlagsSize(Integer encoderFlagsSize) {
+            this.encoderFlagsSize = encoderFlagsSize;
         }
 
-        public boolean getInterpolateBridgesAndTunnels() {
-            return interpolateBridgesAndTunnels != null && interpolateBridgesAndTunnels;
-        }
-
-        public void setInterpolateBridgesAndTunnels(Boolean interpolateBridgesAndTunnels) {
-            this.interpolateBridgesAndTunnels = interpolateBridgesAndTunnels;
-        }
-
-        public boolean getInstructions() {
-            return instructions != null ? instructions : true;
+        public Boolean getInstructions() {
+            return instructions;
         }
 
         public void setInstructions(Boolean instructions) {
             this.instructions = instructions;
         }
 
-        public boolean getOptimize() {
-            return optimize != null && optimize;
+        public Boolean getOptimize() {
+            return optimize;
         }
 
         public void setOptimize(Boolean optimize) {
             this.optimize = optimize;
+        }
+
+        public Boolean getTraffic() {
+            return traffic;
+        }
+
+        public void setTraffic(Boolean traffic) {
+            this.traffic = traffic;
+        }
+
+        public Boolean getInterpolateBridgesAndTunnels() {
+            return interpolateBridgesAndTunnels;
+        }
+
+        public void setInterpolateBridgesAndTunnels(Boolean interpolateBridgesAndTunnels) {
+            this.interpolateBridgesAndTunnels = interpolateBridgesAndTunnels;
         }
 
         public String getGraphPath() {
@@ -333,26 +390,55 @@ public class EngineProperties {
             else this.graphPath = graphPath;
         }
 
-        public Map<String, String> getEncoderOptions() {
+        public Boolean getForceTurnCosts() {
+            return forceTurnCosts;
+        }
+
+        public void setForceTurnCosts(Boolean forceTurnCosts) {
+            this.forceTurnCosts = forceTurnCosts;
+        }
+
+        public Integer getLocationIndexResolution() {
+            return locationIndexResolution;
+        }
+
+        public void setLocationIndexResolution(Integer locationIndexResolution) {
+            this.locationIndexResolution = locationIndexResolution;
+        }
+
+        public Integer getLocationIndexSearchIterations() {
+            return locationIndexSearchIterations;
+        }
+
+        public void setLocationIndexSearchIterations(Integer locationIndexSearchIterations) {
+            this.locationIndexSearchIterations = locationIndexSearchIterations;
+        }
+
+        public String getGtfsFile() {
+            return gtfsFile;
+        }
+
+        public void setGtfsFile(String gtfsFile) {
+            if (StringUtils.isNotBlank(gtfsFile))
+                this.gtfsFile = Paths.get(gtfsFile).toAbsolutePath().toString();
+            else this.gtfsFile = gtfsFile;
+        }
+
+        public EncoderOptionsProperties getEncoderOptions() {
             return encoderOptions;
         }
 
-        public String getEncoderOptionsString() {
-            if (encoderOptions == null || encoderOptions.isEmpty())
-                return "";
-            StringBuilder output = new StringBuilder();
-            for (Map.Entry<String, String> entry : encoderOptions.entrySet()) {
-                if (!output.isEmpty()) {
-                    output.append("|");
-                }
-                output.append(entry.getKey()).append("=").append(entry.getValue());
-            }
-            return output.toString();
-        }
-
-        public void setEncoderOptions(Map<String, String> encoderOptions) {
+        public void setEncoderOptions(EncoderOptionsProperties encoderOptions) {
             this.encoderOptions = encoderOptions;
         }
+
+        @JsonIgnore
+        public String getEncoderOptionsString() {
+            if (encoderOptions == null)
+                return "";
+            return encoderName.toString();
+        }
+
 
 //        For later use when refactoring RoutingManagerConfiguration
 //        public PreparationProperties getPreparation() {
@@ -441,254 +527,304 @@ public class EngineProperties {
             this.extStorages = extStorages;
         }
 
-        public double getMaximumDistance() {
-            return maximumDistance != null ? maximumDistance : 0;
+        public Double getMaximumDistance() {
+            return maximumDistance;
         }
 
-        public void setMaximumDistance(double maximumDistance) {
+        public void setMaximumDistance(Double maximumDistance) {
             this.maximumDistance = maximumDistance;
         }
 
-        public double getMaximumDistanceDynamicWeights() {
-            return maximumDistanceDynamicWeights != null ? maximumDistanceDynamicWeights : 0;
+        public Double getMaximumDistanceDynamicWeights() {
+            return maximumDistanceDynamicWeights;
         }
 
-        public void setMaximumDistanceDynamicWeights(double maximumDistanceDynamicWeights) {
+        public void setMaximumDistanceDynamicWeights(Double maximumDistanceDynamicWeights) {
             this.maximumDistanceDynamicWeights = maximumDistanceDynamicWeights;
         }
 
-        public double getMaximumDistanceAvoidAreas() {
-            return maximumDistanceAvoidAreas != null ? maximumDistanceAvoidAreas : 0;
+        public Double getMaximumDistanceAvoidAreas() {
+            return maximumDistanceAvoidAreas;
         }
 
-        public void setMaximumDistanceAvoidAreas(double maximumDistanceAvoidAreas) {
+        public void setMaximumDistanceAvoidAreas(Double maximumDistanceAvoidAreas) {
             this.maximumDistanceAvoidAreas = maximumDistanceAvoidAreas;
         }
 
-        public double getMaximumDistanceAlternativeRoutes() {
-            return maximumDistanceAlternativeRoutes != null ? maximumDistanceAlternativeRoutes : 0;
+        public Double getMaximumDistanceAlternativeRoutes() {
+            return maximumDistanceAlternativeRoutes;
         }
 
-        public void setMaximumDistanceAlternativeRoutes(double maximumDistanceAlternativeRoutes) {
+        public void setMaximumDistanceAlternativeRoutes(Double maximumDistanceAlternativeRoutes) {
             this.maximumDistanceAlternativeRoutes = maximumDistanceAlternativeRoutes;
         }
 
-        public double getMaximumDistanceRoundTripRoutes() {
-            return maximumDistanceRoundTripRoutes != null ? maximumDistanceRoundTripRoutes : 0;
+        public Double getMaximumDistanceRoundTripRoutes() {
+            return maximumDistanceRoundTripRoutes;
         }
 
-        public void setMaximumDistanceRoundTripRoutes(double maximumDistanceRoundTripRoutes) {
+        public void setMaximumDistanceRoundTripRoutes(Double maximumDistanceRoundTripRoutes) {
             this.maximumDistanceRoundTripRoutes = maximumDistanceRoundTripRoutes;
         }
 
-        public double getMaximumSpeedLowerBound() {
-            return maximumSpeedLowerBound != null ? maximumSpeedLowerBound : 0;
+        public Double getMaximumSpeedLowerBound() {
+            return maximumSpeedLowerBound;
         }
 
         public void setMaximumSpeedLowerBound(Double maximumSpeedLowerBound) {
             this.maximumSpeedLowerBound = maximumSpeedLowerBound;
         }
 
-        public int getMaximumWayPoints() {
-            return maximumWayPoints != null ? maximumWayPoints : 0;
+        public Integer getMaximumWayPoints() {
+            return maximumWayPoints;
         }
 
-        public void setMaximumWayPoints(int maximumWayPoints) {
+        public void setMaximumWayPoints(Integer maximumWayPoints) {
             this.maximumWayPoints = maximumWayPoints;
         }
 
-        public int getMaximumSnappingRadius() {
-            return maximumSnappingRadius != null ? maximumSnappingRadius : 0;
+        public Integer getMaximumSnappingRadius() {
+            return maximumSnappingRadius;
         }
 
-        public void setMaximumSnappingRadius(int maximumSnappingRadius) {
+        public void setMaximumSnappingRadius(Integer maximumSnappingRadius) {
             this.maximumSnappingRadius = maximumSnappingRadius;
         }
 
-        public int getMaximumVisitedNodes() {
-            return maximumVisitedNodes != null ? maximumVisitedNodes : 0;
+        public Integer getMaximumVisitedNodes() {
+            return maximumVisitedNodes;
         }
 
         public void setMaximumVisitedNodes(Integer maximumVisitedNodes) {
             this.maximumVisitedNodes = maximumVisitedNodes;
         }
 
-        public int getEncoderFlagsSize() {
-            return encoderFlagsSize != null ? encoderFlagsSize : 0;
+        @JsonInclude(NON_NULL)
+        public static class EncoderOptionsProperties {
+            @JsonProperty("block_fords")
+            private Boolean blockFords;
+            @JsonProperty("consider_elevation")
+            private Boolean considerElevation;
+            @JsonProperty("turn_costs")
+            private Boolean turnCosts;
+            @JsonProperty("use_acceleration")
+            private Boolean useAcceleration;
+            @JsonProperty("maximum_grade_level")
+            private Integer maximumGradeLevel;
+            @JsonProperty("preferred_speed_factor")
+            private Double preferredSpeedFactor;
+            @JsonProperty("problematic_speed_factor")
+            private Double problematicSpeedFactor;
+
+            public Boolean getBlockFords() {
+                return blockFords;
+            }
+
+            public void setBlockFords(Boolean blockFords) {
+                this.blockFords = blockFords;
+            }
+
+            public Boolean getConsiderElevation() {
+                return considerElevation;
+            }
+
+            public void setConsiderElevation(Boolean considerElevation) {
+                this.considerElevation = considerElevation;
+            }
+
+            public Boolean getTurnCosts() {
+                return turnCosts;
+            }
+
+            public void setTurnCosts(Boolean turnCosts) {
+                this.turnCosts = turnCosts;
+            }
+
+            public Boolean getUseAcceleration() {
+                return useAcceleration;
+            }
+
+            public void setUseAcceleration(Boolean useAcceleration) {
+                this.useAcceleration = useAcceleration;
+            }
+
+            public Integer getMaximumGradeLevel() {
+                return maximumGradeLevel;
+            }
+
+            public void setMaximumGradeLevel(Integer maximumGradeLevel) {
+                this.maximumGradeLevel = maximumGradeLevel;
+            }
+
+            public Double getPreferredSpeedFactor() {
+                return preferredSpeedFactor;
+            }
+
+            public void setPreferredSpeedFactor(Double preferredSpeedFactor) {
+                this.preferredSpeedFactor = preferredSpeedFactor;
+            }
+
+            public Double getProblematicSpeedFactor() {
+                return problematicSpeedFactor;
+            }
+
+            public void setProblematicSpeedFactor(Double problematicSpeedFactor) {
+                this.problematicSpeedFactor = problematicSpeedFactor;
+            }
+
+            public String toString() {
+                StringBuilder output = new StringBuilder();
+                for (Field entry : this.getClass().getDeclaredFields()) {
+                    try {
+                        Object value = entry.get(this);
+                        if (value != null) {
+                            if (!output.isEmpty()) {
+                                output.append("|");
+                            }
+                            output.append(value);
+                        }
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                return output.toString();
+
+            }
         }
 
-        public void setEncoderFlagsSize(Integer encoderFlagsSize) {
-            this.encoderFlagsSize = encoderFlagsSize;
+        public static class PreparationProperties {
+            private int minNetworkSize;
+            private int minOneWayNetworkSize;
+
+            public MethodsProperties getMethods() {
+                return methods;
+            }
+
+            public PreparationProperties setMethods(MethodsProperties methods) {
+                this.methods = methods;
+                return this;
+            }
+
+            private MethodsProperties methods;
+
+            public int getMinNetworkSize() {
+                return minNetworkSize;
+            }
+
+            public void setMinNetworkSize(int minNetworkSize) {
+                this.minNetworkSize = minNetworkSize;
+            }
+
+            public int getMinOneWayNetworkSize() {
+                return minOneWayNetworkSize;
+            }
+
+            public void setMinOneWayNetworkSize(int minOneWayNetworkSize) {
+                this.minOneWayNetworkSize = minOneWayNetworkSize;
+            }
         }
 
-        public Integer getLocationIndexResolution() {
-            return locationIndexResolution != null ? locationIndexResolution : 0;
+        public static class MethodsProperties {
+            private CHProperties ch;
+            private LMProperties lm;
+            private CoreProperties core;
+            private FastIsochroneProperties fastisochrones;
+
+            public CHProperties getCh() {
+                return ch;
+            }
+
+            public void setCh(CHProperties ch) {
+                this.ch = ch;
+            }
+
+            public LMProperties getLm() {
+                return lm;
+            }
+
+            public void setLm(LMProperties lm) {
+                this.lm = lm;
+            }
+
+            public CoreProperties getCore() {
+                return core;
+            }
+
+            public void setCore(CoreProperties core) {
+                this.core = core;
+            }
+
+            public FastIsochroneProperties getFastisochrones() {
+                return fastisochrones;
+            }
+
+            public void setFastisochrones(FastIsochroneProperties fastisochrones) {
+                this.fastisochrones = fastisochrones;
+            }
+
         }
 
-        public void setLocationIndexResolution(Integer locationIndexResolution) {
-            this.locationIndexResolution = locationIndexResolution;
+        public static class CHProperties {
+            //TBD
         }
 
-        public Integer getLocationIndexSearchIterations() {
-            return locationIndexSearchIterations != null ? locationIndexSearchIterations : 0;
+        public static class LMProperties {
+            //TBD
         }
 
-        public void setLocationIndexSearchIterations(Integer locationIndexSearchIterations) {
-            this.locationIndexSearchIterations = locationIndexSearchIterations;
+        public static class CoreProperties {
+            //TBD
         }
 
-        public boolean getForceTurnCosts() {
-            return forceTurnCosts != null && forceTurnCosts;
+        public static class FastIsochroneProperties {
+            private boolean enabled;
+            private int threads;
+            private String weightings;
+            private int maxcellnodes;
+
+            public boolean isEnabled() {
+                return enabled;
+            }
+
+            public void setEnabled(boolean enabled) {
+                this.enabled = enabled;
+            }
+
+            public int getThreads() {
+                return threads;
+            }
+
+            public void setThreads(int threads) {
+                this.threads = threads;
+            }
+
+            public String getWeightings() {
+                return weightings;
+            }
+
+            public void setWeightings(String weightings) {
+                this.weightings = weightings;
+            }
+
+            public int getMaxcellnodes() {
+                return maxcellnodes;
+            }
+
+            public void setMaxcellnodes(int maxcellnodes) {
+                this.maxcellnodes = maxcellnodes;
+            }
         }
 
-        public void setForceTurnCosts(Boolean forceTurnCosts) {
-            this.forceTurnCosts = forceTurnCosts;
-        }
+        public static class ExecutionProperties {
+            private Map<String, Map<String, String>> methods;
 
-        public String getGtfsFile() {
-            return gtfsFile != null ? gtfsFile : "";
-        }
+            public Map<String, Map<String, String>> getMethods() {
+                return methods;
+            }
 
-        public void setGtfsFile(String gtfsFile) {
-            if (StringUtils.isNotBlank(gtfsFile))
-                this.gtfsFile = Paths.get(gtfsFile).toAbsolutePath().toString();
-            else this.gtfsFile = gtfsFile;
+            public void setMethods(Map<String, Map<String, String>> methods) {
+                this.methods = methods;
+            }
         }
-
-//        For later use when refactoring RoutingManagerConfiguration
-//        public static class PreparationProperties {
-//            private int minNetworkSize;
-//            private int minOneWayNetworkSize;
-//
-//            public MethodsProperties getMethods() {
-//                return methods;
-//            }
-//
-//            public PreparationProperties setMethods(MethodsProperties methods) {
-//                this.methods = methods;
-//                return this;
-//            }
-//
-//            private MethodsProperties methods;
-//
-//            public int getMinNetworkSize() {
-//                return minNetworkSize;
-//            }
-//
-//            public void setMinNetworkSize(int minNetworkSize) {
-//                this.minNetworkSize = minNetworkSize;
-//            }
-//
-//            public int getMinOneWayNetworkSize() {
-//                return minOneWayNetworkSize;
-//            }
-//
-//            public void setMinOneWayNetworkSize(int minOneWayNetworkSize) {
-//                this.minOneWayNetworkSize = minOneWayNetworkSize;
-//            }
-//        }
-//
-//        public static class MethodsProperties {
-//            private CHProperties ch;
-//            private LMProperties lm;
-//            private CoreProperties core;
-//            private FastIsochroneProperties fastisochrones;
-//
-//            public CHProperties getCh() {
-//                return ch;
-//            }
-//
-//            public void setCh(CHProperties ch) {
-//                this.ch = ch;
-//            }
-//
-//            public LMProperties getLm() {
-//                return lm;
-//            }
-//
-//            public void setLm(LMProperties lm) {
-//                this.lm = lm;
-//            }
-//
-//            public CoreProperties getCore() {
-//                return core;
-//            }
-//
-//            public void setCore(CoreProperties core) {
-//                this.core = core;
-//            }
-//
-//            public FastIsochroneProperties getFastisochrones() {
-//                return fastisochrones;
-//            }
-//
-//            public void setFastisochrones(FastIsochroneProperties fastisochrones) {
-//                this.fastisochrones = fastisochrones;
-//            }
-//
-//        }
-//
-//        public static class CHProperties {
-//            //TBD
-//        }
-//
-//        public static class LMProperties {
-//            //TBD
-//        }
-//
-//        public static class CoreProperties {
-//            //TBD
-//        }
-//
-//        public static class FastIsochroneProperties {
-//            private boolean enabled;
-//            private int threads;
-//            private String weightings;
-//            private int maxcellnodes;
-//
-//            public boolean isEnabled() {
-//                return enabled;
-//            }
-//
-//            public void setEnabled(boolean enabled) {
-//                this.enabled = enabled;
-//            }
-//
-//            public int getThreads() {
-//                return threads;
-//            }
-//
-//            public void setThreads(int threads) {
-//                this.threads = threads;
-//            }
-//
-//            public String getWeightings() {
-//                return weightings;
-//            }
-//
-//            public void setWeightings(String weightings) {
-//                this.weightings = weightings;
-//            }
-//
-//            public int getMaxcellnodes() {
-//                return maxcellnodes;
-//            }
-//
-//            public void setMaxcellnodes(int maxcellnodes) {
-//                this.maxcellnodes = maxcellnodes;
-//            }
-//        }
-//
-//        public static class ExecutionProperties {
-//            private Map<String, Map<String, String>> methods;
-//
-//            public Map<String, Map<String, String>> getMethods() {
-//                return methods;
-//            }
-//
-//            public void setMethods(Map<String, Map<String, String>> methods) {
-//                this.methods = methods;
-//            }
-//        }
     }
 }
