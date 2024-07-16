@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.util.Helper;
-import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
@@ -156,7 +155,7 @@ public class EngineProperties {
                 convertedProfile.setLocationIndexResolution(profile.locationIndexResolution != null ? profile.locationIndexResolution : profileDefault.getLocationIndexResolution());
                 convertedProfile.setLocationIndexSearchIterations(profile.locationIndexSearchIterations != null ? profile.locationIndexSearchIterations : profileDefault.getLocationIndexSearchIterations());
                 convertedProfile.setEnforceTurnCosts(profile.forceTurnCosts != null ? profile.forceTurnCosts : profileDefault.getForceTurnCosts());
-                convertedProfile.setGtfsFile(profile.gtfsFile != null ? profile.gtfsFile : profile.getGtfsFile());
+                convertedProfile.setGtfsFile(profile.gtfsFile != null ? profile.gtfsFile : "");
                 convertedProfile.setMaximumVisitedNodesPT(profile.maximumVisitedNodes != null ? profile.maximumVisitedNodes : profileDefault.getMaximumVisitedNodes());
                 if (profile.elevation != null && profile.elevation || profileDefault.getElevation()) {
                     convertedProfile.setElevationProvider(elevation.getProvider());
@@ -166,18 +165,19 @@ public class EngineProperties {
                     convertedProfile.setElevationSmoothing(profile.elevationSmoothing != null ? profile.elevationSmoothing : profileDefault.getElevationSmoothing());
                     convertedProfile.setInterpolateBridgesAndTunnels(profile.interpolateBridgesAndTunnels != null ? profile.interpolateBridgesAndTunnels : profileDefault.getInterpolateBridgesAndTunnels());
                 }
-                Map<String, Object> preparation = profile.preparation != null ? profile.preparation : profileDefault.getPreparation();
-                if (preparation != null) {
-                    convertedProfile.setPreparationOpts(ConfigFactory.parseMap(preparation));
-                    String methodsKey = "methods";
-                    if (preparation.containsKey(methodsKey) && preparation.get(methodsKey) != null && ((Map<String, Object>) preparation.get(methodsKey)).containsKey("fastisochrones")) {
-                        convertedProfile.setIsochronePreparationOpts(ConfigFactory.parseMap((Map<String, Object>) ((Map<String, Object>) preparation.get(methodsKey)).get("fastisochrones")));
-                    }
-                }
-                Map<String, Object> execution = profile.execution != null ? profile.execution : profileDefault.getExecution();
-                if (execution != null) {
-                    convertedProfile.setExecutionOpts(ConfigFactory.parseMap(execution));
-                }
+                // TODO (WIP): these options need to be used differently
+//                Map<String, Object> preparation = profile.preparation != null ? profile.preparation : profileDefault.getPreparation();
+//                if (preparation != null) {
+//                    convertedProfile.setPreparationOpts(ConfigFactory.parseMap(preparation));
+//                    String methodsKey = "methods";
+//                    if (preparation.containsKey(methodsKey) && preparation.get(methodsKey) != null && ((Map<String, Object>) preparation.get(methodsKey)).containsKey("fastisochrones")) {
+//                        convertedProfile.setIsochronePreparationOpts(ConfigFactory.parseMap((Map<String, Object>) ((Map<String, Object>) preparation.get(methodsKey)).get("fastisochrones")));
+//                    }
+//                }
+//                Map<String, Object> execution = profile.execution != null ? profile.execution : profileDefault.getExecution();
+//                if (execution != null) {
+//                    convertedProfile.setExecutionOpts(ConfigFactory.parseMap(execution));
+//                }
                 if (profile.getExtStorages() != null) {
                     for (Map<String, String> storageParams : profile.getExtStorages().values()) {
                         storageParams.put("gh_profile", ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(convertedProfile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(convertedProfile.getEncoderOptions())));
@@ -294,17 +294,15 @@ public class EngineProperties {
         private Integer maximumSnappingRadius;
         @JsonProperty("maximum_visited_nodes")
         private Integer maximumVisitedNodes;
+        @JsonProperty("maximum_visited_nodes_pt")
+        private Integer maximumVisitedNodesPT;
 
         @JsonProperty("encoder_options")
         private EncoderOptionsProperties encoderOptions;
-
-        //TODO: For later use when refactoring RoutingManagerConfiguration
-//        private PreparationProperties preparation;
-//        private ExecutionProperties execution;
         @JsonProperty("preparation")
-        private Map<String, Object> preparation;
+        private PreparationProperties preparation;
         @JsonProperty("execution")
-        private Map<String, Object> execution;
+        private ExecutionProperties execution;
         @JsonProperty("ext_storages")
         private Map<String, Map<String, String>> extStorages;
 
@@ -440,37 +438,20 @@ public class EngineProperties {
         }
 
 
-//        For later use when refactoring RoutingManagerConfiguration
-//        public PreparationProperties getPreparation() {
-//            return preparation;
-//        }
-//
-//        public void setPreparation(PreparationProperties preparation) {
-//            this.preparation = preparation;
-//        }
-//
-//        public ExecutionProperties getExecution() {
-//            return execution;
-//        }
-//
-//        public void setExecution(ExecutionProperties execution) {
-//            this.execution = execution;
-//        }
-
-        public Map<String, Object> getPreparation() {
-            return preparation;
-        }
-
-        public void setPreparation(Map<String, Object> preparation) {
-            this.preparation = preparation;
-        }
-
-        public Map<String, Object> getExecution() {
+        public ExecutionProperties getExecution() {
             return execution;
         }
 
-        public void setExecution(Map<String, Object> execution) {
+        public void setExecution(ExecutionProperties execution) {
             this.execution = execution;
+        }
+
+        public PreparationProperties getPreparation() {
+            return preparation;
+        }
+
+        public void setPreparation(PreparationProperties preparation) {
+            this.preparation = preparation;
         }
 
         public Map<String, Map<String, String>> getExtStorages() {
@@ -599,6 +580,14 @@ public class EngineProperties {
             this.maximumVisitedNodes = maximumVisitedNodes;
         }
 
+        public Integer getMaximumVisitedNodesPT() {
+            return maximumVisitedNodesPT;
+        }
+
+        public void setMaximumVisitedNodesPT(Integer maximumVisitedNodesPT) {
+            this.maximumVisitedNodesPT = maximumVisitedNodesPT;
+        }
+
         @JsonInclude(NON_NULL)
         public static class EncoderOptionsProperties {
             @JsonProperty("block_fords")
@@ -692,9 +681,30 @@ public class EngineProperties {
             }
         }
 
+        @JsonInclude(NON_NULL)
         public static class PreparationProperties {
-            private int minNetworkSize;
-            private int minOneWayNetworkSize;
+            @JsonProperty("min_network_size")
+            private Integer minNetworkSize;
+            @JsonProperty("min_one_way_network_size")
+            private Integer minOneWayNetworkSize;
+            @JsonProperty("methods")
+            private MethodsProperties methods;
+
+            public Integer getMinNetworkSize() {
+                return minNetworkSize;
+            }
+
+            public void setMinNetworkSize(Integer minNetworkSize) {
+                this.minNetworkSize = minNetworkSize;
+            }
+
+            public Integer getMinOneWayNetworkSize() {
+                return minOneWayNetworkSize;
+            }
+
+            public void setMinOneWayNetworkSize(Integer minOneWayNetworkSize) {
+                this.minOneWayNetworkSize = minOneWayNetworkSize;
+            }
 
             public MethodsProperties getMethods() {
                 return methods;
@@ -705,125 +715,298 @@ public class EngineProperties {
                 return this;
             }
 
+            @JsonInclude(NON_NULL)
+            public static class MethodsProperties {
+                private CHProperties ch;
+                private LMProperties lm;
+                private CoreProperties core;
+                private FastIsochroneProperties fastisochrones;
+
+                public CHProperties getCh() {
+                    return ch;
+                }
+
+                public void setCh(CHProperties ch) {
+                    this.ch = ch;
+                }
+
+                public LMProperties getLm() {
+                    return lm;
+                }
+
+                public void setLm(LMProperties lm) {
+                    this.lm = lm;
+                }
+
+                public CoreProperties getCore() {
+                    return core;
+                }
+
+                public void setCore(CoreProperties core) {
+                    this.core = core;
+                }
+
+                public FastIsochroneProperties getFastisochrones() {
+                    return fastisochrones;
+                }
+
+                public void setFastisochrones(FastIsochroneProperties fastisochrones) {
+                    this.fastisochrones = fastisochrones;
+                }
+
+                @JsonInclude(NON_NULL)
+                public static class CHProperties {
+                    private Boolean enabled;
+                    private Integer threads;
+                    private String weightings;
+
+                    public Boolean getEnabled() {
+                        return enabled;
+                    }
+
+                    public void setEnabled(Boolean enabled) {
+                        this.enabled = enabled;
+                    }
+
+                    public Integer getThreads() {
+                        return threads;
+                    }
+
+                    public void setThreads(Integer threads) {
+                        this.threads = threads;
+                    }
+
+                    public String getWeightings() {
+                        return weightings;
+                    }
+
+                    public void setWeightings(String weightings) {
+                        this.weightings = weightings;
+                    }
+                }
+
+                @JsonInclude(NON_NULL)
+                public static class LMProperties {
+                    private Boolean enabled;
+                    private Integer threads;
+                    private String weightings;
+                    private Integer landmarks;
+
+                    public Boolean getEnabled() {
+                        return enabled;
+                    }
+
+                    public void setEnabled(Boolean enabled) {
+                        this.enabled = enabled;
+                    }
+
+                    public Integer getThreads() {
+                        return threads;
+                    }
+
+                    public void setThreads(Integer threads) {
+                        this.threads = threads;
+                    }
+
+                    public String getWeightings() {
+                        return weightings;
+                    }
+
+                    public void setWeightings(String weightings) {
+                        this.weightings = weightings;
+                    }
+
+                    public Integer getLandmarks() {
+                        return landmarks;
+                    }
+
+                    public void setLandmarks(Integer landmarks) {
+                        this.landmarks = landmarks;
+                    }
+                }
+
+                @JsonInclude(NON_NULL)
+                public static class CoreProperties {
+                    private Boolean enabled;
+                    private Integer threads;
+                    private String weightings;
+                    private Integer landmarks;
+                    private String lmsets;
+
+                    public Boolean getEnabled() {
+                        return enabled;
+                    }
+
+                    public void setEnabled(Boolean enabled) {
+                        this.enabled = enabled;
+                    }
+
+                    public Integer getThreads() {
+                        return threads;
+                    }
+
+                    public void setThreads(Integer threads) {
+                        this.threads = threads;
+                    }
+
+                    public String getWeightings() {
+                        return weightings;
+                    }
+
+                    public void setWeightings(String weightings) {
+                        this.weightings = weightings;
+                    }
+
+                    public Integer getLandmarks() {
+                        return landmarks;
+                    }
+
+                    public void setLandmarks(Integer landmarks) {
+                        this.landmarks = landmarks;
+                    }
+
+                    public String getLmsets() {
+                        return lmsets;
+                    }
+
+                    public void setLmsets(String lmsets) {
+                        this.lmsets = lmsets;
+                    }
+                }
+
+                @JsonInclude(NON_NULL)
+                public static class FastIsochroneProperties {
+                    private Boolean enabled;
+                    private Integer threads;
+                    private String weightings;
+                    private Integer maxcellnodes;
+
+                    public Boolean isEnabled() {
+                        return enabled;
+                    }
+
+                    public void setEnabled(Boolean enabled) {
+                        this.enabled = enabled;
+                    }
+
+                    public Integer getThreads() {
+                        return threads;
+                    }
+
+                    public void setThreads(Integer threads) {
+                        this.threads = threads;
+                    }
+
+                    public String getWeightings() {
+                        return weightings;
+                    }
+
+                    public void setWeightings(String weightings) {
+                        this.weightings = weightings;
+                    }
+
+                    public Integer getMaxcellnodes() {
+                        return maxcellnodes;
+                    }
+
+                    public void setMaxcellnodes(Integer maxcellnodes) {
+                        this.maxcellnodes = maxcellnodes;
+                    }
+                }
+            }
+        }
+
+        @JsonInclude(NON_NULL)
+        public static class ExecutionProperties {
             private MethodsProperties methods;
 
-            public int getMinNetworkSize() {
-                return minNetworkSize;
-            }
-
-            public void setMinNetworkSize(int minNetworkSize) {
-                this.minNetworkSize = minNetworkSize;
-            }
-
-            public int getMinOneWayNetworkSize() {
-                return minOneWayNetworkSize;
-            }
-
-            public void setMinOneWayNetworkSize(int minOneWayNetworkSize) {
-                this.minOneWayNetworkSize = minOneWayNetworkSize;
-            }
-        }
-
-        public static class MethodsProperties {
-            private CHProperties ch;
-            private LMProperties lm;
-            private CoreProperties core;
-            private FastIsochroneProperties fastisochrones;
-
-            public CHProperties getCh() {
-                return ch;
-            }
-
-            public void setCh(CHProperties ch) {
-                this.ch = ch;
-            }
-
-            public LMProperties getLm() {
-                return lm;
-            }
-
-            public void setLm(LMProperties lm) {
-                this.lm = lm;
-            }
-
-            public CoreProperties getCore() {
-                return core;
-            }
-
-            public void setCore(CoreProperties core) {
-                this.core = core;
-            }
-
-            public FastIsochroneProperties getFastisochrones() {
-                return fastisochrones;
-            }
-
-            public void setFastisochrones(FastIsochroneProperties fastisochrones) {
-                this.fastisochrones = fastisochrones;
-            }
-
-        }
-
-        public static class CHProperties {
-            //TBD
-        }
-
-        public static class LMProperties {
-            //TBD
-        }
-
-        public static class CoreProperties {
-            //TBD
-        }
-
-        public static class FastIsochroneProperties {
-            private boolean enabled;
-            private int threads;
-            private String weightings;
-            private int maxcellnodes;
-
-            public boolean isEnabled() {
-                return enabled;
-            }
-
-            public void setEnabled(boolean enabled) {
-                this.enabled = enabled;
-            }
-
-            public int getThreads() {
-                return threads;
-            }
-
-            public void setThreads(int threads) {
-                this.threads = threads;
-            }
-
-            public String getWeightings() {
-                return weightings;
-            }
-
-            public void setWeightings(String weightings) {
-                this.weightings = weightings;
-            }
-
-            public int getMaxcellnodes() {
-                return maxcellnodes;
-            }
-
-            public void setMaxcellnodes(int maxcellnodes) {
-                this.maxcellnodes = maxcellnodes;
-            }
-        }
-
-        public static class ExecutionProperties {
-            private Map<String, Map<String, String>> methods;
-
-            public Map<String, Map<String, String>> getMethods() {
+            public MethodsProperties getMethods() {
                 return methods;
             }
 
-            public void setMethods(Map<String, Map<String, String>> methods) {
+            public void setMethods(MethodsProperties methods) {
                 this.methods = methods;
+            }
+
+            @JsonInclude(NON_NULL)
+            public static class MethodsProperties {
+                private AStarProperties astar;
+                private LMProperties lm;
+                private CoreProperties core;
+
+                public AStarProperties getCh() {
+                    return astar;
+                }
+
+                public void setCh(AStarProperties ch) {
+                    this.astar = ch;
+                }
+
+                public LMProperties getLm() {
+                    return lm;
+                }
+
+                public void setLm(LMProperties lm) {
+                    this.lm = lm;
+                }
+
+                public CoreProperties getCore() {
+                    return core;
+                }
+
+                public void setCore(CoreProperties core) {
+                    this.core = core;
+                }
+
+                @JsonInclude(NON_NULL)
+                public static class AStarProperties {
+                    private String approximation;
+                    private Integer epsilon;
+
+                    public String getApproximation() {
+                        return approximation;
+                    }
+
+                    public void setApproximation(String approximation) {
+                        this.approximation = approximation;
+                    }
+
+                    public Integer getEpsilon() {
+                        return epsilon;
+                    }
+
+                    public void setEpsilon(Integer epsilon) {
+                        this.epsilon = epsilon;
+                    }
+                }
+
+                @JsonInclude(NON_NULL)
+                public static class LMProperties {
+                    @JsonProperty("active_landmarks")
+                    private Integer activeLandmarks;
+
+                    public Integer getActiveLandmarks() {
+                        return activeLandmarks;
+                    }
+
+                    public void setActiveLandmarks(Integer activeLandmarks) {
+                        this.activeLandmarks = activeLandmarks;
+                    }
+                }
+
+                @JsonInclude(NON_NULL)
+                public static class CoreProperties {
+                    @JsonProperty("active_landmarks")
+                    private Integer activeLandmarks;
+
+                    public Integer getActiveLandmarks() {
+                        return activeLandmarks;
+                    }
+
+                    public void setActiveLandmarks(Integer activeLandmarks) {
+                        this.activeLandmarks = activeLandmarks;
+                    }
+                }
             }
         }
     }
