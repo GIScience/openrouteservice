@@ -33,15 +33,11 @@ RELEASING:
 7. Bump version in pom.xml
  -->
 
-## [Unreleased]
+## [8.1.1] - 2024-07-17
 ### Added
-- added danish tranlations
-### Changed
-### Deprecated
-### Removed
+- added danish tranlations ([#1809](https://github.com/GIScience/openrouteservice/pull/1809))
 ### Fixed
 - allow bikes on highways under construction if access is explicitly set ([#1805](https://github.com/GIScience/openrouteservice/pull/1805))
-### Security
 
 ## [8.1.0] - 2024-06-05
 ### Added
@@ -778,7 +774,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.1...HEAD
+[8.1.1]: https://github.com/GIScience/openrouteservice/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/GIScience/openrouteservice/compare/v8.0.1...v8.1.0
 [8.0.1]: https://github.com/GIScience/openrouteservice/compare/v8.0.0...v8.0.1
 [8.0.0]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...v8.0.0
