@@ -33,6 +33,15 @@ RELEASING:
 7. Adding the corresponding tag is done when releasing via GitHub.
 -->
 
+## [unreleased]
+
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
 ## [8.1.1] - 2024-07-17
 ### Added
 - added danish tranlations ([#1809](https://github.com/GIScience/openrouteservice/pull/1809))
