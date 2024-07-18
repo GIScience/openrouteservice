@@ -1,16 +1,17 @@
 package org.heigit.ors.api.config;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.heigit.ors.util.ProfileTools;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
@@ -178,13 +179,74 @@ public class EngineProperties {
                 if (execution != null) {
                     convertedProfile.setExecutionOpts(ConfigFactory.parseMap(execution));
                 }
-                if (profile.getExtStorages() != null) {
-                    for (Map<String, String> storageParams : profile.getExtStorages().values()) {
-                        storageParams.put("gh_profile", ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(convertedProfile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(convertedProfile.getEncoderOptions())));
-                        storageParams.remove("");
-                    }
-                    convertedProfile.getExtStorages().putAll(profile.getExtStorages());
+
+                // Serialize
+                PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType("org.heigit.ors.api.config.VehicleProfiles")
+                        .allowIfSubType("org.heigit.ors.api.config.CarProfile")
+                        .allowIfSubType("org.heigit.ors.api.config.HgvProfile")
+                        .allowIfSubType("org.heigit.ors.api.config.VehicleProfiles")
+                        .allowIfSubType("java.util.ArrayList")
+                        .build();
+                ObjectMapper mapper = new ObjectMapper();
+//                mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL);
+
+                CarProfile carProfile = new CarProfile("car", "driving-car");
+                HgvProfile hgvProfile = new HgvProfile("hgv", "driving-hgv");
+
+                List<VehicleProfile> vehicleProfiles = new ArrayList<>();
+                vehicleProfiles.add(carProfile);
+                vehicleProfiles.add(hgvProfile);
+
+                VehicleProfiles vehicleProfiles1 = new VehicleProfiles();
+                vehicleProfiles1.setProfiles(vehicleProfiles);
+
+
+                // Serialize
+                String jsonDataString = null;
+                try {
+                    jsonDataString = mapper.writeValueAsString(vehicleProfiles1);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
                 }
+
+                // Desirialize
+                VehicleProfiles vehicleProfiles2 = null;
+                try {
+                    vehicleProfiles2 = mapper.readValue(jsonDataString, VehicleProfiles.class);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+
+                // Desiriealize
+                VehicleProfiles vehicleProfiles3 = null;
+
+                try {
+                    // Overwrite defaults
+                    vehicleProfiles3 = mapper.readValue("{ \t\"profiles\": [{ \t\t\"type\": \"car\", \t\t\"elevation\": true, \t\t\"encoder_flags_size\": 8, \t\t\"profile\": \"driving-car\" \t},{ \t\t\"type\": \"car\", \t\t\"encoder_flags_size\": 12, \t\t\"profile\": \"SHIT\" \t}, { \t\t\"type\": \"hgv\", \t\t\"encoder_flags_size\": 8, \t\t\"profile\": \"driving-hgv\" \t}] }", VehicleProfiles.class);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException();
+                }
+
+                // Desirialize empty VehicleProfiles
+                VehicleProfiles vehicleProfiles4 = null;
+
+                try {
+                    vehicleProfiles4 = mapper.readValue("{\t\"profiles\": []}", VehicleProfiles.class);
+                }catch (JsonProcessingException e) {
+                    throw new RuntimeException();
+                }
+
+                System.out.println(jsonDataString);
+
+                // Todo rewrite
+//                if (profile.getExtStorages() != null) {
+//                    for (Map<String, String> storageParams : profile.getExtStorages().values()) {
+//                        storageParams.put("gh_profile", ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(convertedProfile.getProfiles())), "fastest", RouteProfileConfiguration.hasTurnCosts(convertedProfile.getEncoderOptions())));
+//                        storageParams.remove("");
+//                    }
+//                    convertedProfile.getExtStorages().putAll(profile.getExtStorages());
+//                }
                 convertedProfiles.add(convertedProfile);
             }
         }
