@@ -1,6 +1,7 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
