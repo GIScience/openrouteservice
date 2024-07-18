@@ -56,6 +56,10 @@ class PathDeserializerTest {
     })
     void testDeserializePath(String input, String expected) throws IOException {
         HelperClass foo = mapper.readValue("{\"filepath\":\"" + input + "\"}", HelperClass.class);
-        assertEquals(Path.of(expected), foo.getFilepath());
+        if (expected.isEmpty()) {
+            assertEquals(Path.of(""), foo.getFilepath());
+        } else {
+            assertEquals(Path.of(expected).toAbsolutePath(), foo.getFilepath());
+        }
     }
 }

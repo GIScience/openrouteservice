@@ -17,18 +17,16 @@ public class PathDeserializer extends JsonDeserializer<Path> {
 
     @Override
     public Path deserialize(JsonParser p, DeserializationContext ctxt) {
-        Path deserializePath = null;
-
+        Path fallbackPath = Path.of("");
         try {
-            deserializePath = Path.of(p.getText());
+            String pathStr = p.getText();
+            if (pathStr == null || pathStr.equals("null")) {
+                return fallbackPath;
+            }
+            return Path.of(pathStr).toAbsolutePath();
         } catch (IOException e) {
-            LOGGER.warn("Error deserializing path: {}", e.getMessage());
+            LOGGER.error("Error deserializing path: {}", e.getMessage(), e);
+            return fallbackPath;
         }
-
-        // Check if null or "null"
-        if (deserializePath == null || deserializePath.toString().equals("null")) {
-            deserializePath = Path.of("");
-        }
-        return deserializePath;
     }
 }
