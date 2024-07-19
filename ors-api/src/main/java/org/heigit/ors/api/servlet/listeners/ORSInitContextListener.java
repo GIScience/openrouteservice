@@ -65,9 +65,45 @@ public class ORSInitContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
+//        String configFileString = "ors:\n  engine:";
+//        if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
+//            try {
+//                configFileString = new FileSystemResource(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY)).getContentAsString(Charset.defaultCharset());
+//            } catch (IOException e) {
+//                LOGGER.error("Failed to read configuration file");
+//                RoutingProfileManagerStatus.setShutdown(true);
+//                return;
+//            }
+//        }
+//        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+//                .allowIfBaseType(ProfileProperties.class)
+//                .allowIfSubType("org.heigit.ors.api.config.")
+//                .build();
+//        YAMLFactory yf = new CustomYAMLFactory()
+//                .disable(WRITE_DOC_START_MARKER)
+//                .disable(SPLIT_LINES)
+//                .enable(MINIMIZE_QUOTES);
+//        ObjectMapper mapper = new ObjectMapper(yf);
+//        mapper.findAndRegisterModules();
+//        mapper.configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
+//        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+//        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false);
+////        mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.WRAPPER_OBJECT);
+//        EngineProperties engineProperties;
+//        try {
+//            JsonNode conf = mapper.readTree(configFileString);
+//            engineProperties = mapper.readValue(conf.get("ors").get("engine").toString(), EngineProperties.class);
+//        } catch (JsonProcessingException e) {
+//            LOGGER.error("Failed to parse configuration file");
+//            RoutingProfileManagerStatus.setShutdown(true);
+//            return;
+//        }
+//        LOGGER.debug(engineProperties);
+//
         final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
                 .setInitializationThreads(engineProperties.getInitThreads())
-                .setPreparationMode(engineProperties.isPreparationMode())
+                .setPreparationMode(engineProperties.getPreparationMode())
                 .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
                 .setSourceFile(engineProperties.getSourceFile())
                 .setGraphsRootPath(engineProperties.getGraphsRootPath())
@@ -75,14 +111,16 @@ public class ORSInitContextListener implements ServletContextListener {
                 .setProfiles(engineProperties.getConvertedProfiles())
                 .build();
 
-        if (engineProperties.isConfigOutputMode()) {
-            YAMLFactory yf = new CustomYAMLFactory()
-                    .disable(WRITE_DOC_START_MARKER)
-                    .disable(SPLIT_LINES)
-                    .enable(MINIMIZE_QUOTES);
-            ObjectMapper mapper = new ObjectMapper(yf)
-                    .configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
-            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        if (engineProperties.getConfigOutputMode()) {
+                    YAMLFactory yf = new CustomYAMLFactory()
+                .disable(WRITE_DOC_START_MARKER)
+                .disable(SPLIT_LINES)
+                .enable(MINIMIZE_QUOTES);
+        ObjectMapper mapper = new ObjectMapper(yf);
+        mapper.findAndRegisterModules();
+        mapper.configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
             try (FileOutputStream fos = new FileOutputStream("ors-config-example.yml"); JsonGenerator generator = mapper.createGenerator(fos)) {
                 LOGGER.info("Output configuration file");
                 ORSConfigBundle ors = new ORSConfigBundle(corsProperties, systemMessageProperties, endpointsProperties, engineProperties);
@@ -102,7 +140,7 @@ public class ORSInitContextListener implements ServletContextListener {
             try {
                 LOGGER.info("Initializing ORS...");
                 new RoutingProfileManager(config);
-                if (engineProperties.isPreparationMode()) {
+                if (engineProperties.getPreparationMode()) {
                     LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
                     RoutingProfileManagerStatus.setShutdown(true);
                 }
@@ -140,7 +178,7 @@ public class ORSInitContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent contextEvent) {
         try {
-            LOGGER.info("Shutting down openrouteservice %s and releasing resources.".formatted(AppInfo.getEngineInfo()));
+            LOGGER.info("Shutting down openrouteservice %s and releasing resources." .formatted(AppInfo.getEngineInfo()));
             FormatUtility.unload();
             if (RoutingProfileManagerStatus.isReady())
                 RoutingProfileManager.getInstance().destroy();

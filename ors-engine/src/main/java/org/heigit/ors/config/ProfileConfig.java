@@ -4,7 +4,6 @@ import com.typesafe.config.Config;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 
-import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -135,23 +134,5 @@ public class ProfileConfig {
         private double preferredSpeedFactor;
         private double problematicSpeedFactor;
 
-        public String toString() {
-            StringBuilder output = new StringBuilder();
-            for (Field entry : this.getClass().getDeclaredFields()) {
-                try {
-                    Object value = entry.get(this);
-                    if (value != null) {
-                        if (!output.isEmpty()) {
-                            output.append("|");
-                        }
-                        output.append(value);
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return output.toString();
-
-        }
     }
 }
