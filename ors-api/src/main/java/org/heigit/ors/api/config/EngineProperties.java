@@ -1,10 +1,6 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.graphhopper.util.Helper;
 import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +18,7 @@ import java.util.Map;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Configuration
+@Component
 @ConfigurationProperties(prefix = "ors.engine")
 public class EngineProperties {
 
@@ -180,65 +177,6 @@ public class EngineProperties {
                     convertedProfile.setExecutionOpts(ConfigFactory.parseMap(execution));
                 }
 
-                // Serialize
-                PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                        .allowIfSubType("org.heigit.ors.api.config.VehicleProfiles")
-                        .allowIfSubType("org.heigit.ors.api.config.CarProfile")
-                        .allowIfSubType("org.heigit.ors.api.config.HgvProfile")
-                        .allowIfSubType("org.heigit.ors.api.config.VehicleProfiles")
-                        .allowIfSubType("java.util.ArrayList")
-                        .build();
-                ObjectMapper mapper = new ObjectMapper();
-//                mapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL);
-
-                CarProfile carProfile = new CarProfile("car", "driving-car");
-                HgvProfile hgvProfile = new HgvProfile("hgv", "driving-hgv");
-
-                List<VehicleProfile> vehicleProfiles = new ArrayList<>();
-                vehicleProfiles.add(carProfile);
-                vehicleProfiles.add(hgvProfile);
-
-                VehicleProfiles vehicleProfiles1 = new VehicleProfiles();
-                vehicleProfiles1.setProfiles(vehicleProfiles);
-
-
-                // Serialize
-                String jsonDataString = null;
-                try {
-                    jsonDataString = mapper.writeValueAsString(vehicleProfiles1);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-
-                // Desirialize
-                VehicleProfiles vehicleProfiles2 = null;
-                try {
-                    vehicleProfiles2 = mapper.readValue(jsonDataString, VehicleProfiles.class);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-
-                // Desiriealize
-                VehicleProfiles vehicleProfiles3 = null;
-
-                try {
-                    // Overwrite defaults
-                    vehicleProfiles3 = mapper.readValue("{ \t\"profiles\": [{ \t\t\"type\": \"car\", \t\t\"elevation\": true, \t\t\"encoder_flags_size\": 8, \t\t\"profile\": \"driving-car\" \t},{ \t\t\"type\": \"car\", \t\t\"encoder_flags_size\": 12, \t\t\"profile\": \"SHIT\" \t}, { \t\t\"type\": \"hgv\", \t\t\"encoder_flags_size\": 8, \t\t\"profile\": \"driving-hgv\" \t}] }", VehicleProfiles.class);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException();
-                }
-
-                // Desirialize empty VehicleProfiles
-                VehicleProfiles vehicleProfiles4 = null;
-
-                try {
-                    vehicleProfiles4 = mapper.readValue("{\t\"profiles\": []}", VehicleProfiles.class);
-                }catch (JsonProcessingException e) {
-                    throw new RuntimeException();
-                }
-
-                System.out.println(jsonDataString);
-
                 // Todo rewrite
 //                if (profile.getExtStorages() != null) {
 //                    for (Map<String, String> storageParams : profile.getExtStorages().values()) {
@@ -368,7 +306,7 @@ public class EngineProperties {
         @JsonProperty("execution")
         private Map<String, Object> execution;
         @JsonProperty("ext_storages")
-        private Map<String, Map<String, String>> extStorages;
+        private Map<String, ExtendedStorage> extStorages;
 
         public Boolean getEnabled() {
             return enabled;
@@ -477,7 +415,8 @@ public class EngineProperties {
         }
 
         public String getGtfsFile() {
-            return gtfsFile;
+            // Todo change back to property
+            return "gtfsFile";
         }
 
         public void setGtfsFile(String gtfsFile) {
@@ -535,57 +474,11 @@ public class EngineProperties {
             this.execution = execution;
         }
 
-        public Map<String, Map<String, String>> getExtStorages() {
+        public Map<String, ExtendedStorage> getExtStorages() {
             return extStorages;
         }
 
-        public void setExtStorages(Map<String, Map<String, String>> extStorages) {
-            // Todo write individual storage config classes
-            // Iterate over each storage in the extStorages and overwrite all paths variables with absolute paths#
-            for (Map.Entry<String, Map<String, String>> storage : extStorages.entrySet()) {
-                if (storage.getKey().equals("HereTraffic")) {
-                    // Replace streets, ref_pattern pattern_15min and log_location with absolute paths
-                    String hereTrafficPath = storage.getValue().get("streets");
-                    if (StringUtils.isNotBlank(hereTrafficPath)) {
-                        storage.getValue().put("streets", Paths.get(hereTrafficPath).toAbsolutePath().toString());
-                    }
-                    String hereTrafficRefPattern = storage.getValue().get("ref_pattern");
-                    if (StringUtils.isNotBlank(hereTrafficRefPattern)) {
-                        storage.getValue().put("ref_pattern", Paths.get(hereTrafficRefPattern).toAbsolutePath().toString());
-                    }
-                    String hereTrafficPattern15min = storage.getValue().get("pattern_15min");
-                    if (StringUtils.isNotBlank(hereTrafficPattern15min)) {
-                        storage.getValue().put("pattern_15min", Paths.get(hereTrafficPattern15min).toAbsolutePath().toString());
-                    }
-                    String hereTrafficLogLocation = storage.getValue().get("log_location");
-                    if (StringUtils.isNotBlank(hereTrafficLogLocation)) {
-                        storage.getValue().put("log_location", Paths.get(hereTrafficLogLocation).toAbsolutePath().toString());
-                    }
-                }
-                if (storage.getKey().equals("Borders")) {
-                    // Replace boundaries, ids and openborders with absolute paths
-                    String bordersBoundaries = storage.getValue().get("boundaries");
-                    if (StringUtils.isNotBlank(bordersBoundaries)) {
-                        storage.getValue().put("boundaries", Paths.get(bordersBoundaries).toAbsolutePath().toString());
-                    }
-                    String bordersIds = storage.getValue().get("ids");
-                    if (StringUtils.isNotBlank(bordersIds)) {
-                        storage.getValue().put("ids", Paths.get(bordersIds).toAbsolutePath().toString());
-                    }
-                    String openBorders = storage.getValue().get("openborders");
-                    if (StringUtils.isNotBlank(openBorders)) {
-                        storage.getValue().put("openborders", Paths.get(openBorders).toAbsolutePath().toString());
-                    }
-                }
-
-                if (storage.getKey().equals("GreenIndex") || storage.getKey().equals("NoiseIndex") || storage.getKey().equals("csv") || storage.getKey().equals("ShadowIndex")) {
-                    // replace filepath
-                    String indexFilePath = storage.getValue().get("filepath");
-                    if (indexFilePath != null) {
-                        storage.getValue().put("filepath", Paths.get(indexFilePath).toAbsolutePath().toString());
-                    }
-                }
-            }
+        public void setExtStorages(Map<String, ExtendedStorage> extStorages) {
             this.extStorages = extStorages;
         }
 
