@@ -64,12 +64,9 @@ class ExtendedStorageIndex extends ExtendedStorage {
     @JsonSetter("filepath")
     @JsonDeserialize(using = PathDeserializer.class)
     // Todo deserializer should output absolute paths to reduce complexity
-    public void setFilepath(Path filepath) {
-        // Todo: Decide if we want to use realpath or absolute path only. Realpath could check if the file exists.
-        if (filepath != null && !filepath.toString().isEmpty())
-            this.filepath = filepath.toAbsolutePath();
+    private void setFilepath(Path filepath) {
+        this.filepath = filepath;
     }
-
 }
 
 

@@ -20,10 +20,10 @@ public class PathDeserializer extends JsonDeserializer<Path> {
         Path fallbackPath = Path.of("");
         try {
             String pathStr = p.getText();
-            if (pathStr == null || pathStr.equals("null") || pathStr.isEmpty()) {
+            if (pathStr == null || pathStr.equals("null")) {
                 return fallbackPath;
             }
-            return Path.of(pathStr);
+            return Path.of(pathStr).toAbsolutePath();
         } catch (IOException e) {
             LOGGER.error("Error deserializing path: {}", e.getMessage(), e);
             return fallbackPath;
