@@ -64,7 +64,7 @@ class PathDeserializerTest {
         if (expected.isEmpty()) {
             assertEquals(Path.of(""), foo.getFilepath());
         } else {
-            assertEquals(Path.of(expected).toAbsolutePath(), foo.getFilepath());
+            assertEquals(Path.of(expected), foo.getFilepath());
         }
     }
 }

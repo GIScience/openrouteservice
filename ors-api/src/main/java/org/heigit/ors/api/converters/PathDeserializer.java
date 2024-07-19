@@ -23,7 +23,7 @@ public class PathDeserializer extends JsonDeserializer<Path> {
             if (pathStr == null || pathStr.equals("null") || pathStr.isEmpty()) {
                 return fallbackPath;
             }
-            return Path.of(pathStr).toAbsolutePath();
+            return Path.of(pathStr);
         } catch (IOException e) {
             LOGGER.error("Error deserializing path: {}", e.getMessage(), e);
             return fallbackPath;
