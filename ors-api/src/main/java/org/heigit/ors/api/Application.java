@@ -30,9 +30,9 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean("orsInitContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties, EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties) {
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener(engineProperties, endpointsProperties, corsProperties, systemMessageProperties, loggingProperties, serverProperties));
+        bean.setListener(new ORSInitContextListener(endpointsProperties, corsProperties, systemMessageProperties, loggingProperties, serverProperties));
         return bean;
     }
 }

@@ -3,25 +3,37 @@ package org.heigit.ors.api.config;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
-import org.heigit.ors.api.config.profile.DefaultProfileProperties;
-import org.heigit.ors.api.config.profile.ProfileProperties;
+import org.heigit.ors.api.config.profile.*;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@Configuration
-@ConfigurationProperties(prefix = "ors.engine")
 public class EngineProperties {
+
+    @JsonProperty("source_file")
+    private static final Map<String, ProfileProperties> DEFAULT_PROFILES = new LinkedHashMap<>();
+
+    static {
+        DEFAULT_PROFILES.put("car", new CarProfileProperties());
+        DEFAULT_PROFILES.put("hgv", new HgvProfileProperties());
+        DEFAULT_PROFILES.put("bike-regular", new BikeRegularProfileProperties());
+        DEFAULT_PROFILES.put("bike-electric", new BikeElectricProfileProperties());
+        DEFAULT_PROFILES.put("bike-mountain", new BikeMountainProfileProperties());
+        DEFAULT_PROFILES.put("bike-road", new BikeRoadProfileProperties());
+        DEFAULT_PROFILES.put("walking", new WalkingProfileProperties());
+        DEFAULT_PROFILES.put("hiking", new HikingProfileProperties());
+        DEFAULT_PROFILES.put("wheelchair", new WheelchairProfileProperties());
+        DEFAULT_PROFILES.put("public-transport", new PublicTransportProfileProperties());
+    }
 
     @JsonProperty("source_file")
     private String sourceFile = "ors-api/src/test/files/heidelberg.osm";
     @JsonProperty("init_threads")
-    private Integer initThreads;
+    private Integer initThreads = 1;
     @JsonProperty("preparation_mode")
     private Boolean preparationMode = false;
     @JsonProperty("config_output_mode")
@@ -36,7 +48,7 @@ public class EngineProperties {
     @JsonProperty("profile_default")
     private ProfileProperties profileDefault = new DefaultProfileProperties();
     @JsonProperty("profiles")
-    private Map<String, ProfileProperties> profiles;
+    private Map<String, ProfileProperties> profiles = DEFAULT_PROFILES;
 
     public String getSourceFile() {
         return sourceFile;
@@ -105,6 +117,15 @@ public class EngineProperties {
     public void setProfileDefault(DefaultProfileProperties profileDefault) {
         this.profileDefault = profileDefault;
     }
+
+//    public List<ProfileProperties> getProfiles() {
+//        return profiles;
+//    }
+//
+//    public void setProfiles(ArrayList<ProfileProperties> profiles) {
+//        this.profiles = profiles;
+//    }
+//
 
     public Map<String, ProfileProperties> getProfiles() {
         return profiles;

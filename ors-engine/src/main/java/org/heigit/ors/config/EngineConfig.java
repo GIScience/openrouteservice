@@ -1,59 +1,16 @@
 package org.heigit.ors.config;
 
-import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 
-import java.nio.file.Paths;
-
-public class EngineConfig {
-    private final int initializationThreads;
-    private final boolean preparationMode;
-    private final String sourceFile;
-    private final String graphsRootPath;
-    private final String graphsDataAccess;
-    private final boolean elevationPreprocessed;
-    private final RouteProfileConfiguration[] profiles;
-
-    public int getInitializationThreads() {
-        return initializationThreads;
+public record EngineConfig(int initializationThreads, boolean preparationMode, String sourceFile,
+                              String graphsRootPath, String graphsDataAccess, boolean elevationPreprocessed,
+                              RouteProfileConfiguration[] profiles) {
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public boolean isPreparationMode() {
-        return preparationMode;
-    }
-
-    public String getSourceFile() {
-        return sourceFile;
-    }
-
-    public String getGraphsRootPath() {
-        return graphsRootPath;
-    }
-
-    public String getGraphsDataAccess() {
-        return graphsDataAccess;
-    }
-
-    public boolean isElevationPreprocessed() {
-        return elevationPreprocessed;
-    }
-
-    public RouteProfileConfiguration[] getProfiles() {
-        return profiles;
-    }
-
-    public EngineConfig(EngineConfigBuilder builder) {
-        this.initializationThreads = builder.initializationThreads;
-        this.preparationMode = builder.preparationMode;
-        this.sourceFile = builder.sourceFile;
-        this.elevationPreprocessed = builder.elevationPreprocessed;
-        this.graphsRootPath = builder.graphsRootPath;
-        this.profiles = builder.profiles;
-        this.graphsDataAccess = builder.graphsDataAccess;
-    }
-
-    public static class EngineConfigBuilder {
-        private int initializationThreads = 1;
+    public static final class Builder {
+        private int initializationThreads;
         private boolean preparationMode;
         private String sourceFile;
         private String graphsRootPath;
@@ -61,51 +18,43 @@ public class EngineConfig {
         private boolean elevationPreprocessed;
         private RouteProfileConfiguration[] profiles;
 
-        public static EngineConfigBuilder init() {
-            return new EngineConfigBuilder();
-        }
-
-        public EngineConfigBuilder setInitializationThreads(int initializationThreads) {
+        public Builder initializationThreads(int initializationThreads) {
             this.initializationThreads = initializationThreads;
             return this;
         }
 
-        public EngineConfigBuilder setPreparationMode(boolean preparationMode) {
+        public Builder preparationMode(boolean preparationMode) {
             this.preparationMode = preparationMode;
             return this;
         }
 
-        public EngineConfigBuilder setSourceFile(String sourceFile) {
-            if (StringUtils.isNotBlank(sourceFile))
-                this.sourceFile = Paths.get(sourceFile).toAbsolutePath().toString();
-            else this.sourceFile = sourceFile;
+        public Builder sourceFile(String sourceFile) {
+            this.sourceFile = sourceFile;
             return this;
         }
 
-        public EngineConfigBuilder setGraphsRootPath(String graphsRootPath) {
-            if (StringUtils.isNotBlank(graphsRootPath))
-                this.graphsRootPath = Paths.get(graphsRootPath).toAbsolutePath().toString();
-            else this.graphsRootPath = graphsRootPath;
+        public Builder graphsRootPath(String graphsRootPath) {
+            this.graphsRootPath = graphsRootPath;
             return this;
         }
 
-        public EngineConfigBuilder setGraphsDataAccess(String graphsDataAccess) {
+        public Builder graphsDataAccess(String graphsDataAccess) {
             this.graphsDataAccess = graphsDataAccess;
             return this;
         }
 
-        public EngineConfigBuilder setElevationPreprocessed(boolean elevationPreprocessed) {
+        public Builder elevationPreprocessed(boolean elevationPreprocessed) {
             this.elevationPreprocessed = elevationPreprocessed;
             return this;
         }
 
-        public EngineConfigBuilder setProfiles(RouteProfileConfiguration[] profiles) {
+        public Builder profiles(RouteProfileConfiguration[] profiles) {
             this.profiles = profiles;
             return this;
         }
 
         public EngineConfig build() {
-            return new EngineConfig(this);
+            return new EngineConfig(initializationThreads, preparationMode, sourceFile, graphsRootPath, graphsDataAccess, elevationPreprocessed, profiles);
         }
     }
 }

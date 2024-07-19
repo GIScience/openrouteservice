@@ -1,12 +1,12 @@
 package org.heigit.ors.api.config.profile;
 
-public class CarProfileProperties extends ProfileProperties {
-    public CarProfileProperties() {
+public class HgvProfileProperties extends ProfileProperties {
+    public HgvProfileProperties() {
         super();
-        this.setEncoderName("driving-car");
+        this.setEncoderName("driving-hgv");
         this.setEncoderFlagsSize(999);
-//#      car:
-//#        profile: driving-car
+//#      hgv:
+//#        profile: driving-hgv
 //#        encoder_options:
 //#          turn_costs: true
 //#          block_fords: false
@@ -17,29 +17,21 @@ public class CarProfileProperties extends ProfileProperties {
 //#            ch:
 //#              enabled: true
 //#              threads: 1
-//#              weightings: fastest
-//#            lm:
-//#              enabled: false
-//#              threads: 1
-//#              weightings: fastest,shortest
-//#              landmarks: 16
+//#              weightings: recommended
 //#            core:
 //#              enabled: true
 //#              threads: 1
-//#              weightings: fastest,shortest
+//#              weightings: recommended,shortest
 //#              landmarks: 64
 //#              lmsets: highways;allow_all
 //#        execution:
 //#          methods:
-//#            lm:
-//#              active_landmarks: 6
 //#            core:
 //#              active_landmarks: 6
 //#        ext_storages:
 //#          WayCategory:
 //#          HeavyVehicle:
+//#            restrictions: true
 //#          WaySurfaceType:
-//#          RoadAccessRestrictions:
-//#            use_for_warnings: true
     }
 }

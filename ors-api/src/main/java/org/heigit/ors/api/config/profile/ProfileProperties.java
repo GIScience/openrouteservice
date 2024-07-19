@@ -1,27 +1,32 @@
 package org.heigit.ors.api.config.profile;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.api.config.EncoderOptionsProperties;
 import org.heigit.ors.api.config.ExecutionProperties;
 import org.heigit.ors.api.config.PreparationProperties;
 
 import java.nio.file.Paths;
-import java.util.Map;
+import java.util.HashMap;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "encoder_name", visible = true, defaultImpl = DefaultProfileProperties.class)
-//@JsonSubTypes({
-//    @JsonSubTypes.Type(name = "driving-car", value = CarProfileProperties.class)
-//})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "encoder_name", defaultImpl = DefaultProfileProperties.class)
+@JsonSubTypes({
+        @JsonSubTypes.Type(name = "default", value = DefaultProfileProperties.class),
+        @JsonSubTypes.Type(name = "driving-car", value = CarProfileProperties.class),
+        @JsonSubTypes.Type(name = "driving-hgv", value = HgvProfileProperties.class),
+        @JsonSubTypes.Type(name = "cycling-regular", value = BikeRegularProfileProperties.class),
+        @JsonSubTypes.Type(name = "cycling-electric", value = BikeElectricProfileProperties.class),
+        @JsonSubTypes.Type(name = "cycling-mountain", value = BikeMountainProfileProperties.class),
+        @JsonSubTypes.Type(name = "cycling-road", value = BikeRoadProfileProperties.class),
+        @JsonSubTypes.Type(name = "foot-walking", value = WalkingProfileProperties.class),
+        @JsonSubTypes.Type(name = "foot-hiking", value = HikingProfileProperties.class),
+        @JsonSubTypes.Type(name = "wheelchair", value = WheelchairProfileProperties.class),
+        @JsonSubTypes.Type(name = "public-transport", value = PublicTransportProfileProperties.class),
+})
 public abstract class ProfileProperties {
     @JsonProperty("enabled")
     private Boolean enabled;
-    @JsonProperty("name")
-    private String name;
     @JsonProperty("encoder_name")
     private String encoderName;
     @JsonProperty("elevation")
@@ -77,7 +82,7 @@ public abstract class ProfileProperties {
     @JsonProperty("execution")
     private ExecutionProperties execution;
     @JsonProperty("ext_storages")
-    private Map<String, Map<String, String>> extStorages;
+    private HashMap<String, HashMap<String, String>> extStorages;
 
     public Boolean getEnabled() {
         return enabled;
@@ -227,14 +232,14 @@ public abstract class ProfileProperties {
         this.preparation = preparation;
     }
 
-    public Map<String, Map<String, String>> getExtStorages() {
+    public HashMap<String, HashMap<String, String>> getExtStorages() {
         return extStorages;
     }
 
-    public void setExtStorages(Map<String, Map<String, String>> extStorages) {
+    public void setExtStorages(HashMap<String, HashMap<String, String>> extStorages) {
         // Todo write individual storage config classes
         // Iterate over each storage in the extStorages and overwrite all paths variables with absolute paths#
-        for (Map.Entry<String, Map<String, String>> storage : extStorages.entrySet()) {
+        for (HashMap.Entry<String, HashMap<String, String>> storage : extStorages.entrySet()) {
             if (storage.getKey().equals("HereTraffic")) {
                 // Replace streets, ref_pattern pattern_15min and log_location with absolute paths
                 String hereTrafficPath = storage.getValue().get("streets");
