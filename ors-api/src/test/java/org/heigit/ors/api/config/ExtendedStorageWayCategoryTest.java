@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
 public class ExtendedStorageWayCategoryTest {
 
     @Test
