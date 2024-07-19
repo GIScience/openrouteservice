@@ -21,6 +21,11 @@ class PathSerializerTest {
     private ObjectMapper mapper;
     private PathDeserializer deserializer;
 
+    /**
+     * Helper class to test the deserialization of a Path object.
+     * The class has a single field of type Path.
+     * The field setFilepath is annotated with @JsonDeserialize to use the PathDeserializer.
+     */
     @JsonTypeName("HelperClass")
     private static class HelperClass {
 
