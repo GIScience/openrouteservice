@@ -57,3 +57,56 @@ class ExtendedStorageTest {
         assertFalse(jsonResult.contains("\"filepath\":"), "Serialized JSON should not contain 'filepath'");
     }
 }
+
+class ExtendedStorageIndexTest {
+
+    @Test
+    void defaultConstructorInitializesObject() {
+        ExtendedStorageIndex storage = new ExtendedStorageIndex();
+        assertNotNull(storage, "Default constructor should initialize the object");
+        assertTrue(storage.getEnabled(), "Default constructor should initialize 'enabled' to true");
+        assertEquals("", storage.getFilepath().toString(), "Default constructor should initialize 'filepath' to an empty string");
+    }
+
+    @Test
+    void deserializationCorrectJson() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{\"ExtendedStorageIndex\":{\"enabled\":false,\"filepath\":\"" + Paths.get("src/test/resources/index.csv") + "\"}}";
+        ExtendedStorageIndex storage = objectMapper.readValue(json, ExtendedStorageIndex.class);
+        assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to false");
+        assertEquals(Paths.get("src/test/resources/index.csv").toAbsolutePath(), storage.getFilepath(), "Deserialized object should have 'filepath' set to an absolute path");
+    }
+
+    @Test
+    void serializationCorrectJson() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ExtendedStorageIndex storage = new ExtendedStorageIndex();
+        String path = "src/test/resources/index.csv";
+        storage.setEnabled(false);
+        storage.setFilepath(Paths.get(path));
+        String actualJson = "{\"ExtendedStorageIndex\":{\"enabled\":false,\"filepath\":\"" + Paths.get(path).toAbsolutePath() + "\"}}";
+        String json = objectMapper.writeValueAsString(storage);
+        assertEquals(actualJson, json, "Serialized JSON should have 'enabled' set to false and 'filepath' set to an absolute path");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            ", ''", // Represents the default path for null input
+            "'', ''", // Represents the empty string input
+            "'src/test/resources', 'src/test/resources'",
+            "'/src/test/resources', '/src/test/resources'"
+    })
+    void setFilepath(String input, String expected) {
+        ExtendedStorageIndex storage = new ExtendedStorageIndex();
+        if (input != null)
+            storage.setFilepath(Paths.get(input));
+        else
+            storage.setFilepath(null);
+
+        if (input == null || input.isEmpty()) {
+            assertEquals(Path.of(""), storage.getFilepath(), "setFilepath(null) should result in an empty path");
+        } else {
+            assertEquals(Paths.get(expected).toAbsolutePath(), storage.getFilepath(), "setFilepath('src/test/resources') should result in an absolute path");
+        }
+    }
+}
