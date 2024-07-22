@@ -3,13 +3,15 @@ package org.heigit.ors.api.converters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import jakarta.validation.constraints.Null;
+import org.heigit.ors.api.util.Generated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
 import java.io.IOException;
-
 
 
 public class PathDeserializer extends JsonDeserializer<Path> {
@@ -20,7 +22,7 @@ public class PathDeserializer extends JsonDeserializer<Path> {
         Path fallbackPath = Path.of("");
         try {
             String pathStr = p.getText();
-            if (pathStr == null || pathStr.equals("null")) {
+            if (pathStr.equals("null") || pathStr.isEmpty()) {
                 return fallbackPath;
             }
             return Path.of(pathStr).toAbsolutePath();
