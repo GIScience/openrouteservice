@@ -45,7 +45,7 @@ public abstract class ProfileProperties {
     private Boolean interpolateBridgesAndTunnels;
     @JsonProperty("force_turn_costs")
     private Boolean forceTurnCosts;
-    @JsonProperty("graph_paths")
+    @JsonProperty("graph_path")
     private String graphPath;
     @JsonProperty("location_index_resolution")
     private Integer locationIndexResolution;
@@ -83,6 +83,11 @@ public abstract class ProfileProperties {
     private ExecutionProperties execution;
     @JsonProperty("ext_storages")
     private HashMap<String, HashMap<String, String>> extStorages;
+
+    public ProfileProperties() {
+        preparation = new PreparationProperties();
+        execution = new ExecutionProperties();
+    }
 
     public Boolean getEnabled() {
         return enabled;

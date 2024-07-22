@@ -9,6 +9,10 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 public class ExecutionProperties {
     private MethodsProperties methods;
 
+    public ExecutionProperties() {
+        methods = new MethodsProperties();
+    }
+
     public MethodsProperties getMethods() {
         return methods;
     }
@@ -22,6 +26,12 @@ public class ExecutionProperties {
         private AStarProperties astar;
         private LMProperties lm;
         private CoreProperties core;
+
+        public MethodsProperties() {
+            astar = new AStarProperties();
+            lm = new LMProperties();
+            core = new CoreProperties();
+        }
 
         public AStarProperties getCh() {
             return astar;

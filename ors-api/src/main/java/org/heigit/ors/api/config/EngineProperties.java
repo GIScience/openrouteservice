@@ -1,13 +1,5 @@
 package org.heigit.ors.api.config;
 
-import com.fasterxml.jackson.annotation.*;
-import com.graphhopper.util.Helper;
-import com.typesafe.config.ConfigFactory;
-import org.apache.commons.lang3.StringUtils;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
@@ -20,11 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-
-@Configuration
-@Component
-@ConfigurationProperties(prefix = "ors.engine")
 public class EngineProperties {
 
     @JsonProperty("source_file")

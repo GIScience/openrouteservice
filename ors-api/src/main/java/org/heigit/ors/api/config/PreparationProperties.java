@@ -14,6 +14,10 @@ public class PreparationProperties {
     @JsonProperty("methods")
     private MethodsProperties methods;
 
+    public PreparationProperties() {
+        this.methods = new MethodsProperties();
+    }
+
     public Integer getMinNetworkSize() {
         return minNetworkSize;
     }
@@ -45,6 +49,13 @@ public class PreparationProperties {
         private LMProperties lm;
         private CoreProperties core;
         private FastIsochroneProperties fastisochrones;
+
+        public MethodsProperties() {
+            ch = new CHProperties();
+            lm = new LMProperties();
+            core = new CoreProperties();
+            fastisochrones = new FastIsochroneProperties();
+        }
 
         public CHProperties getCh() {
             return ch;

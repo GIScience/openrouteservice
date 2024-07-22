@@ -3,15 +3,11 @@ package org.heigit.ors.api.converters;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import jakarta.validation.constraints.Null;
-import org.heigit.ors.api.util.Generated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
-
 import java.io.IOException;
+import java.nio.file.Path;
 
 
 public class PathDeserializer extends JsonDeserializer<Path> {

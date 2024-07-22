@@ -103,7 +103,7 @@ ors:
 #  ##### ORS engine settings #####
   engine:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
-    init_threads: 99
+#    init_threads: 99
     config_output_mode: true
 #    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
@@ -146,45 +146,44 @@ ors:
 #        methods:
 #          lm:
 #            active_landmarks: 8
-#    profiles:
-#      car:
-#        enabled: true
-#        encoder_name: driving-car
-#        encoder_options:
-#          turn_costs: true
-#          block_fords: false
-#          use_acceleration: true
-#        preparation:
-#          min_network_size: 200
-#          methods:
-#            ch:
-#              enabled: true
-#              threads: 1
-#              weightings: fastest
-#            lm:
-#              enabled: false
-#              threads: 1
-#              weightings: fastest,shortest
-#              landmarks: 16
-#            core:
-#              enabled: true
-#              threads: 1
-#              weightings: fastest,shortest
-#              landmarks: 64
-#              lmsets: highways;allow_all
-#        execution:
-#          methods:
-#            lm:
-#              active_landmarks: 6
-#            core:
-#              active_landmarks: 6
-#        ext_storages:
-#          WayCategory:
-#          HeavyVehicle:
-#          WaySurfaceType:
-#          RoadAccessRestrictions:
-#            use_for_warnings: true
-#        enabled: true
+    profiles:
+      car:
+        enabled: true
+        encoder_name: driving-car
+        encoder_options:
+          turn_costs: true
+          block_fords: false
+          use_acceleration: true
+        preparation:
+          min_network_size: 200
+          methods:
+            ch:
+              enabled: true
+              threads: 1
+              weightings: fastest
+            lm:
+              enabled: false
+              threads: 1
+              weightings: fastest,shortest
+              landmarks: 16
+            core:
+              enabled: true
+              threads: 1
+              weightings: fastest,shortest
+              landmarks: 64
+              lmsets: highways;allow_all
+        execution:
+          methods:
+            lm:
+              active_landmarks: 6
+            core:
+              active_landmarks: 6
+        ext_storages:
+          WayCategory:
+          HeavyVehicle:
+          WaySurfaceType:
+          RoadAccessRestrictions:
+            use_for_warnings: true
 #      hgv:
 #        profile: driving-hgv
 #        encoder_options:
