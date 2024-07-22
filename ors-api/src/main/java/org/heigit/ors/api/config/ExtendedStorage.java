@@ -13,10 +13,10 @@ import java.util.LinkedHashMap;
  * This the base class for the extended storage configuration. It contains a boolean field to enable or disable the storage.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-class ExtendedStorage {
+public class ExtendedStorage {
 
     @JsonProperty
-    Boolean enabled = true;
+    private Boolean enabled = true;
 
     public ExtendedStorage() {
     }
@@ -33,12 +33,13 @@ class ExtendedStorage {
         super();
     }
 
-   // Getter and setter
+    @JsonProperty("enabled")
     public Boolean getEnabled() {
         return enabled;
     }
 
-    public void setEnabled(Boolean enabled) {
+    @JsonSetter("enabled")
+    private void setEnabled(Boolean enabled) {
         this.enabled = enabled;
     }
 }
@@ -63,9 +64,10 @@ class ExtendedStorageIndex extends ExtendedStorage {
 
     @JsonSetter("filepath")
     @JsonDeserialize(using = PathDeserializer.class)
-    // Todo deserializer should output absolute paths to reduce complexity
-    private void setFilepath(Path filepath) {
-        this.filepath = filepath;
+    private void setFilepath(Object filepath) {
+        if (filepath instanceof Path objectCast) {
+            this.filepath = objectCast;
+        }
     }
 }
 
