@@ -66,14 +66,14 @@ public class RoutingProfileManager {
         RuntimeUtility.printRAMInfo("", LOGGER);
         long startTime = System.currentTimeMillis();
         try {
-            RouteProfileConfiguration[] routeProfileConfigurations = config.getProfiles();
+            RouteProfileConfiguration[] routeProfileConfigurations = config.profiles();
             if (routeProfileConfigurations.length == 0) {
                 fail("No profiles configured. Exiting.");
                 return;
             }
-            int initializationThreads = config.getInitializationThreads();
+            int initializationThreads = config.initializationThreads();
             LOGGER.info("====> Initializing profiles from '%s' (%d threads) ...".formatted(
-                    config.getSourceFile(), initializationThreads));
+                    config.sourceFile(), initializationThreads));
 
             routingProfiles = new RoutingProfilesCollection();
             int nRouteInstances = routeProfileConfigurations.length;

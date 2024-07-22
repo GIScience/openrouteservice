@@ -3,55 +3,61 @@ package org.heigit.ors.config;
 import com.typesafe.config.Config;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.locationtech.jts.geom.Envelope;
 
 import java.nio.file.Paths;
 import java.util.Map;
 
 public class ProfileConfig {
 
-    // TODO this is supposed to replace RouteProfileConfiguration, also checking all params if still needed.
-    private String name = "";
-    private boolean enabled = true;
-    private String profiles = ""; // comma separated
+    private String name;
+    private String encoderName;
     private String graphPath;
-    private Map<String, Map<String, String>> extStorages;
-    private Map<String, Map<String, String>> graphBuilders;
-    private Double maximumDistance = 0.0;
-    private Double maximumDistanceDynamicWeights = 0.0;
-    private Double maximumDistanceAvoidAreas = 0.0;
-    private Double maximumDistanceAlternativeRoutes = 0.0;
-    private Double maximumDistanceRoundTripRoutes = 0.0;
-    private Integer maximumWayPoints = 0;
-    private boolean instructions = true;
-    private boolean optimize = false;
+    private String gtfsFile;
 
-    private int encoderFlagsSize = 4;
-    private String encoderOptions = "";
-    private String gtfsFile = "";
-    private Config isochronePreparationOpts;
-    private Config preparationOpts;
-    private Config executionOpts;
+    private boolean enabled;
+    private boolean elevation;
+    private boolean elevationSmoothing;
+    private boolean instructions;
+    private boolean optimize;
+    private boolean traffic;
+    private boolean interpolateBridgesAndTunnels;
+    private boolean forceTurnCosts;
+    private int encoderFlagsSize;
+    private int locationIndexResolution;
+    private int locationIndexSearchIterations;
+
+    private double maximumDistance;
+    private double maximumDistanceDynamicWeights;
+    private double maximumDistanceAvoidAreas;
+    private double maximumDistanceAlternativeRoutes;
+    private double maximumDistanceRoundTripRoutes;
+    private double maximumSpeedLowerBound;
+    private int maximumWayPoints;
+    private int maximumSnappingRadius;
+    private int maximumVisitedNodes;
+    private int maximumVisitedNodesPT;
 
     private String elevationProvider = null;
     private String elevationCachePath = null;
     private String elevationDataAccess = "MMAP";
     private boolean elevationCacheClear = true;
-    private boolean elevationSmoothing = true;
-    private boolean interpolateBridgesAndTunnels = true;
-    private int maximumSnappingRadius = 350;
 
-    private Envelope extent;
-    private boolean hasMaximumSnappingRadius = false;
+    private String encoderOptions;
 
-    private int locationIndexResolution = 500;
-    private int locationIndexSearchIterations = 4;
+//        private PreparationProperties preparation;
+    private Map<String, Object> preparation;
+//        private ExecutionProperties execution;
+    private Map<String, Object> execution;
+    private Map<String, Map<String, String>> extStorages;
+    private Map<String, Map<String, String>> graphBuilders;
 
-    private double maximumSpeedLowerBound = 80;
+    private Config isochronePreparationOpts;
+    private Config preparationOpts;
+    private Config executionOpts;
 
-    private final int trafficExpirationMin = 15;
 
-    private int maximumVisitedNodesPT = 1000000;
+
+
 
     private boolean turnCostEnabled = false;//FIXME: even though the field is read by external methods, its setter is never called.
     private boolean enforceTurnCosts = false;
@@ -117,5 +123,16 @@ public class ProfileConfig {
         public ProfileConfig build() {
             return new ProfileConfig(this);
         }
+    }
+
+    public static class EncoderOptionsConfig {
+        private boolean blockFords;
+        private boolean considerElevation;
+        private boolean turnCosts;
+        private boolean useAcceleration;
+        private int maximumGradeLevel;
+        private double preferredSpeedFactor;
+        private double problematicSpeedFactor;
+
     }
 }

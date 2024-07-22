@@ -89,8 +89,8 @@ public class RoutingProfile {
     }
 
     public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
-        String osmFile = engineConfig.getSourceFile();
-        String dataAccessType = Strings.isNullOrEmpty(config.getGraphDataAccess()) ? engineConfig.getGraphsDataAccess() : config.getGraphDataAccess();
+        String osmFile = engineConfig.sourceFile();
+        String dataAccessType = Strings.isNullOrEmpty(config.getGraphDataAccess()) ? engineConfig.graphsDataAccess() : config.getGraphDataAccess();
         ORSGraphHopperConfig args = createGHSettings(osmFile, dataAccessType, config);
 
         int profileId;
@@ -106,7 +106,7 @@ public class RoutingProfile {
         }
 
         GraphProcessContext gpc = new GraphProcessContext(config);
-        gpc.setGetElevationFromPreprocessedData(engineConfig.isElevationPreprocessed());
+        gpc.setGetElevationFromPreprocessedData(engineConfig.elevationPreprocessed());
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc);
 

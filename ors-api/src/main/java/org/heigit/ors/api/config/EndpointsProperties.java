@@ -366,6 +366,7 @@ public class EndpointsProperties {
         private boolean allowComputeArea = true;
         @JsonProperty("maximum_intervals")
         private int maximumIntervals = 1;
+        @JsonProperty("fastisochornes")
         private MaximumRangeProperties fastisochrones;
         @JsonProperty("statistics_providers")
         private Map<String, StatisticsProviderProperties> statisticsProviders = new HashMap<>();
