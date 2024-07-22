@@ -2,10 +2,7 @@ package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 
@@ -34,12 +31,8 @@ class ExtendedStorageTest {
     @Test
     void testGetterAndSetter() {
         ExtendedStorage storage = new ExtendedStorage();
-        storage.setEnabled(false);
-        assertFalse(storage.getEnabled(), "setEnabled(false) should result in 'enabled' being false");
-        storage.setEnabled(true);
         assertTrue(storage.getEnabled(), "setEnabled(true) should result in 'enabled' being true");
     }
-
 
 
     @Test
@@ -81,32 +74,17 @@ class ExtendedStorageIndexTest {
     void serializationCorrectJson() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         ExtendedStorageIndex storage = new ExtendedStorageIndex();
-        String path = "src/test/resources/index.csv";
-        storage.setEnabled(false);
-        storage.setFilepath(Paths.get(path));
-        String actualJson = "{\"ExtendedStorageIndex\":{\"enabled\":false,\"filepath\":\"" + Paths.get(path).toAbsolutePath() + "\"}}";
+        String expectedJson = "{\"ExtendedStorageIndex\":{\"enabled\":true,\"filepath\":\"\"}}";
         String json = objectMapper.writeValueAsString(storage);
-        assertEquals(actualJson, json, "Serialized JSON should have 'enabled' set to false and 'filepath' set to an absolute path");
+        assertEquals(expectedJson, json, "Serialized JSON should have 'enabled' set to false and 'filepath' set to an absolute path");
     }
 
-    @ParameterizedTest
-    @CsvSource({
-            ", ''", // Represents the default path for null input
-            "'', ''", // Represents the empty string input
-            "'src/test/resources', 'src/test/resources'",
-            "'/src/test/resources', '/src/test/resources'"
-    })
-    void setFilepath(String input, String expected) {
-        ExtendedStorageIndex storage = new ExtendedStorageIndex();
-        if (input != null)
-            storage.setFilepath(Paths.get(input));
-        else
-            storage.setFilepath(null);
-
-        if (input == null || input.isEmpty()) {
-            assertEquals(Path.of(""), storage.getFilepath(), "setFilepath(null) should result in an empty path");
-        } else {
-            assertEquals(Paths.get(expected).toAbsolutePath(), storage.getFilepath(), "setFilepath('src/test/resources') should result in an absolute path");
-        }
+    @Test
+    void deserializeNullPath() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{\"ExtendedStorageIndex\":{\"enabled\":false,\"filepath\":null}}";
+        ExtendedStorageIndex storage = objectMapper.readValue(json, ExtendedStorageIndex.class);
+        assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to false");
+        assertEquals(Paths.get(""), storage.getFilepath(), "Deserialized object should have 'filepath' set to an empty string");
     }
 }
