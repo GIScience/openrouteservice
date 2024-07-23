@@ -42,6 +42,16 @@ RELEASING:
 ### Fixed
 ### Security
 
+## [unreleased]
+
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+- allow any number of csv columns ([#1436](https://github.com/GIScience/openrouteservice/issues/1436))
+### Security
+
 ## [8.1.1] - 2024-07-17
 ### Added
 - added danish tranlations ([#1809](https://github.com/GIScience/openrouteservice/pull/1809))
