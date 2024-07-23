@@ -51,4 +51,12 @@ class ExtendedStorageWheelchairTest {
         assertFalse(storage.getKerbsOnCrossings(), "Deserialized object should have 'kerbs_on_crossings' set to false");
     }
 
+    @Test
+    void testDeserializationWithEmptyValues() throws Exception {
+        String json = "{\"Wheelchair\":\"\"}";
+        ExtendedStorageWheelchair storage = new ObjectMapper().readValue(json, ExtendedStorageWheelchair.class);
+        assertTrue(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
+        assertTrue(storage.getKerbsOnCrossings(), "Deserialized object should have 'kerbs_on_crossings' set to true");
+    }
+
 }

@@ -1,5 +1,6 @@
 package org.heigit.ors.api.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -9,17 +10,21 @@ public class ExtendedStorageHeavyVehicle extends ExtendedStorage {
 
     private Boolean restrictions = true;
 
-
+    @JsonCreator
     public ExtendedStorageHeavyVehicle() {
     }
 
-    @JsonProperty(value = "restrictions")
+    @JsonCreator
+    public ExtendedStorageHeavyVehicle(String ignoredEmpty) {
+    }
+
+    @JsonProperty
     public Boolean getRestrictions() {
         return restrictions;
     }
 
-    @JsonSetter("restrictions")
-    private void setRestrictions(Boolean restrictions) {
-        this.restrictions = restrictions;
+    @JsonSetter
+    private void setRestrictions(String restrictions) {
+        this.restrictions = Boolean.parseBoolean(restrictions);
     }
 }

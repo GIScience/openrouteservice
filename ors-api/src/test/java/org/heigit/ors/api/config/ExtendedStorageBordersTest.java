@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ExtendedStorageBordersTest {
 
@@ -43,5 +44,16 @@ class ExtendedStorageBordersTest {
         assertEquals(path_boundaries.toAbsolutePath(), storage.getBoundaries());
         assertEquals(path_ids.toAbsolutePath(), storage.getIds());
         assertEquals(path_openborders.toAbsolutePath(), storage.getOpenborders());
+    }
+
+    @Test
+    void testDeserializationWithEmptyValues() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{\"Borders\":\"\"}";
+        ExtendedStorageBorders storage = objectMapper.readValue(json, ExtendedStorageBorders.class);
+        assertEquals("", storage.getBoundaries().toString());
+        assertEquals("", storage.getIds().toString());
+        assertEquals("", storage.getOpenborders().toString());
+        assertFalse(storage.getEnabled());
     }
 }

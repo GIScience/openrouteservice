@@ -1,5 +1,6 @@
 package org.heigit.ors.api.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
@@ -11,6 +12,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 public class ExtendedStorageCsvIndex extends ExtendedStorageIndex {
 
     public ExtendedStorageCsvIndex() {
+    }
+
+    @JsonCreator
+    public ExtendedStorageCsvIndex(String ignoredEmpty) {
     }
 
 }

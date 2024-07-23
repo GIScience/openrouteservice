@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -16,8 +17,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExtendedStorageMapDeserializerTest {
     private ObjectMapper mapper;
@@ -42,9 +42,10 @@ class ExtendedStorageMapDeserializerTest {
     // Write a test to fail
     @Test
     void testDeserializeExtendedStorageFail() throws JsonProcessingException {
-        HelperClass foo = mapper.readValue("{\"ext_storages\":{\"Foo\":null}}", HelperClass.class);
-        Map<String, ExtendedStorage> extendedStorage = foo.getExtendedStorage();
-        assertTrue(extendedStorage.isEmpty());
+        // Expect ExtendedStorageDeserializationException to be thrown
+        assertThrows(
+                JsonMappingException.class, () ->
+                        mapper.readValue("{\"ext_storages\":{\"Foo\":null}}", HelperClass.class));
     }
 
     /**

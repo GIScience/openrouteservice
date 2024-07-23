@@ -1,19 +1,20 @@
 package org.heigit.ors.api.config;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.heigit.ors.api.converters.PathDeserializer;
 import org.heigit.ors.api.converters.PathSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
 @JsonTypeName("HereTraffic")
 @JsonPropertyOrder({"enabled", "streets", "ref_pattern", "pattern", "radius", "output_log", "log_location"})
 public class ExtendedStorageHereTraffic extends ExtendedStorage {
+    Logger logger = LoggerFactory.getLogger(ExtendedStorageHereTraffic.class);
+
 
     private Path streets = Path.of("");
 
@@ -28,6 +29,12 @@ public class ExtendedStorageHereTraffic extends ExtendedStorage {
     private Path log_location = Path.of("");
 
     public ExtendedStorageHereTraffic() {
+    }
+
+    @JsonCreator
+    public ExtendedStorageHereTraffic(String ignoredEmpty) {
+        logger.warn("HereTraffic storage is not correctly configured and will be disabled.");
+        setEnabled(false);
     }
 
     @JsonProperty(value = "streets")

@@ -27,14 +27,20 @@ public class ExtendedStorageMapDeserializer extends JsonDeserializer<Map<String,
             String key = field.getKey();
             JsonNode value = field.getValue().isNull() ? JsonNodeFactory.instance.objectNode() : field.getValue();
             ObjectNode combinedNode = JsonNodeFactory.instance.objectNode();
-            combinedNode.set(key, value); // Combine key and value into a single node
+            combinedNode.set(key, value);
             try {
                 ExtendedStorage extendedStorage = objectMapper.treeToValue(combinedNode, ExtendedStorage.class);
                 result.put(key, extendedStorage);
             } catch (IOException e) {
-                logger.error("Error deserializing ExtendedStorage object", e);
+                throw new RuntimeException(new ExtendedStorageDeserializationException("Failed to deserialize ExtendedStorage object for key: " + key, e));
             }
         });
         return result;
+    }
+}
+
+class ExtendedStorageDeserializationException extends Exception {
+    public ExtendedStorageDeserializationException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

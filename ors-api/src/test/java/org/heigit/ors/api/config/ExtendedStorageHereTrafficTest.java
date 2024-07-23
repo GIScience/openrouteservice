@@ -116,4 +116,18 @@ class ExtendedStorageHereTrafficTest {
         assertEquals(Paths.get("./src/test/files/here-traffic-ref-patterns.csv").toAbsolutePath(), storage.getRefPattern(), "Deserialized object should have 'ref_pattern' set to the absolute path.");
         assertEquals(Paths.get("./src/test/files/here-traffic-patterns.csv").toAbsolutePath(), storage.getPattern(), "Deserialized object should have 'pattern' set to the absolute path.");
     }
+
+    @Test
+    void testDeserializationWithEmptyValues() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{\"HereTraffic\":\"\"}";
+        ExtendedStorageHereTraffic storage = objectMapper.readValue(json, ExtendedStorageHereTraffic.class);
+        assertEquals("", storage.getStreets().toString(), "Deserialized object should have 'streets' set to \"\"");
+        assertEquals("", storage.getRefPattern().toString(), "Deserialized object should have 'ref_pattern' set to \"\"");
+        assertEquals("", storage.getPattern().toString(), "Deserialized object should have 'pattern' set to \"\"");
+        assertEquals(250, storage.getRadius(), "Deserialized object should have 'radius' set to 250");
+        assertFalse(storage.getOutputLog(), "Deserialized object should have 'output_log' set to false");
+        assertEquals("", storage.getLogLocation().toString(), "Deserialized object should have 'log_location' set to \"\"");
+        assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
+    }
 }

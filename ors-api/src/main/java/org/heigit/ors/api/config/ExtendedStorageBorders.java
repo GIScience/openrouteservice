@@ -1,5 +1,6 @@
 package org.heigit.ors.api.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -7,11 +8,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.heigit.ors.api.converters.PathDeserializer;
 import org.heigit.ors.api.converters.PathSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
 @JsonTypeName("Borders")
 public class ExtendedStorageBorders extends ExtendedStorage {
+    Logger logger = LoggerFactory.getLogger(ExtendedStorageBorders.class);
 
     private Path boundaries = Path.of("");
 
@@ -21,6 +25,12 @@ public class ExtendedStorageBorders extends ExtendedStorage {
 
 
     public ExtendedStorageBorders() {
+    }
+
+    @JsonCreator
+    public ExtendedStorageBorders(String ignoredEmpty) {
+        logger.warn("Borders storage is not correctly configured and will be disabled.");
+        setEnabled(false);
     }
 
     @JsonProperty(value = "boundaries")

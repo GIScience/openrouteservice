@@ -50,4 +50,13 @@ public class ExtendedStorageHeavyVehicleTest {
         assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to false");
         assertFalse(storage.getRestrictions(), "Deserialized object should have 'restrictions' set to false");
     }
+
+    @Test
+    void testDeserializationWithEmptyValues() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{\"HeavyVehicle\":\"\"}";
+        ExtendedStorageHeavyVehicle storage = objectMapper.readValue(json, ExtendedStorageHeavyVehicle.class);
+        assertTrue(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
+        assertTrue(storage.getRestrictions(), "Deserialized object should have 'restrictions' set to true");
+    }
 }
