@@ -22,16 +22,25 @@ This is how a Changelog entry should look like:
 - in case of vulnerabilities. (Use for vulnerability fixes)
 
 RELEASING:
-1. Change Unreleased to new release number
+1. Change unreleased to new release number
 2. Add today's Date
 3. Change unreleased link to compare new release:
 [unreleased]: https://github.com/GIScience/openrouteservice/compare/vnew...HEAD
 4. Add new compare link below
 [new]: https://github.com/GIScience/openrouteservice/compare/vlast...vnew
-5. Git tag release commit with vX.X.X to enable links
-6. Double check issue links are valid
-7. Bump version in pom.xml
- -->
+5. Double check issue links are valid
+6. Add [unreleased] section with all subsections as above
+7. Adding the corresponding tag is done when releasing via GitHub.
+-->
+
+## [unreleased]
+
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
 
 ## [8.1.1] - 2024-07-17
 ### Added
