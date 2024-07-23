@@ -1,6 +1,7 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -357,6 +358,7 @@ public class EndpointsProperties {
     }
 
     @JsonPropertyOrder({"enabled", "attribution", "maximum_locations", "maximum_intervals", "allow_compute_area", "maximum_range_distance_default", "maximum_range_distance", "maximum_range_time_default", "maximum_range_time", "fastisochrones"})
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
     public static class EndpointIsochronesProperties extends MaximumRangeProperties {
         private boolean enabled;
         private String attribution;
@@ -427,8 +429,9 @@ public class EndpointsProperties {
             this.statisticsProviders = statisticsProviders;
         }
 
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class StatisticsProviderProperties {
-            private boolean enabled;
+            private Boolean enabled;
             private String attribution;
             @JsonProperty("provider_name")
             private String providerName;

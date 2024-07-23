@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.*;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.api.config.EncoderOptionsProperties;
 import org.heigit.ors.api.config.ExecutionProperties;
+import org.heigit.ors.api.config.NonEmptyObjectFilter;
 import org.heigit.ors.api.config.PreparationProperties;
 
 import java.nio.file.Paths;
 import java.util.HashMap;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyObjectFilter.class)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "encoder_name", defaultImpl = DefaultProfileProperties.class)
 @JsonSubTypes({
         @JsonSubTypes.Type(name = "default", value = DefaultProfileProperties.class),
@@ -72,8 +73,6 @@ public abstract class ProfileProperties {
     private Integer maximumSnappingRadius;
     @JsonProperty("maximum_visited_nodes")
     private Integer maximumVisitedNodes;
-    @JsonProperty("maximum_visited_nodes_pt")
-    private Integer maximumVisitedNodesPT;
 
     @JsonProperty("encoder_options")
     private EncoderOptionsProperties encoderOptions;
@@ -85,6 +84,7 @@ public abstract class ProfileProperties {
     private HashMap<String, HashMap<String, String>> extStorages;
 
     public ProfileProperties() {
+        encoderOptions = new EncoderOptionsProperties();
         preparation = new PreparationProperties();
         execution = new ExecutionProperties();
     }
@@ -361,13 +361,5 @@ public abstract class ProfileProperties {
 
     public void setMaximumVisitedNodes(Integer maximumVisitedNodes) {
         this.maximumVisitedNodes = maximumVisitedNodes;
-    }
-
-    public Integer getMaximumVisitedNodesPT() {
-        return maximumVisitedNodesPT;
-    }
-
-    public void setMaximumVisitedNodesPT(Integer maximumVisitedNodesPT) {
-        this.maximumVisitedNodesPT = maximumVisitedNodesPT;
     }
 }

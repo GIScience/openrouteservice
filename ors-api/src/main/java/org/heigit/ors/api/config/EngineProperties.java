@@ -172,7 +172,7 @@ public class EngineProperties {
 //                convertedProfile.setLocationIndexSearchIterations(profile.getLocationIndexSearchIterations() != null ? profile.getLocationIndexSearchIterations() : profileDefault.getLocationIndexSearchIterations());
 //                convertedProfile.setEnforceTurnCosts(profile.getForceTurnCosts() != null ? profile.getForceTurnCosts() : profileDefault.getForceTurnCosts());
 //                convertedProfile.setGtfsFile(profile.getGtfsFile() != null ? profile.getGtfsFile() : "");
-//                convertedProfile.setMaximumVisitedNodesPT(profile.getMaximumVisitedNodesPT() != null ? profile.getMaximumVisitedNodesPT() : profileDefault.getMaximumVisitedNodes());
+//                convertedProfile.setMaximumVisitedNodesPT(profile.getMaximumVisitedNodes() != null ? profile.getMaximumVisitedNodes() : profileDefault.getMaximumVisitedNodes());
 //                if (profile.getElevation() != null && profile.getElevation() || profileDefault.getElevation()) {
 //                    convertedProfile.setElevationProvider(elevation.getProvider());
 //                    convertedProfile.setElevationCachePath(elevation.getCachePath());

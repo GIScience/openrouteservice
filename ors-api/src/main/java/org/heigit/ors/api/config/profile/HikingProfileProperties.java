@@ -4,11 +4,7 @@ public class HikingProfileProperties extends ProfileProperties {
     public HikingProfileProperties() {
         super();
         this.setEncoderName("foot-hiking");
-        this.setEncoderFlagsSize(999);
-//#      hiking:
-//#        profile: foot-hiking
-//#        encoder_options:
-//#          block_fords: false
+        getEncoderOptions().setBlockFords(false);
 //#        ext_storages:
 //#          WayCategory:
 //#          WaySurfaceType:

@@ -3,9 +3,7 @@ package org.heigit.ors.api.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-
-@JsonInclude(NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExecutionProperties {
     private MethodsProperties methods;
 
@@ -21,7 +19,7 @@ public class ExecutionProperties {
         this.methods = methods;
     }
 
-    @JsonInclude(NON_NULL)
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyObjectFilter.class)
     public static class MethodsProperties {
         private AStarProperties astar;
         private LMProperties lm;
@@ -57,7 +55,7 @@ public class ExecutionProperties {
             this.core = core;
         }
 
-        @JsonInclude(NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class AStarProperties {
             private String approximation;
             private Integer epsilon;
@@ -79,7 +77,7 @@ public class ExecutionProperties {
             }
         }
 
-        @JsonInclude(NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
             @JsonProperty("active_landmarks")
             private Integer activeLandmarks;
@@ -93,7 +91,7 @@ public class ExecutionProperties {
             }
         }
 
-        @JsonInclude(NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
             @JsonProperty("active_landmarks")
             private Integer activeLandmarks;
@@ -108,3 +106,4 @@ public class ExecutionProperties {
         }
     }
 }
+

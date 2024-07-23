@@ -3,9 +3,7 @@ package org.heigit.ors.api.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
-
-@JsonInclude(NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PreparationProperties {
     @JsonProperty("min_network_size")
     private Integer minNetworkSize;
@@ -43,7 +41,7 @@ public class PreparationProperties {
         return this;
     }
 
-    @JsonInclude(NON_NULL)
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyObjectFilter.class)
     public static class MethodsProperties {
         private CHProperties ch;
         private LMProperties lm;
@@ -89,7 +87,7 @@ public class PreparationProperties {
             this.fastisochrones = fastisochrones;
         }
 
-        @JsonInclude(NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CHProperties {
             private Boolean enabled;
             private Integer threads;
@@ -120,7 +118,7 @@ public class PreparationProperties {
             }
         }
 
-        @JsonInclude(NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
             private Boolean enabled;
             private Integer threads;
@@ -160,7 +158,7 @@ public class PreparationProperties {
             }
         }
 
-        @JsonInclude(NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
             private Boolean enabled;
             private Integer threads;
@@ -209,7 +207,7 @@ public class PreparationProperties {
             }
         }
 
-        @JsonInclude(NON_NULL)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class FastIsochroneProperties {
             private Boolean enabled;
             private Integer threads;

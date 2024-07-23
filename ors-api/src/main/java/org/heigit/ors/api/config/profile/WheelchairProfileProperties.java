@@ -4,12 +4,8 @@ public class WheelchairProfileProperties extends ProfileProperties {
     public WheelchairProfileProperties() {
         super();
         this.setEncoderName("wheelchair");
-        this.setEncoderFlagsSize(999);
-//#      wheelchair:
-//#        profile: wheelchair
-//#        encoder_options:
-//#          block_fords: true
-//#        maximum_snapping_radius: 50
+        getEncoderOptions().setBlockFords(false);
+        setMaximumSnappingRadius(50);
 //#        ext_storages:
 //#          WayCategory:
 //#          WaySurfaceType:
