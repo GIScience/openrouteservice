@@ -31,7 +31,7 @@ public class ExtendedStorageMapDeserializer extends JsonDeserializer<Map<String,
             try {
                 ExtendedStorage extendedStorage = objectMapper.treeToValue(combinedNode, ExtendedStorage.class);
                 result.put(key, extendedStorage);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 logger.error("Error deserializing ExtendedStorage object", e);
             }
         });
