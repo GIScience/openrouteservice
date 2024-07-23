@@ -127,6 +127,9 @@ public class ExtraInfoProcessor implements PathProcessor {
         encoderWithPriority = encoder.supports(PriorityWeighting.class);
         List<String> skippedExtras = new ArrayList<>();
 
+        //Sufficient size for every extra info except csv.
+        int buffer_size = 4;
+
         try {
             PMap params = opts;
             if (params == null) {
@@ -274,6 +277,9 @@ public class ExtraInfoProcessor implements PathProcessor {
                     csvInfo = new RouteExtraInfo("csv");
                     csvInfoBuilder = new AppendableRouteExtraInfoBuilder(csvInfo);
                     csvColumn = extCsvData.columnIndex(params.getString("weighting_#csv#column", ""));
+
+                    //Determine minimal size buffer size, as 4 might not be sufficient.
+                    buffer_size = Math.max(extCsvData.numEntries(), buffer_size);
                 } else {
                     skippedExtras.add("csv");
                 }
@@ -284,7 +290,7 @@ public class ExtraInfoProcessor implements PathProcessor {
         if (!skippedExtras.isEmpty()) {
             skippedExtraInfo = String.join(", ", skippedExtras);
         }
-        buffer = new byte[4];
+        buffer = new byte[buffer_size];
     }
 
     /**
