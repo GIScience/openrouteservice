@@ -20,7 +20,7 @@ class ExtendedStorageHereTrafficTest {
     String ref_patterns = "/some/absolute/path/src/test/files/here-traffic-ref-patterns.csv";
 
     private static Stream<Arguments> provideJsonStrings() {
-        return Stream.of(Arguments.of("{\"HereTraffic\":{\"enabled\":true,\"streets\":\"./src/test/files/here-traffic-streets.csv\",\"ref_pattern\":\"./src/test/files/here-traffic-ref-patterns.csv\",\"pattern\":\"./src/test/files/here-traffic-patterns.csv\"}}"), Arguments.of("{\"HereTraffic\":{\"enabled\":false,\"streets\":\"./src/test/files/here-traffic-streets.csv\",\"ref_pattern\":\"./src/test/files/here-traffic-ref-patterns.csv\",\"pattern\":\"./src/test/files/here-traffic-patterns.csv\"}}"), Arguments.of("{\"HereTraffic\":{\"streets\":\"./src/test/files/here-traffic-streets.csv\",\"ref_pattern\":\"./src/test/files/here-traffic-ref-patterns.csv\",\"pattern\":\"./src/test/files/here-traffic-patterns.csv\"}}"));
+        return Stream.of(Arguments.of("{\"HereTraffic\":{\"enabled\":true,\"streets\":\"./src/test/files/here-traffic-streets.csv\",\"ref_pattern\":\"./src/test/files/here-traffic-ref-patterns.csv\",\"pattern_15min\":\"./src/test/files/here-traffic-patterns.csv\"}}"), Arguments.of("{\"HereTraffic\":{\"enabled\":false,\"streets\":\"./src/test/files/here-traffic-streets.csv\",\"ref_pattern\":\"./src/test/files/here-traffic-ref-patterns.csv\",\"pattern_15min\":\"./src/test/files/here-traffic-patterns.csv\"}}"), Arguments.of("{\"HereTraffic\":{\"streets\":\"./src/test/files/here-traffic-streets.csv\",\"ref_pattern\":\"./src/test/files/here-traffic-ref-patterns.csv\",\"pattern_15min\":\"./src/test/files/here-traffic-patterns.csv\"}}"));
     }
 
     @Test
@@ -30,7 +30,7 @@ class ExtendedStorageHereTrafficTest {
         assertTrue(storage.getEnabled(), "Default constructor should initialize 'enabled' to true");
         assertEquals("", storage.getStreets().toString(), "Default constructor should initialize 'streets' to \"\"");
         assertEquals("", storage.getRefPattern().toString(), "Default constructor should initialize 'ref_pattern' to \"\"");
-        assertEquals("", storage.getPattern().toString(), "Default constructor should initialize 'pattern' to \"\"");
+        assertEquals("", storage.getPattern_15min().toString(), "Default constructor should initialize 'pattern' to \"\"");
         assertEquals(250, storage.getRadius(), "Default constructor should initialize 'radius' to 250");
         assertFalse(storage.getOutputLog(), "Default constructor should initialize 'output_log' to false");
         assertEquals("", storage.getLogLocation().toString(), "Default constructor should initialize 'log_location' to \"\"");
@@ -50,7 +50,7 @@ class ExtendedStorageHereTrafficTest {
         assertTrue(jsonResult.contains("\"enabled\":true"), "Serialized JSON should have 'enabled' set to true");
         assertTrue(jsonResult.contains("\"streets\":\"\""), "Serialized JSON should have 'streets' set to \"\"");
         assertTrue(jsonResult.contains("\"ref_pattern\":\"\""), "Serialized JSON should have 'ref_pattern' set to \"\"");
-        assertTrue(jsonResult.contains("\"pattern\":\"\""), "Serialized JSON should have 'pattern' set to \"\"");
+        assertTrue(jsonResult.contains("\"pattern_15min\":\"\""), "Serialized JSON should have 'pattern' set to \"\"");
 
 
     }
@@ -65,7 +65,7 @@ class ExtendedStorageHereTrafficTest {
         Path log_location = Paths.get("/some/absolute/path/src/test/files/here-traffic-log.txt");
 
         // Step 1: Create and configure an instance of ExtendedStorageHereTraffic
-        String json = "{\"HereTraffic\":{\"enabled\":false,\"streets\":\"" + streets_path + "\",\"ref_pattern\":\"" + ref_patterns_path + "\",\"pattern\":\"" + patterns_path + "\",\"radius\":" + radius + ",\"output_log\":" + output_log + ",\"log_location\":\"" + log_location + "\"}}";
+        String json = "{\"HereTraffic\":{\"enabled\":false,\"streets\":\"" + streets_path + "\",\"ref_pattern\":\"" + ref_patterns_path + "\",\"pattern_15min\":\"" + patterns_path + "\",\"radius\":" + radius + ",\"output_log\":" + output_log + ",\"log_location\":\"" + log_location + "\"}}";
 
         // Step 2: Deserialize the JSON to an object
         ObjectMapper mapper = new ObjectMapper();
@@ -74,7 +74,7 @@ class ExtendedStorageHereTrafficTest {
         assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to false");
         assertEquals(streets_path.toAbsolutePath(), storage.getStreets(), "Deserialized object should have 'streets' set to the absolute path.");
         assertEquals(ref_patterns_path.toAbsolutePath(), storage.getRefPattern(), "Deserialized object should have 'ref_pattern' set to the absolute path.");
-        assertEquals(patterns_path.toAbsolutePath(), storage.getPattern(), "Deserialized object should have 'pattern' set to the absolute path.");
+        assertEquals(patterns_path.toAbsolutePath(), storage.getPattern_15min(), "Deserialized object should have 'pattern' set to the absolute path.");
         assertEquals(radius, storage.getRadius(), "Deserialized object should have 'radius' set to 500");
         assertTrue(storage.getOutputLog(), "Deserialized object should have 'output_log' set to true");
         assertEquals(log_location.toAbsolutePath(), storage.getLogLocation(), "Deserialized object should have 'log_location' set to the absolute path.");
@@ -84,7 +84,7 @@ class ExtendedStorageHereTrafficTest {
     void deSerializationWithoutEnabledCorrectJson() throws Exception {
 
         // Step 1: Create and configure an instance of ExtendedStorageHereTraffic
-        String json = "{\"HereTraffic\":{\"streets\":\"" + streets + "\",\"ref_pattern\":\"" + ref_patterns + "\",\"pattern\":\"" + patterns + "\"}}";
+        String json = "{\"HereTraffic\":{\"streets\":\"" + streets + "\",\"ref_pattern\":\"" + ref_patterns + "\",\"pattern_15min\":\"" + patterns + "\"}}";
 
         // Step 2: Deserialize the JSON to an object
         ObjectMapper mapper = new ObjectMapper();
@@ -94,7 +94,7 @@ class ExtendedStorageHereTrafficTest {
         assertTrue(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
         assertEquals(Paths.get(streets).toAbsolutePath(), storage.getStreets(), "Deserialized object should have 'streets' set to the absolute path.");
         assertEquals(Paths.get(ref_patterns).toAbsolutePath(), storage.getRefPattern(), "Deserialized object should have 'ref_pattern' set to the absolute path.");
-        assertEquals(Paths.get(patterns).toAbsolutePath(), storage.getPattern(), "Deserialized object should have 'pattern' set to the absolute path.");
+        assertEquals(Paths.get(patterns).toAbsolutePath(), storage.getPattern_15min(), "Deserialized object should have 'pattern' set to the absolute path.");
         assertEquals(250, storage.getRadius(), "Deserialized object should have 'radius' set to 250");
         assertFalse(storage.getOutputLog(), "Deserialized object should have 'output_log' set to false");
         assertEquals("", storage.getLogLocation().toString(), "Deserialized object should have 'log_location' set to \"\"");
@@ -115,7 +115,7 @@ class ExtendedStorageHereTrafficTest {
         }
         assertEquals(Paths.get("./src/test/files/here-traffic-streets.csv").toAbsolutePath(), storage.getStreets(), "Deserialized object should have 'streets' set to the absolute path.");
         assertEquals(Paths.get("./src/test/files/here-traffic-ref-patterns.csv").toAbsolutePath(), storage.getRefPattern(), "Deserialized object should have 'ref_pattern' set to the absolute path.");
-        assertEquals(Paths.get("./src/test/files/here-traffic-patterns.csv").toAbsolutePath(), storage.getPattern(), "Deserialized object should have 'pattern' set to the absolute path.");
+        assertEquals(Paths.get("./src/test/files/here-traffic-patterns.csv").toAbsolutePath(), storage.getPattern_15min(), "Deserialized object should have 'pattern' set to the absolute path.");
     }
 
     @Test
@@ -125,7 +125,7 @@ class ExtendedStorageHereTrafficTest {
         ExtendedStorageHereTraffic storage = objectMapper.readValue(json, ExtendedStorageHereTraffic.class);
         assertEquals("", storage.getStreets().toString(), "Deserialized object should have 'streets' set to \"\"");
         assertEquals("", storage.getRefPattern().toString(), "Deserialized object should have 'ref_pattern' set to \"\"");
-        assertEquals("", storage.getPattern().toString(), "Deserialized object should have 'pattern' set to \"\"");
+        assertEquals("", storage.getPattern_15min().toString(), "Deserialized object should have 'pattern' set to \"\"");
         assertEquals(250, storage.getRadius(), "Deserialized object should have 'radius' set to 250");
         assertFalse(storage.getOutputLog(), "Deserialized object should have 'output_log' set to false");
         assertEquals("", storage.getLogLocation().toString(), "Deserialized object should have 'log_location' set to \"\"");

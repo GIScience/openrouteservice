@@ -20,7 +20,7 @@ public class ExtendedStorageHereTraffic extends ExtendedStorage {
 
     private Path ref_pattern = Path.of("");
 
-    private Path pattern = Path.of("");
+    private Path pattern_15min = Path.of("");
 
     private Integer radius = 250;
 
@@ -61,16 +61,16 @@ public class ExtendedStorageHereTraffic extends ExtendedStorage {
         if (ref_pattern != null && !ref_pattern.toString().isEmpty()) this.ref_pattern = ref_pattern.toAbsolutePath();
     }
 
-    @JsonProperty(value = "pattern")
+    @JsonProperty(value = "pattern_15min")
     @JsonSerialize(using = PathSerializer.class)
-    public Path getPattern() {
-        return pattern;
+    public Path getPattern_15min() {
+        return pattern_15min;
     }
 
-    @JsonSetter("pattern")
+    @JsonSetter("pattern_15min")
     @JsonDeserialize(using = PathDeserializer.class)
-    private void setPattern(Path pattern) {
-        this.pattern = pattern;
+    private void setPattern_15min(Path pattern_15min) {
+        this.pattern_15min = pattern_15min;
     }
 
     @JsonProperty(value = "radius")
