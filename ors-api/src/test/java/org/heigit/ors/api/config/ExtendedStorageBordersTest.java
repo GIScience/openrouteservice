@@ -2,6 +2,7 @@ package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageBorders;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;

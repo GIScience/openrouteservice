@@ -1,6 +1,7 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageHereTraffic;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

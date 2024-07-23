@@ -1,6 +1,7 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageOsmId;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,4 +1,4 @@
-package org.heigit.ors.api.config;
+package org.heigit.ors.api.config.profile.storages;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

@@ -1,6 +1,7 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageNoiseIndex;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;

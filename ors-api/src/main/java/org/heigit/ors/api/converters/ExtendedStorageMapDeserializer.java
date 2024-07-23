@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.heigit.ors.api.config.ExtendedStorage;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
