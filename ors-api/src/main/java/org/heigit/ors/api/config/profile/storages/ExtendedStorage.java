@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.*;
         @JsonSubTypes.Type(value = ExtendedStorageTrailDifficulty.class, name = "TrailDifficulty"),
         @JsonSubTypes.Type(value = ExtendedStorageWheelchair.class, name = "Wheelchair"),
         @JsonSubTypes.Type(value = ExtendedStorageWaySurfaceType.class, name = "WaySurfaceType"),
+        @JsonSubTypes.Type(value = ExtendedStorageTollways.class, name = "Tollways"),
 })
 public abstract class ExtendedStorage {
 
