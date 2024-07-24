@@ -1,10 +1,18 @@
 package org.heigit.ors.api.config.profile.storages;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * This the base class for the extended storage configuration. It contains a boolean field to enable or disable the storage.
  */
+@Getter
+@Setter(AccessLevel.PACKAGE)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ExtendedStorageWayCategory.class, name = "WayCategory"),
@@ -26,16 +34,6 @@ public abstract class ExtendedStorage {
 
     @JsonCreator
     public ExtendedStorage() {
-    }
-
-    @JsonProperty("enabled")
-    public Boolean getEnabled() {
-        return enabled;
-    }
-
-    @JsonSetter("enabled")
-    void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
     }
 }
 
