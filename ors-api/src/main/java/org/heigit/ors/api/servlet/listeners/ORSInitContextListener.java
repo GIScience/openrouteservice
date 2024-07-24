@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.api.config.*;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
