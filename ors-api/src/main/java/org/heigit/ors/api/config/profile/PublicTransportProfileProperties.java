@@ -7,6 +7,6 @@ public class PublicTransportProfileProperties extends ProfileProperties {
         getEncoderOptions().setBlockFords(false);
         setElevation(true);
         setMaximumVisitedNodes(1000000);
-        setGtfsFile("./src/test/files/vrn_gtfs_cut.zip");
+        setGtfsFile("");
     }
 }
