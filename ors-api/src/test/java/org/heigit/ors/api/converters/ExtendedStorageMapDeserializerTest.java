@@ -39,13 +39,21 @@ class ExtendedStorageMapDeserializerTest {
         assertEquals(expectedEnabled, extendedStorage.get(expectedKey).getEnabled());
     }
 
+    @Test
+    void testDeserializeMixedExtendedStorageClasses() throws IOException {
+        HelperClass foo = mapper.readValue("{\"ext_storages\":{\"WayCategory\":{}, \"GreenIndex\":{}}}", HelperClass.class);
+        Map<String, ExtendedStorage> extendedStorage = foo.getExtendedStorage();
+        assertTrue(extendedStorage.containsKey("WayCategory"));
+        assertTrue(extendedStorage.containsKey("GreenIndex"));
+        assertEquals(2, extendedStorage.size());
+    }
+
+
     // Write a test to fail
     @Test
     void testDeserializeExtendedStorageFail() throws JsonProcessingException {
         // Expect ExtendedStorageDeserializationException to be thrown
-        assertThrows(
-                JsonMappingException.class, () ->
-                        mapper.readValue("{\"ext_storages\":{\"Foo\":null}}", HelperClass.class));
+        assertThrows(JsonMappingException.class, () -> mapper.readValue("{\"ext_storages\":{\"Foo\":null}}", HelperClass.class));
     }
 
     /**
