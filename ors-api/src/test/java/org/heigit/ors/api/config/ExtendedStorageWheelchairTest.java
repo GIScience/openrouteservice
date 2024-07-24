@@ -1,6 +1,7 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageWheelchair;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,6 +50,14 @@ class ExtendedStorageWheelchairTest {
         storage = objectMapper.readValue(json, ExtendedStorageWheelchair.class);
         assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to false");
         assertFalse(storage.getKerbsOnCrossings(), "Deserialized object should have 'kerbs_on_crossings' set to false");
+    }
+
+    @Test
+    void testDeserializationWithEmptyValues() throws Exception {
+        String json = "{\"Wheelchair\":\"\"}";
+        ExtendedStorageWheelchair storage = new ObjectMapper().readValue(json, ExtendedStorageWheelchair.class);
+        assertTrue(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
+        assertTrue(storage.getKerbsOnCrossings(), "Deserialized object should have 'kerbs_on_crossings' set to true");
     }
 
 }

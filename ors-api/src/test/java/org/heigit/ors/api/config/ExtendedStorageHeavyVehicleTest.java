@@ -1,6 +1,7 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageHeavyVehicle;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,5 +50,14 @@ public class ExtendedStorageHeavyVehicleTest {
         storage = objectMapper.readValue(json, ExtendedStorageHeavyVehicle.class);
         assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to false");
         assertFalse(storage.getRestrictions(), "Deserialized object should have 'restrictions' set to false");
+    }
+
+    @Test
+    void testDeserializationWithEmptyValues() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{\"HeavyVehicle\":\"\"}";
+        ExtendedStorageHeavyVehicle storage = objectMapper.readValue(json, ExtendedStorageHeavyVehicle.class);
+        assertTrue(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
+        assertTrue(storage.getRestrictions(), "Deserialized object should have 'restrictions' set to true");
     }
 }

@@ -1,6 +1,7 @@
 package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageRoadAccessRestrictions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,5 +44,13 @@ class ExtendedStorageRoadAccessRestrictionsTest {
         // Step 3: Assert the object's values
         assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to false");
         assertFalse(storage.getUseForWarnings(), "Deserialized object should have 'use_for_warnings' set to true");
+    }
+
+    @Test
+    void testDeserializationWithEmptyValues() throws Exception {
+        String json = "{\"RoadAccessRestrictions\":\"\"}";
+        ExtendedStorageRoadAccessRestrictions storage = new ObjectMapper().readValue(json, ExtendedStorageRoadAccessRestrictions.class);
+        assertTrue(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
+        assertTrue(storage.getUseForWarnings(), "Deserialized object should have 'use_for_warnings' set to true");
     }
 }

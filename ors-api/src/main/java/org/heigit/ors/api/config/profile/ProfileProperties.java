@@ -1,14 +1,20 @@
 package org.heigit.ors.api.config.profile;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.api.config.EncoderOptionsProperties;
 import org.heigit.ors.api.config.ExecutionProperties;
 import org.heigit.ors.api.config.NonEmptyObjectFilter;
 import org.heigit.ors.api.config.PreparationProperties;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorage;
+import org.heigit.ors.api.converters.ExtendedStorageMapDeserializer;
+import org.heigit.ors.api.converters.ExtendedStorageMapSerializer;
 
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 
 @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyObjectFilter.class)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "encoder_name", defaultImpl = DefaultProfileProperties.class)
@@ -81,7 +87,7 @@ public abstract class ProfileProperties {
     @JsonProperty("execution")
     private ExecutionProperties execution;
     @JsonProperty("ext_storages")
-    private HashMap<String, HashMap<String, String>> extStorages;
+    private Map<String, ExtendedStorage> extStorages = new HashMap<>();
 
     public ProfileProperties() {
         encoderOptions = new EncoderOptionsProperties();
@@ -237,57 +243,13 @@ public abstract class ProfileProperties {
         this.preparation = preparation;
     }
 
-    public HashMap<String, HashMap<String, String>> getExtStorages() {
+    @JsonSerialize(using = ExtendedStorageMapSerializer.class)
+    public Map<String, ExtendedStorage> getExtStorages() {
         return extStorages;
     }
 
-    public void setExtStorages(HashMap<String, HashMap<String, String>> extStorages) {
-        // Todo write individual storage config classes
-        // Iterate over each storage in the extStorages and overwrite all paths variables with absolute paths#
-        for (HashMap.Entry<String, HashMap<String, String>> storage : extStorages.entrySet()) {
-            if (storage.getKey().equals("HereTraffic")) {
-                // Replace streets, ref_pattern pattern_15min and log_location with absolute paths
-                String hereTrafficPath = storage.getValue().get("streets");
-                if (StringUtils.isNotBlank(hereTrafficPath)) {
-                    storage.getValue().put("streets", Paths.get(hereTrafficPath).toAbsolutePath().toString());
-                }
-                String hereTrafficRefPattern = storage.getValue().get("ref_pattern");
-                if (StringUtils.isNotBlank(hereTrafficRefPattern)) {
-                    storage.getValue().put("ref_pattern", Paths.get(hereTrafficRefPattern).toAbsolutePath().toString());
-                }
-                String hereTrafficPattern15min = storage.getValue().get("pattern_15min");
-                if (StringUtils.isNotBlank(hereTrafficPattern15min)) {
-                    storage.getValue().put("pattern_15min", Paths.get(hereTrafficPattern15min).toAbsolutePath().toString());
-                }
-                String hereTrafficLogLocation = storage.getValue().get("log_location");
-                if (StringUtils.isNotBlank(hereTrafficLogLocation)) {
-                    storage.getValue().put("log_location", Paths.get(hereTrafficLogLocation).toAbsolutePath().toString());
-                }
-            }
-            if (storage.getKey().equals("Borders")) {
-                // Replace boundaries, ids and openborders with absolute paths
-                String bordersBoundaries = storage.getValue().get("boundaries");
-                if (StringUtils.isNotBlank(bordersBoundaries)) {
-                    storage.getValue().put("boundaries", Paths.get(bordersBoundaries).toAbsolutePath().toString());
-                }
-                String bordersIds = storage.getValue().get("ids");
-                if (StringUtils.isNotBlank(bordersIds)) {
-                    storage.getValue().put("ids", Paths.get(bordersIds).toAbsolutePath().toString());
-                }
-                String openBorders = storage.getValue().get("openborders");
-                if (StringUtils.isNotBlank(openBorders)) {
-                    storage.getValue().put("openborders", Paths.get(openBorders).toAbsolutePath().toString());
-                }
-            }
-
-            if (storage.getKey().equals("GreenIndex") || storage.getKey().equals("NoiseIndex") || storage.getKey().equals("csv") || storage.getKey().equals("ShadowIndex")) {
-                // replace filepath
-                String indexFilePath = storage.getValue().get("filepath");
-                if (indexFilePath != null) {
-                    storage.getValue().put("filepath", Paths.get(indexFilePath).toAbsolutePath().toString());
-                }
-            }
-        }
+    @JsonDeserialize(using = ExtendedStorageMapDeserializer.class)
+    public void setExtStorages(Map<String, ExtendedStorage> extStorages) {
         this.extStorages = extStorages;
     }
 

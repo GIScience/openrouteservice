@@ -29,5 +29,6 @@ public class DefaultProfileProperties extends ProfileProperties {
         getPreparation().getMethods().getLm().setWeightings("recommended,shortest");
         getPreparation().getMethods().getLm().setLandmarks(16);
         getExecution().getMethods().getLm().setActiveLandmarks(8);
+        getExtStorages().entrySet().clear();
     }
 }

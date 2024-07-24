@@ -1,5 +1,9 @@
 package org.heigit.ors.api.config.profile;
 
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageHeavyVehicle;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageWayCategory;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageWaySurfaceType;
+
 public class HgvProfileProperties extends ProfileProperties {
     public HgvProfileProperties() {
         super();
@@ -17,10 +21,8 @@ public class HgvProfileProperties extends ProfileProperties {
         getPreparation().getMethods().getCore().setLandmarks(64);
         getPreparation().getMethods().getCore().setLmsets("highways;allow_all");
         getExecution().getMethods().getCore().setActiveLandmarks(6);
-//#        ext_storages:
-//#          WayCategory:
-//#          HeavyVehicle:
-//#            restrictions: true
-//#          WaySurfaceType:
+        getExtStorages().put("WayCategory", new ExtendedStorageWayCategory());
+        getExtStorages().put("HeavyVehicle", new ExtendedStorageHeavyVehicle());
+        getExtStorages().put("WaySurfaceType", new ExtendedStorageWaySurfaceType());
     }
 }
