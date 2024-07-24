@@ -36,7 +36,6 @@ import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.config.*;
 import org.heigit.ors.api.util.AppInfo;
-import org.heigit.ors.config.EngineConfig;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfileManager;
@@ -117,19 +116,10 @@ public class ORSInitContextListener implements ServletContextListener {
             return;
         }
 
-        final EngineConfig config = EngineConfig.builder()
-                .initializationThreads(engineProperties.getInitThreads())
-                .preparationMode(engineProperties.getPreparationMode())
-                .elevationPreprocessed(engineProperties.getElevation().isPreprocessed())
-                .sourceFile(engineProperties.getSourceFile())
-                .graphsRootPath(engineProperties.getGraphsRootPath())
-                .graphsDataAccess(engineProperties.getGraphsDataAccess())
-                .profiles(engineProperties.getConvertedProfiles())
-                .build();
         new Thread(() -> {
             try {
                 LOGGER.info("Initializing ORS...");
-                new RoutingProfileManager(config);
+                new RoutingProfileManager(engineProperties);
                 if (engineProperties.getPreparationMode()) {
                     LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
                     RoutingProfileManagerStatus.setShutdown(true);
@@ -168,7 +158,7 @@ public class ORSInitContextListener implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent contextEvent) {
         try {
-            LOGGER.info("Shutting down openrouteservice %s and releasing resources." .formatted(AppInfo.getEngineInfo()));
+            LOGGER.info("Shutting down openrouteservice %s and releasing resources.".formatted(AppInfo.getEngineInfo()));
             FormatUtility.unload();
             if (RoutingProfileManagerStatus.isReady())
                 RoutingProfileManager.getInstance().destroy();

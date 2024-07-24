@@ -1,5 +1,8 @@
 package org.heigit.ors.api.util;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
@@ -241,6 +244,8 @@ public class SystemMessage {
         }
     }
 
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
     private static class RequestParams {
         private String apiVersion = "";
         private String apiFormat = "";
@@ -248,44 +253,12 @@ public class SystemMessage {
         private final Set<String> requestProfiles = new HashSet<>();
         private final Set<String> requestPreferences = new HashSet<>();
 
-        public String getApiVersion() {
-            return apiVersion;
-        }
-
-        public void setApiVersion(String apiVersion) {
-            this.apiVersion = apiVersion;
-        }
-
-        public String getApiFormat() {
-            return apiFormat;
-        }
-
-        public void setApiFormat(String apiFormat) {
-            this.apiFormat = apiFormat;
-        }
-
-        public String getRequestService() {
-            return requestService;
-        }
-
-        public void setRequestService(String requestService) {
-            this.requestService = requestService;
-        }
-
-        public Set<String> getRequestProfiles() {
-            return requestProfiles;
-        }
-
         public void setRequestProfiles(String requestProfiles) {
             this.requestProfiles.add(requestProfiles);
         }
 
         public void setRequestProfile(Set<String> requestProfile) {
             this.requestProfiles.addAll(requestProfile);
-        }
-
-        public Set<String> getRequestPreferences() {
-            return requestPreferences;
         }
 
         public void setRequestPreferences(String requestPreferences) {

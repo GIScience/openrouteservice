@@ -2,21 +2,29 @@ package org.heigit.ors.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.StringUtils;
-import org.heigit.ors.config.profile.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.config.profile.defaults.*;
+import org.heigit.ors.config.utils.PathDeserializer;
+import org.heigit.ors.config.utils.PathSerializer;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
+@Setter(AccessLevel.PACKAGE)
 public class EngineProperties {
 
-    @JsonProperty("source_file")
     private static final Map<String, ProfileProperties> DEFAULT_PROFILES = new LinkedHashMap<>();
-
     static {
         DEFAULT_PROFILES.put("car", new CarProfileProperties());
         DEFAULT_PROFILES.put("hgv", new HgvProfileProperties());
@@ -31,7 +39,9 @@ public class EngineProperties {
     }
 
     @JsonProperty("source_file")
-    private String sourceFile = "ors-api/src/test/files/heidelberg.osm";
+    @JsonDeserialize(using = PathDeserializer.class)
+    @JsonSerialize(using = PathSerializer.class)
+    private Path sourceFile = Paths.get("");
     @JsonProperty("init_threads")
     private Integer initThreads = 1;
     @JsonProperty("preparation_mode")
@@ -39,7 +49,9 @@ public class EngineProperties {
     @JsonProperty("config_output_mode")
     private Boolean configOutputMode = false;
     @JsonProperty("graphs_root_path")
-    private String graphsRootPath = "./graphs";
+    @JsonDeserialize(using = PathDeserializer.class)
+    @JsonSerialize(using = PathSerializer.class)
+    private Path graphsRootPath = Paths.get("./graphs");
     @JsonProperty("graphs_data_access")
     private String graphsDataAccess = "RAM_STORE";
 
@@ -50,87 +62,11 @@ public class EngineProperties {
     @JsonProperty("profiles")
     private Map<String, ProfileProperties> profiles = DEFAULT_PROFILES;
 
-    public String getSourceFile() {
-        return sourceFile;
-    }
-
-    public void setSourceFile(String sourceFile) {
-        if (StringUtils.isNotBlank(sourceFile))
-            this.sourceFile = Paths.get(sourceFile).toAbsolutePath().toString();
-        else this.sourceFile = sourceFile;
-    }
-
-    public Integer getInitThreads() {
-        return initThreads;
-    }
-
-    public void setInitThreads(Integer initThreads) {
-        this.initThreads = initThreads;
-    }
-
-    public Boolean getPreparationMode() {
-        return preparationMode;
-    }
-
-    public void setPreparationMode(Boolean preparationMode) {
-        this.preparationMode = preparationMode;
-    }
-
-    public Boolean getConfigOutputMode() {
-        return configOutputMode;
-    }
-
-    public void setConfigOutputMode(Boolean configOutputMode) {
-        this.configOutputMode = configOutputMode;
-    }
-
-    public String getGraphsRootPath() {
-        return graphsRootPath;
-    }
-
-    public void setGraphsRootPath(String graphsRootPath) {
-        if (StringUtils.isNotBlank(graphsRootPath))
-            this.graphsRootPath = Paths.get(graphsRootPath).toAbsolutePath().toString();
-        else this.graphsRootPath = graphsRootPath;
-    }
-
-    public String getGraphsDataAccess() {
-        return graphsDataAccess;
-    }
-
-    public void setGraphsDataAccess(String graphsDataAccess) {
-        this.graphsDataAccess = graphsDataAccess;
-    }
-
-    public ElevationProperties getElevation() {
-        return elevation;
-    }
-
-    public void setElevation(ElevationProperties elevation) {
-        this.elevation = elevation;
-    }
-
-    public ProfileProperties getProfileDefault() {
-        return profileDefault;
-    }
-
-    public void setProfileDefault(DefaultProfileProperties profileDefault) {
-        this.profileDefault = profileDefault;
-    }
-
-    public Map<String, ProfileProperties> getProfiles() {
-        return profiles;
-    }
-
-    public void setProfiles(Map<String, ProfileProperties> profiles) {
-        this.profiles = profiles;
-    }
-
     @JsonIgnore
     public RouteProfileConfiguration[] getConvertedProfiles() {
         List<RouteProfileConfiguration> convertedProfiles = new ArrayList<>();
-        if (profiles != null) {
-            for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
+//        if (profiles != null) {
+//            for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
 //                ProfileProperties profile = profileEntry.getValue();
 //                boolean enabled = profile.getEnabled() != null ? profile.getEnabled() : profileDefault.getEnabled();
 //                if (!enabled) {
@@ -192,8 +128,8 @@ public class EngineProperties {
 //                    convertedProfile.getExtStorages().putAll(profile.getExtStorages());
 //                }
 //                convertedProfiles.add(convertedProfile);
-            }
-        }
+//            }
+//        }
         return convertedProfiles.toArray(new RouteProfileConfiguration[0]);
     }
 }

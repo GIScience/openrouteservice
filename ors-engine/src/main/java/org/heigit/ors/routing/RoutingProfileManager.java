@@ -22,7 +22,7 @@ import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
@@ -48,7 +48,7 @@ public class RoutingProfileManager {
     private RoutingProfilesCollection routingProfiles;
     private static RoutingProfileManager instance;
 
-    public RoutingProfileManager(EngineConfig config) {
+    public RoutingProfileManager(EngineProperties config) {
         if (instance == null) {
             instance = this;
             initialize(config);
@@ -62,18 +62,18 @@ public class RoutingProfileManager {
         return instance;
     }
 
-    public void initialize(EngineConfig config) {
+    public void initialize(EngineProperties config) {
         RuntimeUtility.printRAMInfo("", LOGGER);
         long startTime = System.currentTimeMillis();
         try {
-            RouteProfileConfiguration[] routeProfileConfigurations = config.profiles();
+            RouteProfileConfiguration[] routeProfileConfigurations = config.getConvertedProfiles();
             if (routeProfileConfigurations.length == 0) {
                 fail("No profiles configured. Exiting.");
                 return;
             }
-            int initializationThreads = config.initializationThreads();
+            int initializationThreads = config.getInitThreads();
             LOGGER.info("====> Initializing profiles from '%s' (%d threads) ...".formatted(
-                    config.sourceFile(), initializationThreads));
+                    config.getSourceFile(), initializationThreads));
 
             routingProfiles = new RoutingProfilesCollection();
             int nRouteInstances = routeProfileConfigurations.length;

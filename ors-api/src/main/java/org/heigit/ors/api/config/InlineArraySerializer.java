@@ -17,6 +17,6 @@ public class InlineArraySerializer extends StdSerializer<List> {
     }
 
     public void serialize(List value, JsonGenerator generator, SerializerProvider var3) throws IOException {
-        ((CustomYAMLGenerator)generator).writeRawString(String.join(", ", value));
+        ((CustomYAMLGenerator) generator).writeRawString(String.join(", ", value));
     }
 }

@@ -1,5 +1,6 @@
-package org.heigit.ors.api.config;
+package org.heigit.ors.config;
 
+import org.heigit.ors.config.utils.NonEmptyMapFilter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;

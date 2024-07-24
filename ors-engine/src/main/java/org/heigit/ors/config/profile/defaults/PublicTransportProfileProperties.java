@@ -1,4 +1,8 @@
-package org.heigit.ors.config.profile;
+package org.heigit.ors.config.profile.defaults;
+
+import org.heigit.ors.config.profile.ProfileProperties;
+
+import java.nio.file.Path;
 
 public class PublicTransportProfileProperties extends ProfileProperties {
     public PublicTransportProfileProperties() {
@@ -7,6 +11,6 @@ public class PublicTransportProfileProperties extends ProfileProperties {
         getEncoderOptions().setBlockFords(false);
         setElevation(true);
         setMaximumVisitedNodes(1000000);
-        setGtfsFile("");
+        setGtfsFile(Path.of(""));
     }
 }

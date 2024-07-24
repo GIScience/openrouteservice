@@ -1,5 +1,9 @@
 package org.heigit.ors.config.utils;
 
+import org.heigit.ors.config.profile.EncoderOptionsProperties;
+import org.heigit.ors.config.profile.ExecutionProperties;
+import org.heigit.ors.config.profile.PreparationProperties;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 

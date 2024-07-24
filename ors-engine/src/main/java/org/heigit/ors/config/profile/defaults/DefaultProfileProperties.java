@@ -1,4 +1,6 @@
-package org.heigit.ors.config.profile;
+package org.heigit.ors.config.profile.defaults;
+
+import org.heigit.ors.config.profile.ProfileProperties;
 
 public class DefaultProfileProperties extends ProfileProperties {
     public DefaultProfileProperties() {

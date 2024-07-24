@@ -1,4 +1,4 @@
-package org.heigit.ors.config;
+package org.heigit.ors.config.profile;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

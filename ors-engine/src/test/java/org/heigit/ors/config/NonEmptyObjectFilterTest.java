@@ -1,5 +1,9 @@
-package org.heigit.ors.api.config;
+package org.heigit.ors.config;
 
+import org.heigit.ors.config.profile.EncoderOptionsProperties;
+import org.heigit.ors.config.profile.ExecutionProperties;
+import org.heigit.ors.config.profile.PreparationProperties;
+import org.heigit.ors.config.utils.NonEmptyObjectFilter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -7,7 +11,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 
 public class NonEmptyObjectFilterTest {
 

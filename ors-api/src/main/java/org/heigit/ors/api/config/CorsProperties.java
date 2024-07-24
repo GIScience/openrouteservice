@@ -2,6 +2,9 @@ package org.heigit.ors.api.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,14 +23,18 @@ public class CorsProperties {
 
     public static final long DEFAULT_MAX_PREFLIGHT_AGE = 600L;
 
+    @Getter
     @JsonSerialize(using = InlineArraySerializer.class)
     @JsonProperty("allowed_origins")
     private List<String> allowedOrigins = DEFAULT_ALLOWED_ORIGINS;
 
+    @Getter
     @JsonSerialize(using = InlineArraySerializer.class)
     @JsonProperty("allowed_headers")
     private List<String> allowedHeaders = DEFAULT_ALLOWED_HEADERS;
 
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
     @JsonProperty("preflight_max_age")
     private long preflightMaxAge = DEFAULT_MAX_PREFLIGHT_AGE;
 
@@ -35,31 +42,7 @@ public class CorsProperties {
         this.allowedOrigins = Arrays.stream(allowedOrigins.split(",")).map(String::trim).toList();
     }
 
-    public List<String> getAllowedOrigins() {
-        return allowedOrigins;
-    }
-
     public void setAllowedHeaders(String allowedHeaders) {
         this.allowedHeaders = Arrays.stream(allowedHeaders.split(",")).map(String::trim).toList();
-    }
-
-    public List<String> getAllowedHeaders() {
-        return allowedHeaders;
-    }
-
-    public long getPreflightMaxAge() {
-        return preflightMaxAge;
-    }
-
-    public void setPreflightMaxAge(long preflightMaxAge) {
-        this.preflightMaxAge = preflightMaxAge;
-    }
-
-    public void setAllowedOriginsList(List<String> allowedOrigins) {
-        this.allowedOrigins = allowedOrigins;
-    }
-
-    public void setAllowedHeadersList(List<String> allowedHeaders) {
-        this.allowedHeaders = allowedHeaders;
     }
 }

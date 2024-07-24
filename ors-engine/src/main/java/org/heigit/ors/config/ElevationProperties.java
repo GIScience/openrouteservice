@@ -1,10 +1,19 @@
 package org.heigit.ors.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.StringUtils;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.heigit.ors.config.utils.PathDeserializer;
+import org.heigit.ors.config.utils.PathSerializer;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Getter
+@Setter(AccessLevel.PACKAGE)
 public class ElevationProperties {
     private boolean preprocessed = false;
     @JsonProperty("data_access")
@@ -14,47 +23,7 @@ public class ElevationProperties {
     @JsonProperty("provider")
     private String provider = "multi";
     @JsonProperty("cache_path")
-    private String cachePath = "./elevation_cache";
-
-    public boolean isPreprocessed() {
-        return preprocessed;
-    }
-
-    public void setPreprocessed(boolean preprocessed) {
-        this.preprocessed = preprocessed;
-    }
-
-    public String getDataAccess() {
-        return dataAccess;
-    }
-
-    public void setDataAccess(String dataAccess) {
-        this.dataAccess = dataAccess;
-    }
-
-    public boolean isCacheClear() {
-        return cacheClear;
-    }
-
-    public void setCacheClear(boolean cacheClear) {
-        this.cacheClear = cacheClear;
-    }
-
-    public String getProvider() {
-        return provider;
-    }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
-
-    public String getCachePath() {
-        return cachePath;
-    }
-
-    public void setCachePath(String cachePath) {
-        if (StringUtils.isNotBlank(cachePath))
-            this.cachePath = Paths.get(cachePath).toAbsolutePath().toString();
-        else this.cachePath = cachePath;
-    }
+    @JsonDeserialize(using = PathDeserializer.class)
+    @JsonSerialize(using = PathSerializer.class)
+    private Path cachePath = Paths.get("./elevation_cache");
 }

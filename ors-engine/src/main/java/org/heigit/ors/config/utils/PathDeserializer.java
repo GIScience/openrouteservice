@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
 
-
 public class PathDeserializer extends JsonDeserializer<Path> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PathDeserializer.class);
 

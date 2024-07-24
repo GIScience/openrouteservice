@@ -1,5 +1,6 @@
-package org.heigit.ors.config.profile;
+package org.heigit.ors.config.profile.defaults;
 
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.config.profile.storages.ExtendedStorageOsmId;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWaySurfaceType;

@@ -1,14 +1,17 @@
-package org.heigit.ors.config.profile;
+package org.heigit.ors.config.profile.defaults;
 
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.config.profile.storages.ExtendedStorageHillIndex;
 import org.heigit.ors.config.profile.storages.ExtendedStorageTrailDifficulty;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWaySurfaceType;
 
-public class WalkingProfileProperties extends ProfileProperties {
-    public WalkingProfileProperties() {
+public class BikeMountainProfileProperties extends ProfileProperties {
+    public BikeMountainProfileProperties() {
         super();
-        this.setEncoderName("foot-walking");
+        this.setEncoderName("cycling-mountain");
+        getEncoderOptions().setConsiderElevation(true);
+        getEncoderOptions().setTurnCosts(true);
         getEncoderOptions().setBlockFords(false);
         getExtStorages().put("WayCategory", new ExtendedStorageWayCategory());
         getExtStorages().put("WaySurfaceType", new ExtendedStorageWaySurfaceType());

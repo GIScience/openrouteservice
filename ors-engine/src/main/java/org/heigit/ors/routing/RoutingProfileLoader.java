@@ -14,7 +14,7 @@
 
 package org.heigit.ors.routing;
 
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 
 import java.util.concurrent.Callable;
@@ -24,15 +24,14 @@ import java.util.concurrent.Callable;
  * a {@link RouteProfileConfiguration} and a {@link RoutingProfileLoadContext}.
  */
 public class RoutingProfileLoader implements Callable<RoutingProfile> {
-    private final EngineConfig engineConfig;
+    private final EngineProperties engineConfig;
     private final RouteProfileConfiguration rpc;
     private final RoutingProfileLoadContext loadCntx;
 
-    public RoutingProfileLoader(EngineConfig engineConfig, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) {
+    public RoutingProfileLoader(EngineProperties engineConfig, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) {
         this.engineConfig = engineConfig;
         this.rpc = rpc;
         this.loadCntx = loadCntx;
-
     }
 
     @Override
