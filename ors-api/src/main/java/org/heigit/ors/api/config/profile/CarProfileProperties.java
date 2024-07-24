@@ -1,5 +1,10 @@
 package org.heigit.ors.api.config.profile;
 
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageHeavyVehicle;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageRoadAccessRestrictions;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageWayCategory;
+import org.heigit.ors.api.config.profile.storages.ExtendedStorageWaySurfaceType;
+
 public class CarProfileProperties extends ProfileProperties {
     public CarProfileProperties() {
         super();
@@ -22,11 +27,10 @@ public class CarProfileProperties extends ProfileProperties {
         getPreparation().getMethods().getCore().setLmsets("highways;allow_all");
         getExecution().getMethods().getLm().setActiveLandmarks(6);
         getExecution().getMethods().getCore().setActiveLandmarks(6);
-//#        ext_storages:
-//#          WayCategory:
-//#          HeavyVehicle:
-//#          WaySurfaceType:
-//#          RoadAccessRestrictions:
-//#            use_for_warnings: true
+        getExtStorages().put("WayCategory", new ExtendedStorageWayCategory());
+        getExtStorages().put("HeavyVehicle", new ExtendedStorageHeavyVehicle());
+        getExtStorages().put("WaySurfaceType", new ExtendedStorageWaySurfaceType());
+        getExtStorages().put("Tollways", new ExtendedStorageWaySurfaceType());
+        getExtStorages().put("RoadAccessRestrictions", new ExtendedStorageRoadAccessRestrictions());
     }
 }
