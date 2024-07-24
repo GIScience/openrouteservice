@@ -3,7 +3,6 @@ package org.heigit.ors.api.converters;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -51,7 +50,7 @@ class ExtendedStorageMapDeserializerTest {
 
     // Write a test to fail
     @Test
-    void testDeserializeExtendedStorageFail() throws JsonProcessingException {
+    void testDeserializeExtendedStorageFail() {
         // Expect ExtendedStorageDeserializationException to be thrown
         assertThrows(JsonMappingException.class, () -> mapper.readValue("{\"ext_storages\":{\"Foo\":null}}", HelperClass.class));
     }

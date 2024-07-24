@@ -2,6 +2,7 @@ package org.heigit.ors.api.config.profile;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.api.config.EncoderOptionsProperties;
 import org.heigit.ors.api.config.ExecutionProperties;
@@ -9,6 +10,7 @@ import org.heigit.ors.api.config.NonEmptyObjectFilter;
 import org.heigit.ors.api.config.PreparationProperties;
 import org.heigit.ors.api.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.api.converters.ExtendedStorageMapDeserializer;
+import org.heigit.ors.api.converters.ExtendedStorageMapSerializer;
 
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -241,12 +243,7 @@ public abstract class ProfileProperties {
         this.preparation = preparation;
     }
 
-
-    //    @JsonDeserialize(using = ExtendedStorageDeserializer.class)
-    public void setExtStorage(String key, ExtendedStorage value) {
-        this.extStorages.put(key, value);
-    }
-
+    @JsonSerialize(using = ExtendedStorageMapSerializer.class)
     public Map<String, ExtendedStorage> getExtStorages() {
         return extStorages;
     }
