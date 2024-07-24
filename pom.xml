@@ -56,6 +56,7 @@
         <slf4j.version>2.0.7</slf4j.version>
         <mockito.version>5.12.0</mockito.version>
         <log4j.version>2.20.0</log4j.version>
+        <lombok.version>1.18.34</lombok.version>
         <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
         <commons-io.version>2.11.0</commons-io.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
@@ -385,6 +386,13 @@
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
