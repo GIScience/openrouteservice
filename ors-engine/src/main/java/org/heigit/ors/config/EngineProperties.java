@@ -118,15 +118,6 @@ public class EngineProperties {
         this.profileDefault = profileDefault;
     }
 
-//    public List<ProfileProperties> getProfiles() {
-//        return profiles;
-//    }
-//
-//    public void setProfiles(ArrayList<ProfileProperties> profiles) {
-//        this.profiles = profiles;
-//    }
-//
-
     public Map<String, ProfileProperties> getProfiles() {
         return profiles;
     }
@@ -138,8 +129,8 @@ public class EngineProperties {
     @JsonIgnore
     public RouteProfileConfiguration[] getConvertedProfiles() {
         List<RouteProfileConfiguration> convertedProfiles = new ArrayList<>();
-//        if (profiles != null) {
-//            for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
+        if (profiles != null) {
+            for (Map.Entry<String, ProfileProperties> profileEntry : profiles.entrySet()) {
 //                ProfileProperties profile = profileEntry.getValue();
 //                boolean enabled = profile.getEnabled() != null ? profile.getEnabled() : profileDefault.getEnabled();
 //                if (!enabled) {
@@ -201,8 +192,8 @@ public class EngineProperties {
 //                    convertedProfile.getExtStorages().putAll(profile.getExtStorages());
 //                }
 //                convertedProfiles.add(convertedProfile);
-//            }
-//        }
+            }
+        }
         return convertedProfiles.toArray(new RouteProfileConfiguration[0]);
     }
 }

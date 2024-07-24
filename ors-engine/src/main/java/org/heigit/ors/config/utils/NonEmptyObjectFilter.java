@@ -11,10 +11,27 @@ public class NonEmptyObjectFilter {
         for (Method m : other.getClass().getDeclaredMethods()) {
             if (!m.getReturnType().equals(Void.TYPE) && m.getParameterTypes().length == 0) {
                 try {
-                    if (m.invoke(other) != null) {
-                        return false;
+                    Object o = m.invoke(other);
+                    if (o != null) {
+                        if (o instanceof EncoderOptionsProperties
+                                || o instanceof PreparationProperties.MethodsProperties
+                                || o instanceof PreparationProperties.MethodsProperties.CHProperties
+                                || o instanceof PreparationProperties.MethodsProperties.LMProperties
+                                || o instanceof PreparationProperties.MethodsProperties.CoreProperties
+                                || o instanceof PreparationProperties.MethodsProperties.FastIsochroneProperties
+                                || o instanceof ExecutionProperties.MethodsProperties
+                                || o instanceof ExecutionProperties.MethodsProperties.AStarProperties
+                                || o instanceof ExecutionProperties.MethodsProperties.LMProperties
+                                || o instanceof ExecutionProperties.MethodsProperties.CoreProperties
+                        ) {
+                            if (!equals(o)) {
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
                     }
-                } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException  e) {
+                } catch (InvocationTargetException | IllegalAccessException e) {
                     // Ignore
                 }
             }

@@ -32,12 +32,12 @@ public class ExecutionProperties {
             core = new CoreProperties();
         }
 
-        public AStarProperties getCh() {
+        public AStarProperties getAstar() {
             return astar;
         }
 
-        public void setCh(AStarProperties ch) {
-            this.astar = ch;
+        public void setAstar(AStarProperties astar) {
+            this.astar = astar;
         }
 
         public LMProperties getLm() {

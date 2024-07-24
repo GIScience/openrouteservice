@@ -13,7 +13,9 @@ import org.heigit.ors.config.utils.ExtendedStorageMapSerializer;
 import org.heigit.ors.config.utils.NonEmptyObjectFilter;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyObjectFilter.class)
@@ -223,9 +225,30 @@ public abstract class ProfileProperties {
     public String getEncoderOptionsString() {
         if (encoderOptions == null)
             return "";
-        return encoderName.toString();
+        List<String> out = new ArrayList<>();
+        if (encoderOptions.getBlockFords() != null) {
+            out.add("block_fords=" + encoderOptions.getBlockFords());
+        }
+        if (encoderOptions.getConsiderElevation() != null) {
+            out.add("consider_elevation=" + encoderOptions.getConsiderElevation());
+        }
+        if (encoderOptions.getTurnCosts() != null) {
+            out.add("turn_costs=" + encoderOptions.getTurnCosts());
+        }
+        if (encoderOptions.getUseAcceleration() != null) {
+            out.add("use_acceleration=" + encoderOptions.getUseAcceleration());
+        }
+        if (encoderOptions.getMaximumGradeLevel() != null) {
+            out.add("maximum_grade_level=" + encoderOptions.getMaximumGradeLevel());
+        }
+        if (encoderOptions.getPreferredSpeedFactor() != null) {
+            out.add("preferred_speed_factor=" + encoderOptions.getPreferredSpeedFactor());
+        }
+        if (encoderOptions.getProblematicSpeedFactor() != null) {
+            out.add("problematic_speed_factor=" + encoderOptions.getProblematicSpeedFactor());
+        }
+        return String.join("|", out);
     }
-
 
     public ExecutionProperties getExecution() {
         return execution;
