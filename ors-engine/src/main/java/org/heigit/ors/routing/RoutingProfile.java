@@ -164,7 +164,7 @@ public class RoutingProfile {
         if (elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
             ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
             ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
-            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess()));
+            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
             ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
             if (Boolean.TRUE.equals(profile.getInterpolateBridgesAndTunnels()))
                 ghConfig.putObject("graph.encoded_values", "road_environment");
@@ -250,7 +250,7 @@ public class RoutingProfile {
                     prepareCore = coreOpts.getEnabled() == null || coreOpts.getEnabled();
                     if (prepareCore) {
                         if (coreOpts.getThreads() != null) {
-                            String[] threads = coreOpts.getThreads().split(",");
+                            String[] threads = coreOpts.getThreads().toString().split(",");
                             int threadsCH = Integer.parseInt(threads[0]);
                             int threadsLM = threads.length > 1 ? Integer.parseInt(threads[1]) : threadsCH;
                             ghConfig.putObject("prepare.core.threads", threadsCH);
