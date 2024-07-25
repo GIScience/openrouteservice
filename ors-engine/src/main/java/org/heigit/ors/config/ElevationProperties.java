@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 
@@ -17,7 +18,7 @@ import java.nio.file.Paths;
 public class ElevationProperties {
     private boolean preprocessed = false;
     @JsonProperty("data_access")
-    private String dataAccess = "MMAP";
+    private DataAccessEnum dataAccess = DataAccessEnum.MMAP;
     @JsonProperty("cache_clear")
     private boolean cacheClear = false;
     @JsonProperty("provider")

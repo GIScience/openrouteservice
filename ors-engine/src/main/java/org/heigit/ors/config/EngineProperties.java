@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.config.profile.defaults.*;
 import org.heigit.ors.config.utils.PathDeserializer;
@@ -53,7 +54,7 @@ public class EngineProperties {
     @JsonSerialize(using = PathSerializer.class)
     private Path graphsRootPath = Paths.get("./graphs");
     @JsonProperty("graphs_data_access")
-    private String graphsDataAccess = "RAM_STORE";
+    private DataAccessEnum graphsDataAccess = DataAccessEnum.RAM_STORE;
 
     @JsonProperty("elevation")
     private ElevationProperties elevation = new ElevationProperties();
