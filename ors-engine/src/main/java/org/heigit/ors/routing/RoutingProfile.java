@@ -90,7 +90,7 @@ public class RoutingProfile {
 
     public static ORSGraphHopper initGraphHopper(EngineProperties engineConfig, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
         String osmFile = engineConfig.getSourceFile().toAbsolutePath().toString();
-        String dataAccessType = Strings.isNullOrEmpty(config.getGraphDataAccess()) ? engineConfig.getGraphsDataAccess() : config.getGraphDataAccess();
+        String dataAccessType = Strings.isNullOrEmpty(config.getGraphDataAccess()) ? engineConfig.getGraphsDataAccess().toString() : config.getGraphDataAccess();
         ORSGraphHopperConfig args = createGHSettings(osmFile, dataAccessType, config);
 
         int profileId;
