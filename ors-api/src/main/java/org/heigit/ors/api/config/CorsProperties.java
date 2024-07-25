@@ -8,41 +8,26 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Arrays;
 import java.util.List;
 
+@Getter
+@Setter(AccessLevel.PACKAGE)
 @Configuration
 @ConfigurationProperties(prefix = "ors.cors")
 public class CorsProperties {
 
-    public static final List<String> DEFAULT_ALLOWED_ORIGINS = List.of("*");
+    @JsonProperty("allowed_origins")
+    @JsonSerialize(using = InlineArraySerializer.class)
+    private List<String> allowedOrigins = List.of("*");
 
-    public static final List<String> DEFAULT_ALLOWED_HEADERS = List.of(
+    @JsonProperty("allowed_headers")
+    @JsonSerialize(using = InlineArraySerializer.class)
+    private List<String> allowedHeaders = List.of(
             "Content-Type", "X-Requested-With", "accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Authorization"
     );
 
-    public static final long DEFAULT_MAX_PREFLIGHT_AGE = 600L;
-
-    @Getter
-    @JsonSerialize(using = InlineArraySerializer.class)
-    @JsonProperty("allowed_origins")
-    private List<String> allowedOrigins = DEFAULT_ALLOWED_ORIGINS;
-
-    @Getter
-    @JsonSerialize(using = InlineArraySerializer.class)
-    @JsonProperty("allowed_headers")
-    private List<String> allowedHeaders = DEFAULT_ALLOWED_HEADERS;
-
-    @Getter
     @Setter(AccessLevel.PACKAGE)
     @JsonProperty("preflight_max_age")
-    private long preflightMaxAge = DEFAULT_MAX_PREFLIGHT_AGE;
+    private long preflightMaxAge = 600L;
 
-    public void setAllowedOrigins(String allowedOrigins) {
-        this.allowedOrigins = Arrays.stream(allowedOrigins.split(",")).map(String::trim).toList();
-    }
-
-    public void setAllowedHeaders(String allowedHeaders) {
-        this.allowedHeaders = Arrays.stream(allowedHeaders.split(",")).map(String::trim).toList();
-    }
 }
