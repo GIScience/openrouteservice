@@ -87,6 +87,8 @@ public class EndpointsProperties {
         }
     }
 
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
     public static class MaximumRangeProperties {
         @JsonProperty("maximum_range_distance_default")
         private int maximumRangeDistanceDefault;
@@ -97,35 +99,11 @@ public class EndpointsProperties {
         @JsonProperty("maximum_range_time")
         private List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeTime;
 
-        public int getMaximumRangeDistanceDefault() {
-            return maximumRangeDistanceDefault;
-        }
-
-        public void setMaximumRangeDistanceDefault(int maximumRangeDistanceDefault) {
-            this.maximumRangeDistanceDefault = maximumRangeDistanceDefault;
-        }
-
-        public List<MaximumRangeProperties.MaximumRangePropertiesEntry> getMaximumRangeDistance() {
-            return maximumRangeDistance;
-        }
-
         public void setMaximumRangeDistance(List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeDistance) {
             this.maximumRangeDistance = maximumRangeDistance;
             for (MaximumRangeProperties.MaximumRangePropertiesEntry maximumRangePropertiesEntry : maximumRangeDistance)
                 for (String profile : maximumRangePropertiesEntry.getProfiles())
                     profileMaxRangeDistances.put(RoutingProfileType.getFromString(profile), maximumRangePropertiesEntry.getValue());
-        }
-
-        public int getMaximumRangeTimeDefault() {
-            return maximumRangeTimeDefault;
-        }
-
-        public void setMaximumRangeTimeDefault(int maximumRangeTimeDefault) {
-            this.maximumRangeTimeDefault = maximumRangeTimeDefault;
-        }
-
-        public List<MaximumRangeProperties.MaximumRangePropertiesEntry> getMaximumRangeTime() {
-            return maximumRangeTime;
         }
 
         public void setMaximumRangeTime(List<MaximumRangeProperties.MaximumRangePropertiesEntry> maximumRangeTime) {
@@ -136,18 +114,12 @@ public class EndpointsProperties {
         }
 
         @JsonIgnore
+        @Setter(AccessLevel.NONE)
         private final Map<Integer, Integer> profileMaxRangeDistances = new HashMap<>();
 
-        public Map<Integer, Integer> getProfileMaxRangeDistances() {
-            return profileMaxRangeDistances;
-        }
-
         @JsonIgnore
+        @Setter(AccessLevel.NONE)
         private final Map<Integer, Integer> profileMaxRangeTimes = new HashMap<>();
-
-        public Map<Integer, Integer> getProfileMaxRangeTimes() {
-            return profileMaxRangeTimes;
-        }
 
         @Getter
         @Setter(AccessLevel.PACKAGE)

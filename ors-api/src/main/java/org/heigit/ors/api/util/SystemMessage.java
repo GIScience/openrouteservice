@@ -144,16 +144,13 @@ public class SystemMessage {
     }
 
     static class Message {
+        @Getter
         private final String text;
         private final List<Condition> conditions;
 
         public Message(String text, List<Condition> conditions) {
             this.text = text;
             this.conditions = conditions;
-        }
-
-        public String getText() {
-            return text;
         }
 
         public boolean applicableForRequest(RequestParams params) {
@@ -246,11 +243,13 @@ public class SystemMessage {
 
     @Getter
     @Setter(AccessLevel.PACKAGE)
-    private static class RequestParams {
+    protected static class RequestParams {
         private String apiVersion = "";
         private String apiFormat = "";
         private String requestService = "";
+        @Setter(AccessLevel.NONE)
         private final Set<String> requestProfiles = new HashSet<>();
+        @Setter(AccessLevel.NONE)
         private final Set<String> requestPreferences = new HashSet<>();
 
         public void setRequestProfiles(String requestProfiles) {
