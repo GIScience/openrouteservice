@@ -9,8 +9,6 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +37,7 @@ public class EncoderOptionsProperties {
     @JsonProperty("conditional_access")
     private Boolean conditionalAccess = null;
     @JsonProperty("conditional_speed")
-    private Boolean conditionalSpeed;
+    private Boolean conditionalSpeed = null; // TODO find default
 
     public EncoderOptionsProperties() {
     }
