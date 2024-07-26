@@ -47,9 +47,14 @@ public class PreparationProperties {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CHProperties {
+            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
+
+            public Boolean isEnabled() {
+                return enabled;
+            }
 
         }
 
@@ -57,10 +62,15 @@ public class PreparationProperties {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
+            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
             private Integer landmarks;
+
+            public Boolean isEnabled() {
+                return enabled;
+            }
 
         }
 
@@ -68,11 +78,16 @@ public class PreparationProperties {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
+            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
             private Integer landmarks;
             private String lmsets;
+
+            public Boolean isEnabled() {
+                return enabled;
+            }
 
         }
 
@@ -80,7 +95,7 @@ public class PreparationProperties {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class FastIsochroneProperties {
-            @Setter(AccessLevel.NONE)
+            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -89,6 +104,7 @@ public class PreparationProperties {
             public Boolean isEnabled() {
                 return enabled;
             }
+
         }
     }
 }

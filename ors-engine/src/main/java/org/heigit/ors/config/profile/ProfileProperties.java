@@ -111,6 +111,13 @@ public abstract class ProfileProperties {
         this.encoderOptions = encoderOptions;
     }
 
+    @JsonSetter("preparation")
+    public void setPreparation(PreparationProperties preparation) {
+        DefaultPreparationProperties defaultPreparationProperties = new DefaultPreparationProperties(this.getEncoderName());
+        preparation = (PreparationProperties) PropertyUtils.copyObjectPropertiesDeep(defaultPreparationProperties, preparation, false);
+        this.preparation = preparation;
+    }
+
     @JsonIgnore
     public String getEncoderOptionsString() {
         if (encoderOptions == null)
