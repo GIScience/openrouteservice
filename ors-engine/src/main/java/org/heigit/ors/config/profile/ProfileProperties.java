@@ -107,7 +107,7 @@ public abstract class ProfileProperties {
     @JsonSetter("encoder_options")
     public void setEncoderOptions(EncoderOptionsProperties encoderOptions) {
         DefaultEncoderOptionsProperties defaultEncoderOptionsProperties = new DefaultEncoderOptionsProperties(this.getEncoderName());
-        defaultEncoderOptionsProperties.updateObject(encoderOptions);
+        encoderOptions.updateObject(defaultEncoderOptionsProperties, false);
         this.encoderOptions = encoderOptions;
     }
 
