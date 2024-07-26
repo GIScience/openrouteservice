@@ -1,5 +1,6 @@
 package org.heigit.ors.config.profile.defaults;
 
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
@@ -8,7 +9,7 @@ import org.heigit.ors.config.profile.storages.ExtendedStorageWaySurfaceType;
 public class HgvProfileProperties extends ProfileProperties {
     public HgvProfileProperties() {
         super();
-        this.setEncoderName("driving-hgv");
+        this.setEncoderName(EncoderNameEnum.DRIVING_HGV);
         getEncoderOptions().setTurnCosts(true);
         getEncoderOptions().setBlockFords(false);
         getEncoderOptions().setUseAcceleration(true);

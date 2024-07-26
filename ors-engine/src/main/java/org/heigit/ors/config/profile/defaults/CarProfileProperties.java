@@ -1,15 +1,13 @@
 package org.heigit.ors.config.profile.defaults;
 
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
-import org.heigit.ors.config.profile.storages.ExtendedStorageRoadAccessRestrictions;
-import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
-import org.heigit.ors.config.profile.storages.ExtendedStorageWaySurfaceType;
+import org.heigit.ors.config.profile.storages.*;
 
 public class CarProfileProperties extends ProfileProperties {
     public CarProfileProperties() {
         super();
-        this.setEncoderName("driving-car");
+        this.setEncoderName(EncoderNameEnum.DRIVING_CAR);
         getEncoderOptions().setTurnCosts(true);
         getEncoderOptions().setBlockFords(false);
         getEncoderOptions().setUseAcceleration(true);
@@ -31,7 +29,8 @@ public class CarProfileProperties extends ProfileProperties {
         getExtStorages().put("WayCategory", new ExtendedStorageWayCategory());
         getExtStorages().put("HeavyVehicle", new ExtendedStorageHeavyVehicle());
         getExtStorages().put("WaySurfaceType", new ExtendedStorageWaySurfaceType());
-        getExtStorages().put("Tollways", new ExtendedStorageWaySurfaceType());
+        getExtStorages().put("Tollways", new ExtendedStorageTollways());
         getExtStorages().put("RoadAccessRestrictions", new ExtendedStorageRoadAccessRestrictions());
     }
+
 }

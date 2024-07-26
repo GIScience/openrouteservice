@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.defaults.*;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.config.utils.*;
@@ -37,7 +38,7 @@ public abstract class ProfileProperties {
     @JsonProperty("enabled")
     private Boolean enabled;
     @JsonProperty("encoder_name")
-    private String encoderName;
+    private EncoderNameEnum encoderName;
     @JsonProperty("elevation")
     private Boolean elevation;
     @JsonProperty("elevation_smoothing")
