@@ -157,6 +157,13 @@ public abstract class ProfileProperties {
         this.preparation = preparation;
     }
 
+    @JsonSetter("execution")
+    public void setExecution(ExecutionProperties execution) {
+        DefaultExecutionProperties defaultExecutionProperties = new DefaultExecutionProperties(this.getEncoderName());
+        execution = (ExecutionProperties) PropertyUtils.deepCopyObjectsProperties(defaultExecutionProperties, execution, false);
+        this.execution = execution;
+    }
+
     @JsonIgnore
     public String getEncoderOptionsString() {
         if (encoderOptions == null)
