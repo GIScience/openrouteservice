@@ -100,7 +100,7 @@ public abstract class ProfileProperties {
     private Map<String, ExtendedStorage> extStorages = new HashMap<>();
 
     protected ProfileProperties() {
-        encoderOptions = new EncoderOptionsProperties();
+        encoderOptions = new DefaultEncoderOptionsProperties();
         preparation = new PreparationProperties();
         execution = new ExecutionProperties();
     }
@@ -141,6 +141,13 @@ public abstract class ProfileProperties {
         if (preparation.isEmpty()) preparation = defaultProfile.preparation;
         if (execution.isEmpty()) execution = defaultProfile.execution;
         if (extStorages.isEmpty()) extStorages = defaultProfile.extStorages;
+    }
+
+    @JsonSetter("encoder_options")
+    public void setEncoderOptions(EncoderOptionsProperties encoderOptions) {
+        DefaultEncoderOptionsProperties defaultEncoderOptionsProperties = new DefaultEncoderOptionsProperties(this.getEncoderName());
+        defaultEncoderOptionsProperties.updateObject(encoderOptions);
+        this.encoderOptions = encoderOptions;
     }
 
     @JsonIgnore

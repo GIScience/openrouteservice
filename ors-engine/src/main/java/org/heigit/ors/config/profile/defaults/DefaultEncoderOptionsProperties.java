@@ -1,0 +1,55 @@
+package org.heigit.ors.config.profile.defaults;
+
+
+import org.heigit.ors.common.EncoderNameEnum;
+import org.heigit.ors.config.profile.EncoderOptionsProperties;
+
+public class DefaultEncoderOptionsProperties extends EncoderOptionsProperties {
+    public DefaultEncoderOptionsProperties() {
+        setBlockFords(false);
+        setTurnCosts(true);
+        setConsiderElevation(false);
+        setUseAcceleration(false);
+        setConditionalAccess(false); // Default from EncodingManager.java
+
+        setMaximumGradeLevel(null); // TODO find default
+        setPreferredSpeedFactor(null); // TODO find default
+        setProblematicSpeedFactor(null); // TODO find default
+        setConditionalSpeed(false); // TODO find default
+    }
+
+    public DefaultEncoderOptionsProperties(EncoderNameEnum encoderName) {
+        this();
+        if (encoderName == null) {
+            encoderName = EncoderNameEnum.UNKNOWN;
+        }
+
+        switch (encoderName) {
+            case DRIVING_CAR -> {
+                // Just set the ones from below
+                setTurnCosts(true);
+                setBlockFords(false);
+                setUseAcceleration(true);
+                setConsiderElevation(false);
+            }
+            case DRIVING_HGV -> {
+                // Just set the ones from below
+                setTurnCosts(true);
+                setBlockFords(false);
+                setUseAcceleration(true);
+            }
+            case CYCLING_REGULAR -> {
+                // Just set the ones from below
+                setConsiderElevation(true);
+                setTurnCosts(true);
+                setBlockFords(false);
+            }
+            case FOOT_WALKING, WHEELCHAIR, PUBLIC_TRANSPORT -> {
+                // Just set the ones from below
+                setBlockFords(false);
+            }
+            default -> {
+            }
+        }
+    }
+}

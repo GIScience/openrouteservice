@@ -8,11 +8,6 @@ import org.heigit.ors.config.profile.storages.*;
 
 public class CarProfileProperties extends ProfileProperties {
 
-    @JsonSetter("encoder_options")
-    public void setEncoderOptions(EncoderOptionsProperties options) {
-        super.setEncoderOptions(options);
-    }
-
     public CarProfileProperties() {
         super();
         this.setEncoderName(EncoderNameEnum.DRIVING_CAR);
