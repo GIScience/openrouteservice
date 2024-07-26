@@ -99,9 +99,16 @@ public abstract class ProfileProperties {
     private Map<String, ExtendedStorage> extStorages = new HashMap<>();
 
     protected ProfileProperties() {
-        encoderOptions = new EncoderOptionsProperties();
+        encoderOptions = new DefaultEncoderOptionsProperties();
         preparation = new PreparationProperties();
         execution = new ExecutionProperties();
+    }
+
+    @JsonSetter("encoder_options")
+    public void setEncoderOptions(EncoderOptionsProperties encoderOptions) {
+        DefaultEncoderOptionsProperties defaultEncoderOptionsProperties = new DefaultEncoderOptionsProperties(this.getEncoderName());
+        defaultEncoderOptionsProperties.updateObject(encoderOptions);
+        this.encoderOptions = encoderOptions;
     }
 
     @JsonIgnore

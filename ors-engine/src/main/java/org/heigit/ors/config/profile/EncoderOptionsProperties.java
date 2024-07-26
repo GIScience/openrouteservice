@@ -11,7 +11,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @Getter
 @Setter
 @JsonInclude(NON_NULL)
-public class EncoderOptionsProperties {
+public class EncoderOptionsProperties extends PropertyBase {
+
     @JsonProperty("block_fords")
     private Boolean blockFords;
     @JsonProperty("consider_elevation")
@@ -26,4 +27,8 @@ public class EncoderOptionsProperties {
     private Double preferredSpeedFactor;
     @JsonProperty("problematic_speed_factor")
     private Double problematicSpeedFactor;
+    @JsonProperty("conditional_access")
+    private Boolean conditionalAccess;
+    @JsonProperty("conditional_speed")
+    private Boolean conditionalSpeed;
 }
