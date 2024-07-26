@@ -107,14 +107,14 @@ public abstract class ProfileProperties {
     @JsonSetter("encoder_options")
     public void setEncoderOptions(EncoderOptionsProperties encoderOptions) {
         DefaultEncoderOptionsProperties defaultEncoderOptionsProperties = new DefaultEncoderOptionsProperties(this.getEncoderName());
-        encoderOptions = (EncoderOptionsProperties) PropertyUtils.copyObjectPropertiesDeep(defaultEncoderOptionsProperties, encoderOptions, false);
+        encoderOptions = (EncoderOptionsProperties) PropertyUtils.deepCopyObjectsProperties(defaultEncoderOptionsProperties, encoderOptions, false);
         this.encoderOptions = encoderOptions;
     }
 
     @JsonSetter("preparation")
     public void setPreparation(PreparationProperties preparation) {
         DefaultPreparationProperties defaultPreparationProperties = new DefaultPreparationProperties(this.getEncoderName());
-        preparation = (PreparationProperties) PropertyUtils.copyObjectPropertiesDeep(defaultPreparationProperties, preparation, false);
+        preparation = (PreparationProperties) PropertyUtils.deepCopyObjectsProperties(defaultPreparationProperties, preparation, false);
         this.preparation = preparation;
     }
 
