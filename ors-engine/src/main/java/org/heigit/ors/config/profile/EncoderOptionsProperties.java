@@ -9,8 +9,6 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Getter
@@ -39,37 +37,6 @@ public class EncoderOptionsProperties {
     private Boolean conditionalSpeed = null; // TODO find default
 
     public EncoderOptionsProperties() {
-    }
-
-    public void updateObject(EncoderOptionsProperties source, boolean overwrite) {
-        if (source == null) {
-            throw new IllegalArgumentException("Source and target objects must not be null");
-        }
-
-        Class<?> clazz = this.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-
-        for (Field field : fields) {
-            if (!field.trySetAccessible()) {
-                continue;
-            }
-            Object value = null;
-            try {
-                value = field.get(source);
-            } catch (IllegalAccessException e) {
-                logger.warn("Could not access field: {}", field.getName());
-            }
-            if (value != null) {
-                try {
-                    Object currentValue = field.get(this);
-                    if (overwrite || currentValue == null || (currentValue instanceof String && ((String) currentValue).isEmpty())) {
-                        field.set(this, value);
-                    }
-                } catch (IllegalAccessException e) {
-                    logger.warn("Could not set field: {}", field.getName());
-                }
-            }
-        }
     }
 }
 
