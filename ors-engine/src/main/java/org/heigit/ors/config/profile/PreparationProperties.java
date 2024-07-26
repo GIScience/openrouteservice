@@ -13,11 +13,14 @@ import org.heigit.ors.config.utils.NonEmptyMapFilter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PreparationProperties {
+    @Setter
     @JsonProperty("min_network_size")
     private Integer minNetworkSize;
+    @Setter
     @JsonProperty("min_one_way_network_size")
     private Integer minOneWayNetworkSize;
     @JsonProperty("methods")
+    @Accessors(chain = true)
     private MethodsProperties methods;
 
     public PreparationProperties() {
@@ -54,6 +57,7 @@ public class PreparationProperties {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CHProperties {
+            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -62,12 +66,17 @@ public class PreparationProperties {
             public boolean isEmpty() {
                 return enabled == null && threads == null && weightings == null;
             }
+            public Boolean isEnabled() {
+                return enabled;
+            }
+
         }
 
         @Getter
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
+            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -77,14 +86,19 @@ public class PreparationProperties {
             public boolean isEmpty() {
                 return enabled == null && threads == null && weightings == null && landmarks == null;
             }
+            public Boolean isEnabled() {
+                return enabled;
+            }
+
         }
 
         @Getter
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
+            @Getter(AccessLevel.NONE)
             private Boolean enabled;
-            private String threads;
+            private Integer threads;
             private String weightings;
             private Integer landmarks;
             private String lmsets;
@@ -93,13 +107,17 @@ public class PreparationProperties {
             public boolean isEmpty() {
                 return enabled == null && threads == null && weightings == null && landmarks == null && lmsets == null;
             }
+            public Boolean isEnabled() {
+                return enabled;
+            }
+
         }
 
         @Getter
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class FastIsochroneProperties {
-            @Setter(AccessLevel.NONE)
+            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -109,6 +127,7 @@ public class PreparationProperties {
             public boolean isEmpty() {
                 return enabled == null && threads == null && weightings == null && maxcellnodes == null;
             }
+
         }
     }
 }
