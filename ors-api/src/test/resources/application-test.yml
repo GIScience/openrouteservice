@@ -16,6 +16,7 @@ ors:
   engine:
     source_file: ./src/test/files/heidelberg.osm.gz
     graphs_root_path: graphs-apitests
+    config_output_mode: false
     elevation:
       cache_path: ./src/test/files/elevation
     profile_default:
