@@ -7,8 +7,8 @@ import org.heigit.ors.config.profile.ProfileProperties;
 import java.nio.file.Path;
 
 @JsonIgnoreProperties({"ext_storages"})
-public class PublicTransportProfileProperties extends ProfileProperties {
-    public PublicTransportProfileProperties() {
+public class DefaultProfilePropertiesPublicTransport extends ProfileProperties {
+    public DefaultProfilePropertiesPublicTransport() {
         super();
         this.setEncoderName(EncoderNameEnum.PUBLIC_TRANSPORT);
         setElevation(true);
