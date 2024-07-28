@@ -25,16 +25,16 @@ public class EngineProperties {
     private static final Map<String, ProfileProperties> DEFAULT_PROFILES = new LinkedHashMap<>();
 
     static {
-        DEFAULT_PROFILES.put("car", new CarProfileProperties());
-        DEFAULT_PROFILES.put("hgv", new HgvProfileProperties());
-        DEFAULT_PROFILES.put("bike-regular", new BikeRegularProfileProperties());
-        DEFAULT_PROFILES.put("bike-electric", new BikeElectricProfileProperties());
-        DEFAULT_PROFILES.put("bike-mountain", new BikeMountainProfileProperties());
-        DEFAULT_PROFILES.put("bike-road", new BikeRoadProfileProperties());
-        DEFAULT_PROFILES.put("walking", new WalkingProfileProperties());
-        DEFAULT_PROFILES.put("hiking", new HikingProfileProperties());
-        DEFAULT_PROFILES.put("wheelchair", new WheelchairProfileProperties());
-        DEFAULT_PROFILES.put("public-transport", new PublicTransportProfileProperties());
+        DEFAULT_PROFILES.put("car", new DefaultProfilePropertiesCar());
+        DEFAULT_PROFILES.put("hgv", new DefaultProfilePropertiesHgv());
+        DEFAULT_PROFILES.put("bike-regular", new DefaultProfilePropertiesBikeRegular());
+        DEFAULT_PROFILES.put("bike-electric", new DefaultProfilePropertiesBikeElectric());
+        DEFAULT_PROFILES.put("bike-mountain", new DefaultProfilePropertiesBikeMountain());
+        DEFAULT_PROFILES.put("bike-road", new DefaultProfilePropertiesBikeRoad());
+        DEFAULT_PROFILES.put("walking", new DefaultProfilePropertiesWalking());
+        DEFAULT_PROFILES.put("hiking", new DefaultProfilePropertiesHiking());
+        DEFAULT_PROFILES.put("wheelchair", new DefaultProfilePropertiesWheelchair());
+        DEFAULT_PROFILES.put("public-transport", new DefaultProfilePropertiesPublicTransport());
     }
 
     @JsonProperty("source_file")
