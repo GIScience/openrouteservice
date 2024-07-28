@@ -40,7 +40,6 @@ public class DefaultPreparationProperties extends PreparationProperties {
             encoderName = EncoderNameEnum.UNKNOWN;
         }
 
-        //TODO
         switch (encoderName) {
             case DRIVING_CAR -> {
                 setMinNetworkSize(200);
