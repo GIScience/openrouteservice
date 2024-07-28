@@ -33,21 +33,17 @@ public class DefaultEncoderOptionsProperties extends EncoderOptionsProperties {
                 setConsiderElevation(false);
             }
             case DRIVING_HGV -> {
-                // Just set the ones from below
                 setTurnCosts(true);
                 setBlockFords(false);
                 setUseAcceleration(true);
             }
-            case CYCLING_REGULAR -> {
-                // Just set the ones from below
+            case CYCLING_REGULAR, CYCLING_MOUNTAIN, CYCLING_ROAD, CYCLING_ELECTRIC -> {
                 setConsiderElevation(true);
                 setTurnCosts(true);
                 setBlockFords(false);
             }
-            case FOOT_WALKING, WHEELCHAIR, PUBLIC_TRANSPORT -> {
-                // Just set the ones from below
-                setBlockFords(false);
-            }
+            case FOOT_HIKING, FOOT_WALKING, WHEELCHAIR, PUBLIC_TRANSPORT -> // Just set the ones from below
+                    setBlockFords(false);
             default -> {
             }
         }

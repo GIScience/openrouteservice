@@ -30,11 +30,13 @@ public class DefaultExtendedStorages {
                 extStorages.put("WaySurfaceType", new ExtendedStorageWaySurfaceType());
                 extStorages.put("HeavyVehicle", new ExtendedStorageHeavyVehicle());
                 extStorages.put("RoadAccessRestrictions", new ExtendedStorageRoadAccessRestrictions(true));
+                extStorages.put("Tollways", new ExtendedStorageTollways());
             }
             case DRIVING_HGV -> {
                 extStorages.put("WayCategory", new ExtendedStorageWayCategory());
                 extStorages.put("WaySurfaceType", new ExtendedStorageWaySurfaceType());
                 extStorages.put("HeavyVehicle", new ExtendedStorageHeavyVehicle(true));
+                extStorages.put("Tollways", new ExtendedStorageTollways());
             }
             case CYCLING_REGULAR, CYCLING_MOUNTAIN, CYCLING_ROAD, CYCLING_ELECTRIC, FOOT_WALKING, FOOT_HIKING -> {
                 extStorages.put("WayCategory", new ExtendedStorageWayCategory());
