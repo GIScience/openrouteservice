@@ -13,6 +13,10 @@ public class ExtendedStorageWheelchair extends ExtendedStorage {
     public ExtendedStorageWheelchair() {
     }
 
+    public ExtendedStorageWheelchair(Boolean kerbs_on_crossings) {
+        this.kerbs_on_crossings = kerbs_on_crossings;
+    }
+
     @JsonCreator
     public ExtendedStorageWheelchair(String ignoredEmpty) {
     }

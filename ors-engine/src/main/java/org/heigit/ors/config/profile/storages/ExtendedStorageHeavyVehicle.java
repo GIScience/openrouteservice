@@ -14,6 +14,10 @@ public class ExtendedStorageHeavyVehicle extends ExtendedStorage {
     public ExtendedStorageHeavyVehicle() {
     }
 
+    public ExtendedStorageHeavyVehicle(Boolean restrictions) {
+        this.restrictions = restrictions;
+    }
+
     @JsonCreator
     public ExtendedStorageHeavyVehicle(String ignoredEmpty) {
     }

@@ -13,6 +13,10 @@ public class ExtendedStorageRoadAccessRestrictions extends ExtendedStorage {
     public ExtendedStorageRoadAccessRestrictions() {
     }
 
+    public ExtendedStorageRoadAccessRestrictions(Boolean use_for_warnings) {
+        this.use_for_warnings = use_for_warnings;
+    }
+
     @JsonCreator
     public ExtendedStorageRoadAccessRestrictions(String ignoredEmpty) {
     }
