@@ -25,8 +25,5 @@ public class DefaultProfileProperties extends ProfileProperties {
         setMaximumWayPoints(50);
         setMaximumSnappingRadius(400);
         setMaximumVisitedNodes(1000000);
-
-        // TODO
-        getExtStorages().entrySet().clear();
     }
 }

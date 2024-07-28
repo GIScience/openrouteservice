@@ -43,17 +43,25 @@ public class DefaultPreparationProperties extends PreparationProperties {
         //TODO
         switch (encoderName) {
             case DRIVING_CAR -> {
+                setMinNetworkSize(200);
                 getMethods().getCh().setEnabled(true);
                 getMethods().getCh().setWeightings("fastest");
                 getMethods().getLm().setEnabled(false);
                 getMethods().getLm().setWeightings("fastest,shortest");
+                getMethods().getLm().setLandmarks(16);
                 getMethods().getCore().setEnabled(true);
+                getMethods().getCore().setWeightings("fastest,shortest");
+                getMethods().getCore().setLandmarks(64);
+                getMethods().getCore().setLmsets("highways;allow_all");
             }
             case DRIVING_HGV -> {
+                setMinNetworkSize(200);
                 getMethods().getCh().setEnabled(true);
                 getMethods().getCh().setWeightings("recommended");
                 getMethods().getCore().setEnabled(true);
                 getMethods().getCore().setWeightings("recommended,shortest");
+                getMethods().getCore().setLandmarks(64);
+                getMethods().getCore().setLmsets("highways;allow_all");
             }
             default -> {
             }
