@@ -2,7 +2,7 @@ package org.heigit.ors.config.profile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.heigit.ors.config.profile.defaults.HgvProfileProperties;
+import org.heigit.ors.config.profile.defaults.DefaultProfilePropertiesHgv;
 import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
 import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
@@ -36,7 +36,7 @@ class ProfilePropertiesTest {
                 "{\"WayCategory\":{}," +
                 "\"HeavyVehicle\":{\"restrictions\":true}, " +
                 "\"GreenIndex\":{\"filepath\":\"/path/to/file.csv\"}}}";
-        ProfileProperties foo = mapper.readValue(json, HgvProfileProperties.class);
+        ProfileProperties foo = mapper.readValue(json, DefaultProfilePropertiesHgv.class);
         assertEquals("driving-car", foo.getEncoderName().getName());
         assertEquals(3, foo.getExtStorages().size());
         assertTrue(foo.getExtStorages().containsKey("WayCategory"));

@@ -23,16 +23,16 @@ import java.util.Map;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "encoder_name", defaultImpl = DefaultProfileProperties.class)
 @JsonSubTypes({
         @JsonSubTypes.Type(name = "default", value = DefaultProfileProperties.class),
-        @JsonSubTypes.Type(name = "driving-car", value = CarProfileProperties.class),
-        @JsonSubTypes.Type(name = "driving-hgv", value = HgvProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-regular", value = BikeRegularProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-electric", value = BikeElectricProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-mountain", value = BikeMountainProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-road", value = BikeRoadProfileProperties.class),
-        @JsonSubTypes.Type(name = "foot-walking", value = WalkingProfileProperties.class),
-        @JsonSubTypes.Type(name = "foot-hiking", value = HikingProfileProperties.class),
-        @JsonSubTypes.Type(name = "wheelchair", value = WheelchairProfileProperties.class),
-        @JsonSubTypes.Type(name = "public-transport", value = PublicTransportProfileProperties.class),
+        @JsonSubTypes.Type(name = "driving-car", value = DefaultProfilePropertiesCar.class),
+        @JsonSubTypes.Type(name = "driving-hgv", value = DefaultProfilePropertiesHgv.class),
+        @JsonSubTypes.Type(name = "cycling-regular", value = DefaultProfilePropertiesBikeRegular.class),
+        @JsonSubTypes.Type(name = "cycling-electric", value = DefaultProfilePropertiesBikeElectric.class),
+        @JsonSubTypes.Type(name = "cycling-mountain", value = DefaultProfilePropertiesBikeMountain.class),
+        @JsonSubTypes.Type(name = "cycling-road", value = DefaultProfilePropertiesBikeRoad.class),
+        @JsonSubTypes.Type(name = "foot-walking", value = DefaultProfilePropertiesWalking.class),
+        @JsonSubTypes.Type(name = "foot-hiking", value = DefaultProfilePropertiesHiking.class),
+        @JsonSubTypes.Type(name = "wheelchair", value = DefaultProfilePropertiesWheelchair.class),
+        @JsonSubTypes.Type(name = "public-transport", value = DefaultProfilePropertiesPublicTransport.class),
 })
 public abstract class ProfileProperties {
     @JsonProperty("enabled")

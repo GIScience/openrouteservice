@@ -3,9 +3,10 @@ package org.heigit.ors.config.profile.defaults;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
 
-public class BikeRegularProfileProperties extends ProfileProperties {
-    public BikeRegularProfileProperties() {
+public class DefaultProfilePropertiesCar extends ProfileProperties {
+
+    public DefaultProfilePropertiesCar() {
         super();
-        this.setEncoderName(EncoderNameEnum.CYCLING_REGULAR);
+        this.setEncoderName(EncoderNameEnum.DRIVING_CAR);
     }
 }
