@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DefaultExtendedStoragesTest {
+class DefaultExtendedStoragesPropertiesTest {
 
     // Define the correct extended storages for the given encoder name
     static Object[] correctExtendedStoragesPerProfile() {
@@ -29,29 +29,29 @@ class DefaultExtendedStoragesTest {
 
     @Test
     void testDefaultExtendedStorages() {
-        DefaultExtendedStorages defaultExtendedStorages = new DefaultExtendedStorages();
-        assertEquals(2, defaultExtendedStorages.getExtStorages().size());
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties();
+        assertEquals(2, defaultExtendedStoragesProperties.getExtStorages().size());
 
         // Assert WayCategory and WaySurfaceType are present
-        assertTrue(defaultExtendedStorages.getExtStorages().containsKey("WayCategory"));
-        assertTrue(defaultExtendedStorages.getExtStorages().containsKey("WaySurfaceType"));
+        assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WayCategory"));
+        assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WaySurfaceType"));
         // And both are of the correct type
-        assertInstanceOf(ExtendedStorageWayCategory.class, defaultExtendedStorages.getExtStorages().get("WayCategory"));
-        assertInstanceOf(ExtendedStorageWaySurfaceType.class, defaultExtendedStorages.getExtStorages().get("WaySurfaceType"));
+        assertInstanceOf(ExtendedStorageWayCategory.class, defaultExtendedStoragesProperties.getExtStorages().get("WayCategory"));
+        assertInstanceOf(ExtendedStorageWaySurfaceType.class, defaultExtendedStoragesProperties.getExtStorages().get("WaySurfaceType"));
 
     }
 
     @Test
     void testDefaultExtendedStoragesWithNullEncoderName() {
-        DefaultExtendedStorages defaultExtendedStorages = new DefaultExtendedStorages(null);
-        assertEquals(2, defaultExtendedStorages.getExtStorages().size());
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(null);
+        assertEquals(2, defaultExtendedStoragesProperties.getExtStorages().size());
 
         // Assert WayCategory and WaySurfaceType are present
-        assertTrue(defaultExtendedStorages.getExtStorages().containsKey("WayCategory"));
-        assertTrue(defaultExtendedStorages.getExtStorages().containsKey("WaySurfaceType"));
+        assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WayCategory"));
+        assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WaySurfaceType"));
         // And both are of the correct type
-        assertInstanceOf(ExtendedStorageWayCategory.class, defaultExtendedStorages.getExtStorages().get("WayCategory"));
-        assertInstanceOf(ExtendedStorageWaySurfaceType.class, defaultExtendedStorages.getExtStorages().get("WaySurfaceType"));
+        assertInstanceOf(ExtendedStorageWayCategory.class, defaultExtendedStoragesProperties.getExtStorages().get("WayCategory"));
+        assertInstanceOf(ExtendedStorageWaySurfaceType.class, defaultExtendedStoragesProperties.getExtStorages().get("WaySurfaceType"));
     }
 
     @ParameterizedTest
@@ -67,18 +67,18 @@ class DefaultExtendedStoragesTest {
             "WHEELCHAIR,4"
     })
     void testDefaultExtendedStoragesSizeWithEncoderName(String encoderName, Integer expectedSize) {
-        DefaultExtendedStorages defaultExtendedStorages = new DefaultExtendedStorages(EncoderNameEnum.valueOf(encoderName));
-        assertEquals(expectedSize, defaultExtendedStorages.getExtStorages().size());
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(EncoderNameEnum.valueOf(encoderName));
+        assertEquals(expectedSize, defaultExtendedStoragesProperties.getExtStorages().size());
     }
 
     // Test the default extended storages for the given encoder name
     @ParameterizedTest
     @MethodSource("correctExtendedStoragesPerProfile")
     void testDefaultExtendedStoragesWithEncoderName(String encoderName, String[] expectedKeys) {
-        DefaultExtendedStorages defaultExtendedStorages = new DefaultExtendedStorages(EncoderNameEnum.valueOf(encoderName));
-        assertEquals(expectedKeys.length, defaultExtendedStorages.getExtStorages().size());
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(EncoderNameEnum.valueOf(encoderName));
+        assertEquals(expectedKeys.length, defaultExtendedStoragesProperties.getExtStorages().size());
         for (String key : expectedKeys) {
-            assertTrue(defaultExtendedStorages.getExtStorages().containsKey(key));
+            assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey(key));
         }
     }
 

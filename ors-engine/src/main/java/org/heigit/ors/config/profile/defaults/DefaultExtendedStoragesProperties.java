@@ -8,17 +8,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class DefaultExtendedStorages {
+public class DefaultExtendedStoragesProperties {
 
     Map<String, ExtendedStorage> extStorages;
 
-    public DefaultExtendedStorages() {
+    public DefaultExtendedStoragesProperties() {
         extStorages = new HashMap<>();
         extStorages.put("WayCategory", new ExtendedStorageWayCategory());
         extStorages.put("WaySurfaceType", new ExtendedStorageWaySurfaceType());
     }
 
-    public DefaultExtendedStorages(EncoderNameEnum encoderName) {
+    public DefaultExtendedStoragesProperties(EncoderNameEnum encoderName) {
         this();
         if (encoderName == null) {
             encoderName = EncoderNameEnum.UNKNOWN;
