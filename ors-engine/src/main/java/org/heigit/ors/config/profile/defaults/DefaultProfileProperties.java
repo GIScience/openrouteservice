@@ -25,12 +25,8 @@ public class DefaultProfileProperties extends ProfileProperties {
         setMaximumWayPoints(50);
         setMaximumSnappingRadius(400);
         setMaximumVisitedNodes(1000000);
-        getPreparation().setMinNetworkSize(200);
-        getPreparation().getMethods().getLm().setEnabled(true);
-        getPreparation().getMethods().getLm().setThreads(1);
-        getPreparation().getMethods().getLm().setWeightings("recommended,shortest");
-        getPreparation().getMethods().getLm().setLandmarks(16);
-        getExecution().getMethods().getLm().setActiveLandmarks(8);
+
+        // TODO
         getExtStorages().entrySet().clear();
     }
 }
