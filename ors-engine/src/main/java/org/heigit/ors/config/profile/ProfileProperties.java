@@ -164,6 +164,15 @@ public abstract class ProfileProperties {
         this.execution = execution;
     }
 
+    @JsonSetter("ext_storages")
+    public void setExtStorages(Map<String, ExtendedStorage> extStorages) {
+        DefaultExtendedStorages defaultExtendedStorages = new DefaultExtendedStorages(this.getEncoderName());
+        extStorages = PropertyUtils.deepCopyMapsProperties(defaultExtendedStorages.getExtStorages(), extStorages, false);
+        if (extStorages != null) {
+            this.extStorages = extStorages;
+        }
+    }
+
     @JsonIgnore
     public String getEncoderOptionsString() {
         if (encoderOptions == null)
