@@ -53,10 +53,6 @@
         </resources>
     </build>
 
-    <properties>
-        <jupiter.version>5.9.3</jupiter.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.carrotsearch</groupId>
@@ -225,7 +221,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${jupiter.version}</version>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

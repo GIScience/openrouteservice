@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.11</version>
+        <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -46,26 +46,27 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <springdoc-openapi-starter.version>2.1.0</springdoc-openapi-starter.version>
-        <swagger-parser.version>2.1.16</swagger-parser.version>
-        <snakeyaml.version>2.0</snakeyaml.version>
-        <geotools.version>29.1</geotools.version>
+        <springdoc-openapi-starter.version>2.6.0</springdoc-openapi-starter.version>
+        <swagger-parser.version>2.1.22</swagger-parser.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
+        <geotools.version>29.6</geotools.version>
         <!-- switch graphhopper versions to enable debugging -->
         <graphhopper.version>v4.9.1</graphhopper.version>
         <!--graphhopper.version>v4.9-SNAPSHOT</graphhopper.version-->
-        <slf4j.version>2.0.7</slf4j.version>
-        <log4j.version>2.20.0</log4j.version>
-        <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <slf4j.version>2.0.13</slf4j.version>
+        <log4j.version>2.22.1</log4j.version>
+        <fasterxml.jackson.version>2.17.2</fasterxml.jackson.version>
+        <commons-io.version>2.16.1</commons-io.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
         <jts.version>1.19.0</jts.version>
-        <org-json.version>20231013</org-json.version>
-        <postgresql.version>42.7.2</postgresql.version>
+        <org-json.version>20240303</org-json.version>
+        <postgresql.version>42.7.3</postgresql.version>
         <progressbar.version>0.10.0</progressbar.version>
-        <jline.version>3.25.0</jline.version>
-        <jqwik.version>1.6.5</jqwik.version>
+        <jline.version>3.26.3</jline.version>
+        <jqwik.version>1.9.0</jqwik.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <swagger-core.version>2.2.14</swagger-core.version>
+        <jupiter.version>5.10.3</jupiter.version>
+        <swagger-core.version>2.2.22</swagger-core.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.organization>giscience</sonar.organization>
