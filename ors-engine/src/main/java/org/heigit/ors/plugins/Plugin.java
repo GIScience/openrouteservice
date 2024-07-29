@@ -13,10 +13,10 @@
  */
 package org.heigit.ors.plugins;
 
-import java.util.Map;
+import org.heigit.ors.config.profile.storages.ExtendedStorage;
 
 public interface Plugin {
     String getName();
 
-    void setParameters(Map<String, String> parameters);
+    void setParameters(ExtendedStorage parameters);
 }

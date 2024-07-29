@@ -7,7 +7,8 @@ import com.graphhopper.config.Profile;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.config.profile.defaults.CarProfileProperties;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -72,11 +73,8 @@ class ORSGraphHopperTest {
      */
     @Test
     void buildGraphWithPreprocessedData() throws Exception {
-        RouteProfileConfiguration rpc = new RouteProfileConfiguration();
-        rpc.setName("whocares");
-        rpc.setEnabled(true);
-        rpc.setProfiles("driving-car");
-        GraphProcessContext gpc = new GraphProcessContext(rpc);
+        ProfileProperties profile = new CarProfileProperties();
+        GraphProcessContext gpc = new GraphProcessContext(profile);
         gpc.setGetElevationFromPreprocessedData(true);
         ORSGraphHopper gh = new ORSGraphHopper(gpc);
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();

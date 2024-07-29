@@ -17,8 +17,7 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
-
-import java.util.Map;
+import org.heigit.ors.config.profile.storages.ExtendedStorageHillIndex;
 
 public class HillIndexGraphStorage implements GraphExtension {
     private final int efHillIndex;
@@ -32,11 +31,11 @@ public class HillIndexGraphStorage implements GraphExtension {
 
     private final byte[] byteValues;
 
-    public HillIndexGraphStorage(Map<String, String> parameters) {
+    public HillIndexGraphStorage(ExtendedStorageHillIndex parameters) {
         efHillIndex = 0;
 
-        if (parameters.containsKey("maximum_slope"))
-            maxHillIndex = (int) Double.parseDouble(parameters.get("maximum_slope"));
+        if (parameters.getMaximumSlope() != null)
+            maxHillIndex = parameters.getMaximumSlope();
 
         edgeEntryBytes = edgeEntryIndex + (maxHillIndex > 15 ? 2 : 1);
         edgesCount = 0;

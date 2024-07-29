@@ -18,7 +18,6 @@ import com.graphhopper.reader.ReaderNode;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.storage.GraphHopperStorage;
-import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
 import org.apache.log4j.Logger;
@@ -354,17 +353,6 @@ public class ORSOSMReader extends OSMReader {
         } catch (Exception ex) {
             LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
         }
-    }
-
-    @Override
-    protected boolean onCreateEdges(ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges) {
-        try {
-            return procCntx.createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
-        } catch (Exception ex) {
-            LOGGER.warn(ex.getMessage() + ". Way id = " + way.getId());
-        }
-
-        return false;
     }
 
     @Override

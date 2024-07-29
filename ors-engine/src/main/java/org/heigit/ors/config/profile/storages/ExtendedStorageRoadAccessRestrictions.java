@@ -23,8 +23,7 @@ public class ExtendedStorageRoadAccessRestrictions extends ExtendedStorage {
     }
 
     @JsonSetter("use_for_warnings")
-    private void setUseForWarnings(Boolean use_for_warnings) {
+    public void setUseForWarnings(Boolean use_for_warnings) {
         this.use_for_warnings = use_for_warnings;
     }
-
 }

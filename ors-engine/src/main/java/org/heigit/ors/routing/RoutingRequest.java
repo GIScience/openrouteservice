@@ -337,7 +337,7 @@ public class RoutingRequest extends ServiceRequest {
         ptRequest.setAccessProfile("foot_fastest");
         ptRequest.setEgressProfile("foot_fastest");
 
-        ptRequest.setMaxVisitedNodes(routingProfile.getConfiguration().getMaximumVisitedNodesPT());
+        ptRequest.setMaxVisitedNodes(routingProfile.getProfileConfiguration().getMaximumVisitedNodes());
 
         return ptRequest;
     }
@@ -363,7 +363,7 @@ public class RoutingRequest extends ServiceRequest {
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = routingProfile.createSearchContext(searchParams);
 
-            int flexibleMode = searchParams.hasFlexibleMode() || routingProfile.getConfiguration().isEnforceTurnCosts() ? ProfileTools.KEY_FLEX_PREPROCESSED : ProfileTools.KEY_FLEX_STATIC;
+            int flexibleMode = searchParams.hasFlexibleMode() || Boolean.TRUE.equals(routingProfile.getProfileConfiguration().getForceTurnCosts()) ? ProfileTools.KEY_FLEX_PREPROCESSED : ProfileTools.KEY_FLEX_STATIC;
             boolean optimized = searchParams.getOptimized();
 
             GHRequest req;
@@ -439,7 +439,7 @@ public class RoutingRequest extends ServiceRequest {
 
             if (searchParams.hasMaximumSpeed()) {
                 req.getHints().putObject("maximum_speed", searchParams.getMaximumSpeed());
-                req.getHints().putObject("maximum_speed_lower_bound", routingProfile.getConfiguration().getMaximumSpeedLowerBound());
+                req.getHints().putObject("maximum_speed_lower_bound", routingProfile.getProfileConfiguration().getMaximumSpeedLowerBound());
             }
 
             if (directedSegment) {

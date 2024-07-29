@@ -3,6 +3,8 @@ package org.heigit.ors.config.profile.storages;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 import org.slf4j.Logger;
@@ -27,6 +29,10 @@ public class ExtendedStorageHereTraffic extends ExtendedStorage {
     private Boolean output_log = false;
 
     private Path log_location = Path.of("");
+
+    @Getter
+    @Setter
+    private String ghProfile;
 
     public ExtendedStorageHereTraffic() {
     }

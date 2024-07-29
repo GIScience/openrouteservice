@@ -18,6 +18,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.profile.storages.ExtendedStorageBorders;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
@@ -68,6 +69,13 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
+        ExtendedStorageBorders parameters;
+        try {
+            parameters = (ExtendedStorageBorders) this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
+
         if (this.cbReader == null) {
             // Read the border shapes from the file
             // First check if parameters are present
@@ -75,21 +83,21 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             String countryIdsFile = "";
             String openBordersFile = "";
 
-            if (parameters.containsKey(PARAM_KEY_BOUNDARIES))
-                bordersFile = parameters.get(PARAM_KEY_BOUNDARIES);
+            if (parameters.getBoundaries() != null)
+                bordersFile = parameters.getBoundaries().toString();
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
                 // We cannot continue without the information
                 throw new MissingResourceException("A boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
             }
 
-            if (parameters.containsKey("ids"))
-                countryIdsFile = parameters.get("ids");
+            if (parameters.getIds() != null)
+                countryIdsFile = parameters.getIds().toString();
             else
                 ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, "ids");
 
-            if (parameters.containsKey(PARAM_KEY_OPEN_BORDERS))
-                openBordersFile = parameters.get(PARAM_KEY_OPEN_BORDERS);
+            if (parameters.getOpenborders() != null)
+                openBordersFile = parameters.getOpenborders().toString();
             else
                 ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_OPEN_BORDERS);
 

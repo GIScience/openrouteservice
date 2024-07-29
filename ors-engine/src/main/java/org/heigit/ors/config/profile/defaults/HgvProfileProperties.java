@@ -17,7 +17,7 @@ public class HgvProfileProperties extends ProfileProperties {
         getPreparation().getMethods().getCh().setThreads(1);
         getPreparation().getMethods().getCh().setWeightings("recommended");
         getPreparation().getMethods().getCore().setEnabled(true);
-        getPreparation().getMethods().getCore().setThreads(1);
+        getPreparation().getMethods().getCore().setThreads("1");
         getPreparation().getMethods().getCore().setWeightings("recommended,shortest");
         getPreparation().getMethods().getCore().setLandmarks(64);
         getPreparation().getMethods().getCore().setLmsets("highways;allow_all");

@@ -19,6 +19,7 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.profile.storages.ExtendedStorageNoiseIndex;
 import org.heigit.ors.routing.graphhopper.extensions.storages.NoiseIndexGraphStorage;
 
 import java.io.BufferedReader;
@@ -42,12 +43,16 @@ public class NoiseIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
-
+        ExtendedStorageNoiseIndex parameters;
+        try {
+            parameters = (ExtendedStorageNoiseIndex) this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
         // TODO Refactoring Check if the _noiseIndexFile exists
-        String csvFile = parameters.get("filepath");
+        String csvFile = parameters.getFilepath().toString();
         readNoiseIndicesFromCSV(csvFile);
         storage = new NoiseIndexGraphStorage();
-
         return storage;
     }
 
