@@ -2,46 +2,33 @@ package org.heigit.ors.config.profile;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.heigit.ors.config.utils.NonEmptyObjectFilter;
 
+@Getter
+@Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PreparationProperties {
+    @Setter
     @JsonProperty("min_network_size")
     private Integer minNetworkSize;
+    @Setter
     @JsonProperty("min_one_way_network_size")
     private Integer minOneWayNetworkSize;
     @JsonProperty("methods")
+    @Accessors(chain = true)
     private MethodsProperties methods;
 
     public PreparationProperties() {
         this.methods = new MethodsProperties();
     }
 
-    public Integer getMinNetworkSize() {
-        return minNetworkSize;
-    }
 
-    public void setMinNetworkSize(Integer minNetworkSize) {
-        this.minNetworkSize = minNetworkSize;
-    }
-
-    public Integer getMinOneWayNetworkSize() {
-        return minOneWayNetworkSize;
-    }
-
-    public void setMinOneWayNetworkSize(Integer minOneWayNetworkSize) {
-        this.minOneWayNetworkSize = minOneWayNetworkSize;
-    }
-
-    public MethodsProperties getMethods() {
-        return methods;
-    }
-
-    public PreparationProperties setMethods(MethodsProperties methods) {
-        this.methods = methods;
-        return this;
-    }
-
+    @Getter
+    @Setter
     @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyObjectFilter.class)
     public static class MethodsProperties {
         private CHProperties ch;
@@ -56,69 +43,18 @@ public class PreparationProperties {
             fastisochrones = new FastIsochroneProperties();
         }
 
-        public CHProperties getCh() {
-            return ch;
-        }
-
-        public void setCh(CHProperties ch) {
-            this.ch = ch;
-        }
-
-        public LMProperties getLm() {
-            return lm;
-        }
-
-        public void setLm(LMProperties lm) {
-            this.lm = lm;
-        }
-
-        public CoreProperties getCore() {
-            return core;
-        }
-
-        public void setCore(CoreProperties core) {
-            this.core = core;
-        }
-
-        public FastIsochroneProperties getFastisochrones() {
-            return fastisochrones;
-        }
-
-        public void setFastisochrones(FastIsochroneProperties fastisochrones) {
-            this.fastisochrones = fastisochrones;
-        }
-
+        @Getter
+        @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CHProperties {
             private Boolean enabled;
             private Integer threads;
             private String weightings;
 
-            public Boolean getEnabled() {
-                return enabled;
-            }
-
-            public void setEnabled(Boolean enabled) {
-                this.enabled = enabled;
-            }
-
-            public Integer getThreads() {
-                return threads;
-            }
-
-            public void setThreads(Integer threads) {
-                this.threads = threads;
-            }
-
-            public String getWeightings() {
-                return weightings;
-            }
-
-            public void setWeightings(String weightings) {
-                this.weightings = weightings;
-            }
         }
 
+        @Getter
+        @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
             private Boolean enabled;
@@ -126,39 +62,10 @@ public class PreparationProperties {
             private String weightings;
             private Integer landmarks;
 
-            public Boolean getEnabled() {
-                return enabled;
-            }
-
-            public void setEnabled(Boolean enabled) {
-                this.enabled = enabled;
-            }
-
-            public Integer getThreads() {
-                return threads;
-            }
-
-            public void setThreads(Integer threads) {
-                this.threads = threads;
-            }
-
-            public String getWeightings() {
-                return weightings;
-            }
-
-            public void setWeightings(String weightings) {
-                this.weightings = weightings;
-            }
-
-            public Integer getLandmarks() {
-                return landmarks;
-            }
-
-            public void setLandmarks(Integer landmarks) {
-                this.landmarks = landmarks;
-            }
         }
 
+        @Getter
+        @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
             private Boolean enabled;
@@ -167,49 +74,13 @@ public class PreparationProperties {
             private Integer landmarks;
             private String lmsets;
 
-            public Boolean getEnabled() {
-                return enabled;
-            }
-
-            public void setEnabled(Boolean enabled) {
-                this.enabled = enabled;
-            }
-
-            public Integer getThreads() {
-                return threads;
-            }
-
-            public void setThreads(Integer threads) {
-                this.threads = threads;
-            }
-
-            public String getWeightings() {
-                return weightings;
-            }
-
-            public void setWeightings(String weightings) {
-                this.weightings = weightings;
-            }
-
-            public Integer getLandmarks() {
-                return landmarks;
-            }
-
-            public void setLandmarks(Integer landmarks) {
-                this.landmarks = landmarks;
-            }
-
-            public String getLmsets() {
-                return lmsets;
-            }
-
-            public void setLmsets(String lmsets) {
-                this.lmsets = lmsets;
-            }
         }
 
+        @Getter
+        @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class FastIsochroneProperties {
+            @Setter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -217,34 +88,6 @@ public class PreparationProperties {
 
             public Boolean isEnabled() {
                 return enabled;
-            }
-
-            public void setEnabled(Boolean enabled) {
-                this.enabled = enabled;
-            }
-
-            public Integer getThreads() {
-                return threads;
-            }
-
-            public void setThreads(Integer threads) {
-                this.threads = threads;
-            }
-
-            public String getWeightings() {
-                return weightings;
-            }
-
-            public void setWeightings(String weightings) {
-                this.weightings = weightings;
-            }
-
-            public Integer getMaxcellnodes() {
-                return maxcellnodes;
-            }
-
-            public void setMaxcellnodes(Integer maxcellnodes) {
-                this.maxcellnodes = maxcellnodes;
             }
         }
     }
