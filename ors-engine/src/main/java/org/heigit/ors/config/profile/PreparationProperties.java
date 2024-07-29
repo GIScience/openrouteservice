@@ -37,10 +37,16 @@ public class PreparationProperties {
         private FastIsochroneProperties fastisochrones;
 
         public MethodsProperties() {
-            ch = new CHProperties();
-            lm = new LMProperties();
-            core = new CoreProperties();
-            fastisochrones = new FastIsochroneProperties();
+        }
+
+
+        public MethodsProperties(Boolean setDefaults) {
+            if (setDefaults) {
+                this.ch = new CHProperties();
+                this.lm = new LMProperties();
+                this.core = new CoreProperties();
+                this.fastisochrones = new FastIsochroneProperties();
+            }
         }
 
         @Getter

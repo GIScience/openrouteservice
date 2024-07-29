@@ -14,6 +14,7 @@ public class DefaultPreparationProperties extends PreparationProperties {
         setMinNetworkSize(200);
         setMinOneWayNetworkSize(200);
 
+        setMethods(new MethodsProperties(true));
         getMethods().getCh().setEnabled(false);
         getMethods().getCh().setWeightings("fastest");
         getMethods().getCh().setThreads(2);
