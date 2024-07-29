@@ -9,8 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PropertyUtils {
-    public static Object deepCopyObjectsProperties(Object source, Object target, boolean overwrite) {
-        // If a field is a class, it will be copied recursively
+    public static Object deepCopyObjectsProperties(Object source, Object target, boolean overwriteNonEmptyFields, boolean copyEmptyMemberClasses) {
         Logger logger = LoggerFactory.getLogger(Object.class);
         if (source == null || target == null) {
             throw new IllegalArgumentException("Source and target objects must not be null");
@@ -34,11 +33,17 @@ public class PropertyUtils {
             }
             try {
                 Object currentValue = field.get(target);
+
                 if (field.getType().isMemberClass()) {
-                    field.set(target, deepCopyObjectsProperties(value, currentValue, overwrite));
-                } else if (overwrite || currentValue == null || (currentValue instanceof String && ((String) currentValue).isEmpty())) {
+                    if (currentValue == null && copyEmptyMemberClasses) {
+                        field.set(target, value);
+                    } else if (currentValue != null) {
+                        field.set(target, deepCopyObjectsProperties(value, currentValue, overwriteNonEmptyFields, copyEmptyMemberClasses));
+                    }
+                } else if (overwriteNonEmptyFields || currentValue == null || currentValue instanceof String && ((String) currentValue).isEmpty()) {
                     field.set(target, value);
                 }
+
             } catch (IllegalAccessException e) {
                 logger.warn("Could not set field: {}", field.getName());
             }
@@ -46,7 +51,7 @@ public class PropertyUtils {
         return target;
     }
 
-    public static Map<String, ExtendedStorage> deepCopyMapsProperties(Map<String, ExtendedStorage> source, Map<String, ExtendedStorage> target, boolean overwrite) {
+    public static Map<String, ExtendedStorage> deepCopyMapsProperties(Map<String, ExtendedStorage> source, Map<String, ExtendedStorage> target, boolean overwriteNonEmptyFields, boolean copyEmptyMemberClasses, boolean copyEmptyStorages) {
         if (target == null) {
             return source;
         } else if (source == null) {
@@ -66,10 +71,10 @@ public class PropertyUtils {
             }
 
             if (targetValue == null) {
-                targetUpdate.put(key, sourceValue);
+                if (copyEmptyStorages) targetUpdate.put(key, sourceValue);
             } else {
                 // Recursively copy nested maps
-                targetUpdate.put(key, (ExtendedStorage) deepCopyObjectsProperties(sourceValue, targetValue, overwrite));
+                targetUpdate.put(key, (ExtendedStorage) deepCopyObjectsProperties(sourceValue, targetValue, overwriteNonEmptyFields, copyEmptyMemberClasses));
             }
         }
         return targetUpdate;
