@@ -146,28 +146,28 @@ public abstract class ProfileProperties {
     @JsonSetter("encoder_options")
     public void setEncoderOptions(EncoderOptionsProperties encoderOptions) {
         DefaultEncoderOptionsProperties defaultEncoderOptionsProperties = new DefaultEncoderOptionsProperties(this.getEncoderName());
-        encoderOptions = (EncoderOptionsProperties) PropertyUtils.deepCopyObjectsProperties(defaultEncoderOptionsProperties, encoderOptions, false);
+        encoderOptions = (EncoderOptionsProperties) PropertyUtils.deepCopyObjectsProperties(defaultEncoderOptionsProperties, encoderOptions, false, false);
         this.encoderOptions = encoderOptions;
     }
 
     @JsonSetter("preparation")
     public void setPreparation(PreparationProperties preparation) {
         DefaultPreparationProperties defaultPreparationProperties = new DefaultPreparationProperties(this.getEncoderName());
-        preparation = (PreparationProperties) PropertyUtils.deepCopyObjectsProperties(defaultPreparationProperties, preparation, false);
+        preparation = (PreparationProperties) PropertyUtils.deepCopyObjectsProperties(defaultPreparationProperties, preparation, false, false);
         this.preparation = preparation;
     }
 
     @JsonSetter("execution")
     public void setExecution(ExecutionProperties execution) {
         DefaultExecutionProperties defaultExecutionProperties = new DefaultExecutionProperties(this.getEncoderName());
-        execution = (ExecutionProperties) PropertyUtils.deepCopyObjectsProperties(defaultExecutionProperties, execution, false);
+        execution = (ExecutionProperties) PropertyUtils.deepCopyObjectsProperties(defaultExecutionProperties, execution, false, false);
         this.execution = execution;
     }
 
     @JsonSetter("ext_storages")
     public void setExtStorages(Map<String, ExtendedStorage> extStorages) {
         DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
-        extStorages = PropertyUtils.deepCopyMapsProperties(defaultExtendedStoragesProperties.getExtStorages(), extStorages, false);
+        extStorages = PropertyUtils.deepCopyMapsProperties(defaultExtendedStoragesProperties.getExtStorages(), extStorages, false, false, false);
         if (extStorages != null) {
             this.extStorages = extStorages;
         }

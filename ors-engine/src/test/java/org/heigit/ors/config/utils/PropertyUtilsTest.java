@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PropertyUtilsTest {
 
@@ -15,7 +14,7 @@ class PropertyUtilsTest {
     void testUpdateObject() {
         TestProperty source = new TestProperty("testValue", 42, "foo", true);
         TestProperty target = new TestProperty("bar", 0, "bar", false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, true);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true, false);
 
         assertEquals("testValue", target.field1);
         assertEquals(42, target.getField2());
@@ -27,7 +26,7 @@ class PropertyUtilsTest {
     void testUpdateObjectNoOverwrite() {
         TestProperty source = new TestProperty("testValue", 42, "foo", true);
         TestProperty target = new TestProperty("bar", 0, null, false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, false, false);
 
         assertEquals("bar", target.field1);
         assertEquals(0, target.getField2());
@@ -39,14 +38,27 @@ class PropertyUtilsTest {
     @Test
     void testUpdateObjectNoOverwriteInSubclass() {
         TestProperty source = new TestProperty("testValue", 42, "foo", true);
-        TestProperty target = new TestProperty("bar", 0, "baz", null);
-        PropertyUtils.deepCopyObjectsProperties(source, target, false);
+        TestProperty target = new TestProperty("bar", 0, "baz", null, false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, false, false);
 
         assertEquals("bar", target.field1);
         assertEquals(0, target.getField2());
         assertEquals("baz", target.getField3());
         // Correctly set as the target field is null.
-        assertEquals(true, target.subclass.enabled);
+        assertNull(target.subclass);
+    }
+
+    @Test
+    void testUpdateObjectNoCopyEmptyMemberClasses() {
+        TestProperty source = new TestProperty("testValue", 42, "foo", true);
+        TestProperty target = new TestProperty("bar", 0, "baz", null, false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true, false);
+
+        assertEquals("testValue", target.field1);
+        assertEquals(42, target.getField2());
+        assertEquals("foo", target.getField3());
+        // Correctly set as the target field is null.
+        assertNull(target.subclass);
     }
 
     @Test
@@ -54,7 +66,7 @@ class PropertyUtilsTest {
         // This is not working! The subclass is not updated by the superclass.
         TestProperty source = new TestProperty("testValue", 42, "baz", true);
         TestPropertySubclass target = new TestPropertySubclass("foo", 0, "bar", false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, true);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true, false);
 
         assertEquals("foo", target.field1);
         assertEquals(0, target.getField2());
@@ -66,7 +78,7 @@ class PropertyUtilsTest {
     void testUpdateWithSubclass() {
         TestPropertySubclass source = new TestPropertySubclass("foo", 0, "bar", true);
         TestProperty target = new TestProperty("testValue", 42, "baz", false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, true);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true, false);
 
         assertEquals("foo", target.field1);
         assertEquals(0, target.getField2());
@@ -77,9 +89,24 @@ class PropertyUtilsTest {
     @Test
     void testUpdateObjectWithNullSource() {
         TestProperty target = new TestProperty("testValue", 42, "foo", true);
-        assertThrows(IllegalArgumentException.class, () -> PropertyUtils.deepCopyObjectsProperties(null, null, true));
-        assertThrows(IllegalArgumentException.class, () -> PropertyUtils.deepCopyObjectsProperties(target, null, true));
-        assertThrows(IllegalArgumentException.class, () -> PropertyUtils.deepCopyObjectsProperties(null, target, true));
+        assertThrows(IllegalArgumentException.class, () -> PropertyUtils.deepCopyObjectsProperties(null, null, true, false));
+        assertThrows(IllegalArgumentException.class, () -> PropertyUtils.deepCopyObjectsProperties(target, null, true, false));
+        assertThrows(IllegalArgumentException.class, () -> PropertyUtils.deepCopyObjectsProperties(null, target, true, false));
+    }
+
+
+    @Test
+    void testUpdateObjectsWithEmptyMemberClasses() {
+        TestProperty source = new TestProperty("testValue", 42, "foo", true);
+        TestProperty target = new TestProperty("bar", 0, "baz", null, false);
+        assertNull(target.subclass);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true, true);
+
+        assertEquals("testValue", target.field1);
+        assertEquals(42, target.getField2());
+        assertEquals("foo", target.getField3());
+        assertInstanceOf(TestProperty.TestPropertyNestedClass.class, target.subclass);
+        assertEquals(true, target.subclass.enabled);
     }
 
     @Test
@@ -87,7 +114,7 @@ class PropertyUtilsTest {
         // Create a map with two TestExtendedStorage objects
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", false));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2", new TestExtendedStorage("bar", 0, "bar", false));
-        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, target, true);
+        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, target, true, false, false);
 
         // Check if the values are updated
         assertEquals(((TestExtendedStorage) source.get("test1")).field1, ((TestExtendedStorage) returnedTarget.get("test1")).field1);
@@ -108,7 +135,7 @@ class PropertyUtilsTest {
         // Create a map with two TestExtendedStorage objects
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2", new TestExtendedStorage(null, 0, "bar", false));
-        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, target, false);
+        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, target, false, false, false);
 
         // Check if the values are updated
         assertEquals("bar", ((TestExtendedStorage) returnedTarget.get("test1")).field1);
@@ -128,7 +155,7 @@ class PropertyUtilsTest {
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false));
         assertEquals(1, target.size());
-        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true);
+        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true, false, true);
 
         assertEquals(2, targetUpdate.size());
 
@@ -150,7 +177,47 @@ class PropertyUtilsTest {
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2", new TestExtendedStorage("foo", 1, "bar", false));
         assertEquals(2, target.size());
-        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true);
+        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true, false, false);
+
+        assertEquals(2, targetUpdate.size());
+
+        // Check if the values are updated
+        assertEquals("testValue1", ((TestExtendedStorage) targetUpdate.get("test1")).field1);
+        assertEquals(42, ((TestExtendedStorage) targetUpdate.get("test1")).getField2());
+        assertEquals("foo1", ((TestExtendedStorage) targetUpdate.get("test1")).getField3());
+        assertEquals(true, ((TestExtendedStorage) targetUpdate.get("test1")).subclass.enabled);
+
+        assertEquals("foo", ((TestExtendedStorage) targetUpdate.get("test2")).field1);
+        assertEquals(1, ((TestExtendedStorage) targetUpdate.get("test2")).getField2());
+        assertEquals("bar", ((TestExtendedStorage) targetUpdate.get("test2")).getField3());
+        assertEquals(false, ((TestExtendedStorage) targetUpdate.get("test2")).subclass.enabled);
+    }
+
+    @Test
+    void testUpdateMapObjectsWithNoCopyEmptyStorage() {
+        // Create a map with two TestExtendedStorage objects
+        Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
+        Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false));
+        assertEquals(1, target.size());
+        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true, false, false);
+
+        assertEquals(1, targetUpdate.size());
+
+        // Check if the values are updated
+        assertEquals("testValue1", ((TestExtendedStorage) targetUpdate.get("test1")).field1);
+        assertEquals(42, ((TestExtendedStorage) targetUpdate.get("test1")).getField2());
+        assertEquals("foo1", ((TestExtendedStorage) targetUpdate.get("test1")).getField3());
+        assertEquals(true, ((TestExtendedStorage) targetUpdate.get("test1")).subclass.enabled);
+    }
+
+    @Test
+    void testUpdateMapObjectsWithUnequalSourceNonOverwriteNonEmptyFieldsAndCopyEmptyStorages() {
+        // Create a map with two TestExtendedStorage objects
+        Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2",
+                new TestExtendedStorage("foo", 1, "bar", false));
+        Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true));
+        assertEquals(1, target.size());
+        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, false, false, true);
 
         assertEquals(2, targetUpdate.size());
 
@@ -169,7 +236,7 @@ class PropertyUtilsTest {
     @Test
     void testUpdateMapObjectsWithNullSource() {
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
-        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(null, target, true);
+        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(null, target, true, false, false);
 
         assertEquals(2, returnedTarget.size());
         assertEquals(target.get("test1"), returnedTarget.get("test1"));
@@ -179,7 +246,7 @@ class PropertyUtilsTest {
     @Test
     void testUpdateMapObjectsWithNullTarget() {
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
-        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, null, true);
+        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, null, true, false, false);
 
         assertEquals(source.get("test1"), returnedTarget.get("test1"));
     }
@@ -222,6 +289,13 @@ class PropertyUtilsTest {
             this.field2 = field2;
             this.field3 = field3;
             this.subclass = new TestPropertyNestedClass(enabled);
+        }
+
+        TestProperty(String field1, int field2, String field3, Boolean enabled, Boolean enableSubclass) {
+            this.field1 = field1;
+            this.field2 = field2;
+            this.field3 = field3;
+            if (enableSubclass) this.subclass = new TestPropertyNestedClass(enabled);
         }
 
         public static class TestPropertyNestedClass {
