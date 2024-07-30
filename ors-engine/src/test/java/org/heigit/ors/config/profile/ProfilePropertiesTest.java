@@ -2,6 +2,7 @@ package org.heigit.ors.config.profile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.defaults.DefaultProfilePropertiesCar;
 import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
 import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
@@ -64,12 +65,24 @@ class ProfilePropertiesTest {
                 default -> fail("Unexpected key: " + key);
             }
         });
-
-
     }
 
     @Test
-    void getEncoderOptionsString() {
+    void testWithEmptyExtendedStorages() throws JsonProcessingException {
+        // This will initialize custom storages to make sure only them are deserialized without adding any other default storages.
+        // Example JSON:
+        //       car:
+        //        encoder_name: driving-car
+        //        ext_storages: {}
+        String json = "{\"encoder_name\":\"driving-car\",\"ext_storages\":{}}";
+        ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
+        assertEquals(EncoderNameEnum.DRIVING_CAR, foo.getEncoderName());
+        assertInstanceOf(DefaultProfilePropertiesCar.class, foo);
+        assertEquals(0, foo.getExtStorages().size());
+    }
+
+    @Test
+    void testGetEncoderOptionsString() {
         ProfileProperties profile = new DefaultProfilePropertiesCar();
         profile.getEncoderOptions().setMaximumGradeLevel(4);
         profile.getEncoderOptions().setPreferredSpeedFactor(0.8);
