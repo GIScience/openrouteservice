@@ -3,7 +3,9 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.config.profile.defaults.DefaultProfilePropertiesCar;
-import org.heigit.ors.config.profile.storages.*;
+import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
+import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
+import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +23,9 @@ class ProfilePropertiesTest {
     }
 
     @Test
-    void testDeserializeExtendedStorages() throws JsonProcessingException {
+    void testDeserializeExtendedStoragesWithNonDefaultStorages() throws JsonProcessingException {
+        // This will initialize custom storages to make sure only them are deserialized without adding any other default storages.
+        // Example JSON:
         //       car:
         //        encoder_name: driving-car
         //        ext_storages:
@@ -37,7 +41,7 @@ class ProfilePropertiesTest {
         ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
         assertEquals("driving-car", foo.getEncoderName().getName());
         assertInstanceOf(DefaultProfilePropertiesCar.class, foo);
-        assertEquals(6, foo.getExtStorages().size());
+        assertEquals(3, foo.getExtStorages().size());
         assertTrue(foo.getExtStorages().containsKey("WayCategory"));
         assertTrue(foo.getExtStorages().containsKey("HeavyVehicle"));
         assertTrue(foo.getExtStorages().containsKey("GreenIndex"));
@@ -56,18 +60,6 @@ class ProfilePropertiesTest {
                 case "GreenIndex" -> {
                     assertTrue(value.getEnabled());
                     assertEquals(Path.of("/path/to/file.csv"), ((ExtendedStorageGreenIndex) value).getFilepath());
-                }
-                case "Tollways" -> {
-                    assertInstanceOf(ExtendedStorageTollways.class, value);
-                    assertTrue(value.getEnabled());
-                }
-                case "WaySurfaceType" -> {
-                    assertInstanceOf(ExtendedStorageWaySurfaceType.class, value);
-                    assertTrue(value.getEnabled());
-                }
-                case "RoadAccessRestrictions" -> {
-                    assertInstanceOf(ExtendedStorageRoadAccessRestrictions.class, value);
-                    assertTrue(value.getEnabled());
                 }
                 default -> fail("Unexpected key: " + key);
             }

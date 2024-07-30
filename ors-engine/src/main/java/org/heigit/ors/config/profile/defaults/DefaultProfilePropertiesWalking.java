@@ -1,9 +1,8 @@
 package org.heigit.ors.config.profile.defaults;
 
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.profile.ProfileProperties;
 
-public class DefaultProfilePropertiesWalking extends ProfileProperties {
+public class DefaultProfilePropertiesWalking extends DefaultProfileProperties {
     public DefaultProfilePropertiesWalking() {
         super();
         this.setEncoderName(EncoderNameEnum.FOOT_WALKING);
