@@ -45,15 +45,14 @@ import java.util.stream.Collectors;
 
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
+    private static final String SOURCE_PROPERTY_NAME = "source_file";
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
     private RoutingProfilesCollection routingProfiles;
     private static RoutingProfileManager instance;
 
     public RoutingProfileManager(EngineConfig config) {
-        if (instance == null) {
-            instance = this;
-            initialize(config);
-        }
+        instance = this;
+        initialize(config);
     }
 
     public static synchronized RoutingProfileManager getInstance() {
@@ -120,8 +119,9 @@ public class RoutingProfileManager {
                     }
                     throw e;
                 } catch (InterruptedException e) {
-                    LOGGER.error(e);
+                    LOGGER.debug(e);
                     Thread.currentThread().interrupt();
+                    throw e;
                 }
             }
 
@@ -132,7 +132,7 @@ public class RoutingProfileManager {
             LOGGER.info("========================================================================");
             RoutingProfileManagerStatus.setReady(true);
         } catch (ExecutionException ex) {
-            fail("Failed to either read or execute the ors configuration and its parameters: " + ex.getMessage());
+            fail("Failed to initialize RoutingProfileManager instance. Exiting. One possible reason could be a bad value in configuration property '%s' - this needs to be a valid osm pbf file if you want to calculate graphs locally, or a valid graph repository URL, if you want to use pre-calculated graphs!".formatted(SOURCE_PROPERTY_NAME));
             Thread.currentThread().interrupt();
             return;
         } catch (Exception ex) {

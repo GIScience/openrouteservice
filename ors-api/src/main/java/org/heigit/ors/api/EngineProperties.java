@@ -5,6 +5,8 @@ import com.typesafe.config.ConfigFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1ProfileProperties;
+import org.heigit.ors.util.FileUtility;
 import org.heigit.ors.util.ProfileTools;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +28,15 @@ public class EngineProperties {
     private ElevationProperties elevation;
     private ProfileProperties profileDefault;
     private Map<String, ProfileProperties> profiles;
+    private GraphManagementProperties graphManagement;
+
+    public GraphManagementProperties getGraphManagement() {
+        return graphManagement;
+    }
+
+    public void setGraphManagement(GraphManagementProperties graphManagement) {
+        this.graphManagement = graphManagement;
+    }
 
     public int getInitThreads() {
         return initThreads;
@@ -71,6 +82,7 @@ public class EngineProperties {
         this.graphsDataAccess = graphsDataAccess;
     }
 
+
     public ElevationProperties getElevation() {
         return elevation;
     }
@@ -105,6 +117,7 @@ public class EngineProperties {
                     continue;
                 }
                 RouteProfileConfiguration convertedProfile = new RouteProfileConfiguration();
+                convertedProfile.setOrsGraphInfoV1ProfileProperties(ORSGraphInfoV1ProfilePropertiesBuilder.from(profileDefault).overrideWith(profile).build());
                 convertedProfile.setName(profileEntry.getKey());
                 convertedProfile.setEnabled(enabled);
                 convertedProfile.setProfiles(profile.getProfile());
@@ -115,6 +128,7 @@ public class EngineProperties {
                         graphPath = Paths.get(rootGraphsPath, profileEntry.getKey()).toString();
                 }
                 convertedProfile.setGraphPath(graphPath);
+                convertedProfile.setGraphsExtent(graphManagement.extent);
                 convertedProfile.setEncoderOptions(profile.getEncoderOptionsString());
                 convertedProfile.setOptimize(profile.optimize != null ? profile.optimize : profileDefault.getOptimize());
                 convertedProfile.setEncoderFlagsSize(profile.encoderFlagsSize != null ? profile.encoderFlagsSize : profileDefault.getEncoderFlagsSize());
@@ -215,6 +229,54 @@ public class EngineProperties {
         }
     }
 
+    public static class GraphManagementProperties {
+        private String repositoryPath;
+        private String repositoryUrl;
+        private String repositoryName;
+        private Integer maxBackups;
+        private String extent;
+
+        public String getRepositoryPath() {
+            return repositoryPath;
+        }
+
+        public void setRepositoryPath(String repositoryPath) {
+            this.repositoryPath = repositoryPath;
+        }
+
+        public String getRepositoryUrl() {
+            return repositoryUrl;
+        }
+
+        public void setRepositoryUrl(String repositoryUrl) {
+            this.repositoryUrl = repositoryUrl;
+        }
+
+        public String getRepositoryName() {
+            return repositoryName;
+        }
+
+        public void setRepositoryName(String repositoryName) {
+            this.repositoryName = repositoryName;
+        }
+
+        public Integer getMaxBackups() {
+            return maxBackups;
+        }
+
+        public void setMaxBackups(Integer maxBackups) {
+            this.maxBackups = maxBackups;
+        }
+
+        public String getExtent() {
+            return extent;
+        }
+
+        public void setExtent(String extent) {
+            this.extent = extent;
+        }
+    }
+
     public static class ProfileProperties {
         private String profile;
         private Boolean enabled;
@@ -248,6 +310,37 @@ public class EngineProperties {
         private Boolean forceTurnCosts;
         private String gtfsFile;
 
+        public ORSGraphInfoV1ProfileProperties asORSGraphInfoV1ProfileProperties() {
+            return new ORSGraphInfoV1ProfileProperties(
+                    profile,
+                    enabled,
+                    elevation,
+                    elevationSmoothing,
+                    traffic,
+                    interpolateBridgesAndTunnels,
+                    instructions,
+                    optimize,
+                    graphPath,
+                    encoderOptions,
+                    preparation,
+                    execution,
+                    extStorages,
+                    maximumDistance,
+                    maximumDistanceDynamicWeights,
+                    maximumDistanceAvoidAreas,
+                    maximumDistanceAlternativeRoutes,
+                    maximumDistanceRoundTripRoutes,
+                    maximumSpeedLowerBound,
+                    maximumWayPoints,
+                    maximumSnappingRadius,
+                    maximumVisitedNodes,
+                    encoderFlagsSize,
+                    locationIndexResolution,
+                    locationIndexSearchIterations,
+                    forceTurnCosts,
+                    gtfsFile
+            );
+        }
         public String getProfile() {
             return profile;
         }

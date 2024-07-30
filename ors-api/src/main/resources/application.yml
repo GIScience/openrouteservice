@@ -114,6 +114,15 @@ ors:
     preparation_mode: false
     graphs_root_path: ./graphs
     graphs_data_access: RAM_STORE
+    graph_management:
+      repository_path:
+      repository_url:
+      repository_name:
+      max_backups: 0
+      extent:
+      # HINT default is never (there is no Feb 31)
+      download_schedule: '0 * * 31 2 *'
+      activation_schedule: '0 0 * 31 2 *'
     elevation:
       preprocessed: false
       data_access: MMAP

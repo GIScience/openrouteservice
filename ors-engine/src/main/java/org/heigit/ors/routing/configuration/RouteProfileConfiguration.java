@@ -16,6 +16,7 @@ package org.heigit.ors.routing.configuration;
 import com.typesafe.config.Config;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.routing.RoutingProfileType;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1ProfileProperties;
 import org.locationtech.jts.geom.Envelope;
 
 import java.nio.file.Paths;
@@ -28,6 +29,7 @@ public class RouteProfileConfiguration {
     private boolean enabled = true;
     private String profiles = ""; // comma separated
     private String graphPath;
+    private String graphsExtent = "";
     private Map<String, Map<String, String>> extStorages;
     private Map<String, Map<String, String>> graphBuilders;
     private Double maximumDistance = 0.0;
@@ -69,6 +71,8 @@ public class RouteProfileConfiguration {
     private boolean turnCostEnabled = false;//FIXME: even though the field is read by external methods, its setter is never called.
     private boolean enforceTurnCosts = false;
     private String graphDataAccess = "";
+
+    private ORSGraphInfoV1ProfileProperties orsGraphInfoV1ProfileProperties;
 
     public RouteProfileConfiguration() {
         extStorages = new HashMap<>();
@@ -133,6 +137,14 @@ public class RouteProfileConfiguration {
 
     public String getGraphPath() {
         return graphPath;
+    }
+
+    public String getGraphsExtent() {
+        return graphsExtent;
+    }
+
+    public void setGraphsExtent(String graphsExtent) {
+        this.graphsExtent = graphsExtent;
     }
 
     public void setExtStorages(Map<String, Map<String, String>> value) {
@@ -373,6 +385,14 @@ public class RouteProfileConfiguration {
 
     public void setMaximumVisitedNodesPT(int maximumVisitedNodesPT) {
         this.maximumVisitedNodesPT = maximumVisitedNodesPT;
+    }
+
+    public ORSGraphInfoV1ProfileProperties getOrsGraphInfoV1ProfileProperties() {
+        return orsGraphInfoV1ProfileProperties;
+    }
+
+    public void setOrsGraphInfoV1ProfileProperties(ORSGraphInfoV1ProfileProperties orsGraphInfoV1ProfileProperties) {
+        this.orsGraphInfoV1ProfileProperties = orsGraphInfoV1ProfileProperties;
     }
 
     public String getGraphDataAccess() {
