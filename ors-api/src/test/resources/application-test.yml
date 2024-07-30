@@ -14,7 +14,7 @@ ors:
       maximum_locations: 3
 
   engine:
-    source_file: ./src/test/files/heidelberg.osm.gz
+    source_file: ./src/test/fil es/heidelberg.osm.gz
     graphs_root_path: graphs-apitests
     config_output_mode: false
     elevation:
