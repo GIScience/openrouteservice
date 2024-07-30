@@ -40,7 +40,6 @@ public class PreparationProperties {
         public MethodsProperties() {
         }
 
-
         public MethodsProperties(Boolean setDefaults) {
             if (setDefaults) {
                 this.ch = new CHProperties();
@@ -63,7 +62,6 @@ public class PreparationProperties {
             public Boolean isEnabled() {
                 return enabled;
             }
-
         }
 
         @Getter
@@ -80,7 +78,6 @@ public class PreparationProperties {
             public Boolean isEnabled() {
                 return enabled;
             }
-
         }
 
         @Getter
@@ -98,7 +95,6 @@ public class PreparationProperties {
             public Boolean isEnabled() {
                 return enabled;
             }
-
         }
 
         @Getter
