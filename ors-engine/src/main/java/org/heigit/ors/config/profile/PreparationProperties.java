@@ -1,5 +1,6 @@
 package org.heigit.ors.config.profile;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -58,6 +59,7 @@ public class PreparationProperties {
             private Integer threads;
             private String weightings;
 
+            @JsonIgnore
             public Boolean isEnabled() {
                 return enabled;
             }
@@ -74,6 +76,7 @@ public class PreparationProperties {
             private String weightings;
             private Integer landmarks;
 
+            @JsonIgnore
             public Boolean isEnabled() {
                 return enabled;
             }
@@ -91,6 +94,7 @@ public class PreparationProperties {
             private Integer landmarks;
             private String lmsets;
 
+            @JsonIgnore
             public Boolean isEnabled() {
                 return enabled;
             }
@@ -107,10 +111,10 @@ public class PreparationProperties {
             private String weightings;
             private Integer maxcellnodes;
 
+            @JsonIgnore
             public Boolean isEnabled() {
                 return enabled;
             }
-
         }
     }
 }
