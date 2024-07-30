@@ -72,6 +72,8 @@ public class PreparationProperties {
             public boolean isEmpty() {
                 return enabled == null && threads == null && weightings == null;
             }
+
+            @JsonIgnore
             public Boolean isEnabled() {
                 return enabled;
             }
@@ -92,6 +94,8 @@ public class PreparationProperties {
             public boolean isEmpty() {
                 return enabled == null && threads == null && weightings == null && landmarks == null;
             }
+
+            @JsonIgnore
             public Boolean isEnabled() {
                 return enabled;
             }
@@ -113,6 +117,8 @@ public class PreparationProperties {
             public boolean isEmpty() {
                 return enabled == null && threads == null && weightings == null && landmarks == null && lmsets == null;
             }
+
+            @JsonIgnore
             public Boolean isEnabled() {
                 return enabled;
             }
@@ -134,6 +140,10 @@ public class PreparationProperties {
                 return enabled == null && threads == null && weightings == null && maxcellnodes == null;
             }
 
+            @JsonIgnore
+            public Boolean isEnabled() {
+                return enabled;
+            }
         }
     }
 }
