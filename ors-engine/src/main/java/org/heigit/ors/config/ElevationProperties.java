@@ -11,20 +11,23 @@ import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Getter
-@Setter(AccessLevel.PACKAGE)
+@Setter(AccessLevel.PROTECTED)
 public class ElevationProperties {
-    private Boolean preprocessed = false;
+    private Boolean preprocessed;
     @JsonProperty("data_access")
-    private DataAccessEnum dataAccess = DataAccessEnum.MMAP;
+    private DataAccessEnum dataAccess;
     @JsonProperty("cache_clear")
-    private Boolean cacheClear = false;
+    private Boolean cacheClear;
     @JsonProperty("provider")
-    private String provider = "multi";
+    private String provider;
     @JsonProperty("cache_path")
     @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)
-    private Path cachePath = Paths.get("./elevation_cache");
+    private Path cachePath;
+
+    public Boolean isPreprocessed() {
+        return preprocessed;
+    }
 }

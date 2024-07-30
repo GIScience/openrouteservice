@@ -5,47 +5,52 @@ import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.EncoderOptionsProperties;
 
 public class DefaultEncoderOptionsProperties extends EncoderOptionsProperties {
-    public DefaultEncoderOptionsProperties() {
-        setBlockFords(false);
-        setTurnCosts(true);
-        setConsiderElevation(false);
-        setUseAcceleration(false);
-        setConditionalAccess(false); // Default from EncodingManager.java
 
-        setMaximumGradeLevel(null); // TODO find default
-        setPreferredSpeedFactor(null); // TODO find default
-        setProblematicSpeedFactor(null); // TODO find default
-        setConditionalSpeed(false); // TODO find default
+    public DefaultEncoderOptionsProperties() {
+        this(false, null);
+    }
+
+    public DefaultEncoderOptionsProperties(Boolean setDefaults, EncoderNameEnum encoderName) {
+        this(encoderName);
+        if (setDefaults) {
+            setBlockFords(false);
+            setTurnCosts(true);
+            setConsiderElevation(false);
+            setUseAcceleration(false);
+            setConditionalAccess(false); // Default from EncodingManager.java
+            setMaximumGradeLevel(null); // TODO find default
+            setPreferredSpeedFactor(null); // TODO find default
+            setProblematicSpeedFactor(null); // TODO find default
+            setConditionalSpeed(false); // TODO find default
+        }
     }
 
     public DefaultEncoderOptionsProperties(EncoderNameEnum encoderName) {
-        this();
-        if (encoderName == null) {
-            encoderName = EncoderNameEnum.UNKNOWN;
+        if (encoderName != null) {
+            switch (encoderName) {
+                case DRIVING_CAR -> {
+                    // Just set the ones from below
+                    setTurnCosts(true);
+                    setBlockFords(false);
+                    setUseAcceleration(true);
+                    setConsiderElevation(false);
+                }
+                case DRIVING_HGV -> {
+                    setTurnCosts(true);
+                    setBlockFords(false);
+                    setUseAcceleration(true);
+                }
+                case CYCLING_REGULAR, CYCLING_MOUNTAIN, CYCLING_ROAD, CYCLING_ELECTRIC -> {
+                    setConsiderElevation(true);
+                    setTurnCosts(true);
+                    setBlockFords(false);
+                }
+                case FOOT_HIKING, FOOT_WALKING, WHEELCHAIR, PUBLIC_TRANSPORT -> // Just set the ones from below
+                        setBlockFords(false);
+                default -> {
+                }
+            }
         }
 
-        switch (encoderName) {
-            case DRIVING_CAR -> {
-                // Just set the ones from below
-                setTurnCosts(true);
-                setBlockFords(false);
-                setUseAcceleration(true);
-                setConsiderElevation(false);
-            }
-            case DRIVING_HGV -> {
-                setTurnCosts(true);
-                setBlockFords(false);
-                setUseAcceleration(true);
-            }
-            case CYCLING_REGULAR, CYCLING_MOUNTAIN, CYCLING_ROAD, CYCLING_ELECTRIC -> {
-                setConsiderElevation(true);
-                setTurnCosts(true);
-                setBlockFords(false);
-            }
-            case FOOT_HIKING, FOOT_WALKING, WHEELCHAIR, PUBLIC_TRANSPORT -> // Just set the ones from below
-                    setBlockFords(false);
-            default -> {
-            }
-        }
     }
 }

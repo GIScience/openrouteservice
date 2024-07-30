@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.defaults.*;
+import org.heigit.ors.config.profile.defaults.DefaultElevationProperties;
+import org.heigit.ors.config.profile.defaults.DefaultProfileProperties;
+import org.heigit.ors.config.profile.defaults.DefaultProfiles;
 import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 
@@ -19,47 +21,54 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Getter
-@Setter(AccessLevel.PACKAGE)
+@Setter(AccessLevel.PROTECTED)
 public class EngineProperties {
 
-    private static final Map<String, ProfileProperties> DEFAULT_PROFILES = new LinkedHashMap<>();
-
-    static {
-        DEFAULT_PROFILES.put("car", new DefaultProfilePropertiesCar());
-        DEFAULT_PROFILES.put("hgv", new DefaultProfilePropertiesHgv());
-        DEFAULT_PROFILES.put("bike-regular", new DefaultProfilePropertiesBikeRegular());
-        DEFAULT_PROFILES.put("bike-electric", new DefaultProfilePropertiesBikeElectric());
-        DEFAULT_PROFILES.put("bike-mountain", new DefaultProfilePropertiesBikeMountain());
-        DEFAULT_PROFILES.put("bike-road", new DefaultProfilePropertiesBikeRoad());
-        DEFAULT_PROFILES.put("walking", new DefaultProfilePropertiesWalking());
-        DEFAULT_PROFILES.put("hiking", new DefaultProfilePropertiesHiking());
-        DEFAULT_PROFILES.put("wheelchair", new DefaultProfilePropertiesWheelchair());
-        DEFAULT_PROFILES.put("public-transport", new DefaultProfilePropertiesPublicTransport());
-    }
+    @JsonIgnore
+    private Map<String, ProfileProperties> default_profiles = new LinkedHashMap<>();
 
     @JsonProperty("source_file")
     @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)
-    private Path sourceFile = Paths.get("");
+    private Path sourceFile;
     @JsonProperty("init_threads")
-    private Integer initThreads = 1;
+    private Integer initThreads;
     @JsonProperty("preparation_mode")
-    private Boolean preparationMode = false;
+    private Boolean preparationMode;
     @JsonProperty("config_output_mode")
-    private Boolean configOutputMode = false;
+    private Boolean configOutputMode;
     @JsonProperty("graphs_root_path")
     @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)
-    private Path graphsRootPath = Path.of("graphs").toAbsolutePath();
+    private Path graphsRootPath;
     @JsonProperty("graphs_data_access")
-    private DataAccessEnum graphsDataAccess = DataAccessEnum.RAM_STORE;
+    private DataAccessEnum graphsDataAccess;
 
     @JsonProperty("elevation")
-    private ElevationProperties elevation = new ElevationProperties();
+    private ElevationProperties elevation;
     @JsonProperty("profile_default")
-    private ProfileProperties profileDefault = new DefaultProfileProperties();
+    private ProfileProperties profileDefault;
     @JsonProperty("profiles")
-    private Map<String, ProfileProperties> profiles = DEFAULT_PROFILES;
+    private Map<String, ProfileProperties> profiles;
+
+    public EngineProperties() {
+        this(false);
+    }
+
+    public EngineProperties(Boolean setDefaults) {
+        setProfiles(new LinkedHashMap<>());
+        setProfileDefault(new DefaultProfileProperties(setDefaults));
+        setDefault_profiles(new DefaultProfiles(setDefaults).getProfiles());
+        setElevation(new DefaultElevationProperties(setDefaults));
+        if (setDefaults) {
+            setSourceFile(Paths.get(""));
+            setInitThreads(1);
+            setPreparationMode(false);
+            setConfigOutputMode(false);
+            setGraphsRootPath(Paths.get("./graphs"));
+            setGraphsDataAccess(DataAccessEnum.RAM_STORE);
+        }
+    }
 
     @JsonIgnore
     public Map<String, ProfileProperties> getActiveProfiles() {

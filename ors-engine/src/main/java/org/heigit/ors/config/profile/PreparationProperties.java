@@ -3,7 +3,6 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -62,7 +61,7 @@ public class PreparationProperties {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CHProperties {
-            @Getter(AccessLevel.NONE)
+            @JsonProperty("enabled")
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -82,7 +81,7 @@ public class PreparationProperties {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
-            @Getter(AccessLevel.NONE)
+            @JsonProperty("enabled")
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -103,7 +102,7 @@ public class PreparationProperties {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
-            @Getter(AccessLevel.NONE)
+            @JsonProperty("enabled")
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -125,7 +124,7 @@ public class PreparationProperties {
         @Setter
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class FastIsochroneProperties {
-            @Getter(AccessLevel.NONE)
+            @JsonProperty("enabled")
             private Boolean enabled;
             private Integer threads;
             private String weightings;
