@@ -45,6 +45,7 @@ RELEASING:
 ## [unreleased]
 
 ### Added
+- updated dependencies: spring, swagger, geotools etc. ([#1827](https://github.com/GIScience/openrouteservice/pull/1827))
 ### Changed
 ### Deprecated
 ### Removed

@@ -53,10 +53,6 @@
         </resources>
     </build>
 
-    <properties>
-        <jupiter.version>5.9.3</jupiter.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.carrotsearch</groupId>
@@ -80,42 +76,15 @@
             </exclusions>
         </dependency>
 
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        </dependency>
-        -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
 
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
-        </dependency>
-        -->
-
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-        </dependency>
-        -->
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
         </dependency>
-
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <scope>test</scope>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>org.geotools</groupId>
@@ -179,14 +148,6 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <type>pom</type>
-        </dependency>
-        -->
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
@@ -225,7 +186,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${jupiter.version}</version>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -264,79 +225,15 @@
             <artifactId>postgresql</artifactId>
         </dependency>
 
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>net.jqwik</groupId>
-            <artifactId>jqwik</artifactId>
-            <scope>test</scope>
-        </dependency> -->
-
         <dependency>
             <groupId>net.jqwik</groupId>
             <artifactId>jqwik-api</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
         </dependency>
-
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        -->
-
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        -->
-
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
-        -->
-
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>-->
-
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        -->
-
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-        </dependency>
-        -->
-
-        <!-- TODO: remove this if nothing breaks
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        -->
     </dependencies>
 </project>
