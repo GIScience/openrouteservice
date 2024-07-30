@@ -10,6 +10,7 @@ import org.heigit.ors.config.profile.ExecutionProperties;
 public class DefaultExecutionProperties extends ExecutionProperties {
     public DefaultExecutionProperties() {
         super();
+        setMethods(new MethodsProperties(true));
         getMethods().getLm().setActiveLandmarks(8);
         getMethods().getCore().setActiveLandmarks(6);
     }

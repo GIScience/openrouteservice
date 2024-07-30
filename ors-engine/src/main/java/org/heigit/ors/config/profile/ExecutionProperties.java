@@ -31,9 +31,14 @@ public class ExecutionProperties {
         private CoreProperties core;
 
         public MethodsProperties() {
-            astar = new AStarProperties();
-            lm = new LMProperties();
-            core = new CoreProperties();
+        }
+
+        public MethodsProperties(Boolean setDefaults) {
+            if (setDefaults) {
+                astar = new AStarProperties();
+                lm = new LMProperties();
+                core = new CoreProperties();
+            }
         }
 
         @JsonIgnore
