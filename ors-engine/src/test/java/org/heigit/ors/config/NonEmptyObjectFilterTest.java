@@ -36,7 +36,7 @@ public class NonEmptyObjectFilterTest {
     }
 
     private static PreparationProperties.MethodsProperties createPreparationMethodsWithChEnabled() {
-        PreparationProperties.MethodsProperties o1 = new PreparationProperties.MethodsProperties();
+        PreparationProperties.MethodsProperties o1 = new PreparationProperties.MethodsProperties(true);
         o1.getCh().setEnabled(true);
         return o1;
     }

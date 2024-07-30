@@ -1,10 +1,12 @@
 package org.heigit.ors.config.profile.defaults;
 
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
 
 public class DefaultProfileProperties extends ProfileProperties {
     public DefaultProfileProperties() {
         super();
+        this.setEncoderName(EncoderNameEnum.UNKNOWN);
         setEnabled(false);
         setElevation(true);
         setElevationSmoothing(true);
