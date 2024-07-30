@@ -68,4 +68,33 @@ class ProfilePropertiesTest {
 
     }
 
+    @Test
+    void getEncoderOptionsString() {
+        ProfileProperties profile = new DefaultProfilePropertiesCar();
+        profile.getEncoderOptions().setMaximumGradeLevel(4);
+        profile.getEncoderOptions().setPreferredSpeedFactor(0.8);
+        profile.getEncoderOptions().setProblematicSpeedFactor(0.5);
+
+        String result = profile.getEncoderOptionsString();
+        assertEquals("block_fords=false|consider_elevation=false|turn_costs=true|use_acceleration=false|maximum_grade_level=4|preferred_speed_factor=0.8|problematic_speed_factor=0.5", result);
+        // Variance of the parameter values
+        profile.getEncoderOptions().setBlockFords(null);
+        profile.getEncoderOptions().setTurnCosts(null);
+        profile.getEncoderOptions().setConsiderElevation(null);
+        profile.getEncoderOptions().setUseAcceleration(null);
+        profile.getEncoderOptions().setConditionalAccess(null);
+        profile.getEncoderOptions().setMaximumGradeLevel(null);
+        profile.getEncoderOptions().setPreferredSpeedFactor(null);
+        profile.getEncoderOptions().setProblematicSpeedFactor(null);
+        profile.getEncoderOptions().setConditionalSpeed(null);
+        result = profile.getEncoderOptionsString();
+        assertEquals("", result);
+
+        // Null encoder Options
+        profile.setEncoderOptions(null);
+        result = profile.getEncoderOptionsString();
+        assertEquals("", result);
+
+    }
+
 }

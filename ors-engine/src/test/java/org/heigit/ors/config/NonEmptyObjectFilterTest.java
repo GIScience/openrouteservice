@@ -37,12 +37,18 @@ public class NonEmptyObjectFilterTest {
 
     private static PreparationProperties.MethodsProperties createPreparationMethodsWithChEnabled() {
         PreparationProperties.MethodsProperties o1 = new PreparationProperties.MethodsProperties(true);
+        if (o1.getCh() == null) {
+            o1.setCh(new PreparationProperties.MethodsProperties.CHProperties());
+        }
         o1.getCh().setEnabled(true);
         return o1;
     }
 
     private static ExecutionProperties.MethodsProperties createExecutionMethodsWithCHSet() {
         ExecutionProperties.MethodsProperties o1 = new ExecutionProperties.MethodsProperties();
+        if (o1.getAstar() == null) {
+            o1.setAstar(new ExecutionProperties.MethodsProperties.AStarProperties());
+        }
         o1.getAstar().setApproximation("beeline");
         return o1;
     }
