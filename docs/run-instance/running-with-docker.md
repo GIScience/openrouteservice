@@ -73,11 +73,13 @@ docker run -dt --name ors-app \
   -v $PWD/ors-docker/graphs:/home/ors/graphs \
   -v $PWD/ors-docker/files:/home/ors/files \
   -v $PWD/ors-docker/logs:/home/ors/logs \
-  #-e "BUILD_GRAPHS=True" \
   -e "XMS=1g" \
-  -e "XMX=2g \
+  -e "XMX=2g" \
   local/openrouteservice:latest 
 ```
+Add `-e "ors.engine.source_file=files/your.osm.pbf" \` to point to your own OSM file that lies in the mounted $PWD/ors-docker/files folder.
+Add `-e "BUILD_GRAPHS=True" \` to trigger a graph rebuild.
+
 :::
 
 
