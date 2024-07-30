@@ -99,49 +99,91 @@ public abstract class ProfileProperties {
     private Map<String, ExtendedStorage> extStorages = new HashMap<>();
 
     protected ProfileProperties() {
-        encoderOptions = new DefaultEncoderOptionsProperties();
-        preparation = new PreparationProperties();
-        execution = new ExecutionProperties();
+        this(false);
+    }
+
+    protected ProfileProperties(Boolean setDefaults) {
+        if (setDefaults) {
+            encoderOptions = new DefaultEncoderOptionsProperties();
+            preparation = new DefaultPreparationProperties();
+            execution = new DefaultExecutionProperties();
+        } else {
+            encoderOptions = new EncoderOptionsProperties();
+            preparation = new PreparationProperties();
+            execution = new ExecutionProperties();
+        }
     }
 
     @JsonSetter("encoder_options")
     public void setEncoderOptions(EncoderOptionsProperties encoderOptions) {
-        if (encoderOptions != null) {
-            DefaultEncoderOptionsProperties defaultEncoderOptionsProperties = new DefaultEncoderOptionsProperties(this.getEncoderName());
-            encoderOptions = (EncoderOptionsProperties) PropertyUtils.deepCopyObjectsProperties(defaultEncoderOptionsProperties, encoderOptions, false, false);
-        }
+        // TODO if null apply default values as is
+        // TODO after deserialization apply the profile_default values -> maybe move setter to getter logic
+        // TODO add getgraphpath override to the profile property classes
         this.encoderOptions = encoderOptions;
+    }
+
+
+    public EncoderOptionsProperties getEncoderOptions(Boolean mergeWithDefault) {
+        if (mergeWithDefault) {
+            DefaultEncoderOptionsProperties defaultEncoderOptionsProperties = new DefaultEncoderOptionsProperties(this.getEncoderName());
+            if (this.encoderOptions == null) {
+                return defaultEncoderOptionsProperties;
+            }
+            EncoderOptionsProperties test = (EncoderOptionsProperties) PropertyUtils.deepCopyObjectsProperties(defaultEncoderOptionsProperties, this.encoderOptions, false, false);
+            return test;
+        }
+        return this.encoderOptions;
     }
 
     @JsonSetter("preparation")
     public void setPreparation(PreparationProperties preparation) {
-        if (preparation != null) {
-            DefaultPreparationProperties defaultPreparationProperties = new DefaultPreparationProperties(this.getEncoderName());
-            preparation = (PreparationProperties) PropertyUtils.deepCopyObjectsProperties(defaultPreparationProperties, preparation, false, false);
-        }
         this.preparation = preparation;
+    }
+
+    public PreparationProperties getPreparation(Boolean mergeWithDefault) {
+        if (mergeWithDefault) {
+            DefaultPreparationProperties defaultPreparationProperties = new DefaultPreparationProperties(this.getEncoderName());
+            if (this.preparation == null) {
+                return defaultPreparationProperties;
+            }
+            PreparationProperties test = (PreparationProperties) PropertyUtils.deepCopyObjectsProperties(defaultPreparationProperties, this.preparation, false, false);
+            return test;
+        }
+        return this.preparation;
     }
 
     @JsonSetter("execution")
     public void setExecution(ExecutionProperties execution) {
-        if (execution != null) {
-            DefaultExecutionProperties defaultExecutionProperties = new DefaultExecutionProperties(this.getEncoderName());
-            execution = (ExecutionProperties) PropertyUtils.deepCopyObjectsProperties(defaultExecutionProperties, execution, false, false);
-        }
         this.execution = execution;
+    }
+
+    public ExecutionProperties getExecution(Boolean mergeWithDefault) {
+        if (mergeWithDefault) {
+            DefaultExecutionProperties defaultExecutionProperties = new DefaultExecutionProperties(this.getEncoderName());
+            if (this.execution == null) {
+                return defaultExecutionProperties;
+            }
+            ExecutionProperties test = (ExecutionProperties) PropertyUtils.deepCopyObjectsProperties(defaultExecutionProperties, this.execution, false, false);
+            return test;
+        }
+        return this.execution;
     }
 
     @JsonSetter("ext_storages")
     public void setExtStorages(Map<String, ExtendedStorage> extStorages) {
-        if (extStorages == null) {
-            this.extStorages = new HashMap<>();
-        } else {
+        this.extStorages = extStorages;
+    }
+
+    public Map<String, ExtendedStorage> getExtStorages(Boolean mergeWithDefault) {
+        if (mergeWithDefault) {
             DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
-            extStorages = PropertyUtils.deepCopyMapsProperties(defaultExtendedStoragesProperties.getExtStorages(), extStorages, false, false, false);
-            if (extStorages != null) {
-                this.extStorages = extStorages;
+            if (this.extStorages == null) {
+                return defaultExtendedStoragesProperties.getExtStorages();
             }
+            Map<String, ExtendedStorage> test = PropertyUtils.deepCopyMapsProperties(defaultExtendedStoragesProperties.getExtStorages(), this.extStorages, false, false, false);
+            return test;
         }
+        return this.extStorages;
     }
 
     @JsonIgnore
