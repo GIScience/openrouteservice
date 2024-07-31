@@ -8,6 +8,10 @@ import org.heigit.ors.config.profile.EncoderOptionsProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.PreparationProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.config.profile.storages.ExtendedStorage;
+import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
+import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
+import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
@@ -23,53 +27,73 @@ class EnginePropertiesTest {
     ;
     //language=JSON
     private final String testJson = """
-            {
-              "graphs_data_access": "MMAP",
-              "elevation": {},
-              "profile_default": {
-                  "preparation": {
-                  "min_network_size": 300,
-                  "methods": {
-                    "lm": {
-                      "enabled": false,
-                        "threads": 4,
-                        "weightings": "shortest",
-                        "landmarks": 2
-                    }
-                  }
-                },
-                  "execution": {
-                    "methods": {
-                      "lm": {
-                        "active_landmarks": 8
-                      }
-                    }
-                  }
-              },
-              "profiles": {
-                "car": {
-                  "encoder_name": "driving-car",
-                  "enabled": true,
-                  "encoder_options": {},
-                  "preparation": {\
-                    "methods": {
-                      "lm": {
+                  {
+                    "graphs_data_access": "MMAP",
+                    "elevation": {},
+                    "profile_default": {
+                        "preparation": {
+                        "min_network_size": 300,
+                        "methods": {
+                          "lm": {
+                            "enabled": false,
+                              "threads": 4,
+                              "weightings": "shortest",
+                              "landmarks": 2
+                          }
+                        }
+                      },
+                        "execution": {
+                          "methods": {
+                            "lm": {
+                              "active_landmarks": 8
+                            }
+                          }
+                        }
+                    },
+                    "profiles": {
+                      "car": {
+                        "encoder_name": "driving-car",
                         "enabled": true,
-                        "threads": 1
+                        "encoder_options": {},
+                        "preparation": {\
+                          "methods": {
+                            "lm": {
+                              "enabled": true,
+                              "threads": 1
+                            }
+                          }
+                         },
+                        "execution": {
+                           "methods": {\
+                            "lm": {\
+                              "active_landmarks": 2\
+                            }
+                          }
+                        },
+                        "ext_storages": {}
+                      },
+                      "hgv": {
+                        "encoder_name": "driving-hgv",
+                        "preparation": {
+                          "min_network_size": 900,
+                          "methods": {
+                            "lm": {
+                              "enabled": true
+                            }
+                          }
+                        },
+                        "ext_storages": {
+                          "WayCategory": {},
+                          "HeavyVehicle": {
+                            "restrictions": true
+                          },
+                          "GreenIndex": {
+                            "filepath": "/path/to/file.csv"
+                          }
+            }
                       }
                     }
-                   },
-                  "execution": {
-                     "methods": {\
-                      "lm": {\
-                        "active_landmarks": 2\
-                      }
-                    }
-                  },
-                  "ext_storages": {}
-                }
-              }
-            }""";
+                  }""";
 
     @Test
     void testSerializeEmptyDefaultEngineProperties() throws JsonProcessingException {
@@ -330,7 +354,7 @@ class EnginePropertiesTest {
         EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
 
         Map<String, ProfileProperties> profiles = foo.getProfiles();
-        assertEquals(1, profiles.size());
+        assertEquals(2, profiles.size());
         assertTrue(profiles.containsKey("car"));
 
         ProfileProperties carProfile = profiles.get("car");
@@ -359,6 +383,68 @@ class EnginePropertiesTest {
         ExecutionProperties.MethodsProperties.LMProperties carLmExecution = carExecution.getMethods().getLm();
         assertEquals(2, carLmExecution.getActiveLandmarks());
         assertEquals(0, carProfile.getExtStorages().size());
+    }
+
+    @Test
+    void testRawSettingEverythingElseNullHgvProfileProperties() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException {
+        ObjectMapper mapper = new ObjectMapper();
+        EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
+
+        assertTrue(assertAllNull(foo,
+                new ArrayList<>(List.of("default_profiles", "graphsDataAccess", "profiles", "minNetworkSize", "lm")),
+                true));
+        assertEquals(DataAccessEnum.MMAP, foo.getGraphsDataAccess());
+
+
+        Map<String, ProfileProperties> profiles = foo.getProfiles();
+        assertEquals(2, profiles.size());
+        assertTrue(profiles.containsKey("hgv"));
+
+        ProfileProperties hgvProfile = profiles.get("hgv");
+        assertNull(hgvProfile.getEnabled());
+        assertEquals(EncoderNameEnum.DRIVING_HGV, hgvProfile.getEncoderName());
+
+        assertTrue(assertAllNull(hgvProfile, new ArrayList<>(List.of("encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
+
+        EncoderOptionsProperties hgvEncoderOptions = hgvProfile.getEncoderOptions();
+        assertTrue(assertAllNull(hgvEncoderOptions, new ArrayList<>()));
+
+        PreparationProperties hgvPreparation = hgvProfile.getPreparation();
+        assertEquals(900, hgvPreparation.getMinNetworkSize());
+        assertNull(hgvPreparation.getMinOneWayNetworkSize());
+        PreparationProperties.MethodsProperties hgvMethods = hgvPreparation.getMethods();
+        assertTrue(assertAllNull(hgvMethods, new ArrayList<>(List.of("lm"))));
+        assertTrue(assertAllNull(hgvMethods.getLm(), new ArrayList<>(List.of("enabled"))));
+
+        PreparationProperties.MethodsProperties hgvMethodsProperties = hgvPreparation.getMethods();
+        assertTrue(assertAllNull(hgvMethodsProperties, new ArrayList<>(List.of("lm"))));
+
+        PreparationProperties.MethodsProperties.LMProperties hgvLm = hgvMethods.getLm();
+        assertTrue(assertAllNull(hgvLm, new ArrayList<>(List.of("enabled"))));
+        assertTrue(hgvLm.isEnabled());
+
+        ExecutionProperties hgvExecution = hgvProfile.getExecution();
+        assertTrue(assertAllNull(hgvExecution.getMethods(), new ArrayList<>(List.of("lm"))));
+
+        Map<String, ExtendedStorage> hgvExtStorages = hgvProfile.getExtStorages();
+        assertEquals(3, hgvExtStorages.size());
+        assertTrue(hgvExtStorages.containsKey("WayCategory"));
+        assertTrue(hgvExtStorages.containsKey("HeavyVehicle"));
+        assertTrue(hgvExtStorages.containsKey("GreenIndex"));
+
+        ExtendedStorageWayCategory wayCategory = (ExtendedStorageWayCategory) hgvExtStorages.get("WayCategory");
+        assertInstanceOf(ExtendedStorageWayCategory.class, wayCategory);
+        assertTrue(wayCategory.getEnabled());
+
+        ExtendedStorageHeavyVehicle heavyVehicle = (ExtendedStorageHeavyVehicle) hgvExtStorages.get("HeavyVehicle");
+        assertInstanceOf(ExtendedStorageHeavyVehicle.class, heavyVehicle);
+        assertTrue(heavyVehicle.getEnabled());
+        assertTrue(heavyVehicle.getRestrictions());
+
+        ExtendedStorageGreenIndex greenIndex = (ExtendedStorageGreenIndex) hgvExtStorages.get("GreenIndex");
+        assertInstanceOf(ExtendedStorageGreenIndex.class, greenIndex);
+        assertTrue(greenIndex.getEnabled());
+        assertEquals(Paths.get("/path/to/file.csv"), greenIndex.getFilepath());
     }
 
     @Test

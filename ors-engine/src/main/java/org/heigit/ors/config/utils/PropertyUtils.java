@@ -82,6 +82,10 @@ public class PropertyUtils {
     }
 
     public static Boolean assertAllNull(Object o, ArrayList<String> ignoreList) throws IllegalAccessException {
+        return assertAllNull(o, ignoreList, false);
+    }
+
+    public static Boolean assertAllNull(Object o, ArrayList<String> ignoreList, Boolean searchMemberClasses) throws IllegalAccessException {
         for (Field field : o.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             if (ignoreList.contains(field.getName())) {
@@ -91,7 +95,13 @@ public class PropertyUtils {
             if (value == null) {
                 continue;
             }
-            return false;
+            if (searchMemberClasses) {
+                if (!assertAllNull(value, ignoreList, true)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
         return true;
     }
