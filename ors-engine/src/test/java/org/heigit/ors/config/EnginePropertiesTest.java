@@ -8,12 +8,16 @@ import org.heigit.ors.config.profile.EncoderOptionsProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.PreparationProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.config.profile.defaults.DefaultElevationProperties;
+import org.heigit.ors.config.profile.defaults.DefaultProfileProperties;
+import org.heigit.ors.config.profile.defaults.DefaultProfiles;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
 import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,25 +107,32 @@ class EnginePropertiesTest {
         assertNotNull(json);
         //language=JSON
         String expectedJson = """
-                            {
-                                "source_file": null,
-                                "init_threads": null,
-                                "preparation_mode": null,
-                                "config_output_mode": null,
-                                "graphs_root_path": null,
-                                "graphs_data_access": null,
-                                "elevation": {
-                                    "preprocessed": null,
-                                    "data_access": null,
-                                    "cache_clear": null,
-                                    "provider": null,
-                                    "cache_path": null
-                                },
-                                "profile_default": {
-                                    "ext_storages": {}
-                                },
-                                "profiles": {}
-                }""";
+                       {
+                "source_file": null,
+                "init_threads": null,
+                "preparation_mode": null,
+                "config_output_mode": null,
+                "graphs_root_path": null,
+                "graphs_data_access": null,
+                "elevation": {
+                    "preprocessed": null,
+                    "data_access": null,
+                    "cache_clear": null,
+                    "provider": null,
+                    "cache_path": null
+                },
+                "profile_default": {
+                    "encoder_options": {},
+                    "preparation": {
+                        "methods": {}
+                    },
+                    "execution": {
+                        "methods": {}
+                    },
+                    "ext_storages": {}
+                },
+                "profiles": {}
+                            }""";
         // compare the two json strings as actual json objects
         assertEquals(objectMapper.readTree(expectedJson), objectMapper.readTree(json));
     }
@@ -449,35 +460,36 @@ class EnginePropertiesTest {
 
     @Test
     void testDefaultEngineProperties() {
-//        EngineProperties defaultEngineProperties = new EngineProperties(true);
-//        // DONE! TODO finish logic that the user settings are the only thing set without the default booleans true. everything else null.
-//        // TODO find a way so that the profile defaults only get the profile related differences. everything else null -> in progress
-//        // Todo initialize the ProfileDefault with everything except the ext_storages
-//
-//
-//        // Assure the root level is intact and set to default
-//        assertEquals(DataAccessEnum.MMAP, foo.getGraphsDataAccess());
-//
-//        // Check that the nested object elevation is set from defaults
-//        assertEquals(defaultEngineProperties.getElevation().getProvider(), foo.getElevation().getProvider());
-//        assertEquals(defaultEngineProperties.getElevation().getCachePath(), foo.getElevation().getCachePath());
-//        assertEquals(defaultEngineProperties.getElevation().getDataAccess(), foo.getElevation().getDataAccess());
-//        assertEquals(defaultEngineProperties.getElevation().isPreprocessed(), foo.getElevation().isPreprocessed());
-//        assertEquals(defaultEngineProperties.getElevation().getCacheClear(), foo.getElevation().getCacheClear());
-//
-//        // Check that the profile default is set correctly
-//        assertEquals(defaultEngineProperties.getProfileDefault().getEnabled(), foo.getProfileDefault().getEnabled());
-//        assertEquals(defaultEngineProperties.getProfileDefault().getElevation(), foo.getProfileDefault().getElevation());
-//        assertEquals(defaultEngineProperties.getProfileDefault().getEncoderOptions().getBlockFords(), foo.getProfileDefault().getEncoderOptions().getBlockFords());
-//
-//        // Ensure preparation is only default on the min_one_way_network_size and the nested methods section and not the min_network_size since that was set manually.
-//        assertEquals(300, foo.getProfileDefault().getPreparation().getMinNetworkSize());
-//        assertEquals(defaultEngineProperties.getProfileDefault().getPreparation().getMinOneWayNetworkSize(), foo.getProfileDefault().getPreparation().getMinOneWayNetworkSize());
-//        assertEquals(defaultEngineProperties.getProfileDefault().getPreparation().getMethods(), foo.getProfileDefault().getPreparation().getMethods());
-//
-//
-//        // Check profile default
-//        ProfileProperties profileDefault = foo.getProfileDefault();
-//        assertNotNull(profileDefault);
+        // Defaults to check against
+        DefaultProfiles defaultProfiles = new DefaultProfiles(true);
+        DefaultElevationProperties defaultElevationProperties = new DefaultElevationProperties(true);
+        DefaultProfileProperties defaultProfileProperties = new DefaultProfileProperties(true);
+
+        // Initialize the whole engine properties default chain
+        EngineProperties defaultEngineProperties = new EngineProperties(true);
+        // source file, init threads, preparation mode, config output mode, graphs root path, graphs data access
+        assertEquals(0, defaultEngineProperties.getProfiles().size());
+        assertEquals(Path.of(""), defaultEngineProperties.getSourceFile());
+        assertEquals(1, defaultEngineProperties.getInitThreads());
+        assertFalse(defaultEngineProperties.getPreparationMode());
+        assertFalse(defaultEngineProperties.getConfigOutputMode());
+        assertEquals(Paths.get("./graphs"), defaultEngineProperties.getGraphsRootPath());
+        assertEquals(DataAccessEnum.RAM_STORE, defaultEngineProperties.getGraphsDataAccess());
+
+        // Check equality for elevation
+        assertEquals(defaultElevationProperties, defaultEngineProperties.getElevation());
+
+        // Check profileDefaults
+        assertEquals(defaultProfileProperties, defaultEngineProperties.getProfileDefault());
+
+        // check default_profiles
+        Map<String, ProfileProperties> expectedDefaultProfiles = defaultProfiles.getProfiles();
+        Map<String, ProfileProperties> actualDefaultProfiles = defaultEngineProperties.getDefault_profiles();
+        assertEquals(expectedDefaultProfiles.size(), actualDefaultProfiles.size());
+
+        // Get hiking
+        for (String key : expectedDefaultProfiles.keySet()) {
+            assertEquals(expectedDefaultProfiles.get(key), actualDefaultProfiles.get(key));
+        }
     }
 }
