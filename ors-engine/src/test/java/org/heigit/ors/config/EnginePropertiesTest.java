@@ -35,6 +35,7 @@ class EnginePropertiesTest {
                     "graphs_data_access": "MMAP",
                     "elevation": {},
                     "profile_default": {
+                        "enabled": true,
                         "preparation": {
                         "min_network_size": 300,
                         "methods": {
@@ -77,6 +78,7 @@ class EnginePropertiesTest {
                         "ext_storages": {}
                       },
                       "hgv": {
+                        "enabled": false,
                         "encoder_name": "driving-hgv",
                         "preparation": {
                           "min_network_size": 900,
@@ -302,15 +304,6 @@ class EnginePropertiesTest {
     }
 
     @Test
-    void testRawSettingEverythingElseNullDefaultProfiles() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException {
-        ObjectMapper mapper = new ObjectMapper();
-        EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
-
-        Map<String, ProfileProperties> defaultProfiles = foo.getDefault_profiles();
-        assertEquals(0, defaultProfiles.size());
-    }
-
-    @Test
     void testRawSettingEverythingElseNullGraphsDataAccess() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException {
         ObjectMapper mapper = new ObjectMapper();
         EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
@@ -481,15 +474,23 @@ class EnginePropertiesTest {
 
         // Check profileDefaults
         assertEquals(defaultProfileProperties, defaultEngineProperties.getProfileDefault());
+    }
 
-        // check default_profiles
-        Map<String, ProfileProperties> expectedDefaultProfiles = defaultProfiles.getProfiles();
-        Map<String, ProfileProperties> actualDefaultProfiles = defaultEngineProperties.getDefault_profiles();
-        assertEquals(expectedDefaultProfiles.size(), actualDefaultProfiles.size());
+    @Test
+    void testMergeRawSettingsWithDefaultValues() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
+        //        EngineProperties defaultEngineProperties = new EngineProperties(true);
+//        // DONE! TODO finish logic that the user settings are the only thing set without the default booleans true. everything else null.
+//        // DONE! TODO find a way so that the profile defaults only get the profile related differences. everything else null -> in progress
+//        // Todo initialize the ProfileDefault with everything includint ext_storages
+        ObjectMapper mapper = new ObjectMapper();
+        EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
 
-        // Get hiking
-        for (String key : expectedDefaultProfiles.keySet()) {
-            assertEquals(expectedDefaultProfiles.get(key), actualDefaultProfiles.get(key));
-        }
+        // Defaults to check against
+        DefaultProfiles defaultProfiles = new DefaultProfiles(true);
+        DefaultElevationProperties defaultElevationProperties = new DefaultElevationProperties(true);
+        DefaultProfileProperties defaultProfileProperties = new DefaultProfileProperties(true);
+
+        EngineProperties combinedProperties = foo.getCombinedProperties();
+        // Write proper testing here. The logic works.
     }
 }

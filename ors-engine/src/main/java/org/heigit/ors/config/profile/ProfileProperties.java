@@ -13,7 +13,6 @@ import org.heigit.ors.config.utils.*;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -96,7 +95,7 @@ public abstract class ProfileProperties {
     @JsonProperty("ext_storages")
     @JsonSerialize(using = ExtendedStorageMapSerializer.class)
     @JsonDeserialize(using = ExtendedStorageMapDeserializer.class)
-    private Map<String, ExtendedStorage> extStorages = new HashMap<>();
+    private Map<String, ExtendedStorage> extStorages;
 
     protected ProfileProperties() {
         this(false);

@@ -3,6 +3,7 @@ package org.heigit.ors.config;
 import org.heigit.ors.config.profile.EncoderOptionsProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.PreparationProperties;
+import org.heigit.ors.config.profile.defaults.DefaultEncoderOptionsProperties;
 import org.heigit.ors.config.utils.NonEmptyObjectFilter;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -19,7 +20,7 @@ public class NonEmptyObjectFilterTest {
     public static Stream<Arguments> params() {
         return Stream.of(
                 Arguments.of(null, true, "Null should return true"),
-                Arguments.of(new EncoderOptionsProperties(), true, "Empty EncoderOptionsProperties should return true"),
+                Arguments.of(new DefaultEncoderOptionsProperties(), true, "Empty EncoderOptionsProperties should return true"),
                 Arguments.of(new PreparationProperties.MethodsProperties(), true, "Empty PreparationProperties.MethodsProperties should return true"),
                 Arguments.of(new ExecutionProperties.MethodsProperties(), true, "Empty ExecutionProperties.MethodsProperties should return true"),
                 Arguments.of(createEncoderOptionsWithBlockFords(), false, "EncoderOptionsProperties with a value should return false"),
