@@ -1,12 +1,14 @@
 package org.heigit.ors.config.profile.defaults;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.EqualsAndHashCode;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
 
 import java.nio.file.Path;
 
 @JsonIgnoreProperties({"ext_storages"})
+@EqualsAndHashCode(callSuper = false)
 public class DefaultProfilePropertiesPublicTransport extends ProfileProperties {
     public DefaultProfilePropertiesPublicTransport() {
         this(false);
