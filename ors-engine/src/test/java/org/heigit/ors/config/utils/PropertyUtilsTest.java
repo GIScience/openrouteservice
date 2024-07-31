@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -213,8 +214,7 @@ class PropertyUtilsTest {
     @Test
     void testUpdateMapObjectsWithUnequalSourceNonOverwriteNonEmptyFieldsAndCopyEmptyStorages() {
         // Create a map with two TestExtendedStorage objects
-        Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2",
-                new TestExtendedStorage("foo", 1, "bar", false));
+        Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2", new TestExtendedStorage("foo", 1, "bar", false));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true));
         assertEquals(1, target.size());
         Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, false, false, true);
@@ -275,6 +275,29 @@ class PropertyUtilsTest {
             }
         }
     }
+
+    @Test
+    void testPropertyTools() throws IllegalAccessException {
+        TestClass test = new TestClass();
+        ArrayList<String> ignoreList = new ArrayList<>();
+        ignoreList.add("testString");
+        PropertyUtils.assertAllNull(test, ignoreList);
+    }
+
+    static class TestClass {
+        public Boolean testEnum;
+        public Boolean testBoolean;
+        public Integer testInteger;
+        public String testString;
+
+        public TestClass() {
+            this.testEnum = null;
+            this.testBoolean = null;
+            this.testInteger = null;
+            this.testString = "notNull";
+        }
+    }
+
 
     static class TestProperty {
         @Getter

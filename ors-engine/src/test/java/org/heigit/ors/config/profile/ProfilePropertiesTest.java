@@ -35,10 +35,7 @@ class ProfilePropertiesTest {
         //            restrictions: true
         //          GreenIndex:
         //            filepath: /path/to/file.csv
-        String json = "{\"encoder_name\":\"driving-car\",\"ext_storages\":" +
-                "{\"WayCategory\":{}," +
-                "\"HeavyVehicle\":{\"restrictions\":true}, " +
-                "\"GreenIndex\":{\"filepath\":\"/path/to/file.csv\"}}}";
+        String json = "{\"encoder_name\":\"driving-car\",\"ext_storages\":" + "{\"WayCategory\":{}," + "\"HeavyVehicle\":{\"restrictions\":true}, " + "\"GreenIndex\":{\"filepath\":\"/path/to/file.csv\"}}}";
         ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
         assertEquals("driving-car", foo.getEncoderName().getName());
         assertInstanceOf(DefaultProfilePropertiesCar.class, foo);
@@ -83,25 +80,35 @@ class ProfilePropertiesTest {
 
     @Test
     void testGetEncoderOptionsString() {
-        ProfileProperties profile = new DefaultProfilePropertiesCar();
+        ProfileProperties profile = new DefaultProfilePropertiesCar(true);
         profile.getEncoderOptions().setMaximumGradeLevel(4);
         profile.getEncoderOptions().setPreferredSpeedFactor(0.8);
         profile.getEncoderOptions().setProblematicSpeedFactor(0.5);
+        profile.getEncoderOptions().setBlockFords(false);
+        profile.getEncoderOptions().setConsiderElevation(false);
+        profile.getEncoderOptions().setTurnCosts(true);
+        profile.getEncoderOptions().setUseAcceleration(false);
+        profile.getEncoderOptions().setConditionalAccess(true);
+        profile.getEncoderOptions().setConditionalSpeed(true);
 
         String result = profile.getEncoderOptionsString();
         assertEquals("block_fords=false|consider_elevation=false|turn_costs=true|use_acceleration=false|maximum_grade_level=4|preferred_speed_factor=0.8|problematic_speed_factor=0.5", result);
         // Variance of the parameter values
+        profile.getEncoderOptions().setMaximumGradeLevel(4);
         profile.getEncoderOptions().setBlockFords(null);
         profile.getEncoderOptions().setTurnCosts(null);
         profile.getEncoderOptions().setConsiderElevation(null);
         profile.getEncoderOptions().setUseAcceleration(null);
         profile.getEncoderOptions().setConditionalAccess(null);
-        profile.getEncoderOptions().setMaximumGradeLevel(null);
         profile.getEncoderOptions().setPreferredSpeedFactor(null);
         profile.getEncoderOptions().setProblematicSpeedFactor(null);
         profile.getEncoderOptions().setConditionalSpeed(null);
         result = profile.getEncoderOptionsString();
-        assertEquals("", result);
+        assertEquals("maximum_grade_level=4", result);
+
+        // Set all to null
+        profile.getEncoderOptions().setMaximumGradeLevel(null);
+        assertEquals("", profile.getEncoderOptionsString());
 
         // Null encoder Options
         profile.setEncoderOptions(null);

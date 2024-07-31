@@ -11,12 +11,12 @@ import org.heigit.ors.config.profile.ProfileProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.heigit.ors.config.utils.PropertyUtils.assertAllNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EnginePropertiesTest {
@@ -110,25 +110,6 @@ class EnginePropertiesTest {
         assertEquals(1000000, hgvProfile.getMaximumVisitedNodes());
         assertNotNull(hgvProfile.getExtStorages());
         assertTrue(hgvProfile.getExtStorages().isEmpty());
-    }
-
-    Boolean assertAllNull(Object o, ArrayList<String> ignoreList) {
-        for (Field field : o.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            try {
-                if (ignoreList.contains(field.getName())) {
-                    continue;
-                }
-                Object value = field.get(o);
-                if (value == null) {
-                    continue;
-                }
-                return false;
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        return true;
     }
 
     @Test
