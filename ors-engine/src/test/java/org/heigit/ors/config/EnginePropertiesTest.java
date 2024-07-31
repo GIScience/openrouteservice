@@ -8,7 +8,6 @@ import org.heigit.ors.config.profile.EncoderOptionsProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.PreparationProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
@@ -21,27 +20,182 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EnginePropertiesTest {
 
-    private EngineProperties engineProperties;
-    private String testJson;
-
-    @BeforeEach
-    void setUp() {
-        engineProperties = new EngineProperties();
-        testJson = "{\n" + "  \"graphs_data_access\": \"MMAP\",\n" + "  \"elevation\": {},\n" + "  \"profile_default\": {\n" + "      \"preparation\": {\n" + "      \"min_network_size\": 300,\n" + "      \"methods\": {\n" + "        \"lm\": {\n" + "          \"enabled\": false,\n" + "            \"threads\": 4,\n" + "            \"weightings\": \"shortest\",\n" + "            \"landmarks\": 2\n" + "        }\n" + "      }\n" + "    },\n" + "      \"execution\": {\n" + "        \"methods\": {\n" + "          \"lm\": {\n" + "            \"active_landmarks\": 8\n" + "          }\n" + "        }\n" + "      }\n" + "  },\n" + "  \"profiles\": {\n" + "    \"car\": {\n" + "      \"encoder_name\": \"driving-car\",\n" + "      \"enabled\": true,\n" + "      \"encoder_options\": {},\n" + "      \"preparation\": {" + "        \"methods\": {\n" + "          \"lm\": {\n" + "            \"enabled\": true,\n" + "            \"threads\": 1\n" + "          }\n" + "        }\n" + "       },\n" + "      \"execution\": {\n" + "         \"methods\": {" + "          \"lm\": {" + "            \"active_landmarks\": 2" + "          }\n" + "        }\n" + "      },\n" + "      \"ext_storages\": {}\n" + "    }\n" + "  }\n" + "}";
-    }
+    ;
+    //language=JSON
+    private final String testJson = """
+            {
+              "graphs_data_access": "MMAP",
+              "elevation": {},
+              "profile_default": {
+                  "preparation": {
+                  "min_network_size": 300,
+                  "methods": {
+                    "lm": {
+                      "enabled": false,
+                        "threads": 4,
+                        "weightings": "shortest",
+                        "landmarks": 2
+                    }
+                  }
+                },
+                  "execution": {
+                    "methods": {
+                      "lm": {
+                        "active_landmarks": 8
+                      }
+                    }
+                  }
+              },
+              "profiles": {
+                "car": {
+                  "encoder_name": "driving-car",
+                  "enabled": true,
+                  "encoder_options": {},
+                  "preparation": {\
+                    "methods": {
+                      "lm": {
+                        "enabled": true,
+                        "threads": 1
+                      }
+                    }
+                   },
+                  "execution": {
+                     "methods": {\
+                      "lm": {\
+                        "active_landmarks": 2\
+                      }
+                    }
+                  },
+                  "ext_storages": {}
+                }
+              }
+            }""";
 
     @Test
     void testSerializeEmptyDefaultEngineProperties() throws JsonProcessingException {
+        EngineProperties engineProperties = new EngineProperties();
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(engineProperties);
         assertNotNull(json);
-        String expectedJson = "{\"source_file\":null,\"init_threads\":null,\"preparation_mode\":null,\"config_output_mode\":null,\"graphs_root_path\":null,\"graphs_data_access\":null,\"elevation\":{\"preprocessed\":null,\"data_access\":null,\"cache_clear\":null,\"provider\":null,\"cache_path\":null},\"profile_default\":{\"ext_storages\":{}},\"profiles\":{}}";
-        assertEquals(expectedJson, json);
+        //language=JSON
+        String expectedJson = """
+                            {
+                                "source_file": null,
+                                "init_threads": null,
+                                "preparation_mode": null,
+                                "config_output_mode": null,
+                                "graphs_root_path": null,
+                                "graphs_data_access": null,
+                                "elevation": {
+                                    "preprocessed": null,
+                                    "data_access": null,
+                                    "cache_clear": null,
+                                    "provider": null,
+                                    "cache_path": null
+                                },
+                                "profile_default": {
+                                    "ext_storages": {}
+                                },
+                                "profiles": {}
+                }""";
+        // compare the two json strings as actual json objects
+        assertEquals(objectMapper.readTree(expectedJson), objectMapper.readTree(json));
     }
 
     @Test
     void testDeserialize() throws JsonProcessingException {
-        String json = "{\"source_file\":\"/absolute/path/osm.pbf\",\"init_threads\":1,\"preparation_mode\":true,\"config_output_mode\":true,\"graphs_root_path\":\"./graphs\",\"graphs_data_access\":\"RAM_STORE\",\"elevation\":{\"preprocessed\":true,\"data_access\":\"MMAP\",\"cache_clear\":true,\"provider\":\"multi\",\"cache_path\":\"./elevation_cache\"},\"profile_default\":{\"enabled\":true,\"encoder_name\":\"unknown\",\"elevation\":true,\"elevation_smoothing\":true,\"encoder_flags_size\":8,\"instructions\":true,\"optimize\":true,\"traffic\":true,\"interpolate_bridges_and_tunnels\":true,\"force_turn_costs\":true,\"location_index_resolution\":400,\"location_index_search_iterations\":2,\"maximum_distance\":200000.0,\"maximum_distance_dynamic_weights\":200000.0,\"maximum_distance_avoid_areas\":200000.0,\"maximum_distance_alternative_routes\":200000.0,\"maximum_distance_round_trip_routes\":200000.0,\"maximum_speed_lower_bound\":10.0,\"maximum_way_points\":20,\"maximum_snapping_radius\":100,\"maximum_visited_nodes\":5000000,\"ext_storages\":{}},\"profiles\":{\"car\":{\"enabled\":true,\"encoder_name\":\"driving-car\",\"elevation\":true,\"elevation_smoothing\":true,\"encoder_flags_size\":1,\"instructions\":true,\"optimize\":true,\"traffic\":true,\"interpolate_bridges_and_tunnels\":true,\"force_turn_costs\":true,\"location_index_resolution\":700,\"location_index_search_iterations\":1,\"maximum_distance\":400000.0,\"maximum_distance_dynamic_weights\":200000.0,\"maximum_distance_avoid_areas\":300000.0,\"maximum_distance_alternative_routes\":600000.0,\"maximum_distance_round_trip_routes\":200000.0,\"maximum_speed_lower_bound\":20.0,\"maximum_way_points\":30,\"maximum_snapping_radius\":300,\"maximum_visited_nodes\":2000000,\"ext_storages\":{}},\"hgv\":{\"enabled\":true,\"encoder_name\":\"driving-hgv\",\"elevation\":true,\"elevation_smoothing\":true,\"encoder_flags_size\":8,\"instructions\":true,\"optimize\":true,\"traffic\":true,\"interpolate_bridges_and_tunnels\":true,\"force_turn_costs\":true,\"location_index_resolution\":500,\"location_index_search_iterations\":4,\"maximum_distance\":100000.0,\"maximum_distance_dynamic_weights\":100000.0,\"maximum_distance_avoid_areas\":100000.0,\"maximum_distance_alternative_routes\":100000.0,\"maximum_distance_round_trip_routes\":100000.0,\"maximum_speed_lower_bound\":80.0,\"maximum_way_points\":50,\"maximum_snapping_radius\":400,\"maximum_visited_nodes\":1000000,\"ext_storages\":{}}}}";
+        //language=JSON
+        String json = """
+                {
+                    "source_file": "/absolute/path/osm.pbf",
+                    "init_threads": 1,
+                    "preparation_mode": true,
+                    "config_output_mode": true,
+                    "graphs_root_path": "./graphs",
+                    "graphs_data_access": "RAM_STORE",
+                    "elevation": {
+                        "preprocessed": true,
+                        "data_access": "MMAP",
+                        "cache_clear": true,
+                        "provider": "multi",
+                        "cache_path": "./elevation_cache"
+                    },
+                    "profile_default": {
+                        "enabled": true,
+                        "encoder_name": "unknown",
+                        "elevation": true,
+                        "elevation_smoothing": true,
+                        "encoder_flags_size": 8,
+                        "instructions": true,
+                        "optimize": true,
+                        "traffic": true,
+                        "interpolate_bridges_and_tunnels": true,
+                        "force_turn_costs": true,
+                        "location_index_resolution": 400,
+                        "location_index_search_iterations": 2,
+                        "maximum_distance": 200000,
+                        "maximum_distance_dynamic_weights": 200000,
+                        "maximum_distance_avoid_areas": 200000,
+                        "maximum_distance_alternative_routes": 200000,
+                        "maximum_distance_round_trip_routes": 200000,
+                        "maximum_speed_lower_bound": 10,
+                        "maximum_way_points": 20,
+                        "maximum_snapping_radius": 100,
+                        "maximum_visited_nodes": 5000000,
+                        "ext_storages": {}
+                    },
+                    "profiles": {
+                        "car": {
+                            "enabled": true,
+                            "encoder_name": "driving-car",
+                            "elevation": true,
+                            "elevation_smoothing": true,
+                            "encoder_flags_size": 1,
+                            "instructions": true,
+                            "optimize": true,
+                            "traffic": true,
+                            "interpolate_bridges_and_tunnels": true,
+                            "force_turn_costs": true,
+                            "location_index_resolution": 700,
+                            "location_index_search_iterations": 1,
+                            "maximum_distance": 400000,
+                            "maximum_distance_dynamic_weights": 200000,
+                            "maximum_distance_avoid_areas": 300000,
+                            "maximum_distance_alternative_routes": 600000,
+                            "maximum_distance_round_trip_routes": 200000,
+                            "maximum_speed_lower_bound": 20,
+                            "maximum_way_points": 30,
+                            "maximum_snapping_radius": 300,
+                            "maximum_visited_nodes": 2000000,
+                            "ext_storages": {}
+                        },
+                        "hgv": {
+                            "enabled": true,
+                            "encoder_name": "driving-hgv",
+                            "elevation": true,
+                            "elevation_smoothing": true,
+                            "encoder_flags_size": 8,
+                            "instructions": true,
+                            "optimize": true,
+                            "traffic": true,
+                            "interpolate_bridges_and_tunnels": true,
+                            "force_turn_costs": true,
+                            "location_index_resolution": 500,
+                            "location_index_search_iterations": 4,
+                            "maximum_distance": 100000,
+                            "maximum_distance_dynamic_weights": 100000,
+                            "maximum_distance_avoid_areas": 100000,
+                            "maximum_distance_alternative_routes": 100000,
+                            "maximum_distance_round_trip_routes": 100000,
+                            "maximum_speed_lower_bound": 80,
+                            "maximum_way_points": 50,
+                            "maximum_snapping_radius": 400,
+                            "maximum_visited_nodes": 1000000,
+                            "ext_storages": {}
+                        }
+                    }
+                }
+                """;
         ObjectMapper objectMapper = new ObjectMapper();
         EngineProperties deserializedEngineProperties = objectMapper.readValue(json, EngineProperties.class);
         assertNotNull(deserializedEngineProperties);
