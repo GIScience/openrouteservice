@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
@@ -25,10 +26,11 @@ import java.util.Map;
 
 @Getter
 @Setter(AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public class EngineProperties {
 
     @JsonIgnore
-    private Map<String, ProfileProperties> default_profiles = new LinkedHashMap<>();
+    private DefaultProfiles default_profiles = new DefaultProfiles(true);
 
     @JsonProperty("source_file")
     @JsonDeserialize(using = PathDeserializer.class)
@@ -61,7 +63,7 @@ public class EngineProperties {
     public EngineProperties(Boolean setDefaults) {
         setProfiles(new LinkedHashMap<>());
         setProfileDefault(new DefaultProfileProperties(setDefaults));
-        setDefault_profiles(new DefaultProfiles(setDefaults).getProfiles());
+        setDefault_profiles(new DefaultProfiles(setDefaults));
         setElevation(new DefaultElevationProperties(setDefaults));
         if (setDefaults) {
             setSourceFile(Paths.get(""));
@@ -71,6 +73,10 @@ public class EngineProperties {
             setGraphsRootPath(Paths.get("./graphs"));
             setGraphsDataAccess(DataAccessEnum.RAM_STORE);
         }
+    }
+
+    public Map<String, ProfileProperties> getDefault_profiles() {
+        return default_profiles.getProfiles();
     }
 
     @JsonIgnore

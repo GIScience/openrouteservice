@@ -3,6 +3,7 @@ package org.heigit.ors.config.profile;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @JsonInclude(NON_NULL)
 public class EncoderOptionsProperties {
     @JsonProperty("block_fords")
@@ -30,9 +32,6 @@ public class EncoderOptionsProperties {
     private Boolean conditionalAccess = null;
     @JsonProperty("conditional_speed")
     private Boolean conditionalSpeed = null; // TODO find default
-
-    public EncoderOptionsProperties() {
-    }
 }
 
 

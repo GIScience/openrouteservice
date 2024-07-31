@@ -1,10 +1,12 @@
 package org.heigit.ors.config.profile.defaults;
 
+import lombok.EqualsAndHashCode;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.config.ElevationProperties;
 
 import java.nio.file.Paths;
 
+@EqualsAndHashCode(callSuper = true)
 public class DefaultElevationProperties extends ElevationProperties {
 
     public DefaultElevationProperties() {
