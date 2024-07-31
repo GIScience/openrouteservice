@@ -10,9 +10,16 @@ public class DefaultEncoderOptionsProperties extends EncoderOptionsProperties {
         this(false, null);
     }
 
-    public DefaultEncoderOptionsProperties(Boolean setDefaults, EncoderNameEnum encoderName) {
-        this(encoderName);
-        if (setDefaults) {
+    public DefaultEncoderOptionsProperties(Boolean setGlobalDefaults) {
+        this(setGlobalDefaults, null);
+    }
+
+    public DefaultEncoderOptionsProperties(EncoderNameEnum encoderName) {
+        this(false, encoderName);
+    }
+
+    public DefaultEncoderOptionsProperties(Boolean setGlogalDefaults, EncoderNameEnum encoderName) {
+        if (setGlogalDefaults) {
             setBlockFords(false);
             setTurnCosts(true);
             setConsiderElevation(false);
@@ -23,9 +30,6 @@ public class DefaultEncoderOptionsProperties extends EncoderOptionsProperties {
             setProblematicSpeedFactor(null); // TODO find default
             setConditionalSpeed(false); // TODO find default
         }
-    }
-
-    public DefaultEncoderOptionsProperties(EncoderNameEnum encoderName) {
         if (encoderName != null) {
             switch (encoderName) {
                 case DRIVING_CAR -> {

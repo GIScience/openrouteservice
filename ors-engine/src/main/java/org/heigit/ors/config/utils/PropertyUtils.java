@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,5 +79,20 @@ public class PropertyUtils {
             }
         }
         return targetUpdate;
+    }
+
+    public static Boolean assertAllNull(Object o, ArrayList<String> ignoreList) throws IllegalAccessException {
+        for (Field field : o.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            if (ignoreList.contains(field.getName())) {
+                continue;
+            }
+            Object value = field.get(o);
+            if (value == null) {
+                continue;
+            }
+            return false;
+        }
+        return true;
     }
 }
