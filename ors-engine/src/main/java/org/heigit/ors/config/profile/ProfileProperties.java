@@ -97,7 +97,7 @@ public abstract class ProfileProperties {
     @JsonProperty("ext_storages")
     @JsonSerialize(using = ExtendedStorageMapSerializer.class)
     @JsonDeserialize(using = ExtendedStorageMapDeserializer.class)
-    private Map<String, ExtendedStorage> extStorages = new HashMap<>();
+    private Map<String, ExtendedStorage> extStorages;
 
     protected ProfileProperties() {
         this(false);
@@ -235,7 +235,8 @@ public abstract class ProfileProperties {
     @JsonIgnore
     public Integer[] getProfilesTypes() {
         ArrayList<Integer> list = new ArrayList<>();
-        String[] elements = encoderName.split("\\s*,\\s*");
+        // TODO check
+        String[] elements = encoderName.toString().split("\\s*,\\s*");
         for (String element : elements) {
             int profileType = RoutingProfileType.getFromString(element);
             if (profileType != RoutingProfileType.UNKNOWN) {

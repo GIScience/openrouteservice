@@ -12,16 +12,16 @@ public class DefaultProfiles {
 
     public DefaultProfiles(Boolean setDefaults) {
         if (setDefaults) {
-            profiles.put("driving-car", new DefaultProfileProperties(true));
-            profiles.put("driving-hgv", new DefaultProfileProperties(true));
-            profiles.put("cycling-regular", new DefaultProfileProperties(true));
-            profiles.put("cycling-mountain", new DefaultProfileProperties(true));
-            profiles.put("cycling-road", new DefaultProfileProperties(true));
-            profiles.put("cycling-electric", new DefaultProfileProperties(true));
-            profiles.put("foot-walking", new DefaultProfileProperties(true));
-            profiles.put("foot-hiking", new DefaultProfileProperties(true));
-            profiles.put("wheelchair", new DefaultProfileProperties(true));
-            profiles.put("public-transport", new DefaultProfileProperties(true));
+            profiles.put("car", new DefaultProfilePropertiesCar(true));
+            profiles.put("hgv", new DefaultProfilePropertiesHgv(true));
+            profiles.put("bike-regular", new DefaultProfilePropertiesBikeRegular(true));
+            profiles.put("bike-mountain", new DefaultProfilePropertiesBikeMountain(true));
+            profiles.put("bike-road", new DefaultProfilePropertiesBikeRoad(true));
+            profiles.put("bike-electric", new DefaultProfilePropertiesBikeElectric(true));
+            profiles.put("walking", new DefaultProfilePropertiesWalking(true));
+            profiles.put("hiking", new DefaultProfilePropertiesHiking(true));
+            profiles.put("wheelchair", new DefaultProfilePropertiesWheelchair(true));
+            profiles.put("public-transport", new DefaultProfilePropertiesPublicTransport(true));
         }
     }
 

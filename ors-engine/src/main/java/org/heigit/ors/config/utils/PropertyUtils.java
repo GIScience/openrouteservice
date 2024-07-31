@@ -5,21 +5,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PropertyUtils {
     public static Object deepCopyObjectsProperties(Object source, Object target, boolean overwriteNonEmptyFields, boolean copyEmptyMemberClasses) {
         Logger logger = LoggerFactory.getLogger(Object.class);
         if (source == null || target == null) {
-            throw new IllegalArgumentException("Source and target objects must not be null");
+            return target;
         }
 
-        Class<?> clazz = target.getClass();
-        Field[] fields = clazz.getDeclaredFields();
 
+        Class<?> clazz = target.getClass();
+        List<Field> fields = new ArrayList<>();
+        getAllFields(fields, clazz);
         for (Field field : fields) {
+            Class<?> fieldType = field.getType();
             if (!field.trySetAccessible()) {
                 continue;
             }
@@ -34,17 +34,19 @@ public class PropertyUtils {
             }
             try {
                 Object currentValue = field.get(target);
-
-                if (field.getType().isMemberClass()) {
-                    if (currentValue == null && copyEmptyMemberClasses) {
-                        field.set(target, value);
-                    } else if (currentValue != null) {
-                        field.set(target, deepCopyObjectsProperties(value, currentValue, overwriteNonEmptyFields, copyEmptyMemberClasses));
-                    }
-                } else if (overwriteNonEmptyFields || currentValue == null || currentValue instanceof String && ((String) currentValue).isEmpty()) {
+                boolean shouldOverwrite = overwriteNonEmptyFields || currentValue == null;
+                if (shouldOverwrite) {
                     field.set(target, value);
+                } else if (!fieldType.isPrimitive() &&
+                        !Number.class.isAssignableFrom(fieldType) &&
+                        !Boolean.class.equals(fieldType) &&
+                        !Character.class.equals(fieldType) &&
+                        !String.class.equals(fieldType) &&
+                        !Enum.class.isAssignableFrom(fieldType) &&
+                        !Collection.class.isAssignableFrom(fieldType) &&
+                        !fieldType.isArray()) {
+                    field.set(target, deepCopyObjectsProperties(value, currentValue, overwriteNonEmptyFields, copyEmptyMemberClasses));
                 }
-
             } catch (IllegalAccessException e) {
                 logger.warn("Could not set field: {}", field.getName());
             }
@@ -104,5 +106,16 @@ public class PropertyUtils {
             }
         }
         return true;
+    }
+
+
+    public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+
+        if (type.getSuperclass() != null) {
+            getAllFields(fields, type.getSuperclass());
+        }
+
+        return fields;
     }
 }
