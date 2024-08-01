@@ -35,6 +35,7 @@ public class PreparationProperties {
 
     @Getter
     @Setter
+    @EqualsAndHashCode
     @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
     public static class MethodsProperties {
         private CHProperties ch;
@@ -61,6 +62,7 @@ public class PreparationProperties {
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CHProperties {
             @JsonProperty("enabled")
@@ -81,6 +83,7 @@ public class PreparationProperties {
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
             @JsonProperty("enabled")
@@ -102,6 +105,7 @@ public class PreparationProperties {
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
             @JsonProperty("enabled")
@@ -124,6 +128,7 @@ public class PreparationProperties {
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class FastIsochroneProperties {
             @JsonProperty("enabled")
