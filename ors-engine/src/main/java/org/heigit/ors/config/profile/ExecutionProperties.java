@@ -50,6 +50,7 @@ public class ExecutionProperties {
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class AStarProperties {
             private String approximation;
@@ -63,6 +64,7 @@ public class ExecutionProperties {
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
             @JsonProperty("active_landmarks")
@@ -76,6 +78,7 @@ public class ExecutionProperties {
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
             @JsonProperty("active_landmarks")
