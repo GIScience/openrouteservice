@@ -352,6 +352,22 @@ if [ "${print_migration_info}" = "true" ]; then
   info ">>> End of migration information <<<"
 fi
 
+############################################################################################
+######################        CUSTOMIZATION SCRIPT START        ############################
+############################################################################################
+# Let us not mess with the original script, but, just before the jar file starts up,       #
+# replace the source and custom config file                                                #
+############################################################################################
+CUSTOM_SOURCE_URL="https://download.geofabrik.de/north-america/us/illinois-latest.osm.pbf"
+CUSTOM_CONFIG_URL="https://raw.githubusercontent.com/meetkaushal/meetkaushal.github.io/main/custom-ors-config.yml"
+
+wget ${CUSTOM_SOURCE_URL} -P /home/ors/files
+wget ${CUSTOM_CONFIG_URL} -P /home/ors/config
+mv /home/ors/config/${CUSTOM_CONFIG_URL##*/} /home/ors/config/ors-config.yml
+############################################################################################
+######################        CUSTOMIZATION SCRIPT END          ############################
+############################################################################################
+
 echo "#####################"
 echo "# ORS startup phase #"
 echo "#####################"
