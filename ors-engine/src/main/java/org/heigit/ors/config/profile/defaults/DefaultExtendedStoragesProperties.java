@@ -14,8 +14,6 @@ public class DefaultExtendedStoragesProperties {
 
     public DefaultExtendedStoragesProperties() {
         extStorages = new HashMap<>();
-        extStorages.put("WayCategory", new ExtendedStorageWayCategory());
-        extStorages.put("WaySurfaceType", new ExtendedStorageWaySurfaceType());
     }
 
     public DefaultExtendedStoragesProperties(EncoderNameEnum encoderName) {
@@ -50,7 +48,11 @@ public class DefaultExtendedStoragesProperties {
                 extStorages.put("Wheelchair", new ExtendedStorageWheelchair(true));
                 extStorages.put("OsmId", new ExtendedStorageOsmId());
             }
+            case PUBLIC_TRANSPORT -> {
+            }
             default -> {
+                extStorages.put("WayCategory", new ExtendedStorageWayCategory());
+                extStorages.put("WaySurfaceType", new ExtendedStorageWaySurfaceType());
             }
         }
     }

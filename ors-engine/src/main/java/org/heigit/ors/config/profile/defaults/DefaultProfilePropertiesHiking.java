@@ -13,5 +13,7 @@ public class DefaultProfilePropertiesHiking extends ProfileProperties {
     public DefaultProfilePropertiesHiking(Boolean setDefaults) {
         super(setDefaults);
         this.setEncoderName(EncoderNameEnum.FOOT_HIKING);
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
+        setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
     }
 }

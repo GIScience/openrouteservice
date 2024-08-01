@@ -100,29 +100,29 @@ public class EngineProperties {
                 continue;
             }
             // Second step
-            PropertyUtils.deepCopyObjectsProperties(raw_user_default_profile_settings, profile, true, false);
+            PropertyUtils.deepCopyObjectsProperties(raw_user_default_profile_settings, profile, true);
             // Third step
-            PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profile.getEncoderName().name), profile, false, false);
+            PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profile.getEncoderName().name), profile, false);
             // Fourth step
-            PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false, false);
+            PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false);
             this.profiles.put(profileEntry, profile);
         }
 
         EngineProperties default_engine_properties = new EngineProperties(true);
 
         // Enrich null or missing properties with default values
-        PropertyUtils.deepCopyObjectsProperties(default_engine_properties, this, false, false);
+        PropertyUtils.deepCopyObjectsProperties(default_engine_properties, this, false);
 
         // Correct the raw user profiles
         for (String profileEntryName : raw_user_profile_names) {
             // First step
             ProfileProperties profile = this.getProfiles().get(profileEntryName);
             // Second step
-            PropertyUtils.deepCopyObjectsProperties(raw_user_default_profile_settings, profile, false, false);
+            PropertyUtils.deepCopyObjectsProperties(raw_user_default_profile_settings, profile, false);
             // Third step
-            PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profileEntryName), profile, false, false);
+            PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profileEntryName), profile, false);
             // Fourth step
-            PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false, false);
+            PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false);
         }
         setInitialized(true);
     }

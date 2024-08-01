@@ -13,5 +13,7 @@ public class DefaultProfilePropertiesBikeElectric extends ProfileProperties {
     public DefaultProfilePropertiesBikeElectric(Boolean setDefaults) {
         super(setDefaults);
         this.setEncoderName(EncoderNameEnum.CYCLING_ELECTRIC);
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
+        setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
     }
 }

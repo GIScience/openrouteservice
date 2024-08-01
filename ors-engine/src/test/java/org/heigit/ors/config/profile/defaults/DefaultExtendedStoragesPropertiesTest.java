@@ -29,8 +29,10 @@ class DefaultExtendedStoragesPropertiesTest {
     @Test
     void testDefaultExtendedStorages() {
         DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties();
-        assertEquals(2, defaultExtendedStoragesProperties.getExtStorages().size());
+        assertEquals(0, defaultExtendedStoragesProperties.getExtStorages().size());
 
+        defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(EncoderNameEnum.UNKNOWN);
+        assertEquals(2, defaultExtendedStoragesProperties.getExtStorages().size());
         // Assert WayCategory and WaySurfaceType are present
         assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WayCategory"));
         assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WaySurfaceType"));
