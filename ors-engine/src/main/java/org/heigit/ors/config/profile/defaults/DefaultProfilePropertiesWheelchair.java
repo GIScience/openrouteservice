@@ -14,7 +14,11 @@ public class DefaultProfilePropertiesWheelchair extends ProfileProperties {
         super(setDefaults);
         this.setEncoderName(EncoderNameEnum.WHEELCHAIR);
 
-        if (setDefaults) setMaximumSnappingRadius(50);
+        if (setDefaults) {
+            setMaximumSnappingRadius(50);
+            DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
+            setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
+        }
 
     }
 }

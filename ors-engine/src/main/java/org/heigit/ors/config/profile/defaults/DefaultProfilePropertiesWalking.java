@@ -13,5 +13,7 @@ public class DefaultProfilePropertiesWalking extends ProfileProperties {
     public DefaultProfilePropertiesWalking(Boolean setDefaults) {
         super(setDefaults);
         this.setEncoderName(EncoderNameEnum.FOOT_WALKING);
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
+        setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
     }
 }

@@ -23,6 +23,8 @@ public class DefaultProfilePropertiesPublicTransport extends ProfileProperties {
             setElevation(true);
             setMaximumVisitedNodes(1000000);
             setGtfsFile(Path.of(""));
+            DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
+            setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
         }
     }
 }

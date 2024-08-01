@@ -13,5 +13,7 @@ public class DefaultProfilePropertiesHgv extends ProfileProperties {
     public DefaultProfilePropertiesHgv(Boolean setDefaults) {
         super(setDefaults);
         this.setEncoderName(EncoderNameEnum.DRIVING_HGV);
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
+        setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
     }
 }
