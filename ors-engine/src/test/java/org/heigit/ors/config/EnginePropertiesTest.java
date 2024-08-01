@@ -15,6 +15,8 @@ import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
 import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
+import org.heigit.ors.config.utils.PropertyUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -22,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.heigit.ors.config.utils.PropertyUtils.assertAllNull;
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,75 +34,100 @@ class EnginePropertiesTest {
     ;
     //language=JSON
     private final String testJson = """
-                  {
-                    "graphs_data_access": "MMAP",
-                    "elevation": {},
-                    "profile_default": {
+            {
+              "graphs_data_access": "MMAP_RO",
+              "elevation": {
+                "data_access": "RAM_STORE",
+                "cache_clear": true
+              },
+              "profile_default": {
+                "enabled": true,
+                "preparation": {
+                  "min_network_size": 300,
+                  "methods": {
+                    "lm": {
+                      "enabled": false,
+                      "weightings": "shortest",
+                      "landmarks": 2
+                    }
+                  }
+                },
+                "execution": {
+                  "methods": {
+                    "lm": {
+                      "active_landmarks": 2
+                    }
+                  }
+                },
+                "ext_storages": {
+                  "WayCategory": {
+                    "enabled": true
+                  },
+                  "GreenIndex": {
+                    "enabled": true,
+                    "filepath": "/path/to/file.csv"
+                  }
+                }
+              },
+              "profiles": {
+                "car": {
+                  "encoder_name": "driving-car",
+                  "enabled": true,
+                  "encoder_options": {},
+                  "preparation": {
+                    "methods": {
+                      "lm": {
                         "enabled": true,
-                        "preparation": {
-                        "min_network_size": 300,
-                        "methods": {
-                          "lm": {
-                            "enabled": false,
-                              "threads": 4,
-                              "weightings": "shortest",
-                              "landmarks": 2
-                          }
-                        }
-                      },
-                        "execution": {
-                          "methods": {
-                            "lm": {
-                              "active_landmarks": 8
-                            }
-                          }
-                        }
-                    },
-                    "profiles": {
-                      "car": {
-                        "encoder_name": "driving-car",
-                        "enabled": true,
-                        "encoder_options": {},
-                        "preparation": {\
-                          "methods": {
-                            "lm": {
-                              "enabled": true,
-                              "threads": 1
-                            }
-                          }
-                         },
-                        "execution": {
-                           "methods": {\
-                            "lm": {\
-                              "active_landmarks": 2\
-                            }
-                          }
-                        },
-                        "ext_storages": {}
-                      },
-                      "hgv": {
-                        "enabled": false,
-                        "encoder_name": "driving-hgv",
-                        "preparation": {
-                          "min_network_size": 900,
-                          "methods": {
-                            "lm": {
-                              "enabled": true
-                            }
-                          }
-                        },
-                        "ext_storages": {
-                          "WayCategory": {},
-                          "HeavyVehicle": {
-                            "restrictions": true
-                          },
-                          "GreenIndex": {
-                            "filepath": "/path/to/file.csv"
-                          }
-            }
+                        "threads": 1
                       }
                     }
-                  }""";
+                  },
+                  "execution": {
+                    "methods": {
+                      "lm": {
+                        "active_landmarks": 2
+                      }
+                    }
+                  },
+                  "ext_storages": {}
+                },
+                "hgv": {
+                  "enabled": false,
+                  "encoder_name": "driving-hgv",
+                  "preparation": {
+                    "min_network_size": 900,
+                    "methods": {
+                      "lm": {
+                        "enabled": true
+                      }
+                    }
+                  },
+                  "ext_storages": {
+                    "HeavyVehicle": {
+                      "restrictions": true
+                    }
+                  }
+                },
+                "car-custom": {
+                  "enabled": true,
+                  "encoder_name": "driving-car",
+                  "preparation": {
+                    "min_network_size": 900
+                  }
+                }
+              }
+            }""";
+    EngineProperties enginePropertiesTest;
+    EngineProperties defaultEngineProperties;
+
+    @BeforeEach
+    void setUp() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        enginePropertiesTest = mapper.readValue(testJson, EngineProperties.class);
+        // Defaults to check against
+        defaultEngineProperties = new EngineProperties(true);
+        enginePropertiesTest.combineProperties();
+    }
 
     @Test
     void testSerializeEmptyDefaultEngineProperties() throws JsonProcessingException {
@@ -477,20 +505,89 @@ class EnginePropertiesTest {
     }
 
     @Test
-    void testMergeRawSettingsWithDefaultValues() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
+    void testMergeRawSettingsWithDefaultValuesCheckEngineDefaults() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
         //        EngineProperties defaultEngineProperties = new EngineProperties(true);
 //        // DONE! TODO finish logic that the user settings are the only thing set without the default booleans true. everything else null.
 //        // DONE! TODO find a way so that the profile defaults only get the profile related differences. everything else null -> in progress
 //        // Todo initialize the ProfileDefault with everything includint ext_storages
-        ObjectMapper mapper = new ObjectMapper();
-        EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
 
-        // Defaults to check against
+        // Default fallback values
+        Set<String> defaultProfilePropertiesIgnoreList = Set.of(
+                "graphsDataAccess",
+                "elevation.dataAccess",
+                "elevation.cacheClear",
+                "profileDefault.enabled",
+                "profileDefault.extStorages",
+                "profileDefault.preparation.minNetworkSize",
+                "profileDefault.preparation.methods.lm.enabled",
+                "profileDefault.preparation.methods.lm.weightings",
+                "profileDefault.preparation.methods.lm.landmarks",
+                "profileDefault.execution.methods.lm.activeLandmarks",
+                "profiles"
+        );
+        boolean equal = PropertyUtils.deepEqualityCheck(defaultEngineProperties, enginePropertiesTest, defaultProfilePropertiesIgnoreList);
+        // Test the raw top level settings
+        assertTrue(equal, "The engine properties are not equal to the default engine properties");
+        assertEquals(enginePropertiesTest.getGraphsDataAccess(), DataAccessEnum.MMAP_RO);
+        assertEquals(enginePropertiesTest.getElevation().getDataAccess(), DataAccessEnum.RAM_STORE);
+        assertEquals(enginePropertiesTest.getElevation().getCacheClear(), true);
+        assertEquals(enginePropertiesTest.getProfileDefault().getEnabled(), true);
+        assertEquals(enginePropertiesTest.getProfileDefault().getExtStorages().size(), 2);
+        // Check that GreenIndex and WayCategory are set correctly
+        assertTrue(enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex").getEnabled());
+        assertEquals(Path.of("/path/to/file.csv"), ((ExtendedStorageGreenIndex) enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex")).getFilepath());
+        assertTrue(enginePropertiesTest.getProfileDefault().getExtStorages().get("WayCategory").getEnabled());
+        // Check Preparation properties
+        assertEquals(300, enginePropertiesTest.getProfileDefault().getPreparation().getMinNetworkSize());
+        assertFalse(enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().isEnabled());
+        assertEquals("shortest", enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().getWeightings());
+        assertEquals(2, enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().getLandmarks());
+        // Check Execution properties
+        assertEquals(2, enginePropertiesTest.getProfileDefault().getExecution().getMethods().getLm().getActiveLandmarks());
+
+    }
+
+    @Test
+    void testMergeRawSettingsWithDefaultValuesCheckDefaultProfilesGetProfileDefaults() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
+        // Check the profiles
         DefaultProfiles defaultProfiles = new DefaultProfiles(true);
-        DefaultElevationProperties defaultElevationProperties = new DefaultElevationProperties(true);
-        DefaultProfileProperties defaultProfileProperties = new DefaultProfileProperties(true);
+        Map<String, ProfileProperties> actualProfiles = enginePropertiesTest.getProfiles();
+        assertEquals(defaultProfiles.getProfiles().size() + 1, actualProfiles.size());
 
-        EngineProperties combinedProperties = foo.getCombinedProperties();
-        // Write proper testing here. The logic works.
+
+        // Iterate over the profiles
+        Boolean defaultProfileEnabled = enginePropertiesTest.getProfileDefault().getEnabled();
+        Integer defaultProfileMinNetworkSize = enginePropertiesTest.getProfileDefault().getPreparation().getMinNetworkSize();
+        Boolean defaultProfileLmEnabled = enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().isEnabled();
+        String defaultProfileLmWeightings = enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().getWeightings();
+        Integer defaultProfileLmLandmarks = enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().getLandmarks();
+        Integer defaultProfileLmActiveLandmarks = enginePropertiesTest.getProfileDefault().getExecution().getMethods().getLm().getActiveLandmarks();
+        Boolean defaultProfileExtStoragesWayCategoryEnabled = enginePropertiesTest.getProfileDefault().getExtStorages().get("WayCategory").getEnabled();
+        Boolean defaultProfileExtStoragesGreenIndexEnabled = enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex").getEnabled();
+        Path defaultProfileExtStoragesGreenIndexFilepath = ((ExtendedStorageGreenIndex) enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex")).getFilepath();
+
+        for (Map.Entry<String, ProfileProperties> profile : actualProfiles.entrySet()) {
+            String profileMapKey = profile.getKey();
+            if (Set.of("car", "hgv", "car-custom").contains(profileMapKey)) {
+                // Need special testing as they have different settings
+                continue;
+            }
+            ProfileProperties actualProfileProperties = profile.getValue();
+            ProfileProperties defaultProfileProperties = defaultProfiles.getProfiles().get(profileMapKey);
+
+            assertEquals(defaultProfileEnabled, actualProfileProperties.getEnabled());
+            assertEquals(defaultProfileMinNetworkSize, actualProfileProperties.getPreparation().getMinNetworkSize());
+            assertEquals(defaultProfileLmEnabled, actualProfileProperties.getPreparation().getMethods().getLm().isEnabled());
+            assertEquals(defaultProfileLmWeightings, actualProfileProperties.getPreparation().getMethods().getLm().getWeightings());
+            assertEquals(defaultProfileLmLandmarks, actualProfileProperties.getPreparation().getMethods().getLm().getLandmarks());
+            assertEquals(defaultProfileLmActiveLandmarks, actualProfileProperties.getExecution().getMethods().getLm().getActiveLandmarks());
+            assertEquals(defaultProfileExtStoragesWayCategoryEnabled, actualProfileProperties.getExtStorages().get("WayCategory").getEnabled());
+            assertEquals(defaultProfileExtStoragesGreenIndexEnabled, actualProfileProperties.getExtStorages().get("GreenIndex").getEnabled());
+            assertEquals(defaultProfileExtStoragesGreenIndexFilepath, ((ExtendedStorageGreenIndex) actualProfileProperties.getExtStorages().get("GreenIndex")).getFilepath());
+
+            if (profileMapKey.equals(EncoderNameEnum.WHEELCHAIR.getName())) {
+                assertEquals(50, defaultProfileProperties.getMaximumSnappingRadius());
+            }
+        }
     }
 }
