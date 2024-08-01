@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -135,7 +135,7 @@ class ProfilePropertiesTest {
         if (expectedEncoderName == EncoderNameEnum.UNKNOWN) {
             assertInstanceOf(DefaultProfileProperties.class, profileProperties);
             assertNull(profileProperties.getEncoderName());
-            PropertyUtils.assertAllNull(profileProperties, new ArrayList<>());
+            PropertyUtils.assertAllNull(profileProperties, new HashSet<>());
         } else {
             assertEquals(expectedEncoderName, profileProperties.getEncoderName());
 

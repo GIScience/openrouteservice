@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class PropertyUtils {
-    public static Object deepCopyObjectsProperties(Object source, Object target, boolean overwriteNonEmptyFields, boolean copyEmptyMemberClasses) {
+    public static Object deepCopyObjectsProperties(Object source, Object target, boolean overwriteNonEmptyFields) {
         Logger logger = LoggerFactory.getLogger(Object.class);
         if (source == null || target == null) {
             return target;
@@ -45,7 +45,7 @@ public class PropertyUtils {
                         !Enum.class.isAssignableFrom(fieldType) &&
                         !Collection.class.isAssignableFrom(fieldType) &&
                         !fieldType.isArray()) {
-                    field.set(target, deepCopyObjectsProperties(value, currentValue, overwriteNonEmptyFields, copyEmptyMemberClasses));
+                    field.set(target, deepCopyObjectsProperties(value, currentValue, false));
                 }
             } catch (IllegalAccessException e) {
                 logger.warn("Could not set field: {}", field.getName());
@@ -77,32 +77,66 @@ public class PropertyUtils {
                 if (copyEmptyStorages) targetUpdate.put(key, sourceValue);
             } else {
                 // Recursively copy nested maps
-                targetUpdate.put(key, (ExtendedStorage) deepCopyObjectsProperties(sourceValue, targetValue, overwriteNonEmptyFields, copyEmptyMemberClasses));
+                targetUpdate.put(key, (ExtendedStorage) deepCopyObjectsProperties(sourceValue, targetValue, overwriteNonEmptyFields));
             }
         }
         return targetUpdate;
     }
 
-    public static Boolean assertAllNull(Object o, ArrayList<String> ignoreList) throws IllegalAccessException {
-        return assertAllNull(o, ignoreList, false);
+    public static Boolean assertAllNull(Object o) throws IllegalAccessException {
+        return assertAllNull(o, new HashSet<>());
     }
 
-    public static Boolean assertAllNull(Object o, ArrayList<String> ignoreList, Boolean searchMemberClasses) throws IllegalAccessException {
+    public static Boolean assertAllNull(Object o, Set<String> excludeFields) throws IllegalAccessException {
+        return assertAllNull(o, excludeFields, "");
+    }
+
+
+    private static Boolean assertAllNull(Object o, Set<String> excludeFields, String path) throws IllegalAccessException {
         for (Field field : o.getClass().getDeclaredFields()) {
             field.setAccessible(true);
-            if (ignoreList.contains(field.getName())) {
+            String fullPath = path.isEmpty() ? field.getName() : path + "." + field.getName();
+            if (shouldExclude(fullPath, excludeFields)) {
                 continue;
             }
             Object value = field.get(o);
             if (value == null) {
                 continue;
             }
-            if (searchMemberClasses) {
-                if (!assertAllNull(value, ignoreList, true)) {
+            if (value.getClass().isPrimitive()) {
+                return false;
+            } else if (value instanceof Collection) {
+                if (!((Collection<?>) value).isEmpty()) {
                     return false;
                 }
-            } else {
+            } else if (value instanceof Map) {
+                if (!((Map<?, ?>) value).isEmpty()) {
+                    return false;
+                }
+            } else if (value instanceof Object[]) {
+                if (((Object[]) value).length > 0) {
+                    return false;
+                }
+            } else if (value instanceof Path) {
                 return false;
+            } else if (value instanceof String) {
+                if (!value.equals("")) {
+                    return false;
+                }
+            } else if (value instanceof Number) {
+                if (((Number) value).doubleValue() != 0) {
+                    return false;
+                }
+            } else if (value instanceof Boolean) {
+                if ((Boolean) value) {
+                    return false;
+                }
+            } else if (value instanceof Enum) {
+                return false;
+            } else {
+                if (!assertAllNull(value, excludeFields, fullPath)) {
+                    return false;
+                }
             }
         }
         return true;

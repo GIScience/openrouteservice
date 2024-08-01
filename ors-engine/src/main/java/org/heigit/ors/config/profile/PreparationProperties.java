@@ -31,7 +31,6 @@ public class PreparationProperties {
 
     @Getter
     @Setter
-    @EqualsAndHashCode
     @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyObjectFilter.class)
     public static class MethodsProperties {
         private CHProperties ch;

@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +15,7 @@ class PropertyUtilsTest {
     void testUpdateObject() {
         TestProperty source = new TestProperty("testValue", 42, "foo", true);
         TestProperty target = new TestProperty("bar", 0, "bar", false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, true, false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
 
         assertEquals("testValue", target.field1);
         assertEquals(42, target.getField2());
@@ -27,7 +27,7 @@ class PropertyUtilsTest {
     void testUpdateObjectNoOverwrite() {
         TestProperty source = new TestProperty("testValue", 42, "foo", true);
         TestProperty target = new TestProperty("bar", 0, null, false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, false, false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, false);
 
         assertEquals("bar", target.field1);
         assertEquals(0, target.getField2());
@@ -40,26 +40,26 @@ class PropertyUtilsTest {
     void testUpdateObjectNoOverwriteInSubclass() {
         TestProperty source = new TestProperty("testValue", 42, "foo", true);
         TestProperty target = new TestProperty("bar", 0, "baz", null, false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, false, false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, false);
 
         assertEquals("bar", target.field1);
         assertEquals(0, target.getField2());
         assertEquals("baz", target.getField3());
         // Correctly set as the target field is null.
-        assertNull(target.subclass);
+        assertEquals(source.subclass, target.subclass);
     }
 
     @Test
     void testUpdateObjectNoCopyEmptyMemberClasses() {
         TestProperty source = new TestProperty("testValue", 42, "foo", true);
         TestProperty target = new TestProperty("bar", 0, "baz", null, false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, true, false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
 
         assertEquals("testValue", target.field1);
         assertEquals(42, target.getField2());
         assertEquals("foo", target.getField3());
         // Correctly set as the target field is null.
-        assertNull(target.subclass);
+        assertEquals(source.subclass, target.subclass);
     }
 
     @Test
@@ -67,19 +67,19 @@ class PropertyUtilsTest {
         // This is not working! The subclass is not updated by the superclass.
         TestProperty source = new TestProperty("testValue", 42, "baz", true);
         TestPropertySubclass target = new TestPropertySubclass("foo", 0, "bar", false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, true, false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
 
-        assertEquals("foo", target.field1);
-        assertEquals(0, target.getField2());
-        assertEquals("bar", target.getField3());
-        assertEquals(false, target.subclass.enabled);
+        assertEquals("testValue", target.field1);
+        assertEquals(42, target.getField2());
+        assertEquals("baz", target.getField3());
+        assertEquals(true, target.subclass.enabled);
     }
 
     @Test
     void testUpdateWithSubclass() {
         TestPropertySubclass source = new TestPropertySubclass("foo", 0, "bar", true);
         TestProperty target = new TestProperty("testValue", 42, "baz", false);
-        PropertyUtils.deepCopyObjectsProperties(source, target, true, false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
 
         assertEquals("foo", target.field1);
         assertEquals(0, target.getField2());
@@ -90,9 +90,9 @@ class PropertyUtilsTest {
     @Test
     void testUpdateObjectWithNullSource() {
         TestProperty target = new TestProperty("testValue", 42, "foo", true);
-        assertThrows(IllegalArgumentException.class, () -> PropertyUtils.deepCopyObjectsProperties(null, null, true, false));
-        assertThrows(IllegalArgumentException.class, () -> PropertyUtils.deepCopyObjectsProperties(target, null, true, false));
-        assertThrows(IllegalArgumentException.class, () -> PropertyUtils.deepCopyObjectsProperties(null, target, true, false));
+        assertNull(PropertyUtils.deepCopyObjectsProperties(null, null, true));
+        assertNull(PropertyUtils.deepCopyObjectsProperties(target, null, true));
+        assertEquals(target, PropertyUtils.deepCopyObjectsProperties(null, target, true));
     }
 
 
@@ -101,7 +101,7 @@ class PropertyUtilsTest {
         TestProperty source = new TestProperty("testValue", 42, "foo", true);
         TestProperty target = new TestProperty("bar", 0, "baz", null, false);
         assertNull(target.subclass);
-        PropertyUtils.deepCopyObjectsProperties(source, target, true, true);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
 
         assertEquals("testValue", target.field1);
         assertEquals(42, target.getField2());
@@ -279,7 +279,7 @@ class PropertyUtilsTest {
     @Test
     void testPropertyTools() throws IllegalAccessException {
         TestClass test = new TestClass();
-        ArrayList<String> ignoreList = new ArrayList<>();
+        HashSet<String> ignoreList = new HashSet<>();
         ignoreList.add("testString");
         PropertyUtils.assertAllNull(test, ignoreList);
     }

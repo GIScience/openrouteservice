@@ -128,7 +128,7 @@ public abstract class ProfileProperties {
             if (this.encoderOptions == null) {
                 return defaultEncoderOptionsProperties;
             }
-            EncoderOptionsProperties test = (EncoderOptionsProperties) PropertyUtils.deepCopyObjectsProperties(defaultEncoderOptionsProperties, this.encoderOptions, false, false);
+            EncoderOptionsProperties test = (EncoderOptionsProperties) PropertyUtils.deepCopyObjectsProperties(defaultEncoderOptionsProperties, this.encoderOptions, false);
             return test;
         }
         return this.encoderOptions;
@@ -145,7 +145,7 @@ public abstract class ProfileProperties {
             if (this.preparation == null) {
                 return defaultPreparationProperties;
             }
-            PreparationProperties test = (PreparationProperties) PropertyUtils.deepCopyObjectsProperties(defaultPreparationProperties, this.preparation, false, false);
+            PreparationProperties test = (PreparationProperties) PropertyUtils.deepCopyObjectsProperties(defaultPreparationProperties, this.preparation, false);
             return test;
         }
         return this.preparation;
@@ -162,7 +162,7 @@ public abstract class ProfileProperties {
             if (this.execution == null) {
                 return defaultExecutionProperties;
             }
-            ExecutionProperties test = (ExecutionProperties) PropertyUtils.deepCopyObjectsProperties(defaultExecutionProperties, this.execution, false, false);
+            ExecutionProperties test = (ExecutionProperties) PropertyUtils.deepCopyObjectsProperties(defaultExecutionProperties, this.execution, false);
             return test;
         }
         return this.execution;
