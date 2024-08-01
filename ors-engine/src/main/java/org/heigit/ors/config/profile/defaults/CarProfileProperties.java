@@ -22,7 +22,7 @@ public class CarProfileProperties extends ProfileProperties {
         getPreparation().getMethods().getLm().setWeightings("fastest,shortest");
         getPreparation().getMethods().getLm().setLandmarks(16);
         getPreparation().getMethods().getCore().setEnabled(true);
-        getPreparation().getMethods().getCore().setThreads(1);
+        getPreparation().getMethods().getCore().setThreads("1");
         getPreparation().getMethods().getCore().setWeightings("fastest,shortest");
         getPreparation().getMethods().getCore().setLandmarks(64);
         getPreparation().getMethods().getCore().setLmsets("highways;allow_all");

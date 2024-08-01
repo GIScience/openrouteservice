@@ -15,28 +15,30 @@
 package org.heigit.ors.routing;
 
 import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.config.profile.ProfileProperties;
 
 import java.util.concurrent.Callable;
 
 /**
- * Callable creating a {@link RoutingProfile} from an OSM-file,
- * a {@link RouteProfileConfiguration} and a {@link RoutingProfileLoadContext}.
+ * Callable creating a {@link RoutingProfile} from a name String,
+ * a {@link ProfileProperties}, an {@link EngineProperties} and a {@link RoutingProfileLoadContext}.
  */
 public class RoutingProfileLoader implements Callable<RoutingProfile> {
+    private final String name;
     private final EngineProperties engineConfig;
-    private final RouteProfileConfiguration rpc;
-    private final RoutingProfileLoadContext loadCntx;
+    private final ProfileProperties profile;
+    private final RoutingProfileLoadContext loadContext;
 
-    public RoutingProfileLoader(EngineProperties engineConfig, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) {
+    public RoutingProfileLoader(String name, ProfileProperties profile, EngineProperties engineConfig, RoutingProfileLoadContext loadContext) {
+        this.name = name;
+        this.profile = profile;
         this.engineConfig = engineConfig;
-        this.rpc = rpc;
-        this.loadCntx = loadCntx;
+        this.loadContext = loadContext;
     }
 
     @Override
     public RoutingProfile call() throws Exception {
-        Thread.currentThread().setName("ORS-pl-" + rpc.getName());
-        return new RoutingProfile(engineConfig, rpc, loadCntx);
+        Thread.currentThread().setName("ORS-pl-" + name);
+        return new RoutingProfile(profile, engineConfig, loadContext);
     }
 }

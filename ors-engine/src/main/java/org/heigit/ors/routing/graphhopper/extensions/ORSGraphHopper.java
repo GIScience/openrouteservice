@@ -103,10 +103,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     public ORSGraphHopper(GraphProcessContext procCntx) {
         processContext = procCntx;
-        processContext.init(this);
     }
-
-
+    
     public ORSGraphHopper() {
         // used to initialize tests more easily without the need to create GraphProcessContext etc. when they're anyway not used in the tested functions.
     }

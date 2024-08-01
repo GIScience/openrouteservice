@@ -13,16 +13,17 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.carrotsearch.hppc.LongArrayList;
-import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
+import lombok.Getter;
+import lombok.Setter;
+import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.config.profile.storages.ExtendedStorageHereTraffic;
 import org.heigit.ors.plugins.PluginManager;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
-import org.heigit.ors.routing.graphhopper.extensions.graphbuilders.GraphBuilder;
+import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
+import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.List;
@@ -31,40 +32,31 @@ import java.util.logging.Logger;
 
 public class GraphProcessContext {
     private static final Logger LOGGER = Logger.getLogger(GraphProcessContext.class.getName());
-    private List<GraphBuilder> graphBuilders;
-    private GraphBuilder[] arrGraphBuilders;
+    @Getter
     private List<GraphStorageBuilder> storageBuilders;
     private GraphStorageBuilder[] arrStorageBuilders;
     private int trafficArrStorageBuilderLocation = -1;
+    @Getter
     private final double maximumSpeedLowerBound;
 
+    @Setter
     private boolean getElevationFromPreprocessedData;
 
-    public GraphProcessContext(RouteProfileConfiguration config) throws Exception {
+    public GraphProcessContext(ProfileProperties profile) throws Exception {
         PluginManager<GraphStorageBuilder> mgrGraphStorageBuilders = PluginManager.getPluginManager(GraphStorageBuilder.class);
-
-        if (config.getExtStorages() != null) {
-            storageBuilders = mgrGraphStorageBuilders.createInstances(config.getExtStorages());
-        }
-
-        PluginManager<GraphBuilder> mgrGraphBuilders = PluginManager.getPluginManager(GraphBuilder.class);
-        if (config.getGraphBuilders() != null) {
-            graphBuilders = mgrGraphBuilders.createInstances(config.getGraphBuilders());
-        }
-
-        maximumSpeedLowerBound = config.getMaximumSpeedLowerBound();
-    }
-
-    public void init(GraphHopper gh) {
-        if (graphBuilders != null && !graphBuilders.isEmpty()) {
-            for (GraphBuilder builder : graphBuilders) {
+        if (profile.getExtStorages() != null) {
+            if (profile.getExtStorages().containsKey("HereTraffic")) {
+                ExtendedStorageHereTraffic parameters;
                 try {
-                    builder.init(gh);
-                } catch (Exception ex) {
-                    LOGGER.warning(ex.getMessage());
+                    parameters = (ExtendedStorageHereTraffic) profile.getExtStorages().get("HereTraffic");
+                    parameters.setGhProfile(ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(profile.getEncoderName())), "fastest", Boolean.TRUE.equals(profile.getEncoderOptions().getTurnCosts())));
+                } catch (ClassCastException e) {
+                    throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
                 }
             }
+            storageBuilders = mgrGraphStorageBuilders.createInstances(profile.getExtStorages());
         }
+        maximumSpeedLowerBound = profile.getMaximumSpeedLowerBound() == null ? 80 : profile.getMaximumSpeedLowerBound();
     }
 
     public void initArrays() {
@@ -72,14 +64,6 @@ public class GraphProcessContext {
             arrStorageBuilders = new GraphStorageBuilder[storageBuilders.size()];
             arrStorageBuilders = storageBuilders.toArray(arrStorageBuilders);
         }
-        if (graphBuilders != null && !graphBuilders.isEmpty()) {
-            arrGraphBuilders = new GraphBuilder[graphBuilders.size()];
-            arrGraphBuilders = graphBuilders.toArray(arrGraphBuilders);
-        }
-    }
-
-    public List<GraphStorageBuilder> getStorageBuilders() {
-        return storageBuilders;
     }
 
     public void processWay(ReaderWay way) {
@@ -138,30 +122,12 @@ public class GraphProcessContext {
         }
     }
 
-    public boolean createEdges(DataReaderContext readerCntx, ReaderWay way, LongArrayList osmNodeIds, IntsRef wayFlags, List<EdgeIteratorState> createdEdges) throws Exception {
-        boolean res = false;
-        if (arrGraphBuilders != null) {
-            for (GraphBuilder builder : arrGraphBuilders) {
-                res |= builder.createEdges(readerCntx, way, osmNodeIds, wayFlags, createdEdges);
-            }
-        }
-        return res;
-    }
-
     public void finish() {
         if (arrStorageBuilders != null) {
             for (GraphStorageBuilder builder : arrStorageBuilders) {
                 builder.finish();
             }
         }
-    }
-
-    public double getMaximumSpeedLowerBound() {
-        return maximumSpeedLowerBound;
-    }
-
-    public void setGetElevationFromPreprocessedData(boolean getElevationFromPreprocessedData) {
-        this.getElevationFromPreprocessedData = getElevationFromPreprocessedData;
     }
 
     public boolean getElevationFromPreprocessedData() {

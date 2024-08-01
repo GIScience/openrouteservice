@@ -18,6 +18,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.profile.storages.ExtendedStorageCsvIndex;
 import org.heigit.ors.routing.graphhopper.extensions.storages.CsvGraphStorage;
 
 import java.io.BufferedReader;
@@ -40,8 +41,15 @@ public class CsvGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
+        ExtendedStorageCsvIndex parameters;
+        try {
+            parameters = (ExtendedStorageCsvIndex) this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
+
         // TODO Check if the CSV file exists
-        String csvFile = parameters.get("filepath");
+        String csvFile = parameters.getFilepath().toString();
         readFromCSV(csvFile);
         storage = new CsvGraphStorage(columnNames);
 

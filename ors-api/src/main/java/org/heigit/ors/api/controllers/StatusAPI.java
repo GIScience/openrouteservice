@@ -20,11 +20,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.util.AppInfo;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -79,30 +79,30 @@ public class StatusAPI {
                 int i = 1;
 
                 for (RoutingProfile rp : profileManager.getProfiles().getUniqueProfiles()) {
-                    RouteProfileConfiguration rpc = rp.getConfiguration();
+                    ProfileProperties profile = rp.getProfileConfiguration();
                     org.json.JSONObject jProfileProps = new org.json.JSONObject(true);
 
-                    jProfileProps.put("profiles", rpc.getProfiles());
+                    jProfileProps.put("profiles", profile.getEncoderName());
                     StorableProperties storageProps = rp.getGraphProperties();
                     jProfileProps.put("creation_date", storageProps.get("osmreader.import.date"));
 
-                    if (rpc.getExtStorages() != null && rpc.getExtStorages().size() > 0)
-                        jProfileProps.put("storages", rpc.getExtStorages());
+                    if (profile.getExtStorages() != null && !profile.getExtStorages().isEmpty())
+                        jProfileProps.put("storages", profile.getExtStorages());
 
                     org.json.JSONObject jProfileLimits = new org.json.JSONObject(true);
-                    if (rpc.getMaximumDistance() > 0)
-                        jProfileLimits.put("maximum_distance", rpc.getMaximumDistance());
+                    if (profile.getMaximumDistance() != null)
+                        jProfileLimits.put("maximum_distance", profile.getMaximumDistance());
 
-                    if (rpc.getMaximumDistanceDynamicWeights() > 0)
-                        jProfileLimits.put("maximum_distance_dynamic_weights", rpc.getMaximumDistanceDynamicWeights());
+                    if (profile.getMaximumDistanceDynamicWeights() != null)
+                        jProfileLimits.put("maximum_distance_dynamic_weights", profile.getMaximumDistanceDynamicWeights());
 
-                    if (rpc.getMaximumDistanceAvoidAreas() > 0)
-                        jProfileLimits.put("maximum_distance_avoid_areas", rpc.getMaximumDistanceAvoidAreas());
+                    if (profile.getMaximumDistanceAvoidAreas() != null)
+                        jProfileLimits.put("maximum_distance_avoid_areas", profile.getMaximumDistanceAvoidAreas());
 
-                    if (rpc.getMaximumWayPoints() > 0)
-                        jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
+                    if (profile.getMaximumWayPoints() != null)
+                        jProfileLimits.put("maximum_waypoints", profile.getMaximumWayPoints());
 
-                    if (jProfileLimits.length() > 0)
+                    if (!jProfileLimits.isEmpty())
                         jProfileProps.put("limits", jProfileLimits);
 
                     jProfiles.put("profile " + i, jProfileProps);

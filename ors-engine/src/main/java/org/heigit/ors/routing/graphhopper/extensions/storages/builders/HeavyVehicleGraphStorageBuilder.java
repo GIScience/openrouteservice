@@ -17,7 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.Helper;
+import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
@@ -62,10 +62,15 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        if (parameters != null) {
-            String value = parameters.get("restrictions");
-            if (!Helper.isEmpty(value))
-                includeRestrictions = Boolean.parseBoolean(value);
+        ExtendedStorageHeavyVehicle parameters;
+        try {
+            parameters = (ExtendedStorageHeavyVehicle) this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
+
+        if (parameters.getRestrictions() != null) {
+            includeRestrictions = parameters.getRestrictions();
         }
 
         storage = new HeavyVehicleAttributesGraphStorage(includeRestrictions);
@@ -204,7 +209,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
         if (vehicleType.equals(value) || yesValues.contains(value))
             return "yes";
         else if (noValues.contains(value))
-           return "no";
+            return "no";
 
         return null;
     }
@@ -214,7 +219,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
      * based on the value of {@code tag}. "no" sets the bit in {@code _hgvType}, while "yes" unsets it.
      *
      * @param vehicle a String describing one of the vehicle types defined in {@code HeavyVehicleAttributes}
-     * @param access a String describing the access restriction
+     * @param access  a String describing the access restriction
      */
     private void setAccessFlags(String vehicle, String access) {
         int flag = HeavyVehicleAttributes.getFromString(vehicle);

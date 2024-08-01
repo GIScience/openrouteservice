@@ -20,6 +20,7 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.profile.storages.ExtendedStorageShadowIndex;
 import org.heigit.ors.routing.graphhopper.extensions.storages.ShadowIndexGraphStorage;
 
 import java.io.BufferedReader;
@@ -48,8 +49,15 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
         if (_storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
+        ExtendedStorageShadowIndex parameters;
+        try {
+            parameters = (ExtendedStorageShadowIndex) this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
+
         // TODO Check if the shadow index file exists
-        String csvFile = parameters.get("filepath");
+        String csvFile = parameters.getFilepath().toString();
         LOGGER.info("Shadow Index File: " + csvFile);
         readShadowIndicesFromCSV(csvFile);
         _storage = new ShadowIndexGraphStorage();

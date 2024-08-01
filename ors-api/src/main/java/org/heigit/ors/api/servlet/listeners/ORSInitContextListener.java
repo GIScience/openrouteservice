@@ -42,6 +42,7 @@ import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
 import java.io.FileOutputStream;
@@ -59,6 +60,7 @@ public class ORSInitContextListener implements ServletContextListener {
     private final SystemMessageProperties systemMessageProperties;
     private final LoggingProperties loggingProperties;
     private final ServerProperties serverProperties;
+    public final static String ORS_API_TESTS_FLAG = "ORS_API_TESTS_FLAG";
 
     public ORSInitContextListener(EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties) {
         this.endpointsProperties = endpointsProperties;
@@ -74,6 +76,15 @@ public class ORSInitContextListener implements ServletContextListener {
         if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
             try {
                 configFileString = new FileSystemResource(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY)).getContentAsString(Charset.defaultCharset());
+            } catch (IOException e) {
+                LOGGER.error("Failed to read configuration file");
+                RoutingProfileManagerStatus.setShutdown(true);
+                return;
+            }
+        }
+        if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_API_TESTS_FLAG))) {
+            try {
+                configFileString = new ClassPathResource("application-test.yml").getContentAsString(Charset.defaultCharset());
             } catch (IOException e) {
                 LOGGER.error("Failed to read configuration file");
                 RoutingProfileManagerStatus.setShutdown(true);
@@ -100,7 +111,7 @@ public class ORSInitContextListener implements ServletContextListener {
             RoutingProfileManagerStatus.setShutdown(true);
             return;
         }
-        if (engineProperties.getConfigOutputMode()) {
+        if (Boolean.TRUE.equals(engineProperties.getConfigOutputMode())) {
             try (FileOutputStream fos = new FileOutputStream("ors-config-example.yml"); JsonGenerator generator = mapper.createGenerator(fos)) {
                 LOGGER.info("Output configuration file");
                 ORSConfigBundle ors = new ORSConfigBundle(corsProperties, systemMessageProperties, endpointsProperties, engineProperties);

@@ -15,11 +15,11 @@ import java.nio.file.Paths;
 @Getter
 @Setter(AccessLevel.PACKAGE)
 public class ElevationProperties {
-    private boolean preprocessed = false;
+    private Boolean preprocessed = false;
     @JsonProperty("data_access")
     private String dataAccess = "MMAP";
     @JsonProperty("cache_clear")
-    private boolean cacheClear = false;
+    private Boolean cacheClear = false;
     @JsonProperty("provider")
     private String provider = "multi";
     @JsonProperty("cache_path")
