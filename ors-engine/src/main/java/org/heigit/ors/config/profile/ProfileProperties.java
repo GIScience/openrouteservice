@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.defaults.*;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.config.utils.*;
@@ -14,31 +15,18 @@ import org.heigit.ors.routing.RoutingProfileType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 @Getter
 @Setter(AccessLevel.PROTECTED)
 @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "encoder_name", defaultImpl = DefaultProfileProperties.class)
-@JsonSubTypes({
-        @JsonSubTypes.Type(name = "default", value = DefaultProfileProperties.class),
-        @JsonSubTypes.Type(name = "driving-car", value = CarProfileProperties.class),
-        @JsonSubTypes.Type(name = "driving-hgv", value = HgvProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-regular", value = BikeRegularProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-electric", value = BikeElectricProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-mountain", value = BikeMountainProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-road", value = BikeRoadProfileProperties.class),
-        @JsonSubTypes.Type(name = "foot-walking", value = WalkingProfileProperties.class),
-        @JsonSubTypes.Type(name = "foot-hiking", value = HikingProfileProperties.class),
-        @JsonSubTypes.Type(name = "wheelchair", value = WheelchairProfileProperties.class),
-        @JsonSubTypes.Type(name = "public-transport", value = PublicTransportProfileProperties.class),
-})
+@JsonSubTypes({@JsonSubTypes.Type(name = "default", value = DefaultProfileProperties.class), @JsonSubTypes.Type(name = "driving-car", value = DefaultProfilePropertiesCar.class), @JsonSubTypes.Type(name = "driving-hgv", value = DefaultProfilePropertiesHgv.class), @JsonSubTypes.Type(name = "cycling-regular", value = DefaultProfilePropertiesBikeRegular.class), @JsonSubTypes.Type(name = "cycling-electric", value = DefaultProfilePropertiesBikeElectric.class), @JsonSubTypes.Type(name = "cycling-mountain", value = DefaultProfilePropertiesBikeMountain.class), @JsonSubTypes.Type(name = "cycling-road", value = DefaultProfilePropertiesBikeRoad.class), @JsonSubTypes.Type(name = "foot-walking", value = DefaultProfilePropertiesWalking.class), @JsonSubTypes.Type(name = "foot-hiking", value = DefaultProfilePropertiesHiking.class), @JsonSubTypes.Type(name = "wheelchair", value = DefaultProfilePropertiesWheelchair.class), @JsonSubTypes.Type(name = "public-transport", value = DefaultProfilePropertiesPublicTransport.class),})
 public abstract class ProfileProperties {
     @JsonProperty("enabled")
     private Boolean enabled;
     @JsonProperty("encoder_name")
-    private String encoderName;
+    private EncoderNameEnum encoderName;
     @JsonProperty("elevation")
     private Boolean elevation;
     @JsonProperty("elevation_smoothing")
@@ -96,12 +84,22 @@ public abstract class ProfileProperties {
     @JsonProperty("ext_storages")
     @JsonSerialize(using = ExtendedStorageMapSerializer.class)
     @JsonDeserialize(using = ExtendedStorageMapDeserializer.class)
-    private Map<String, ExtendedStorage> extStorages = new HashMap<>();
+    private Map<String, ExtendedStorage> extStorages;
 
     protected ProfileProperties() {
-        encoderOptions = new EncoderOptionsProperties();
-        preparation = new PreparationProperties();
-        execution = new ExecutionProperties();
+        this(false);
+    }
+
+    protected ProfileProperties(Boolean setDefaults) {
+        if (setDefaults) {
+            encoderOptions = new DefaultEncoderOptionsProperties();
+            preparation = new DefaultPreparationProperties();
+            execution = new DefaultExecutionProperties();
+        } else {
+            encoderOptions = new EncoderOptionsProperties();
+            preparation = new PreparationProperties();
+            execution = new ExecutionProperties();
+        }
     }
 
     public void mergeDefaultsAndSetGraphPath(ProfileProperties defaultProfile, Path graphsRootPath, String profileName) {
@@ -144,15 +142,15 @@ public abstract class ProfileProperties {
 
     @JsonIgnore
     public String getEncoderOptionsString() {
-        if (encoderOptions == null)
-            return "";
+        if (encoderOptions == null) return "";
         return encoderOptions.toString();
     }
 
     @JsonIgnore
     public Integer[] getProfilesTypes() {
         ArrayList<Integer> list = new ArrayList<>();
-        String[] elements = encoderName.split("\\s*,\\s*");
+        // TODO check
+        String[] elements = encoderName.toString().split("\\s*,\\s*");
         for (String element : elements) {
             int profileType = RoutingProfileType.getFromString(element);
             if (profileType != RoutingProfileType.UNKNOWN) {

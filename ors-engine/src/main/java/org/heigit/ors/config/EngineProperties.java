@@ -5,60 +5,130 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.defaults.*;
+import org.heigit.ors.config.profile.defaults.DefaultElevationProperties;
+import org.heigit.ors.config.profile.defaults.DefaultProfileProperties;
+import org.heigit.ors.config.profile.defaults.DefaultProfiles;
 import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
+import org.heigit.ors.config.utils.PropertyUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Getter
-@Setter(AccessLevel.PACKAGE)
+@Setter(AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public class EngineProperties {
 
-    private static final Map<String, ProfileProperties> DEFAULT_PROFILES = new LinkedHashMap<>();
-
-    static {
-        DEFAULT_PROFILES.put("car", new CarProfileProperties());
-        DEFAULT_PROFILES.put("hgv", new HgvProfileProperties());
-        DEFAULT_PROFILES.put("bike-regular", new BikeRegularProfileProperties());
-        DEFAULT_PROFILES.put("bike-electric", new BikeElectricProfileProperties());
-        DEFAULT_PROFILES.put("bike-mountain", new BikeMountainProfileProperties());
-        DEFAULT_PROFILES.put("bike-road", new BikeRoadProfileProperties());
-        DEFAULT_PROFILES.put("walking", new WalkingProfileProperties());
-        DEFAULT_PROFILES.put("hiking", new HikingProfileProperties());
-        DEFAULT_PROFILES.put("wheelchair", new WheelchairProfileProperties());
-        DEFAULT_PROFILES.put("public-transport", new PublicTransportProfileProperties());
-    }
+    @JsonIgnore
+    @Getter(AccessLevel.PRIVATE)
+    @Setter(AccessLevel.PRIVATE)
+    private boolean initialized = false;
 
     @JsonProperty("source_file")
     @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)
-    private Path sourceFile = Paths.get("");
+    private Path sourceFile;
     @JsonProperty("init_threads")
-    private Integer initThreads = 1;
+    private Integer initThreads;
     @JsonProperty("preparation_mode")
-    private Boolean preparationMode = false;
+    private Boolean preparationMode;
     @JsonProperty("config_output_mode")
-    private Boolean configOutputMode = false;
+    private Boolean configOutputMode;
     @JsonProperty("graphs_root_path")
     @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)
-    private Path graphsRootPath = Path.of("graphs").toAbsolutePath();
+    private Path graphsRootPath;
     @JsonProperty("graphs_data_access")
-    private String graphsDataAccess = "RAM_STORE";
+    private DataAccessEnum graphsDataAccess;
 
     @JsonProperty("elevation")
-    private ElevationProperties elevation = new ElevationProperties();
+    private ElevationProperties elevation;
     @JsonProperty("profile_default")
-    private ProfileProperties profileDefault = new DefaultProfileProperties();
+    private ProfileProperties profileDefault;
     @JsonProperty("profiles")
-    private Map<String, ProfileProperties> profiles = DEFAULT_PROFILES;
+    private Map<String, ProfileProperties> profiles;
+
+    public EngineProperties() {
+        this(false);
+    }
+
+    public EngineProperties(Boolean setDefaults) {
+        setProfiles(new LinkedHashMap<>());
+        setProfileDefault(new DefaultProfileProperties(setDefaults));
+        setElevation(new DefaultElevationProperties(setDefaults));
+        if (setDefaults) {
+            setSourceFile(Paths.get(""));
+            setInitThreads(1);
+            setPreparationMode(false);
+            setConfigOutputMode(false);
+            setGraphsRootPath(Paths.get("./graphs"));
+            setGraphsDataAccess(DataAccessEnum.RAM_STORE);
+        }
+    }
+
+    @JsonIgnore
+    public void combineProperties() {
+        if (isInitialized()) {
+            return;
+        }
+        // Merge default profiles with custom profiles
+        // First: Top priority have properties from Map<String, ProfileProperties> profiles;
+        // Second: Next priority are user set global properties from profileDefault
+        // Third: If properties are not set in profiles and profileDefault, use the default_profiles with their specific properties and their defaults
+        // Fourth: If properties are not set in profiles, profileDefault and default_profiles, use the default properties from DefaultProfileProperties
+        // Initialize defult profiles
+
+        // Correct the default profiles that haven't been set by the user
+        // Make a copy Set<String>
+        Set<String> raw_user_profile_names = new HashSet<>(this.getProfiles().keySet());
+        ProfileProperties raw_user_default_profile_settings = this.getProfileDefault();
+        DefaultProfiles system_default_profile_settings = new DefaultProfiles(true);
+        DefaultProfileProperties system_default_profile_defaults_properties = new DefaultProfileProperties(true);
+
+        for (String profileEntry : system_default_profile_settings.getProfiles().keySet()) {
+            ProfileProperties profile = system_default_profile_settings.getProfiles().get(profileEntry);
+            if (this.getProfiles().containsKey(profileEntry)) {
+                // Todo Still needed or just overwrite the defaults in the end?
+                continue;
+            }
+            // Second step
+            PropertyUtils.deepCopyObjectsProperties(raw_user_default_profile_settings, profile, true);
+            // Third step
+            PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profile.getEncoderName().name), profile, false);
+            // Fourth step
+            PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false);
+            this.profiles.put(profileEntry, profile);
+        }
+
+        EngineProperties default_engine_properties = new EngineProperties(true);
+
+        // Enrich null or missing properties with default values
+        PropertyUtils.deepCopyObjectsProperties(default_engine_properties, this, false);
+
+        // Correct the raw user profiles
+        for (String profileEntryName : raw_user_profile_names) {
+            // First step
+            ProfileProperties profile = this.getProfiles().get(profileEntryName);
+            // Second step
+            PropertyUtils.deepCopyObjectsProperties(raw_user_default_profile_settings, profile, false);
+            // Third step
+            PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profileEntryName), profile, false);
+            // Fourth step
+            PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false);
+        }
+        setInitialized(true);
+    }
+
 
     @JsonIgnore
     public Map<String, ProfileProperties> getActiveProfiles() {
