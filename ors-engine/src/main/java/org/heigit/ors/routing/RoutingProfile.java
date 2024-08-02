@@ -164,7 +164,8 @@ public class RoutingProfile {
         if (elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
             ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
             ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
-            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess()));
+            // TODO check
+            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
             ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
             if (Boolean.TRUE.equals(profile.getInterpolateBridgesAndTunnels()))
                 ghConfig.putObject("graph.encoded_values", "road_environment");
@@ -213,7 +214,7 @@ public class RoutingProfile {
             if (!preparations.getMethods().isEmpty()) {
                 if (!preparations.getMethods().getCh().isEmpty()) {
                     PreparationProperties.MethodsProperties.CHProperties chOpts = preparations.getMethods().getCh();
-                    prepareCH = chOpts.getEnabled() == null || chOpts.getEnabled();
+                    prepareCH = chOpts.isEnabled() == null || chOpts.isEnabled();
                     if (prepareCH) {
                         if (chOpts.getThreads() != null)
                             ghConfig.putObject("prepare.ch.threads", chOpts.getThreads());
@@ -229,7 +230,7 @@ public class RoutingProfile {
 
                 if (!preparations.getMethods().getLm().isEmpty()) {
                     PreparationProperties.MethodsProperties.LMProperties lmOpts = preparations.getMethods().getLm();
-                    prepareLM = lmOpts.getEnabled() == null || lmOpts.getEnabled();
+                    prepareLM = lmOpts.isEnabled() == null || lmOpts.isEnabled();
                     if (prepareLM) {
                         if (lmOpts.getThreads() != null)
                             ghConfig.putObject("prepare.lm.threads", lmOpts.getThreads());
@@ -247,10 +248,11 @@ public class RoutingProfile {
 
                 if (!preparations.getMethods().getCore().isEmpty()) {
                     PreparationProperties.MethodsProperties.CoreProperties coreOpts = preparations.getMethods().getCore();
-                    prepareCore = coreOpts.getEnabled() == null || coreOpts.getEnabled();
+                    prepareCore = coreOpts.isEnabled() == null || coreOpts.isEnabled();
                     if (prepareCore) {
                         if (coreOpts.getThreads() != null) {
-                            String[] threads = coreOpts.getThreads().split(",");
+                            // TODO check
+                            String[] threads = coreOpts.getThreads().toString().split(",");
                             int threadsCH = Integer.parseInt(threads[0]);
                             int threadsLM = threads.length > 1 ? Integer.parseInt(threads[1]) : threadsCH;
                             ghConfig.putObject("prepare.core.threads", threadsCH);
@@ -288,7 +290,7 @@ public class RoutingProfile {
 
                 if (!preparations.getMethods().getFastisochrones().isEmpty()) {
                     PreparationProperties.MethodsProperties.FastIsochroneProperties fastisochroneOpts = preparations.getMethods().getFastisochrones();
-                    prepareFI = fastisochroneOpts.getEnabled() == null || fastisochroneOpts.getEnabled();
+                    prepareFI = fastisochroneOpts.isEnabled() == null || fastisochroneOpts.isEnabled();
                     if (prepareFI) {
                         ghConfig.putObject(ORSParameters.FastIsochrone.PROFILE, profile.getEncoderName());
                         //Copied from core
