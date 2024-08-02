@@ -1,7 +1,6 @@
 package org.heigit.ors.config.profile.defaults;
 
 import lombok.EqualsAndHashCode;
-import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
 
 @EqualsAndHashCode(callSuper = false)
@@ -14,7 +13,6 @@ public class DefaultProfileProperties extends ProfileProperties {
     public DefaultProfileProperties(Boolean setDefaults) {
         super(setDefaults);
         if (setDefaults) {
-            this.setEncoderName(EncoderNameEnum.UNKNOWN);
             setEncoderOptions(new DefaultEncoderOptionsProperties());
             setEnabled(false);
             setElevation(true);

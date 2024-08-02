@@ -15,8 +15,7 @@ public class DefaultProfilePropertiesPublicTransport extends ProfileProperties {
     }
 
     public DefaultProfilePropertiesPublicTransport(Boolean setDefaults) {
-        super(setDefaults);
-        this.setEncoderName(EncoderNameEnum.PUBLIC_TRANSPORT);
+        super(setDefaults, EncoderNameEnum.PUBLIC_TRANSPORT);
 
         if (setDefaults) {
             this.setEncoderName(EncoderNameEnum.PUBLIC_TRANSPORT);

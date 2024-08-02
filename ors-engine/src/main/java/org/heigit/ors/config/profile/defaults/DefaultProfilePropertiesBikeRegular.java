@@ -11,8 +11,7 @@ public class DefaultProfilePropertiesBikeRegular extends ProfileProperties {
     }
 
     public DefaultProfilePropertiesBikeRegular(Boolean setDefaults) {
-        super(setDefaults);
-        this.setEncoderName(EncoderNameEnum.CYCLING_REGULAR);
+        super(setDefaults, EncoderNameEnum.CYCLING_REGULAR);
         DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
         setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
     }

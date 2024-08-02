@@ -12,8 +12,7 @@ public class DefaultProfilePropertiesCar extends ProfileProperties {
     }
 
     public DefaultProfilePropertiesCar(Boolean setDefaults) {
-        super(setDefaults);
-        this.setEncoderName(EncoderNameEnum.DRIVING_CAR);
+        super(setDefaults, EncoderNameEnum.DRIVING_CAR);
         if (setDefaults) {
             // Set the default extended storage properties
             DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());

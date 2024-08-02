@@ -11,8 +11,7 @@ public class DefaultProfilePropertiesBikeMountain extends ProfileProperties {
     }
 
     public DefaultProfilePropertiesBikeMountain(Boolean setDefaults) {
-        super(setDefaults);
-        this.setEncoderName(EncoderNameEnum.CYCLING_MOUNTAIN);
+        super(setDefaults, EncoderNameEnum.CYCLING_MOUNTAIN);
         DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
         setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
     }

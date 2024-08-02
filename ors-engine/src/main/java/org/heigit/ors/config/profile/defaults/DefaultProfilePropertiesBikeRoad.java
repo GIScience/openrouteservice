@@ -11,8 +11,7 @@ public class DefaultProfilePropertiesBikeRoad extends ProfileProperties {
     }
 
     public DefaultProfilePropertiesBikeRoad(Boolean setDefaults) {
-        super(setDefaults);
-        this.setEncoderName(EncoderNameEnum.CYCLING_ROAD);
+        super(setDefaults, EncoderNameEnum.CYCLING_ROAD);
         DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
         setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
     }

@@ -54,7 +54,7 @@ class ProfilePropertiesTest {
     @Test
     void defaultPropertiesWithGlobalDefaults() {
         DefaultProfileProperties defaultProfileProperties = new DefaultProfileProperties(true);
-        assertEquals(EncoderNameEnum.UNKNOWN, defaultProfileProperties.getEncoderName());
+        assertNull(defaultProfileProperties.getEncoderName());
         assertFalse(defaultProfileProperties.getEnabled());
         assertTrue(defaultProfileProperties.getElevation());
         assertTrue(defaultProfileProperties.getElevationSmoothing());
