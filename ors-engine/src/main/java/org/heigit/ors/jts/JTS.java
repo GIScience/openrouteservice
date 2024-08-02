@@ -16,16 +16,14 @@
  */
 package org.heigit.ors.jts;
 
-import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.metadata.i18n.ErrorKeys;
-import org.geotools.metadata.i18n.Errors;
-import org.geotools.referencing.GeodeticCalculator;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
 
-import java.util.*;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * JTS Geometry utility methods, bringing Geotools to JTS.
@@ -48,28 +46,11 @@ import java.util.*;
  * @since 2.2
  */
 public final class JTS {
-    /**
-     * A pool of direct positions for use in {@link #orthodromicDistance}.
-     */
-    private static final GeneralDirectPosition[] POSITIONS = new GeneralDirectPosition[4];
     private static final GeometryFactory factory;
 
     static {
-        for (int i = 0; i < POSITIONS.length; i++) {
-            POSITIONS[i] = new GeneralDirectPosition(i);
-        }
-
         factory = new GeometryFactory();
     }
-
-    /**
-     * Geodetic calculators already created for a given coordinate reference system. For use in
-     * {@link #orthodromicDistance}.
-     * <p>
-     * Note: We would like to use {@link org.geotools.util.CanonicalSet}, but we can't because
-     * {@link GeodeticCalculator} keep a reference to the CRS which is used as the key.
-     */
-    private static final Map<CoordinateReferenceSystem, GeodeticCalculator> CALCULATORS = new HashMap<>();
 
     /**
      * Do not allow instantiation of this class.
@@ -86,63 +67,9 @@ public final class JTS {
      */
     private static void ensureNonNull(final String name, final Object object) throws IllegalArgumentException {
         if (object == null) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.NULL_ARGUMENT_$1, name));
+            throw new IllegalArgumentException(MessageFormat.format(ErrorKeys.NULL_ARGUMENT_$1, name));
         }
     }
-
-
-    /**
-     * Computes the orthodromic distance between two points. This method:
-     * <p>
-     * <ol>
-     * <li>Transforms both points to geographic coordinates
-     * (<var>latitude</var>,<var>longitude</var>).</li>
-     * <li>Computes the orthodromic distance between the two points using ellipsoidal calculations.</li>
-     * </ol>
-     * <p>
-     * The real work is performed by {@link GeodeticCalculator}. This convenience method simply
-     * manages a pool of pre-defined geodetic calculators for the given coordinate reference system
-     * in order to avoid repetitive object creation. If a large amount of orthodromic distances need
-     * to be computed, direct use of {@link GeodeticCalculator} provides better performance than
-     * this convenience method.
-     *
-     * @param p1  First point
-     * @param p2  Second point
-     * @param crs Reference system the two points are in.
-     * @return Orthodromic distance between the two points, in meters.
-     * @throws TransformException if the coordinates can't be transformed from the specified CRS to a
-     *                            {@linkplain org.opengis.referencing.crs.GeographicCRS geographic CRS}.
-     */
-    public static synchronized double orthodromicDistance(final Coordinate p1, final Coordinate p2,
-                                                          final CoordinateReferenceSystem crs) throws TransformException {
-        ensureNonNull("p1", p1);
-        ensureNonNull("p2", p2);
-        ensureNonNull("crs", crs);
-
-        /*
-         * Need to synchronize because we use a single instance of a Map (CALCULATORS) as well as
-         * shared instances of GeodeticCalculator and GeneralDirectPosition (POSITIONS). None of
-         * them are thread-safe.
-         */
-        GeodeticCalculator gc = CALCULATORS.get(crs);
-
-        if (gc == null) {
-            gc = new GeodeticCalculator(crs);
-            CALCULATORS.put(crs, gc);
-        }
-        if (!crs.equals(gc.getCoordinateReferenceSystem())) throw new AssertionError(crs);
-
-        final GeneralDirectPosition pos = POSITIONS[Math.min(POSITIONS.length - 1, crs
-                .getCoordinateSystem().getDimension())];
-        pos.setCoordinateReferenceSystem(crs);
-        copy(p1, pos.ordinates);
-        gc.setStartingPosition(pos);
-        copy(p2, pos.ordinates);
-        gc.setDestinationPosition(pos);
-
-        return gc.getOrthodromicDistance();
-    }
-
 
     /**
      * Copies the ordinates values from the specified JTS coordinates to the specified array. The
@@ -174,7 +101,6 @@ public final class JTS {
                 Arrays.fill(ordinates, 3, ordinates.length, Double.NaN); // Fall through
         }
     }
-
 
     /**
      * Creates a smoothed copy of the input Geometry. This is only useful for polygonal and lineal
@@ -220,10 +146,8 @@ public final class JTS {
      * @throws IllegalArgumentException if either {@code geom} or {@code factory} is {@code null}
      */
     public static Geometry smooth(final Geometry geom, double fit, final GeometryFactory factory) {
-
         ensureNonNull("geom", geom);
         ensureNonNull("factory", factory);
-
         // Adjust fit if necessary
         fit = Math.max(0.0, Math.min(1.0, fit));
         return smooth(geom, fit, factory, new GeometrySmoother(factory));
@@ -231,7 +155,6 @@ public final class JTS {
 
     private static Geometry smooth(final Geometry geom, final double fit,
                                    final GeometryFactory factory, GeometrySmoother smoother) {
-
         return switch (geom.getGeometryType().toUpperCase()) {
             case "POINT", "MULTIPOINT" ->
                 // For points, just return the input geometry
@@ -250,13 +173,11 @@ public final class JTS {
 
     private static Geometry smoothLineString(GeometryFactory factory, GeometrySmoother smoother,
                                              Geometry geom, double fit) {
-
         if (geom instanceof LinearRing linearRing) {
             // Treat as a Polygon
             Polygon poly = factory.createPolygon(linearRing, null);
             Polygon smoothed = smoother.smooth(poly, fit);
             return smoothed.getExteriorRing();
-
         } else {
             return smoother.smooth((LineString) geom, fit);
         }
@@ -264,41 +185,33 @@ public final class JTS {
 
     private static Geometry smoothMultiLineString(GeometryFactory factory,
                                                   GeometrySmoother smoother, Geometry geom, double fit) {
-
         final int N = geom.getNumGeometries();
         LineString[] smoothed = new LineString[N];
-
         for (int i = 0; i < N; i++) {
             smoothed[i] = (LineString) smoothLineString(factory, smoother, geom.getGeometryN(i),
                     fit);
         }
-
         return factory.createMultiLineString(smoothed);
     }
 
     private static Geometry smoothMultiPolygon(GeometryFactory factory, GeometrySmoother smoother,
                                                Geometry geom, double fit) {
-
         final int N = geom.getNumGeometries();
         Polygon[] smoothed = new Polygon[N];
 
         for (int i = 0; i < N; i++) {
             smoothed[i] = smoother.smooth((Polygon) geom.getGeometryN(i), fit);
         }
-
         return factory.createMultiPolygon(smoothed);
     }
 
     private static Geometry smoothGeometryCollection(GeometryFactory factory,
                                                      GeometrySmoother smoother, Geometry geom, double fit) {
-
         final int N = geom.getNumGeometries();
         Geometry[] smoothed = new Geometry[N];
-
         for (int i = 0; i < N; i++) {
             smoothed[i] = smooth(geom.getGeometryN(i), fit, factory, smoother);
         }
-
         return factory.createGeometryCollection(smoothed);
     }
 
@@ -313,13 +226,10 @@ public final class JTS {
         if (ls == null) {
             throw new NullPointerException("The provided linestring is null");
         }
-
         final int N = ls.getNumPoints();
         final boolean isLinearRing = ls instanceof LinearRing;
-
         List<Coordinate> retain = new ArrayList<>();
         retain.add(ls.getCoordinateN(0));
-
         int i0 = 0;
         int i1 = 1;
         int i2 = 2;
@@ -354,7 +264,6 @@ public final class JTS {
 
             return ls;
         }
-
         return isLinearRing ? ls.getFactory()
                 .createLinearRing(retain.toArray(new Coordinate[size])) : ls.getFactory()
                 .createLineString(retain.toArray(new Coordinate[size]));
@@ -420,10 +329,8 @@ public final class JTS {
                 part = removeCollinearVertices(part);
                 parts[i] = part;
             }
-
             return g.getFactory().createMultiPolygon(parts);
         }
-
         throw new IllegalArgumentException(
                 "This method can work on LineString, Polygon and Multipolygon: " + g.getClass());
     }
@@ -445,7 +352,6 @@ public final class JTS {
         if ((minPoints <= 0) || (geometry.getNumPoints() < minPoints)) {
             return geometry;
         }
-
         if (geometry instanceof LineString lineString) {
             return removeCollinearVertices(lineString);
         } else if (geometry instanceof Polygon polygon) {
@@ -460,7 +366,6 @@ public final class JTS {
 
             return geometry.getFactory().createMultiPolygon(parts);
         }
-
         throw new IllegalArgumentException(
                 "This method can work on LineString, Polygon and Multipolygon: "
                         + geometry.getClass());
@@ -472,7 +377,6 @@ public final class JTS {
 
     public static Polygon toGeometry(final Envelope env, GeometryFactory factory) {
         ensureNonNull("env", env);
-
         return factory.createPolygon(factory.createLinearRing(new Coordinate[]{
                 new Coordinate(env.getMinX(), env.getMinY()),
                 new Coordinate(env.getMaxX(), env.getMinY()),

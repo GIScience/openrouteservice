@@ -1,8 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
 
 import org.apache.log4j.Logger;
+import org.geotools.api.feature.Property;
 import org.heigit.ors.routing.graphhopper.extensions.TrafficRelevantWayType;
-import org.opengis.feature.Property;
 
 import java.util.Collection;
 

@@ -2,11 +2,11 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
 
 import com.graphhopper.util.DistanceCalcEarth;
 import org.apache.log4j.Logger;
+import org.geotools.api.feature.Property;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
-import org.opengis.feature.Property;
 
 import java.io.InvalidObjectException;
 import java.util.Collection;
