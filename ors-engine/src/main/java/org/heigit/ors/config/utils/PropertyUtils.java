@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -152,11 +153,11 @@ public class PropertyUtils {
         return fields;
     }
 
-    public static boolean deepEqualityCheck(Object obj1, Object obj2, Set<String> excludeFields) {
-        return deepEqualityCheck(obj1, obj2, excludeFields, "");
+    public static boolean deepEqualityCheckIsUnequal(Object obj1, Object obj2, Set<String> excludeFields) {
+        return deepEqualityCheckIsUnequal(obj1, obj2, excludeFields, "");
     }
 
-    private static boolean deepEqualityCheck(Object obj1, Object obj2, Set<String> excludeFields, String path) {
+    private static boolean deepEqualityCheckIsUnequal(Object obj1, Object obj2, Set<String> excludeFields, String path) {
         if (obj1 == obj2) {
             return true;
         }
@@ -172,8 +173,6 @@ public class PropertyUtils {
         Class<?> inputClass = obj1.getClass();
         List<Field> allFields = getAllFields(inputClass);
         for (Field field : allFields) {
-            if (field.getName().equals("profileDefault.extStorages"))
-                System.out.println("Synthetic field: " + field.getName());
             String fullPath = path.isEmpty() ? field.getName() : path + "." + field.getName();
             if (shouldExclude(fullPath, excludeFields)) {
                 continue;
@@ -191,38 +190,38 @@ public class PropertyUtils {
                     return false;
                 }
 
-                if (deepCompareFields(value1, value2, excludeFields, fullPath)) {
+                if (deepCompareFieldsAreUnequal(value1, value2, excludeFields, fullPath)) {
                     return false;
                 }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
+            } catch (InaccessibleObjectException | IllegalAccessException e) {
+                throw new RuntimeException("Could not access field: " + field.getName());
             }
         }
         return true;
     }
 
-    private static boolean deepCompareFields(Object value1, Object value2, Set<String> excludeFields, String path) {
-        if (path.equals("elevation.dataAccess"))
-            System.out.println("Comparing " + path + " " + value1 + " " + value2);
-        Class<?> aClass = value1.getClass();
+    protected static boolean deepCompareFieldsAreUnequal(Object value1, Object value2, Set<String> excludeFields, String path) {
+        // Check on null
+        if (value1 == null) {
+            return !deepEqualityCheckIsUnequal(null, value2, excludeFields, path);
+        }
         if (value1 instanceof Collection && value2 instanceof Collection) {
-            return !deepCompareCollections((Collection<?>) value1, (Collection<?>) value2, excludeFields, path);
+            return deepCompareCollections((Collection<?>) value1, (Collection<?>) value2, excludeFields, path);
         } else if (value1 instanceof Map && value2 instanceof Map) {
             // If their sizes are different, they are not equal
             if (((Map<?, ?>) value1).size() != ((Map<?, ?>) value2).size()) {
                 return false;
             }
-            return !deepEqualityCheck(value1, value2, excludeFields);
+            return !deepEqualityCheckIsUnequal(value1, value2, excludeFields);
         } else if (value1 instanceof Object[] && value2 instanceof Object[]) {
             return !deepCompareArrays((Object[]) value1, (Object[]) value2, excludeFields, path);
-        } else if (isPrimitiveOrWrapper(value1.getClass()) || value1 instanceof String) {
+        } else if (isPrimitiveOrWrapper(value1.getClass())) {
             return !value1.equals(value2);
         } else if (value1 instanceof Path && value2 instanceof Path) {
             return !value1.equals(value2);
         } else {
-            return !deepEqualityCheck(value1, value2, excludeFields, path);
+            return !deepEqualityCheckIsUnequal(value1, value2, excludeFields, path);
         }
     }
 
@@ -233,34 +232,41 @@ public class PropertyUtils {
         Iterator<?> it1 = col1.iterator();
         Iterator<?> it2 = col2.iterator();
         while (it1.hasNext() && it2.hasNext()) {
-            if (deepCompareFields(it1.next(), it2.next(), excludeFields, path)) {
+            if (deepCompareFieldsAreUnequal(it1.next(), it2.next(), excludeFields, path)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static boolean deepCompareArrays(Object[] arr1, Object[] arr2, Set<String> excludeFields, String path) {
+    protected static boolean deepCompareArrays(Object[] arr1, Object[] arr2, Set<String> excludeFields, String path) {
+        // Check on null
+        if (arr1 == null || arr2 == null) {
+            return false;
+        }
+
         if (arr1.length != arr2.length) {
             return false;
         }
         for (int i = 0; i < arr1.length; i++) {
-            if (deepCompareFields(arr1[i], arr2[i], excludeFields, path)) {
+            if (deepCompareFieldsAreUnequal(arr1[i], arr2[i], excludeFields, path)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static boolean isPrimitiveOrWrapper(Class<?> type) {
+    protected static boolean isPrimitiveOrWrapper(Class<?> type) {
+        // Check for null
+        if (type == null) {
+            return false;
+        }
         return type.isPrimitive() || type.isEnum() || type == Boolean.class || type == Integer.class || type == Character.class ||
-                type == Byte.class || type == Short.class || type == Double.class || type == Long.class || type == Float.class;
+                type == Byte.class || type == Short.class || type == Double.class || type == Long.class || type == Float.class || type == String.class;
     }
 
-    private static boolean shouldExclude(String path, Set<String> excludeFields) {
+    protected static boolean shouldExclude(String path, Set<String> excludeFields) {
         for (String excludeField : excludeFields) {
-            boolean equals = excludeField.equals(path);
-            boolean startsWith = excludeField.startsWith(path + ".");
             if (excludeField.equals(path)) {
                 return true;
             }

@@ -52,6 +52,40 @@ class ProfilePropertiesTest {
     }
 
     @Test
+    void testDefaultConstructor() {
+        ProfileProperties profileProperties = new HelperClass();
+        assertNull(profileProperties.getEnabled());
+        assertNull(profileProperties.getEncoderName());
+        assertNull(profileProperties.getElevation());
+        assertNull(profileProperties.getElevationSmoothing());
+        assertNull(profileProperties.getEncoderFlagsSize());
+        assertNull(profileProperties.getInstructions());
+        assertNull(profileProperties.getOptimize());
+        assertNull(profileProperties.getTraffic());
+        assertNull(profileProperties.getInterpolateBridgesAndTunnels());
+        assertNull(profileProperties.getForceTurnCosts());
+        assertNull(profileProperties.getGraphPath());
+        assertNull(profileProperties.getLocationIndexResolution());
+        assertNull(profileProperties.getLocationIndexSearchIterations());
+        assertNull(profileProperties.getGtfsFile());
+        assertNull(profileProperties.getMaximumDistance());
+        assertNull(profileProperties.getMaximumDistanceDynamicWeights());
+        assertNull(profileProperties.getMaximumDistanceAvoidAreas());
+        assertNull(profileProperties.getMaximumDistanceAlternativeRoutes());
+        assertNull(profileProperties.getMaximumDistanceRoundTripRoutes());
+        assertNull(profileProperties.getMaximumSpeedLowerBound());
+        assertNull(profileProperties.getMaximumWayPoints());
+        assertNull(profileProperties.getMaximumSnappingRadius());
+        assertNull(profileProperties.getMaximumVisitedNodes());
+    }
+
+    @ParameterizedTest
+    @MethodSource("encoderAndExpectedKeysWithDefaults")
+    void getProfilesTypesWithVariousEncoderNames(ProfileProperties properties, EncoderNameEnum expectedEncoderName) {
+        assertArrayEquals(new Integer[]{expectedEncoderName.getValue()}, properties.getProfilesTypes());
+    }
+
+    @Test
     void defaultPropertiesWithGlobalDefaults() {
         DefaultProfileProperties defaultProfileProperties = new DefaultProfileProperties(true);
         assertNull(defaultProfileProperties.getEncoderName());
@@ -154,6 +188,18 @@ class ProfilePropertiesTest {
 
         assertEquals(expectedEncoderName, deserializedProfileProperties.getEncoderName());
         assertInstanceOf(ProfileProperties.class, deserializedProfileProperties);
+    }
+
+    static class HelperClass extends ProfileProperties {
+        public HelperClass() {
+            super();
+        }
+    }
+
+    static class HelperPropertiesClass extends ProfileProperties {
+        public HelperPropertiesClass(EncoderNameEnum encoderName) {
+            super(false, encoderName);
+        }
     }
 
 }

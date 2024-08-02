@@ -130,6 +130,74 @@ class EnginePropertiesTest {
     }
 
     @Test
+    void testEmptyConstructor() {
+        EngineProperties engineProperties = new EngineProperties();
+        assertNotNull(engineProperties);
+        assertNull(engineProperties.getSourceFile());
+        assertNull(engineProperties.getInitThreads());
+        assertNull(engineProperties.getPreparationMode());
+        assertNull(engineProperties.getConfigOutputMode());
+        assertNull(engineProperties.getGraphsRootPath());
+        assertNull(engineProperties.getGraphsDataAccess());
+        assertNotNull(engineProperties.getElevation());
+        assertNotNull(engineProperties.getProfileDefault());
+        assertNotNull(engineProperties.getProfiles());
+    }
+
+    @Test
+    void getActiveProfilesReturnsNonEmptyMapWhenInitialized() {
+        EngineProperties engineProperties = new EngineProperties();
+        engineProperties.initialize();
+        Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
+        assertNotNull(activeProfiles);
+        assertFalse(activeProfiles.isEmpty());
+    }
+
+    @Test
+    void getActiveProfilesReturnsEmptyMapWhenNoProfilesSet() {
+        EngineProperties engineProperties = new EngineProperties();
+        Map<String, ProfileProperties> profiles = engineProperties.getProfiles();
+        assertNotNull(profiles);
+        assertTrue(profiles.isEmpty());
+    }
+
+
+    @Test
+    void getActiveProfilesReturnsCorrectProfiles() {
+        EngineProperties engineProperties = new EngineProperties();
+        Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
+        assertTrue(activeProfiles.containsKey("car"));
+        assertTrue(activeProfiles.containsKey("hgv"));
+        assertTrue(activeProfiles.containsKey("wheelchair"));
+        assertTrue(activeProfiles.containsKey("bike-mountain"));
+        assertTrue(activeProfiles.containsKey("bike-road"));
+        assertTrue(activeProfiles.containsKey("bike-electric"));
+        assertTrue(activeProfiles.containsKey("bike-regular"));
+        assertTrue(activeProfiles.containsKey("public-transport"));
+        assertTrue(activeProfiles.containsKey("hiking"));
+        assertTrue(activeProfiles.containsKey("walking"));
+    }
+
+    @Test
+    void getActiveProfilesReturnsDefaultProfilesWhenNotSet() {
+        EngineProperties engineProperties = new EngineProperties(true);
+        engineProperties.initialize();
+        Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
+        assertNotNull(activeProfiles);
+        assertFalse(activeProfiles.isEmpty());
+        assertTrue(activeProfiles.containsKey("car"));
+        assertTrue(activeProfiles.containsKey("hgv"));
+    }
+
+    @Test
+    void getActiveProfilesDoesNotReinitializeIfAlreadyInitialized() {
+        enginePropertiesTest.initialize();
+        Map<String, ProfileProperties> firstCall = enginePropertiesTest.getActiveProfiles();
+        Map<String, ProfileProperties> secondCall = enginePropertiesTest.getActiveProfiles();
+        assertSame(firstCall, secondCall);
+    }
+
+    @Test
     void testSerializeEmptyEngineProperties() throws JsonProcessingException {
         EngineProperties engineProperties = new EngineProperties();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -517,7 +585,7 @@ class EnginePropertiesTest {
     @Test
     void testMergeRawSettingsWithDefaultValuesCheckEngineDefaults() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
         // Default fallback values
-        boolean equal = PropertyUtils.deepEqualityCheck(defaultEngineProperties, enginePropertiesTest, defaultProfilePropertiesIgnoreList);
+        boolean equal = PropertyUtils.deepEqualityCheckIsUnequal(defaultEngineProperties, enginePropertiesTest, defaultProfilePropertiesIgnoreList);
         // Test the raw top level settings
         assertTrue(equal, "The engine properties are not equal to the default engine properties");
         assertEquals(enginePropertiesTest.getGraphsDataAccess(), DataAccessEnum.MMAP_RO);
