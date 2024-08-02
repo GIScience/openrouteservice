@@ -77,7 +77,7 @@ public class EngineProperties {
     }
 
     @JsonIgnore
-    public void combineProperties() {
+    public void initialize() {
         if (isInitialized()) {
             return;
         }
@@ -121,6 +121,10 @@ public class EngineProperties {
             ProfileProperties profile = this.getProfiles().get(profileEntryName);
             // Second step
             PropertyUtils.deepCopyObjectsProperties(raw_user_default_profile_settings, profile, false);
+            // If the graph_path is still empty, set it to the default value
+            if (profile.getGraphPath() == null) {
+                profile.setGraphPath(Paths.get(this.getGraphsRootPath().toString(), profileEntryName));
+            }
             // Third step
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profileEntryName), profile, false);
             // Fourth step
@@ -132,13 +136,9 @@ public class EngineProperties {
 
     @JsonIgnore
     public Map<String, ProfileProperties> getActiveProfiles() {
-        Map<String, ProfileProperties> activeProfiles = new LinkedHashMap<>();
-        for (Map.Entry<String, ProfileProperties> prof : profiles.entrySet()) {
-            prof.getValue().mergeDefaultsAndSetGraphPath(profileDefault, graphsRootPath, prof.getKey());
-            if (Boolean.TRUE.equals(prof.getValue().getEnabled()) && prof.getValue().getEncoderName() != null) {
-                activeProfiles.put(prof.getKey(), prof.getValue());
-            }
+        if (!initialized) {
+            initialize();
         }
-        return activeProfiles;
+        return profiles;
     }
 }

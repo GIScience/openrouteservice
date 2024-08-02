@@ -10,10 +10,8 @@ import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.defaults.*;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.config.utils.*;
-import org.heigit.ors.routing.RoutingProfileType;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -46,6 +44,7 @@ public abstract class ProfileProperties {
     @JsonProperty("graph_path")
     @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)
+    @Setter(AccessLevel.PUBLIC)
     private Path graphPath;
     @JsonProperty("location_index_resolution")
     private Integer locationIndexResolution;
@@ -90,6 +89,11 @@ public abstract class ProfileProperties {
         this(false);
     }
 
+    protected ProfileProperties(Boolean setDefaults, EncoderNameEnum encoderName) {
+        this(setDefaults);
+        setEncoderName(encoderName);
+    }
+
     protected ProfileProperties(Boolean setDefaults) {
         if (setDefaults) {
             encoderOptions = new DefaultEncoderOptionsProperties();
@@ -102,44 +106,6 @@ public abstract class ProfileProperties {
         }
     }
 
-    public void mergeDefaultsAndSetGraphPath(ProfileProperties defaultProfile, Path graphsRootPath, String profileName) {
-        if (enabled == null) enabled = defaultProfile.enabled;
-        if (encoderName == null) encoderName = defaultProfile.encoderName;
-        if (elevation == null) elevation = defaultProfile.elevation;
-        if (elevationSmoothing == null) elevationSmoothing = defaultProfile.elevationSmoothing;
-        if (encoderFlagsSize == null) encoderFlagsSize = defaultProfile.encoderFlagsSize;
-        if (instructions == null) instructions = defaultProfile.instructions;
-        if (optimize == null) optimize = defaultProfile.optimize;
-        if (traffic == null) traffic = defaultProfile.traffic;
-        if (interpolateBridgesAndTunnels == null)
-            interpolateBridgesAndTunnels = defaultProfile.interpolateBridgesAndTunnels;
-        if (forceTurnCosts == null) forceTurnCosts = defaultProfile.forceTurnCosts;
-        if (graphPath == null)
-            graphPath = defaultProfile.graphPath == null ? Paths.get(graphsRootPath.toString(), profileName) : Paths.get(defaultProfile.graphPath.toString(), profileName);
-        if (locationIndexResolution == null) locationIndexResolution = defaultProfile.locationIndexResolution;
-        if (locationIndexSearchIterations == null)
-            locationIndexSearchIterations = defaultProfile.locationIndexSearchIterations;
-        if (gtfsFile == null) gtfsFile = defaultProfile.gtfsFile;
-
-        if (maximumDistance == null) maximumDistance = defaultProfile.maximumDistance;
-        if (maximumDistanceDynamicWeights == null)
-            maximumDistanceDynamicWeights = defaultProfile.maximumDistanceDynamicWeights;
-        if (maximumDistanceAvoidAreas == null) maximumDistanceAvoidAreas = defaultProfile.maximumDistanceAvoidAreas;
-        if (maximumDistanceAlternativeRoutes == null)
-            maximumDistanceAlternativeRoutes = defaultProfile.maximumDistanceAlternativeRoutes;
-        if (maximumDistanceRoundTripRoutes == null)
-            maximumDistanceRoundTripRoutes = defaultProfile.maximumDistanceRoundTripRoutes;
-        if (maximumSpeedLowerBound == null) maximumSpeedLowerBound = defaultProfile.maximumSpeedLowerBound;
-        if (maximumWayPoints == null) maximumWayPoints = defaultProfile.maximumWayPoints;
-        if (maximumSnappingRadius == null) maximumSnappingRadius = defaultProfile.maximumSnappingRadius;
-        if (maximumVisitedNodes == null) maximumVisitedNodes = defaultProfile.maximumVisitedNodes;
-
-        if (encoderOptions.isEmpty()) encoderOptions = defaultProfile.encoderOptions;
-        if (preparation.isEmpty()) preparation = defaultProfile.preparation;
-        if (execution.isEmpty()) execution = defaultProfile.execution;
-        if (extStorages.isEmpty()) extStorages = defaultProfile.extStorages;
-    }
-
     @JsonIgnore
     public String getEncoderOptionsString() {
         if (encoderOptions == null) return "";
@@ -149,13 +115,9 @@ public abstract class ProfileProperties {
     @JsonIgnore
     public Integer[] getProfilesTypes() {
         ArrayList<Integer> list = new ArrayList<>();
-        // TODO check
-        String[] elements = encoderName.toString().split("\\s*,\\s*");
-        for (String element : elements) {
-            int profileType = RoutingProfileType.getFromString(element);
-            if (profileType != RoutingProfileType.UNKNOWN) {
-                list.add(profileType);
-            }
+        // TODO check why this originally tries to split the encoderName. Can we add more than one?
+        if (encoderName != null && encoderName != EncoderNameEnum.UNKNOWN) {
+            list.add(encoderName.getValue());
         }
         return list.toArray(new Integer[0]);
     }

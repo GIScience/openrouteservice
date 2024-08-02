@@ -45,7 +45,10 @@ public class ExecutionProperties {
 
         @JsonIgnore
         public boolean isEmpty() {
-            return astar.isEmpty() && lm.isEmpty() && core.isEmpty();
+            // check null and empty to catch null pointer exceptions
+            return (astar == null || astar.isEmpty()) &&
+                    (lm == null || lm.isEmpty()) &&
+                    (core == null || core.isEmpty());
         }
 
         @Getter

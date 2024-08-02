@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,7 @@ public class PreparationProperties {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return this.minNetworkSize == null && this.minOneWayNetworkSize == null && methods.isEmpty();
+        return minNetworkSize == null && minOneWayNetworkSize == null && (methods == null || methods.isEmpty());
     }
 
     @Getter
@@ -61,7 +60,7 @@ public class PreparationProperties {
 
         @JsonIgnore
         public boolean isEmpty() {
-            return ch.isEmpty() && lm.isEmpty() && core.isEmpty() && fastisochrones.isEmpty();
+            return (ch == null || ch.isEmpty()) && (lm == null || lm.isEmpty()) && (core == null || core.isEmpty()) && (fastisochrones == null || fastisochrones.isEmpty());
         }
 
         @Getter
@@ -69,7 +68,6 @@ public class PreparationProperties {
         @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CHProperties {
-            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -79,9 +77,20 @@ public class PreparationProperties {
                 return enabled == null && threads == null && weightings == null;
             }
 
+            // Needed for Jackson
             @JsonGetter("enabled")
-            public Boolean isEnabled() {
+            private Boolean getEnabled() {
                 return enabled;
+            }
+
+            @JsonIgnore
+            public Boolean isEnabled() {
+                return Objects.requireNonNullElse(enabled, false);
+            }
+
+            @JsonIgnore
+            public Integer getThreadsSave() {
+                return threads == null || threads < 1 ? 1 : threads;
             }
         }
 
@@ -90,7 +99,6 @@ public class PreparationProperties {
         @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
-            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -101,9 +109,20 @@ public class PreparationProperties {
                 return enabled == null && threads == null && weightings == null && landmarks == null;
             }
 
+            // Needed for Jackson
             @JsonGetter("enabled")
-            public Boolean isEnabled() {
+            private Boolean getEnabled() {
                 return enabled;
+            }
+
+            @JsonIgnore
+            public Boolean isEnabled() {
+                return Objects.requireNonNullElse(enabled, false);
+            }
+
+            @JsonIgnore
+            public Integer getThreadsSave() {
+                return threads == null || threads < 1 ? 1 : threads;
             }
         }
 
@@ -112,7 +131,6 @@ public class PreparationProperties {
         @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
-            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -124,9 +142,20 @@ public class PreparationProperties {
                 return enabled == null && threads == null && weightings == null && landmarks == null && lmsets == null;
             }
 
+            // Needed for Jackson
             @JsonGetter("enabled")
-            public Boolean isEnabled() {
+            private Boolean getEnabled() {
                 return enabled;
+            }
+
+            @JsonIgnore
+            public Boolean isEnabled() {
+                return Objects.requireNonNullElse(enabled, false);
+            }
+
+            @JsonIgnore
+            public Integer getThreadsSave() {
+                return threads == null || threads < 1 ? 1 : threads;
             }
         }
 
@@ -135,7 +164,6 @@ public class PreparationProperties {
         @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class FastIsochroneProperties {
-            @Getter(AccessLevel.NONE)
             private Boolean enabled;
             private Integer threads;
             private String weightings;
@@ -146,14 +174,20 @@ public class PreparationProperties {
                 return enabled == null && threads == null && weightings == null && maxcellnodes == null;
             }
 
+            // Needed for Jackson
             @JsonGetter("enabled")
-            public Boolean getEnabled() {
+            private Boolean getEnabled() {
                 return enabled;
             }
 
             @JsonIgnore
             public Boolean isEnabled() {
                 return Objects.requireNonNullElse(enabled, false);
+            }
+
+            @JsonIgnore
+            public Integer getThreadsSave() {
+                return threads == null || threads < 1 ? 1 : threads;
             }
         }
     }

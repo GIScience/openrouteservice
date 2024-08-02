@@ -15,17 +15,21 @@ class DefaultPreparationPropertiesTest {
         assertFalse(properties.getMethods().getCh().isEnabled());
         assertEquals("fastest", properties.getMethods().getCh().getWeightings());
         assertEquals(2, properties.getMethods().getCh().getThreads());
+        assertEquals(2, properties.getMethods().getCh().getThreadsSave());
         assertTrue(properties.getMethods().getLm().isEnabled());
         assertEquals("recommended,shortest", properties.getMethods().getLm().getWeightings());
         assertEquals(2, properties.getMethods().getLm().getThreads());
+        assertEquals(2, properties.getMethods().getLm().getThreadsSave());
         assertEquals(16, properties.getMethods().getLm().getLandmarks());
         assertFalse(properties.getMethods().getCore().isEnabled());
         assertEquals(2, properties.getMethods().getCore().getThreads());
+        assertEquals(2, properties.getMethods().getCore().getThreadsSave());
         assertEquals("fastest,shortest", properties.getMethods().getCore().getWeightings());
         assertEquals(64, properties.getMethods().getCore().getLandmarks());
         assertEquals("highways;allow_all", properties.getMethods().getCore().getLmsets());
         assertFalse(properties.getMethods().getFastisochrones().isEnabled());
         assertEquals(2, properties.getMethods().getFastisochrones().getThreads());
+        assertEquals(2, properties.getMethods().getFastisochrones().getThreadsSave());
         assertEquals("recommended,shortest", properties.getMethods().getFastisochrones().getWeightings());
     }
 
@@ -41,15 +45,15 @@ class DefaultPreparationPropertiesTest {
         // Defaults
         assertEquals(200, properties.getMinNetworkSize());
         assertEquals(200, properties.getMinOneWayNetworkSize());
-        assertEquals(2, properties.getMethods().getCh().getThreads());
-        assertEquals(2, properties.getMethods().getLm().getThreads());
+        assertEquals(2, properties.getMethods().getCh().getThreadsSave());
+        assertEquals(2, properties.getMethods().getLm().getThreadsSave());
         assertEquals(16, properties.getMethods().getLm().getLandmarks());
-        assertEquals(2, properties.getMethods().getCore().getThreads());
+        assertEquals(2, properties.getMethods().getCore().getThreadsSave());
         assertEquals("fastest,shortest", properties.getMethods().getCore().getWeightings());
         assertEquals(64, properties.getMethods().getCore().getLandmarks());
         assertEquals("highways;allow_all", properties.getMethods().getCore().getLmsets());
         assertFalse(properties.getMethods().getFastisochrones().isEnabled());
-        assertEquals(2, properties.getMethods().getFastisochrones().getThreads());
+        assertEquals(2, properties.getMethods().getFastisochrones().getThreadsSave());
         assertEquals("recommended,shortest", properties.getMethods().getFastisochrones().getWeightings());
     }
 
@@ -64,16 +68,16 @@ class DefaultPreparationPropertiesTest {
         // Defaults
         assertEquals(200, properties.getMinNetworkSize());
         assertEquals(200, properties.getMinOneWayNetworkSize());
-        assertEquals(2, properties.getMethods().getCh().getThreads());
+        assertEquals(2, properties.getMethods().getCh().getThreadsSave());
         assertTrue(properties.getMethods().getLm().isEnabled());
         assertEquals("recommended,shortest", properties.getMethods().getLm().getWeightings());
-        assertEquals(2, properties.getMethods().getLm().getThreads());
+        assertEquals(2, properties.getMethods().getLm().getThreadsSave());
         assertEquals(16, properties.getMethods().getLm().getLandmarks());
-        assertEquals(2, properties.getMethods().getCore().getThreads());
+        assertEquals(2, properties.getMethods().getCore().getThreadsSave());
         assertEquals(64, properties.getMethods().getCore().getLandmarks());
         assertEquals("highways;allow_all", properties.getMethods().getCore().getLmsets());
         assertFalse(properties.getMethods().getFastisochrones().isEnabled());
-        assertEquals(2, properties.getMethods().getFastisochrones().getThreads());
+        assertEquals(2, properties.getMethods().getFastisochrones().getThreadsSave());
         assertEquals("recommended,shortest", properties.getMethods().getFastisochrones().getWeightings());
 
     }
@@ -85,18 +89,18 @@ class DefaultPreparationPropertiesTest {
         assertEquals(200, properties.getMinOneWayNetworkSize());
         assertFalse(properties.getMethods().getCh().isEnabled());
         assertEquals("fastest", properties.getMethods().getCh().getWeightings());
-        assertEquals(2, properties.getMethods().getCh().getThreads());
+        assertEquals(2, properties.getMethods().getCh().getThreadsSave());
         assertTrue(properties.getMethods().getLm().isEnabled());
         assertEquals("recommended,shortest", properties.getMethods().getLm().getWeightings());
-        assertEquals(2, properties.getMethods().getLm().getThreads());
+        assertEquals(2, properties.getMethods().getLm().getThreadsSave());
         assertEquals(16, properties.getMethods().getLm().getLandmarks());
         assertFalse(properties.getMethods().getCore().isEnabled());
-        assertEquals(2, properties.getMethods().getCore().getThreads());
+        assertEquals(2, properties.getMethods().getCore().getThreadsSave());
         assertEquals("fastest,shortest", properties.getMethods().getCore().getWeightings());
         assertEquals(64, properties.getMethods().getCore().getLandmarks());
         assertEquals("highways;allow_all", properties.getMethods().getCore().getLmsets());
         assertFalse(properties.getMethods().getFastisochrones().isEnabled());
-        assertEquals(2, properties.getMethods().getFastisochrones().getThreads());
+        assertEquals(2, properties.getMethods().getFastisochrones().getThreadsSave());
         assertEquals("recommended,shortest", properties.getMethods().getFastisochrones().getWeightings());
     }
 
@@ -107,18 +111,18 @@ class DefaultPreparationPropertiesTest {
         assertEquals(200, properties.getMinOneWayNetworkSize());
         assertFalse(properties.getMethods().getCh().isEnabled());
         assertEquals("fastest", properties.getMethods().getCh().getWeightings());
-        assertEquals(2, properties.getMethods().getCh().getThreads());
+        assertEquals(2, properties.getMethods().getCh().getThreadsSave());
         assertTrue(properties.getMethods().getLm().isEnabled());
         assertEquals("recommended,shortest", properties.getMethods().getLm().getWeightings());
-        assertEquals(2, properties.getMethods().getLm().getThreads());
+        assertEquals(2, properties.getMethods().getLm().getThreadsSave());
         assertEquals(16, properties.getMethods().getLm().getLandmarks());
         assertFalse(properties.getMethods().getCore().isEnabled());
-        assertEquals(2, properties.getMethods().getCore().getThreads());
+        assertEquals(2, properties.getMethods().getCore().getThreadsSave());
         assertEquals("fastest,shortest", properties.getMethods().getCore().getWeightings());
         assertEquals(64, properties.getMethods().getCore().getLandmarks());
         assertEquals("highways;allow_all", properties.getMethods().getCore().getLmsets());
         assertFalse(properties.getMethods().getFastisochrones().isEnabled());
-        assertEquals(2, properties.getMethods().getFastisochrones().getThreads());
+        assertEquals(2, properties.getMethods().getFastisochrones().getThreadsSave());
         assertEquals("recommended,shortest", properties.getMethods().getFastisochrones().getWeightings());
     }
 }

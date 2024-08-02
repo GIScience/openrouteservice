@@ -77,7 +77,7 @@ class EnginePropertiesTest {
                     "methods": {
                       "lm": {
                         "enabled": true,
-                        "threads": 1
+                        "threads": 5
                       }
                     }
                   },
@@ -126,7 +126,7 @@ class EnginePropertiesTest {
         enginePropertiesTest = mapper.readValue(testJson, EngineProperties.class);
         // Defaults to check against
         defaultEngineProperties = new EngineProperties(true);
-        enginePropertiesTest.combineProperties();
+        enginePropertiesTest.initialize();
     }
 
     @Test
@@ -137,30 +137,23 @@ class EnginePropertiesTest {
         assertNotNull(json);
         //language=JSON
         String expectedJson = """
-                       {
-                "source_file": null,
-                "init_threads": null,
-                "preparation_mode": null,
-                "config_output_mode": null,
-                "graphs_root_path": null,
-                "graphs_data_access": null,
-                "elevation": {
-                    "preprocessed": null,
-                    "data_access": null,
-                    "cache_clear": null,
-                    "provider": null,
-                    "cache_path": null
-                },
-                "profile_default": {
-                    "preparation": {
-                        "methods": {}
-                    },
-                    "execution": {
-                        "methods": {}
-                    }
-                },
-                "profiles": {}
-                            }""";
+                {
+                 "source_file": null,
+                 "init_threads": null,
+                 "preparation_mode": null,
+                 "config_output_mode": null,
+                 "graphs_root_path": null,
+                 "graphs_data_access": null,
+                 "elevation": {
+                     "preprocessed": null,
+                     "data_access": null,
+                     "cache_clear": null,
+                     "provider": null,
+                     "cache_path": null
+                 },
+                 "profile_default": {},
+                 "profiles": {}
+                }""";
         // compare the two json strings as actual json objects
         assertEquals(objectMapper.readTree(expectedJson), objectMapper.readTree(json));
     }
@@ -366,7 +359,7 @@ class EnginePropertiesTest {
 
         PreparationProperties.MethodsProperties.LMProperties lmProperties = methodsProperties.getLm();
         assertFalse(lmProperties.isEnabled());
-        assertNull(lmProperties.getThreads());
+        assertEquals(1, lmProperties.getThreadsSave());
         assertEquals("shortest", lmProperties.getWeightings());
         assertEquals(2, lmProperties.getLandmarks());
 
@@ -405,7 +398,7 @@ class EnginePropertiesTest {
         PreparationProperties.MethodsProperties.LMProperties carLm = carMethods.getLm();
         assertTrue(assertAllNull(carLm, new HashSet<>(List.of("enabled", "threads"))));
         assertTrue(carLm.isEnabled());
-        assertEquals(1, carLm.getThreads());
+        assertEquals(5, carLm.getThreads());
 
         ExecutionProperties carExecution = carProfile.getExecution();
         assertTrue(assertAllNull(carExecution.getMethods(), new HashSet<>(List.of("lm"))));
@@ -450,6 +443,7 @@ class EnginePropertiesTest {
         PreparationProperties.MethodsProperties.LMProperties hgvLm = hgvMethods.getLm();
         assertTrue(assertAllNull(hgvLm, new HashSet<>(List.of("enabled"))));
         assertTrue(hgvLm.isEnabled());
+        assertEquals(1, hgvLm.getThreadsSave());
 
         ExecutionProperties hgvExecution = hgvProfile.getExecution();
         assertTrue(assertAllNull(hgvExecution.getMethods(), new HashSet<>(List.of("lm"))));
