@@ -1,4 +1,4 @@
-package org.heigit.ors.config.profile.defaults;
+package org.heigit.ors.config.defaults;
 
 
 import org.heigit.ors.common.EncoderNameEnum;
@@ -49,8 +49,10 @@ public class DefaultEncoderOptionsProperties extends EncoderOptionsProperties {
                     setTurnCosts(true);
                     setBlockFords(false);
                 }
-                case FOOT_HIKING, FOOT_WALKING, WHEELCHAIR, PUBLIC_TRANSPORT -> // Just set the ones from below
-                        setBlockFords(false);
+                case FOOT_HIKING, FOOT_WALKING, WHEELCHAIR, PUBLIC_TRANSPORT -> {
+                    setTurnCosts(false);
+                    setBlockFords(false);
+                }
                 default -> {
                 }
             }

@@ -1,4 +1,4 @@
-package org.heigit.ors.config.profile.defaults;
+package org.heigit.ors.config.defaults;
 
 import lombok.EqualsAndHashCode;
 import org.heigit.ors.common.DataAccessEnum;
@@ -19,7 +19,7 @@ public class DefaultElevationProperties extends ElevationProperties {
             setDataAccess(DataAccessEnum.MMAP);
             setCacheClear(false);
             setProvider("multi");
-            setCachePath(Paths.get("./elevation_cache"));
+            setCachePath(Paths.get("./elevation_cache").toAbsolutePath());
         }
     }
 }

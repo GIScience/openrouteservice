@@ -24,7 +24,7 @@ public class ExtendedStorageHereTraffic extends ExtendedStorage {
 
     private Path pattern_15min = Path.of("");
 
-    private Integer radius = 250;
+    private Integer radius = 150;
 
     private Boolean output_log = false;
 

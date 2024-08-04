@@ -1,22 +1,22 @@
-package org.heigit.ors.config.profile.defaults;
+package org.heigit.ors.config.defaults;
 
 import lombok.EqualsAndHashCode;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
 
 @EqualsAndHashCode(callSuper = false)
-public class DefaultProfilePropertiesCar extends ProfileProperties {
-
-    public DefaultProfilePropertiesCar() {
+public class DefaultProfilePropertiesWheelchair extends ProfileProperties {
+    public DefaultProfilePropertiesWheelchair() {
         this(false);
     }
 
-    public DefaultProfilePropertiesCar(Boolean setDefaults) {
-        super(setDefaults, EncoderNameEnum.DRIVING_CAR);
+    public DefaultProfilePropertiesWheelchair(Boolean setDefaults) {
+        super(setDefaults, EncoderNameEnum.WHEELCHAIR);
         if (setDefaults) {
-            // Set the default extended storage properties
+            setMaximumSnappingRadius(50);
             DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
             setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
         }
+
     }
 }

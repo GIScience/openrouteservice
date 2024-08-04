@@ -1,4 +1,4 @@
-package org.heigit.ors.config.profile.defaults;
+package org.heigit.ors.config.defaults;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;

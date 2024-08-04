@@ -1,4 +1,4 @@
-package org.heigit.ors.config.profile.defaults;
+package org.heigit.ors.config.defaults;
 
 import org.heigit.ors.common.EncoderNameEnum;
 import org.junit.jupiter.api.Test;

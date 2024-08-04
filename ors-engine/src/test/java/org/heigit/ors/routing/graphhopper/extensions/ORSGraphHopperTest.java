@@ -7,8 +7,8 @@ import com.graphhopper.config.Profile;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
+import org.heigit.ors.config.defaults.DefaultProfilePropertiesCar;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.defaults.DefaultProfilePropertiesCar;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

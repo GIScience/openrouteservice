@@ -1,4 +1,4 @@
-package org.heigit.ors.config.profile.defaults;
+package org.heigit.ors.config.defaults;
 
 import org.heigit.ors.common.EncoderNameEnum;
 import org.junit.jupiter.api.Test;
@@ -109,7 +109,7 @@ class DefaultEncoderOptionsPropertiesTest {
         assertFalse(properties.getBlockFords());
 
         // Defaults
-        assertTrue(properties.getTurnCosts());
+        assertFalse(properties.getTurnCosts());
         assertFalse(properties.getConsiderElevation());
         assertFalse(properties.getUseAcceleration());
         assertFalse(properties.getConditionalAccess());
@@ -125,7 +125,7 @@ class DefaultEncoderOptionsPropertiesTest {
         assertFalse(properties.getBlockFords());
 
         // Defaults
-        assertNull(properties.getTurnCosts());
+        assertFalse(properties.getTurnCosts());
         assertNull(properties.getConsiderElevation());
         assertNull(properties.getUseAcceleration());
         assertNull(properties.getConditionalAccess());

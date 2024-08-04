@@ -4,13 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.common.EncoderNameEnum;
+import org.heigit.ors.config.defaults.DefaultEngineProperties;
+import org.heigit.ors.config.defaults.DefaultProfiles;
 import org.heigit.ors.config.profile.EncoderOptionsProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.PreparationProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.defaults.DefaultElevationProperties;
-import org.heigit.ors.config.profile.defaults.DefaultProfileProperties;
-import org.heigit.ors.config.profile.defaults.DefaultProfiles;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
 import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
@@ -125,7 +124,7 @@ class EnginePropertiesTest {
         ObjectMapper mapper = new ObjectMapper();
         enginePropertiesTest = mapper.readValue(testJson, EngineProperties.class);
         // Defaults to check against
-        defaultEngineProperties = new EngineProperties(true);
+        defaultEngineProperties = new DefaultEngineProperties(true);
         enginePropertiesTest.initialize();
     }
 
@@ -139,9 +138,9 @@ class EnginePropertiesTest {
         assertNull(engineProperties.getConfigOutputMode());
         assertNull(engineProperties.getGraphsRootPath());
         assertNull(engineProperties.getGraphsDataAccess());
-        assertNotNull(engineProperties.getElevation());
-        assertNotNull(engineProperties.getProfileDefault());
-        assertNotNull(engineProperties.getProfiles());
+        assertNull(engineProperties.getElevation());
+        assertNull(engineProperties.getProfileDefault());
+        assertNull(engineProperties.getProfiles());
     }
 
     @Test
@@ -154,13 +153,13 @@ class EnginePropertiesTest {
     }
 
     @Test
-    void getActiveProfilesReturnsEmptyMapWhenNoProfilesSet() {
+    void getActiveProfilesReturnsNonEmptyMapWhenNotInitialized() {
         EngineProperties engineProperties = new EngineProperties();
-        Map<String, ProfileProperties> profiles = engineProperties.getProfiles();
-        assertNotNull(profiles);
-        assertTrue(profiles.isEmpty());
+        assertNull(engineProperties.getProfiles());
+        Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
+        assertNotNull(activeProfiles);
+        assertFalse(activeProfiles.isEmpty());
     }
-
 
     @Test
     void getActiveProfilesReturnsCorrectProfiles() {
@@ -176,17 +175,6 @@ class EnginePropertiesTest {
         assertTrue(activeProfiles.containsKey("public-transport"));
         assertTrue(activeProfiles.containsKey("hiking"));
         assertTrue(activeProfiles.containsKey("walking"));
-    }
-
-    @Test
-    void getActiveProfilesReturnsDefaultProfilesWhenNotSet() {
-        EngineProperties engineProperties = new EngineProperties(true);
-        engineProperties.initialize();
-        Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
-        assertNotNull(activeProfiles);
-        assertFalse(activeProfiles.isEmpty());
-        assertTrue(activeProfiles.containsKey("car"));
-        assertTrue(activeProfiles.containsKey("hgv"));
     }
 
     @Test
@@ -206,21 +194,15 @@ class EnginePropertiesTest {
         //language=JSON
         String expectedJson = """
                 {
-                 "source_file": null,
-                 "init_threads": null,
-                 "preparation_mode": null,
-                 "config_output_mode": null,
-                 "graphs_root_path": null,
-                 "graphs_data_access": null,
-                 "elevation": {
-                     "preprocessed": null,
-                     "data_access": null,
-                     "cache_clear": null,
-                     "provider": null,
-                     "cache_path": null
-                 },
-                 "profile_default": {},
-                 "profiles": {}
+                    "source_file": null,
+                    "init_threads": null,
+                    "preparation_mode": null,
+                    "config_output_mode": null,
+                    "graphs_root_path": null,
+                    "graphs_data_access": null,
+                    "elevation": null,
+                    "profile_default": null,
+                    "profiles": null
                 }""";
         // compare the two json strings as actual json objects
         assertEquals(objectMapper.readTree(expectedJson), objectMapper.readTree(json));
@@ -554,32 +536,6 @@ class EnginePropertiesTest {
 
         Map<String, ExtendedStorage> carCustomExtStorages = carCustomProfile.getExtStorages();
         assertNull(carCustomExtStorages);
-    }
-
-
-    @Test
-    void testDefaultEngineProperties() {
-        // Defaults to check against
-        DefaultProfiles defaultProfiles = new DefaultProfiles(true);
-        DefaultElevationProperties defaultElevationProperties = new DefaultElevationProperties(true);
-        DefaultProfileProperties defaultProfileProperties = new DefaultProfileProperties(true);
-
-        // Initialize the whole engine properties default chain
-        EngineProperties defaultEngineProperties = new EngineProperties(true);
-        // source file, init threads, preparation mode, config output mode, graphs root path, graphs data access
-        assertEquals(0, defaultEngineProperties.getProfiles().size());
-        assertEquals(Path.of(""), defaultEngineProperties.getSourceFile());
-        assertEquals(1, defaultEngineProperties.getInitThreads());
-        assertFalse(defaultEngineProperties.getPreparationMode());
-        assertFalse(defaultEngineProperties.getConfigOutputMode());
-        assertEquals(Paths.get("./graphs"), defaultEngineProperties.getGraphsRootPath());
-        assertEquals(DataAccessEnum.RAM_STORE, defaultEngineProperties.getGraphsDataAccess());
-
-        // Check equality for elevation
-        assertEquals(defaultElevationProperties, defaultEngineProperties.getElevation());
-
-        // Check profileDefaults
-        assertEquals(defaultProfileProperties, defaultEngineProperties.getProfileDefault());
     }
 
     @Test

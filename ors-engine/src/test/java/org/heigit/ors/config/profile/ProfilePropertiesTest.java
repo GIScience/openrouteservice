@@ -3,7 +3,7 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.profile.defaults.DefaultProfilePropertiesCar;
+import org.heigit.ors.config.defaults.DefaultProfilePropertiesCar;
 import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
 import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;

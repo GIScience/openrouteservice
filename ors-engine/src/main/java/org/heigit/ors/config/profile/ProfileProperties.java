@@ -7,7 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.profile.defaults.*;
+import org.heigit.ors.config.defaults.*;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.config.utils.*;
 
@@ -86,19 +86,19 @@ public abstract class ProfileProperties {
     private Map<String, ExtendedStorage> extStorages;
 
     protected ProfileProperties() {
-        this(false);
-    }
-
-    protected ProfileProperties(Boolean setDefaults, EncoderNameEnum encoderName) {
-        this(setDefaults);
-        setEncoderName(encoderName);
+        this(false, null);
     }
 
     protected ProfileProperties(Boolean setDefaults) {
+        this(setDefaults, null);
+    }
+
+    protected ProfileProperties(Boolean setDefaults, EncoderNameEnum encoderName) {
+        setEncoderName(encoderName);
         if (setDefaults) {
-            encoderOptions = new DefaultEncoderOptionsProperties();
-            preparation = new DefaultPreparationProperties();
-            execution = new DefaultExecutionProperties();
+            encoderOptions = new DefaultEncoderOptionsProperties(true, this.encoderName);
+            preparation = new DefaultPreparationProperties(this.encoderName);
+            execution = new DefaultExecutionProperties(this.encoderName);
         } else {
             encoderOptions = new EncoderOptionsProperties();
             preparation = new PreparationProperties();

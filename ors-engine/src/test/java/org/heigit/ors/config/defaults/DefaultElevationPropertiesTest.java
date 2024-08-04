@@ -1,4 +1,4 @@
-package org.heigit.ors.config.profile.defaults;
+package org.heigit.ors.config.defaults;
 
 import org.heigit.ors.common.DataAccessEnum;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class DefaultElevationPropertiesTest {
         assertEquals(DataAccessEnum.MMAP, properties.getDataAccess());
         assertFalse(properties.getCacheClear());
         assertEquals("multi", properties.getProvider());
-        assertEquals(Paths.get("./elevation_cache"), properties.getCachePath());
+        assertEquals(Paths.get("./elevation_cache").toAbsolutePath(), properties.getCachePath());
     }
 
 }

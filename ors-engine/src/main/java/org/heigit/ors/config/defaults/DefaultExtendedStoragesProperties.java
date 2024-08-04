@@ -1,4 +1,4 @@
-package org.heigit.ors.config.profile.defaults;
+package org.heigit.ors.config.defaults;
 
 import lombok.Getter;
 import org.heigit.ors.common.EncoderNameEnum;

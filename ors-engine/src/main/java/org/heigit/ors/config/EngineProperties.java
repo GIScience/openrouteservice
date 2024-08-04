@@ -9,20 +9,19 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
+import org.heigit.ors.config.defaults.DefaultEngineProperties;
+import org.heigit.ors.config.defaults.DefaultProfileProperties;
+import org.heigit.ors.config.defaults.DefaultProfiles;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.defaults.DefaultElevationProperties;
-import org.heigit.ors.config.profile.defaults.DefaultProfileProperties;
-import org.heigit.ors.config.profile.defaults.DefaultProfiles;
 import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 import org.heigit.ors.config.utils.PropertyUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 @Getter
 @Setter(AccessLevel.PROTECTED)
@@ -59,21 +58,6 @@ public class EngineProperties {
     private Map<String, ProfileProperties> profiles;
 
     public EngineProperties() {
-        this(false);
-    }
-
-    public EngineProperties(Boolean setDefaults) {
-        setProfiles(new LinkedHashMap<>());
-        setProfileDefault(new DefaultProfileProperties(setDefaults));
-        setElevation(new DefaultElevationProperties(setDefaults));
-        if (setDefaults) {
-            setSourceFile(Paths.get(""));
-            setInitThreads(1);
-            setPreparationMode(false);
-            setConfigOutputMode(false);
-            setGraphsRootPath(Paths.get("./graphs"));
-            setGraphsDataAccess(DataAccessEnum.RAM_STORE);
-        }
     }
 
     @JsonIgnore
@@ -86,19 +70,36 @@ public class EngineProperties {
         // Second: Next priority are user set global properties from profileDefault
         // Third: If properties are not set in profiles and profileDefault, use the default_profiles with their specific properties and their defaults
         // Fourth: If properties are not set in profiles, profileDefault and default_profiles, use the default properties from DefaultProfileProperties
-        // Initialize defult profiles
+
+        // Initialize default engine properties
+        EngineProperties default_engine_properties = new DefaultEngineProperties(true);
+
+        // Set base graph path for the default engine properties if set by the user
+        Path emptyPath = Path.of("");
+        if (this.getGraphsRootPath() == null || this.getGraphsRootPath().equals(emptyPath)) {
+            this.setGraphsRootPath(default_engine_properties.getGraphsRootPath());
+        }
 
         // Correct the default profiles that haven't been set by the user
-        // Make a copy Set<String>
-        Set<String> raw_user_profile_names = new HashSet<>(this.getProfiles().keySet());
+        HashSet<String> raw_user_profile_names;
+        if (this.getProfiles() == null) {
+            // In case the user has not set any profiles, we initialize the profiles with an empty map.
+            this.setProfiles(new HashMap<>());
+            raw_user_profile_names = new HashSet<>();
+        } else {
+            // Make a copy of the raw user profile names for later
+            raw_user_profile_names = new HashSet<>(this.getProfiles().keySet());
+        }
+
+        // Get the raw user default profile settings
         ProfileProperties raw_user_default_profile_settings = this.getProfileDefault();
         DefaultProfiles system_default_profile_settings = new DefaultProfiles(true);
         DefaultProfileProperties system_default_profile_defaults_properties = new DefaultProfileProperties(true);
 
-        for (String profileEntry : system_default_profile_settings.getProfiles().keySet()) {
-            ProfileProperties profile = system_default_profile_settings.getProfiles().get(profileEntry);
-            if (this.getProfiles().containsKey(profileEntry)) {
-                // Todo Still needed or just overwrite the defaults in the end?
+
+        for (String profileEntryName : system_default_profile_settings.getProfiles().keySet()) {
+            ProfileProperties profile = system_default_profile_settings.getProfiles().get(profileEntryName);
+            if (this.getProfiles().containsKey(profileEntryName)) {
                 continue;
             }
             // Second step
@@ -107,10 +108,11 @@ public class EngineProperties {
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profile.getEncoderName().name), profile, false);
             // Fourth step
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false);
-            this.profiles.put(profileEntry, profile);
-        }
+            // Fifth step: Set the graph path correctly for the default profiles
+            profile.setGraphPath(Paths.get(this.getGraphsRootPath().toString(), profileEntryName).toAbsolutePath());
 
-        EngineProperties default_engine_properties = new EngineProperties(true);
+            this.profiles.put(profileEntryName, profile);
+        }
 
         // Enrich null or missing properties with default values
         PropertyUtils.deepCopyObjectsProperties(default_engine_properties, this, false);
@@ -121,14 +123,14 @@ public class EngineProperties {
             ProfileProperties profile = this.getProfiles().get(profileEntryName);
             // Second step
             PropertyUtils.deepCopyObjectsProperties(raw_user_default_profile_settings, profile, false);
-            // If the graph_path is still empty, set it to the default value
-            if (profile.getGraphPath() == null) {
-                profile.setGraphPath(Paths.get(this.getGraphsRootPath().toString(), profileEntryName));
-            }
             // Third step
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profileEntryName), profile, false);
             // Fourth step
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false);
+            // Fifth step: Set the graph path correctly for the user profiles
+            if (profile.getGraphPath() == null || profile.getGraphPath().equals(emptyPath)) {
+                profile.setGraphPath(Paths.get(this.getGraphsRootPath().toString(), profileEntryName).toAbsolutePath());
+            }
         }
         setInitialized(true);
     }
