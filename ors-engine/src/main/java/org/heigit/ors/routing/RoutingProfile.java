@@ -339,7 +339,8 @@ public class RoutingProfile {
         if (profile.getOptimize() && !prepareCH)
             ghConfig.putObject("graph.do_sort", true);
 
-        if (profile.getGtfsFile() != null)
+        // Check if getGTFSFile exists
+        if (profile.getGtfsFile() != null && !profile.getGtfsFile().toString().isEmpty())
             ghConfig.putObject("gtfs.file", profile.getGtfsFile().toString());
 
         String flagEncoder = vehicle;
