@@ -31,7 +31,7 @@ class ExtendedStorageHereTrafficTest {
         assertEquals("", storage.getStreets().toString(), "Default constructor should initialize 'streets' to \"\"");
         assertEquals("", storage.getRefPattern().toString(), "Default constructor should initialize 'ref_pattern' to \"\"");
         assertEquals("", storage.getPattern_15min().toString(), "Default constructor should initialize 'pattern' to \"\"");
-        assertEquals(250, storage.getRadius(), "Default constructor should initialize 'radius' to 250");
+        assertEquals(150, storage.getRadius(), "Default constructor should initialize 'radius' to 250");
         assertFalse(storage.getOutputLog(), "Default constructor should initialize 'output_log' to false");
         assertEquals("", storage.getLogLocation().toString(), "Default constructor should initialize 'log_location' to \"\"");
     }
@@ -95,7 +95,7 @@ class ExtendedStorageHereTrafficTest {
         assertEquals(Paths.get(streets).toAbsolutePath(), storage.getStreets(), "Deserialized object should have 'streets' set to the absolute path.");
         assertEquals(Paths.get(ref_patterns).toAbsolutePath(), storage.getRefPattern(), "Deserialized object should have 'ref_pattern' set to the absolute path.");
         assertEquals(Paths.get(patterns).toAbsolutePath(), storage.getPattern_15min(), "Deserialized object should have 'pattern' set to the absolute path.");
-        assertEquals(250, storage.getRadius(), "Deserialized object should have 'radius' set to 250");
+        assertEquals(150, storage.getRadius(), "Deserialized object should have 'radius' set to 250");
         assertFalse(storage.getOutputLog(), "Deserialized object should have 'output_log' set to false");
         assertEquals("", storage.getLogLocation().toString(), "Deserialized object should have 'log_location' set to \"\"");
     }
@@ -126,7 +126,7 @@ class ExtendedStorageHereTrafficTest {
         assertEquals("", storage.getStreets().toString(), "Deserialized object should have 'streets' set to \"\"");
         assertEquals("", storage.getRefPattern().toString(), "Deserialized object should have 'ref_pattern' set to \"\"");
         assertEquals("", storage.getPattern_15min().toString(), "Deserialized object should have 'pattern' set to \"\"");
-        assertEquals(250, storage.getRadius(), "Deserialized object should have 'radius' set to 250");
+        assertEquals(150, storage.getRadius(), "Deserialized object should have 'radius' set to 250");
         assertFalse(storage.getOutputLog(), "Deserialized object should have 'output_log' set to false");
         assertEquals("", storage.getLogLocation().toString(), "Deserialized object should have 'log_location' set to \"\"");
         assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");

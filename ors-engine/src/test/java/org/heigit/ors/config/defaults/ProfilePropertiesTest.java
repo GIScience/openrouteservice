@@ -115,7 +115,6 @@ class ProfilePropertiesTest {
     @MethodSource("encoderAndExpectedKeysWithDefaults")
     void defaultPropertiesWithDefaultsAreSetCorrectly(ProfileProperties properties, EncoderNameEnum expectedEncoderName) {
         assertEquals(expectedEncoderName, properties.getEncoderName());
-        assertNull(properties.getEnabled());
         assertNull(properties.getElevationSmoothing());
         assertNull(properties.getEncoderFlagsSize());
         assertNull(properties.getInstructions());
@@ -133,15 +132,18 @@ class ProfilePropertiesTest {
         assertNull(properties.getMaximumSpeedLowerBound());
         assertNull(properties.getMaximumWayPoints());
         if (expectedEncoderName == EncoderNameEnum.WHEELCHAIR) {
+            assertNull(properties.getEnabled());
             assertEquals(50, properties.getMaximumSnappingRadius());
             assertNull(properties.getElevation());
             assertNull(properties.getMaximumVisitedNodes());
         } else if (expectedEncoderName == EncoderNameEnum.PUBLIC_TRANSPORT) {
+            assertFalse(properties.getEnabled());
             assertTrue(properties.getElevation());
             assertEquals(1000000, properties.getMaximumVisitedNodes());
             assertEquals(Path.of(""), properties.getGtfsFile());
             assertNull(properties.getMaximumSnappingRadius());
         } else {
+            assertNull(properties.getEnabled());
             assertNull(properties.getElevation());
             assertNull(properties.getMaximumSnappingRadius());
             assertNull(properties.getMaximumVisitedNodes());
@@ -154,7 +156,10 @@ class ProfilePropertiesTest {
     void defaultConstructorDefaultPropertiesBike(ProfileProperties properties, EncoderNameEnum expectedEncoderName) {
         assertEquals(expectedEncoderName, properties.getEncoderName());
         assertInstanceOf(ProfileProperties.class, properties);
-        assertNull(properties.getEnabled());
+        if (expectedEncoderName == EncoderNameEnum.PUBLIC_TRANSPORT)
+            assertFalse(properties.getEnabled());
+        else
+            assertNull(properties.getEnabled());
     }
 
     @ParameterizedTest

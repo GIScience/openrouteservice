@@ -19,6 +19,7 @@ public class DefaultProfilePropertiesPublicTransport extends ProfileProperties {
 
         if (setDefaults) {
             this.setEncoderName(EncoderNameEnum.PUBLIC_TRANSPORT);
+            setEnabled(false);
             setElevation(true);
             setMaximumVisitedNodes(1000000);
             setGtfsFile(Path.of(""));
