@@ -103,7 +103,7 @@ ors:
 #  ##### ORS engine settings #####
   engine:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
-    config_output_mode: true
+#    config_output_mode: false
 #    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
 #    elevation:
