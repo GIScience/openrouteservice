@@ -180,7 +180,7 @@ public enum EncoderNameEnum {
 
     @Override
     public String toString() {
-        return super.toString();
+        return name;
     }
 
     @JsonValue

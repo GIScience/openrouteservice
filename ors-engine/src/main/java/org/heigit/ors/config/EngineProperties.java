@@ -105,7 +105,7 @@ public class EngineProperties {
             // Second step
             PropertyUtils.deepCopyObjectsProperties(raw_user_default_profile_settings, profile, true);
             // Third step
-            PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profile.getEncoderName().name), profile, false);
+            PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profile.getEncoderName().toString()), profile, false);
             // Fourth step
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false);
             // Fifth step: Set the graph path correctly for the default profiles

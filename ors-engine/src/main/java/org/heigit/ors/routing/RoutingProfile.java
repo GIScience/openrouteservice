@@ -96,7 +96,7 @@ public class RoutingProfile {
         long startTime = System.currentTimeMillis();
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, profile.getEncoderName(), profile.getGraphPath()));
+            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, profile.getEncoderName().toString(), profile.getGraphPath()));
         }
 
         GraphProcessContext gpc = new GraphProcessContext(profile);
@@ -290,7 +290,7 @@ public class RoutingProfile {
                     PreparationProperties.MethodsProperties.FastIsochroneProperties fastisochroneOpts = preparations.getMethods().getFastisochrones();
                     prepareFI = fastisochroneOpts.isEnabled() == null || fastisochroneOpts.isEnabled();
                     if (prepareFI) {
-                        ghConfig.putObject(ORSParameters.FastIsochrone.PROFILE, profile.getEncoderName());
+                        ghConfig.putObject(ORSParameters.FastIsochrone.PROFILE, profile.getEncoderName().toString());
                         //Copied from core
                         if (fastisochroneOpts.getThreadsSave() != null)
                             ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getThreadsSave());
