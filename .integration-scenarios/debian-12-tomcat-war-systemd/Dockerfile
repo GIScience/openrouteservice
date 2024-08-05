@@ -26,7 +26,8 @@ ARG USER=ors
 RUN useradd -m -U -s /bin/bash "$USER" && \
     mkdir -p /home/$USER/ && \
     .integration-scenarios/debian-12-tomcat-war-systemd/setup/install.sh -u $USER -w /build/ors-api/target/ors.war && \
-    systemctl enable openrouteservice.service
+    systemctl enable openrouteservice.service && \
+    yq -y -i '.ors.engine.source_file = "/home/ors/files/heidelberg.osm.gz"' /home/ors/ors-config.yml
 
 WORKDIR /home/$USER
 
