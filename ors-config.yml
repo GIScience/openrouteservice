@@ -35,19 +35,19 @@
 #  packages-to-scan: org.heigit.ors
 #  pathsToMatch: /v2/**
 ##### Logging settings #####
-logging:
-  file:
-    name: ./logs/ors.log
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} %highlight{%-7p} %style{%50t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} %p [%-40.40c{1.}] - %m%n"
-  level:
-    root: WARN
-    org.heigit: DEBUG
+#logging:
+#  file:
+#    name: ./logs/ors.log
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss} %highlight{%-7p} %style{%50t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
+#    file: "%d{yyyy-MM-dd HH:mm:ss} %p [%-40.40c{1.}] - %m%n"
+#  level:
+#    root: WARN
+#    org.heigit: INFO
 ##### openrouteservice specific settings #####
 ors:
-  cors:
-    allowed_origins: '*'
+  #  cors:
+  #    allowed_origins: "*"
 #    allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
 #    preflight_max_age: 600
 #  messages:
@@ -104,6 +104,7 @@ ors:
   engine:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
 #    config_output_mode: false
+    #    preparation_mode: false
 #    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
 #    elevation:
@@ -116,6 +117,7 @@ ors:
 #      enabled: false
 #      elevation: true
 #      elevation_smoothing: false
+    #      encoder_flags_size: 8
 #      instructions: true
 #      optimize: false
 #      traffic: false
@@ -144,10 +146,10 @@ ors:
 #        methods:
 #          lm:
 #            active_landmarks: 8
-#    profiles:
-#      car:
-#        enabled: true
-#        encoder_name: driving-car
+    profiles:
+      #      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific.
+      car:
+        #        profile: driving-car
 #        encoder_options:
 #          turn_costs: true
 #          block_fords: false
@@ -182,6 +184,7 @@ ors:
 #          WaySurfaceType:
 #          RoadAccessRestrictions:
 #            use_for_warnings: true
+        enabled: true
 #      hgv:
 #        profile: driving-hgv
 #        encoder_options:
