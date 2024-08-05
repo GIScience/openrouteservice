@@ -49,10 +49,7 @@ check_profile_loaded "127.0.0.1:${PORT}/ors/v2/status" "driving-car" true|| exit
 log_info "Deactivating the hgv profile explicitly"
 podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profiles.hgv.enabled = false' /home/ors/ors-config.yml" || exit 1
 
-log_info "Set the source file to heidelberg.osm.gz through the ors-config.yml"
-podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.source_file = \"/home/ors/files/heidelberg.osm.gz\"' /home/ors/ors-config.yml" || exit 1
-
-log_info "Activating the hgv and bike-regular profiles through the setenv.sh"
+log_info "Activating the hgv and bike-regular profiles through overwriting the setenv.sh"
 podman exec -it $CONTAINER_NAME /bin/bash -c "echo 'export JAVA_OPTS=\"\$JAVA_OPTS \
 -Dors.engine.profiles.hgv.enabled=true \
 -Dors.engine.profiles.bike-regular.enabled=true\"' > /home/ors/setenv.sh" || exit 1
@@ -60,7 +57,8 @@ podman exec -it $CONTAINER_NAME /bin/bash -c "echo 'export JAVA_OPTS=\"\$JAVA_OP
 
 # Restart the container silently
 log_info "Restarting the container to activate the hgv and bike-regular profiles"
-podman restart $CONTAINER_NAME > /dev/null || exit 1
+podman stop $CONTAINER_NAME > /dev/null || exit 1
+podman start $CONTAINER_NAME > /dev/null || exit 1
 
 # Wait for the container to start
 wait_for_url "127.0.0.1:${PORT}/ors/v2/health" 100 200 1 5 || exit 1

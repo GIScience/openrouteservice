@@ -51,7 +51,8 @@ podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profiles.hgv
 
 # Restart the container silently
 log_info "Restarting the container to activate the hgv profile"
-podman restart $CONTAINER_NAME > /dev/null || exit 1
+podman stop $CONTAINER_NAME > /dev/null || exit 1
+podman start $CONTAINER_NAME > /dev/null || exit 1
 
 # Wait for the container to start
 wait_for_url "127.0.0.1:${PORT}/ors/v2/health" 100 200 1 5 || exit 1
@@ -79,6 +80,9 @@ files_to_expect=(
 for file in "${files_to_expect[@]}"; do
   check_file_exists $file true || exit 1
 done
+
+log_info "Remove the source file from the ors-config.yml"
+podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.source_file = \"\"' /home/ors/ors-config.yml" || exit 1
 
 # assert export JAVA_OPTS="$JAVA_OPTS -Dors.engine.source_file=/home/ors/files/heidelberg.osm.gz" in file setenv.sh
 check_line_in_file "export JAVA_OPTS=\"\$JAVA_OPTS -Dors.engine.source_file=/home/ors/files/heidelberg.osm.gz\"" /home/ors/setenv.sh true || exit 1
