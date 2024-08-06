@@ -7,8 +7,8 @@ import com.graphhopper.config.Profile;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
+import org.heigit.ors.config.defaults.DefaultProfilePropertiesCar;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.defaults.CarProfileProperties;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -73,7 +73,7 @@ class ORSGraphHopperTest {
      */
     @Test
     void buildGraphWithPreprocessedData() throws Exception {
-        ProfileProperties profile = new CarProfileProperties();
+        ProfileProperties profile = new DefaultProfilePropertiesCar(true);
         GraphProcessContext gpc = new GraphProcessContext(profile);
         gpc.setGetElevationFromPreprocessedData(true);
         ORSGraphHopper gh = new ORSGraphHopper(gpc);

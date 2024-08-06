@@ -4,23 +4,25 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.Getter;
 
+@Getter
 @JsonTypeName("HeavyVehicle")
 public class ExtendedStorageHeavyVehicle extends ExtendedStorage {
 
+    @JsonProperty
     private Boolean restrictions = true;
 
     @JsonCreator
     public ExtendedStorageHeavyVehicle() {
     }
 
-    @JsonCreator
-    public ExtendedStorageHeavyVehicle(String ignoredEmpty) {
+    public ExtendedStorageHeavyVehicle(Boolean restrictions) {
+        this.restrictions = restrictions;
     }
 
-    @JsonProperty
-    public Boolean getRestrictions() {
-        return restrictions;
+    @JsonCreator
+    public ExtendedStorageHeavyVehicle(String ignoredEmpty) {
     }
 
     @JsonSetter

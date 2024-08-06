@@ -49,7 +49,7 @@ public class GraphProcessContext {
                 ExtendedStorageHereTraffic parameters;
                 try {
                     parameters = (ExtendedStorageHereTraffic) profile.getExtStorages().get("HereTraffic");
-                    parameters.setGhProfile(ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(profile.getEncoderName())), "fastest", Boolean.TRUE.equals(profile.getEncoderOptions().getTurnCosts())));
+                    parameters.setGhProfile(ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(profile.getEncoderName().toString())), "fastest", Boolean.TRUE.equals(profile.getEncoderOptions().getTurnCosts())));
                 } catch (ClassCastException e) {
                     throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
                 }

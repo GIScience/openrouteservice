@@ -3,12 +3,14 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.config.utils.NonEmptyMapFilter;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExecutionProperties {
     private MethodsProperties methods;
@@ -31,18 +33,27 @@ public class ExecutionProperties {
         private CoreProperties core;
 
         public MethodsProperties() {
-            astar = new AStarProperties();
-            lm = new LMProperties();
-            core = new CoreProperties();
+        }
+
+        public MethodsProperties(Boolean setDefaults) {
+            if (setDefaults) {
+                astar = new AStarProperties();
+                lm = new LMProperties();
+                core = new CoreProperties();
+            }
         }
 
         @JsonIgnore
         public boolean isEmpty() {
-            return astar.isEmpty() && lm.isEmpty() && core.isEmpty();
+            // check null and empty to catch null pointer exceptions
+            return (astar == null || astar.isEmpty()) &&
+                    (lm == null || lm.isEmpty()) &&
+                    (core == null || core.isEmpty());
         }
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class AStarProperties {
             private String approximation;
@@ -56,6 +67,7 @@ public class ExecutionProperties {
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
             @JsonProperty("active_landmarks")
@@ -69,6 +81,7 @@ public class ExecutionProperties {
 
         @Getter
         @Setter
+        @EqualsAndHashCode
         @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
             @JsonProperty("active_landmarks")

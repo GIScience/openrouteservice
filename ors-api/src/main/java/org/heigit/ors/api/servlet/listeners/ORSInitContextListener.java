@@ -106,6 +106,7 @@ public class ORSInitContextListener implements ServletContextListener {
         try {
             JsonNode conf = mapper.readTree(configFileString);
             engineProperties = mapper.readValue(conf.get("ors").get("engine").toString(), EngineProperties.class);
+            engineProperties.initialize();
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to parse configuration file", e);
             RoutingProfileManagerStatus.setShutdown(true);

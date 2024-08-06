@@ -6,39 +6,25 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.heigit.ors.config.profile.defaults.*;
+import org.heigit.ors.common.EncoderNameEnum;
+import org.heigit.ors.config.defaults.*;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.config.utils.*;
-import org.heigit.ors.routing.RoutingProfileType;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 @Getter
 @Setter(AccessLevel.PROTECTED)
 @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "encoder_name", defaultImpl = DefaultProfileProperties.class)
-@JsonSubTypes({
-        @JsonSubTypes.Type(name = "default", value = DefaultProfileProperties.class),
-        @JsonSubTypes.Type(name = "driving-car", value = CarProfileProperties.class),
-        @JsonSubTypes.Type(name = "driving-hgv", value = HgvProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-regular", value = BikeRegularProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-electric", value = BikeElectricProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-mountain", value = BikeMountainProfileProperties.class),
-        @JsonSubTypes.Type(name = "cycling-road", value = BikeRoadProfileProperties.class),
-        @JsonSubTypes.Type(name = "foot-walking", value = WalkingProfileProperties.class),
-        @JsonSubTypes.Type(name = "foot-hiking", value = HikingProfileProperties.class),
-        @JsonSubTypes.Type(name = "wheelchair", value = WheelchairProfileProperties.class),
-        @JsonSubTypes.Type(name = "public-transport", value = PublicTransportProfileProperties.class),
-})
+@JsonSubTypes({@JsonSubTypes.Type(name = "default", value = DefaultProfileProperties.class), @JsonSubTypes.Type(name = "driving-car", value = DefaultProfilePropertiesCar.class), @JsonSubTypes.Type(name = "driving-hgv", value = DefaultProfilePropertiesHgv.class), @JsonSubTypes.Type(name = "cycling-regular", value = DefaultProfilePropertiesBikeRegular.class), @JsonSubTypes.Type(name = "cycling-electric", value = DefaultProfilePropertiesBikeElectric.class), @JsonSubTypes.Type(name = "cycling-mountain", value = DefaultProfilePropertiesBikeMountain.class), @JsonSubTypes.Type(name = "cycling-road", value = DefaultProfilePropertiesBikeRoad.class), @JsonSubTypes.Type(name = "foot-walking", value = DefaultProfilePropertiesWalking.class), @JsonSubTypes.Type(name = "foot-hiking", value = DefaultProfilePropertiesHiking.class), @JsonSubTypes.Type(name = "wheelchair", value = DefaultProfilePropertiesWheelchair.class), @JsonSubTypes.Type(name = "public-transport", value = DefaultProfilePropertiesPublicTransport.class),})
 public abstract class ProfileProperties {
     @JsonProperty("enabled")
     private Boolean enabled;
     @JsonProperty("encoder_name")
-    private String encoderName;
+    private EncoderNameEnum encoderName;
     @JsonProperty("elevation")
     private Boolean elevation;
     @JsonProperty("elevation_smoothing")
@@ -58,6 +44,7 @@ public abstract class ProfileProperties {
     @JsonProperty("graph_path")
     @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)
+    @Setter(AccessLevel.PUBLIC)
     private Path graphPath;
     @JsonProperty("location_index_resolution")
     private Integer locationIndexResolution;
@@ -96,68 +83,41 @@ public abstract class ProfileProperties {
     @JsonProperty("ext_storages")
     @JsonSerialize(using = ExtendedStorageMapSerializer.class)
     @JsonDeserialize(using = ExtendedStorageMapDeserializer.class)
-    private Map<String, ExtendedStorage> extStorages = new HashMap<>();
+    private Map<String, ExtendedStorage> extStorages;
 
     protected ProfileProperties() {
-        encoderOptions = new EncoderOptionsProperties();
-        preparation = new PreparationProperties();
-        execution = new ExecutionProperties();
+        this(false, null);
     }
 
-    public void mergeDefaultsAndSetGraphPath(ProfileProperties defaultProfile, Path graphsRootPath, String profileName) {
-        if (enabled == null) enabled = defaultProfile.enabled;
-        if (encoderName == null) encoderName = defaultProfile.encoderName;
-        if (elevation == null) elevation = defaultProfile.elevation;
-        if (elevationSmoothing == null) elevationSmoothing = defaultProfile.elevationSmoothing;
-        if (encoderFlagsSize == null) encoderFlagsSize = defaultProfile.encoderFlagsSize;
-        if (instructions == null) instructions = defaultProfile.instructions;
-        if (optimize == null) optimize = defaultProfile.optimize;
-        if (traffic == null) traffic = defaultProfile.traffic;
-        if (interpolateBridgesAndTunnels == null)
-            interpolateBridgesAndTunnels = defaultProfile.interpolateBridgesAndTunnels;
-        if (forceTurnCosts == null) forceTurnCosts = defaultProfile.forceTurnCosts;
-        if (graphPath == null)
-            graphPath = defaultProfile.graphPath == null ? Paths.get(graphsRootPath.toString(), profileName) : Paths.get(defaultProfile.graphPath.toString(), profileName);
-        if (locationIndexResolution == null) locationIndexResolution = defaultProfile.locationIndexResolution;
-        if (locationIndexSearchIterations == null)
-            locationIndexSearchIterations = defaultProfile.locationIndexSearchIterations;
-        if (gtfsFile == null) gtfsFile = defaultProfile.gtfsFile;
+    protected ProfileProperties(Boolean setDefaults) {
+        this(setDefaults, null);
+    }
 
-        if (maximumDistance == null) maximumDistance = defaultProfile.maximumDistance;
-        if (maximumDistanceDynamicWeights == null)
-            maximumDistanceDynamicWeights = defaultProfile.maximumDistanceDynamicWeights;
-        if (maximumDistanceAvoidAreas == null) maximumDistanceAvoidAreas = defaultProfile.maximumDistanceAvoidAreas;
-        if (maximumDistanceAlternativeRoutes == null)
-            maximumDistanceAlternativeRoutes = defaultProfile.maximumDistanceAlternativeRoutes;
-        if (maximumDistanceRoundTripRoutes == null)
-            maximumDistanceRoundTripRoutes = defaultProfile.maximumDistanceRoundTripRoutes;
-        if (maximumSpeedLowerBound == null) maximumSpeedLowerBound = defaultProfile.maximumSpeedLowerBound;
-        if (maximumWayPoints == null) maximumWayPoints = defaultProfile.maximumWayPoints;
-        if (maximumSnappingRadius == null) maximumSnappingRadius = defaultProfile.maximumSnappingRadius;
-        if (maximumVisitedNodes == null) maximumVisitedNodes = defaultProfile.maximumVisitedNodes;
-
-        if (encoderOptions.isEmpty()) encoderOptions = defaultProfile.encoderOptions;
-        if (preparation.isEmpty()) preparation = defaultProfile.preparation;
-        if (execution.isEmpty()) execution = defaultProfile.execution;
-        if (extStorages.isEmpty()) extStorages = defaultProfile.extStorages;
+    protected ProfileProperties(Boolean setDefaults, EncoderNameEnum encoderName) {
+        setEncoderName(encoderName);
+        if (setDefaults) {
+            encoderOptions = new DefaultEncoderOptionsProperties(true, this.encoderName);
+            preparation = new DefaultPreparationProperties(this.encoderName);
+            execution = new DefaultExecutionProperties(this.encoderName);
+        } else {
+            encoderOptions = new EncoderOptionsProperties();
+            preparation = new PreparationProperties();
+            execution = new ExecutionProperties();
+        }
     }
 
     @JsonIgnore
     public String getEncoderOptionsString() {
-        if (encoderOptions == null)
-            return "";
+        if (encoderOptions == null) return "";
         return encoderOptions.toString();
     }
 
     @JsonIgnore
     public Integer[] getProfilesTypes() {
         ArrayList<Integer> list = new ArrayList<>();
-        String[] elements = encoderName.split("\\s*,\\s*");
-        for (String element : elements) {
-            int profileType = RoutingProfileType.getFromString(element);
-            if (profileType != RoutingProfileType.UNKNOWN) {
-                list.add(profileType);
-            }
+        // TODO check why this originally tries to split the encoderName. Can we add more than one?
+        if (encoderName != null && encoderName != EncoderNameEnum.UNKNOWN) {
+            list.add(encoderName.getValue());
         }
         return list.toArray(new Integer[0]);
     }
