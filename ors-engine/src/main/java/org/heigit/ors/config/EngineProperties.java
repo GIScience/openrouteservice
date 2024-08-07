@@ -41,8 +41,9 @@ public class EngineProperties {
     private Integer initThreads;
     @JsonProperty("preparation_mode")
     private Boolean preparationMode;
-    @JsonProperty("config_output_mode")
-    private Boolean configOutputMode;
+    @JsonProperty("config_output")
+    @Setter(AccessLevel.PUBLIC)
+    private String configOutput;
     @JsonProperty("graphs_root_path")
     @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)

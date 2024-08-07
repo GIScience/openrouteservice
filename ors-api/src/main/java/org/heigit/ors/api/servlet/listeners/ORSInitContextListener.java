@@ -48,19 +48,21 @@ import org.springframework.core.io.FileSystemResource;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
 import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
-import static org.heigit.ors.api.ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY;
+import static org.heigit.ors.api.ORSEnvironmentPostProcessor.*;
 
 public class ORSInitContextListener implements ServletContextListener {
+    public static final String ORS_API_TESTS_FLAG = "ORS_API_TESTS_FLAG";
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
     private final EndpointsProperties endpointsProperties;
     private final CorsProperties corsProperties;
     private final SystemMessageProperties systemMessageProperties;
     private final LoggingProperties loggingProperties;
     private final ServerProperties serverProperties;
-    public final static String ORS_API_TESTS_FLAG = "ORS_API_TESTS_FLAG";
+    private final ObjectMapper mapper;
 
     public ORSInitContextListener(EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties) {
         this.endpointsProperties = endpointsProperties;
@@ -68,10 +70,49 @@ public class ORSInitContextListener implements ServletContextListener {
         this.systemMessageProperties = systemMessageProperties;
         this.loggingProperties = loggingProperties;
         this.serverProperties = serverProperties;
+        YAMLFactory yf = new CustomYAMLFactory()
+                .disable(WRITE_DOC_START_MARKER)
+                .disable(SPLIT_LINES)
+                .disable(USE_NATIVE_TYPE_ID)
+                .enable(INDENT_ARRAYS_WITH_INDICATOR)
+                .enable(MINIMIZE_QUOTES);
+        mapper = new ObjectMapper(yf);
+        mapper.configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false);
     }
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
+        String configFileString = loadConfigFileString();
+        if (configFileString == null) {
+            return;
+        }
+        EngineProperties engineProperties = loadEngineProperties(configFileString);
+        if (engineProperties == null) {
+            return;
+        }
+        String outputTarget = configurationOutputTarget(engineProperties, System.getenv());
+        if (!StringUtility.isNullOrEmpty(outputTarget)) {
+            writeConfigurationFile(outputTarget, engineProperties);
+            return;
+        }
+        new Thread(() -> {
+            try {
+                LOGGER.info("Initializing ORS...");
+                new RoutingProfileManager(engineProperties);
+                if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
+                    LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
+                    RoutingProfileManagerStatus.setShutdown(true);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
+            }
+        }, "ORS-Init").start();
+    }
+
+    private String loadConfigFileString() {
         String configFileString = "ors:\n  engine: {}";
         if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
             try {
@@ -79,7 +120,7 @@ public class ORSInitContextListener implements ServletContextListener {
             } catch (IOException e) {
                 LOGGER.error("Failed to read configuration file");
                 RoutingProfileManagerStatus.setShutdown(true);
-                return;
+                return null;
             }
         }
         if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_API_TESTS_FLAG))) {
@@ -88,21 +129,14 @@ public class ORSInitContextListener implements ServletContextListener {
             } catch (IOException e) {
                 LOGGER.error("Failed to read configuration file");
                 RoutingProfileManagerStatus.setShutdown(true);
-                return;
+                return null;
             }
         }
-        YAMLFactory yf = new CustomYAMLFactory()
-                .disable(WRITE_DOC_START_MARKER)
-                .disable(SPLIT_LINES)
-                .disable(USE_NATIVE_TYPE_ID)
-                .enable(INDENT_ARRAYS_WITH_INDICATOR)
-                .enable(MINIMIZE_QUOTES);
-        ObjectMapper mapper = new ObjectMapper(yf);
-        mapper.configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false);
-        EngineProperties engineProperties;
+        return configFileString;
+    }
+
+    private EngineProperties loadEngineProperties(String configFileString) {
+        EngineProperties engineProperties = null;
         try {
             JsonNode conf = mapper.readTree(configFileString);
             engineProperties = mapper.readValue(conf.get("ors").get("engine").toString(), EngineProperties.class);
@@ -110,36 +144,37 @@ public class ORSInitContextListener implements ServletContextListener {
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to parse configuration file", e);
             RoutingProfileManagerStatus.setShutdown(true);
-            return;
         }
-        if (Boolean.TRUE.equals(engineProperties.getConfigOutputMode())) {
-            try (FileOutputStream fos = new FileOutputStream("ors-config-example.yml"); JsonGenerator generator = mapper.createGenerator(fos)) {
-                LOGGER.info("Output configuration file");
-                ORSConfigBundle ors = new ORSConfigBundle(corsProperties, systemMessageProperties, endpointsProperties, engineProperties);
-                ConfigBundle configBundle = new ConfigBundle(serverProperties, loggingProperties, ors);
-                generator.writeObject(configBundle);
-                if (LOGGER.isDebugEnabled()) {
-                    System.out.println(mapper.writeValueAsString(configBundle));
-                }
-            } catch (IOException e) {
-                LOGGER.error("Failed to write output configuration file.", e);
-            }
-            RoutingProfileManagerStatus.setShutdown(true);
-            return;
-        }
+        return engineProperties;
+    }
 
-        new Thread(() -> {
-            try {
-                LOGGER.info("Initializing ORS...");
-                new RoutingProfileManager(engineProperties);
-                if (engineProperties.getPreparationMode()) {
-                    LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
-                    RoutingProfileManagerStatus.setShutdown(true);
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
+    public String configurationOutputTarget(EngineProperties engineProperties, Map<String, String> envMap) {
+        String output = engineProperties.getConfigOutput();
+        output = envMap.get(ORS_CONFIG_OUTPUT_ENV) != null ? envMap.get(ORS_CONFIG_OUTPUT_ENV) : output;
+        output = System.getProperty(ORS_CONFIG_OUTPUT_PROPERTY) != null ? System.getProperty(ORS_CONFIG_OUTPUT_PROPERTY) : output;
+        output = envMap.get(ORS_CONFIG_DEFAULT_OUTPUT_ENV) != null ? envMap.get(ORS_CONFIG_DEFAULT_OUTPUT_ENV) : output;
+        output = System.getProperty(ORS_CONFIG_DEFAULT_OUTPUT_PROPERTY) != null ? System.getProperty(ORS_CONFIG_DEFAULT_OUTPUT_PROPERTY) : output;
+        if (StringUtility.isNullOrEmpty(output))
+            return null;
+        if (!output.endsWith(".yml") && !output.endsWith(".yaml"))
+            output += ".yml";
+        return output;
+    }
+
+    private void writeConfigurationFile(String output, EngineProperties engineProperties) {
+        try (FileOutputStream fos = new FileOutputStream(output); JsonGenerator generator = mapper.createGenerator(fos)) {
+            LOGGER.info("Creating configuration file " + output);
+            ORSConfigBundle ors = new ORSConfigBundle(corsProperties, systemMessageProperties, endpointsProperties, engineProperties);
+            ConfigBundle configBundle = new ConfigBundle(serverProperties, loggingProperties, ors);
+            generator.writeObject(configBundle);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Configuration written: \n" + mapper.writeValueAsString(configBundle));
             }
-        }, "ORS-Init").start();
+        } catch (IOException e) {
+            LOGGER.error("Failed to write output configuration file.", e);
+        }
+        LOGGER.info("Configuration output completed.");
+        RoutingProfileManagerStatus.setShutdown(true);
     }
 
     record ORSConfigBundle(

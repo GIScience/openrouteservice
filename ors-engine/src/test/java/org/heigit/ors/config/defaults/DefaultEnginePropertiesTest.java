@@ -30,7 +30,7 @@ public class DefaultEnginePropertiesTest {
         assertNull(propertiesEmptyConstructor.getSourceFile());
         assertNull(propertiesEmptyConstructor.getInitThreads());
         assertNull(propertiesEmptyConstructor.getPreparationMode());
-        assertNull(propertiesEmptyConstructor.getConfigOutputMode());
+        assertNull(propertiesEmptyConstructor.getConfigOutput());
         assertNull(propertiesEmptyConstructor.getGraphsRootPath());
         assertNull(propertiesEmptyConstructor.getGraphsDataAccess());
         assertNull(propertiesEmptyConstructor.getElevation());
@@ -159,7 +159,7 @@ public class DefaultEnginePropertiesTest {
         assertEquals(Path.of(""), defaultEngineProperties.getSourceFile());
         assertEquals(2, defaultEngineProperties.getInitThreads());
         assertFalse(defaultEngineProperties.getPreparationMode());
-        assertFalse(defaultEngineProperties.getConfigOutputMode());
+        assertNull(defaultEngineProperties.getConfigOutput());
         assertEquals(Paths.get("./graphs").toAbsolutePath(), defaultEngineProperties.getGraphsRootPath());
         assertEquals(DataAccessEnum.RAM_STORE, defaultEngineProperties.getGraphsDataAccess());
 
