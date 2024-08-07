@@ -240,7 +240,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     public void initializeGraphManagement(ORSGraphFolderStrategy orsGraphFolderStrategy, ORSGraphRepoStrategy orsGraphRepoStrategy) {
         ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineConfig, routeProfileName, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        ORSGraphRepoManager orsGraphRepoManager = new NexusRepoManager(engineConfig, routeProfileName, orsGraphRepoStrategy, orsGraphFileManager);
+        //TODO decide based on configuration which implementation to use
+        //        ORSGraphRepoManager orsGraphRepoManager = new NexusRepoManager(engineConfig, routeProfileName, orsGraphRepoStrategy, orsGraphFileManager);
+        ORSGraphRepoManager orsGraphRepoManager = new FileSystemRepoManager(engineConfig, routeProfileName, orsGraphRepoStrategy, orsGraphFileManager);
         this.orsGraphManager = new ORSGraphManager(engineConfig, orsGraphFileManager, orsGraphRepoManager);
         this.orsGraphManager.manageStartup();
         adaptGraphhopperLocation();

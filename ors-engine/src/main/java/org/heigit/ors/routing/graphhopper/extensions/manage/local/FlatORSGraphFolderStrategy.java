@@ -16,11 +16,11 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
 
     public FlatORSGraphFolderStrategy(EngineConfig engineConfig, String routeProfileName) {
         this.graphsRootAbsPath = engineConfig.getGraphsRootPath();
-        this.routeProfileName = routeProfileName;
         this.profileGroup = engineConfig.getGraphsProfileGroup();
         this.extend = engineConfig.getGraphsExtent();
         this.graphVersion = engineConfig.getGraphVersion();
         this.repoName = engineConfig.getGraphsRepoName();
+        this.routeProfileName = routeProfileName;
     }
 
     private String getConcatenatedLocalFileName() {

@@ -243,7 +243,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public void activateExtractedDownloadedGraph() {
-        LOGGER.info("[%s] Activating extracted downloaded graph".formatted(getProfileDescriptiveName()));
+        LOGGER.debug("[%s] Activating extracted downloaded graph".formatted(getProfileDescriptiveName()));
         getDownloadedExtractedGraphDirectory().renameTo(getActiveGraphDirectory());
     }
 

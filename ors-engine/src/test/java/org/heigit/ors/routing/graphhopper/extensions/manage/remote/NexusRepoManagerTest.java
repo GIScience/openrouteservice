@@ -3,7 +3,6 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.heigit.ors.config.EngineConfig;
-import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.HashSubDirBasedORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
@@ -14,22 +13,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,6 +76,7 @@ class NexusRepoManagerTest {
                 .setGraphsRepoPath(GRAPHS_REPO_PATH)
                 .setGraphsExtent(GRAPHS_COVERAGE)
                 .setGraphsProfileGroup(GRAPHS_PROFILE_GROUP)
+                .setGraphVersion(GRAPHS_VERSION)
                 .setGraphsRootPath(localDir.getAbsolutePath())
                 .build();
 
@@ -130,7 +124,7 @@ class NexusRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_localDataExists_noRemoteData() throws IOException {
+    void downloadGraphIfNecessary_noDownloadWhen_localDataExists_noRemoteData() throws IOException {
         String hash = "abc123";
         setupORSGraphManager(hash);
         setupActiveGraphDirectory(hash, EARLIER_DATE);
@@ -142,7 +136,7 @@ class NexusRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_noLocalData_remoteDataExists() throws IOException {
+    void downloadGraphIfNecessary_downloadWhen_noLocalData_remoteDataExists() throws IOException {
         String hash = "abc123";
         setupORSGraphManager(hash);
         simulateFindLatestGraphInfoAsset(hash, EARLIER_DATE);
@@ -153,7 +147,7 @@ class NexusRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_localDate1_remoteDate2() throws IOException {
+    void downloadGraphIfNecessary_downloadWhen_localDate_before_remoteDate() throws IOException {
         String hash = "xyz111";
         setupORSGraphManager(hash);
         setupActiveGraphDirectory(hash, EARLIER_DATE);
@@ -169,7 +163,7 @@ class NexusRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_localDate1_remoteDate1() throws IOException {
+    void downloadGraphIfNecessary_noDownloadWhen_localDate_equals_remoteDate() throws IOException {
         String hash = "xyz222";
         setupORSGraphManager(hash);
         setupActiveGraphDirectory(hash, EARLIER_DATE);
@@ -181,7 +175,7 @@ class NexusRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_localDate2_remoteDate1() throws IOException {
+    void downloadGraphIfNecessary_noDownloadWhen_localDate_after_remoteDate() throws IOException {
         String hash = "xyz333";
         setupORSGraphManager(hash);
         setupActiveGraphDirectory(hash, LATER_DATE);
@@ -214,78 +208,5 @@ class NexusRepoManagerTest {
         );
         AssetXO filtered = orsGraphRepoManager.filterLatestAsset(items);
         assertEquals("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/b6714103ccd4.yml", filtered.getPath());
-    }
-
-    @ParameterizedTest
-    @MethodSource("shouldDownloadGraphMethodSource")
-    void shouldDownloadGraph(Date remoteDate, Date activeDate, Date downloadedExtractedDate, Date downloadedCompressedDate, boolean expected) {
-        setupORSGraphManager("1243abc");
-        assertEquals(expected, orsGraphRepoManager.shouldDownloadGraph(remoteDate, activeDate, downloadedExtractedDate, downloadedCompressedDate));
-    }
-
-    public static Stream<Arguments> shouldDownloadGraphMethodSource() {
-        Date earlierDate = new Date(EARLIER_DATE);
-        Date laterDate = new Date(LATER_DATE);
-
-        return Stream.of(           //  downloaded        remote                   active
-                Arguments.of(laterDate, earlierDate, earlierDate, earlierDate, true),
-                Arguments.of(earlierDate, laterDate, earlierDate, earlierDate, false),
-                Arguments.of(earlierDate, earlierDate, laterDate, earlierDate, false),
-                Arguments.of(earlierDate, earlierDate, earlierDate, laterDate, false),
-                Arguments.of(earlierDate, earlierDate, earlierDate, earlierDate, false)
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("comparisonDates")
-    public void comparisonDate(Date expectedDate, GraphInfo graphInfo) {
-        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(graphInfo));
-    }
-
-    public static Stream<Arguments> comparisonDates() throws MalformedURLException {
-        Date osmDate = new Date();
-        return Stream.of(
-                Arguments.of(new Date(0), null),
-                Arguments.of(new Date(0), new GraphInfo()),
-                Arguments.of(new Date(0), new GraphInfo().withLocalDirectory(TEMP_DIR.toFile())),
-                Arguments.of(new Date(0), new GraphInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
-                Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(null)),
-                Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(new ORSGraphInfoV1())),
-                Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(new ORSGraphInfoV1(null))),
-                Arguments.of(osmDate, new GraphInfo().withPersistedInfo(new ORSGraphInfoV1(osmDate)))
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("comparisonDatesForDownloadFiles")
-    public void comaprisonDate(Date expectedDate, File downloadFile, ORSGraphInfoV1 orsGraphInfoV1) throws IOException {
-        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(downloadFile, orsGraphInfoV1));
-    }
-
-    public static Stream<Arguments> comparisonDatesForDownloadFiles() throws IOException {
-        Date osmDate = new Date();
-        File resourcesDir = TEMP_DIR.toFile();
-        File nonexistingFile = new File(resourcesDir, "missing.ghz");
-        File existingFile = new File(resourcesDir, "some.ghz");
-        existingFile.createNewFile();
-        return Stream.of(
-                Arguments.of(new Date(0), null, null),
-                Arguments.of(new Date(0), null, new ORSGraphInfoV1()),
-                Arguments.of(new Date(0), null, new ORSGraphInfoV1(null)),
-                Arguments.of(new Date(0), null, new ORSGraphInfoV1(osmDate)),
-                Arguments.of(new Date(0), nonexistingFile, null),
-                Arguments.of(new Date(0), nonexistingFile, new ORSGraphInfoV1()),
-                Arguments.of(new Date(0), nonexistingFile, new ORSGraphInfoV1(null)),
-                Arguments.of(new Date(0), nonexistingFile, new ORSGraphInfoV1(osmDate)),
-                Arguments.of(new Date(0), existingFile, null),
-                Arguments.of(new Date(0), existingFile, new ORSGraphInfoV1()),
-                Arguments.of(new Date(0), existingFile, new ORSGraphInfoV1(null)),
-                Arguments.of(osmDate, existingFile, new ORSGraphInfoV1(osmDate))
-        );
-    }
-
-    @Test
-    void newestDate() {
-
     }
 }

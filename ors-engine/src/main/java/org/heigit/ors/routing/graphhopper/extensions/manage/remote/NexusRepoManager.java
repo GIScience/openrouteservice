@@ -23,7 +23,7 @@ import java.util.*;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-public class NexusRepoManager implements ORSGraphRepoManager {
+public class NexusRepoManager extends AbstractRepoManager implements ORSGraphRepoManager {
 
     private static final Logger LOGGER = Logger.getLogger(NexusRepoManager.class.getName());
     private int connectionTimeoutMillis = 2000;
@@ -155,36 +155,6 @@ public class NexusRepoManager implements ORSGraphRepoManager {
         return urlWithoutFileName + "/" + orsGraphRepoStrategy.getRepoCompressedGraphFileName();
     }
 
-    public boolean shouldDownloadGraph(Date remoteDate, Date activeDate, Date downloadedExtractedDate, Date downloadedCompressedDate) {
-        Date newestLocalDate = newestDate(activeDate, downloadedExtractedDate, downloadedCompressedDate);
-        return remoteDate.after(newestLocalDate);
-    }
-
-    public Date getDateOrEpocStart(GraphInfo graphInfo) {
-        return Optional.ofNullable(graphInfo)
-                .map(GraphInfo::getPersistedGraphInfo)
-                .map(ORSGraphInfoV1::getOsmDate)
-                .orElse(new Date(0L));
-    }
-
-    public Date getDateOrEpocStart(File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo) {
-        if (persistedDownloadFile==null) {
-            return new Date(0L);
-        }
-
-        if (persistedDownloadFile.exists()) {
-            return Optional.ofNullable(persistedRemoteGraphInfo)
-                    .map(ORSGraphInfoV1::getOsmDate)
-                    .orElse(new Date(0L));
-        }
-
-        return new Date(0L);
-    }
-
-    Date newestDate(Date... dates) {
-        return Arrays.stream(dates).max(Date::compareTo).orElse(new Date(0L));
-    }
-
     public AssetXO findLatestGraphInfoAsset() {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
         defaultClient.setBasePath(graphsRepoBaseUrl);
@@ -231,14 +201,14 @@ public class NexusRepoManager implements ORSGraphRepoManager {
             return latestGraphInfoInRepo;
         }
 
-        File downloadedFile = orsGraphFileManager.getDownloadedGraphInfoFile();
-        downloadAsset(latestGraphInfoAsset.getDownloadUrl(), downloadedFile);
+        File downloadedGraphInfoFile = orsGraphFileManager.getDownloadedGraphInfoFile();
+        downloadAsset(latestGraphInfoAsset.getDownloadUrl(), downloadedGraphInfoFile);//mocked!!!
 
         try {
             URL url = new URL(latestGraphInfoAsset.getDownloadUrl());
             latestGraphInfoInRepo.setRemoteUrl(url);
 
-            ORSGraphInfoV1 orsGraphInfoV1 = orsGraphFileManager.readOrsGraphInfoV1(downloadedFile);
+            ORSGraphInfoV1 orsGraphInfoV1 = orsGraphFileManager.readOrsGraphInfoV1(downloadedGraphInfoFile);
             latestGraphInfoInRepo.withPersistedInfo(orsGraphInfoV1);
         } catch (MalformedURLException e) {
             LOGGER.error("[%s] Invalid download URL for graphInfo asset: %s".formatted(getProfileDescriptiveName(), latestGraphInfoAsset.getDownloadUrl()));
