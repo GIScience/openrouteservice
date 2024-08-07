@@ -1,5 +1,6 @@
 package org.heigit.ors.config.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
@@ -16,10 +17,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EnvDeserializerTest {
 
+    ObjectMapper mapper = new ObjectMapper();
+
     private static Stream<Arguments> provideEnvPropertiesToJsonTestCases() {
         ObjectMapper mapper = new ObjectMapper();
 
-        return Stream.of(Arguments.of(null, null), Arguments.of(Collections.emptyList(), mapper.createObjectNode()),
+        return Stream.of(
+                Arguments.of(null, mapper.createObjectNode()),
+                // With empty value
+                Arguments.of(List.of(Map.entry("key1", "")), mapper.createObjectNode().put("key1", "")),
+                Arguments.of(List.of(Map.entry("", "")), mapper.createObjectNode()),
+                // One of the nested items is empty
+                Arguments.of(List.of(Map.entry("nested.key1", "value1"), Map.entry("nested.key2", "")), mapper.createObjectNode().set("nested", mapper.createObjectNode().put("key1", "value1").put("key2", ""))),
+                Arguments.of(Collections.emptyList(), mapper.createObjectNode()),
+                Arguments.of(Collections.emptyList(), mapper.createObjectNode()),
                 // Single key-value
                 Arguments.of(List.of(Map.entry("key1", "value1"), Map.entry("key2", "value2")), mapper.createObjectNode().put("key1", "value1").put("key2", "value2")), // Nested Map
                 Arguments.of(List.of(Map.entry("nested.key1", "value1"), Map.entry("nested.key2", "value2")), mapper.createObjectNode().set("nested", mapper.createObjectNode().put("key1", "value1").put("key2", "value2"))), // Overwrite key
@@ -28,8 +39,7 @@ class EnvDeserializerTest {
     }
 
     @Test
-    void testDoubleRootNestedObject() {
-        ObjectMapper mapper = new ObjectMapper();
+    void testDoubleRootNestedObject() throws JsonProcessingException {
         ObjectNode doubleNestedRoot = mapper.createObjectNode();
 
         ObjectNode nested2_1 = mapper.createObjectNode();
@@ -50,20 +60,47 @@ class EnvDeserializerTest {
         doubleNestedRoot.set("nested1", nested1);
         doubleNestedRoot.set("nested2", nested2);
         List<Map.Entry<String, String>> entry = List.of(
-                Map.entry("nested2.nested2.key1", "value1"),
+                // nested2.nested2.key1=
+                Map.entry("nested2.nested2.key1", ""),
                 Map.entry("nested1.nested2.key2", "value2"),
                 Map.entry("nested1.key3", "value3"),
                 Map.entry("nested1.nested2.key1", "value5"),
                 Map.entry("nested1.nested2.key4", "value4")
         );
-        assertEquals(doubleNestedRoot, EnvDeserializer.envPropertiesToJson(entry));
+        String result = EnvDeserializer.envPropertiesToJson(entry);
+        // Deserialize the result
+        ObjectNode resultJson = mapper.readTree(result).deepCopy();
+        assertEquals(doubleNestedRoot, resultJson);
     }
 
     @ParameterizedTest
     @MethodSource("provideEnvPropertiesToJsonTestCases")
-    void testCorrectEnvPropertiesToJson(List<Map.Entry<String, String>> envVars, ObjectNode expectedJson) {
-        ObjectNode result = EnvDeserializer.envPropertiesToJson(envVars);
-        assertEquals(expectedJson, result);
+    void testCorrectEnvPropertiesToJson(List<Map.Entry<String, String>> envVars, ObjectNode expectedJson) throws JsonProcessingException {
+        String result = EnvDeserializer.envPropertiesToJson(envVars);
+        // Deserialize the result
+        ObjectNode resultJson = mapper.readTree(result).deepCopy();
+        assertEquals(expectedJson, resultJson);
+    }
+
+    @Test
+    void testEnvVarsWithUnderscores() throws JsonProcessingException {
+        List<Map.Entry<String, String>> envVars = List.of(
+                Map.entry("nested1_nested2_key1", "value1"),
+                Map.entry("nested1_nested2_key2", "value2"),
+                Map.entry("nested1_key3", "value3")
+        );
+        ObjectNode expectedJson = mapper.createObjectNode();
+        ObjectNode nested2 = mapper.createObjectNode();
+        nested2.put("key1", "value1");
+        nested2.put("key2", "value2");
+        ObjectNode nested1 = mapper.createObjectNode();
+        nested1.put("key3", "value3");
+        nested1.set("nested2", nested2);
+        expectedJson.set("nested1", nested1);
+        String result = EnvDeserializer.envPropertiesToJson(envVars);
+        // Deserialize the result
+        ObjectNode resultJson = mapper.readTree(result).deepCopy();
+        assertEquals(expectedJson, resultJson);
     }
 
 }
