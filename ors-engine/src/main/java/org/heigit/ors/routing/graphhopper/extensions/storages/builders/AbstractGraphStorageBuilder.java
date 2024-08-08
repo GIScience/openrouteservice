@@ -15,12 +15,15 @@ package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
+import lombok.Setter;
+import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Map;
 
+@Setter
 public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder {
-    protected Map<String, String> parameters;
+    protected ExtendedStorage parameters;
 
     public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags) {
         processWay(way);
@@ -28,10 +31,6 @@ public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder
 
     public void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords) {
         processEdge(way, edge);
-    }
-
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
     }
 
     public void finish() {

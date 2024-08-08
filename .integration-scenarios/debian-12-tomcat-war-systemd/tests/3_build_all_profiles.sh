@@ -90,7 +90,8 @@ podman exec -it $CONTAINER_NAME /bin/bash -c "rm -rf /home/ors/graphs/*" || exit
 
 # Restart the container silently
 log_info "Restarting the container to activate the hgv and bike-regular profiles"
-podman restart $CONTAINER_NAME > /dev/null || exit 1
+podman stop $CONTAINER_NAME > /dev/null || exit 1
+podman start $CONTAINER_NAME > /dev/null || exit 1
 
 # Wait for the container to start
 wait_for_url "127.0.0.1:${PORT}/ors/v2/health" 300 200 5 5 || exit 1

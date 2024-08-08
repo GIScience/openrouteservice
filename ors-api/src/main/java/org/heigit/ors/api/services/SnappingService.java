@@ -1,6 +1,6 @@
 package org.heigit.ors.api.services;
 
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.*;

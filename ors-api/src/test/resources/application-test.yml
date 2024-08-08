@@ -16,6 +16,7 @@ ors:
   engine:
     source_file: ./src/test/files/heidelberg.osm.gz
     graphs_root_path: graphs-apitests
+    config_output_mode: false
     graph_management:
       repository_path:
       repository_url:
@@ -41,7 +42,7 @@ ors:
     profiles:
       car:
         enabled: true
-        profile: driving-car
+        encoder_name: driving-car
         encoder_options:
           turn_costs: true
           block_fords: false
@@ -86,15 +87,15 @@ ors:
             use_for_warnings: true
           HereTraffic:
             enabled: true
-            streets: ./src/test/files/traffic_data/here/Streets.shp
-            ref_pattern: ./src/test/files/traffic_data/here/ref_pattern.csv
-            pattern_15min: ./src/test/files/traffic_data/here/pattern_kph_15min.csv
+            streets: src/test/files/traffic_data/here/Streets.shp
+            ref_pattern: src/test/files/traffic_data/here/ref_pattern.csv
+            pattern_15min: src/test/files/traffic_data/here/pattern_kph_15min.csv
             radius: 150
             output_log: false
             log_location: ors/traffic_log
       hgv:
         enabled: true
-        profile: driving-hgv
+        encoder_name: driving-hgv
         maximum_speed_lower_bound: 75
         encoder_options:
           turn_costs: true
@@ -148,7 +149,7 @@ ors:
             log_location: ors/traffic_log
       bike-regular:
         enabled: true
-        profile: cycling-regular
+        encoder_name: cycling-regular
         encoder_options:
           consider_elevation: false
           turn_costs: true
@@ -172,7 +173,7 @@ ors:
           TrailDifficulty:
       bike-mountain:
         enabled: true
-        profile: cycling-mountain
+        encoder_name: cycling-mountain
         maximum_snapping_radius: 10
         encoder_options:
           consider_elevation: false
@@ -185,7 +186,7 @@ ors:
           TrailDifficulty:
       bike-road:
         enabled: true
-        profile: cycling-road
+        encoder_name: cycling-road
         encoder_options:
           consider_elevation: false
           turn_costs: false
@@ -197,7 +198,7 @@ ors:
           TrailDifficulty:
       bike-electric:
         enabled: true
-        profile: cycling-electric
+        encoder_name: cycling-electric
         encoder_options:
           consider_elevation: false
           turn_costs: true
@@ -209,7 +210,7 @@ ors:
           TrailDifficulty:
       walking:
         enabled: true
-        profile: foot-walking
+        encoder_name: foot-walking
         interpolate_bridges_and_tunnels: false
         encoder_options:
           block_fords: false
@@ -228,7 +229,7 @@ ors:
           TrailDifficulty:
       hiking:
         enabled: true
-        profile: foot-hiking
+        encoder_name: foot-hiking
         encoder_options:
           block_fords: false
         ext_storages:
@@ -244,7 +245,7 @@ ors:
           TrailDifficulty:
       wheelchair:
         enabled: true
-        profile: wheelchair
+        encoder_name: wheelchair
         maximum_snapping_radius: 50
         encoder_options:
           block_fords: false
@@ -256,7 +257,7 @@ ors:
           OsmId:
       public-transport:
         enabled: true
-        profile: public-transport
+        encoder_name: public-transport
         encoder_options:
           block_fords: false
         maximum_visited_nodes: 15000

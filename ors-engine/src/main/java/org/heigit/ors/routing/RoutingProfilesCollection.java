@@ -95,15 +95,6 @@ public class RoutingProfilesCollection {
         return res;
     }
 
-    public List<RoutingProfile> getCarProfiles() {
-        ArrayList<RoutingProfile> result = new ArrayList<>();
-        for (RoutingProfile rp : routeProfiles.values()) {
-            if (rp.hasCarPreferences())
-                result.add(rp);
-        }
-        return result;
-    }
-
     public RoutingProfile getRouteProfile(int routePref, boolean chEnabled) {
         int routePrefKey = getRoutePreferenceKey(routePref, chEnabled);
         //Fall back to non-CH version if CH routing profile does not exist

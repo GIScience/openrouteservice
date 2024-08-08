@@ -46,8 +46,8 @@
 #    org.heigit: INFO
 ##### openrouteservice specific settings #####
 ors:
-#  cors:
-#    allowed_origins: "*"
+  #  cors:
+  #    allowed_origins: "*"
 #    allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
 #    preflight_max_age: 600
 #  messages:
@@ -103,8 +103,8 @@ ors:
 #  ##### ORS engine settings #####
   engine:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
-#    init_threads: 1
-#    preparation_mode: false
+#    config_output_mode: false
+    #    preparation_mode: false
 #    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
 #    elevation:
@@ -117,17 +117,17 @@ ors:
 #      enabled: false
 #      elevation: true
 #      elevation_smoothing: false
-#      encoder_flags_size: 8
+    #      encoder_flags_size: 8
 #      instructions: true
 #      optimize: false
 #      traffic: false
 #      maximum_distance: 100000
 #      maximum_distance_dynamic_weights: 100000
 #      maximum_distance_avoid_areas: 100000
-#      maximum_waypoints: 50
-#      maximum_snapping_radius: 400
 #      maximum_distance_alternative_routes: 100000
 #      maximum_distance_round_trip_routes: 100000
+#      maximum_waypoints: 50
+#      maximum_snapping_radius: 400
 #      maximum_speed_lower_bound: 80
 #      maximum_visited_nodes: 1000000
 #      location_index_resolution: 500
@@ -147,9 +147,9 @@ ors:
 #          lm:
 #            active_landmarks: 8
     profiles:
-#      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific.
+      #      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific.
       car:
-#        profile: driving-car
+        #        profile: driving-car
 #        encoder_options:
 #          turn_costs: true
 #          block_fords: false

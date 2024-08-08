@@ -21,6 +21,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
+import org.heigit.ors.config.profile.storages.ExtendedStorageRoadAccessRestrictions;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage;
@@ -33,7 +34,6 @@ import java.util.*;
  * place for the particular vehicle type that is being processed for the profile.
  */
 public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStorageBuilder {
-    private static final String KEY_USE_FOR_WARNINGS = "use_for_warnings";
     private static final String VAL_BICYCLE = "bicycle";
     private static final String VAL_ACCESS = "access";
     private static final String VAL_MOTOR_VEHICLE = "motor_vehicle";
@@ -80,12 +80,19 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
+        ExtendedStorageRoadAccessRestrictions parameters;
+        try {
+            parameters = (ExtendedStorageRoadAccessRestrictions) this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
+
         this.profileType = profileType;
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (parameters.containsKey(KEY_USE_FOR_WARNINGS))
-            storage.setIsUsedForWarning(Boolean.parseBoolean(parameters.get(KEY_USE_FOR_WARNINGS)));
+        if (parameters.getUseForWarnings() != null)
+            storage.setIsUsedForWarning(parameters.getUseForWarnings());
 
         return storage;
     }
@@ -101,6 +108,13 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
+        ExtendedStorageRoadAccessRestrictions parameters;
+        try {
+            parameters = (ExtendedStorageRoadAccessRestrictions) this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
+
         // extract profiles from GraphHopper instance
         EncodingManager encMgr = graphhopper.getEncodingManager();
         List<FlagEncoder> encoders = encMgr.fetchEdgeEncoders();
@@ -115,8 +129,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (parameters.containsKey(KEY_USE_FOR_WARNINGS))
-            storage.setIsUsedForWarning(Boolean.parseBoolean(parameters.get(KEY_USE_FOR_WARNINGS)));
+        if (parameters.getUseForWarnings() != null)
+            storage.setIsUsedForWarning(parameters.getUseForWarnings());
 
         return storage;
     }

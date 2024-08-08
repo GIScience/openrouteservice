@@ -3,6 +3,7 @@ package org.heigit.ors.api;
 import jakarta.servlet.ServletContextListener;
 import org.heigit.ors.api.services.GraphService;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.config.*;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
@@ -35,10 +36,9 @@ public class Application extends SpringBootServletInitializer {
         if (args.length > 0 && !StringUtility.isNullOrEmpty(args[0]) && !args[0].startsWith("-")) {
             System.setProperty(ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY, args[0]);
         }
-        context = SpringApplication.run(Application.class, args);
-        LOG.info("openrouteservice %s".formatted(AppInfo.getEngineInfo()));
-        if (RoutingProfileManagerStatus.hasFailed()) {
-            System.exit(1);
+        SpringApplication.run(Application.class, args);
+        if (RoutingProfileManagerStatus.isShutdown()) {
+            System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
         }
     }
 
@@ -54,10 +54,10 @@ public class Application extends SpringBootServletInitializer {
         thread.start();
     }
 
-    @Bean("ORSInitContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties, GraphService graphService) {
+    @Bean("orsInitContextListenerBean")
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties, GraphService graphService) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener(engineProperties, graphService));
+        bean.setListener(new ORSInitContextListener(endpointsProperties, corsProperties, systemMessageProperties, loggingProperties, serverProperties, graphService));
         return bean;
     }
 }

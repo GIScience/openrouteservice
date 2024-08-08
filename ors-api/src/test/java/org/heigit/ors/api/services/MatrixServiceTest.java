@@ -1,6 +1,7 @@
 package org.heigit.ors.api.services;
 
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.api.util.HelperFunctions;
 import org.heigit.ors.common.DistanceUnit;
@@ -9,7 +10,6 @@ import org.heigit.ors.exceptions.ServerLimitExceededException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixRequest;
-import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.junit.jupiter.api.BeforeEach;

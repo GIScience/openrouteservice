@@ -7,8 +7,8 @@ import com.graphhopper.config.Profile;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
-import org.heigit.ors.config.EngineConfig;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.config.defaults.DefaultProfilePropertiesCar;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.junit.jupiter.api.Test;
 
@@ -73,10 +73,28 @@ class ORSGraphHopperTest {
      * => 1.02112
      */
     @Test
-    void buildGraphWithPreprocessedData() throws Exception {
+    void buildGraphWithPreprocessedData() throws Exception {//todo merge with next test
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfig();
         ORSGraphHopper gh = createORSGraphHopper(ghConfig);
         gh.initializeGraphManagement();
+        gh.importOrLoad();
+        ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
+        assertEquals(419, storage.getNodes());
+    }
+
+    @Test
+    void buildGraphWithPreprocessedData() throws Exception {
+        ProfileProperties profile = new DefaultProfilePropertiesCar(true);
+        GraphProcessContext gpc = new GraphProcessContext(profile);
+        gpc.setGetElevationFromPreprocessedData(true);
+        ORSGraphHopper gh = new ORSGraphHopper(gpc);
+        ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
+        ghConfig.putObject("graph.dataaccess", "RAM");
+        ghConfig.putObject("graph.location", "unittest.testgraph");
+        ghConfig.putObject("datareader.file", "src/test/files/preprocessed_osm_data.pbf");
+        ghConfig.setProfiles(List.of(new Profile("blah").setVehicle("car").setWeighting("fastest").setTurnCosts(true)));
+        gh.init(ghConfig);
+        gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
         gh.importOrLoad();
         ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
         assertEquals(419, storage.getNodes());

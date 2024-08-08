@@ -1,0 +1,18 @@
+package org.heigit.ors.config.defaults;
+
+import lombok.EqualsAndHashCode;
+import org.heigit.ors.common.EncoderNameEnum;
+import org.heigit.ors.config.profile.ProfileProperties;
+
+@EqualsAndHashCode(callSuper = false)
+public class DefaultProfilePropertiesBikeRegular extends ProfileProperties {
+    public DefaultProfilePropertiesBikeRegular() {
+        this(false);
+    }
+
+    public DefaultProfilePropertiesBikeRegular(Boolean setDefaults) {
+        super(setDefaults, EncoderNameEnum.CYCLING_REGULAR);
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(this.getEncoderName());
+        setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
+    }
+}
