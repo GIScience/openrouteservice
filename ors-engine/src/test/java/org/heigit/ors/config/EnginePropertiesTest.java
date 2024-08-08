@@ -197,7 +197,7 @@ class EnginePropertiesTest {
                     "source_file": null,
                     "init_threads": null,
                     "preparation_mode": null,
-                    "config_output_mode": null,
+                    "config_output": null,
                     "graphs_root_path": null,
                     "graphs_data_access": null,
                     "elevation": null,

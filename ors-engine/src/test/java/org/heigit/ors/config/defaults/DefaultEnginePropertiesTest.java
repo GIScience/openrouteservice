@@ -61,15 +61,15 @@ public class DefaultEnginePropertiesTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(engineProperties);
         assertNotNull(json);
-        String customGraphsPath = Path.of("./graphs").toAbsolutePath().toString();
-        String customElevationCachePath = Path.of("./elevation_cache").toAbsolutePath().toString();
+        String customGraphsPath = Path.of("graphs").toAbsolutePath().toString();
+        String customElevationCachePath = Path.of("elevation_cache").toAbsolutePath().toString();
         //language=JSON
         String expectedJson = String.format("""
                 {
                      "source_file": "",
                      "init_threads": 2,
                      "preparation_mode": false,
-                     "config_output_mode": false,
+                     "config_output": null,
                      "graphs_root_path": "%s",
                      "graphs_data_access": "RAM_STORE",
                      "elevation": {
@@ -160,7 +160,7 @@ public class DefaultEnginePropertiesTest {
         assertEquals(2, defaultEngineProperties.getInitThreads());
         assertFalse(defaultEngineProperties.getPreparationMode());
         assertNull(defaultEngineProperties.getConfigOutput());
-        assertEquals(Paths.get("./graphs").toAbsolutePath(), defaultEngineProperties.getGraphsRootPath());
+        assertEquals(Paths.get("graphs").toAbsolutePath(), defaultEngineProperties.getGraphsRootPath());
         assertEquals(DataAccessEnum.RAM_STORE, defaultEngineProperties.getGraphsDataAccess());
 
         // Check equality for elevation
