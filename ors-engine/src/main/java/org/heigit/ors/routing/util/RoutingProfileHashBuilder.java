@@ -5,7 +5,7 @@ import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import org.apache.commons.lang3.StringUtils;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.springframework.util.DigestUtils;
 
@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
+//TODO adapt to new configuration if required
+// (or ideally just use profileProperties.graphBuildingProperties.hashCode()?)
 public class RoutingProfileHashBuilder {
 
     private RoutingProfileHashBuilder(){}
@@ -24,14 +26,14 @@ public class RoutingProfileHashBuilder {
         return new RoutingProfileHashBuilder();
     }
 
-    public static RoutingProfileHashBuilder builder(RouteProfileConfiguration routeProfileConfiguration) {
+    public static RoutingProfileHashBuilder builder(ProfileProperties routeProfileConfiguration) {
         RoutingProfileHashBuilder hashBuilder = RoutingProfileHashBuilder.builder()
-                .withString(routeProfileConfiguration.getName())
+//                .withString(routeProfileConfiguration.getName())
                 .withBoolean(routeProfileConfiguration.getEnabled())
-                .withString(routeProfileConfiguration.getProfiles())
+//                .withString(routeProfileConfiguration.getProfiles())
 //                .withString(routeProfileConfiguration.getGraphPath())
-                .withMapOfMaps(routeProfileConfiguration.getExtStorages(), "extStorages")
-                .withMapOfMaps(routeProfileConfiguration.getGraphBuilders(), "graphBuilders")
+//                .withMapOfMaps(routeProfileConfiguration.getExtStorages(), "extStorages")
+//                .withMapOfMaps(routeProfileConfiguration.getGraphBuilders(), "graphBuilders")
                 .withDouble(routeProfileConfiguration.getMaximumDistance())
                 .withDouble(routeProfileConfiguration.getMaximumDistanceDynamicWeights())
                 .withDouble(routeProfileConfiguration.getMaximumDistanceAvoidAreas())
@@ -41,27 +43,28 @@ public class RoutingProfileHashBuilder {
                 .withBoolean(routeProfileConfiguration.getInstructions())
                 .withBoolean(routeProfileConfiguration.getOptimize())
                 .withInteger(routeProfileConfiguration.getEncoderFlagsSize())
-                .withString(routeProfileConfiguration.getEncoderOptions())
-                .withString(routeProfileConfiguration.getGtfsFile())
-                .withObject(routeProfileConfiguration.getIsochronePreparationOpts())
-                .withObject(routeProfileConfiguration.getPreparationOpts())
-                .withObject(routeProfileConfiguration.getExecutionOpts())
-                .withString(routeProfileConfiguration.getElevationProvider())
-                .withString(routeProfileConfiguration.getElevationCachePath())
-                .withString(routeProfileConfiguration.getElevationDataAccess())
-                .withBoolean(routeProfileConfiguration.getElevationCacheClear())
+//                .withString(routeProfileConfiguration.getEncoderOptions())
+//                .withString(routeProfileConfiguration.getGtfsFile())
+//                .withObject(routeProfileConfiguration.getIsochronePreparationOpts())
+//                .withObject(routeProfileConfiguration.getPreparationOpts())
+//                .withObject(routeProfileConfiguration.getExecutionOpts())
+//                .withString(routeProfileConfiguration.getElevationProvider())
+//                .withString(routeProfileConfiguration.getElevationCachePath())
+//                .withString(routeProfileConfiguration.getElevationDataAccess())
+//                .withBoolean(routeProfileConfiguration.getElevationCacheClear())
                 .withBoolean(routeProfileConfiguration.getElevationSmoothing())
                 .withBoolean(routeProfileConfiguration.getInterpolateBridgesAndTunnels())
                 .withInteger(routeProfileConfiguration.getMaximumSnappingRadius())
 //                .withObject(routeProfileConfiguration.getExtent())
-                .withBoolean(routeProfileConfiguration.hasMaximumSnappingRadius())
+//                .withBoolean(routeProfileConfiguration.hasMaximumSnappingRadius())
                 .withInteger(routeProfileConfiguration.getLocationIndexResolution())
                 .withInteger(routeProfileConfiguration.getLocationIndexSearchIterations())
                 .withDouble(routeProfileConfiguration.getMaximumSpeedLowerBound())
 //                .withInteger(routeProfileConfiguration.getTrafficExpirationMin())
-                .withInteger(routeProfileConfiguration.getMaximumVisitedNodesPT())
-                .withBoolean(routeProfileConfiguration.isTurnCostEnabled())
-                .withBoolean(routeProfileConfiguration.isEnforceTurnCosts());
+//                .withInteger(routeProfileConfiguration.getMaximumVisitedNodesPT())
+//                .withBoolean(routeProfileConfiguration.isTurnCostEnabled())
+//                .withBoolean(routeProfileConfiguration.isEnforceTurnCosts())
+                ;
 
         return hashBuilder;
     }

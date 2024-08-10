@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.config.defaults.DefaultEngineProperties;
+import org.heigit.ors.config.defaults.DefaultGraphManagementProperties;
 import org.heigit.ors.config.defaults.DefaultProfileProperties;
 import org.heigit.ors.config.defaults.DefaultProfiles;
 import org.heigit.ors.config.profile.ProfileProperties;
@@ -24,7 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @EqualsAndHashCode
 public class EngineProperties {
 
@@ -53,6 +51,8 @@ public class EngineProperties {
 
     @JsonProperty("elevation")
     private ElevationProperties elevation;
+    @JsonProperty("graph_management")
+    private GraphManagementProperties graphManagement;
     @JsonProperty("profile_default")
     private ProfileProperties profileDefault;
     @JsonProperty("profiles")
@@ -97,6 +97,9 @@ public class EngineProperties {
         DefaultProfiles system_default_profile_settings = new DefaultProfiles(true);
         DefaultProfileProperties system_default_profile_defaults_properties = new DefaultProfileProperties(true);
 
+        if (this.getGraphManagement() == null) {
+            this.setGraphManagement(new DefaultGraphManagementProperties());
+        }
 
         for (String profileEntryName : system_default_profile_settings.getProfiles().keySet()) {
             ProfileProperties profile = system_default_profile_settings.getProfiles().get(profileEntryName);

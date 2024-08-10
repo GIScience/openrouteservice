@@ -1,6 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;
 
 public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
@@ -11,15 +11,16 @@ public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
     private final String extend;
     private final String routeProfileName;
 
-    public NamedGraphsRepoStrategy(EngineConfig engineConfig, String routeProfileName) {
-        this.repoName = engineConfig.getGraphsRepoName();
-        this.profileGroup = engineConfig.getGraphsProfileGroup();
-        this.graphVersion = engineConfig.getGraphVersion();
-        this.extend = engineConfig.getGraphsExtent();
+    public NamedGraphsRepoStrategy(EngineProperties engineProperties, String routeProfileName) {
+        this.repoName = engineProperties.getGraphManagement().getRepositoryName();
+        this.profileGroup = engineProperties.getGraphManagement().getRepositoryProfileGroup();
+        this.graphVersion = engineProperties.getGraphManagement().getGraphVersion();
+        this.extend = engineProperties.getGraphManagement().getGraphExtent();
         this.routeProfileName = routeProfileName;
     }
 
     private String getConcatenatedRepoFileName() {
+        //todo add repoName?
         return String.join("_",
                 profileGroup,
                 extend,

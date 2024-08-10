@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.heigit.ors.config.utils.PropertyUtils.assertAllNull;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,6 +39,7 @@ class EnginePropertiesTest {
                 "data_access": "RAM_STORE",
                 "cache_clear": true
               },
+              "graph_management": null,
               "profile_default": {
                 "enabled": true,
                 "preparation": {
@@ -117,7 +119,7 @@ class EnginePropertiesTest {
             }""";
     EngineProperties enginePropertiesTest;
     EngineProperties defaultEngineProperties;
-    HashSet<String> defaultProfilePropertiesIgnoreList = new HashSet<>(List.of("initialized", "graphsDataAccess", "elevation.dataAccess", "elevation.cacheClear", "profileDefault.enabled", "profileDefault.extStorages", "profileDefault.preparation.minNetworkSize", "profileDefault.preparation.methods.lm.enabled", "profileDefault.preparation.methods.lm.weightings", "profileDefault.preparation.methods.lm.landmarks", "profileDefault.execution.methods.lm.activeLandmarks", "profiles"));
+    HashSet<String> defaultProfilePropertiesIgnoreList = new HashSet<>(List.of("initialized", "graphsDataAccess", "elevation.dataAccess", "elevation.cacheClear", "graphManagement", "profileDefault.enabled", "profileDefault.extStorages", "profileDefault.preparation.minNetworkSize", "profileDefault.preparation.methods.lm.enabled", "profileDefault.preparation.methods.lm.weightings", "profileDefault.preparation.methods.lm.landmarks", "profileDefault.execution.methods.lm.activeLandmarks", "profiles"));
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
@@ -201,6 +203,7 @@ class EnginePropertiesTest {
                     "graphs_root_path": null,
                     "graphs_data_access": null,
                     "elevation": null,
+                    "graph_management": null,
                     "profile_default": null,
                     "profiles": null
                 }""";

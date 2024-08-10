@@ -1,7 +1,7 @@
 osmDate: "2024-01-26T10:23:31+0000"
 importDate: "2024-06-26T10:23:39+0000"
 profileProperties:
-  profile: "driving-hgv"
+  encoder_name: "driving-hgv"
   enabled: true
   elevation: true
   elevationSmoothing: false

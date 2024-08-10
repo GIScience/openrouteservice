@@ -50,8 +50,9 @@ public class RoutingProfileManager {
 
     public RoutingProfileManager(EngineProperties config) {
         if (instance == null) {
-        instance = this;
-        initialize(config);
+            instance = this;
+            initialize(config);
+        }
     }
 
     public static synchronized RoutingProfileManager getInstance() {

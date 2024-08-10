@@ -1,6 +1,9 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
+import org.heigit.ors.config.EngineProperties;
+
 import java.io.File;
+import java.nio.file.Path;
 
 
 public class HashSubDirBasedORSGraphFolderStrategy implements ORSGraphFolderStrategy {
@@ -8,6 +11,10 @@ public class HashSubDirBasedORSGraphFolderStrategy implements ORSGraphFolderStra
     private final String hash;
     private final String graphsRootAbsPath;
     private final String routeProfileName;
+
+    public HashSubDirBasedORSGraphFolderStrategy(EngineProperties engineProperties, String routeProfileName, String hash) {//todo GRC consider changing typ graphsRootPath to Path and get rid of
+        this(engineProperties.getGraphsRootPath().toAbsolutePath().toString(), routeProfileName, hash);
+    }
 
     public HashSubDirBasedORSGraphFolderStrategy(String graphsRootAbsPath, String routeProfileName, String hash) {
         this.graphsRootAbsPath = graphsRootAbsPath;

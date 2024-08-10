@@ -2,8 +2,9 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
+import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.HashSubDirBasedORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;
@@ -35,64 +36,63 @@ class NexusRepoManagerTest {
     @Spy
     NexusRepoManager orsGraphRepoManager;
     ORSGraphFileManager orsGraphFileManager;
+
+    private static final long EARLIER_DATE = 1692373111000L;
+    private static final long MIDDLE_DATE = 1692373222000L;
+    private static final long LATER_DATE = 1692373333000L;
+
     private static final String GRAPHS_REPO_BASE_URL = "https://example.com";
     private static final String GRAPHS_REPO_NAME = "test-repo";
     private static final String GRAPHS_REPO_PATH = "some/path/12345";
     private static final String GRAPHS_COVERAGE = "planet";
     private static final String GRAPHS_PROFILE_GROUP = "traffic";
     private static final String GRAPHS_VERSION = "1";
-    private static final String VEHICLE = "car";
-    @TempDir(cleanup = CleanupMode.ON_SUCCESS)
-    private static Path TEMP_DIR;
-    private static final long EARLIER_DATE = 1692373111000L;
-    private static final long MIDDLE_DATE = 1692373222000L;
-    private static final long LATER_DATE = 1692373333000L;
+    private static final String PROFILE_NAME = "car";
 
+    @TempDir(cleanup = CleanupMode.ALWAYS)
+    private static Path TEMP_DIR;
+
+    private static Path localGraphsRootPath;
     String vehicleDirAbsPath, hashDirAbsPath;
-    File localDir, vehicleDir, hashDir, downloadedGraphInfoV1File, localGraphInfoV1File;
+    File vehicleDir, hashDir, downloadedGraphInfoV1File, localGraphInfoV1File;
 
 
     @BeforeEach
-    void setUp() {
-        localDir = TEMP_DIR.toFile();
-        vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
+    void setUp() throws IOException {
+        localGraphsRootPath = TEMP_DIR.resolve("graphs");
+        java.nio.file.Files.createDirectories(localGraphsRootPath);
+        vehicleDirAbsPath = String.join("/", localGraphsRootPath.toAbsolutePath().toString(), PROFILE_NAME);
         vehicleDir = new File(vehicleDirAbsPath);
-        vehicleDir.mkdir();
+        vehicleDir.mkdirs();
+
     }
 
     @AfterEach
     void deleteFiles() throws IOException {
-        FileUtils.deleteDirectory(vehicleDir);
+        FileUtils.deleteDirectory(localGraphsRootPath.toFile());
     }
 
-    void setupORSGraphManager(String hash) {
-        hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
+    void setupORSGraphManager(String hash){
+        hashDirAbsPath = String.join(File.separator, vehicleDirAbsPath, hash);
         hashDir = new File(hashDirAbsPath);
-        hashDir.mkdir();
+        hashDir.mkdirs();
 
-        EngineConfig engineConfig = EngineConfig.EngineConfigBuilder.init()
-                .setGraphsRepoUrl(GRAPHS_REPO_BASE_URL)
-                .setGraphsRepoName(GRAPHS_REPO_NAME)
-                .setGraphsRepoPath(GRAPHS_REPO_PATH)
-                .setGraphsExtent(GRAPHS_COVERAGE)
-                .setGraphsProfileGroup(GRAPHS_PROFILE_GROUP)
-                .setGraphVersion(GRAPHS_VERSION)
-                .setGraphsRootPath(localDir.getAbsolutePath())
-                .build();
 
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineConfig.getGraphsRootPath(), VEHICLE, hash);
-        orsGraphFileManager = new ORSGraphFileManager(engineConfig, VEHICLE, orsGraphFolderStrategy);
+        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(localGraphsRootPath, null,
+                GRAPHS_REPO_BASE_URL,GRAPHS_REPO_NAME,GRAPHS_PROFILE_GROUP,GRAPHS_COVERAGE,GRAPHS_VERSION, 0);
+
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineProperties, PROFILE_NAME, hash);
+        orsGraphFileManager = new ORSGraphFileManager(engineProperties, PROFILE_NAME, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
 
         //ORSGraphRepoManager is mocked, empty default constructor was called -> set fields here:
-        orsGraphRepoManager.setGraphsRepoPath(engineConfig.getGraphsRepoPath());
-        orsGraphRepoManager.setGraphsRepoBaseUrl(engineConfig.getGraphsRepoUrl());
-        orsGraphRepoManager.setGraphsRepoName(engineConfig.getGraphsRepoName());
-        orsGraphRepoManager.setGraphsRepoCoverage(engineConfig.getGraphsExtent());
-        orsGraphRepoManager.setGraphsProfileGroup(engineConfig.getGraphsProfileGroup());
+        orsGraphRepoManager.setGraphsRepoBaseUrl(GRAPHS_REPO_BASE_URL);
+        orsGraphRepoManager.setGraphsRepoName(GRAPHS_REPO_NAME);
+        orsGraphRepoManager.setGraphsProfileGroup(GRAPHS_PROFILE_GROUP);
+        orsGraphRepoManager.setGraphsRepoCoverage(GRAPHS_COVERAGE);
         orsGraphRepoManager.setGraphsRepoGraphVersion(GRAPHS_VERSION);
         orsGraphRepoManager.setOrsGraphFileManager(orsGraphFileManager);
-        orsGraphRepoManager.setRouteProfileName(VEHICLE);
+        orsGraphRepoManager.setRouteProfileName(PROFILE_NAME);
 
         ORSGraphRepoStrategy repoStrategy = new HashBasedRepoStrategy(hash);
         orsGraphRepoManager.setOrsGraphRepoStrategy(repoStrategy);
@@ -101,7 +101,7 @@ class NexusRepoManagerTest {
     void setupActiveGraphDirectory(String hash, Long osmDateLocal) throws IOException {
         ORSGraphInfoV1 activeGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateLocal));
         localGraphInfoV1File = orsGraphFileManager.getActiveGraphInfoFile();
-        new ObjectMapper().writeValue(localGraphInfoV1File, activeGraphInfoV1Object);
+        ORSGraphFileManager.writeOrsGraphInfoV1(activeGraphInfoV1Object, localGraphInfoV1File);
     }
 
     void setupNoRemoteFiles() {
@@ -187,7 +187,7 @@ class NexusRepoManagerTest {
     }
 
     @Test
-    void filterLatestAsset() {
+    void filterLatestAsset() throws IOException {
         String hash = "b6714103ccd4";
         setupORSGraphManager(hash);
         List<AssetXO> items = Arrays.asList(

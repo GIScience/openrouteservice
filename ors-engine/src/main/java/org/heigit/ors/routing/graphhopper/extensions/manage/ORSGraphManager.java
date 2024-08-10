@@ -3,7 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 import com.graphhopper.GraphHopper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.remote.ORSGraphRepoManager;
 
@@ -15,15 +15,15 @@ public class ORSGraphManager {
     private static final String UPDATE_LOCKFILE_NAME = "update.lock";
     private static final String RESTART_LOCKFILE_NAME = "restart.lock";
 
-    private EngineConfig engineConfig;
+    private EngineProperties engineProperties;
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphRepoManager orsGraphRepoManager;
 
     public ORSGraphManager() {
     }
 
-    public ORSGraphManager(EngineConfig engineConfig, ORSGraphFileManager orsGraphFileManager, ORSGraphRepoManager orsGraphRepoManager) {
-        this.engineConfig = engineConfig;
+    public ORSGraphManager(EngineProperties engineProperties, ORSGraphFileManager orsGraphFileManager, ORSGraphRepoManager orsGraphRepoManager) {
+        this.engineProperties = engineProperties;
         this.orsGraphFileManager = orsGraphFileManager;
         this.orsGraphRepoManager = orsGraphRepoManager;
     }
@@ -49,10 +49,10 @@ public class ORSGraphManager {
     }
 
     public boolean useGraphRepository() {
-        if (StringUtils.isBlank(engineConfig.getGraphsRepoName())) return false;
+        if (StringUtils.isBlank(engineProperties.getGraphManagement().getRepositoryName())) return false;
 
-        return StringUtils.isNotBlank(engineConfig.getGraphsRepoUrl()) ||
-                StringUtils.isNotBlank(engineConfig.getGraphsRepoPath());
+        return StringUtils.isNotBlank(engineProperties.getGraphManagement().getRepositoryUrl()) ||
+                StringUtils.isNotBlank(engineProperties.getGraphManagement().getRepositoryPath());
     }
 
     public void manageStartup() {

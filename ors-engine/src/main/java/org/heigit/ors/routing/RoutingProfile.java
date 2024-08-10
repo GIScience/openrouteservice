@@ -103,7 +103,7 @@ public class RoutingProfile {
         gpc.setGetElevationFromPreprocessedData(engineConfig.getElevation().getPreprocessed());
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineConfig);
-        gh.setRouteProfileName(routeProfileConfiguration.getName());
+        gh.setRouteProfileName(profile.getEncoderName().getName());
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
@@ -351,7 +351,6 @@ public class RoutingProfile {
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", profile.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", profile.getLocationIndexSearchIterations());
-        ghConfig.putObject("graphs_extent", profile.getGraphsExtent());
         ghConfig.putObject("ext_storages", profile.getExtStorages());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 

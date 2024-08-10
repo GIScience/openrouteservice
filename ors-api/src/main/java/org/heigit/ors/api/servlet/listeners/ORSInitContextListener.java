@@ -35,7 +35,7 @@ import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.config.*;
-import org.heigit.ors.api.EngineProperties;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.EngineProperties;
@@ -114,7 +114,7 @@ public class ORSInitContextListener implements ServletContextListener {
                         ORSGraphHopper orsGraphHopper = profile.getGraphhopper();
                         ORSGraphManager orsGraphManager = orsGraphHopper.getOrsGraphManager();
                         if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
-                            LOGGER.debug("Adding orsGraphManager for profile %s to GraphService".formatted(profile.getConfiguration().getName()));
+                            LOGGER.debug("Adding orsGraphManager for profile %s to GraphService".formatted(profile.getProfileConfiguration().getEncoderName()));
                             graphService.addGraphhopperLocation(orsGraphManager);
                         }
                     }

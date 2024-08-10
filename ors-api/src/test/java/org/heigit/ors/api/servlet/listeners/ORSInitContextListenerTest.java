@@ -1,6 +1,7 @@
 package org.heigit.ors.api.servlet.listeners;
 
 import org.heigit.ors.api.config.*;
+import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.config.EngineProperties;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class ORSInitContextListenerTest {
     @Test
     void testConfigurationOutputTarget() {
-        ORSInitContextListener orsInitContextListener = new ORSInitContextListener(new EndpointsProperties(), new CorsProperties(), new SystemMessageProperties(), new LoggingProperties(), new ServerProperties());
+        ORSInitContextListener orsInitContextListener = new ORSInitContextListener(new EndpointsProperties(), new CorsProperties(), new SystemMessageProperties(), new LoggingProperties(), new ServerProperties(), new GraphService());
         EngineProperties engineProperties = new EngineProperties();
         Map<String, String> envMap = new HashMap<>();
 

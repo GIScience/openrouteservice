@@ -40,7 +40,7 @@ import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
@@ -92,7 +92,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     public static final String KEY_ARRIVAL = "arrival";
 
     private GraphProcessContext processContext;
-    private EngineConfig engineConfig;
+    private EngineProperties engineProperties;
     private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
     private HashMap<Integer, Long> tmcEdges;
     private Eccentricity eccentricity;
@@ -120,10 +120,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     private GraphHopperConfig config;
 
-    public ORSGraphHopper(GraphProcessContext processContext, EngineConfig engineConfig) {
-        this.engineConfig = engineConfig;
+    public ORSGraphHopper(GraphProcessContext processContext, EngineProperties engineProperties) {
+        this.engineProperties = engineProperties;
         this.processContext = processContext;
-        processContext.init(this);
+//        processContext.init(this);
     }
 
     public ORSGraphHopper() {
@@ -225,24 +225,24 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     public void initializeGraphManagementWithDeepHashBasedStructure() {
         String hash = RoutingProfileHashBuilder.builder(config).build();
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineConfig.getGraphsRootPath(), routeProfileName, hash);
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineProperties, routeProfileName, hash);
         ORSGraphRepoStrategy orsGraphRepoStrategy = new HashBasedRepoStrategy(hash);
         initializeGraphManagement(orsGraphFolderStrategy, orsGraphRepoStrategy);
     }
 
     public void initializeGraphManagementWithFlatStructure() {
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(engineConfig, routeProfileName);
-        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(engineConfig, routeProfileName);
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(engineProperties, routeProfileName);
+        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(engineProperties, routeProfileName);
         initializeGraphManagement(orsGraphFolderStrategy, orsGraphRepoStrategy);
     }
 
     public void initializeGraphManagement(ORSGraphFolderStrategy orsGraphFolderStrategy, ORSGraphRepoStrategy orsGraphRepoStrategy) {
-        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineConfig, routeProfileName, orsGraphFolderStrategy);
+        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineProperties, routeProfileName, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
         //TODO decide based on configuration which implementation to use
         //        ORSGraphRepoManager orsGraphRepoManager = new NexusRepoManager(engineConfig, routeProfileName, orsGraphRepoStrategy, orsGraphFileManager);
-        ORSGraphRepoManager orsGraphRepoManager = new FileSystemRepoManager(engineConfig, routeProfileName, orsGraphRepoStrategy, orsGraphFileManager);
-        this.orsGraphManager = new ORSGraphManager(engineConfig, orsGraphFileManager, orsGraphRepoManager);
+        ORSGraphRepoManager orsGraphRepoManager = new FileSystemRepoManager(engineProperties, routeProfileName, orsGraphRepoStrategy, orsGraphFileManager);
+        this.orsGraphManager = new ORSGraphManager(engineProperties, orsGraphFileManager, orsGraphRepoManager);
         this.orsGraphManager.manageStartup();
         adaptGraphhopperLocation();
     }

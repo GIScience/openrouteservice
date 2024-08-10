@@ -1,9 +1,10 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
+import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
@@ -23,6 +24,7 @@ import java.util.*;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+@Setter
 public class NexusRepoManager extends AbstractRepoManager implements ORSGraphRepoManager {
 
     private static final Logger LOGGER = Logger.getLogger(NexusRepoManager.class.getName());
@@ -30,7 +32,6 @@ public class NexusRepoManager extends AbstractRepoManager implements ORSGraphRep
     private int readTimeoutMillis = 200000;
     private String routeProfileName;
     private String graphsRepoBaseUrl;
-    private String graphsRepoPath;
     private String graphsRepoName;
     private String graphsProfileGroup;
     private String graphsRepoCoverage;
@@ -41,60 +42,19 @@ public class NexusRepoManager extends AbstractRepoManager implements ORSGraphRep
     public NexusRepoManager() {
     }
 
-    public NexusRepoManager(EngineConfig engineConfig, String routeProfileName, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        this.graphsRepoBaseUrl = engineConfig.getGraphsRepoUrl();
-        this.graphsRepoPath = engineConfig.getGraphsRepoPath();
-        this.graphsRepoName = engineConfig.getGraphsRepoName();
-        this.graphsRepoCoverage = engineConfig.getGraphsExtent();
-        this.graphsProfileGroup = engineConfig.getGraphsProfileGroup();
-        this.graphsRepoGraphVersion = engineConfig.getGraphVersion();
+    public NexusRepoManager(EngineProperties engineProperties, String routeProfileName, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+        this.graphsRepoBaseUrl = engineProperties.getGraphManagement().getRepositoryUrl();
+        this.graphsRepoName = engineProperties.getGraphManagement().getRepositoryName();
+        this.graphsRepoCoverage = engineProperties.getGraphManagement().getGraphExtent();
+        this.graphsProfileGroup = engineProperties.getGraphManagement().getRepositoryProfileGroup();
+        this.graphsRepoGraphVersion = engineProperties.getGraphManagement().getGraphVersion();
         this.routeProfileName = routeProfileName;
         this.orsGraphRepoStrategy = orsGraphRepoStrategy;
-        this.orsGraphFileManager = orsGraphFileManager;
-    }
-
-    public void setGraphsRepoBaseUrl(String graphsRepoBaseUrl) {
-        this.graphsRepoBaseUrl = graphsRepoBaseUrl;
-    }
-
-    public void setGraphsRepoName(String graphsRepoName) {
-        this.graphsRepoName = graphsRepoName;
-    }
-
-    public void setGraphsRepoCoverage(String graphsRepoCoverage) {
-        this.graphsRepoCoverage = graphsRepoCoverage;
-    }
-
-    public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {
-        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
-    }
-
-    public void setOrsGraphFileManager(ORSGraphFileManager orsGraphFileManager) {
         this.orsGraphFileManager = orsGraphFileManager;
     }
 
     String getProfileDescriptiveName() {
         return orsGraphFileManager.getProfileDescriptiveName();
-    }
-
-    public String getGraphsRepoPath() {
-        return graphsRepoPath;
-    }
-
-    public void setGraphsRepoPath(String graphsRepoPath) {
-        this.graphsRepoPath = graphsRepoPath;
-    }
-
-    public void setRouteProfileName(String routeProfileName) {
-        this.routeProfileName = routeProfileName;
-    }
-
-    public void setGraphsProfileGroup(String graphsProfileGroup) {
-        this.graphsProfileGroup = graphsProfileGroup;
-    }
-
-    public void setOrsGraphRepoStrategy(ORSGraphRepoStrategy orsGraphRepoStrategy) {
-        this.orsGraphRepoStrategy = orsGraphRepoStrategy;
     }
 
     String createDownloadPathFilterPattern() {

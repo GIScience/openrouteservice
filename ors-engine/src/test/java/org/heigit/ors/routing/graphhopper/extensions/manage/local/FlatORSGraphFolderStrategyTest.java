@@ -1,21 +1,32 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.GraphManagementProperties;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FlatORSGraphFolderStrategyTest {
 
-    FlatORSGraphFolderStrategy strategy = new FlatORSGraphFolderStrategy
-            (EngineConfig.EngineConfigBuilder.init()
-                    .setGraphsRootPath( "/data/graphs")
-                    .setGraphsRepoName("vendor.org")
-                    .setGraphsProfileGroup("fun")
-                    .setGraphsExtent("disneyland")
-                    .setGraphVersion("0")
-                    .build(),
-                    "bobbycar");
+    FlatORSGraphFolderStrategy strategy;
+
+    @BeforeEach
+    public void setUp() {
+        GraphManagementProperties graphManagementProperties = new GraphManagementProperties();
+        graphManagementProperties.setRepositoryName("vendor.org");
+        graphManagementProperties.setRepositoryProfileGroup("fun");
+        graphManagementProperties.setGraphExtent("disneyland");
+        graphManagementProperties.setGraphVersion("0");
+
+        EngineProperties engineProperties = new    EngineProperties();
+        engineProperties.setGraphManagement(graphManagementProperties);
+        engineProperties.setGraphsRootPath(Path.of("/data/graphs"));
+
+        strategy = new FlatORSGraphFolderStrategy(engineProperties, "bobbycar");
+    }
 
     @Test
     void getProfileDescriptiveName() {

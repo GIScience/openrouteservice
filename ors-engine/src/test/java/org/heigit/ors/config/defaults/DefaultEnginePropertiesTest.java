@@ -79,6 +79,7 @@ public class DefaultEnginePropertiesTest {
                          "provider": "multi",
                          "cache_path": "%s"
                      },
+                     "graph_management": null,
                      "profile_default": {
                          "enabled": false,
                          "elevation": true,

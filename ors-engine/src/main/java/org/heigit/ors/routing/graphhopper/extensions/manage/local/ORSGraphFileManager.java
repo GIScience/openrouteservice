@@ -1,6 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.graphhopper.GraphHopper;
@@ -10,8 +12,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.EngineConfig;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 
@@ -24,11 +26,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
+import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
+
 public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphFileManager.class.getName());
 
-    private EngineConfig engineConfig;
+    private EngineProperties engineProperties;
     private String routeProfileName;
     private int maxNumberOfGraphBackups;
     private ORSGraphFolderStrategy orsGraphFolderStrategy;
@@ -36,11 +41,11 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     public ORSGraphFileManager() {
     }
 
-    public ORSGraphFileManager(EngineConfig engineConfig, String routeProfileName, ORSGraphFolderStrategy orsGraphFolderStrategy) {
-        this.engineConfig = engineConfig;
+    public ORSGraphFileManager(EngineProperties engineProperties, String routeProfileName, ORSGraphFolderStrategy orsGraphFolderStrategy) {
+        this.engineProperties = engineProperties;
         this.routeProfileName = routeProfileName;
         this.orsGraphFolderStrategy = orsGraphFolderStrategy;
-        int maxBak = engineConfig.getMaxNumberOfGraphBackups();
+        int maxBak = engineProperties.getGraphManagement().getMaxBackups();
         this.maxNumberOfGraphBackups = Math.max(maxBak, 0);
     }
 
@@ -214,9 +219,24 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return new GraphInfo().withLocalDirectory(graphDirectory).withPersistedInfo(graphInfoV1);
     }
 
+    static ObjectMapper getYamlMapper() {
+        YAMLFactory yf = new YAMLFactory()
+                .disable(WRITE_DOC_START_MARKER)
+                .disable(SPLIT_LINES)
+                .disable(USE_NATIVE_TYPE_ID)
+                .enable(INDENT_ARRAYS_WITH_INDICATOR)
+                .enable(MINIMIZE_QUOTES);
+        ObjectMapper mapper = new ObjectMapper(yf);
+        mapper.configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false);
+        return mapper;
+    }
+
     public ORSGraphInfoV1 readOrsGraphInfoV1(File graphInfoFile) {
         try {
-            return new ObjectMapper(new YAMLFactory())
+            return getYamlMapper()
                     .readValue(graphInfoFile, ORSGraphInfoV1.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -225,7 +245,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     public static void writeOrsGraphInfoV1(ORSGraphInfoV1 orsGraphInfoV1, File outputFile) {
         try {
-            new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER))
+            getYamlMapper()
                     .writeValue(outputFile, orsGraphInfoV1);
         } catch (IOException e) {
             LOGGER.error("Could not write file {}".formatted(outputFile.getAbsolutePath()));
@@ -299,9 +319,9 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public void writeOrsGraphInfoFileIfNotExists(GraphHopper gh) {
-        if (engineConfig.getProfiles()==null)
+        if (engineProperties.getProfiles()==null)
             return;
-        if (engineConfig.getProfiles().length==0)
+        if (engineProperties.getProfiles().isEmpty())
             return;
 
         File activeGraphDirectory = getActiveGraphDirectory();
@@ -314,7 +334,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             LOGGER.debug("GraphInfo-File %s already existing".formatted(activeGraphInfoFile.getName()));
             return;
         }
-        Optional<RouteProfileConfiguration> routeProfileConfiguration = Arrays.stream(engineConfig.getProfiles()).filter(prconf -> this.routeProfileName.equals(prconf.getName())).findFirst();
+        Optional<ProfileProperties> routeProfileConfiguration = Optional.ofNullable(engineProperties.getProfiles().get(this.routeProfileName));
         if (routeProfileConfiguration.isEmpty()) {
             LOGGER.debug("Configuration for profile %s does not exist, could not write GraphInfo-File".formatted(this.routeProfileName));
             return;
@@ -323,7 +343,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1(getDateFromGhProperty(gh, "datareader.data.date"));
         orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
         orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
-        orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.get().getOrsGraphInfoV1ProfileProperties());
+        orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.get());
 
         ORSGraphFileManager.writeOrsGraphInfoV1(orsGraphInfoV1, activeGraphInfoFile);
     }
