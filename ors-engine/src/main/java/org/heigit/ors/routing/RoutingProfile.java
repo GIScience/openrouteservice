@@ -68,15 +68,17 @@ public class RoutingProfile {
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
     private final Integer[] mRoutePrefs;
+    private final String name;
     private final ProfileProperties profile;
     private final ORSGraphHopper mGraphHopper;
     private String astarApproximation;
     private Double astarEpsilon;
 
-    public RoutingProfile(ProfileProperties profile, EngineProperties engineConfig, RoutingProfileLoadContext loadCntx) throws Exception {
+    public RoutingProfile(String name, ProfileProperties profile, EngineProperties engineConfig, RoutingProfileLoadContext loadCntx) throws Exception {
+        this.name = name;
         this.profile = profile;
         mRoutePrefs = profile.getProfilesTypes();
-        mGraphHopper = initGraphHopper(profile, engineConfig, loadCntx);
+        mGraphHopper = initGraphHopper(name, profile, engineConfig, loadCntx);
         ExecutionProperties execution = profile.getExecution();
         if (execution.getMethods().getAstar().getApproximation() != null)
             astarApproximation = execution.getMethods().getAstar().getApproximation();
@@ -84,7 +86,7 @@ public class RoutingProfile {
             astarEpsilon = execution.getMethods().getAstar().getEpsilon();
     }
 
-    public static ORSGraphHopper initGraphHopper(ProfileProperties profile, EngineProperties engineConfig, RoutingProfileLoadContext loadCntx) throws Exception {
+    public static ORSGraphHopper initGraphHopper(String profileName, ProfileProperties profile, EngineProperties engineConfig, RoutingProfileLoadContext loadCntx) throws Exception {
         ORSGraphHopperConfig args = createGHSettings(profile, engineConfig);
 
         int profileId;
@@ -103,7 +105,7 @@ public class RoutingProfile {
         gpc.setGetElevationFromPreprocessedData(engineConfig.getElevation().getPreprocessed());
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineConfig);
-        gh.setRouteProfileName(profile.getEncoderName().getName());
+        gh.setRouteProfileName(profileName);
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 

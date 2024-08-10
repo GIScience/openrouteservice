@@ -39,6 +39,6 @@ public class RoutingProfileLoader implements Callable<RoutingProfile> {
     @Override
     public RoutingProfile call() throws Exception {
         Thread.currentThread().setName("ORS-pl-" + name);
-        return new RoutingProfile(profile, engineConfig, loadContext);
+        return new RoutingProfile(name, profile, engineConfig, loadContext);
     }
 }
