@@ -1,55 +1,71 @@
-osmDate: "2024-01-26T10:23:31+0000"
-importDate: "2024-06-26T10:23:39+0000"
-profileProperties:
-  encoder_name: "driving-hgv"
+osmDate: 2024-01-26T10:23:31+0000
+importDate: 2024-06-26T10:23:39+0000
+profile_properties:
   enabled: true
+  encoder_name: driving-hgv
   elevation: true
-  elevationSmoothing: false
-  traffic: false
-  interpolateBridgesAndTunnels: true
+  elevation_smoothing: true
+  encoder_flags_size: 8
   instructions: true
   optimize: false
-  graphPath: null
-  encoderOptions:
-    turn_costs: "true"
-    block_fords: "false"
-    use_acceleration: "true"
+  traffic: false
+  interpolate_bridges_and_tunnels: true
+  force_turn_costs: false
+  graph_path: /home/jh/repos/openrouteservice/graphs/hgv
+  location_index_resolution: 500
+  location_index_search_iterations: 4
+  maximum_distance: 100000.0
+  maximum_distance_dynamic_weights: 100000.0
+  maximum_distance_avoid_areas: 100000.0
+  maximum_distance_alternative_routes: 100000.0
+  maximum_distance_round_trip_routes: 100000.0
+  maximum_speed_lower_bound: 80.0
+  maximum_way_points: 50
+  maximum_snapping_radius: 400
+  maximum_visited_nodes: 1000000
+  encoder_options:
+    block_fords: false
+    consider_elevation: false
+    turn_costs: true
+    use_acceleration: true
+    conditional_access: false
+    conditional_speed: false
   preparation:
     min_network_size: 200
+    min_one_way_network_size: 200
     methods:
       ch:
+        threads: 2
+        weightings: recommended
         enabled: true
-        threads: 1
-        weightings: "recommended"
+      lm:
+        threads: 2
+        weightings: "recommended,shortest"
+        landmarks: 16
+        enabled: true
       core:
-        enabled: true
-        threads: 1
+        threads: 2
         weightings: "recommended,shortest"
         landmarks: 64
-        lmsets: "highways;allow_all"
+        lmsets: highways;allow_all
+        enabled: true
+      fastisochrones:
+        threads: 2
+        weightings: "recommended,shortest"
+        enabled: false
   execution:
     methods:
+      lm:
+        active_landmarks: 8
       core:
         active_landmarks: 6
-  extStorages:
+  ext_storages:
+    Tollways:
+      enabled: true
     WayCategory:
-      gh_profile: "heavyvehicle_fastest_with_turn_costs"
-    HeavyVehicle:
-      restrictions: "true"
-      gh_profile: "heavyvehicle_fastest_with_turn_costs"
+      enabled: true
     WaySurfaceType:
-      gh_profile: "heavyvehicle_fastest_with_turn_costs"
-  maximumDistance: 100000.0
-  maximumDistanceDynamicWeights: 100000.0
-  maximumDistanceAvoidAreas: 100000.0
-  maximumDistanceAlternativeRoutes: 100000.0
-  maximumDistanceRoundTripRoutes: 100000.0
-  maximumSpeedLowerBound: 80.0
-  maximumWayPoints: 50
-  maximumSnappingRadius: 400
-  maximumVisitedNodes: 1000000
-  encoderFlagsSize: 8
-  locationIndexResolution: 500
-  locationIndexSearchIterations: 4
-  forceTurnCosts: false
-  gtfsFile: null
+      enabled: true
+    HeavyVehicle:
+      enabled: true
+      restrictions: true
