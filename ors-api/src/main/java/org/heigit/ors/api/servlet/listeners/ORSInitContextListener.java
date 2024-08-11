@@ -42,12 +42,15 @@ import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
 
 import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
 import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
@@ -61,8 +64,10 @@ public class ORSInitContextListener implements ServletContextListener {
     private final LoggingProperties loggingProperties;
     private final ServerProperties serverProperties;
     public final static String ORS_API_TESTS_FLAG = "ORS_API_TESTS_FLAG";
+    private final ConfigurableEnvironment environment;
 
-    public ORSInitContextListener(EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties) {
+    public ORSInitContextListener(ConfigurableEnvironment environment, EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties) {
+        this.environment = environment;
         this.endpointsProperties = endpointsProperties;
         this.corsProperties = corsProperties;
         this.systemMessageProperties = systemMessageProperties;
@@ -102,11 +107,17 @@ public class ORSInitContextListener implements ServletContextListener {
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false);
-        EngineProperties engineProperties;
+        APIEngineProperties engineProperties;
+
+        List<Map.Entry<String, String>> envVars = environment.getSystemProperties().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> Map.entry(entry.getKey(), entry.getValue().toString()))
+                .toList();
         try {
             JsonNode conf = mapper.readTree(configFileString);
-            engineProperties = mapper.readValue(conf.get("ors").get("engine").toString(), EngineProperties.class);
+            engineProperties = mapper.readValue(conf.get("ors").get("engine").toString(), APIEngineProperties.class);
             engineProperties.initialize();
+            engineProperties.loadFromEnvironmentVariables(envVars);
         } catch (JsonProcessingException e) {
             LOGGER.error("Failed to parse configuration file", e);
             RoutingProfileManagerStatus.setShutdown(true);

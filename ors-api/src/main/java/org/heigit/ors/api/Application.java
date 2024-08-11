@@ -11,12 +11,19 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.ConfigurableEnvironment;
 
 @ServletComponentScan("org.heigit.ors.api.servlet.listeners")
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
     static {
         System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+    }
+
+    private final ConfigurableEnvironment environment;
+
+    public Application(ConfigurableEnvironment environment) {
+        this.environment = environment;
     }
 
     public static void main(String[] args) {
@@ -32,7 +39,7 @@ public class Application extends SpringBootServletInitializer {
     @Bean("orsInitContextListenerBean")
     public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener(endpointsProperties, corsProperties, systemMessageProperties, loggingProperties, serverProperties));
+        bean.setListener(new ORSInitContextListener(environment, endpointsProperties, corsProperties, systemMessageProperties, loggingProperties, serverProperties));
         return bean;
     }
 }

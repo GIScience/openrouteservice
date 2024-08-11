@@ -101,6 +101,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.vault</groupId>
+            <artifactId>spring-vault-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.heigit.ors</groupId>
             <artifactId>ors-engine</artifactId>
             <version>${project.version}</version>

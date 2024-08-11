@@ -29,7 +29,7 @@ import java.util.Map;
 public class EngineProperties {
 
     @JsonIgnore
-    @Getter(AccessLevel.PRIVATE)
+    @Getter(AccessLevel.PROTECTED)
     @Setter(AccessLevel.PRIVATE)
     private boolean initialized = false;
 
