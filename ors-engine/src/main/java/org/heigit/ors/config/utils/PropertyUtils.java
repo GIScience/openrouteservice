@@ -11,7 +11,7 @@ import java.util.*;
 
 public class PropertyUtils {
     public static Object deepCopyObjectsProperties(Object source, Object target, boolean overwriteNonEmptyFields) {
-        Logger logger = LoggerFactory.getLogger(Object.class);
+        Logger logger = LoggerFactory.getLogger(PropertyUtils.class);
         if (source == null || target == null) {
             return target;
         }
