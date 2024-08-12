@@ -2,15 +2,19 @@ package org.heigit.ors.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.config.profile.storages.ExtendedStorageHereTraffic;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.stream.Stream;
 
+import static org.heigit.ors.config.utils.PropertyUtils.getAllFields;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExtendedStorageHereTrafficTest {
@@ -18,6 +22,19 @@ class ExtendedStorageHereTrafficTest {
     String streets = "./src/test/files/here-traffic-streets.csv";
     String patterns = "./src/test/files/here-traffic-patterns.csv";
     String ref_patterns = "/some/absolute/path/src/test/files/here-traffic-ref-patterns.csv";
+
+    ExtendedStorageHereTraffic source;
+    ExtendedStorageHereTraffic target;
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void setUp() throws Exception {
+        String json1 = "{\"HereTraffic\":{\"enabled\":false,\"streets\":\"" + streets + "\",\"ref_pattern\":\"" + ref_patterns + "\",\"pattern_15min\":\"" + patterns + "\",\"radius\":500,\"output_log\":true,\"log_location\":\"/some/absolute/path/src/test/files/here-traffic-log.txt\"}}";
+        String json2 = "{\"HereTraffic\":{\"enabled\":true,\"streets\":\"" + streets + "\",\"ref_pattern\":\"" + ref_patterns + "\",\"pattern_15min\":\"" + patterns + "\",\"radius\":1000,\"output_log\":false,\"log_location\":\"/some/other/absolute/path/src/test/files/here-traffic-log.txt\"}}";
+        source = objectMapper.readValue(json1, ExtendedStorageHereTraffic.class);
+        target = objectMapper.readValue(json2, ExtendedStorageHereTraffic.class);
+    }
+
 
     private static Stream<Arguments> provideJsonStrings() {
         return Stream.of(Arguments.of("{\"HereTraffic\":{\"enabled\":true,\"streets\":\"./src/test/files/here-traffic-streets.csv\",\"ref_pattern\":\"./src/test/files/here-traffic-ref-patterns.csv\",\"pattern_15min\":\"./src/test/files/here-traffic-patterns.csv\"}}"), Arguments.of("{\"HereTraffic\":{\"enabled\":false,\"streets\":\"./src/test/files/here-traffic-streets.csv\",\"ref_pattern\":\"./src/test/files/here-traffic-ref-patterns.csv\",\"pattern_15min\":\"./src/test/files/here-traffic-patterns.csv\"}}"), Arguments.of("{\"HereTraffic\":{\"streets\":\"./src/test/files/here-traffic-streets.csv\",\"ref_pattern\":\"./src/test/files/here-traffic-ref-patterns.csv\",\"pattern_15min\":\"./src/test/files/here-traffic-patterns.csv\"}}"));
@@ -130,5 +147,61 @@ class ExtendedStorageHereTrafficTest {
         assertFalse(storage.getOutputLog(), "Deserialized object should have 'output_log' set to false");
         assertEquals("", storage.getLogLocation().toString(), "Deserialized object should have 'log_location' set to \"\"");
         assertFalse(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
+    }
+
+    @Test
+    void testCopyPropertiesWithOverwrite() {
+        assertNotEquals(source, target);
+        target.copyProperties(source, true);
+
+        assertEquals(source, target, "Source and target should be equal after copying properties");
+    }
+
+    @Test
+    void testCopyPropertiesWithoutOverwrite() {
+        assertNotEquals(source, target);
+        target.copyProperties(source, false);
+
+        assertNotEquals(source, target, "Source and target should not be equal after copying properties");
+    }
+
+    @Test
+    void testCopyPropertiesWithNullSource() {
+        assertNotEquals(source, target);
+        target.copyProperties(null, true);
+
+        assertNotEquals(source, target, "Source and target should not be equal after copying properties with null source");
+    }
+
+    @Test
+    void testCopyPropertiesWithEmptySource() {
+        ExtendedStorageHereTraffic source = new ExtendedStorageHereTraffic();
+        assertNotEquals(source, target);
+        target.copyProperties(source, true);
+
+        assertNotEquals(source, target, "Source and target should not be equal after copying properties with empty source");
+    }
+
+    @Test
+    void testCopyPropertiesWithEmptyTarget() throws IllegalAccessException {
+        ExtendedStorageHereTraffic target = new ExtendedStorageHereTraffic();
+        // use reflection to set the fields to null
+        List<Field> allFields = getAllFields(target.getClass());
+        for (Field field : allFields) {
+            field.setAccessible(true);
+            ;
+            // if name radius, set to null
+            if (field.getName().equals("radius")) {
+                field.set(target, null);
+            }
+            if (field.getName().equals("output_log")) {
+                field.set(target, null);
+            }
+        }
+
+        assertNotEquals(source, target);
+        target.copyProperties(source, true);
+
+        assertEquals(source, target, "Source and target should be equal after copying properties with empty target");
     }
 }

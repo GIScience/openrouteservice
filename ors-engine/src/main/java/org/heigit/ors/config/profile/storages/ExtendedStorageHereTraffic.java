@@ -3,6 +3,7 @@ package org.heigit.ors.config.profile.storages;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.config.utils.PathDeserializer;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 
 @JsonTypeName("HereTraffic")
 @JsonPropertyOrder({"enabled", "streets", "ref_pattern", "pattern", "radius", "output_log", "log_location"})
+@EqualsAndHashCode(callSuper = true)
 public class ExtendedStorageHereTraffic extends ExtendedStorage {
     Logger logger = LoggerFactory.getLogger(ExtendedStorageHereTraffic.class);
 
@@ -110,5 +112,38 @@ public class ExtendedStorageHereTraffic extends ExtendedStorage {
     private void setLogLocation(Path log_location) {
         if (log_location != null && !log_location.toString().isEmpty())
             this.log_location = log_location.toAbsolutePath();
+    }
+
+    @JsonIgnore
+    @Override
+    public void copyProperties(ExtendedStorage value, boolean overwrite) {
+        super.copyProperties(value, overwrite);
+        if (value instanceof ExtendedStorageHereTraffic storage) {
+            Path emptyString = Path.of("");
+
+            if (this.getStreets().equals(emptyString) || (!storage.getStreets().equals(emptyString) && overwrite)) {
+                this.setStreets(storage.getStreets());
+            }
+
+            if (this.getRefPattern().equals(emptyString) || (!storage.getRefPattern().equals(emptyString) && overwrite)) {
+                this.setRefPattern(storage.getRefPattern());
+            }
+
+            if (this.getPattern_15min().equals(emptyString) || (!storage.getPattern_15min().equals(emptyString) && overwrite)) {
+                this.setPattern_15min(storage.getPattern_15min());
+            }
+
+            if (this.getRadius() == null || (storage.getRadius() != null && overwrite)) {
+                this.setRadius(storage.getRadius());
+            }
+
+            if (this.getOutputLog() == null || (storage.getOutputLog() != null && overwrite)) {
+                this.setOutputLog(storage.getOutputLog());
+            }
+
+            if (this.getLogLocation().equals(emptyString) || (!storage.getLogLocation().equals(emptyString) && overwrite)) {
+                this.setLogLocation(storage.getLogLocation());
+            }
+        }
     }
 }
