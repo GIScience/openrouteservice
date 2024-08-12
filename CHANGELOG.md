@@ -22,25 +22,43 @@ This is how a Changelog entry should look like:
 - in case of vulnerabilities. (Use for vulnerability fixes)
 
 RELEASING:
-1. Change Unreleased to new release number
+1. Change unreleased to new release number
 2. Add today's Date
 3. Change unreleased link to compare new release:
 [unreleased]: https://github.com/GIScience/openrouteservice/compare/vnew...HEAD
 4. Add new compare link below
 [new]: https://github.com/GIScience/openrouteservice/compare/vlast...vnew
-5. Git tag release commit with vX.X.X to enable links
-6. Double check issue links are valid
-7. Bump version in pom.xml
- -->
+5. Double check issue links are valid
+6. Add [unreleased] section with all subsections as above
+7. Adding the corresponding tag is done when releasing via GitHub.
+-->
 
-## [Unreleased]
+## [unreleased]
+
 ### Added
 ### Changed
 ### Deprecated
 ### Removed
 ### Fixed
-- allow bikes on highways under construction if access is explicitly set ([#1805](https://github.com/GIScience/openrouteservice/pull/1805))
 ### Security
+
+## [unreleased]
+
+### Added
+### Changed
+- updated dependencies: guava, commons, rest-assured etc. ([#1831](https://github.com/GIScience/openrouteservice/pull/1831))
+- updated dependencies: spring, swagger, geotools etc. ([#1827](https://github.com/GIScience/openrouteservice/pull/1827))
+### Deprecated
+### Removed
+### Fixed
+- allow any number of csv columns ([#1436](https://github.com/GIScience/openrouteservice/issues/1436))
+### Security
+
+## [8.1.1] - 2024-07-17
+### Added
+- added danish tranlations ([#1809](https://github.com/GIScience/openrouteservice/pull/1809))
+### Fixed
+- allow bikes on highways under construction if access is explicitly set ([#1805](https://github.com/GIScience/openrouteservice/pull/1805))
 
 ## [8.1.0] - 2024-06-05
 ### Added
@@ -777,7 +795,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.1...HEAD
+[8.1.1]: https://github.com/GIScience/openrouteservice/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/GIScience/openrouteservice/compare/v8.0.1...v8.1.0
 [8.0.1]: https://github.com/GIScience/openrouteservice/compare/v8.0.0...v8.0.1
 [8.0.0]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...v8.0.0
