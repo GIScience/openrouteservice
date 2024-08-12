@@ -1,9 +1,6 @@
 package org.heigit.ors.config.profile.storages;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 
 @Getter
@@ -28,5 +25,16 @@ public class ExtendedStorageHeavyVehicle extends ExtendedStorage {
     @JsonSetter
     private void setRestrictions(String restrictions) {
         this.restrictions = Boolean.parseBoolean(restrictions);
+    }
+
+    @JsonIgnore
+    @Override
+    public void copyProperties(ExtendedStorage value, boolean overwrite) {
+        super.copyProperties(value, overwrite);
+        if (value instanceof ExtendedStorageHeavyVehicle storage) {
+            if (this.getRestrictions() == null || (storage.getRestrictions() != null && overwrite)) {
+                this.setRestrictions(storage.getRestrictions().toString());
+            }
+        }
     }
 }

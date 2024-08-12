@@ -60,4 +60,44 @@ public class ExtendedStorageHeavyVehicleTest {
         assertTrue(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
         assertTrue(storage.getRestrictions(), "Deserialized object should have 'restrictions' set to true");
     }
+
+    @Test
+    void testCopyPropertiesWithOverwrite() {
+        ExtendedStorageHeavyVehicle source = new ExtendedStorageHeavyVehicle(false);
+        ExtendedStorageHeavyVehicle target = new ExtendedStorageHeavyVehicle(true);
+
+        target.copyProperties(source, true);
+
+        assertEquals(source.getRestrictions(), target.getRestrictions(), "Restrictions should be copied when overwrite is true");
+    }
+
+    @Test
+    void testCopyPropertiesWithoutOverwrite() {
+        ExtendedStorageHeavyVehicle source = new ExtendedStorageHeavyVehicle(false);
+        ExtendedStorageHeavyVehicle target = new ExtendedStorageHeavyVehicle(true);
+
+        target.copyProperties(source, false);
+
+        assertTrue(target.getRestrictions(), "Restrictions should not be copied when overwrite is false");
+    }
+
+    @Test
+    void testCopyPropertiesWithNullSource() {
+        ExtendedStorageHeavyVehicle target = new ExtendedStorageHeavyVehicle(true);
+
+        target.copyProperties(null, true);
+
+        assertTrue(target.getRestrictions(), "Restrictions should remain unchanged when source is null");
+    }
+
+    @Test
+    void testCopyPropertiesWithEmptySource() {
+        ExtendedStorageHeavyVehicle source = new ExtendedStorageHeavyVehicle();
+        ExtendedStorageHeavyVehicle target = new ExtendedStorageHeavyVehicle(true);
+
+        target.copyProperties(source, true);
+
+        assertEquals(source.getRestrictions(), target.getRestrictions(), "Restrictions should be copied from an empty source when overwrite is true");
+    }
+
 }
