@@ -1,12 +1,31 @@
 package org.heigit.ors.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.config.profile.storages.ExtendedStorageRoadAccessRestrictions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.util.List;
+
+import static org.heigit.ors.config.utils.PropertyUtils.getAllFields;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExtendedStorageRoadAccessRestrictionsTest {
+
+    ExtendedStorageRoadAccessRestrictions source;
+    ExtendedStorageRoadAccessRestrictions target;
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void setUp() throws JsonProcessingException {
+        String json1 = "{\"RoadAccessRestrictions\":{\"enabled\":false,\"use_for_warnings\":false}}";
+        String json2 = "{\"RoadAccessRestrictions\":{\"enabled\":true,\"use_for_warnings\":true}}";
+        source = objectMapper.readValue(json1, ExtendedStorageRoadAccessRestrictions.class);
+        target = objectMapper.readValue(json2, ExtendedStorageRoadAccessRestrictions.class);
+    }
+
 
     @Test
     void testDefaultConstructor() {
@@ -53,4 +72,59 @@ class ExtendedStorageRoadAccessRestrictionsTest {
         assertTrue(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
         assertTrue(storage.getUseForWarnings(), "Deserialized object should have 'use_for_warnings' set to true");
     }
+
+    @Test
+    void testCopyPropertiesWithOverwrite() {
+        assertNotEquals(source, target);
+        target.copyProperties(source, true);
+
+        assertEquals(source, target, "Source and target should be equal after copying properties with overwrite");
+    }
+
+    @Test
+    void testCopyPropertiesWithoutOverwrite() {
+        assertNotEquals(source, target);
+        target.copyProperties(source, false);
+        assertNotEquals(source, target, "Source and target should not be equal after copying properties without overwrite");
+    }
+
+    @Test
+    void testCopyPropertiesWithNullSource() {
+        ExtendedStorageRoadAccessRestrictions target = new ExtendedStorageRoadAccessRestrictions();
+        target.copyProperties(null, true);
+        assertTrue(target.getEnabled(), "Enabled should remain unchanged when source is null");
+        assertTrue(target.getUseForWarnings(), "UseForWarnings should remain unchanged when source is null");
+    }
+
+    @Test
+    void testCopyPropertiesWithEmptySource() throws JsonProcessingException, IllegalAccessException {
+        // User reflection to set use_for_warnings to null
+        List<Field> allFields = getAllFields(source.getClass());
+        for (Field field : allFields) {
+            if (field.getName().equals("use_for_warnings")) {
+                field.setAccessible(true);
+                field.set(source, null);
+            }
+        }
+        assertNotEquals(source, target);
+        target.copyProperties(source, true);
+        assertNotEquals(source, target, "Source and target should be equal after copying properties from an empty source with overwrite");
+    }
+
+    @Test
+    void testCopyPropertiesWithEmptyTarget() throws IllegalAccessException {
+        // User reflection to set use_for_warnings to null
+        List<Field> allFields = getAllFields(target.getClass());
+        for (Field field : allFields) {
+            if (field.getName().equals("use_for_warnings")) {
+                field.setAccessible(true);
+                field.set(target, null);
+            }
+        }
+        assertNotEquals(source, target);
+        target.copyProperties(source, true);
+        assertEquals(source, target, "Source and target should be equal after copying properties to an empty target with overwrite");
+    }
+
+
 }

@@ -1,11 +1,10 @@
 package org.heigit.ors.config.profile.storages;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
+import lombok.EqualsAndHashCode;
 
 @JsonTypeName("RoadAccessRestrictions")
+@EqualsAndHashCode(callSuper = false)
 public class ExtendedStorageRoadAccessRestrictions extends ExtendedStorage {
 
     private Boolean use_for_warnings = true;
@@ -29,5 +28,16 @@ public class ExtendedStorageRoadAccessRestrictions extends ExtendedStorage {
     @JsonSetter("use_for_warnings")
     public void setUseForWarnings(Boolean use_for_warnings) {
         this.use_for_warnings = use_for_warnings;
+    }
+
+    @JsonIgnore
+    @Override
+    public void copyProperties(ExtendedStorage value, boolean overwrite) {
+        super.copyProperties(value, overwrite);
+        if (value instanceof ExtendedStorageRoadAccessRestrictions storage) {
+            if (this.getUseForWarnings() == null || (storage.getUseForWarnings() != null && overwrite)) {
+                this.setUseForWarnings(storage.getUseForWarnings());
+            }
+        }
     }
 }
