@@ -1,11 +1,9 @@
 package org.heigit.ors.config.profile.storages;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.EqualsAndHashCode;
 import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 import org.slf4j.Logger;
@@ -14,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 
 @JsonTypeName("Borders")
+@EqualsAndHashCode(callSuper = false)
 public class ExtendedStorageBorders extends ExtendedStorage {
     Logger logger = LoggerFactory.getLogger(ExtendedStorageBorders.class);
 
@@ -67,6 +66,27 @@ public class ExtendedStorageBorders extends ExtendedStorage {
     @JsonDeserialize(using = PathDeserializer.class)
     private void setOpenborders(Path openborders) {
         if (openborders != null && !openborders.toString().isEmpty()) this.openborders = openborders.toAbsolutePath();
+    }
+
+    @JsonIgnore
+    @Override
+    public void copyProperties(ExtendedStorage value, boolean overwrite) {
+        super.copyProperties(value, overwrite);
+        if (value instanceof ExtendedStorageBorders storage) {
+            Path emptyPath = Path.of("");
+            if (this.getBoundaries().equals(emptyPath))
+                this.setBoundaries(storage.boundaries);
+            else if (!storage.getBoundaries().equals(emptyPath) && overwrite)
+                this.setBoundaries(storage.boundaries);
+            if (this.getIds().equals(emptyPath))
+                this.setIds(storage.ids);
+            else if (!storage.getIds().equals(emptyPath) && overwrite)
+                this.setIds(storage.ids);
+            if (this.getOpenborders().equals(emptyPath))
+                this.setOpenborders(storage.openborders);
+            else if (!storage.getOpenborders().equals(emptyPath) && overwrite)
+                this.openborders = storage.openborders;
+        }
     }
 
 }

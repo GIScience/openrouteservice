@@ -3,14 +3,24 @@ package org.heigit.ors.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.config.profile.storages.ExtendedStorageBorders;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExtendedStorageBordersTest {
+
+    ExtendedStorageBorders storage1;
+    ExtendedStorageBorders storage2;
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void setUp() throws JsonProcessingException {
+        storage1 = objectMapper.readValue("{\"Borders\":{\"enabled\":true,\"boundaries\":\"/path/to/boundaries\",\"ids\":\"/path/to/ids\",\"openborders\":\"/path/to/openborders\"}}", ExtendedStorageBorders.class);
+        storage2 = objectMapper.readValue("{\"Borders\":{\"enabled\":false,\"boundaries\":\"/second/path/to/boundaries\",\"ids\":\"/second/path/to/ids\",\"openborders\":\"/second/path/to/openborders\"}}", ExtendedStorageBorders.class);
+    }
 
     @Test
     void testInit() {
@@ -56,5 +66,52 @@ class ExtendedStorageBordersTest {
         assertEquals("", storage.getIds().toString());
         assertEquals("", storage.getOpenborders().toString());
         assertFalse(storage.getEnabled());
+    }
+
+    @Test
+    void testCopyProperties() {
+        assertNotEquals(storage1, storage2);
+
+        storage1.copyProperties(storage2, true);
+
+        assertEquals(storage1, storage2);
+    }
+
+    @Test
+    void testCopyPropertiesWithNull() {
+        assertTrue(storage1.getEnabled());
+
+        storage1.copyProperties(null, true);
+        assertTrue(storage1.getEnabled());
+    }
+
+    @Test
+    void testCopyPropertiesWithEmptyTargetValues() {
+        ExtendedStorageBorders target = new ExtendedStorageBorders();
+        Path emptyPath = Path.of("");
+        assertEquals(emptyPath, target.getBoundaries());
+        assertEquals(emptyPath, target.getIds());
+        assertEquals(emptyPath, target.getOpenborders());
+
+        assertNotEquals(target, storage1);
+
+        target.copyProperties(storage1, true);
+
+        assertEquals(storage1, target);
+    }
+
+    @Test
+    void testCopyPropertiesWithEmptySourceValues() {
+        ExtendedStorageBorders source = new ExtendedStorageBorders();
+        Path emptyPath = Path.of("");
+        assertEquals(emptyPath, source.getBoundaries());
+        assertEquals(emptyPath, source.getIds());
+        assertEquals(emptyPath, source.getOpenborders());
+
+        assertNotEquals(storage1, source);
+
+        storage1.copyProperties(source, true);
+
+        assertNotEquals(storage1, source);
     }
 }
