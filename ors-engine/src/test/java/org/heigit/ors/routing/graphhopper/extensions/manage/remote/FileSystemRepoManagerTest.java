@@ -38,7 +38,7 @@ class FileSystemRepoManagerTest {
     private static final String REPO_GRAPHS_REPO_NAME = "vendor-xyz";
     private static final String REPO_GRAPHS_PROFILE_GROUP = "fastisochrones";
     private static final String REPO_GRAPHS_COVERAGE = "heidelberg";
-    private static final String REPO_GRAPHS_VERSION = "0";
+    private static final String REPO_GRAPHS_VERSION = "1";
     private static final String REPO_PROFILE_NAME = "hgv";
 
     @TempDir(cleanup = CleanupMode.ALWAYS)
@@ -96,61 +96,61 @@ class FileSystemRepoManagerTest {
     void downloadLatestGraphInfoFromRepository() {
         fileSystemRepoManager = createFileSystemRepoManager();
         fileSystemRepoManager.downloadLatestGraphInfoFromRepository();
-        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.yml").toFile().exists());
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.ghz").toFile().exists());
+        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
     }
 
     @Test
     void downloadGraphIfNecessary_noLocalData_remoteDataExists() {
         fileSystemRepoManager = createFileSystemRepoManager();
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.yml").toFile().exists());
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.ghz").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();
-        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.yml").toFile().exists());
-        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.ghz").toFile().exists());
+        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
+        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
     }
 
     @Test
     void downloadGraphIfNecessary_localDataExists_noRemoteData() throws IOException {
         fileSystemRepoManager = createFileSystemRepoManager("scooter");
         writeORSGraphInfoToGraphPath("wheelchair", new Date(EARLIER_DATE), new Date(LATER_DATE));
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_wheelchair.yml").toFile().exists());
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_wheelchair.ghz").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_wheelchair.yml").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_wheelchair.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_wheelchair.yml").toFile().exists());
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_wheelchair.ghz").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_wheelchair.yml").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_wheelchair.ghz").toFile().exists());
     }
 
     @Test
     void downloadGraphIfNecessary_localDate_before_remoteDate() throws IOException {
         fileSystemRepoManager = createFileSystemRepoManager();
         writeORSGraphInfoToGraphPath(REPO_PROFILE_NAME, new Date(REPO_HGV_OSM_DATE - 1000000), new Date(REPO_HGV_IMPORT_DATE - 1000000));
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.yml").toFile().exists());
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.ghz").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();
-        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.yml").toFile().exists());
-        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.ghz").toFile().exists());
+        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
+        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
     }
 
     @Test
     void downloadGraphIfNecessary_localDate_equals_remoteDate() throws IOException {
         fileSystemRepoManager = createFileSystemRepoManager();
         writeORSGraphInfoToGraphPath(REPO_PROFILE_NAME, new Date(REPO_HGV_OSM_DATE), new Date(REPO_HGV_IMPORT_DATE));
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.yml").toFile().exists());
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.ghz").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();
-        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.yml").toFile().exists());
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.ghz").toFile().exists());
+        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
     }
 
     @Test
     void downloadGraphIfNecessary_localDate_after_remoteDate() throws IOException {
         fileSystemRepoManager = createFileSystemRepoManager();
         writeORSGraphInfoToGraphPath(REPO_PROFILE_NAME, new Date(REPO_HGV_OSM_DATE + 1000000), new Date(REPO_HGV_IMPORT_DATE + 1000000));
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.yml").toFile().exists());
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.ghz").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();
-        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.yml").toFile().exists());
-        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_hgv.ghz").toFile().exists());
+        assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
+        assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
     }
 }
