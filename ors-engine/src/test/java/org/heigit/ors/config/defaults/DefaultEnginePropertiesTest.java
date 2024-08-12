@@ -30,7 +30,7 @@ public class DefaultEnginePropertiesTest {
         assertNull(propertiesEmptyConstructor.getSourceFile());
         assertNull(propertiesEmptyConstructor.getInitThreads());
         assertNull(propertiesEmptyConstructor.getPreparationMode());
-        assertNull(propertiesEmptyConstructor.getConfigOutputMode());
+        assertNull(propertiesEmptyConstructor.getConfigOutput());
         assertNull(propertiesEmptyConstructor.getGraphsRootPath());
         assertNull(propertiesEmptyConstructor.getGraphsDataAccess());
         assertNull(propertiesEmptyConstructor.getElevation());
@@ -61,15 +61,15 @@ public class DefaultEnginePropertiesTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(engineProperties);
         assertNotNull(json);
-        String customGraphsPath = Path.of("./graphs").toAbsolutePath().toString();
-        String customElevationCachePath = Path.of("./elevation_cache").toAbsolutePath().toString();
+        String customGraphsPath = Path.of("graphs").toAbsolutePath().toString();
+        String customElevationCachePath = Path.of("elevation_cache").toAbsolutePath().toString();
         //language=JSON
         String expectedJson = String.format("""
                 {
                      "source_file": "",
                      "init_threads": 2,
                      "preparation_mode": false,
-                     "config_output_mode": false,
+                     "config_output": null,
                      "graphs_root_path": "%s",
                      "graphs_data_access": "RAM_STORE",
                      "elevation": {
@@ -159,8 +159,8 @@ public class DefaultEnginePropertiesTest {
         assertEquals(Path.of(""), defaultEngineProperties.getSourceFile());
         assertEquals(2, defaultEngineProperties.getInitThreads());
         assertFalse(defaultEngineProperties.getPreparationMode());
-        assertFalse(defaultEngineProperties.getConfigOutputMode());
-        assertEquals(Paths.get("./graphs").toAbsolutePath(), defaultEngineProperties.getGraphsRootPath());
+        assertNull(defaultEngineProperties.getConfigOutput());
+        assertEquals(Paths.get("graphs").toAbsolutePath(), defaultEngineProperties.getGraphsRootPath());
         assertEquals(DataAccessEnum.RAM_STORE, defaultEngineProperties.getGraphsDataAccess());
 
         // Check equality for elevation

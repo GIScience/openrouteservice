@@ -135,7 +135,7 @@ class EnginePropertiesTest {
         assertNull(engineProperties.getSourceFile());
         assertNull(engineProperties.getInitThreads());
         assertNull(engineProperties.getPreparationMode());
-        assertNull(engineProperties.getConfigOutputMode());
+        assertNull(engineProperties.getConfigOutput());
         assertNull(engineProperties.getGraphsRootPath());
         assertNull(engineProperties.getGraphsDataAccess());
         assertNull(engineProperties.getElevation());
@@ -197,7 +197,7 @@ class EnginePropertiesTest {
                     "source_file": null,
                     "init_threads": null,
                     "preparation_mode": null,
-                    "config_output_mode": null,
+                    "config_output": null,
                     "graphs_root_path": null,
                     "graphs_data_access": null,
                     "elevation": null,
@@ -216,7 +216,7 @@ class EnginePropertiesTest {
                     "source_file": "/absolute/path/osm.pbf",
                     "init_threads": 1,
                     "preparation_mode": true,
-                    "config_output_mode": true,
+                    "config_output": "output_file",
                     "graphs_root_path": "./graphs",
                     "graphs_data_access": "RAM_STORE",
                     "elevation": {
@@ -308,7 +308,7 @@ class EnginePropertiesTest {
         assertEquals("/absolute/path/osm.pbf", deserializedEngineProperties.getSourceFile().toString());
         assertEquals(1, deserializedEngineProperties.getInitThreads());
         assertTrue(deserializedEngineProperties.getPreparationMode());
-        assertTrue(deserializedEngineProperties.getConfigOutputMode());
+        assertEquals("output_file", deserializedEngineProperties.getConfigOutput());
         assertEquals(Paths.get("./graphs").toAbsolutePath(), deserializedEngineProperties.getGraphsRootPath());
         assertEquals(DataAccessEnum.RAM_STORE, deserializedEngineProperties.getGraphsDataAccess());
         assertNotNull(deserializedEngineProperties.getElevation());

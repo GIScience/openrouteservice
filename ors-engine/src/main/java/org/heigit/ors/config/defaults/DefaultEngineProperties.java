@@ -17,8 +17,7 @@ public class DefaultEngineProperties extends EngineProperties {
             setSourceFile(Path.of(""));
             setInitThreads(2);
             setPreparationMode(false);
-            setConfigOutputMode(false);
-            setGraphsRootPath(Path.of("./graphs").toAbsolutePath());
+            setGraphsRootPath(Path.of("graphs").toAbsolutePath());
             setGraphsDataAccess(DataAccessEnum.RAM_STORE);
             setElevation(new DefaultElevationProperties(true));
             setProfileDefault(new DefaultProfileProperties(true));

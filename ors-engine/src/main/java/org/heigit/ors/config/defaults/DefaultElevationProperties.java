@@ -19,7 +19,7 @@ public class DefaultElevationProperties extends ElevationProperties {
             setDataAccess(DataAccessEnum.MMAP);
             setCacheClear(false);
             setProvider("multi");
-            setCachePath(Paths.get("./elevation_cache").toAbsolutePath());
+            setCachePath(Paths.get("elevation_cache").toAbsolutePath());
         }
     }
 }
