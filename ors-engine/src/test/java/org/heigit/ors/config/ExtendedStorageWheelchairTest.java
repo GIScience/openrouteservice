@@ -1,12 +1,31 @@
 package org.heigit.ors.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.config.profile.storages.ExtendedStorageWheelchair;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.util.List;
+
+import static org.heigit.ors.config.utils.PropertyUtils.getAllFields;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExtendedStorageWheelchairTest {
+
+    ExtendedStorageWheelchair source;
+    ExtendedStorageWheelchair target;
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void setUp() throws JsonProcessingException {
+        String json1 = "{\"Wheelchair\":{\"enabled\":false,\"KerbsOnCrossings\":true}}";
+        String json2 = "{\"Wheelchair\":{\"enabled\":true,\"KerbsOnCrossings\":false}}";
+
+        source = objectMapper.readValue(json1, ExtendedStorageWheelchair.class);
+        target = objectMapper.readValue(json2, ExtendedStorageWheelchair.class);
+    }
 
     @Test
     void testDefaultConstructor() {
@@ -59,5 +78,66 @@ class ExtendedStorageWheelchairTest {
         assertTrue(storage.getEnabled(), "Deserialized object should have 'enabled' set to true");
         assertTrue(storage.getKerbsOnCrossings(), "Deserialized object should have 'kerbs_on_crossings' set to true");
     }
+
+    @Test
+    void testCopyPropertiesWithOverwrite() {
+        ExtendedStorageWheelchair source = new ExtendedStorageWheelchair(false);
+        ExtendedStorageWheelchair target = new ExtendedStorageWheelchair(true);
+
+        assertNotEquals(source, target);
+        target.copyProperties(source, true);
+
+        assertEquals(source, target, "Source and target should be equal after copying properties");
+    }
+
+    @Test
+    void testCopyPropertiesWithoutOverwrite() {
+        ExtendedStorageWheelchair source = new ExtendedStorageWheelchair(false);
+        ExtendedStorageWheelchair target = new ExtendedStorageWheelchair(true);
+
+        target.copyProperties(source, false);
+
+        assertEquals(true, target.getKerbsOnCrossings(), "KerbsOnCrossings should not be copied when overwrite is false");
+    }
+
+    @Test
+    void testCopyPropertiesWithNullSource() {
+        ExtendedStorageWheelchair target = new ExtendedStorageWheelchair(true);
+        target.copyProperties(null, true);
+        assertTrue(target.getEnabled(), "Enabled should remain unchanged when source is null");
+    }
+
+    @Test
+    void testCopyPropertiesWithEmptySource() throws JsonProcessingException, IllegalAccessException {
+        ExtendedStorageWheelchair source = new ExtendedStorageWheelchair();
+        // use reflection to set the kerbs_on_crossings field to null
+        List<Field> allFields = getAllFields(source.getClass());
+        for (Field field : allFields) {
+            if (field.getName().equals("kerbs_on_crossings")) {
+                field.setAccessible(true);
+                field.set(source, null);
+            }
+        }
+        assertNotEquals(source, target);
+        target.copyProperties(source, false);
+        assertEquals(source.getEnabled(), target.getEnabled(), "Enabled should be copied from an empty source when overwrite is true");
+    }
+
+    @Test
+    void testCopyPropertiesWithEmptyTarget() throws JsonProcessingException, IllegalAccessException {
+        ExtendedStorageWheelchair target = new ExtendedStorageWheelchair();
+
+        // User reflection to set the kerbs_on_crossings field to null
+        List<Field> allFields = getAllFields(target.getClass());
+        for (Field field : allFields) {
+            if (field.getName().equals("kerbs_on_crossings")) {
+                field.setAccessible(true);
+                field.set(target, null);
+            }
+        }
+        target.copyProperties(source, true);
+        assertEquals(source.getEnabled(), target.getEnabled(), "Enabled should be copied from an empty source when overwrite is true");
+    }
+
 
 }
