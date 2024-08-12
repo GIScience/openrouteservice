@@ -36,6 +36,37 @@ public class PreparationProperties {
         return minNetworkSize == null && minOneWayNetworkSize == null && (methods == null || methods.isEmpty());
     }
 
+    @JsonIgnore
+    public void copyProperties(PreparationProperties preparation, boolean overwrite) {
+        if (preparation == null) {
+            return;
+        }
+
+        if (this.getMinNetworkSize() == null) {
+            setMinNetworkSize(preparation.getMinNetworkSize());
+        } else {
+            if (preparation.getMinNetworkSize() != null && overwrite) {
+                setMinNetworkSize(preparation.getMinNetworkSize());
+            }
+        }
+
+        if (this.getMinOneWayNetworkSize() == null) {
+            setMinOneWayNetworkSize(preparation.getMinOneWayNetworkSize());
+        } else {
+            if (preparation.getMinOneWayNetworkSize() != null && overwrite) {
+                setMinOneWayNetworkSize(preparation.getMinOneWayNetworkSize());
+            }
+        }
+
+        if (this.getMethods() == null) {
+            setMethods(preparation.getMethods());
+        } else {
+            if (preparation.getMethods() != null) {
+                getMethods().copyProperties(preparation.getMethods(), overwrite);
+            }
+        }
+    }
+
     @Getter
     @Setter
     @EqualsAndHashCode
@@ -61,6 +92,44 @@ public class PreparationProperties {
         @JsonIgnore
         public boolean isEmpty() {
             return (ch == null || ch.isEmpty()) && (lm == null || lm.isEmpty()) && (core == null || core.isEmpty()) && (fastisochrones == null || fastisochrones.isEmpty());
+        }
+
+        public void copyProperties(MethodsProperties methods, boolean overwrite) {
+            if (methods == null) {
+                return;
+            }
+
+            if (this.getCh() == null) {
+                setCh(methods.getCh());
+            } else {
+                if (methods.getCh() != null) {
+                    getCh().copyProperties(methods.getCh(), overwrite);
+                }
+            }
+
+            if (this.getLm() == null) {
+                setLm(methods.getLm());
+            } else {
+                if (methods.getLm() != null) {
+                    getLm().copyProperties(methods.getLm(), overwrite);
+                }
+            }
+
+            if (this.getCore() == null) {
+                setCore(methods.getCore());
+            } else {
+                if (methods.getCore() != null) {
+                    getCore().copyProperties(methods.getCore(), overwrite);
+                }
+            }
+
+            if (this.getFastisochrones() == null) {
+                setFastisochrones(methods.getFastisochrones());
+            } else {
+                if (methods.getFastisochrones() != null) {
+                    getFastisochrones().copyProperties(methods.getFastisochrones(), overwrite);
+                }
+            }
         }
 
         @Getter
@@ -91,6 +160,36 @@ public class PreparationProperties {
             @JsonIgnore
             public Integer getThreadsSave() {
                 return threads == null || threads < 1 ? 1 : threads;
+            }
+
+            public void copyProperties(CHProperties ch, boolean overwrite) {
+                if (ch == null) {
+                    return;
+                }
+
+                if (this.getEnabled() == null) {
+                    setEnabled(ch.getEnabled());
+                } else {
+                    if (ch.getEnabled() != null && overwrite) {
+                        setEnabled(ch.getEnabled());
+                    }
+                }
+
+                if (this.getThreads() == null) {
+                    setThreads(ch.getThreads());
+                } else {
+                    if (ch.getThreads() != null && overwrite) {
+                        setThreads(ch.getThreads());
+                    }
+                }
+
+                if (this.getWeightings() == null) {
+                    setWeightings(ch.getWeightings());
+                } else {
+                    if (ch.getWeightings() != null && overwrite) {
+                        setWeightings(ch.getWeightings());
+                    }
+                }
             }
         }
 
@@ -123,6 +222,44 @@ public class PreparationProperties {
             @JsonIgnore
             public Integer getThreadsSave() {
                 return threads == null || threads < 1 ? 1 : threads;
+            }
+
+            public void copyProperties(LMProperties lm, boolean overwrite) {
+                if (lm == null) {
+                    return;
+                }
+
+                if (this.getEnabled() == null) {
+                    setEnabled(lm.getEnabled());
+                } else {
+                    if (lm.getEnabled() != null && overwrite) {
+                        setEnabled(lm.getEnabled());
+                    }
+                }
+
+                if (this.getThreads() == null) {
+                    setThreads(lm.getThreads());
+                } else {
+                    if (lm.getThreads() != null && overwrite) {
+                        setThreads(lm.getThreads());
+                    }
+                }
+
+                if (this.getWeightings() == null) {
+                    setWeightings(lm.getWeightings());
+                } else {
+                    if (lm.getWeightings() != null && overwrite) {
+                        setWeightings(lm.getWeightings());
+                    }
+                }
+
+                if (this.getLandmarks() == null) {
+                    setLandmarks(lm.getLandmarks());
+                } else {
+                    if (lm.getLandmarks() != null && overwrite) {
+                        setLandmarks(lm.getLandmarks());
+                    }
+                }
             }
         }
 
@@ -157,6 +294,52 @@ public class PreparationProperties {
             public Integer getThreadsSave() {
                 return threads == null || threads < 1 ? 1 : threads;
             }
+
+            public void copyProperties(CoreProperties core, boolean overwrite) {
+                if (core == null) {
+                    return;
+                }
+
+                if (this.getEnabled() == null) {
+                    setEnabled(core.getEnabled());
+                } else {
+                    if (core.getEnabled() != null && overwrite) {
+                        setEnabled(core.getEnabled());
+                    }
+                }
+
+                if (this.getThreads() == null) {
+                    setThreads(core.getThreads());
+                } else {
+                    if (core.getThreads() != null && overwrite) {
+                        setThreads(core.getThreads());
+                    }
+                }
+
+                if (this.getWeightings() == null) {
+                    setWeightings(core.getWeightings());
+                } else {
+                    if (core.getWeightings() != null && overwrite) {
+                        setWeightings(core.getWeightings());
+                    }
+                }
+
+                if (this.getLandmarks() == null) {
+                    setLandmarks(core.getLandmarks());
+                } else {
+                    if (core.getLandmarks() != null && overwrite) {
+                        setLandmarks(core.getLandmarks());
+                    }
+                }
+
+                if (this.getLmsets() == null) {
+                    setLmsets(core.getLmsets());
+                } else {
+                    if (core.getLmsets() != null && overwrite) {
+                        setLmsets(core.getLmsets());
+                    }
+                }
+            }
         }
 
         @Getter
@@ -188,6 +371,44 @@ public class PreparationProperties {
             @JsonIgnore
             public Integer getThreadsSave() {
                 return threads == null || threads < 1 ? 1 : threads;
+            }
+
+            public void copyProperties(FastIsochroneProperties fastisochrones, boolean overwrite) {
+                if (fastisochrones == null) {
+                    return;
+                }
+
+                if (this.getEnabled() == null) {
+                    setEnabled(fastisochrones.getEnabled());
+                } else {
+                    if (fastisochrones.getEnabled() != null && overwrite) {
+                        setEnabled(fastisochrones.getEnabled());
+                    }
+                }
+
+                if (this.getThreads() == null) {
+                    setThreads(fastisochrones.getThreads());
+                } else {
+                    if (fastisochrones.getThreads() != null && overwrite) {
+                        setThreads(fastisochrones.getThreads());
+                    }
+                }
+
+                if (this.getWeightings() == null) {
+                    setWeightings(fastisochrones.getWeightings());
+                } else {
+                    if (fastisochrones.getWeightings() != null && overwrite) {
+                        setWeightings(fastisochrones.getWeightings());
+                    }
+                }
+
+                if (this.getMaxcellnodes() == null) {
+                    setMaxcellnodes(fastisochrones.getMaxcellnodes());
+                } else {
+                    if (fastisochrones.getMaxcellnodes() != null && overwrite) {
+                        setMaxcellnodes(fastisochrones.getMaxcellnodes());
+                    }
+                }
             }
         }
     }
