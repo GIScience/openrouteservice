@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EnginePropertiesTest {
 
-    ;
+
     //language=JSON
     private final String testJson = """
             {

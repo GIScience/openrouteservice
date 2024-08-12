@@ -77,6 +77,23 @@ public class EncoderOptionsProperties {
         }
         return String.join("|", out);
     }
+
+    @JsonIgnore
+    public void copyProperties(EncoderOptionsProperties source, boolean overwrite) {
+        if (source == null) {
+            return;
+        }
+
+        this.blockFords = (this.blockFords == null || (source.blockFords != null && overwrite)) ? source.blockFords : this.blockFords;
+        this.considerElevation = (this.considerElevation == null || (source.considerElevation != null && overwrite)) ? source.considerElevation : this.considerElevation;
+        this.turnCosts = (this.turnCosts == null || (source.turnCosts != null && overwrite)) ? source.turnCosts : this.turnCosts;
+        this.useAcceleration = (this.useAcceleration == null || (source.useAcceleration != null && overwrite)) ? source.useAcceleration : this.useAcceleration;
+        this.maximumGradeLevel = (this.maximumGradeLevel == null || (source.maximumGradeLevel != null && overwrite)) ? source.maximumGradeLevel : this.maximumGradeLevel;
+        this.preferredSpeedFactor = (this.preferredSpeedFactor == null || (source.preferredSpeedFactor != null && overwrite)) ? source.preferredSpeedFactor : this.preferredSpeedFactor;
+        this.problematicSpeedFactor = (this.problematicSpeedFactor == null || (source.problematicSpeedFactor != null && overwrite)) ? source.problematicSpeedFactor : this.problematicSpeedFactor;
+        this.conditionalAccess = (this.conditionalAccess == null || (source.conditionalAccess != null && overwrite)) ? source.conditionalAccess : this.conditionalAccess;
+        this.conditionalSpeed = (this.conditionalSpeed == null || (source.conditionalSpeed != null && overwrite)) ? source.conditionalSpeed : this.conditionalSpeed;
+    }
 }
 
 
