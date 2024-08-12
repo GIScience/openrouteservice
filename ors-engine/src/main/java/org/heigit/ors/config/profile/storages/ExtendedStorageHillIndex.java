@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @JsonTypeName("HillIndex")
+@EqualsAndHashCode(callSuper = true)
 public class ExtendedStorageHillIndex extends ExtendedStorage {
     @JsonProperty("maximum_slope")
     private Integer maximumSlope;
