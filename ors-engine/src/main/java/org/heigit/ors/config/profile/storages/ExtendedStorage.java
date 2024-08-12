@@ -1,9 +1,6 @@
 package org.heigit.ors.config.profile.storages;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -36,6 +33,21 @@ public abstract class ExtendedStorage {
 
     @JsonCreator
     public ExtendedStorage() {
+    }
+
+    @JsonIgnore
+    public void copyProperties(ExtendedStorage value, boolean overwrite) {
+        if (value == null) {
+            return;
+        }
+
+        if (this.getEnabled() == null) {
+            this.setEnabled(value.enabled);
+        } else {
+            if (value.getEnabled() != null && overwrite) {
+                this.setEnabled(value.enabled);
+            }
+        }
     }
 }
 
