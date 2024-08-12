@@ -15,19 +15,18 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.traffic;
 
 import com.graphhopper.util.DistanceCalcEarth;
 import org.apache.log4j.Logger;
-import org.geotools.data.FileDataStore;
-import org.geotools.data.FileDataStoreFinder;
+import org.geotools.api.data.FileDataStore;
+import org.geotools.api.data.FileDataStoreFinder;
+import org.geotools.api.data.SimpleFeatureSource;
+import org.geotools.api.feature.Property;
+import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
-import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.feature.DefaultFeatureCollection;
 import org.heigit.ors.util.CSVUtility;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
-import org.opengis.feature.Property;
-import org.opengis.feature.simple.SimpleFeature;
 
 import java.io.File;
 import java.io.IOException;
@@ -181,7 +180,7 @@ public class HereTrafficReader {
      * @return A (Geo)JSON object representing the contents of the file
      */
     private SimpleFeatureCollection readHereGeometries() throws IOException {
-        SimpleFeatureCollection collection = new DefaultFeatureCollection();
+        SimpleFeatureCollection collection;
         try {
             File file = new File(streetGeometriesFile);
             FileDataStore store = FileDataStoreFinder.getDataStore(file);

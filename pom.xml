@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.11</version>
+        <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -46,28 +46,38 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.timestamp>${maven.build.timestamp}</project.timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
-        <springdoc-openapi-starter.version>2.1.0</springdoc-openapi-starter.version>
-        <swagger-parser.version>2.1.16</swagger-parser.version>
-        <snakeyaml.version>2.0</snakeyaml.version>
-        <geotools.version>29.1</geotools.version>
+
         <!-- switch graphhopper versions to enable debugging -->
         <graphhopper.version>v4.9.1</graphhopper.version>
         <!--graphhopper.version>v4.9-SNAPSHOT</graphhopper.version-->
-        <slf4j.version>2.0.7</slf4j.version>
+        <springdoc-openapi-starter.version>2.6.0</springdoc-openapi-starter.version>
+        <swagger-parser.version>2.1.22</swagger-parser.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
+        <geotools.version>31.2</geotools.version>
+        <slf4j.version>2.0.13</slf4j.version>
+        <log4j.version>2.22.1</log4j.version>
+        <fasterxml.jackson.version>2.17.2</fasterxml.jackson.version>
+        <commons-io.version>2.16.1</commons-io.version>
+        <commons-logging.version>1.3.3</commons-logging.version>
+        <commons-compress.version>1.26.2</commons-compress.version>
+        <commons-compiler.version>3.1.12</commons-compiler.version>
         <mockito.version>5.12.0</mockito.version>
-        <log4j.version>2.20.0</log4j.version>
         <lombok.version>1.18.34</lombok.version>
-        <fasterxml.jackson.version>2.14.2</fasterxml.jackson.version>
-        <commons-io.version>2.11.0</commons-io.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
         <jts.version>1.19.0</jts.version>
-        <org-json.version>20231013</org-json.version>
-        <postgresql.version>42.7.2</postgresql.version>
+        <org-json.version>20240303</org-json.version>
+        <postgresql.version>42.7.3</postgresql.version>
         <progressbar.version>0.10.0</progressbar.version>
-        <jline.version>3.25.0</jline.version>
-        <jqwik.version>1.6.5</jqwik.version>
+        <guava.version>33.2.1-jre</guava.version>
+        <jline.version>3.26.3</jline.version>
+        <jqwik.version>1.9.0</jqwik.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <swagger-core.version>2.2.14</swagger-core.version>
+        <jupiter.version>5.10.3</jupiter.version>
+        <swagger-core.version>2.2.22</swagger-core.version>
+        <rest-assured.version>5.5.0</rest-assured.version>
+        <hamcrest.version>2.2</hamcrest.version>
+        <hppc.version>0.8.2</hppc.version>
+
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.organization>giscience</sonar.organization>
@@ -166,7 +176,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.0.0-jre</version>
+                <version>${guava.version}</version>
             </dependency>
 
             <dependency>
@@ -245,6 +255,24 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons-logging.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>commons-compiler</artifactId>
+                <version>${commons-compiler.version}</version>
             </dependency>
 
             <dependency>
@@ -327,12 +355,6 @@
 
             <dependency>
                 <groupId>org.geotools</groupId>
-                <artifactId>gt-opengis</artifactId>
-                <version>${geotools.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.geotools</groupId>
                 <artifactId>gt-referencing</artifactId>
                 <version>${geotools.version}</version>
             </dependency>
@@ -378,6 +400,42 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${rest-assured.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest</artifactId>
+                <version>${hamcrest.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.carrotsearch</groupId>
+                <artifactId>hppc</artifactId>
+                <version>${hppc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${jupiter.version}</version>
             </dependency>
 
             <dependency>

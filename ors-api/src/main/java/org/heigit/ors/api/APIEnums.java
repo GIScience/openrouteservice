@@ -395,6 +395,8 @@ public class APIEnums {
     public enum Languages {
         CS("cs"),
         CS_CZ("cs-cz"),
+        DA("da"),
+        DK_DA("dk-da"),
         DE("de"),
         DE_DE("de-de"),
         EN("en"),
