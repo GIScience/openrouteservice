@@ -36,17 +36,17 @@ public class PropertyUtils {
                     }
                 } else if (Collection.class.isAssignableFrom(field.getType())) {
                     Collection<?> collection = (Collection<?>) currentValue;
-                    if (collection.isEmpty()) {
+                    if (shouldOverwrite) {
                         field.set(target, value);
                     }
                 } else if (Map.class.isAssignableFrom(field.getType())) {
                     Map<?, ?> map = (Map<?, ?>) currentValue;
-                    if (map.isEmpty()) {
+                    if (shouldOverwrite) {
                         field.set(target, value);
                     }
                 } else if (field.getType().isArray()) {
                     Object[] array = (Object[]) currentValue;
-                    if (array.length == 0) {
+                    if (shouldOverwrite) {
                         field.set(target, value);
                     }
                 } else {
