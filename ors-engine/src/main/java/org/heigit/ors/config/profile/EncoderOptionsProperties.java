@@ -15,8 +15,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 @JsonInclude(NON_NULL)
+@EqualsAndHashCode
 public class EncoderOptionsProperties {
     @JsonProperty("block_fords")
     private Boolean blockFords = null;

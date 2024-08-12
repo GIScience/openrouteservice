@@ -1,9 +1,11 @@
 package org.heigit.ors.config.defaults;
 
 
+import lombok.EqualsAndHashCode;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.EncoderOptionsProperties;
 
+@EqualsAndHashCode(callSuper = true)
 public class DefaultEncoderOptionsProperties extends EncoderOptionsProperties {
 
     public DefaultEncoderOptionsProperties() {
