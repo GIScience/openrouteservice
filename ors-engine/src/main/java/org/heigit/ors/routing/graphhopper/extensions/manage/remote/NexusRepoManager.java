@@ -42,12 +42,12 @@ public class NexusRepoManager extends AbstractRepoManager implements ORSGraphRep
     public NexusRepoManager() {
     }
 
-    public NexusRepoManager(EngineProperties engineProperties, String routeProfileName, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+    public NexusRepoManager(EngineProperties engineProperties, String routeProfileName, String graphVersion, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.graphsRepoBaseUrl = engineProperties.getGraphManagement().getRepositoryUrl();
         this.graphsRepoName = engineProperties.getGraphManagement().getRepositoryName();
         this.graphsRepoCoverage = engineProperties.getGraphManagement().getGraphExtent();
         this.graphsProfileGroup = engineProperties.getGraphManagement().getRepositoryProfileGroup();
-        this.graphsRepoGraphVersion = engineProperties.getGraphManagement().getGraphVersion();
+        this.graphsRepoGraphVersion = graphVersion;
         this.routeProfileName = routeProfileName;
         this.orsGraphRepoStrategy = orsGraphRepoStrategy;
         this.orsGraphFileManager = orsGraphFileManager;

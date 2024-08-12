@@ -48,10 +48,10 @@ public class RoutingProfileManager {
     private RoutingProfilesCollection routingProfiles;
     private static RoutingProfileManager instance;
 
-    public RoutingProfileManager(EngineProperties config) {
+    public RoutingProfileManager(EngineProperties config, String graphVersion) {
         if (instance == null) {
             instance = this;
-            initialize(config);
+            initialize(config, graphVersion);
         }
     }
 
@@ -62,7 +62,7 @@ public class RoutingProfileManager {
         return instance;
     }
 
-    public void initialize(EngineProperties config) {
+    void initialize(EngineProperties config, String graphVersion) {
         RuntimeUtility.printRAMInfo("", LOGGER);
         long startTime = System.currentTimeMillis();
         try {
@@ -82,7 +82,7 @@ public class RoutingProfileManager {
             for (Map.Entry<String, ProfileProperties> profile : profiles.entrySet()) {
                 // TODO only submit if enabled
                 if (profile.getValue().getProfilesTypes() != null && profile.getValue().getEnabled()) {
-                    Callable<RoutingProfile> task = new RoutingProfileLoader(profile.getKey(), profile.getValue(), config, loadContext);
+                    Callable<RoutingProfile> task = new RoutingProfileLoader(profile.getKey(), profile.getValue(), config, graphVersion, loadContext);
                     compService.submit(task);
                     nTotalTasks++;
                 }

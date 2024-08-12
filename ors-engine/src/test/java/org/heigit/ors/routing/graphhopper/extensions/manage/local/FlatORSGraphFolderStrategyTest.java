@@ -19,13 +19,12 @@ class FlatORSGraphFolderStrategyTest {
         graphManagementProperties.setRepositoryName("vendor.org");
         graphManagementProperties.setRepositoryProfileGroup("fun");
         graphManagementProperties.setGraphExtent("disneyland");
-        graphManagementProperties.setGraphVersion("0");
 
         EngineProperties engineProperties = new    EngineProperties();
         engineProperties.setGraphManagement(graphManagementProperties);
         engineProperties.setGraphsRootPath(Path.of("/data/graphs"));
 
-        strategy = new FlatORSGraphFolderStrategy(engineProperties, "bobbycar");
+        strategy = new FlatORSGraphFolderStrategy(engineProperties, "bobbycar", "0");
     }
 
     @Test

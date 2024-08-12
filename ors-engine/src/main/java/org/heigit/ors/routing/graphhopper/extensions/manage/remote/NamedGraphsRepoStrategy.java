@@ -11,12 +11,12 @@ public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
     private final String extend;
     private final String routeProfileName;
 
-    public NamedGraphsRepoStrategy(EngineProperties engineProperties, String routeProfileName) {
+    public NamedGraphsRepoStrategy(EngineProperties engineProperties, String routeProfileName, String graphVersion) {
         this.repoName = engineProperties.getGraphManagement().getRepositoryName();
         this.profileGroup = engineProperties.getGraphManagement().getRepositoryProfileGroup();
-        this.graphVersion = engineProperties.getGraphManagement().getGraphVersion();
         this.extend = engineProperties.getGraphManagement().getGraphExtent();
         this.routeProfileName = routeProfileName;
+        this.graphVersion = graphVersion;
     }
 
     private String getConcatenatedRepoFileName() {

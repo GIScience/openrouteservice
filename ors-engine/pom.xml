@@ -38,7 +38,7 @@
     <name>ors-engine</name>
 
     <properties>
-        <project.graphVersion>0</project.graphVersion>
+        <project.graphVersion>1</project.graphVersion>
     </properties>
 
     <build>

@@ -103,8 +103,27 @@ ors:
 #  ##### ORS engine settings #####
   engine:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
+    graph_management:
+
+      ### local nexus repo
+#      repository_url: 'http://localhost:8081/service/rest'
+#      repository_name: localgraphs
+#      extent: heidelberg
+
+      ### local file repo
+      repository_path: 'ors-engine/src/test/resources/test-filesystem-repos'
+      repository_name: vendor-xyz
+      profile_group: fastisochrones
+      extent: heidelberg
+
+      max_backups: 2
+      # HINT default is NEVER (there is no Feb 31)
+#      download_schedule:   '0 0 0 31 2 *'
+#      activation_schedule: '0 0 0 31 2 *'
+      download_schedule:   '0/20 * * * * *'
+      activation_schedule: '5/120 * * * * *'
 #    config_output_mode: false
-    #    preparation_mode: false
+#    preparation_mode: false
 #    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
 #    elevation:

@@ -92,7 +92,6 @@ class ORSGraphFileManagerTest {
         graphManagementProperties.setRepositoryName(GRAPHS_REPO_NAME);
         graphManagementProperties.setGraphExtent(GRAPHS_COVERAGE);
         graphManagementProperties.setRepositoryProfileGroup(GRAPHS_PROFILE_GROUP);
-        graphManagementProperties.setGraphVersion(GRAPHS_VERSION);
         graphManagementProperties.setMaxBackups(3);
         engineProperties.setGraphManagement(graphManagementProperties);
         engineProperties.initialize();
@@ -115,7 +114,7 @@ class ORSGraphFileManagerTest {
         orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(localDir.getAbsolutePath(), VEHICLE, hash);
         orsGraphFileManager = new ORSGraphFileManager(engineProperties, VEHICLE, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        orsGraphRepoManager = new NexusRepoManager(engineProperties, VEHICLE, new NamedGraphsRepoStrategy(engineProperties, VEHICLE), orsGraphFileManager);
+        orsGraphRepoManager = new NexusRepoManager(engineProperties, VEHICLE, GRAPHS_VERSION, new NamedGraphsRepoStrategy(engineProperties, VEHICLE, GRAPHS_VERSION), orsGraphFileManager);
     }
 
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
@@ -220,7 +219,7 @@ class ORSGraphFileManagerTest {
     void backupExistingGraph_withMaxNumOfPreviousBackups() throws IOException {
         String hash = "2a2b3c";
         EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(null, null,
-                GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, GRAPHS_VERSION, 0);
+                GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, VEHICLE, 0);
         engineProperties.getGraphManagement().setMaxBackups(2);
 
         setupORSGraphManager(hash, engineProperties, null);
@@ -264,7 +263,7 @@ class ORSGraphFileManagerTest {
     public void deleteOldestBackups_maxNumberOfGraphBackupsIsZero() throws IOException {
         String hash = "2a2b3c";
         EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(null, null,
-                GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, GRAPHS_VERSION, 0);
+                GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, VEHICLE, 0);
         engineProperties.getGraphManagement().setMaxBackups(0);
 
         setupORSGraphManager(hash, engineProperties, null);
@@ -285,7 +284,7 @@ class ORSGraphFileManagerTest {
     public void deleteOldestBackups_maxNumberOfGraphBackupsIsNegative() throws IOException {
         String hash = "2a2b3c";
         EngineProperties engineConfig = RepoManagerTestHelper.createEngineProperties(null, null,
-                GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, GRAPHS_VERSION, 0);
+                GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, VEHICLE, 0);
         engineConfig.getGraphManagement().setMaxBackups(-5);
 
         setupORSGraphManager(hash, engineConfig, null);

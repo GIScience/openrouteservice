@@ -68,25 +68,23 @@ public class RoutingProfile {
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
     private final Integer[] mRoutePrefs;
-    private final String name;
-    private final ProfileProperties profile;
+    private final ProfileProperties profileProperties;
     private final ORSGraphHopper mGraphHopper;
     private String astarApproximation;
     private Double astarEpsilon;
 
-    public RoutingProfile(String name, ProfileProperties profile, EngineProperties engineConfig, RoutingProfileLoadContext loadCntx) throws Exception {
-        this.name = name;
-        this.profile = profile;
-        mRoutePrefs = profile.getProfilesTypes();
-        mGraphHopper = initGraphHopper(name, profile, engineConfig, loadCntx);
-        ExecutionProperties execution = profile.getExecution();
+    public RoutingProfile(String profileName, ProfileProperties profileProperties, EngineProperties engineConfig, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
+        this.profileProperties = profileProperties;
+        mRoutePrefs = profileProperties.getProfilesTypes();
+        mGraphHopper = initGraphHopper(profileName, profileProperties, engineConfig, graphVersion, loadCntx);
+        ExecutionProperties execution = profileProperties.getExecution();
         if (execution.getMethods().getAstar().getApproximation() != null)
             astarApproximation = execution.getMethods().getAstar().getApproximation();
         if (execution.getMethods().getAstar().getEpsilon() != null)
             astarEpsilon = execution.getMethods().getAstar().getEpsilon();
     }
 
-    public static ORSGraphHopper initGraphHopper(String profileName, ProfileProperties profile, EngineProperties engineConfig, RoutingProfileLoadContext loadCntx) throws Exception {
+    public static ORSGraphHopper initGraphHopper(String profileName, ProfileProperties profile, EngineProperties engineConfig, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
         ORSGraphHopperConfig args = createGHSettings(profile, engineConfig);
 
         int profileId;
@@ -126,7 +124,7 @@ public class RoutingProfile {
         }
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 
-        gh.initializeGraphManagement();
+        gh.initializeGraphManagement(graphVersion);
 
         gh.importOrLoad();
         // store CountryBordersReader for later use
@@ -394,7 +392,7 @@ public class RoutingProfile {
     }
 
     public ProfileProperties getProfileConfiguration() {
-        return profile;
+        return profileProperties;
     }
 
     public Integer[] getPreferences() {
@@ -580,7 +578,7 @@ public class RoutingProfile {
             }
         }
 
-        String profileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), Boolean.TRUE.equals(profile.getEncoderOptions().getTurnCosts()));
+        String profileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), Boolean.TRUE.equals(profileProperties.getEncoderOptions().getTurnCosts()));
         String profileNameCH = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName, profileNameCH);
         searchCntx.setProperties(props);

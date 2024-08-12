@@ -108,7 +108,7 @@ public class ORSInitContextListener implements ServletContextListener {
         new Thread(() -> {
             try {
                 LOGGER.info("Initializing ORS...");
-                RoutingProfileManager routingProfileManager = new RoutingProfileManager(engineProperties);
+                RoutingProfileManager routingProfileManager = new RoutingProfileManager(engineProperties, AppInfo.GRAPH_VERSION);
                 if (routingProfileManager.getProfiles() != null) {
                     for (RoutingProfile profile : routingProfileManager.getProfiles().getUniqueProfiles()) {
                         ORSGraphHopper orsGraphHopper = profile.getGraphhopper();

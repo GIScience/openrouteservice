@@ -11,9 +11,6 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class GraphManagementProperties {
 
-    @JsonProperty("graph_version")
-    private String graphVersion;
-
     @JsonProperty("graph_extent")
     private String graphExtent;
 

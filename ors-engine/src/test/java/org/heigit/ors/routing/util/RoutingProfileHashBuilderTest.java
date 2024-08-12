@@ -119,7 +119,7 @@ class RoutingProfileHashBuilderTest {
         public Set<String> hashes = new HashSet<>();
         void createHashAndCount(ORSGraphHopperConfig ghConfig){
             callCount++;
-            String profileHash = RoutingProfileHashBuilder.builder(ghConfig).build();
+            String profileHash = RoutingProfileHashBuilder.builder("0", ghConfig).build();
             hashes.add(profileHash);
             System.out.println(profileHash);
         }

@@ -79,7 +79,7 @@ class NexusRepoManagerTest {
 
 
         EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(localGraphsRootPath, null,
-                GRAPHS_REPO_BASE_URL,GRAPHS_REPO_NAME,GRAPHS_PROFILE_GROUP,GRAPHS_COVERAGE,GRAPHS_VERSION, 0);
+                GRAPHS_REPO_BASE_URL,GRAPHS_REPO_NAME,GRAPHS_PROFILE_GROUP,GRAPHS_COVERAGE, PROFILE_NAME, 0);
 
         ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineProperties, PROFILE_NAME, hash);
         orsGraphFileManager = new ORSGraphFileManager(engineProperties, PROFILE_NAME, orsGraphFolderStrategy);

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "encoder_name", defaultImpl = DefaultProfileProperties.class)
 @JsonSubTypes({@JsonSubTypes.Type(name = "default", value = DefaultProfileProperties.class), @JsonSubTypes.Type(name = "driving-car", value = DefaultProfilePropertiesCar.class), @JsonSubTypes.Type(name = "driving-hgv", value = DefaultProfilePropertiesHgv.class), @JsonSubTypes.Type(name = "cycling-regular", value = DefaultProfilePropertiesBikeRegular.class), @JsonSubTypes.Type(name = "cycling-electric", value = DefaultProfilePropertiesBikeElectric.class), @JsonSubTypes.Type(name = "cycling-mountain", value = DefaultProfilePropertiesBikeMountain.class), @JsonSubTypes.Type(name = "cycling-road", value = DefaultProfilePropertiesBikeRoad.class), @JsonSubTypes.Type(name = "foot-walking", value = DefaultProfilePropertiesWalking.class), @JsonSubTypes.Type(name = "foot-hiking", value = DefaultProfilePropertiesHiking.class), @JsonSubTypes.Type(name = "wheelchair", value = DefaultProfilePropertiesWheelchair.class), @JsonSubTypes.Type(name = "public-transport", value = DefaultProfilePropertiesPublicTransport.class),})

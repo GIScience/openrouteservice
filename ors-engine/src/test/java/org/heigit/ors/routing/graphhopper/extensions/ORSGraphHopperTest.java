@@ -9,8 +9,6 @@ import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.config.defaults.DefaultProfilePropertiesCar;
-import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.junit.jupiter.api.Test;
@@ -78,9 +76,9 @@ class ORSGraphHopperTest {
      */
     @Test
     void buildGraphWithPreprocessedData() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("car", "repoDir", "repoUrl", new DefaultProfilePropertiesCar(true));
+        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("car", "repoDir", "car");
 
-        gh.initializeGraphManagement();
+        gh.initializeGraphManagement("0");
         gh.importOrLoad();
 
         ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
@@ -128,23 +126,23 @@ class ORSGraphHopperTest {
 
     @Test
     public void profileHashAddedToGraphHopperLocationWithDeepHashStrategy() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoDir", "repoUrl", "car", new DefaultProfilePropertiesCar(true));
+        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoDir", "repoUrl", "car");
 
         String pathBefore = gh.getGraphHopperLocation();
-        gh.initializeGraphManagementWithDeepHashBasedStructure();
+        gh.initializeGraphManagementWithDeepHashBasedStructure("0");
         gh.importOrLoad();
         String pathAfter = gh.getGraphHopperLocation();
 
         assertNotEquals(pathAfter, pathBefore);
-        assertTrue(pathAfter.endsWith("graphs-apitests/car/04083c1a1ccfe4c733fb251778e8de1e"));
+        assertTrue(pathAfter.endsWith("graphs-apitests/car/603a087fb90e76a16bf4020a2f91226c"));
     }
 
     @Test
     public void noProfileHashAddedToGraphHopperLocationWithFlatStrategy() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("repoDir", "repoUrl", "car", new DefaultProfilePropertiesCar(true));
+        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("repoDir", "repoUrl", "car");
 
         String pathBefore = gh.getGraphHopperLocation();
-        gh.initializeGraphManagementWithFlatStructure();
+        gh.initializeGraphManagementWithFlatStructure("0");
         gh.importOrLoad();
         String pathAfter = gh.getGraphHopperLocation();
 
@@ -154,9 +152,9 @@ class ORSGraphHopperTest {
 
     @Test
     public void importOrLoad_orsGraphManagerCreated_usesRepo() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoDir", "repoUrl", "car", new DefaultProfilePropertiesCar(true));
+        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoDir", "repoUrl", "car");
 
-        gh.initializeGraphManagement();
+        gh.initializeGraphManagement("0");
         gh.importOrLoad();
 
         ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
@@ -166,9 +164,9 @@ class ORSGraphHopperTest {
 
     @Test
     public void importOrLoad_orsGraphManagerCreated_notUsingRepo() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile(null, null, "car", new DefaultProfilePropertiesCar(true));
+        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile(null, null, "car");
 
-        gh.initializeGraphManagement();
+        gh.initializeGraphManagement("0");
         gh.importOrLoad();
 
         ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
@@ -177,8 +175,8 @@ class ORSGraphHopperTest {
     }
 
     private static ORSGraphHopper createORSGraphHopper(String routeProfileName, ORSGraphHopperConfig ghConfig,
-                                                       EngineProperties engineProperties, ProfileProperties profileProperties) throws Exception {
-        GraphProcessContext gpc = new GraphProcessContext(profileProperties);
+                                                       EngineProperties engineProperties) throws Exception {
+        GraphProcessContext gpc = new GraphProcessContext(engineProperties.getProfiles().get(routeProfileName));
         gpc.setGetElevationFromPreprocessedData(true);
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties);
@@ -202,24 +200,25 @@ class ORSGraphHopperTest {
         return ghConfig;
     }
 
-    private static ORSGraphHopper createORSGraphHoopperWithoutOsmFile(String repoDir, String repoUrl, String routeProfileName, ProfileProperties profileProperties) throws Exception {
+    private static ORSGraphHopper createORSGraphHoopperWithoutOsmFile(String repoDir, String repoUrl, String routeProfileName) throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
 
         Path repoPath = StringUtils.isBlank(repoDir) ? null : Path.of(repoDir);
-        EngineProperties engineProperties = RepoManagerTestHelper.createEnginePropertiesWithProfile(Path.of("graphs-apitests"),
+        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(Path.of("graphs-apitests"),
                 repoPath, repoUrl,
-                "repoName", "profileGroup", "graphExtent", "1", 0,
-                routeProfileName, profileProperties);
-        return createORSGraphHopper(routeProfileName, ghConfig, engineProperties, profileProperties);
+                "repoName", "profileGroup", "graphExtent", routeProfileName, 0
+        );
+        return createORSGraphHopper(routeProfileName, ghConfig, engineProperties);
     }
-    private static ORSGraphHopper createORSGraphHoopperWithOsmFile(String repoDir, String repoUrl, String routeProfileName, ProfileProperties profileProperties) throws Exception {
+
+    private static ORSGraphHopper createORSGraphHoopperWithOsmFile(String repoDir, String repoUrl, String routeProfileName) throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithOsmFile();
 
         Path repoPath = repoDir.isEmpty() ? null : Path.of(repoDir);
-        EngineProperties engineProperties = RepoManagerTestHelper.createEnginePropertiesWithProfile(Path.of("graphs-apitests"),
+        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(Path.of("graphs-apitests"),
                 repoPath, repoUrl,
-                "repoName", "profileGroup", "graphExtent", "1", 0,
-                routeProfileName, profileProperties);
-        return createORSGraphHopper(routeProfileName, ghConfig, engineProperties, profileProperties);
+                "repoName", "profileGroup", "graphExtent", routeProfileName, 0
+        );
+        return createORSGraphHopper(routeProfileName, ghConfig, engineProperties);
     }
 }

@@ -28,9 +28,11 @@ public class RoutingProfileLoader implements Callable<RoutingProfile> {
     private final EngineProperties engineConfig;
     private final ProfileProperties profile;
     private final RoutingProfileLoadContext loadContext;
+    private final String graphVersion;
 
-    public RoutingProfileLoader(String name, ProfileProperties profile, EngineProperties engineConfig, RoutingProfileLoadContext loadContext) {
+    public RoutingProfileLoader(String name, ProfileProperties profile, EngineProperties engineConfig, String graphVersion, RoutingProfileLoadContext loadContext) {
         this.name = name;
+        this.graphVersion = graphVersion;
         this.profile = profile;
         this.engineConfig = engineConfig;
         this.loadContext = loadContext;
@@ -39,6 +41,6 @@ public class RoutingProfileLoader implements Callable<RoutingProfile> {
     @Override
     public RoutingProfile call() throws Exception {
         Thread.currentThread().setName("ORS-pl-" + name);
-        return new RoutingProfile(name, profile, engineConfig, loadContext);
+        return new RoutingProfile(name, profile, engineConfig, graphVersion, loadContext);
     }
 }

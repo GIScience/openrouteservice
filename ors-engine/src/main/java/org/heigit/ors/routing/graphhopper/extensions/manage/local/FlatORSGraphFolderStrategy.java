@@ -15,14 +15,14 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
     private final String graphVersion;
     private final String profileGroup;
 
-    public FlatORSGraphFolderStrategy(EngineProperties engineProperties, String routeProfileName) {//todo GRC consider changing typ graphsRootPath to Path and get rid of
-        this(engineProperties.getGraphManagement(), routeProfileName, engineProperties.getGraphsRootPath().toAbsolutePath().toString());
+    public FlatORSGraphFolderStrategy(EngineProperties engineProperties, String routeProfileName, String graphVersion) {//todo GRC consider changing typ graphsRootPath to Path and get rid of
+        this(engineProperties.getGraphManagement(), routeProfileName, graphVersion, engineProperties.getGraphsRootPath().toAbsolutePath().toString());
     }
-    public FlatORSGraphFolderStrategy(GraphManagementProperties graphManagementProperties, String routeProfileName, String graphsRootAbsPath) {
+    public FlatORSGraphFolderStrategy(GraphManagementProperties graphManagementProperties, String routeProfileName, String graphVersion, String graphsRootAbsPath) {
         this.graphsRootAbsPath = graphsRootAbsPath;
         this.profileGroup = graphManagementProperties.getRepositoryProfileGroup();
         this.extend = graphManagementProperties.getGraphExtent();
-        this.graphVersion = graphManagementProperties.getGraphVersion();
+        this.graphVersion = graphVersion;
         this.repoName = graphManagementProperties.getRepositoryName();
         this.routeProfileName = routeProfileName;
     }
