@@ -107,14 +107,12 @@ ors:
 
       ### local nexus repo
 #      repository_url: 'http://localhost:8081/service/rest'
-#      repository_name: localgraphs
-#      extent: heidelberg
-
       ### local file repo
       repository_path: 'ors-engine/src/test/resources/test-filesystem-repos'
+      ### all repo types
       repository_name: vendor-xyz
-      profile_group: fastisochrones
-      extent: heidelberg
+      repository_profile_group: fastisochrones
+      graph_extent: heidelberg
 
       max_backups: 2
       # HINT default is NEVER (there is no Feb 31)
