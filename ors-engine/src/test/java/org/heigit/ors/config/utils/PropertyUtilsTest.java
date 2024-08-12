@@ -120,7 +120,7 @@ class PropertyUtilsTest {
         // Create a map with two TestExtendedStorage objects
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", false));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2", new TestExtendedStorage("bar", 0, "bar", false));
-        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, target, true, false, false);
+        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, target, true, false);
 
         // Check if the values are updated
         assertEquals(((TestExtendedStorage) source.get("test1")).field1, ((TestExtendedStorage) returnedTarget.get("test1")).field1);
@@ -141,7 +141,7 @@ class PropertyUtilsTest {
         // Create a map with two TestExtendedStorage objects
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2", new TestExtendedStorage(null, 0, "bar", false));
-        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, target, false, false, false);
+        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, target, false, false);
 
         // Check if the values are updated
         assertEquals("bar", ((TestExtendedStorage) returnedTarget.get("test1")).field1);
@@ -161,7 +161,7 @@ class PropertyUtilsTest {
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false));
         assertEquals(1, target.size());
-        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true, false, true);
+        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true, true);
 
         assertEquals(2, targetUpdate.size());
 
@@ -183,7 +183,7 @@ class PropertyUtilsTest {
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2", new TestExtendedStorage("foo", 1, "bar", false));
         assertEquals(2, target.size());
-        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true, false, false);
+        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true, false);
 
         assertEquals(2, targetUpdate.size());
 
@@ -203,9 +203,9 @@ class PropertyUtilsTest {
     void testUpdateMapObjectsWithNoCopyEmptyStorage() {
         // Create a map with two TestExtendedStorage objects
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
-        Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", 0, null, false));
+        Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("bar", null, null, false));
         assertEquals(1, target.size());
-        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true, false, false);
+        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, true, false);
 
         assertEquals(1, targetUpdate.size());
 
@@ -222,7 +222,7 @@ class PropertyUtilsTest {
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("bar", 0, null, false), "test2", new TestExtendedStorage("foo", 1, "bar", false));
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true));
         assertEquals(1, target.size());
-        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, false, false, true);
+        Map<String, ExtendedStorage> targetUpdate = PropertyUtils.deepCopyMapsProperties(source, target, false, true);
 
         assertEquals(2, targetUpdate.size());
 
@@ -241,7 +241,7 @@ class PropertyUtilsTest {
     @Test
     void testUpdateMapObjectsWithNullSource() {
         Map<String, ExtendedStorage> target = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
-        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(null, target, true, false, false);
+        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(null, target, true, false);
 
         assertEquals(2, returnedTarget.size());
         assertEquals(target.get("test1"), returnedTarget.get("test1"));
@@ -251,7 +251,7 @@ class PropertyUtilsTest {
     @Test
     void testUpdateMapObjectsWithNullTarget() {
         Map<String, ExtendedStorage> source = Map.of("test1", new TestExtendedStorage("testValue1", 42, "foo1", true), "test2", new TestExtendedStorage("testValue2", 43, "foo2", true));
-        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, null, true, false, false);
+        Map<String, ExtendedStorage> returnedTarget = PropertyUtils.deepCopyMapsProperties(source, null, true, false);
 
         assertEquals(source.get("test1"), returnedTarget.get("test1"));
     }
@@ -269,10 +269,10 @@ class PropertyUtilsTest {
         private final String field3;
         public String field1;
         @Getter
-        public int field2;
+        public Integer field2;
         TestPropertyNestedClass subclass;
 
-        TestExtendedStorage(String field1, int field2, String field3, Boolean enabled) {
+        TestExtendedStorage(String field1, Integer field2, String field3, Boolean enabled) {
             this.field1 = field1;
             this.field2 = field2;
             this.field3 = field3;
@@ -292,21 +292,16 @@ class PropertyUtilsTest {
     private static Stream<Arguments> provideDeepCompareFieldsAreUnequalTestCases() {
         return Stream.of(
                 // Test case for Collection
-                Arguments.of(new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(1, 2, 3)), new HashSet<>(), "collectionPath", true),
-                Arguments.of(new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(1, 2, 3, 4)), new HashSet<>(), "collectionPath", false),
+                Arguments.of(new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(1, 2, 3)), new HashSet<>(), "collectionPath", true), Arguments.of(new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(1, 2, 3, 4)), new HashSet<>(), "collectionPath", false),
 
                 // Test case for primitive or wrapper
-                Arguments.of(1, 1, new HashSet<>(), "primitivePath", false),
-                Arguments.of(1, 2, new HashSet<>(), "primitivePath", true),
+                Arguments.of(1, 1, new HashSet<>(), "primitivePath", false), Arguments.of(1, 2, new HashSet<>(), "primitivePath", true),
 
                 // Test case for Path
-                Arguments.of(Path.of("/path1"), Path.of("/path1"), new HashSet<>(), "pathPath", false),
-                Arguments.of(Path.of("/path1"), Path.of("/path2"), new HashSet<>(), "pathPath", true),
+                Arguments.of(Path.of("/path1"), Path.of("/path1"), new HashSet<>(), "pathPath", false), Arguments.of(Path.of("/path1"), Path.of("/path2"), new HashSet<>(), "pathPath", true),
 
                 // Test case for deep equality check
-                Arguments.of(new TestClass("value1"), new TestClass("value1"), new HashSet<>(), "objectPath", false),
-                Arguments.of(new TestClass("value1"), new TestClass("value2"), new HashSet<>(), "objectPath", true)
-        );
+                Arguments.of(new TestClass("value1"), new TestClass("value1"), new HashSet<>(), "objectPath", false), Arguments.of(new TestClass("value1"), new TestClass("value2"), new HashSet<>(), "objectPath", true));
     }
 
 
@@ -315,7 +310,7 @@ class PropertyUtilsTest {
         private final String field3;
         public String field1;
         @Getter
-        public int field2;
+        public Integer field2;
         TestPropertyNestedClass subclass;
 
         TestProperty(String field1, int field2, String field3, Boolean enabled) {
@@ -353,28 +348,7 @@ class PropertyUtilsTest {
     }
 
     private static Stream<Arguments> providePrimitiveOrWrapperTypes() {
-        return Stream.of(
-                Arguments.of(int.class, true),
-                Arguments.of(Integer.class, true),
-                Arguments.of(boolean.class, true),
-                Arguments.of(Boolean.class, true),
-                Arguments.of(char.class, true),
-                Arguments.of(Character.class, true),
-                Arguments.of(byte.class, true),
-                Arguments.of(Byte.class, true),
-                Arguments.of(short.class, true),
-                Arguments.of(Short.class, true),
-                Arguments.of(double.class, true),
-                Arguments.of(Double.class, true),
-                Arguments.of(long.class, true),
-                Arguments.of(Long.class, true),
-                Arguments.of(float.class, true),
-                Arguments.of(Float.class, true),
-                Arguments.of(MyEnum.class, true),
-                Arguments.of(String.class, true),
-                Arguments.of(Object.class, false),
-                Arguments.of(null, false)
-        );
+        return Stream.of(Arguments.of(int.class, true), Arguments.of(Integer.class, true), Arguments.of(boolean.class, true), Arguments.of(Boolean.class, true), Arguments.of(char.class, true), Arguments.of(Character.class, true), Arguments.of(byte.class, true), Arguments.of(Byte.class, true), Arguments.of(short.class, true), Arguments.of(Short.class, true), Arguments.of(double.class, true), Arguments.of(Double.class, true), Arguments.of(long.class, true), Arguments.of(Long.class, true), Arguments.of(float.class, true), Arguments.of(Float.class, true), Arguments.of(MyEnum.class, true), Arguments.of(String.class, true), Arguments.of(Object.class, false), Arguments.of(null, false));
     }
 
     @Test
@@ -524,6 +498,94 @@ class PropertyUtilsTest {
         assertFalse(PropertyUtils.deepCompareArrays(arr11, null, excludeFields, "path"));
     }
 
+    @Test
+    void deepCopyObjectsPropertiesHandlesIllegalAccessException() throws NoSuchFieldException, IllegalAccessException {
+        TestPropertyWithFinalFields source = new TestPropertyWithFinalFields("testValue", 42, "foo", true);
+        TestPropertyWithFinalFields target = new TestPropertyWithFinalFields("bar", 0, "bar", false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
+
+        assertEquals("bar", target.field1);
+        assertEquals(0, target.field2);
+        assertEquals("bar", target.field3);
+        assertEquals(false, target.enabled);
+    }
+
+    @Test
+    void deepCopyObjectsPropertiesWithNullSource() {
+        TestProperty target = new TestProperty("testValue", 42, "foo", true);
+        assertEquals(target, PropertyUtils.deepCopyObjectsProperties(null, target, true));
+
+    }
+
+    @Test
+    void deepCopyObjectsPropertiesWithNullTarget() {
+        TestProperty source = new TestProperty("testValue", 42, "foo", true);
+        assertNull(PropertyUtils.deepCopyObjectsProperties(source, null, true));
+    }
+
+    @Test
+    void deepCopyObjectsPropertiesWithPrimitiveFields() {
+        TestProperty source = new TestProperty("testValue", 42, "foo", true);
+        TestProperty target = new TestProperty("bar", 0, "bar", false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
+
+        assertEquals("testValue", target.field1);
+        assertEquals(42, target.getField2());
+        assertEquals("foo", target.getField3());
+        assertEquals(true, target.subclass.enabled);
+    }
+
+    @Test
+    void deepCopyObjectsPropertiesWithCollectionFields() {
+        TestPropertyWithCollection source = new TestPropertyWithCollection(List.of("item1", "item2"));
+        TestPropertyWithCollection target = new TestPropertyWithCollection(new ArrayList<>());
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
+
+        assertEquals(List.of("item1", "item2"), target.collectionField);
+    }
+
+    @Test
+    void deepCopyObjectsPropertiesWithMapFields() {
+        TestPropertyWithMap source = new TestPropertyWithMap(Map.of("key1", "value1"));
+        TestPropertyWithMap target = new TestPropertyWithMap(new HashMap<>());
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
+
+        assertEquals(Map.of("key1", "value1"), target.mapField);
+    }
+
+    @Test
+    void deepCopyObjectsPropertiesWithArrayFields() {
+        TestPropertyWithArray source = new TestPropertyWithArray(new String[]{"item1", "item2"});
+        TestPropertyWithArray target = new TestPropertyWithArray(new String[0]);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
+
+        assertArrayEquals(new String[]{"item1", "item2"}, target.arrayField);
+    }
+
+    @Test
+    void deepCopyObjectsPropertiesWithNestedObjects() {
+        TestProperty source = new TestProperty("testValue", 42, "foo", true);
+        TestProperty target = new TestProperty("bar", 0, "bar", false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, true);
+
+        assertEquals("testValue", target.field1);
+        assertEquals(42, target.getField2());
+        assertEquals("foo", target.getField3());
+        assertEquals(true, target.subclass.enabled);
+    }
+
+    @Test
+    void deepCopyObjectsPropertiesWithOverwriteNonEmptyFieldsFalse() {
+        TestProperty source = new TestProperty("testValue", 42, "foo", true);
+        TestProperty target = new TestProperty("bar", 0, "bar", false);
+        PropertyUtils.deepCopyObjectsProperties(source, target, false);
+
+        assertEquals("bar", target.field1);
+        assertEquals(0, target.getField2());
+        assertEquals("bar", target.getField3());
+        assertEquals(false, target.subclass.enabled);
+    }
+
     enum MyEnum {
         VALUE1, VALUE2
     }
@@ -557,5 +619,35 @@ class PropertyUtilsTest {
         public int hashCode() {
             return Objects.hash(testString);
         }
+    }
+
+    private static class TestPropertyWithCollection {
+
+        private Collection<String> collectionField;
+
+        public TestPropertyWithCollection(Collection<String> collectionField) {
+            this.collectionField = collectionField;
+        }
+    }
+
+    private static class TestPropertyWithMap {
+
+        private Map<String, String> mapField;
+
+        public TestPropertyWithMap(Map<String, String> mapField) {
+            this.mapField = mapField;
+        }
+    }
+
+    private static class TestPropertyWithArray {
+
+        private String[] arrayField;
+
+        public TestPropertyWithArray(String[] arrayField) {
+            this.arrayField = arrayField;
+        }
+    }
+
+    private record TestPropertyWithFinalFields(String field1, Integer field2, String field3, Boolean enabled) {
     }
 }

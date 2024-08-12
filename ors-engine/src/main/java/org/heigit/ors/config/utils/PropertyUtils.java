@@ -16,46 +16,57 @@ public class PropertyUtils {
             return target;
         }
 
-
         Class<?> clazz = target.getClass();
         List<Field> fields = getAllFields(clazz);
         for (Field field : fields) {
-            Class<?> fieldType = field.getType();
             if (!field.trySetAccessible()) {
                 continue;
             }
-            Object value = null;
             try {
-                value = field.get(source);
-            } catch (IllegalAccessException | IllegalArgumentException e) {
-                logger.warn("Could not access field: {}", field.getName());
-            }
-            if (value == null) {
-                continue;
-            }
-            try {
+                Object value = field.get(source);
+                if (value == null || !field.getType().isAssignableFrom(value.getClass())) {
+                    continue;
+                }
+
                 Object currentValue = field.get(target);
                 boolean shouldOverwrite = overwriteNonEmptyFields || currentValue == null;
-                if (shouldOverwrite) {
-                    field.set(target, value);
-                } else if (!fieldType.isPrimitive() &&
-                        !Number.class.isAssignableFrom(fieldType) &&
-                        !Boolean.class.equals(fieldType) &&
-                        !Character.class.equals(fieldType) &&
-                        !String.class.equals(fieldType) &&
-                        !Enum.class.isAssignableFrom(fieldType) &&
-                        !Collection.class.isAssignableFrom(fieldType) &&
-                        !fieldType.isArray()) {
-                    field.set(target, deepCopyObjectsProperties(value, currentValue, false));
+                if (isPrimitiveOrWrapper(field.getType())) {
+                    if (shouldOverwrite) {
+                        field.set(target, value);
+                    }
+                } else if (Collection.class.isAssignableFrom(field.getType())) {
+                    Collection<?> collection = (Collection<?>) currentValue;
+                    if (collection.isEmpty()) {
+                        field.set(target, value);
+                    }
+                } else if (Map.class.isAssignableFrom(field.getType())) {
+                    Map<?, ?> map = (Map<?, ?>) currentValue;
+                    if (map.isEmpty()) {
+                        field.set(target, value);
+                    }
+                } else if (field.getType().isArray()) {
+                    Object[] array = (Object[]) currentValue;
+                    if (array.length == 0) {
+                        field.set(target, value);
+                    }
+                } else {
+                    if (currentValue == null) {
+                        field.set(target, value);
+                    } else {
+                        field.set(target, deepCopyObjectsProperties(value, currentValue, overwriteNonEmptyFields));
+                    }
                 }
             } catch (IllegalAccessException e) {
-                logger.warn("Could not set field: {}", field.getName());
+                logger.warn("Could not access or set field: {}", field.getName(), e);
             }
         }
         return target;
     }
 
-    public static Map<String, ExtendedStorage> deepCopyMapsProperties(Map<String, ExtendedStorage> source, Map<String, ExtendedStorage> target, boolean overwriteNonEmptyFields, boolean copyEmptyMemberClasses, boolean copyEmptyStorages) {
+    // Write a deep copy method for all sorts of regular objects: classes, collections, maps, arrays, primitives, etc.
+
+
+    public static Map<String, ExtendedStorage> deepCopyMapsProperties(Map<String, ExtendedStorage> source, Map<String, ExtendedStorage> target, boolean overwriteNonEmptyFields, boolean copyEmptyStorages) {
         if (target == null) {
             return source;
         } else if (source == null) {
@@ -261,8 +272,7 @@ public class PropertyUtils {
         if (type == null) {
             return false;
         }
-        return type.isPrimitive() || type.isEnum() || type == Boolean.class || type == Integer.class || type == Character.class ||
-                type == Byte.class || type == Short.class || type == Double.class || type == Long.class || type == Float.class || type == String.class;
+        return type.isPrimitive() || type.isEnum() || type == Boolean.class || type == Integer.class || type == Character.class || type == Byte.class || type == Short.class || type == Double.class || type == Long.class || type == Float.class || type == String.class;
     }
 
     protected static boolean shouldExclude(String path, Set<String> excludeFields) {
