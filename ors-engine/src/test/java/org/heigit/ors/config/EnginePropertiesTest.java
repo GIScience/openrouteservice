@@ -620,4 +620,113 @@ class EnginePropertiesTest {
             }
         }
     }
+
+    @Test
+    void testCopyPropertiesToEmptyProperties() {
+        EngineProperties source = new EngineProperties();
+        EngineProperties target = new EngineProperties();
+        source.initialize();
+        assertNotEquals(source, target);
+
+        target.copyProperties(source, false);
+        assertEquals(source, target);
+    }
+
+    @Test
+    void testCopyWithOverwrite() {
+        EngineProperties source = new EngineProperties();
+        EngineProperties target = new EngineProperties();
+        source.initialize();
+        target.initialize();
+
+        assertEquals(source, target);
+
+        // Alter a target properties
+        Path expectedPath = Paths.get("/foo/bar/baz.pbf");
+        target.setSourceFile(expectedPath);
+
+        assertNotEquals(source, target);
+
+
+        target.copyProperties(source, true);
+        assertEquals(source, target);
+    }
+
+    @Test
+    void testCopyEmptySource() {
+        EngineProperties source = new EngineProperties();
+        EngineProperties target = new EngineProperties();
+        target.initialize();
+
+        assertNotEquals(source, target);
+
+        // Scenario 1: Copy from empty source to target without overwrite
+        target.copyProperties(source, false);
+        assertNotEquals(source, target);
+
+        // Scenario 2: Copy from empty source to target with overwrite. This should still not copy null values
+        target.copyProperties(source, true);
+        assertNotEquals(source, target);
+    }
+
+    @Test
+    void testCopyUnequalExtendedStorages() {
+        EngineProperties source = new EngineProperties();
+        EngineProperties target = new EngineProperties();
+        source.initialize();
+        target.initialize();
+
+        // Alter some source properties
+        source.getProfiles().put("car", null); // Null car profile and make sure it doesn't get copied.
+        source.getProfiles().remove("bike-mountain"); // Remove bike-mountain profile and make sure it doesn't get copied.
+        source.getProfiles().get("hgv").getExtStorages().put("GreenIndex", new ExtendedStorageGreenIndex()); // Add GreenIndex to hgv profile and make sure it gets copied.
+
+        // Alter some target properties
+        ProfileProperties car = target.getProfiles().get("car");
+        target.getProfiles().put("bike-regular", null); // Remove bike-regular profile and make sure it gets copied.
+        target.getProfiles().put("bike-mountain", null); // Remove bike-regular profile and make sure it stays null
+
+        // Pre-copy checks
+        assertNotEquals(source, target);
+        assertFalse(target.getProfiles().get("hgv").getExtStorages().containsKey("GreenIndex"));
+
+        target.copyProperties(source, false);
+
+        // Compare results
+        assertNotEquals(source, target);
+        assertNotNull(target.getProfiles().get("car"));
+        assertEquals(car, target.getProfiles().get("car"));
+        assertNull(target.getProfiles().get("bike-mountain"));
+        assertEquals(source.getProfiles().get("bike-regular"), target.getProfiles().get("bike-regular"));
+        assertEquals(source.getProfiles().get("hgv").getExtStorages().get("GreenIndex"), target.getProfiles().get("hgv").getExtStorages().get("GreenIndex"));
+    }
+
+    @Test
+    void testCopyPropertiesPartial() {
+        EngineProperties source = new EngineProperties();
+        EngineProperties target = new EngineProperties();
+        source.initialize();
+        target.initialize();
+
+
+        // Alter some target properties
+        Path expectedPath = Paths.get("/foo/bar/baz.pbf");
+        target.setSourceFile(expectedPath);
+        target.setProfileDefault(null);
+        target.getProfiles().get("car").getEncoderOptions().setMaximumGradeLevel(9999999);
+
+        // Make sure source doesn't exidently match target values
+        assertNotEquals(source, target);
+        assertNotEquals(source.getSourceFile(), target.getSourceFile());
+        assertNotEquals(source.getProfileDefault(), target.getProfileDefault());
+        assertNotEquals(9999999, source.getProfiles().get("car").getEncoderOptions().getMaximumGradeLevel());
+
+        target.copyProperties(source, false);
+
+        assertNotEquals(source, target);
+        assertNotEquals(source.getSourceFile(), target.getSourceFile());
+        assertEquals(expectedPath, target.getSourceFile());
+        assertEquals(source.getProfileDefault(), target.getProfileDefault());
+        assertEquals(9999999, target.getProfiles().get("car").getEncoderOptions().getMaximumGradeLevel());
+    }
 }

@@ -135,6 +135,109 @@ public class EngineProperties {
         setInitialized(true);
     }
 
+    /**
+     * Copy properties from the source to this object.
+     * This is a positive update function. It will only update the properties that are not set in this object.
+     * If the source contains null values, they will be ignored.
+     * If the source contains a value, it will be set in this object.
+     * If this object already contains a non-null value, it will conditionally be overwritten based on the overwrite flag.#
+     * This description applies to all subsequent copyProperties functions.
+     *
+     * @param source    EngineProperties
+     * @param overwrite boolean
+     */
+    @JsonIgnore
+    public void copyProperties(EngineProperties source, boolean overwrite) {
+        if (source == null) {
+            return;
+        }
+
+        this.setInitialized(source.isInitialized());
+
+        if (this.getSourceFile() == null) {
+            this.setSourceFile(source.getSourceFile());
+        } else {
+            if (source.getSourceFile() != null && overwrite) {
+                this.setSourceFile(source.getSourceFile());
+            }
+        }
+
+        if (this.getInitThreads() == null) {
+            this.setInitThreads(source.getInitThreads());
+        } else {
+            if (source.getInitThreads() != null && overwrite) {
+                this.setInitThreads(source.getInitThreads());
+            }
+        }
+
+        if (this.getPreparationMode() == null) {
+            this.setPreparationMode(source.getPreparationMode());
+        } else {
+            if (source.getPreparationMode() != null && overwrite) {
+                this.setPreparationMode(source.getPreparationMode());
+            }
+        }
+
+        if (this.getConfigOutputMode() == null) {
+            this.setConfigOutputMode(source.getConfigOutputMode());
+        } else {
+            if (source.getConfigOutputMode() != null && overwrite) {
+                this.setConfigOutputMode(source.getConfigOutputMode());
+            }
+        }
+
+        if (this.getGraphsRootPath() == null) {
+            this.setGraphsRootPath(source.getGraphsRootPath());
+        } else {
+            if (source.getGraphsRootPath() != null && overwrite) {
+                this.setGraphsRootPath(source.getGraphsRootPath());
+            }
+        }
+
+        if (this.getGraphsDataAccess() == null) {
+            this.setGraphsDataAccess(source.getGraphsDataAccess());
+        } else {
+            if (source.getGraphsDataAccess() != null && overwrite) {
+                this.setGraphsDataAccess(source.getGraphsDataAccess());
+            }
+        }
+
+        if (this.getElevation() == null) {
+            this.setElevation(source.getElevation());
+        } else {
+            if (source.getElevation() != null) {
+                this.getElevation().copyProperties(source.getElevation(), overwrite);
+            }
+        }
+
+        if (this.getProfileDefault() == null) {
+            this.setProfileDefault(source.getProfileDefault());
+        } else {
+            if (source.getProfileDefault() != null) {
+                this.getProfileDefault().copyProperties(source.profileDefault, overwrite);
+            }
+        }
+
+        if (this.getProfiles() == null) {
+            this.setProfiles(source.getProfiles());
+        } else {
+            if (source.getProfiles() != null) {
+                for (String profileEntryName : source.getProfiles().keySet()) {
+                    ProfileProperties sourceProfileProperties = source.getProfiles().get(profileEntryName);
+                    ProfileProperties targetProfileProperties = this.getProfiles().get(profileEntryName);
+                    if (sourceProfileProperties == null) {
+                        continue;
+                    }
+                    if (targetProfileProperties != null) {
+                        this.getProfiles().get(profileEntryName).copyProperties(source.getProfiles().get(profileEntryName), overwrite);
+                    } else {
+                        this.getProfiles().put(profileEntryName, source.getProfiles().get(profileEntryName));
+                    }
+                }
+            }
+        }
+    }
+
 
     @JsonIgnore
     public Map<String, ProfileProperties> getActiveProfiles() {
