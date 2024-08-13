@@ -115,8 +115,20 @@ public class PropertyUtils {
             if (value == null) {
                 continue;
             }
-            if (value.getClass().isPrimitive()) {
-                return false;
+            if (isPrimitiveOrWrapper(value.getClass())) {
+                if (value instanceof Boolean) {
+                    if ((Boolean) value) {
+                        return false;
+                    }
+                } else if (value instanceof String) {
+                    if (!value.equals("")) {
+                        return false;
+                    }
+                } else if (value instanceof Enum) {
+                    return false;
+                } else {
+                    return false;
+                }
             } else if (value instanceof Collection) {
                 if (!((Collection<?>) value).isEmpty()) {
                     return false;
@@ -130,20 +142,6 @@ public class PropertyUtils {
                     return false;
                 }
             } else if (value instanceof Path) {
-                return false;
-            } else if (value instanceof String) {
-                if (!value.equals("")) {
-                    return false;
-                }
-            } else if (value instanceof Number) {
-                if (((Number) value).doubleValue() != 0) {
-                    return false;
-                }
-            } else if (value instanceof Boolean) {
-                if ((Boolean) value) {
-                    return false;
-                }
-            } else if (value instanceof Enum) {
                 return false;
             } else {
                 if (!assertAllNull(value, excludeFields, fullPath)) {
@@ -218,11 +216,11 @@ public class PropertyUtils {
             return !deepEqualityCheckIsUnequal(null, value2, excludeFields, path);
         }
         if (value1 instanceof Collection && value2 instanceof Collection) {
-            return deepCompareCollections((Collection<?>) value1, (Collection<?>) value2, excludeFields, path);
+            return !deepCompareCollections((Collection<?>) value1, (Collection<?>) value2, excludeFields, path);
         } else if (value1 instanceof Map && value2 instanceof Map) {
             // If their sizes are different, they are not equal
             if (((Map<?, ?>) value1).size() != ((Map<?, ?>) value2).size()) {
-                return false;
+                return true; // unequal!
             }
             return !deepEqualityCheckIsUnequal(value1, value2, excludeFields);
         } else if (value1 instanceof Object[] && value2 instanceof Object[]) {

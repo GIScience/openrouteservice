@@ -291,17 +291,27 @@ class PropertyUtilsTest {
 
     private static Stream<Arguments> provideDeepCompareFieldsAreUnequalTestCases() {
         return Stream.of(
+                // Test case for map
+                Arguments.of(Map.of("key1", "value1", "key2", "value2"), Map.of("key1", "value1"), new HashSet<>(), "mapPath", true),
+
                 // Test case for Collection
-                Arguments.of(new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(1, 2, 3)), new HashSet<>(), "collectionPath", true), Arguments.of(new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(1, 2, 3, 4)), new HashSet<>(), "collectionPath", false),
+                Arguments.of(new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(1, 2, 3)), new HashSet<>(), "collectionPath", false),
+                Arguments.of(new ArrayList<>(List.of(1, 2, 3)), new ArrayList<>(List.of(1, 2, 3, 4)), new HashSet<>(), "collectionPath", true),
 
                 // Test case for primitive or wrapper
-                Arguments.of(1, 1, new HashSet<>(), "primitivePath", false), Arguments.of(1, 2, new HashSet<>(), "primitivePath", true),
+                Arguments.of(1, 1, new HashSet<>(), "primitivePath", false),
+                Arguments.of(1, 2, new HashSet<>(), "primitivePath", true),
 
                 // Test case for Path
-                Arguments.of(Path.of("/path1"), Path.of("/path1"), new HashSet<>(), "pathPath", false), Arguments.of(Path.of("/path1"), Path.of("/path2"), new HashSet<>(), "pathPath", true),
+                Arguments.of(Path.of("/path1"), Path.of("/path1"), new HashSet<>(), "pathPath", false),
+                Arguments.of(Path.of("/path1"), Path.of("/path2"), new HashSet<>(), "pathPath", true),
 
                 // Test case for deep equality check
-                Arguments.of(new TestClass("value1"), new TestClass("value1"), new HashSet<>(), "objectPath", false), Arguments.of(new TestClass("value1"), new TestClass("value2"), new HashSet<>(), "objectPath", true));
+                Arguments.of(new TestClass("value1"), new TestClass("value1"), new HashSet<>(), "objectPath", false),
+                Arguments.of(new TestClass("value1"), new TestClass("value2"), new HashSet<>(), "objectPath", true),
+
+                // Test case for arrays
+                Arguments.of(new String[]{"1", "2", "3"}, new String[]{"1", "2", "3"}, new HashSet<>(), "arrayPath", false));
     }
 
 
@@ -572,6 +582,118 @@ class PropertyUtilsTest {
         assertEquals(42, target.getField2());
         assertEquals("foo", target.getField3());
         assertEquals(true, target.subclass.enabled);
+    }
+
+    @Test
+    void testAssertAllNull_AllFieldsNull() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(null, null, null, null, null, null, null, null);
+        assertTrue(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_NonNullFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete("value", 1, List.of("item"), Map.of("key", "value"), new String[]{"item"}, Path.of("/path"), true, MyEnum.VALUE1);
+        assertFalse(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_ExcludeFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete("value", null, null, null, null, null, null, null);
+        Set<String> excludeFields = Set.of("field1", "field9");
+        assertTrue(PropertyUtils.assertAllNull(testObject, excludeFields));
+    }
+
+    @Test
+    void testAssertAllNull_PrimitiveFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(null, 0, null, null, null, null, null, null);
+        assertFalse(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_CollectionFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(null, null, List.of(), null, null, null, null, null);
+        assertTrue(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+        testObject = new TestClassComplete(null, null, List.of("item"), null, null, null, null, null);
+        assertFalse(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_MapFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(null, null, null, Map.of(), null, null, null, null);
+        assertTrue(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+        testObject = new TestClassComplete(null, null, null, Map.of("key", "value"), null, null, null, null);
+        assertFalse(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_ArrayFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(null, null, null, null, new String[]{}, null, null, null);
+        assertTrue(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+        testObject = new TestClassComplete(null, null, null, null, new String[]{"item"}, null, null, null);
+        assertFalse(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_PathFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(null, null, null, null, null, Path.of(""), null, null);
+        assertFalse(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_StringFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete("", null, null, null, null, null, null, null);
+        assertTrue(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_NumberFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(null, 0, null, null, null, null, null, null);
+        assertFalse(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_BooleanFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(null, null, null, null, null, null, false, null);
+        assertTrue(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_EnumFields() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(null, null, null, null, null, null, null, MyEnum.VALUE1);
+        assertFalse(PropertyUtils.assertAllNull(testObject, Set.of("field9")));
+    }
+
+    @Test
+    void testAssertAllNull_PrimitiveField() throws IllegalAccessException {
+        TestClassComplete testObject = new TestClassComplete(0);
+        assertFalse(PropertyUtils.assertAllNull(testObject));
+    }
+
+    static class TestClassComplete {
+        public String field1;
+        public Integer field2;
+        public List<String> field3;
+        public Map<String, String> field4;
+        public String[] field5;
+        public Path field6;
+        public Boolean field7;
+        public MyEnum field8;
+        public int field9 = 0;
+
+        TestClassComplete(String field1, Integer field2, List<String> field3, Map<String, String> field4, String[] field5, Path field6, Boolean field7, MyEnum field8) {
+            this.field1 = field1;
+            this.field2 = field2;
+            this.field3 = field3;
+            this.field4 = field4;
+            this.field5 = field5;
+            this.field6 = field6;
+            this.field7 = field7;
+            this.field8 = field8;
+        }
+
+        TestClassComplete(int field9) {
+            this.field9 = field9;
+        }
     }
 
     @Test
