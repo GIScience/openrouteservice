@@ -42,17 +42,13 @@ RELEASING:
 ### Fixed
 ### Security
 
-## [unreleased]
+## [8.1.2] - 2024-08-13
 
-### Added
 ### Changed
 - updated dependencies: guava, commons, rest-assured etc. ([#1831](https://github.com/GIScience/openrouteservice/pull/1831))
 - updated dependencies: spring, swagger, geotools etc. ([#1827](https://github.com/GIScience/openrouteservice/pull/1827))
-### Deprecated
-### Removed
 ### Fixed
 - allow any number of csv columns ([#1436](https://github.com/GIScience/openrouteservice/issues/1436))
-### Security
 
 ## [8.1.1] - 2024-07-17
 ### Added
@@ -795,7 +791,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...HEAD
+[8.1.2]: https://github.com/GIScience/openrouteservice/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/GIScience/openrouteservice/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/GIScience/openrouteservice/compare/v8.0.1...v8.1.0
 [8.0.1]: https://github.com/GIScience/openrouteservice/compare/v8.0.0...v8.0.1
