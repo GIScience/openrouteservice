@@ -132,6 +132,7 @@ public class RoutingProfileManager {
 
     public void destroy() {
         routingProfiles.destroy();
+        instance = null;
     }
 
     private void fail(String message) {

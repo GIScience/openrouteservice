@@ -36,7 +36,8 @@ public class Application extends SpringBootServletInitializer {
         if (args.length > 0 && !StringUtility.isNullOrEmpty(args[0]) && !args[0].startsWith("-")) {
             System.setProperty(ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY, args[0]);
         }
-        SpringApplication.run(Application.class, args);
+        context = SpringApplication.run(Application.class, args);
+        LOG.info("openrouteservice %s".formatted(AppInfo.getEngineInfo()));
         if (RoutingProfileManagerStatus.isShutdown()) {
             System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
         }
