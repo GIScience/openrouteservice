@@ -2,7 +2,6 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,15 +15,15 @@ import java.util.Date;
 public class ORSGraphInfoV1 { //TOOD rename (remove V1)
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
-    private Date osmDate;
+    private Date importDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
-    private Date importDate;
+    private Date osmDate;
 
     @JsonProperty("profile_properties")
     private ProfileProperties profileProperties;
 
-    public ORSGraphInfoV1(Date osmDate) {
-        this.osmDate = osmDate;
+    public ORSGraphInfoV1(Date importDate) {
+        this.importDate = importDate;
     }
 }

@@ -60,8 +60,8 @@ class FileSystemRepoManagerTest {
         FileUtils.deleteDirectory(localGraphsRootPath.toFile());
     }
 
-    void writeORSGraphInfoToGraphPath(String profile, Date osmDate, Date importDate) throws IOException {
-        ORSGraphInfoV1 localOrsGraphInfoV1Object = createOrsGraphInfoV1(profile, osmDate, importDate);
+    void writeORSGraphInfoToGraphPath(String profile, Date importDate, Date osmDate) throws IOException {
+        ORSGraphInfoV1 localOrsGraphInfoV1Object = createOrsGraphInfoV1(profile, importDate, osmDate);
         String ymlFileName = profile + "/graph_info.yml";
         Path graphInfoFilePath = localGraphsRootPath.resolve(ymlFileName);
         Files.createDirectories(graphInfoFilePath.getParent());
@@ -83,10 +83,10 @@ class FileSystemRepoManagerTest {
         return new FileSystemRepoManager(engineProperties, profileName, REPO_GRAPHS_VERSION, orsGraphRepoStrategy, orsGraphFileManager);
     }
 
-    private static ORSGraphInfoV1 createOrsGraphInfoV1(String profile, Date osmDate, Date importDate) {
+    private static ORSGraphInfoV1 createOrsGraphInfoV1(String profile, Date importDate, Date osmDate) {
         ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1();
-        orsGraphInfoV1.setOsmDate(osmDate);
         orsGraphInfoV1.setImportDate(importDate);
+        orsGraphInfoV1.setOsmDate(osmDate);
         ProfileProperties profileProperties = new DefaultProfilePropertiesWheelchair(true);
         orsGraphInfoV1.setProfileProperties(profileProperties);
         return orsGraphInfoV1;
@@ -113,7 +113,7 @@ class FileSystemRepoManagerTest {
     @Test
     void downloadGraphIfNecessary_localDataExists_noRemoteData() throws IOException {
         fileSystemRepoManager = createFileSystemRepoManager("scooter");
-        writeORSGraphInfoToGraphPath("wheelchair", new Date(EARLIER_DATE), new Date(LATER_DATE));
+        writeORSGraphInfoToGraphPath("wheelchair", new Date(LATER_DATE), new Date(EARLIER_DATE));
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_wheelchair.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_wheelchair.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();
@@ -135,7 +135,7 @@ class FileSystemRepoManagerTest {
     @Test
     void downloadGraphIfNecessary_localDate_equals_remoteDate() throws IOException {
         fileSystemRepoManager = createFileSystemRepoManager();
-        writeORSGraphInfoToGraphPath(REPO_PROFILE_NAME, new Date(REPO_HGV_OSM_DATE), new Date(REPO_HGV_IMPORT_DATE));
+        writeORSGraphInfoToGraphPath(REPO_PROFILE_NAME, new Date(REPO_HGV_IMPORT_DATE), new Date(REPO_HGV_OSM_DATE));
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();
@@ -146,7 +146,7 @@ class FileSystemRepoManagerTest {
     @Test
     void downloadGraphIfNecessary_localDate_after_remoteDate() throws IOException {
         fileSystemRepoManager = createFileSystemRepoManager();
-        writeORSGraphInfoToGraphPath(REPO_PROFILE_NAME, new Date(REPO_HGV_OSM_DATE + 1000000), new Date(REPO_HGV_IMPORT_DATE + 1000000));
+        writeORSGraphInfoToGraphPath(REPO_PROFILE_NAME, new Date(REPO_HGV_IMPORT_DATE + 1000000), new Date(REPO_HGV_OSM_DATE + 1000000));
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_hgv.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();

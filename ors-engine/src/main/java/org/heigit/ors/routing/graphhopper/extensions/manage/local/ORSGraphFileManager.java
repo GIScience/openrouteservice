@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Unzipper;
@@ -215,7 +214,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
 
         ORSGraphInfoV1 graphInfoV1 = readOrsGraphInfoV1(graphInfoFile);
-        LOGGER.trace("[%s] Found local graph info with osmDate=%s".formatted(getProfileDescriptiveName(), graphInfoV1.getOsmDate()));
+        LOGGER.trace("[%s] Found local graph info with importDate=%s".formatted(getProfileDescriptiveName(), graphInfoV1.getImportDate()));
         return new GraphInfo().withLocalDirectory(graphDirectory).withPersistedInfo(graphInfoV1);
     }
 
@@ -341,7 +340,6 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
 
         ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1(getDateFromGhProperty(gh, "datareader.data.date"));
-        orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
         orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
         orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.get());
 
