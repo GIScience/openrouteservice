@@ -1,6 +1,7 @@
 package org.heigit.ors.config.profile.storages;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -9,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.log4j.Logger;
 import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 
@@ -21,6 +23,11 @@ import java.nio.file.Path;
 @Setter(AccessLevel.PACKAGE)
 @EqualsAndHashCode
 public class ExtendedStorage {
+    private static final Logger LOGGER = Logger.getLogger(ExtendedStorage.class);
+
+    @JsonIgnore
+    @Setter(AccessLevel.PUBLIC)
+    private ExtendedStorageName storageName;
 
     // Relevant for all
     @JsonProperty
@@ -99,6 +106,96 @@ public class ExtendedStorage {
     @JsonSetter
     protected void setRestrictions(String restrictions) {
         this.restrictions = Boolean.parseBoolean(restrictions);
+    }
+
+    @JsonIgnore
+    public void initialize(ExtendedStorageName storageName) {
+        if (storageName == null) {
+            this.setEnabled(false);
+            return;
+        }
+
+        this.storageName = storageName;
+
+        if (enabled == null) {
+            enabled = true;
+        }
+
+        if (storageName == ExtendedStorageName.HEAVY_VEHICLE) {
+            if (restrictions == null) {
+                restrictions = true;
+            }
+        }
+
+        if (storageName == ExtendedStorageName.HILL_INDEX) {
+            if (maximumSlope == null) {
+                this.maximumSlope = null;
+            }
+        }
+
+        if (storageName == ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS) {
+            if (use_for_warnings == null) {
+                this.use_for_warnings = true;
+            }
+        }
+
+        if (storageName == ExtendedStorageName.WHEELCHAIR) {
+            if (kerbs_on_crossings == null) {
+                this.kerbs_on_crossings = true;
+            }
+        }
+
+        if (storageName == ExtendedStorageName.NOISE_INDEX || storageName == ExtendedStorageName.GREEN_INDEX || storageName == ExtendedStorageName.SHADOW_INDEX) {
+            if (filepath == null || filepath.toString().isEmpty()) {
+                LOGGER.warn("Storage " + storageName + " is missing filepath. Disabling storage.");
+                enabled = false;
+            }
+        }
+
+        if (storageName == ExtendedStorageName.BORDERS) {
+            Path emptyPath = Path.of("");
+            if (boundaries == null || boundaries.equals(emptyPath)) {
+                LOGGER.warn("Storage " + storageName + " is missing boundaries. Disabling storage.");
+                enabled = false;
+            }
+            if (ids == null || ids.equals(emptyPath)) {
+                LOGGER.warn("Storage " + storageName + " is missing ids. Disabling storage.");
+                enabled = false;
+            }
+            if (openborders == null || openborders.equals(emptyPath)) {
+                LOGGER.warn("Storage " + storageName + " is missing openborders. Disabling storage.");
+                enabled = false;
+            }
+        }
+
+        // Here traffic if streets, ref_pattern or pattern_15min is not set, disable storage
+        if (storageName == ExtendedStorageName.HERE_TRAFFIC) {
+            if (radius == null) {
+                this.radius = 150;
+            }
+
+            if (output_log == null) {
+                this.output_log = false;
+            }
+
+            if (log_location == null) {
+                // TODO: check if we want to keep this functionality
+                this.log_location = Path.of("./here_matching.log");
+            }
+
+            if (streets == null || streets.toString().isEmpty()) {
+                LOGGER.warn("Storage " + storageName + " is missing streets. Disabling storage.");
+                enabled = false;
+            }
+            if (ref_pattern == null || ref_pattern.toString().isEmpty()) {
+                LOGGER.warn("Storage " + storageName + " is missing ref_pattern. Disabling storage.");
+                enabled = false;
+            }
+            if (pattern_15min == null || pattern_15min.toString().isEmpty()) {
+                LOGGER.warn("Storage " + storageName + " is missing pattern_15min. Disabling storage.");
+                enabled = false;
+            }
+        }
     }
 
     @JsonSetter("boundaries")
