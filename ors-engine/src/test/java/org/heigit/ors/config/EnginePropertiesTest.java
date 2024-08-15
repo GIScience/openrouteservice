@@ -11,8 +11,6 @@ import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.PreparationProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
-import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
-import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
 import org.heigit.ors.config.utils.PropertyUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.heigit.ors.config.utils.PropertyUtils.assertAllNull;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -505,8 +502,8 @@ class EnginePropertiesTest {
         assertEquals(1, hgvExtStorages.size());
         assertTrue(hgvExtStorages.containsKey("HeavyVehicle"));
 
-        ExtendedStorageHeavyVehicle heavyVehicle = (ExtendedStorageHeavyVehicle) hgvExtStorages.get("HeavyVehicle");
-        assertInstanceOf(ExtendedStorageHeavyVehicle.class, heavyVehicle);
+        ExtendedStorage heavyVehicle = hgvExtStorages.get("HeavyVehicle");
+        assertInstanceOf(ExtendedStorage.class, heavyVehicle);
         assertTrue(heavyVehicle.getEnabled());
         assertTrue(heavyVehicle.getRestrictions());
     }
@@ -554,7 +551,7 @@ class EnginePropertiesTest {
         assertEquals(enginePropertiesTest.getProfileDefault().getExtStorages().size(), 2);
         // Check that GreenIndex and WayCategory are set correctly
         assertTrue(enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex").getEnabled());
-        assertEquals(Path.of("/path/to/file.csv"), ((ExtendedStorageGreenIndex) enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex")).getFilepath());
+        assertEquals(Path.of("/path/to/file.csv"), enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex").getFilepath());
         assertTrue(enginePropertiesTest.getProfileDefault().getExtStorages().get("WayCategory").getEnabled());
         // Check Preparation properties
         assertEquals(300, enginePropertiesTest.getProfileDefault().getPreparation().getMinNetworkSize());
@@ -594,12 +591,12 @@ class EnginePropertiesTest {
                 assertTrue(actualProfileProperties.getExtStorages().containsKey("GreenIndex"));
                 assertTrue(actualProfileProperties.getExtStorages().get("WayCategory").getEnabled());
                 assertTrue(actualProfileProperties.getExtStorages().get("GreenIndex").getEnabled());
-                assertEquals(Path.of("/path/to/file.csv"), ((ExtendedStorageGreenIndex) actualProfileProperties.getExtStorages().get("GreenIndex")).getFilepath());
+                assertEquals(Path.of("/path/to/file.csv"), actualProfileProperties.getExtStorages().get("GreenIndex").getFilepath());
             } else if (profileMapKey.equals("hgv")) {
                 assertEquals(1, actualProfileProperties.getExtStorages().size());
                 assertEquals(900, actualProfileProperties.getPreparation().getMinNetworkSize());
                 assertTrue(actualProfileProperties.getExtStorages().containsKey("HeavyVehicle"));
-                assertTrue(((ExtendedStorageHeavyVehicle) actualProfileProperties.getExtStorages().get("HeavyVehicle")).getRestrictions());
+                assertTrue(actualProfileProperties.getExtStorages().get("HeavyVehicle").getRestrictions());
             } else if (profileMapKey.equals(EncoderNameEnum.PUBLIC_TRANSPORT.getName())) {
                 assertTrue(actualProfileProperties.getElevation());
                 assertEquals(1000000, actualProfileProperties.getMaximumVisitedNodes());
@@ -615,7 +612,7 @@ class EnginePropertiesTest {
                 assertTrue(actualProfileProperties.getExtStorages().containsKey("GreenIndex"));
                 assertTrue(actualProfileProperties.getExtStorages().get("WayCategory").getEnabled());
                 assertTrue(actualProfileProperties.getExtStorages().get("GreenIndex").getEnabled());
-                assertEquals(Path.of("/path/to/file.csv"), ((ExtendedStorageGreenIndex) actualProfileProperties.getExtStorages().get("GreenIndex")).getFilepath());
+                assertEquals(Path.of("/path/to/file.csv"), actualProfileProperties.getExtStorages().get("GreenIndex").getFilepath());
             }
 
             if (profileMapKey.equals(EncoderNameEnum.WHEELCHAIR.getName())) {

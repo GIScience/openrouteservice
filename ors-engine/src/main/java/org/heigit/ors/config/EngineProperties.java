@@ -4,13 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.config.defaults.DefaultEngineProperties;
 import org.heigit.ors.config.defaults.DefaultGraphManagementProperties;
 import org.heigit.ors.config.defaults.DefaultProfileProperties;
 import org.heigit.ors.config.defaults.DefaultProfiles;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.config.profile.storages.ExtendedStorage;
+import org.heigit.ors.config.profile.storages.ExtendedStorageName;
 import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 import org.heigit.ors.config.utils.PropertyUtils;
@@ -103,6 +108,7 @@ public class EngineProperties {
 
         for (String profileEntryName : system_default_profile_settings.getProfiles().keySet()) {
             ProfileProperties profile = system_default_profile_settings.getProfiles().get(profileEntryName);
+
             if (this.getProfiles().containsKey(profileEntryName)) {
                 continue;
             }
@@ -135,6 +141,17 @@ public class EngineProperties {
             if (profile.getGraphPath() == null || profile.getGraphPath().equals(emptyPath)) {
                 profile.setGraphPath(Paths.get(this.getGraphsRootPath().toString(), profileEntryName).toAbsolutePath());
             }
+
+            // Activate the extended storages
+            profile.getExtStorages().forEach(
+                    (key, value) -> {
+                        if (value != null) {
+                            value.initialize(ExtendedStorageName.getEnum(key));
+                        } else {
+                            profile.getExtStorages().put(key, new ExtendedStorage(ExtendedStorageName.getEnum(key)));
+                        }
+                    }
+            );
         }
         setInitialized(true);
     }

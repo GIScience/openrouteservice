@@ -1,5 +1,8 @@
 package org.heigit.ors.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
@@ -9,9 +12,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -234,30 +240,36 @@ class ExtendedStorageTest {
         assertEquals(mapper.readTree(expectedJson), mapper.readTree(jsonResult), "Serialized JSON should match the expected JSON");
     }
 
-    static class HelperClass extends ExtendedStorage {
-        public HelperClass() {
-            super();
-        }
+    @Test
+    void initializeSetsRadiusTo150ForHereTrafficIfNull() throws JsonProcessingException {
+        ExtendedStorage storage = new ExtendedStorage();
+        assertNull(storage.getRadius(), "radius should be null before initialize");
 
-        public void setRestrictions(String restrictions) {
-            super.setRestrictions(restrictions);
-        }
+        // Test Default value
+        storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
+        assertEquals(150, storage.getRadius(), "initialize should set radius to 150 for HERE_TRAFFIC if it is null");
 
-        public void setBoundaries(Path boundaries) {
-            super.setBoundaries(boundaries);
-        }
+        // Variable set and not the default value. It should be left as is.
+        String json = """
+                {
+                    "radius": 100
+                }
+                """;
+        storage = mapper.readValue(json, ExtendedStorage.class);
+        assertEquals(100, storage.getRadius(), "initialize should not change radius if it is not null");
+        storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
+        assertEquals(100, storage.getRadius(), "initialize should not change radius if it is not null");
 
-        public void setIds(Path ids) {
-            super.setIds(ids);
-        }
-
-        public void setOpenborders(Path openborders) {
-            super.setOpenborders(openborders);
-        }
-
-        public void setFilepath(Path filepath) {
-            super.setFilepath(filepath);
-        }
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("radius");
+            add("output_log");
+            add("log_location");
+            add("streets");
+            add("ref_pattern");
+            add("pattern_15min");
+        }});
     }
 
     @Test
@@ -357,31 +369,34 @@ class ExtendedStorageTest {
     }
 
     @Test
-    void initializeSetsRadiusTo150ForHereTrafficIfNull() throws JsonProcessingException {
+    void initializeSetsOutputLogToFalseForHereTrafficIfNull() throws JsonProcessingException {
         ExtendedStorage storage = new ExtendedStorage();
-        assertNull(storage.getRadius(), "radius should be null before initialize");
+        assertNull(storage.getOutput_log(), "output_log should be null before initialize");
 
         // Test Default value
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
-        assertEquals(150, storage.getRadius(), "initialize should set radius to 150 for HERE_TRAFFIC if it is null");
+        assertFalse(storage.getOutput_log(), "initialize should set output_log to false for HERE_TRAFFIC if it is null");
 
         // Variable set and not the default value. It should be left as is.
         String json = """
                 {
-                    "radius": 100
+                    "output_log": true
                 }
                 """;
         storage = mapper.readValue(json, ExtendedStorage.class);
-        assertEquals(100, storage.getRadius(), "initialize should not change radius if it is not null");
+        assertTrue(storage.getOutput_log(), "initialize should not change output_log if it is not null");
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
-        assertEquals(100, storage.getRadius(), "initialize should not change radius if it is not null");
+        assertTrue(storage.getOutput_log(), "initialize should not change output_log if it is not null");
 
         // Assert everything else was set to null
         testStorageObjectIsEmpty(storage, new ArrayList<>() {{
             add("enabled");
-            add("radius");
             add("output_log");
+            add("radius");
             add("log_location");
+            add("streets");
+            add("ref_pattern");
+            add("pattern_15min");
         }});
     }
 
@@ -415,35 +430,6 @@ class ExtendedStorageTest {
     }
 
     @Test
-    void initializeSetsOutputLogToFalseForHereTrafficIfNull() throws JsonProcessingException {
-        ExtendedStorage storage = new ExtendedStorage();
-        assertNull(storage.getOutput_log(), "output_log should be null before initialize");
-
-        // Test Default value
-        storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
-        assertFalse(storage.getOutput_log(), "initialize should set output_log to false for HERE_TRAFFIC if it is null");
-
-        // Variable set and not the default value. It should be left as is.
-        String json = """
-                {
-                    "output_log": true
-                }
-                """;
-        storage = mapper.readValue(json, ExtendedStorage.class);
-        assertTrue(storage.getOutput_log(), "initialize should not change output_log if it is not null");
-        storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
-        assertTrue(storage.getOutput_log(), "initialize should not change output_log if it is not null");
-
-        // Assert everything else was set to null
-        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
-            add("enabled");
-            add("output_log");
-            add("radius");
-            add("log_location");
-        }});
-    }
-
-    @Test
     void initializeSetsLogLocationToDefaultForHereTrafficIfNull() throws JsonProcessingException {
         ExtendedStorage storage = new ExtendedStorage();
         assertNull(storage.getLog_location(), "log_location should be null before initialize");
@@ -469,7 +455,19 @@ class ExtendedStorageTest {
             add("radius");
             add("output_log");
             add("log_location");
+            add("streets");
+            add("ref_pattern");
+            add("pattern_15min");
         }});
+    }
+
+    @Test
+    void testSerializeExtendedStorage() throws IOException {
+        HelperClass foo = new HelperClass();
+        foo.setExtendedStorage(Map.of("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY)));
+        String json = mapper.writeValueAsString(foo);
+        String expectedJson = "{\"ext_storages\":{\"WayCategory\":{\"enabled\":true}}}";
+        assertEquals(expectedJson, json);
     }
 
     @ParameterizedTest
@@ -660,5 +658,99 @@ class ExtendedStorageTest {
             add("enabled");
             add("filepath");
         }});
+    }
+
+    @Test
+    void testSerializeExtendedStorageWithMultipleEntries() throws IOException {
+        HelperClass foo = new HelperClass();
+        Map<String, ExtendedStorage> extendedStorage = new HashMap<>();
+        extendedStorage.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
+        extendedStorage.put("GreenIndex", new ExtendedStorage(ExtendedStorageName.GREEN_INDEX));
+        extendedStorage.put("EmptyHelperStorage", new EmptyHelperStorage());
+        extendedStorage.put("NestedHelperStorage", new NestedHelperStorage());
+        foo.setExtendedStorage(extendedStorage);
+        String json = mapper.writeValueAsString(foo);
+        // Deserialize the JSON string to a map
+        Map<?, ?> result = mapper.readValue(json, Map.class);
+        // Check if the map contains the expected keys
+        assertTrue(result.containsKey("ext_storages"));
+        // Check size of the map
+        assertEquals(4, ((Map<?, ?>) result.get("ext_storages")).size());
+        // Check if the map contains the expected keys
+        assertTrue(((Map<?, ?>) result.get("ext_storages")).containsKey("WayCategory"));
+        assertTrue(((Map<?, ?>) result.get("ext_storages")).containsKey("GreenIndex"));
+        // Check sizes of the inner maps
+        assertEquals(1, ((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("WayCategory")).size());
+        assertEquals(2, ((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("GreenIndex")).size());
+        // Check if the map contains the expected values
+        assertTrue(((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("WayCategory")).containsKey("enabled"));
+        assertTrue(((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("GreenIndex")).containsKey("enabled"));
+        // filepath in GreenIndex
+        assertTrue(((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("GreenIndex")).containsKey("filepath"));
+        // Evaluate a storage that is empty, even without the enabled field when serialized
+    }
+
+    static class HelperClass extends ExtendedStorage {
+        private Map<String, ExtendedStorage> extendedStorage;
+
+        public HelperClass() {
+            super();
+        }
+
+        public void setRestrictions(String restrictions) {
+            super.setRestrictions(restrictions);
+        }
+
+        public void setBoundaries(Path boundaries) {
+            super.setBoundaries(boundaries);
+        }
+
+        public void setIds(Path ids) {
+            super.setIds(ids);
+        }
+
+        public void setOpenborders(Path openborders) {
+            super.setOpenborders(openborders);
+        }
+
+        public void setFilepath(Path filepath) {
+            super.setFilepath(filepath);
+        }
+
+        @JsonProperty("ext_storages")
+        public Map<String, ExtendedStorage> getExtendedStorage() {
+            return this.extendedStorage;
+        }
+
+        @JsonSetter("ext_storages")
+        public void setExtendedStorage(Map<String, ExtendedStorage> extendedStorage) {
+            this.extendedStorage = extendedStorage;
+        }
+    }
+
+    private static class ExtendedStorageMapHelper extends HashMap<String, ExtendedStorage> {
+    }
+
+    private static class EmptyHelperStorage extends ExtendedStorage {
+        Boolean enabled = true;
+
+        @Override
+        @JsonIgnore
+        public Boolean getEnabled() {
+            return this.enabled;
+        }
+    }
+
+    private static class NestedHelperStorage extends ExtendedStorage {
+        Map<String, String> nested = new HashMap<>();
+
+        public NestedHelperStorage() {
+            this.nested.put("key", "value");
+        }
+
+        @JsonProperty
+        public Map<String, String> getNested() {
+            return this.nested;
+        }
     }
 }

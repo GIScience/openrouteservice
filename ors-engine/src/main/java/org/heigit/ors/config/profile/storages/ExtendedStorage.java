@@ -206,20 +206,24 @@ public class ExtendedStorage {
             if (filepath == null || filepath.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing filepath. Disabling storage.");
                 enabled = false;
+                filepath = Path.of("");
             }
             nonNullableProperties.add("filepath");
         } else if (storageName == ExtendedStorageName.BORDERS) {
             if (boundaries == null || boundaries.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing boundaries. Disabling storage.");
                 enabled = false;
+                boundaries = Path.of("");
             }
             if (ids == null || ids.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing ids. Disabling storage.");
                 enabled = false;
+                ids = Path.of("");
             }
             if (openborders == null || openborders.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing openborders. Disabling storage.");
                 enabled = false;
+                openborders = Path.of("");
             }
             nonNullableProperties.add("boundaries");
             nonNullableProperties.add("ids");
@@ -242,14 +246,17 @@ public class ExtendedStorage {
             if (streets == null || streets.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing streets. Disabling storage.");
                 enabled = false;
+                streets = Path.of("");
             }
             if (ref_pattern == null || ref_pattern.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing ref_pattern. Disabling storage.");
                 enabled = false;
+                ref_pattern = Path.of("");
             }
             if (pattern_15min == null || pattern_15min.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing pattern_15min. Disabling storage.");
                 enabled = false;
+                pattern_15min = Path.of("");
             }
             nonNullableProperties.add("radius");
             nonNullableProperties.add("output_log");
