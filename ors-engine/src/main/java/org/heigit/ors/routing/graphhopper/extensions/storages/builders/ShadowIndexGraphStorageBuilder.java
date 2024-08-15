@@ -20,7 +20,7 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.profile.storages.ExtendedStorageShadowIndex;
+import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.ShadowIndexGraphStorage;
 
 import java.io.BufferedReader;
@@ -49,9 +49,9 @@ public class ShadowIndexGraphStorageBuilder extends AbstractGraphStorageBuilder 
         if (_storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorageShadowIndex parameters;
+        ExtendedStorage parameters;
         try {
-            parameters = (ExtendedStorageShadowIndex) this.parameters;
+            parameters = this.parameters;
         } catch (ClassCastException e) {
             throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
         }

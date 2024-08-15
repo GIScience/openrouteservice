@@ -9,10 +9,14 @@ import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.defaults.*;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
-import org.heigit.ors.config.utils.*;
+import org.heigit.ors.config.profile.storages.ExtendedStorageName;
+import org.heigit.ors.config.utils.NonEmptyMapFilter;
+import org.heigit.ors.config.utils.PathDeserializer;
+import org.heigit.ors.config.utils.PathSerializer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 @Getter
@@ -81,8 +85,6 @@ public abstract class ProfileProperties {
     @JsonProperty("execution")
     private ExecutionProperties execution;
     @JsonProperty("ext_storages")
-    @JsonSerialize(using = ExtendedStorageMapSerializer.class)
-    @JsonDeserialize(using = ExtendedStorageMapDeserializer.class)
     private Map<String, ExtendedStorage> extStorages;
 
     protected ProfileProperties() {
@@ -120,5 +122,18 @@ public abstract class ProfileProperties {
             list.add(encoderName.getValue());
         }
         return list.toArray(new Integer[0]);
+    }
+
+    @JsonSetter("ext_storages")
+    public void setExtStorages(Map<String, ExtendedStorage> extStorages) {
+        if (extStorages != null) {
+            this.extStorages = new HashMap<>();
+            extStorages.forEach((key, storage) -> {
+                if (storage != null) {
+                    storage.initialize(ExtendedStorageName.getEnum(key));
+                    this.extStorages.put(key, storage);
+                }
+            });
+        }
     }
 }

@@ -1,8 +1,7 @@
 package org.heigit.ors.config.defaults;
 
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
-import org.heigit.ors.config.profile.storages.ExtendedStorageWaySurfaceType;
+import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -37,8 +36,8 @@ class DefaultExtendedStoragesPropertiesTest {
         assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WayCategory"));
         assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WaySurfaceType"));
         // And both are of the correct type
-        assertInstanceOf(ExtendedStorageWayCategory.class, defaultExtendedStoragesProperties.getExtStorages().get("WayCategory"));
-        assertInstanceOf(ExtendedStorageWaySurfaceType.class, defaultExtendedStoragesProperties.getExtStorages().get("WaySurfaceType"));
+        assertInstanceOf(ExtendedStorage.class, defaultExtendedStoragesProperties.getExtStorages().get("WayCategory"));
+        assertInstanceOf(ExtendedStorage.class, defaultExtendedStoragesProperties.getExtStorages().get("WaySurfaceType"));
 
     }
 
@@ -51,8 +50,8 @@ class DefaultExtendedStoragesPropertiesTest {
         assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WayCategory"));
         assertTrue(defaultExtendedStoragesProperties.getExtStorages().containsKey("WaySurfaceType"));
         // And both are of the correct type
-        assertInstanceOf(ExtendedStorageWayCategory.class, defaultExtendedStoragesProperties.getExtStorages().get("WayCategory"));
-        assertInstanceOf(ExtendedStorageWaySurfaceType.class, defaultExtendedStoragesProperties.getExtStorages().get("WaySurfaceType"));
+        assertInstanceOf(ExtendedStorage.class, defaultExtendedStoragesProperties.getExtStorages().get("WayCategory"));
+        assertInstanceOf(ExtendedStorage.class, defaultExtendedStoragesProperties.getExtStorages().get("WaySurfaceType"));
     }
 
     // Test the default extended storages for the given encoder name
