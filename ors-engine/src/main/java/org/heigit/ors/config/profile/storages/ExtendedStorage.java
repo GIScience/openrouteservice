@@ -12,6 +12,7 @@ import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 /**
  * This the base class for the extended storage configuration. It contains a boolean field to enable or disable the storage.
@@ -92,6 +93,7 @@ public class ExtendedStorage {
 
     @Getter
     @Setter
+    @JsonIgnore
     private String ghProfile;
 
     @JsonCreator
@@ -113,6 +115,53 @@ public class ExtendedStorage {
         this.restrictions = Boolean.parseBoolean(restrictions);
     }
 
+    // Write a function that sets every property to null but allows to set excluded properties to a value
+
+    private void setAllPropertiesToNull(ArrayList<String> excludedProperties) {
+        if (!excludedProperties.contains("filepath")) {
+            this.filepath = null;
+        }
+        if (!excludedProperties.contains("restrictions")) {
+            this.restrictions = null;
+        }
+        if (!excludedProperties.contains("streets")) {
+            this.streets = null;
+        }
+        if (!excludedProperties.contains("ref_pattern")) {
+            this.ref_pattern = null;
+        }
+        if (!excludedProperties.contains("pattern_15min")) {
+            this.pattern_15min = null;
+        }
+        if (!excludedProperties.contains("radius")) {
+            this.radius = null;
+        }
+        if (!excludedProperties.contains("output_log")) {
+            this.output_log = null;
+        }
+        if (!excludedProperties.contains("log_location")) {
+            this.log_location = null;
+        }
+        if (!excludedProperties.contains("maximum_slope")) {
+            this.maximumSlope = null;
+        }
+        if (!excludedProperties.contains("boundaries")) {
+            this.boundaries = null;
+        }
+        if (!excludedProperties.contains("ids")) {
+            this.ids = null;
+        }
+        if (!excludedProperties.contains("openborders")) {
+            this.openborders = null;
+        }
+        if (!excludedProperties.contains("use_for_warnings")) {
+            this.use_for_warnings = null;
+        }
+        if (!excludedProperties.contains("kerbs_on_crossings")) {
+            this.kerbs_on_crossings = null;
+        }
+    }
+
     @JsonIgnore
     public void initialize(ExtendedStorageName storageName) {
         if (storageName == null) {
@@ -126,40 +175,40 @@ public class ExtendedStorage {
             enabled = true;
         }
 
+        // Avoid initializing this multiple times
+        final Path emptyPath = Path.of("");
+
+        ArrayList<String> nonNullableProperties = new ArrayList<>();
+
         if (storageName == ExtendedStorageName.HEAVY_VEHICLE) {
             if (restrictions == null) {
                 restrictions = true;
             }
-        }
-
-        if (storageName == ExtendedStorageName.HILL_INDEX) {
+            nonNullableProperties.add("restrictions");
+        } else if (storageName == ExtendedStorageName.HILL_INDEX) {
             if (maximumSlope == null) {
                 this.maximumSlope = null;
             }
-        }
-
-        if (storageName == ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS) {
+            nonNullableProperties.add("maximum_slope");
+        } else if (storageName == ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS) {
             if (use_for_warnings == null) {
                 this.use_for_warnings = true;
             }
-        }
-
-        if (storageName == ExtendedStorageName.WHEELCHAIR) {
+            nonNullableProperties.add("use_for_warnings");
+        } else if (storageName == ExtendedStorageName.WHEELCHAIR) {
             if (kerbs_on_crossings == null) {
                 this.kerbs_on_crossings = true;
             }
+            nonNullableProperties.add("kerbs_on_crossings");
         }
 
-        // Avoid initializing this multiple times
-        final Path emptyPath = Path.of("");
         if (storageName == ExtendedStorageName.NOISE_INDEX || storageName == ExtendedStorageName.GREEN_INDEX || storageName == ExtendedStorageName.SHADOW_INDEX) {
             if (filepath == null || filepath.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing filepath. Disabling storage.");
                 enabled = false;
             }
-        }
-
-        if (storageName == ExtendedStorageName.BORDERS) {
+            nonNullableProperties.add("filepath");
+        } else if (storageName == ExtendedStorageName.BORDERS) {
             if (boundaries == null || boundaries.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing boundaries. Disabling storage.");
                 enabled = false;
@@ -172,10 +221,11 @@ public class ExtendedStorage {
                 LOGGER.warn("Storage " + storageName + " is missing openborders. Disabling storage.");
                 enabled = false;
             }
-        }
-
-        // Here traffic if streets, ref_pattern or pattern_15min is not set, disable storage
-        if (storageName == ExtendedStorageName.HERE_TRAFFIC) {
+            nonNullableProperties.add("boundaries");
+            nonNullableProperties.add("ids");
+            nonNullableProperties.add("openborders");
+        } else if (storageName == ExtendedStorageName.HERE_TRAFFIC) {
+            // Here traffic if streets, ref_pattern or pattern_15min is not set, disable storage
             if (radius == null) {
                 this.radius = 150;
             }
@@ -201,7 +251,14 @@ public class ExtendedStorage {
                 LOGGER.warn("Storage " + storageName + " is missing pattern_15min. Disabling storage.");
                 enabled = false;
             }
+            nonNullableProperties.add("radius");
+            nonNullableProperties.add("output_log");
+            nonNullableProperties.add("log_location");
+            nonNullableProperties.add("streets");
+            nonNullableProperties.add("ref_pattern");
+            nonNullableProperties.add("pattern_15min");
         }
+        setAllPropertiesToNull(nonNullableProperties);
     }
 
     @JsonSetter("boundaries")

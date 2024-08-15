@@ -11,26 +11,84 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExtendedStorageTest {
     ObjectMapper mapper = new ObjectMapper();
 
-    Boolean testStorageObjectIsEmpty(ExtendedStorage storage, Boolean ignoreEnabled) {
-        if (!ignoreEnabled) {
-            assertNull(storage.getEnabled(), "Default constructor should initialize 'enabled' to true");
+    Boolean testStorageObjectIsEmpty(ExtendedStorage storage, ArrayList<String> nonNullFields) {
+        if (!nonNullFields.contains("enabled")) {
+            assertNull(storage.getEnabled(), "enabled should be null");
+        } else {
+            assertNotNull(storage.getEnabled(), "enabled should not be null");
         }
-        assertNull(storage.getFilepath(), "Default constructor should initialize 'filepath' to null");
-        assertNull(storage.getRestrictions(), "Default constructor should initialize 'restrictions' to null");
-        assertNull(storage.getStreets(), "Default constructor should initialize 'streets' to null");
-        assertNull(storage.getRef_pattern(), "Default constructor should initialize 'ref_pattern' to null");
-        assertNull(storage.getPattern_15min(), "Default constructor should initialize 'pattern_15min' to null");
-        assertNull(storage.getRadius(), "Default constructor should initialize 'radius' to null");
-        assertNull(storage.getOutput_log(), "Default constructor should initialize 'output_log' to null");
-        assertNull(storage.getLog_location(), "Default constructor should initialize 'log_location' to null");
-        assertNull(storage.getMaximumSlope(), "Default constructor should initialize 'maximum_slope' to null");
-        assertNull(storage.getBoundaries(), "Default constructor should initialize 'boundaries' to null");
+        if (!nonNullFields.contains("filepath")) {
+            assertNull(storage.getFilepath(), "filepath should be null");
+        } else {
+            assertNotNull(storage.getFilepath(), "filepath should not be null");
+        }
+        if (!nonNullFields.contains("restrictions")) {
+            assertNull(storage.getRestrictions(), "restrictions should be null");
+        } else {
+            assertNotNull(storage.getRestrictions(), "restrictions should not be null");
+        }
+        if (!nonNullFields.contains("streets")) {
+            assertNull(storage.getStreets(), "streets should be null");
+        } else {
+            assertNotNull(storage.getStreets(), "streets should not be null");
+        }
+        if (!nonNullFields.contains("ref_pattern")) {
+            assertNull(storage.getRef_pattern(), "ref_pattern should be null");
+        } else {
+            assertNotNull(storage.getRef_pattern(), "ref_pattern should not be null");
+        }
+        if (!nonNullFields.contains("pattern_15min")) {
+            assertNull(storage.getPattern_15min(), "pattern_15min should be null");
+        } else {
+            assertNotNull(storage.getPattern_15min(), "pattern_15min should not be null");
+        }
+        if (!nonNullFields.contains("radius")) {
+            assertNull(storage.getRadius(), "radius should be null");
+        } else {
+            assertNotNull(storage.getRadius(), "radius should not be null");
+        }
+        if (!nonNullFields.contains("output_log")) {
+            assertNull(storage.getOutput_log(), "output_log should be null");
+        } else {
+            assertNotNull(storage.getOutput_log(), "output_log should not be null");
+        }
+        if (!nonNullFields.contains("log_location")) {
+            assertNull(storage.getLog_location(), "log_location should be null");
+        } else {
+            assertNotNull(storage.getLog_location(), "log_location should not be null");
+        }
+        if (!nonNullFields.contains("maximum_slope")) {
+            assertNull(storage.getMaximumSlope(), "maximum_slope should be null");
+        } else {
+            assertNotNull(storage.getMaximumSlope(), "maximum_slope should not be null");
+        }
+        if (!nonNullFields.contains("boundaries")) {
+            assertNull(storage.getBoundaries(), "boundaries should be null");
+        } else {
+            assertNotNull(storage.getBoundaries(), "boundaries should not be null");
+        }
+        if (!nonNullFields.contains("ids")) {
+            assertNull(storage.getIds(), "ids should be null");
+        } else {
+            assertNotNull(storage.getIds(), "ids should not be null");
+        }
+        if (!nonNullFields.contains("openborders")) {
+            assertNull(storage.getOpenborders(), "openborders should be null");
+        } else {
+            assertNotNull(storage.getOpenborders(), "openborders should not be null");
+        }
+        if (!nonNullFields.contains("use_for_warnings")) {
+            assertNull(storage.getUse_for_warnings(), "use_for_warnings should be null");
+        } else {
+            assertNotNull(storage.getUse_for_warnings(), "use_for_warnings should not be null");
+        }
         return true;
     }
 
@@ -45,13 +103,21 @@ class ExtendedStorageTest {
     @Test
     void testDefaultConstructor() {
         ExtendedStorage storage = new ExtendedStorage();
-        assertTrue(testStorageObjectIsEmpty(storage, false), "Default constructor should initialize all fields to null");
+        assertTrue(testStorageObjectIsEmpty(storage, new ArrayList<>()), "Default constructor should initialize all fields to null");
     }
 
     @Test
     void testStringConstructor() {
         ExtendedStorage storage = new ExtendedStorage("");
-        assertTrue(testStorageObjectIsEmpty(storage, false), "String constructor should initialize all fields to null");
+        assertTrue(testStorageObjectIsEmpty(storage, new ArrayList<>()), "String constructor should initialize all fields to null");
+    }
+
+    @Test
+    void testEnumConstructor() {
+        ExtendedStorage storage = new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY);
+        assertTrue(testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+        }}), "Enum constructor should initialize all fields to null except enabled");
     }
 
     @Test
@@ -150,7 +216,6 @@ class ExtendedStorageTest {
                      "radius":10,
                      "output_log":true,
                      "log_location":"/src/test/resources/log_location.csv",
-                     "ghProfile":"car",
                      "filepath":"/src/test/resources/filepath.csv",
                      "maximum_slope":5,
                      "boundaries":"/src/test/resources/boundaries.csv",
@@ -200,7 +265,9 @@ class ExtendedStorageTest {
         ExtendedStorage storage = new ExtendedStorage();
         storage.initialize(ExtendedStorageName.OSM_ID);
         assertTrue(storage.getEnabled());
-        testStorageObjectIsEmpty(storage, true);
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+        }});
 
         storage.initialize(null);
         assertFalse(storage.getEnabled());
@@ -219,13 +286,20 @@ class ExtendedStorageTest {
         String json = """
                 {
                     "enabled": false,
-                    "restrictions": false
+                    "restrictions": false,
+                    "filepath": "/custom/path.csv"
                 }
                 """;
         storage = mapper.readValue(json, ExtendedStorage.class);
         assertFalse(storage.getRestrictions(), "initialize should not change restrictions if it is not null");
         storage.initialize(ExtendedStorageName.HEAVY_VEHICLE);
         assertFalse(storage.getRestrictions(), "initialize should not change restrictions if it is not null");
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("restrictions");
+        }});
     }
 
     @Test
@@ -247,6 +321,12 @@ class ExtendedStorageTest {
         assertFalse(storage.getUse_for_warnings(), "initialize should not change use_for_warnings if it is not null");
         storage.initialize(ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS);
         assertFalse(storage.getUse_for_warnings(), "initialize should not change use_for_warnings if it is not null");
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("use_for_warnings");
+        }});
     }
 
     @Test
@@ -268,6 +348,12 @@ class ExtendedStorageTest {
         assertFalse(storage.getKerbs_on_crossings(), "initialize should not change kerbs_on_crossings if it is not null");
         storage.initialize(ExtendedStorageName.WHEELCHAIR);
         assertFalse(storage.getKerbs_on_crossings(), "initialize should not change kerbs_on_crossings if it is not null");
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("KerbsOnCrossings");
+        }});
     }
 
     @Test
@@ -289,9 +375,17 @@ class ExtendedStorageTest {
         assertEquals(100, storage.getRadius(), "initialize should not change radius if it is not null");
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
         assertEquals(100, storage.getRadius(), "initialize should not change radius if it is not null");
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("radius");
+            add("output_log");
+            add("log_location");
+        }});
     }
 
-    // Hillindex maximum slope
+// Hillindex maximum slope
 
     @Test
     void initializeSetsMaximumSlopeToNullForHillIndexIfNull() throws JsonProcessingException {
@@ -312,6 +406,12 @@ class ExtendedStorageTest {
         assertEquals(5, storage.getMaximumSlope(), "initialize should not change maximum_slope if it is not null");
         storage.initialize(ExtendedStorageName.HILL_INDEX);
         assertEquals(5, storage.getMaximumSlope(), "initialize should not change maximum_slope if it is not null");
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("maximum_slope");
+        }});
     }
 
     @Test
@@ -333,6 +433,14 @@ class ExtendedStorageTest {
         assertTrue(storage.getOutput_log(), "initialize should not change output_log if it is not null");
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
         assertTrue(storage.getOutput_log(), "initialize should not change output_log if it is not null");
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("output_log");
+            add("radius");
+            add("log_location");
+        }});
     }
 
     @Test
@@ -354,11 +462,18 @@ class ExtendedStorageTest {
         assertEquals(Path.of("/custom/path.log"), storage.getLog_location(), "initialize should not change log_location if it is not null");
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
         assertEquals(Path.of("/custom/path.log"), storage.getLog_location(), "initialize should not change log_location if it is not null");
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("radius");
+            add("output_log");
+            add("log_location");
+        }});
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "'', '', ''", // All paths null
+    @CsvSource({"'', '', ''", // All paths null
             "'/custom/path.csv', '', ''", // Only streets set
             "'', '/custom/path.csv', ''", // Only ref_pattern set
             "'', '', '/custom/path.csv'", // Only pattern_15min set
@@ -419,12 +534,22 @@ class ExtendedStorageTest {
         } else {
             assertEquals(Path.of(pattern15min).toAbsolutePath(), storage.getPattern_15min(), "initialize should not change pattern_15min if it is not null");
         }
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("streets");
+            add("ref_pattern");
+            add("pattern_15min");
+            add("radius");
+            add("output_log");
+            add("log_location");
+        }});
     }
 
     // Same for borders
     @ParameterizedTest
-    @CsvSource({
-            "'', '', ''", // All paths null
+    @CsvSource({"'', '', ''", // All paths null
             "'/custom/path.csv', '', ''", // Only boundaries set
             "'', '/custom/path.csv', ''", // Only ids set
             "'', '', '/custom/path.csv'", // Only openborders set
@@ -484,6 +609,14 @@ class ExtendedStorageTest {
         } else {
             assertEquals(Path.of(openborders).toAbsolutePath(), storage.getOpenborders(), "initialize should not change openborders if it is not null");
         }
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("boundaries");
+            add("ids");
+            add("openborders");
+        }});
     }
 
     @ParameterizedTest
@@ -521,7 +654,11 @@ class ExtendedStorageTest {
         storage.initialize(ExtendedStorageName.getEnum(storageName));
         assertTrue(storage.getEnabled(), "initialize should not disable storage if filepath is not null");
         assertEquals(Path.of("custom/path.csv").toAbsolutePath(), storage.getFilepath(), "initialize should not change filepath if it is not null");
+
+        // Assert everything else was set to null
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("filepath");
+        }});
     }
-
-
 }
