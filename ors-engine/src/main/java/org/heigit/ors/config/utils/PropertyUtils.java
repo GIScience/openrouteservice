@@ -1,6 +1,5 @@
 package org.heigit.ors.config.utils;
 
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,35 +52,6 @@ public class PropertyUtils {
             }
         }
         return target;
-    }
-
-    public static Map<String, ExtendedStorage> deepCopyMapsProperties(Map<String, ExtendedStorage> source, Map<String, ExtendedStorage> target, boolean overwriteNonEmptyFields, boolean copyEmptyMemberClasses, boolean copyEmptyStorages) {
-        if (target == null) {
-            return source;
-        } else if (source == null) {
-            return target;
-        }
-
-        // Create a new map to avoid modifying the original target
-        HashMap<String, ExtendedStorage> targetUpdate = new HashMap<>(target);
-
-        for (Map.Entry<String, ExtendedStorage> entry : source.entrySet()) {
-            String key = entry.getKey();
-            ExtendedStorage sourceValue = entry.getValue();
-            Object targetValue = targetUpdate.get(key);
-
-            if (sourceValue == null) {
-                continue;
-            }
-
-            if (targetValue == null) {
-                if (copyEmptyStorages) targetUpdate.put(key, sourceValue);
-            } else {
-                // Recursively copy nested maps
-                targetUpdate.put(key, (ExtendedStorage) deepCopyObjectsProperties(sourceValue, targetValue, overwriteNonEmptyFields));
-            }
-        }
-        return targetUpdate;
     }
 
     public static Boolean assertAllNull(Object o) throws IllegalAccessException {
