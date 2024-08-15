@@ -41,44 +41,8 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
         this.orsGraphFileManager = orsGraphFileManager;
     }
 
-    public void setGraphsRepoName(String graphsRepoName) {
-        this.graphsRepoName = graphsRepoName;
-    }
-
-    public void setGraphsRepoCoverage(String graphsRepoCoverage) {
-        this.graphsRepoCoverage = graphsRepoCoverage;
-    }
-
-    public void setGraphsRepoGraphVersion(String graphsRepoGraphVersion) {
-        this.graphsRepoGraphVersion = graphsRepoGraphVersion;
-    }
-
-    public void setOrsGraphFileManager(ORSGraphFileManager orsGraphFileManager) {
-        this.orsGraphFileManager = orsGraphFileManager;
-    }
-
     String getProfileDescriptiveName() {
         return orsGraphFileManager.getProfileDescriptiveName();
-    }
-
-    public String getGraphsRepoPath() {
-        return graphsRepoPath;
-    }
-
-    public void setGraphsRepoPath(String graphsRepoPath) {
-        this.graphsRepoPath = graphsRepoPath;
-    }
-
-    public void setRouteProfileName(String routeProfileName) {
-        this.routeProfileName = routeProfileName;
-    }
-
-    public void setGraphsProfileGroup(String graphsProfileGroup) {
-        this.graphsProfileGroup = graphsProfileGroup;
-    }
-
-    public void setOrsGraphRepoStrategy(ORSGraphRepoStrategy orsGraphRepoStrategy) {
-        this.orsGraphRepoStrategy = orsGraphRepoStrategy;
     }
 
     @Override
