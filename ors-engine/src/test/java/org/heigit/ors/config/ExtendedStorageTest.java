@@ -132,29 +132,8 @@ class ExtendedStorageTest {
         ObjectMapper mapper = new ObjectMapper();
         String jsonResult = mapper.writeValueAsString(storage);
 
-        //language=JSON
-        String expectedJson = """
-                {
-                    "enabled":null,
-                    "restrictions":null,
-                    "streets":null,
-                    "ref_pattern":null,
-                    "pattern_15min":null,
-                    "radius":null,
-                    "output_log":null,
-                    "log_location":null,
-                    "ghProfile":null,
-                    "filepath":null,
-                    "maximum_slope":null,
-                    "boundaries":null,
-                    "ids":null,
-                    "openborders":null,
-                    "use_for_warnings":null,
-                    "KerbsOnCrossings":null
-                }
-                """;
         // Step 3: Assert JSON structure and values including enabled
-        assertEquals(mapper.readTree(expectedJson), mapper.readTree(jsonResult), "Serialized JSON should match the expected JSON");
+        assertEquals(mapper.readTree("{}"), mapper.readTree(jsonResult), "Serialized JSON should match the expected JSON");
     }
 
     @Test

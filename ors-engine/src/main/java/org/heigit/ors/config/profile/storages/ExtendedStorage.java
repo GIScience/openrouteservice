@@ -1,9 +1,6 @@
 package org.heigit.ors.config.profile.storages;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
@@ -22,7 +19,9 @@ import java.nio.file.Path;
 @Getter
 @Setter(AccessLevel.PACKAGE)
 @EqualsAndHashCode
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExtendedStorage {
+    @JsonIgnore
     private static final Logger LOGGER = Logger.getLogger(ExtendedStorage.class);
 
     @JsonIgnore
@@ -48,7 +47,6 @@ public class ExtendedStorage {
     @JsonSerialize(using = PathSerializer.class)
     @JsonDeserialize(using = PathDeserializer.class)
     private Path streets;
-    @JsonProperty
     @JsonSerialize(using = PathSerializer.class)
     @JsonDeserialize(using = PathDeserializer.class)
     private Path ref_pattern;
@@ -85,6 +83,7 @@ public class ExtendedStorage {
 
     // Relevant for RoadAccessRestrictions
     @JsonProperty("use_for_warnings")
+    @Setter(AccessLevel.PROTECTED)
     private Boolean use_for_warnings;
 
     // Relevant for Wheelchair
@@ -101,6 +100,12 @@ public class ExtendedStorage {
 
     @JsonCreator
     public ExtendedStorage(String ignoredEmpty) {
+    }
+
+    @JsonIgnore
+    public ExtendedStorage(ExtendedStorageName storageName) {
+        super();
+        this.initialize(storageName);
     }
 
     @JsonSetter
@@ -145,15 +150,16 @@ public class ExtendedStorage {
             }
         }
 
+        // Avoid initializing this multiple times
+        final Path emptyPath = Path.of("");
         if (storageName == ExtendedStorageName.NOISE_INDEX || storageName == ExtendedStorageName.GREEN_INDEX || storageName == ExtendedStorageName.SHADOW_INDEX) {
-            if (filepath == null || filepath.toString().isEmpty()) {
+            if (filepath == null || filepath.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing filepath. Disabling storage.");
                 enabled = false;
             }
         }
 
         if (storageName == ExtendedStorageName.BORDERS) {
-            Path emptyPath = Path.of("");
             if (boundaries == null || boundaries.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing boundaries. Disabling storage.");
                 enabled = false;
@@ -178,20 +184,20 @@ public class ExtendedStorage {
                 this.output_log = false;
             }
 
-            if (log_location == null) {
+            if (log_location == null || log_location.equals(emptyPath)) {
                 // TODO: check if we want to keep this functionality
                 this.log_location = Path.of("./here_matching.log");
             }
 
-            if (streets == null || streets.toString().isEmpty()) {
+            if (streets == null || streets.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing streets. Disabling storage.");
                 enabled = false;
             }
-            if (ref_pattern == null || ref_pattern.toString().isEmpty()) {
+            if (ref_pattern == null || ref_pattern.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing ref_pattern. Disabling storage.");
                 enabled = false;
             }
-            if (pattern_15min == null || pattern_15min.toString().isEmpty()) {
+            if (pattern_15min == null || pattern_15min.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing pattern_15min. Disabling storage.");
                 enabled = false;
             }
