@@ -64,7 +64,6 @@ class ProfilePropertiesTest {
         assertNull(profileProperties.getTraffic());
         assertNull(profileProperties.getInterpolateBridgesAndTunnels());
         assertNull(profileProperties.getForceTurnCosts());
-        assertNull(profileProperties.getGraphPath());
         assertNull(profileProperties.getLocationIndexResolution());
         assertNull(profileProperties.getLocationIndexSearchIterations());
         assertNull(profileProperties.getGtfsFile());

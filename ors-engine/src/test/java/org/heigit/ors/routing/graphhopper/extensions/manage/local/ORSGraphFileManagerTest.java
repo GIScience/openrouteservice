@@ -23,6 +23,8 @@ import org.openapitools.client.model.AssetXO;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -44,7 +46,7 @@ class ORSGraphFileManagerTest {
     ORSGraphFolderStrategy orsGraphFolderStrategy;
     ORSGraphFileManager orsGraphFileManager;
 
-    private static final String GRAPHS_REPO_BASE_URL = "https://example.com";
+    private static final String GRAPHS_REPO_BASE_URI = "https://example.com";
     private static final String GRAPHS_REPO_NAME = "test-repo";
     private static final String GRAPHS_PROFILE_GROUP = "special-profiles";
     private static final String GRAPHS_COVERAGE = "planet";
@@ -88,7 +90,7 @@ class ORSGraphFileManagerTest {
     EngineProperties getEngineProperties() {
         EngineProperties engineProperties = new EngineProperties();
         GraphManagementProperties graphManagementProperties = new GraphManagementProperties();
-        graphManagementProperties.setRepositoryUrl(GRAPHS_REPO_BASE_URL);
+        graphManagementProperties.setRepositoryUri(GRAPHS_REPO_BASE_URI);
         graphManagementProperties.setRepositoryName(GRAPHS_REPO_NAME);
         graphManagementProperties.setGraphExtent(GRAPHS_COVERAGE);
         graphManagementProperties.setRepositoryProfileGroup(GRAPHS_PROFILE_GROUP);
@@ -98,12 +100,12 @@ class ORSGraphFileManagerTest {
         return engineProperties;
     }
 
-    void setupORSGraphManager(String hash) {
+    void setupORSGraphManager(String hash) throws MalformedURLException {
         EngineProperties engineProperties = getEngineProperties();
         setupORSGraphManager(hash, engineProperties, null);
     }
 
-    void setupORSGraphManager(String hash, EngineProperties engineProperties, String customGraphFolder) {
+    void setupORSGraphManager(String hash, EngineProperties engineProperties, String customGraphFolder) throws MalformedURLException {
         File localDir = TEMP_DIR.toFile();
         if (customGraphFolder != null) {
             localDir = Path.of(customGraphFolder).toFile();
@@ -114,7 +116,7 @@ class ORSGraphFileManagerTest {
         orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(localDir.getAbsolutePath(), VEHICLE, hash);
         orsGraphFileManager = new ORSGraphFileManager(engineProperties, VEHICLE, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        orsGraphRepoManager = new NexusRepoManager(engineProperties, VEHICLE, GRAPHS_VERSION, new NamedGraphsRepoStrategy(engineProperties, VEHICLE, GRAPHS_VERSION), orsGraphFileManager);
+        orsGraphRepoManager = new NexusRepoManager(URI.create(GRAPHS_REPO_BASE_URI).toURL(), engineProperties, VEHICLE, GRAPHS_VERSION, new NamedGraphsRepoStrategy(engineProperties, VEHICLE, GRAPHS_VERSION), orsGraphFileManager);
     }
 
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {
@@ -134,7 +136,7 @@ class ORSGraphFileManagerTest {
 
     void simulateFindLatestGraphInfoAsset(String hash, Long osmDateRemote) throws IOException {
         String graphInfoAssetName = orsGraphFileManager.getGraphInfoFileNameInRepository();
-        String graphInfoAssetUrl = String.join("/", GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, VEHICLE, graphInfoAssetName);
+        String graphInfoAssetUrl = String.join("/", GRAPHS_REPO_BASE_URI, GRAPHS_REPO_NAME, VEHICLE, graphInfoAssetName);
 
         ORSGraphInfoV1 downloadedOrsGraphInfoV1Object = new ORSGraphInfoV1(new Date(osmDateRemote));
         downloadedGraphInfoV1File = new File(vehicleDirAbsPath + "/" + graphInfoAssetName);
@@ -157,7 +159,7 @@ class ORSGraphFileManagerTest {
     }
 
     @Test
-    void writeOrsGraphInfoV1() {
+    void writeOrsGraphInfoV1() throws MalformedURLException {
         String hash = "1a2b3c";
         setupORSGraphManager(hash);
 
@@ -170,7 +172,7 @@ class ORSGraphFileManagerTest {
 
     @Test
     @Disabled //FIXME - serialization changed
-    void readOrsGraphInfoV1() {
+    void readOrsGraphInfoV1() throws MalformedURLException {
         String hash = "1a2b3c";
         setupORSGraphManager(hash);
 
@@ -218,8 +220,8 @@ class ORSGraphFileManagerTest {
     @Test
     void backupExistingGraph_withMaxNumOfPreviousBackups() throws IOException {
         String hash = "2a2b3c";
-        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(null, null,
-                GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, VEHICLE, 0);
+        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties( null,
+                GRAPHS_REPO_BASE_URI, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, VEHICLE, 0);
         engineProperties.getGraphManagement().setMaxBackups(2);
 
         setupORSGraphManager(hash, engineProperties, null);
@@ -262,8 +264,8 @@ class ORSGraphFileManagerTest {
     @Test
     public void deleteOldestBackups_maxNumberOfGraphBackupsIsZero() throws IOException {
         String hash = "2a2b3c";
-        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(null, null,
-                GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, VEHICLE, 0);
+        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(null,
+                GRAPHS_REPO_BASE_URI, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, VEHICLE, 0);
         engineProperties.getGraphManagement().setMaxBackups(0);
 
         setupORSGraphManager(hash, engineProperties, null);
@@ -283,8 +285,8 @@ class ORSGraphFileManagerTest {
     @Test
     public void deleteOldestBackups_maxNumberOfGraphBackupsIsNegative() throws IOException {
         String hash = "2a2b3c";
-        EngineProperties engineConfig = RepoManagerTestHelper.createEngineProperties(null, null,
-                GRAPHS_REPO_BASE_URL, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, VEHICLE, 0);
+        EngineProperties engineConfig = RepoManagerTestHelper.createEngineProperties(null,
+                GRAPHS_REPO_BASE_URI, GRAPHS_REPO_NAME, GRAPHS_PROFILE_GROUP, GRAPHS_COVERAGE, VEHICLE, 0);
         engineConfig.getGraphManagement().setMaxBackups(-5);
 
         setupORSGraphManager(hash, engineConfig, null);

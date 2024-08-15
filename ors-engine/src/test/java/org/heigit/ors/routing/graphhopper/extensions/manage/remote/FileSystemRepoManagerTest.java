@@ -44,7 +44,7 @@ class FileSystemRepoManagerTest {
     @TempDir(cleanup = CleanupMode.ALWAYS)
     private Path TEMP_DIR;
 
-    private Path testReposPath = Path.of("src/test/resources/test-filesystem-repos");
+    private String testReposPath = "src/test/resources/test-filesystem-repos";
     private Path localGraphsRootPath;
 
     FileSystemRepoManager fileSystemRepoManager;
@@ -73,14 +73,14 @@ class FileSystemRepoManagerTest {
         return createFileSystemRepoManager(REPO_PROFILE_NAME);
     }
     private FileSystemRepoManager createFileSystemRepoManager(String profileName) {
-        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(localGraphsRootPath, testReposPath, null,
+        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(localGraphsRootPath, testReposPath,
                 REPO_GRAPHS_REPO_NAME, REPO_GRAPHS_PROFILE_GROUP, REPO_GRAPHS_COVERAGE, REPO_PROFILE_NAME, 0);
         ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(engineProperties, profileName, REPO_GRAPHS_VERSION);
         ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineProperties, profileName, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
 
         ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(engineProperties, profileName, REPO_GRAPHS_VERSION);
-        return new FileSystemRepoManager(engineProperties, profileName, REPO_GRAPHS_VERSION, orsGraphRepoStrategy, orsGraphFileManager);
+        return new FileSystemRepoManager(Path.of(testReposPath), engineProperties, profileName, REPO_GRAPHS_VERSION, orsGraphRepoStrategy, orsGraphFileManager);
     }
 
     private static ORSGraphInfoV1 createOrsGraphInfoV1(String profile, Date importDate, Date osmDate) {

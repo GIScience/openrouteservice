@@ -105,12 +105,12 @@ ors:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
     graph_management:
 
-      ### local nexus repo
-#      repository_url: 'http://localhost:8081/service/rest'
-      ### local file repo
-      repository_path: 'ors-engine/src/test/resources/test-filesystem-repos'
-      ### all repo types
-      repository_name: vendor-xyz
+#      repository_uri: 'http://localhost:8081/service/rest'
+#      repository_name: bkg-flat
+
+#      repository_uri: 'ors-engine/src/test/resources/test-filesystem-repos'
+#      repository_name: vendor-xyz
+
       repository_profile_group: fastisochrones
       graph_extent: heidelberg
 

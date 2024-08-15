@@ -14,14 +14,11 @@ public class GraphManagementProperties {
     @JsonProperty("graph_extent")
     private String graphExtent;
 
-    @JsonProperty("repository_url")
-    private String repositoryUrl;
+    @JsonProperty("repository_uri")
+    private String repositoryUri;
 
     @JsonProperty("repository_name")
     private String repositoryName;
-
-    @JsonProperty("repository_path")
-    private String repositoryPath;
 
     @JsonProperty("repository_profile_group")
     private String repositoryProfileGroup;

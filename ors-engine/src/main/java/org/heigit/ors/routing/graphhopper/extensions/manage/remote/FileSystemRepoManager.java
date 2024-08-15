@@ -30,8 +30,8 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
     public FileSystemRepoManager() {
     }
 
-    public FileSystemRepoManager(EngineProperties engineConfig, String routeProfileName, String graphVersion, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        this.graphsRepoPath = engineConfig.getGraphManagement().getRepositoryPath();
+    public FileSystemRepoManager(Path repoPath, EngineProperties engineConfig, String routeProfileName, String graphVersion, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+        this.graphsRepoPath = repoPath.toString();
         this.graphsRepoName = engineConfig.getGraphManagement().getRepositoryName();
         this.graphsProfileGroup = engineConfig.getGraphManagement().getRepositoryProfileGroup();
         this.graphsRepoGraphVersion = graphVersion;

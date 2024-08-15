@@ -9,7 +9,6 @@ public class RepoManagerTestHelper {
 
 
     public static EngineProperties createEngineProperties(Path localGraphsRootPath,
-                                                          Path graphManagementRepositoryPath,
                                                           String graphManagementRepositoryUrl,
                                                           String graphManagementRepositoryName,
                                                           String graphManagementRepositoryProfileGroup,
@@ -22,10 +21,7 @@ public class RepoManagerTestHelper {
         engineProperties.getProfiles().get(profileName).setEnabled(true);
 
         GraphManagementProperties graphManagementProperties = engineProperties.getGraphManagement();
-        graphManagementProperties.setRepositoryUrl(graphManagementRepositoryUrl);
-        if (graphManagementRepositoryPath != null) {
-            graphManagementProperties.setRepositoryPath(graphManagementRepositoryPath.toFile().toString());
-        }
+        graphManagementProperties.setRepositoryUri(graphManagementRepositoryUrl);
         graphManagementProperties.setRepositoryName(graphManagementRepositoryName);
         graphManagementProperties.setRepositoryProfileGroup(graphManagementRepositoryProfileGroup);
         graphManagementProperties.setGraphExtent(graphManagementGraphExtent);

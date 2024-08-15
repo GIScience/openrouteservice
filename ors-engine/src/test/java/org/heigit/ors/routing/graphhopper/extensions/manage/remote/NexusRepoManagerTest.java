@@ -78,7 +78,7 @@ class NexusRepoManagerTest {
         hashDir.mkdirs();
 
 
-        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(localGraphsRootPath, null,
+        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(localGraphsRootPath,
                 GRAPHS_REPO_BASE_URL,GRAPHS_REPO_NAME,GRAPHS_PROFILE_GROUP,GRAPHS_COVERAGE, PROFILE_NAME, 0);
 
         ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineProperties, PROFILE_NAME, hash);

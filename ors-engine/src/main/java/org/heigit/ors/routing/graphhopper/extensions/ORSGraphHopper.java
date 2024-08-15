@@ -38,6 +38,7 @@ import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.config.EngineProperties;
@@ -79,6 +80,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -240,12 +245,73 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     public void initializeGraphManagement(ORSGraphFolderStrategy orsGraphFolderStrategy, ORSGraphRepoStrategy orsGraphRepoStrategy, String graphVersion) {
         ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineProperties, routeProfileName, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        //TODO decide based on configuration which implementation to use
-        //        ORSGraphRepoManager orsGraphRepoManager = new NexusRepoManager(engineConfig, routeProfileName, orsGraphRepoStrategy, orsGraphFileManager);
-        ORSGraphRepoManager orsGraphRepoManager = new FileSystemRepoManager(engineProperties, routeProfileName, graphVersion, orsGraphRepoStrategy, orsGraphFileManager);
+
+        ORSGraphRepoManager orsGraphRepoManager = getOrsGraphRepoManager(engineProperties, orsGraphRepoStrategy, graphVersion, orsGraphFileManager);
+
         this.orsGraphManager = new ORSGraphManager(engineProperties, orsGraphFileManager, orsGraphRepoManager);
         this.orsGraphManager.manageStartup();
         adaptGraphhopperLocation();
+    }
+
+    ORSGraphRepoManager getOrsGraphRepoManager(EngineProperties engineProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, String graphVersion, ORSGraphFileManager orsGraphFileManager) {
+        ORSGraphRepoManager orsGraphRepoManager = new NullRepoManager();
+
+        String configuredRepositoryUri = engineProperties.getGraphManagement().getRepositoryUri();
+        if (StringUtils.isNotBlank(configuredRepositoryUri)) {
+            try {
+                URI repoUri = toUri(configuredRepositoryUri);
+                if (isSupportedUrlScheme(repoUri)) {
+                    URL repoUrl = toURL(repoUri);
+                    orsGraphRepoManager = new NexusRepoManager(repoUrl, engineProperties, routeProfileName, graphVersion, orsGraphRepoStrategy, orsGraphFileManager);
+                    LOGGER.debug("Using NexusRepoManager for repoUri {}", repoUri);
+                } else if (isSupportedFileScheme(repoUri)) {
+                    Path repoPath = Path.of(repoUri);
+                    LOGGER.debug("Using FileSystemRepoManager for repoUri {}", repoUri);
+                    orsGraphRepoManager = new FileSystemRepoManager(repoPath, engineProperties, routeProfileName, graphVersion, orsGraphRepoStrategy, orsGraphFileManager);
+                } else {
+                    Path repoPath = Path.of(configuredRepositoryUri);
+                    LOGGER.debug("Using FileSystemRepoManager for repoUri {}", configuredRepositoryUri);
+                    orsGraphRepoManager = new FileSystemRepoManager(repoPath, engineProperties, routeProfileName, graphVersion, orsGraphRepoStrategy, orsGraphFileManager);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error creating ORSGraphRepoManager based on configured repoUri {}: {}", configuredRepositoryUri, e);
+            }
+        } else {
+            LOGGER.debug("No repositoryUri configured, using NullRepoManager");
+        }
+        return orsGraphRepoManager;
+    }
+
+    private boolean isSupportedUrlScheme(URI uri) {
+        if (uri == null) return false;
+        return Arrays.asList("http", "https").contains(uri.getScheme());
+    }
+    private boolean isSupportedFileScheme(URI uri) {
+        if (uri == null) return false;
+        return Arrays.asList("file").contains(uri.getScheme());
+    }
+
+    URI toUri(String string) {
+        if (StringUtils.isBlank(string))
+            return null;
+
+        URI uri = URI.create(string);
+        if (isSupportedUrlScheme(uri) || isSupportedFileScheme(uri)) {
+            return uri;
+        }
+
+        return null;
+    }
+
+    URL toURL(URI uri){
+        if (isSupportedUrlScheme(uri)) {
+            try {
+                return uri.toURL();
+            } catch (MalformedURLException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     private void adaptGraphhopperLocation() {

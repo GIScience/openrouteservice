@@ -51,8 +51,7 @@ public class ORSGraphManager {
     public boolean useGraphRepository() {
         if (StringUtils.isBlank(engineProperties.getGraphManagement().getRepositoryName())) return false;
 
-        return StringUtils.isNotBlank(engineProperties.getGraphManagement().getRepositoryUrl()) ||
-                StringUtils.isNotBlank(engineProperties.getGraphManagement().getRepositoryPath());
+        return engineProperties.getGraphManagement().getRepositoryUri() != null;
     }
 
     public void manageStartup() {
