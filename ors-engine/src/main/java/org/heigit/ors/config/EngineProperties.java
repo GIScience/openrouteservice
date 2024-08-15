@@ -112,8 +112,6 @@ public class EngineProperties {
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profile.getEncoderName().toString()), profile, false);
             // Fourth step
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false);
-            // Fifth step: Set the graph path correctly for the default profiles
-            profile.setGraphPath(Paths.get(this.getGraphsRootPath().toString(), profileEntryName).toAbsolutePath());
 
             this.profiles.put(profileEntryName, profile);
         }
@@ -131,10 +129,6 @@ public class EngineProperties {
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_settings.getProfiles().get(profileEntryName), profile, false);
             // Fourth step
             PropertyUtils.deepCopyObjectsProperties(system_default_profile_defaults_properties, profile, false);
-            // Fifth step: Set the graph path correctly for the user profiles
-            if (profile.getGraphPath() == null || profile.getGraphPath().equals(emptyPath)) {
-                profile.setGraphPath(Paths.get(this.getGraphsRootPath().toString(), profileEntryName).toAbsolutePath());
-            }
         }
         setInitialized(true);
     }

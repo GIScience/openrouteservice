@@ -41,11 +41,6 @@ public abstract class ProfileProperties {
     private Boolean interpolateBridgesAndTunnels;
     @JsonProperty("force_turn_costs")
     private Boolean forceTurnCosts;
-    @JsonProperty("graph_path")
-    @JsonDeserialize(using = PathDeserializer.class)
-    @JsonSerialize(using = PathSerializer.class)
-    @Setter(AccessLevel.PUBLIC)
-    private Path graphPath;
     @JsonProperty("location_index_resolution")
     private Integer locationIndexResolution;
     @JsonProperty("location_index_search_iterations")

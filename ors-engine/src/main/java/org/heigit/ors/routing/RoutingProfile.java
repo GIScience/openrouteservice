@@ -95,10 +95,6 @@ public class RoutingProfile {
 
         long startTime = System.currentTimeMillis();
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, profile.getEncoderName().toString(), profile.getGraphPath()));
-        }
-
         GraphProcessContext gpc = new GraphProcessContext(profile);
         gpc.setGetElevationFromPreprocessedData(engineConfig.getElevation().getPreprocessed());
 
@@ -135,6 +131,7 @@ public class RoutingProfile {
         }
 
         if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, profile.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
             LOGGER.info("[%d] Edges: %s - Nodes: %s.".formatted(profileId, ghStorage.getEdges(), ghStorage.getNodes()));
             LOGGER.info("[%d] Total time: %s.".formatted(profileId, TimeUtility.getElapsedTime(startTime, true)));
@@ -143,7 +140,7 @@ public class RoutingProfile {
 
         // Make a stamp which help tracking any changes in the size of OSM file.
         File file = new File(engineConfig.getSourceFile().toAbsolutePath().toString());
-        Path pathTimestamp = Paths.get(profile.getGraphPath().toString(), "stamp.txt");
+        Path pathTimestamp = Paths.get(gh.getOrsGraphManager().getActiveGraphDirAbsPath(), "stamp.txt");
         File file2 = pathTimestamp.toFile();
         if (!file2.exists())
             Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
@@ -155,7 +152,6 @@ public class RoutingProfile {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
         ghConfig.putObject("datareader.file", engineConfig.getSourceFile().toAbsolutePath().toString());
-        ghConfig.putObject("graph.location", profile.getGraphPath().toString());
         ghConfig.putObject("graph.bytes_for_flags", profile.getEncoderFlagsSize());
 
         if (Boolean.FALSE.equals(profile.getInstructions())) {
