@@ -69,6 +69,7 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
                     getDateOrEpocStart(activeGraphInfo),
                     getDateOrEpocStart(downloadedExtractedGraphInfo),
                     getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphInfo))) {
+                LOGGER.info("[%s] No newer graph found in repository.".formatted(getProfileDescriptiveName()));
                 return;
             }
 

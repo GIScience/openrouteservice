@@ -94,6 +94,7 @@ public class NexusRepoManager extends AbstractRepoManager implements ORSGraphRep
                     getDateOrEpocStart(activeGraphInfo),
                     getDateOrEpocStart(downloadedExtractedGraphInfo),
                     getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphInfo))) {
+                LOGGER.info("[%s] No newer graph found in repository.".formatted(getProfileDescriptiveName()));
                 return;
             }
 
@@ -139,14 +140,14 @@ public class NexusRepoManager extends AbstractRepoManager implements ORSGraphRep
             return filterLatestAsset(items);
 
         } catch (ApiException e) {
-            LOGGER.error("[%s] Exception when calling AssetsApi#getAssets".formatted(getProfileDescriptiveName()));
-            LOGGER.error("    - Status code           : " + e.getCode());
-            LOGGER.error("    - Reason                : " + e.getResponseBody());
-            LOGGER.error("    - Response headers      : " + e.getResponseHeaders());
-            LOGGER.error("    - graphsRepoBaseUrl     : " + graphsRepoBaseUrl);
-            LOGGER.error("    - graphsRepoName        : " + graphsRepoName);
-            LOGGER.error("    - graphsRepoCoverage    : " + graphsRepoCoverage);
-            LOGGER.error("    - graphsRepoGraphVersion: " + graphsRepoGraphVersion);
+            LOGGER.error("[%s] Exception when calling AssetsApi#getAssets%n - Status code           : %s%n - Response headers      : %s%n - graphsRepoBaseUrl     : %s%n - graphsRepoName        : %s%n - graphsRepoCoverage    : %s%n - graphsRepoGraphVersion: %s".formatted(
+                    getProfileDescriptiveName(),
+                    e.getCode(),
+                    e.getResponseHeaders(),
+                    graphsRepoBaseUrl,
+                    graphsRepoName,
+                    graphsRepoCoverage,
+                    graphsRepoGraphVersion));
         }
         return null;
     }

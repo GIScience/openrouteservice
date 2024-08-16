@@ -51,7 +51,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     public void initialize() {
         File activeGraphDirectory = getActiveGraphDirectory();
         if (!activeGraphDirectory.exists()) {
-            LOGGER.info("[%s] Creating graph directory %s".formatted(getProfileDescriptiveName(), getActiveGraphDirName()));
+            LOGGER.debug("[%s] Creating graph directory %s".formatted(getProfileDescriptiveName(), getActiveGraphDirName()));
             if (!activeGraphDirectory.mkdirs()) {
                 LOGGER.error("[%s] Could not create graph directory %s".formatted(getProfileDescriptiveName(), getActiveGraphDirName()));
             }
@@ -148,7 +148,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
 
         if (activeGraphDirectory.renameTo(backupFile)) {
-            LOGGER.info("[%s] Renamed old local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
+            LOGGER.debug("[%s] Renamed old local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
         } else {
             LOGGER.error("[%s] Could not backup local graph directory %s to %s".formatted(getProfileDescriptiveName(), origAbsPath, newAbsPath));
         }
@@ -187,7 +187,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         File activeGraphDirectory = getActiveGraphDirectory();
 
         if (!hasActiveGraph()) {
-            LOGGER.trace("[%s] No active graph directory found".formatted(getProfileDescriptiveName()));
+            LOGGER.trace("[%s] No active graph directory found.".formatted(getProfileDescriptiveName()));
             return new GraphInfo().withLocalDirectory(activeGraphDirectory);
         }
 
@@ -199,7 +199,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         File downloadedExtractedGraphDirectory = getDownloadedExtractedGraphDirectory();
 
         if (!hasDownloadedExtractedGraph()) {
-            LOGGER.trace("[%s] No downloaded graph directory found".formatted(getProfileDescriptiveName()));
+            LOGGER.trace("[%s] No downloaded graph directory found.".formatted(getProfileDescriptiveName()));
             return new GraphInfo().withLocalDirectory(downloadedExtractedGraphDirectory);
         }
 
@@ -247,13 +247,13 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             getYamlMapper()
                     .writeValue(outputFile, orsGraphInfoV1);
         } catch (IOException e) {
-            LOGGER.error("Could not write file {}".formatted(outputFile.getAbsolutePath()));
+            LOGGER.error("Could not write file %s".formatted(outputFile.getAbsolutePath()));
             throw new RuntimeException(e);
         }
     }
 
     public ORSGraphInfoV1 getDownloadedGraphInfo() {
-        LOGGER.trace("[%s] Checking graph info of previous check ...".formatted(getProfileDescriptiveName()));
+        LOGGER.trace("[%s] Checking graph info of previous check...".formatted(getProfileDescriptiveName()));
         File downloadedGraphInfoFile = getDownloadedGraphInfoFile();
         if (downloadedGraphInfoFile.exists()) {
             return readOrsGraphInfoV1(downloadedGraphInfoFile);
@@ -262,14 +262,16 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public void activateExtractedDownloadedGraph() {
-        LOGGER.debug("[%s] Activating extracted downloaded graph".formatted(getProfileDescriptiveName()));
-        getDownloadedExtractedGraphDirectory().renameTo(getActiveGraphDirectory());
+        if (hasDownloadedExtractedGraph()) {
+            LOGGER.debug("[%s] Activating extracted downloaded graph.".formatted(getProfileDescriptiveName()));
+            getDownloadedExtractedGraphDirectory().renameTo(getActiveGraphDirectory());
+        }
     }
 
     public void extractDownloadedGraph() {
         File graphDownloadFile = getDownloadedCompressedGraphFile();
         if (!graphDownloadFile.exists()){
-            LOGGER.debug("[%s] No downloaded graph to extract".formatted(getProfileDescriptiveName()));
+            LOGGER.debug("[%s] No downloaded graph to extract.".formatted(getProfileDescriptiveName()));
             return;
         }
 
@@ -280,7 +282,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         String extractionDirectoryAbsPath = extractionDirectory.getAbsolutePath();
 
         if (isExistingDirectory(extractionDirectory)){
-            LOGGER.debug("[%s] Extraction already started".formatted(getProfileDescriptiveName()));
+            LOGGER.debug("[%s] Extraction already started.".formatted(getProfileDescriptiveName()));
             return;
         }
 
@@ -314,7 +316,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                     targetDirectoryAbsPath));
             throw new RuntimeException("Caught ", ioException);
         }
-        LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next restart check or application start".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
+        LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next restart check or application start.".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
     }
 
     public void writeOrsGraphInfoFileIfNotExists(GraphHopper gh) {
@@ -326,16 +328,16 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         File activeGraphDirectory = getActiveGraphDirectory();
         File activeGraphInfoFile = getActiveGraphInfoFile();
         if (!activeGraphDirectory.exists() || !activeGraphDirectory.isDirectory() || !activeGraphDirectory.canWrite() ) {
-            LOGGER.debug("Graph directory %s not existing or not writeable".formatted(activeGraphInfoFile.getName()));
+            LOGGER.debug("Graph directory %s not existing or not writeable.".formatted(activeGraphInfoFile.getName()));
             return;
         }
         if (activeGraphInfoFile.exists()) {
-            LOGGER.debug("GraphInfo-File %s already existing".formatted(activeGraphInfoFile.getName()));
+            LOGGER.debug("GraphInfo-File %s already existing.".formatted(activeGraphInfoFile.getName()));
             return;
         }
         Optional<ProfileProperties> routeProfileConfiguration = Optional.ofNullable(engineProperties.getProfiles().get(this.routeProfileName));
         if (routeProfileConfiguration.isEmpty()) {
-            LOGGER.debug("Configuration for profile %s does not exist, could not write GraphInfo-File".formatted(this.routeProfileName));
+            LOGGER.debug("Configuration for profile %s does not exist, could not write GraphInfo-File.".formatted(this.routeProfileName));
             return;
         }
 

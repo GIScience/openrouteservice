@@ -20,7 +20,6 @@ public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
     }
 
     private String getConcatenatedRepoFileName() {
-        //todo add repoName?
         return String.join("_",
                 profileGroup,
                 extend,
