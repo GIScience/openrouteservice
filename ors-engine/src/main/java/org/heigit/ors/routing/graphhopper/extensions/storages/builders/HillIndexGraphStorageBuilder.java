@@ -19,7 +19,7 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 import org.heigit.ors.routing.util.HillIndexCalculator;
 

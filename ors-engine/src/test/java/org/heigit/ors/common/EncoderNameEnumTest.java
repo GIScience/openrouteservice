@@ -63,7 +63,7 @@ class EncoderNameEnumTest {
     @Test
     void testGetNameByValue() {
         assertEquals("driving-car", EncoderNameEnum.getName(1));
-        assertEquals("unknown", EncoderNameEnum.getName(99));
+        assertEquals("default", EncoderNameEnum.getName(99));
     }
 
     @Test

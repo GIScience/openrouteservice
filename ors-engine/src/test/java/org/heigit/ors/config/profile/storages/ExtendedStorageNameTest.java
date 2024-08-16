@@ -1,5 +1,6 @@
 package org.heigit.ors.config.profile.storages;
 
+import org.heigit.ors.config.profile.ExtendedStorageName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

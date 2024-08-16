@@ -58,9 +58,9 @@ class ExecutionPropertiesTest {
     void defaultExecutionPropertiesShouldInitializeMethods() {
         ExecutionProperties executionProperties = new ExecutionProperties();
         assertNotNull(executionProperties.getMethods());
-        assertNull(executionProperties.getMethods().getAstar());
-        assertNull(executionProperties.getMethods().getLm());
-        assertNull(executionProperties.getMethods().getCore());
+        assertNotNull(executionProperties.getMethods().getAstar());
+        assertNotNull(executionProperties.getMethods().getLm());
+        assertNotNull(executionProperties.getMethods().getCore());
     }
 
     @ParameterizedTest

@@ -18,7 +18,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.CsvGraphStorage;
 
 import java.io.BufferedReader;

@@ -2,7 +2,6 @@ package org.heigit.ors.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Getter
-@Setter(AccessLevel.PROTECTED)
+@Setter
 @EqualsAndHashCode
 public class ElevationProperties {
     private Boolean preprocessed = false;

@@ -9,9 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.common.EncoderNameEnum;
+import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageName;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
-import org.heigit.ors.config.profile.storages.ExtendedStorageName;
 import org.heigit.ors.config.utils.PathSerializer;
 
 import java.nio.file.Path;
@@ -58,15 +58,17 @@ public class EngineProperties {
                 profiles.put(encoderName.name, defaultProfile);
             }
         }
-        profile.getExtStorages().forEach(
-                (key, value) -> {
-                    if (value != null) {
-                        value.initialize(ExtendedStorageName.getEnum(key));
-                    } else {
-                        profile.getExtStorages().put(key, new ExtendedStorage(ExtendedStorageName.getEnum(key)));
+        for (ProfileProperties profile : profiles.values()) {
+            profile.getExtStorages().forEach(
+                    (key, value) -> {
+                        if (value != null) {
+                            value.initialize(ExtendedStorageName.getEnum(key));
+                        } else {
+                            profile.getExtStorages().put(key, new ExtendedStorage(ExtendedStorageName.getEnum(key)));
+                        }
                     }
-                }
-        );
+            );
+        }
     }
 
     @JsonIgnore

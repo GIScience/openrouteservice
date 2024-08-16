@@ -3,7 +3,6 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

@@ -3,19 +3,18 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.defaults.DefaultExtendedStoragesProperties;
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
-import org.heigit.ors.config.profile.storages.ExtendedStorageName;
 import org.heigit.ors.config.utils.NonEmptyMapFilter;
 import org.heigit.ors.config.utils.PathSerializer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Getter
@@ -83,7 +82,7 @@ public class ProfileProperties {
     @JsonProperty("execution")
     private ExecutionProperties execution = new ExecutionProperties();
     @JsonProperty("ext_storages")
-    private Map<String, ExtendedStorage> extStorages;
+    private Map<String, ExtendedStorage> extStorages = new LinkedHashMap<>();
 
     @JsonIgnore
     public static ProfileProperties getProfileInstance(EncoderNameEnum encoderName) {
@@ -93,8 +92,7 @@ public class ProfileProperties {
         profile.setEncoderOptions(EncoderOptionsProperties.getEncoderOptionsProperties(encoderName));
         profile.setPreparation(PreparationProperties.getPreparationProperties(encoderName));
         profile.setExecution(ExecutionProperties.getExecutionProperties(encoderName));
-        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(encoderName);
-        profile.setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
+        profile.setExtStorages(ExtendedStorage.getDefaultExtStoragesMap(encoderName));
         switch (encoderName) {
             case PUBLIC_TRANSPORT -> {
                 profile.setElevation(true);
@@ -151,7 +149,7 @@ public class ProfileProperties {
     @JsonSetter("ext_storages")
     public void setExtStorages(Map<String, ExtendedStorage> extStorages) {
         if (extStorages != null) {
-            this.extStorages = new HashMap<>();
+            this.extStorages = new LinkedHashMap<>();
             extStorages.forEach((key, storage) -> {
                 if (storage != null) {
                     storage.initialize(ExtendedStorageName.getEnum(key));

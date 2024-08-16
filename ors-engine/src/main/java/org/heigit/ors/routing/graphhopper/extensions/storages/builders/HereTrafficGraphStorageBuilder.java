@@ -37,7 +37,7 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.geojson.geom.GeometryJSON;
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.mapmatching.GhMapMatcher;
 import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;

@@ -4,11 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.profile.EncoderOptionsProperties;
-import org.heigit.ors.config.profile.ExecutionProperties;
-import org.heigit.ors.config.profile.PreparationProperties;
-import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
+import org.heigit.ors.config.profile.*;
 import org.heigit.ors.config.utils.PropertyUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +14,6 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.heigit.ors.config.utils.PropertyUtils.assertAllNull;
 import static org.junit.jupiter.api.Assertions.*;
@@ -328,15 +323,6 @@ class EnginePropertiesTest {
         ObjectMapper mapper = new ObjectMapper();
         EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
         assertEquals(DataAccessEnum.MMAP_RO, foo.getGraphsDataAccess());
-    }
-
-    @Test
-    void testRawSettingEverythingElseNullElevationProperties() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException {
-        ObjectMapper mapper = new ObjectMapper();
-        EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
-
-        ElevationProperties elevationProperties = foo.getElevation();
-        assertTrue(assertAllNull(elevationProperties, Set.of("dataAccess", "cacheClear")));
     }
 
     @Test

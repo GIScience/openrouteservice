@@ -1,4 +1,4 @@
-package org.heigit.ors.config.profile.storages;
+package org.heigit.ors.config.profile;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;

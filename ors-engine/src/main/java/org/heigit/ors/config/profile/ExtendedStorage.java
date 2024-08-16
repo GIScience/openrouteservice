@@ -1,24 +1,27 @@
-package org.heigit.ors.config.profile.storages;
+package org.heigit.ors.config.profile;
 
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.utils.PathDeserializer;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.utils.PathSerializer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * This the base class for the extended storage configuration. It contains a boolean field to enable or disable the storage.
  */
 @Getter
-@Setter(AccessLevel.PACKAGE)
+@Setter
 @EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExtendedStorage {
@@ -26,7 +29,6 @@ public class ExtendedStorage {
     private static final Logger LOGGER = Logger.getLogger(ExtendedStorage.class);
 
     @JsonIgnore
-    @Setter(AccessLevel.PUBLIC)
     private ExtendedStorageName storageName;
 
     // Relevant for all
@@ -36,7 +38,6 @@ public class ExtendedStorage {
     // Relevant for most index storages
     @JsonProperty
     @JsonSerialize(using = PathSerializer.class)
-    @JsonDeserialize(using = PathDeserializer.class)
     private Path filepath;
 
     // Relevant for HGV profile
@@ -46,14 +47,11 @@ public class ExtendedStorage {
     @JsonProperty
     // Relevant for HereTraffic profile
     @JsonSerialize(using = PathSerializer.class)
-    @JsonDeserialize(using = PathDeserializer.class)
     private Path streets;
     @JsonSerialize(using = PathSerializer.class)
-    @JsonDeserialize(using = PathDeserializer.class)
     private Path ref_pattern;
     @JsonProperty
     @JsonSerialize(using = PathSerializer.class)
-    @JsonDeserialize(using = PathDeserializer.class)
     private Path pattern_15min;
     @JsonProperty
     private Integer radius;
@@ -61,7 +59,6 @@ public class ExtendedStorage {
     private Boolean output_log;
     @JsonProperty
     @JsonSerialize(using = PathSerializer.class)
-    @JsonDeserialize(using = PathDeserializer.class)
     private Path log_location;
 
     // Relevant for HillIndex
@@ -71,20 +68,16 @@ public class ExtendedStorage {
     // Relevant for borders
     @JsonProperty
     @JsonSerialize(using = PathSerializer.class)
-    @JsonDeserialize(using = PathDeserializer.class)
     private Path boundaries;
     @JsonProperty
     @JsonSerialize(using = PathSerializer.class)
-    @JsonDeserialize(using = PathDeserializer.class)
     private Path ids;
     @JsonProperty
     @JsonSerialize(using = PathSerializer.class)
-    @JsonDeserialize(using = PathDeserializer.class)
     private Path openborders;
 
     // Relevant for RoadAccessRestrictions
     @JsonProperty("use_for_warnings")
-    @Setter(AccessLevel.PROTECTED)
     private Boolean use_for_warnings;
 
     // Relevant for Wheelchair
@@ -110,13 +103,7 @@ public class ExtendedStorage {
         this.initialize(storageName);
     }
 
-    @JsonSetter
-    protected void setRestrictions(String restrictions) {
-        this.restrictions = Boolean.parseBoolean(restrictions);
-    }
-
     // Write a function that sets every property to null but allows to set excluded properties to a value
-
     private void setAllPropertiesToNull(ArrayList<String> excludedProperties) {
         if (!excludedProperties.contains("filepath")) {
             this.filepath = null;
@@ -202,11 +189,13 @@ public class ExtendedStorage {
             nonNullableProperties.add("kerbs_on_crossings");
         }
 
-        if (storageName == ExtendedStorageName.NOISE_INDEX || storageName == ExtendedStorageName.GREEN_INDEX || storageName == ExtendedStorageName.SHADOW_INDEX) {
+        if (storageName == ExtendedStorageName.NOISE_INDEX || storageName == ExtendedStorageName.GREEN_INDEX || storageName == ExtendedStorageName.SHADOW_INDEX || storageName == ExtendedStorageName.CSV) {
             if (filepath == null || filepath.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing filepath. Disabling storage.");
                 enabled = false;
                 filepath = Path.of("");
+            } else {
+                filepath = filepath.toAbsolutePath();
             }
             nonNullableProperties.add("filepath");
         } else if (storageName == ExtendedStorageName.BORDERS) {
@@ -214,16 +203,22 @@ public class ExtendedStorage {
                 LOGGER.warn("Storage " + storageName + " is missing boundaries. Disabling storage.");
                 enabled = false;
                 boundaries = Path.of("");
+            } else {
+                boundaries = boundaries.toAbsolutePath();
             }
             if (ids == null || ids.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing ids. Disabling storage.");
                 enabled = false;
                 ids = Path.of("");
+            } else {
+                ids = ids.toAbsolutePath();
             }
             if (openborders == null || openborders.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing openborders. Disabling storage.");
                 enabled = false;
                 openborders = Path.of("");
+            } else {
+                openborders = openborders.toAbsolutePath();
             }
             nonNullableProperties.add("boundaries");
             nonNullableProperties.add("ids");
@@ -247,16 +242,22 @@ public class ExtendedStorage {
                 LOGGER.warn("Storage " + storageName + " is missing streets. Disabling storage.");
                 enabled = false;
                 streets = Path.of("");
+            } else {
+                streets = streets.toAbsolutePath();
             }
             if (ref_pattern == null || ref_pattern.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing ref_pattern. Disabling storage.");
                 enabled = false;
                 ref_pattern = Path.of("");
+            } else {
+                ref_pattern = ref_pattern.toAbsolutePath();
             }
             if (pattern_15min == null || pattern_15min.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing pattern_15min. Disabling storage.");
                 enabled = false;
                 pattern_15min = Path.of("");
+            } else {
+                pattern_15min = pattern_15min.toAbsolutePath();
             }
             nonNullableProperties.add("radius");
             nonNullableProperties.add("output_log");
@@ -268,29 +269,43 @@ public class ExtendedStorage {
         setAllPropertiesToNull(nonNullableProperties);
     }
 
-    @JsonSetter("boundaries")
-    protected void setBoundaries(Path boundaries) {
-        this.boundaries = boundaries != null && !boundaries.toString().isEmpty() ? boundaries.toAbsolutePath() : boundaries;
+    public static Map<String, ExtendedStorage> getDefaultExtStoragesMap(EncoderNameEnum encoderName) {
+        // TODO: check why Julian has changed defaults and if the changes are good
+        Map<String, ExtendedStorage> extStorages = new LinkedHashMap<>();
+        switch (encoderName) {
+            case DRIVING_CAR -> {
+                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
+                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
+                extStorages.put("HeavyVehicle", new ExtendedStorage(ExtendedStorageName.HEAVY_VEHICLE));
+                extStorages.put("RoadAccessRestrictions", new ExtendedStorage(ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS));
+            }
+            case DRIVING_HGV -> {
+                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
+                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
+                extStorages.put("HeavyVehicle", new ExtendedStorage(ExtendedStorageName.HEAVY_VEHICLE));
+                extStorages.put("Tollways", new ExtendedStorage(ExtendedStorageName.TOLLWAYS));
+            }
+            case CYCLING_REGULAR, CYCLING_MOUNTAIN, CYCLING_ROAD, CYCLING_ELECTRIC, FOOT_WALKING, FOOT_HIKING -> {
+                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
+                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
+                extStorages.put("HillIndex", new ExtendedStorage(ExtendedStorageName.HILL_INDEX));
+                extStorages.put("TrailDifficulty", new ExtendedStorage(ExtendedStorageName.TRAIL_DIFFICULTY));
+            }
+            case WHEELCHAIR -> {
+                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
+                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
+                extStorages.put("Wheelchair", new ExtendedStorage(ExtendedStorageName.WHEELCHAIR));
+                extStorages.put("OsmId", new ExtendedStorage(ExtendedStorageName.OSM_ID));
+            }
+            case PUBLIC_TRANSPORT -> {
+            }
+            default -> {
+                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
+                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
+            }
+        }
+        return extStorages;
     }
-
-    @JsonSetter("ids")
-    @JsonDeserialize(using = PathDeserializer.class)
-    protected void setIds(Path ref_pattern) {
-        this.ids = ref_pattern != null && !ref_pattern.toString().isEmpty() ? ref_pattern.toAbsolutePath() : ref_pattern;
-    }
-
-    @JsonSetter("openborders")
-    @JsonDeserialize(using = PathDeserializer.class)
-    protected void setOpenborders(Path openborders) {
-        this.openborders = openborders != null && !openborders.toString().isEmpty() ? openborders.toAbsolutePath() : openborders;
-    }
-
-    @JsonSetter("filepath")
-    @JsonDeserialize(using = PathDeserializer.class)
-    protected void setFilepath(Path filepath) {
-        this.filepath = filepath != null && !filepath.toString().isEmpty() ? filepath.toAbsolutePath() : filepath;
-    }
-
 }
 
 

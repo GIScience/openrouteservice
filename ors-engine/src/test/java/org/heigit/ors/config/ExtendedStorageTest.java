@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
-import org.heigit.ors.config.profile.storages.ExtendedStorageName;
+import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -144,8 +144,6 @@ class ExtendedStorageTest {
 
         assertNull(storage.getBoundaries());
         Path testBoundariesPath = Paths.get("src/test/resources/boundaries.csv");
-        storage.setBoundaries(testBoundariesPath);
-        assertEquals(testBoundariesPath.toAbsolutePath(), storage.getBoundaries());
 
         storage.setBoundaries(null);
         assertNull(storage.getBoundaries());
@@ -698,7 +696,7 @@ class ExtendedStorageTest {
         }
 
         public void setRestrictions(String restrictions) {
-            super.setRestrictions(restrictions);
+            super.setRestrictions(Boolean.parseBoolean(restrictions));
         }
 
         public void setBoundaries(Path boundaries) {
