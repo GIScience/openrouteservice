@@ -1,34 +1,34 @@
 package org.heigit.ors.config.profile;
 
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.defaults.*;
+import org.heigit.ors.config.defaults.DefaultExtendedStoragesProperties;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.heigit.ors.config.profile.storages.ExtendedStorageName;
 import org.heigit.ors.config.utils.NonEmptyMapFilter;
-import org.heigit.ors.config.utils.PathDeserializer;
 import org.heigit.ors.config.utils.PathSerializer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 @Getter
 @Setter
 @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "encoder_name", defaultImpl = DefaultProfileProperties.class)
-@JsonSubTypes({@JsonSubTypes.Type(name = "default", value = DefaultProfileProperties.class), @JsonSubTypes.Type(name = "driving-car", value = DefaultProfilePropertiesCar.class), @JsonSubTypes.Type(name = "driving-hgv", value = DefaultProfilePropertiesHgv.class), @JsonSubTypes.Type(name = "cycling-regular", value = DefaultProfilePropertiesBikeRegular.class), @JsonSubTypes.Type(name = "cycling-electric", value = DefaultProfilePropertiesBikeElectric.class), @JsonSubTypes.Type(name = "cycling-mountain", value = DefaultProfilePropertiesBikeMountain.class), @JsonSubTypes.Type(name = "cycling-road", value = DefaultProfilePropertiesBikeRoad.class), @JsonSubTypes.Type(name = "foot-walking", value = DefaultProfilePropertiesWalking.class), @JsonSubTypes.Type(name = "foot-hiking", value = DefaultProfilePropertiesHiking.class), @JsonSubTypes.Type(name = "wheelchair", value = DefaultProfilePropertiesWheelchair.class), @JsonSubTypes.Type(name = "public-transport", value = DefaultProfilePropertiesPublicTransport.class),})
-public abstract class ProfileProperties {
+public class ProfileProperties {
     @JsonProperty("enabled")
     private Boolean enabled;
     @JsonProperty("encoder_name")
     private EncoderNameEnum encoderName;
+    @JsonProperty("source_file")
+    @JsonSerialize(using = PathSerializer.class)
+    private Path sourceFile;
     @JsonProperty("elevation")
     private Boolean elevation;
     @JsonProperty("elevation_smoothing")
@@ -46,7 +46,6 @@ public abstract class ProfileProperties {
     @JsonProperty("force_turn_costs")
     private Boolean forceTurnCosts;
     @JsonProperty("graph_path")
-    @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)
     @Setter(AccessLevel.PUBLIC)
     private Path graphPath;
@@ -55,7 +54,6 @@ public abstract class ProfileProperties {
     @JsonProperty("location_index_search_iterations")
     private Integer locationIndexSearchIterations;
     @JsonProperty("gtfs_file")
-    @JsonDeserialize(using = PathDeserializer.class)
     @JsonSerialize(using = PathSerializer.class)
     private Path gtfsFile;
 
@@ -79,33 +77,59 @@ public abstract class ProfileProperties {
     private Integer maximumVisitedNodes;
 
     @JsonProperty("encoder_options")
-    private EncoderOptionsProperties encoderOptions;
+    private EncoderOptionsProperties encoderOptions = new EncoderOptionsProperties();
     @JsonProperty("preparation")
-    private PreparationProperties preparation;
+    private PreparationProperties preparation = new PreparationProperties();
     @JsonProperty("execution")
-    private ExecutionProperties execution;
+    private ExecutionProperties execution = new ExecutionProperties();
     @JsonProperty("ext_storages")
     private Map<String, ExtendedStorage> extStorages;
 
-    protected ProfileProperties() {
-        this(false, null);
-    }
-
-    protected ProfileProperties(Boolean setDefaults) {
-        this(setDefaults, null);
-    }
-
-    protected ProfileProperties(Boolean setDefaults, EncoderNameEnum encoderName) {
-        setEncoderName(encoderName);
-        if (setDefaults) {
-            encoderOptions = new DefaultEncoderOptionsProperties(true, this.encoderName);
-            preparation = new DefaultPreparationProperties(this.encoderName);
-            execution = new DefaultExecutionProperties(this.encoderName);
-        } else {
-            encoderOptions = new EncoderOptionsProperties();
-            preparation = new PreparationProperties();
-            execution = new ExecutionProperties();
+    @JsonIgnore
+    public static ProfileProperties getProfileInstance(EncoderNameEnum encoderName) {
+        ProfileProperties profile = new ProfileProperties();
+        profile.setEnabled(false);
+        profile.setEncoderName(encoderName);
+        profile.setEncoderOptions(EncoderOptionsProperties.getEncoderOptionsProperties(encoderName));
+        profile.setPreparation(PreparationProperties.getPreparationProperties(encoderName));
+        profile.setExecution(ExecutionProperties.getExecutionProperties(encoderName));
+        DefaultExtendedStoragesProperties defaultExtendedStoragesProperties = new DefaultExtendedStoragesProperties(encoderName);
+        profile.setExtStorages(defaultExtendedStoragesProperties.getExtStorages());
+        switch (encoderName) {
+            case PUBLIC_TRANSPORT -> {
+                profile.setElevation(true);
+                profile.setMaximumVisitedNodes(1000000);
+                profile.setGtfsFile(Path.of(""));
+            }
+            case WHEELCHAIR -> {
+                profile.setMaximumSnappingRadius(50);
+            }
+            case DEFAULT -> {
+                profile.setEncoderName(null);
+                profile.setElevation(true);
+                profile.setElevationSmoothing(true);
+                profile.setEncoderFlagsSize(8);
+                profile.setInstructions(true);
+                profile.setOptimize(false);
+                profile.setTraffic(false);
+                profile.setInterpolateBridgesAndTunnels(true);
+                profile.setForceTurnCosts(false);
+                profile.setLocationIndexResolution(500);
+                profile.setLocationIndexSearchIterations(4);
+                profile.setMaximumDistance(100000d);
+                profile.setMaximumDistanceDynamicWeights(100000d);
+                profile.setMaximumDistanceAvoidAreas(100000d);
+                profile.setMaximumDistanceAlternativeRoutes(100000d);
+                profile.setMaximumDistanceRoundTripRoutes(100000d);
+                profile.setMaximumSpeedLowerBound(80d);
+                profile.setMaximumWayPoints(50);
+                profile.setMaximumSnappingRadius(400);
+                profile.setMaximumVisitedNodes(1000000);
+            }
+            default -> {
+            }
         }
+        return profile;
     }
 
     @JsonIgnore
@@ -118,7 +142,7 @@ public abstract class ProfileProperties {
     public Integer[] getProfilesTypes() {
         ArrayList<Integer> list = new ArrayList<>();
         // TODO check why this originally tries to split the encoderName. Can we add more than one?
-        if (encoderName != null && encoderName != EncoderNameEnum.UNKNOWN) {
+        if (encoderName != null && encoderName != EncoderNameEnum.DEFAULT) {
             list.add(encoderName.getValue());
         }
         return list.toArray(new Integer[0]);
@@ -135,5 +159,39 @@ public abstract class ProfileProperties {
                 }
             });
         }
+    }
+
+    public ProfileProperties mergeDefaults(ProfileProperties profileDefault) {
+        enabled = enabled == null ? profileDefault.enabled : enabled;
+        encoderName = encoderName == null ? profileDefault.encoderName : encoderName;
+        sourceFile = sourceFile ==null ? profileDefault.sourceFile : sourceFile;
+        elevation = elevation == null ? profileDefault.elevation : elevation;
+        elevationSmoothing = elevationSmoothing == null ? profileDefault.elevationSmoothing : elevationSmoothing;
+        encoderFlagsSize = encoderFlagsSize == null ? profileDefault.encoderFlagsSize : encoderFlagsSize;
+        instructions = instructions == null ? profileDefault.instructions : instructions;
+        optimize = optimize == null ? profileDefault.optimize : optimize;
+        traffic = traffic == null ? profileDefault.traffic : traffic;
+        interpolateBridgesAndTunnels = interpolateBridgesAndTunnels == null ? profileDefault.interpolateBridgesAndTunnels : interpolateBridgesAndTunnels;
+        forceTurnCosts = forceTurnCosts == null ? profileDefault.forceTurnCosts : forceTurnCosts;
+        graphPath = graphPath == null ? profileDefault.graphPath: graphPath;
+        locationIndexResolution = locationIndexResolution == null ? profileDefault.locationIndexResolution : locationIndexResolution;
+        locationIndexSearchIterations = locationIndexSearchIterations == null ? profileDefault.locationIndexSearchIterations : locationIndexSearchIterations;
+        gtfsFile = gtfsFile == null ? profileDefault.gtfsFile : gtfsFile;
+
+        maximumDistance = maximumDistance == null ? profileDefault.maximumDistance : maximumDistance;
+        maximumDistanceDynamicWeights = maximumDistanceDynamicWeights == null ? profileDefault.maximumDistanceDynamicWeights : maximumDistanceDynamicWeights;
+        maximumDistanceAvoidAreas = maximumDistanceAvoidAreas == null ? profileDefault.maximumDistanceAvoidAreas : maximumDistanceAvoidAreas;
+        maximumDistanceAlternativeRoutes = maximumDistanceAlternativeRoutes == null ? profileDefault.maximumDistanceAlternativeRoutes : maximumDistanceAlternativeRoutes;
+        maximumDistanceRoundTripRoutes = maximumDistanceRoundTripRoutes == null ? profileDefault.maximumDistanceRoundTripRoutes : maximumDistanceRoundTripRoutes;
+        maximumSpeedLowerBound = maximumSpeedLowerBound == null ? profileDefault.maximumSpeedLowerBound : maximumSpeedLowerBound;
+        maximumWayPoints = maximumWayPoints == null ? profileDefault.maximumWayPoints : maximumWayPoints;
+        maximumSnappingRadius = maximumSnappingRadius == null ? profileDefault.maximumSnappingRadius : maximumSnappingRadius;
+        maximumVisitedNodes = maximumVisitedNodes == null ? profileDefault.maximumVisitedNodes : maximumVisitedNodes;
+
+        encoderOptions = encoderOptions.isEmpty() ? profileDefault.encoderOptions : encoderOptions;
+        preparation = preparation.isEmpty() ? profileDefault.preparation : preparation;
+        execution = execution.isEmpty() ? profileDefault.execution : execution;
+        extStorages = extStorages.isEmpty() ? profileDefault.extStorages : extStorages;
+        return this;
     }
 }

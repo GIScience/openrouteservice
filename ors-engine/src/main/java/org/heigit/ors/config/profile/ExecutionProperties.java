@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.utils.NonEmptyMapFilter;
 
 @Getter
@@ -13,10 +14,25 @@ import org.heigit.ors.config.utils.NonEmptyMapFilter;
 @EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExecutionProperties {
-    private MethodsProperties methods;
+    private MethodsProperties methods = new MethodsProperties();
 
-    public ExecutionProperties() {
-        methods = new MethodsProperties();
+    public static ExecutionProperties getExecutionProperties(EncoderNameEnum encoderName) {
+        ExecutionProperties executionProperties = new ExecutionProperties();
+        switch (encoderName) {
+            case DRIVING_CAR -> {
+                executionProperties.getMethods().getLm().setActiveLandmarks(6);
+                executionProperties.getMethods().getCore().setActiveLandmarks(6);
+            }
+            case DRIVING_HGV -> {
+                executionProperties.getMethods().getCore().setActiveLandmarks(6);
+            }
+            case DEFAULT -> {
+                executionProperties.getMethods().getLm().setActiveLandmarks(8);
+            }
+            default -> {
+            }
+        }
+        return executionProperties;
     }
 
     @JsonIgnore
@@ -28,27 +44,13 @@ public class ExecutionProperties {
     @Setter
     @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
     public static class MethodsProperties {
-        private AStarProperties astar;
-        private LMProperties lm;
-        private CoreProperties core;
-
-        public MethodsProperties() {
-        }
-
-        public MethodsProperties(Boolean setDefaults) {
-            if (setDefaults) {
-                astar = new AStarProperties();
-                lm = new LMProperties();
-                core = new CoreProperties();
-            }
-        }
+        private AStarProperties astar = new AStarProperties();
+        private LMProperties lm = new LMProperties();
+        private CoreProperties core = new CoreProperties();
 
         @JsonIgnore
         public boolean isEmpty() {
-            // check null and empty to catch null pointer exceptions
-            return (astar == null || astar.isEmpty()) &&
-                    (lm == null || lm.isEmpty()) &&
-                    (core == null || core.isEmpty());
+            return astar.isEmpty() && lm.isEmpty() && core.isEmpty();
         }
 
         @Getter

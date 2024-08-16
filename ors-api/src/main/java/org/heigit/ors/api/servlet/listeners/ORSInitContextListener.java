@@ -24,9 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -35,7 +33,6 @@ import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.config.*;
-import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.EngineProperties;
@@ -47,12 +44,9 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
@@ -60,9 +54,9 @@ import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.*;
 
 public class ORSInitContextListener implements ServletContextListener {
-    public static final String ORS_API_TESTS_FLAG = "ORS_API_TESTS_FLAG";
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
     private final EndpointsProperties endpointsProperties;
+    private final EngineProperties engineProperties;
     private final CorsProperties corsProperties;
     private final SystemMessageProperties systemMessageProperties;
     private final LoggingProperties loggingProperties;
@@ -70,8 +64,11 @@ public class ORSInitContextListener implements ServletContextListener {
     private final GraphService graphService;
     private final ObjectMapper mapper;
 
-    public ORSInitContextListener(EndpointsProperties endpointsProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties, GraphService graphService) {
+    public ORSInitContextListener(EndpointsProperties endpointsProperties, EngineProperties engineProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties, GraphService graphService) {
+        // Initialize properties object loaded by spring
+        engineProperties.initProfilesMap();
         this.endpointsProperties = endpointsProperties;
+        this.engineProperties = engineProperties;
         this.corsProperties = corsProperties;
         this.systemMessageProperties = systemMessageProperties;
         this.loggingProperties = loggingProperties;
@@ -92,14 +89,6 @@ public class ORSInitContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
-        String configFileString = loadConfigFileString();
-        if (configFileString == null) {
-            return;
-        }
-        EngineProperties engineProperties = loadEngineProperties(configFileString);
-        if (engineProperties == null) {
-            return;
-        }
         String outputTarget = configurationOutputTarget(engineProperties, System.getenv());
         if (!StringUtility.isNullOrEmpty(outputTarget)) {
             writeConfigurationFile(outputTarget, engineProperties);
@@ -127,42 +116,6 @@ public class ORSInitContextListener implements ServletContextListener {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
             }
         }, "ORS-Init").start();
-    }
-
-    private String loadConfigFileString() {
-        String configFileString = "ors:\n  engine: {}";
-        if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY))) {
-            try {
-                configFileString = new FileSystemResource(System.getProperty(ORS_CONFIG_LOCATION_PROPERTY)).getContentAsString(Charset.defaultCharset());
-            } catch (IOException e) {
-                LOGGER.error("Failed to read configuration file");
-                RoutingProfileManagerStatus.setShutdown(true);
-                return null;
-            }
-        }
-        if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_API_TESTS_FLAG))) {
-            try {
-                configFileString = new ClassPathResource("application-test.yml").getContentAsString(Charset.defaultCharset());
-            } catch (IOException e) {
-                LOGGER.error("Failed to read configuration file");
-                RoutingProfileManagerStatus.setShutdown(true);
-                return null;
-            }
-        }
-        return configFileString;
-    }
-
-    private EngineProperties loadEngineProperties(String configFileString) {
-        EngineProperties engineProperties = null;
-        try {
-            JsonNode conf = mapper.readTree(configFileString);
-            engineProperties = mapper.readValue(conf.get("ors").get("engine").toString(), EngineProperties.class);
-            engineProperties.initialize();
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Failed to parse configuration file", e);
-            RoutingProfileManagerStatus.setShutdown(true);
-        }
-        return engineProperties;
     }
 
     public String configurationOutputTarget(EngineProperties engineProperties, Map<String, String> envMap) {

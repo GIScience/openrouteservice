@@ -2,11 +2,12 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.GraphManagementProperties;
-import org.heigit.ors.config.defaults.DefaultProfilePropertiesBikeElectric;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.routing.graphhopper.extensions.manage.*;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
+import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.remote.NamedGraphsRepoStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.remote.NexusRepoManager;
 import org.jetbrains.annotations.NotNull;
@@ -94,7 +95,7 @@ class ORSGraphFileManagerTest {
         graphManagementProperties.setRepositoryProfileGroup(GRAPHS_PROFILE_GROUP);
         graphManagementProperties.setMaxBackups(3);
         engineProperties.setGraphManagement(graphManagementProperties);
-        engineProperties.initialize();
+        engineProperties.initProfilesMap();
         return engineProperties;
     }
 
@@ -151,7 +152,7 @@ class ORSGraphFileManagerTest {
         ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1();
         orsGraphInfoV1.setOsmDate(new Date(EARLIER_DATE));
         orsGraphInfoV1.setImportDate(new Date(LATER_DATE));
-        ProfileProperties profileProperties = new DefaultProfilePropertiesBikeElectric(true);
+        ProfileProperties profileProperties = ProfileProperties.getProfileInstance(EncoderNameEnum.CYCLING_ELECTRIC);
         orsGraphInfoV1.setProfileProperties(profileProperties);
         return orsGraphInfoV1;
     }

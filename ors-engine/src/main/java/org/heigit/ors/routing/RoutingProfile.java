@@ -73,11 +73,20 @@ public class RoutingProfile {
     private String astarApproximation;
     private Double astarEpsilon;
 
-    public RoutingProfile(String profileName, ProfileProperties profileProperties, EngineProperties engineConfig, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
-        this.profileProperties = profileProperties;
-        mRoutePrefs = profileProperties.getProfilesTypes();
-        mGraphHopper = initGraphHopper(profileName, profileProperties, engineConfig, graphVersion, loadCntx);
-        ExecutionProperties execution = profileProperties.getExecution();
+    public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
+        if (profile.getGraphPath() == null) {
+            if (engine.getProfileDefault().getGraphPath() == null) {
+                profile.setGraphPath(Paths.get(engine.getGraphsRootPath().toString(), profileName));
+            } else {
+                profile.setGraphPath(Paths.get(engine.getProfileDefault().getGraphPath().toString(), profileName));
+            }
+        }
+
+        this.profileProperties = profile;
+
+        mRoutePrefs = profile.getProfilesTypes();
+        mGraphHopper = initGraphHopper(profileName, profile, engine, graphVersion, loadCntx);
+        ExecutionProperties execution = profile.getExecution();
         if (execution.getMethods().getAstar().getApproximation() != null)
             astarApproximation = execution.getMethods().getAstar().getApproximation();
         if (execution.getMethods().getAstar().getEpsilon() != null)
@@ -142,8 +151,8 @@ public class RoutingProfile {
         }
 
         // Make a stamp which help tracking any changes in the size of OSM file.
-        File file = new File(engineConfig.getSourceFile().toAbsolutePath().toString());
-        Path pathTimestamp = Paths.get(profile.getGraphPath().toString(), "stamp.txt");
+        File file = new File(profile.getSourceFile().toAbsolutePath().toString());
+        Path pathTimestamp = Paths.get(profile.getGraphPath().toString(), profile.getSourceFile().getFileName() + "stamp.txt");
         File file2 = pathTimestamp.toFile();
         if (!file2.exists())
             Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
@@ -154,8 +163,8 @@ public class RoutingProfile {
     private static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
-        ghConfig.putObject("datareader.file", engineConfig.getSourceFile().toAbsolutePath().toString());
-        ghConfig.putObject("graph.location", profile.getGraphPath().toString());
+        ghConfig.putObject("datareader.file", profile.getSourceFile().toAbsolutePath().toString());
+        ghConfig.putObject("graph.location", profile.getGraphPath().toAbsolutePath().toString());
         ghConfig.putObject("graph.bytes_for_flags", profile.getEncoderFlagsSize());
 
         if (Boolean.FALSE.equals(profile.getInstructions())) {
@@ -165,7 +174,7 @@ public class RoutingProfile {
         ElevationProperties elevationProps = engineConfig.getElevation();
         if (elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
             ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
-            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
+            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toAbsolutePath().toString()));
             // TODO check
             ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
             ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
@@ -342,7 +351,7 @@ public class RoutingProfile {
 
         // Check if getGTFSFile exists
         if (profile.getGtfsFile() != null && !profile.getGtfsFile().toString().isEmpty())
-            ghConfig.putObject("gtfs.file", profile.getGtfsFile().toString());
+            ghConfig.putObject("gtfs.file", profile.getGtfsFile().toAbsolutePath().toString());
 
         String flagEncoder = vehicle;
         if (!Helper.isEmpty(profile.getEncoderOptionsString()))

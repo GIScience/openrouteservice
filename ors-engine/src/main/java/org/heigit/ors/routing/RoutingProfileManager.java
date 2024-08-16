@@ -72,8 +72,7 @@ public class RoutingProfileManager {
                 return;
             }
             int initializationThreads = config.getInitThreads();
-            LOGGER.info("====> Initializing profiles from '%s' (%d threads) ...".formatted(
-                    config.getSourceFile(), initializationThreads));
+            LOGGER.info("====> Initializing %d profiles (%d threads) ...".formatted(profiles.size(), initializationThreads));
             routingProfiles = new RoutingProfilesCollection();
             RoutingProfileLoadContext loadContext = new RoutingProfileLoadContext();
             ExecutorService executor = Executors.newFixedThreadPool(initializationThreads);

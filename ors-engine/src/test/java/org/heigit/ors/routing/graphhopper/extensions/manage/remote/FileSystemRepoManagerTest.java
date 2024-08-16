@@ -3,8 +3,8 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.commons.io.FileUtils;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.config.defaults.DefaultProfilePropertiesWheelchair;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
@@ -87,7 +87,7 @@ class FileSystemRepoManagerTest {
         ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1();
         orsGraphInfoV1.setImportDate(importDate);
         orsGraphInfoV1.setOsmDate(osmDate);
-        ProfileProperties profileProperties = new DefaultProfilePropertiesWheelchair(true);
+        ProfileProperties profileProperties = ProfileProperties.getProfileInstance(EncoderNameEnum.WHEELCHAIR);
         orsGraphInfoV1.setProfileProperties(profileProperties);
         return orsGraphInfoV1;
     }

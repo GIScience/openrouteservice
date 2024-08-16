@@ -20,7 +20,7 @@ public class DefaultExtendedStoragesProperties {
     public DefaultExtendedStoragesProperties(EncoderNameEnum encoderName) {
         this();
         if (encoderName == null) {
-            encoderName = EncoderNameEnum.UNKNOWN;
+            encoderName = EncoderNameEnum.DEFAULT;
         }
 
         switch (encoderName) {

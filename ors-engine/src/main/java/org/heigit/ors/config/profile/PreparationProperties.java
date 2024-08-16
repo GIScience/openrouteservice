@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.utils.NonEmptyMapFilter;
 
 import java.util.Objects;
@@ -25,11 +26,111 @@ public class PreparationProperties {
     private Integer minOneWayNetworkSize;
     @JsonProperty("methods")
     @Accessors(chain = true)
-    private MethodsProperties methods;
+    private MethodsProperties methods = new MethodsProperties();
 
-    public PreparationProperties() {
-        this.methods = new MethodsProperties();
+    public static PreparationProperties getPreparationProperties(EncoderNameEnum encoderName) {
+        PreparationProperties preparationProperties = new PreparationProperties();
+        switch (encoderName) {
+            case DRIVING_CAR -> {
+                preparationProperties.setMinNetworkSize(200);
+                preparationProperties.getMethods().getCh().setEnabled(true);
+                preparationProperties.getMethods().getCh().setThreads(1);
+                preparationProperties.getMethods().getCh().setWeightings("fastest");
+                preparationProperties.getMethods().getLm().setEnabled(false);
+                preparationProperties.getMethods().getLm().setThreads(1);
+                preparationProperties.getMethods().getLm().setWeightings("fastest,shortest");
+                preparationProperties.getMethods().getLm().setLandmarks(16);
+                preparationProperties.getMethods().getCore().setEnabled(true);
+                preparationProperties.getMethods().getCore().setThreads(1);
+                preparationProperties.getMethods().getCore().setWeightings("fastest,shortest");
+                preparationProperties.getMethods().getCore().setLandmarks(64);
+                preparationProperties.getMethods().getCore().setLmsets("highways;allow_all");
+            }
+            case DRIVING_HGV -> {
+                preparationProperties.setMinNetworkSize(200);
+                preparationProperties.getMethods().getCh().setEnabled(true);
+                preparationProperties.getMethods().getCh().setThreads(1);
+                preparationProperties.getMethods().getCh().setWeightings("recommended");
+                preparationProperties.getMethods().getCore().setEnabled(true);
+                preparationProperties.getMethods().getCore().setThreads(1);
+                preparationProperties.getMethods().getCore().setWeightings("recommended,shortest");
+                preparationProperties.getMethods().getCore().setLandmarks(64);
+                preparationProperties.getMethods().getCore().setLmsets("highways;allow_all");
+            }
+            case DEFAULT -> {
+                preparationProperties.setMinNetworkSize(200);
+                preparationProperties.getMethods().getLm().setEnabled(true);
+                preparationProperties.getMethods().getLm().setThreads(1);
+                preparationProperties.getMethods().getLm().setWeightings("recommended,shortest");
+                preparationProperties.getMethods().getLm().setLandmarks(16);
+            }
+            default -> {
+            }
+        }
+        return preparationProperties;
+
+//    TODO: check and apply the changes Julian was going to make to the default values
+//    public DefaultPreparationProperties() {
+//            super();
+//            setMinNetworkSize(200);
+//            setMinOneWayNetworkSize(200);
+//
+//            setMethods(new MethodsProperties(true));
+//            getMethods().getCh().setEnabled(false);
+//            getMethods().getCh().setWeightings("fastest");
+//            getMethods().getCh().setThreads(2);
+//
+//            getMethods().getLm().setEnabled(true);
+//            getMethods().getLm().setThreads(2);
+//            getMethods().getLm().setWeightings("recommended,shortest");
+//            getMethods().getLm().setLandmarks(16);
+//
+//            getMethods().getCore().setEnabled(false);
+//            getMethods().getCore().setThreads(2);
+//            getMethods().getCore().setWeightings("fastest,shortest");
+//            getMethods().getCore().setLandmarks(64);
+//            getMethods().getCore().setLmsets("highways;allow_all");
+//
+//            getMethods().getFastisochrones().setEnabled(false);
+//            getMethods().getFastisochrones().setThreads(2);
+//            getMethods().getFastisochrones().setWeightings("recommended,shortest");
+//        }
+//
+//    public DefaultPreparationProperties(EncoderNameEnum encoderName) {
+//            this();
+//            if (encoderName == null) {
+//                encoderName = EncoderNameEnum.DEFAULT;
+//            }
+//
+//            switch (encoderName) {
+//                case DRIVING_CAR -> {
+//                    setMinNetworkSize(200);
+//                    getMethods().getCh().setEnabled(true);
+//                    getMethods().getCh().setWeightings("fastest");
+//                    getMethods().getLm().setEnabled(false);
+//                    getMethods().getLm().setWeightings("fastest,shortest");
+//                    getMethods().getLm().setLandmarks(16);
+//                    getMethods().getCore().setEnabled(true);
+//                    getMethods().getCore().setWeightings("fastest,shortest");
+//                    getMethods().getCore().setLandmarks(64);
+//                    getMethods().getCore().setLmsets("highways;allow_all");
+//                }
+//                case DRIVING_HGV -> {
+//                    setMinNetworkSize(200);
+//                    getMethods().getCh().setEnabled(true);
+//                    getMethods().getCh().setWeightings("recommended");
+//                    getMethods().getCore().setEnabled(true);
+//                    getMethods().getCore().setWeightings("recommended,shortest");
+//                    getMethods().getCore().setLandmarks(64);
+//                    getMethods().getCore().setLmsets("highways;allow_all");
+//                }
+//                default -> {
+//                }
+//            }
+//        }
+
     }
+
 
     @JsonIgnore
     public boolean isEmpty() {
@@ -41,22 +142,10 @@ public class PreparationProperties {
     @EqualsAndHashCode
     @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
     public static class MethodsProperties {
-        private CHProperties ch;
-        private LMProperties lm;
-        private CoreProperties core;
-        private FastIsochroneProperties fastisochrones;
-
-        public MethodsProperties() {
-        }
-
-        public MethodsProperties(Boolean setDefaults) {
-            if (setDefaults) {
-                this.ch = new CHProperties();
-                this.lm = new LMProperties();
-                this.core = new CoreProperties();
-                this.fastisochrones = new FastIsochroneProperties();
-            }
-        }
+        private CHProperties ch = new CHProperties();
+        private LMProperties lm = new LMProperties();
+        private CoreProperties core = new CoreProperties();
+        private FastIsochroneProperties fastisochrones = new FastIsochroneProperties();
 
         @JsonIgnore
         public boolean isEmpty() {

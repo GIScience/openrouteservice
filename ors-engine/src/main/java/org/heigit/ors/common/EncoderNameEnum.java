@@ -6,7 +6,7 @@ import lombok.Getter;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 public enum EncoderNameEnum {
-    UNKNOWN("unknown", 0),
+    DEFAULT("default", 0),
 
     // DRIVING STUFF
     DRIVING_CAR("driving-car", 1),
@@ -114,7 +114,7 @@ public enum EncoderNameEnum {
                 return type.getName();
             }
         }
-        return UNKNOWN.getName();
+        return DEFAULT.getName();
     }
 
     public static int getFromString(String profileType) {
@@ -123,7 +123,7 @@ public enum EncoderNameEnum {
                 return type.getValue();
             }
         }
-        return UNKNOWN.getValue();
+        return DEFAULT.getValue();
     }
 
     public static String getEncoderName(int routePref) {
@@ -174,7 +174,7 @@ public enum EncoderNameEnum {
             case FlagEncoderNames.GH_MTB -> GH_BIKE_MTB.getValue();
             case FlagEncoderNames.GH_RACINGBIKE -> GH_BIKE_ROAD.getValue();
             case FlagEncoderNames.BIKE_ELECTRO -> CYCLING_ELECTRIC.getValue();
-            default -> UNKNOWN.getValue();
+            default -> DEFAULT.getValue();
         };
     }
 

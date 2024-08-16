@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.defaults.DefaultEngineProperties;
-import org.heigit.ors.config.defaults.DefaultProfiles;
 import org.heigit.ors.config.profile.EncoderOptionsProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.PreparationProperties;
@@ -123,29 +121,14 @@ class EnginePropertiesTest {
         ObjectMapper mapper = new ObjectMapper();
         enginePropertiesTest = mapper.readValue(testJson, EngineProperties.class);
         // Defaults to check against
-        defaultEngineProperties = new DefaultEngineProperties(true);
-        enginePropertiesTest.initialize();
-    }
-
-    @Test
-    void testEmptyConstructor() {
-        EngineProperties engineProperties = new EngineProperties();
-        assertNotNull(engineProperties);
-        assertNull(engineProperties.getSourceFile());
-        assertNull(engineProperties.getInitThreads());
-        assertNull(engineProperties.getPreparationMode());
-        assertNull(engineProperties.getConfigOutput());
-        assertNull(engineProperties.getGraphsRootPath());
-        assertNull(engineProperties.getGraphsDataAccess());
-        assertNull(engineProperties.getElevation());
-        assertNull(engineProperties.getProfileDefault());
-        assertNull(engineProperties.getProfiles());
+        defaultEngineProperties = new EngineProperties();
+        enginePropertiesTest.initProfilesMap();
     }
 
     @Test
     void getActiveProfilesReturnsNonEmptyMapWhenInitialized() {
         EngineProperties engineProperties = new EngineProperties();
-        engineProperties.initialize();
+        engineProperties.initProfilesMap();
         Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
         assertNotNull(activeProfiles);
         assertFalse(activeProfiles.isEmpty());
@@ -177,43 +160,10 @@ class EnginePropertiesTest {
     }
 
     @Test
-    void getActiveProfilesDoesNotReinitializeIfAlreadyInitialized() {
-        enginePropertiesTest.initialize();
-        Map<String, ProfileProperties> firstCall = enginePropertiesTest.getActiveProfiles();
-        Map<String, ProfileProperties> secondCall = enginePropertiesTest.getActiveProfiles();
-        assertSame(firstCall, secondCall);
-    }
-
-    @Test
-    void testSerializeEmptyEngineProperties() throws JsonProcessingException {
-        EngineProperties engineProperties = new EngineProperties();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(engineProperties);
-        assertNotNull(json);
-        //language=JSON
-        String expectedJson = """
-                {
-                    "source_file": null,
-                    "init_threads": null,
-                    "preparation_mode": null,
-                    "config_output": null,
-                    "graphs_root_path": null,
-                    "graphs_data_access": null,
-                    "elevation": null,
-                    "graph_management": null,
-                    "profile_default": null,
-                    "profiles": null
-                }""";
-        // compare the two json strings as actual json objects
-        assertEquals(objectMapper.readTree(expectedJson), objectMapper.readTree(json));
-    }
-
-    @Test
     void testDeserialize() throws JsonProcessingException {
         //language=JSON
         String json = """
                 {
-                    "source_file": "/absolute/path/osm.pbf",
                     "init_threads": 1,
                     "preparation_mode": true,
                     "config_output": "output_file",
@@ -229,6 +179,7 @@ class EnginePropertiesTest {
                     "profile_default": {
                         "enabled": true,
                         "encoder_name": "unknown",
+                        "source_file": "/absolute/path/osm.pbf",
                         "elevation": true,
                         "elevation_smoothing": true,
                         "encoder_flags_size": 8,
@@ -305,7 +256,7 @@ class EnginePropertiesTest {
         ObjectMapper objectMapper = new ObjectMapper();
         EngineProperties deserializedEngineProperties = objectMapper.readValue(json, EngineProperties.class);
         assertNotNull(deserializedEngineProperties);
-        assertEquals("/absolute/path/osm.pbf", deserializedEngineProperties.getSourceFile().toString());
+        assertEquals("/absolute/path/osm.pbf", deserializedEngineProperties.getProfileDefault().getGraphPath().toString());
         assertEquals(1, deserializedEngineProperties.getInitThreads());
         assertTrue(deserializedEngineProperties.getPreparationMode());
         assertEquals("output_file", deserializedEngineProperties.getConfigOutput());
@@ -566,10 +517,8 @@ class EnginePropertiesTest {
     @Test
     void testMergeRawSettingsWithDefaultValuesCheckProfiles() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
         // Check the profiles
-        Map<String, ProfileProperties> defaultProfiles = new DefaultProfiles(true).getProfiles();
         Map<String, ProfileProperties> actualProfiles = enginePropertiesTest.getProfiles();
-        assertEquals(defaultProfiles.size() + 1, actualProfiles.size());
-
+        assertEquals(11, actualProfiles.size());
 
         // Check the defaults
         for (Map.Entry<String, ProfileProperties> profile : actualProfiles.entrySet()) {

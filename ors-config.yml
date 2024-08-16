@@ -102,7 +102,6 @@ ors:
 #      maximum_locations: 5000
 #  ##### ORS engine settings #####
   engine:
-    source_file: ors-api/src/test/files/heidelberg.osm.gz
     graph_management:
 
       ### local nexus repo
@@ -120,7 +119,7 @@ ors:
 #      activation_schedule: '0 0 0 31 2 *'
       download_schedule:   '0/20 * * * * *'
       activation_schedule: '5/120 * * * * *'
-#    config_output_mode: false
+#    config_output: ors-config-generated
 #    preparation_mode: false
 #    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
@@ -130,7 +129,8 @@ ors:
 #      cache_clear: false
 #      provider: multi
 #      cache_path: ./elevation_cache
-#    profile_default:
+    profile_default:
+      source_file: ors-api/src/test/files/heidelberg.osm.gz
 #      enabled: false
 #      elevation: true
 #      elevation_smoothing: false
@@ -165,8 +165,8 @@ ors:
 #            active_landmarks: 8
     profiles:
       #      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific.
-      car:
-        #        profile: driving-car
+      driving-car:
+        profile: driving-car
 #        encoder_options:
 #          turn_costs: true
 #          block_fords: false

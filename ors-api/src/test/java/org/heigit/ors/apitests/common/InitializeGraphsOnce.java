@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.heigit.ors.api.servlet.listeners.ORSInitContextListener.ORS_API_TESTS_FLAG;
-
 @Order(Integer.MIN_VALUE) // Run before even spring context has been built
 public class InitializeGraphsOnce implements BeforeAllCallback {
 
@@ -26,7 +24,6 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
-        System.setProperty(ORS_API_TESTS_FLAG, "true");
         ExtensionContext.Store store = rootStore(extensionContext);
         deleteGraphsFolderOncePerTestRun(store);
         SpringExtension.getApplicationContext(extensionContext);

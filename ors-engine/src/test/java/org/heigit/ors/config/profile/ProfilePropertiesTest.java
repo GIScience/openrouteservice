@@ -3,7 +3,6 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.defaults.DefaultProfilePropertiesCar;
 import org.heigit.ors.config.profile.storages.ExtendedStorage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ class ProfilePropertiesTest {
         String json = "{\"encoder_name\":\"driving-car\",\"ext_storages\":" + "{\"WayCategory\":{ \"enabled\": false },\"HeavyVehicle\":{ \"enabled\": true, \"restrictions\": true },\"GreenIndex\":{ \"enabled\": true, \"filepath\": \"/path/to/file.csv\" }}}";
         ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
         assertEquals("driving-car", foo.getEncoderName().getName());
-        assertInstanceOf(DefaultProfilePropertiesCar.class, foo);
+        assertInstanceOf(ProfileProperties.class, foo);
         assertEquals(3, foo.getExtStorages().size());
         assertTrue(foo.getExtStorages().containsKey("WayCategory"));
         assertTrue(foo.getExtStorages().containsKey("HeavyVehicle"));
@@ -73,13 +72,13 @@ class ProfilePropertiesTest {
         String json = "{\"encoder_name\":\"driving-car\",\"ext_storages\":{}}";
         ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
         assertEquals(EncoderNameEnum.DRIVING_CAR, foo.getEncoderName());
-        assertInstanceOf(DefaultProfilePropertiesCar.class, foo);
+        assertInstanceOf(ProfileProperties.class, foo);
         assertEquals(0, foo.getExtStorages().size());
     }
 
     @Test
     void testGetEncoderOptionsString() {
-        ProfileProperties profile = new DefaultProfilePropertiesCar(true);
+        ProfileProperties profile = new ProfileProperties();
         profile.getEncoderOptions().setMaximumGradeLevel(4);
         profile.getEncoderOptions().setPreferredSpeedFactor(0.8);
         profile.getEncoderOptions().setProblematicSpeedFactor(0.5);
