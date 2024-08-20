@@ -3,6 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 
@@ -30,6 +31,16 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
     public FileSystemRepoManager() {
     }
 
+    public FileSystemRepoManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+        this.routeProfileName = graphManagementRuntimeProperties.getLocalProfileName();
+        this.graphsRepoPath = graphManagementRuntimeProperties.getLocalGraphsRootAbsPath();
+        this.graphsRepoName = graphManagementRuntimeProperties.getRepoName();
+        this.graphsProfileGroup = graphManagementRuntimeProperties.getRepoProfileGroup();
+        this.graphsRepoCoverage = graphManagementRuntimeProperties.getRepoCoverage();
+        this.graphsRepoGraphVersion = graphManagementRuntimeProperties.getLocalGraphVersion();
+        this.orsGraphRepoStrategy = orsGraphRepoStrategy;
+        this.orsGraphFileManager = orsGraphFileManager;
+    }
     public FileSystemRepoManager(Path repoPath, EngineProperties engineConfig, String routeProfileName, String graphVersion, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.graphsRepoPath = repoPath.toString();
         this.graphsRepoName = engineConfig.getGraphManagement().getRepositoryName();

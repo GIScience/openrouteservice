@@ -2,6 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.GraphManagementProperties;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 
 import java.io.File;
 
@@ -15,9 +16,19 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
     private final String graphVersion;
     private final String profileGroup;
 
+    public FlatORSGraphFolderStrategy(GraphManagementRuntimeProperties managementProperties) {
+        this.graphsRootAbsPath = managementProperties.getLocalGraphsRootAbsPath();
+        this.profileGroup = managementProperties.getRepoProfileGroup();
+        this.extend = managementProperties.getRepoCoverage();
+        this.graphVersion = managementProperties.getLocalGraphVersion();
+        this.repoName = managementProperties.getRepoName();
+        this.routeProfileName = managementProperties.getLocalProfileName();
+    }
+
     public FlatORSGraphFolderStrategy(EngineProperties engineProperties, String routeProfileName, String graphVersion) {//todo GRC consider changing typ graphsRootPath to Path and get rid of
         this(engineProperties.getGraphManagement(), routeProfileName, graphVersion, engineProperties.getGraphsRootPath().toAbsolutePath().toString());
     }
+
     public FlatORSGraphFolderStrategy(GraphManagementProperties graphManagementProperties, String routeProfileName, String graphVersion, String graphsRootAbsPath) {
         this.graphsRootAbsPath = graphsRootAbsPath;
         this.profileGroup = graphManagementProperties.getRepositoryProfileGroup();

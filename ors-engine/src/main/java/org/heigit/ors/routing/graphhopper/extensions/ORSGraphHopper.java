@@ -83,7 +83,6 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -255,30 +254,22 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     ORSGraphRepoManager getOrsGraphRepoManager(EngineProperties engineProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, String graphVersion, ORSGraphFileManager orsGraphFileManager) {
         ORSGraphRepoManager orsGraphRepoManager = new NullRepoManager();
-
-        String configuredRepositoryUri = engineProperties.getGraphManagement().getRepositoryUri();
-        if (StringUtils.isNotBlank(configuredRepositoryUri)) {
-            try {
-                URI repoUri = toUri(configuredRepositoryUri);
-                if (isSupportedUrlScheme(repoUri)) {
-                    URL repoUrl = toURL(repoUri);
-                    orsGraphRepoManager = new NexusRepoManager(repoUrl, engineProperties, routeProfileName, graphVersion, orsGraphRepoStrategy, orsGraphFileManager);
-                    LOGGER.debug("Using NexusRepoManager for repoUri {}", repoUri);
-                } else if (isSupportedFileScheme(repoUri)) {
-                    Path repoPath = Path.of(repoUri);
-                    LOGGER.debug("Using FileSystemRepoManager for repoUri {}", repoUri);
-                    orsGraphRepoManager = new FileSystemRepoManager(repoPath, engineProperties, routeProfileName, graphVersion, orsGraphRepoStrategy, orsGraphFileManager);
-                } else {
-                    Path repoPath = Path.of(configuredRepositoryUri);
-                    LOGGER.debug("Using FileSystemRepoManager for repoUri {}", configuredRepositoryUri);
-                    orsGraphRepoManager = new FileSystemRepoManager(repoPath, engineProperties, routeProfileName, graphVersion, orsGraphRepoStrategy, orsGraphFileManager);
-                }
-            } catch (Exception e) {
-                LOGGER.error("Error creating ORSGraphRepoManager based on configured repoUri {}: {}", configuredRepositoryUri, e);
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, routeProfileName, graphVersion).build();
+        switch (managementProps.getDerivedRepoType()) {
+            case HTTP -> {
+                LOGGER.debug("Using HttpRepoManager for repoUrl {}", managementProps.getDerivedRepoBaseUrl());
+                orsGraphRepoManager = new HttpRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
             }
-        } else {
-            LOGGER.debug("No repositoryUri configured, using NullRepoManager");
+            case FILESYSTEM -> {
+                LOGGER.debug("Using FileSystemRepoManager for repoUri {}", managementProps.getDerivedRepoPath());
+                orsGraphRepoManager = new FileSystemRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+            }
+            case NULL -> {
+                LOGGER.debug("No valid repositoryUri configured, using NullRepoManager.");
+                orsGraphRepoManager = new NullRepoManager();
+            }
         }
+
         return orsGraphRepoManager;
     }
 

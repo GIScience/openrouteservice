@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.openapitools.client.ApiClient;
@@ -42,6 +43,16 @@ public class NexusRepoManager extends AbstractRepoManager implements ORSGraphRep
     public NexusRepoManager() {
     }
 
+    public NexusRepoManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+        this.routeProfileName = graphManagementRuntimeProperties.getLocalProfileName();
+        this.graphsRepoBaseUrl = graphManagementRuntimeProperties.getDerivedRepoBaseUrl().toString();
+        this.graphsRepoName = graphManagementRuntimeProperties.getRepoName();
+        this.graphsProfileGroup = graphManagementRuntimeProperties.getRepoProfileGroup();
+        this.graphsRepoCoverage = graphManagementRuntimeProperties.getRepoCoverage();
+        this.graphsRepoGraphVersion = graphManagementRuntimeProperties.getLocalGraphVersion();
+        this.orsGraphRepoStrategy = orsGraphRepoStrategy;
+        this.orsGraphFileManager = orsGraphFileManager;
+    }
     public NexusRepoManager(URL repoUrl, EngineProperties engineProperties, String routeProfileName, String graphVersion, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.graphsRepoBaseUrl = repoUrl.toString();
         this.graphsRepoName = engineProperties.getGraphManagement().getRepositoryName();

@@ -105,11 +105,22 @@ ors:
     source_file: ors-api/src/test/files/heidelberg.osm.gz
     graph_management:
 
+
+#      4 NexusRepoManager
 #      repository_uri: 'http://localhost:8081/service/rest'
 #      repository_name: bkg-flat
 
-      repository_uri: 'ors-engine/src/test/resources/test-filesystem-repos'
+#      Nexus 4  HttpRepoManager
+#      repository_uri: 'http://localhost:8081/repository'
+#      repository_name: bkg-flat
+
+      # nginx HttpRepoManager
+      repository_uri: 'http://localhost:8080'
       repository_name: vendor-xyz
+
+#     FilesystemRepoManager
+#      repository_uri: 'ors-engine/src/test/resources/test-filesystem-repos'
+#      repository_name: vendor-xyz
 
       repository_profile_group: fastisochrones
       graph_extent: heidelberg

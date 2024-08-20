@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 
 import java.io.File;
@@ -40,6 +41,10 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     public ORSGraphFileManager() {
     }
 
+    public ORSGraphFileManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphFolderStrategy orsGraphFolderStrategy) {
+        this.routeProfileName = graphManagementRuntimeProperties.getLocalProfileName();
+        this.orsGraphFolderStrategy = orsGraphFolderStrategy;
+    }
     public ORSGraphFileManager(EngineProperties engineProperties, String routeProfileName, ORSGraphFolderStrategy orsGraphFolderStrategy) {
         this.engineProperties = engineProperties;
         this.routeProfileName = routeProfileName;

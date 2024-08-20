@@ -258,8 +258,8 @@ class ORSGraphHopperTest {
 
     @ParameterizedTest
     @CsvSource({
-            "NexusRepoManager, http://my.domain.com",
-            "NexusRepoManager, https://my.domain.com/",
+            "HttpRepoManager, http://my.domain.com",
+            "HttpRepoManager, https://my.domain.com/",
             "NullRepoManager, file:relative/path",
             "NullRepoManager, file://relative/path",
             "NullRepoManager, file://relative/path.txt",

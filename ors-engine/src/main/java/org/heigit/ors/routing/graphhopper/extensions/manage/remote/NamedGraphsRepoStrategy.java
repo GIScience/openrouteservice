@@ -1,6 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.GraphManagementProperties;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;
 
 public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
@@ -10,6 +12,30 @@ public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
     private final String graphVersion;
     private final String extend;
     private final String routeProfileName;
+
+    public NamedGraphsRepoStrategy(GraphManagementRuntimeProperties graphManagementRuntimeProperties) {
+        this.repoName = graphManagementRuntimeProperties.getRepoName();
+        this.profileGroup = graphManagementRuntimeProperties.getRepoProfileGroup();
+        this.extend = graphManagementRuntimeProperties.getRepoCoverage();
+        this.routeProfileName = graphManagementRuntimeProperties.getLocalProfileName();
+        this.graphVersion = graphManagementRuntimeProperties.getLocalGraphVersion();
+    }
+
+    public NamedGraphsRepoStrategy(GraphManagementProperties graphManagementProperties, String routeProfileName, String graphVersion) {
+        this.repoName = graphManagementProperties.getRepositoryName();
+        this.profileGroup = graphManagementProperties.getRepositoryProfileGroup();
+        this.extend = graphManagementProperties.getGraphExtent();
+        this.routeProfileName = routeProfileName;
+        this.graphVersion = graphVersion;
+    }
+
+    public NamedGraphsRepoStrategy(String repoName, String profileGroup, String extend, String routeProfileName, String graphVersion) {
+        this.repoName = repoName;
+        this.profileGroup = profileGroup;
+        this.extend = extend;
+        this.routeProfileName = routeProfileName;
+        this.graphVersion = graphVersion;
+    }
 
     public NamedGraphsRepoStrategy(EngineProperties engineProperties, String routeProfileName, String graphVersion) {
         this.repoName = engineProperties.getGraphManagement().getRepositoryName();
