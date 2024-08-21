@@ -4,15 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.defaults.DefaultEngineProperties;
-import org.heigit.ors.config.defaults.DefaultProfiles;
-import org.heigit.ors.config.profile.EncoderOptionsProperties;
-import org.heigit.ors.config.profile.ExecutionProperties;
-import org.heigit.ors.config.profile.PreparationProperties;
-import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.storages.ExtendedStorage;
-import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
-import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
+import org.heigit.ors.config.profile.*;
 import org.heigit.ors.config.utils.PropertyUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,9 +14,7 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.heigit.ors.config.utils.PropertyUtils.assertAllNull;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -126,29 +116,14 @@ class EnginePropertiesTest {
         ObjectMapper mapper = new ObjectMapper();
         enginePropertiesTest = mapper.readValue(testJson, EngineProperties.class);
         // Defaults to check against
-        defaultEngineProperties = new DefaultEngineProperties(true);
-        enginePropertiesTest.initialize();
-    }
-
-    @Test
-    void testEmptyConstructor() {
-        EngineProperties engineProperties = new EngineProperties();
-        assertNotNull(engineProperties);
-        assertNull(engineProperties.getSourceFile());
-        assertNull(engineProperties.getInitThreads());
-        assertNull(engineProperties.getPreparationMode());
-        assertNull(engineProperties.getConfigOutput());
-        assertNull(engineProperties.getGraphsRootPath());
-        assertNull(engineProperties.getGraphsDataAccess());
-        assertNull(engineProperties.getElevation());
-        assertNull(engineProperties.getProfileDefault());
-        assertNull(engineProperties.getProfiles());
+        defaultEngineProperties = new EngineProperties();
+        enginePropertiesTest.initProfilesMap();
     }
 
     @Test
     void getActiveProfilesReturnsNonEmptyMapWhenInitialized() {
         EngineProperties engineProperties = new EngineProperties();
-        engineProperties.initialize();
+        engineProperties.initProfilesMap();
         Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
         assertNotNull(activeProfiles);
         assertFalse(activeProfiles.isEmpty());
@@ -180,43 +155,10 @@ class EnginePropertiesTest {
     }
 
     @Test
-    void getActiveProfilesDoesNotReinitializeIfAlreadyInitialized() {
-        enginePropertiesTest.initialize();
-        Map<String, ProfileProperties> firstCall = enginePropertiesTest.getActiveProfiles();
-        Map<String, ProfileProperties> secondCall = enginePropertiesTest.getActiveProfiles();
-        assertSame(firstCall, secondCall);
-    }
-
-    @Test
-    void testSerializeEmptyEngineProperties() throws JsonProcessingException {
-        EngineProperties engineProperties = new EngineProperties();
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(engineProperties);
-        assertNotNull(json);
-        //language=JSON
-        String expectedJson = """
-                {
-                    "source_file": null,
-                    "init_threads": null,
-                    "preparation_mode": null,
-                    "config_output": null,
-                    "graphs_root_path": null,
-                    "graphs_data_access": null,
-                    "elevation": null,
-                    "graph_management": null,
-                    "profile_default": null,
-                    "profiles": null
-                }""";
-        // compare the two json strings as actual json objects
-        assertEquals(objectMapper.readTree(expectedJson), objectMapper.readTree(json));
-    }
-
-    @Test
     void testDeserialize() throws JsonProcessingException {
         //language=JSON
         String json = """
                 {
-                    "source_file": "/absolute/path/osm.pbf",
                     "init_threads": 1,
                     "preparation_mode": true,
                     "config_output": "output_file",
@@ -232,6 +174,7 @@ class EnginePropertiesTest {
                     "profile_default": {
                         "enabled": true,
                         "encoder_name": "unknown",
+                        "source_file": "/absolute/path/osm.pbf",
                         "elevation": true,
                         "elevation_smoothing": true,
                         "encoder_flags_size": 8,
@@ -308,7 +251,7 @@ class EnginePropertiesTest {
         ObjectMapper objectMapper = new ObjectMapper();
         EngineProperties deserializedEngineProperties = objectMapper.readValue(json, EngineProperties.class);
         assertNotNull(deserializedEngineProperties);
-        assertEquals("/absolute/path/osm.pbf", deserializedEngineProperties.getSourceFile().toString());
+        assertEquals("/absolute/path/osm.pbf", deserializedEngineProperties.getProfileDefault().getGraphPath().toString());
         assertEquals(1, deserializedEngineProperties.getInitThreads());
         assertTrue(deserializedEngineProperties.getPreparationMode());
         assertEquals("output_file", deserializedEngineProperties.getConfigOutput());
@@ -380,15 +323,6 @@ class EnginePropertiesTest {
         ObjectMapper mapper = new ObjectMapper();
         EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
         assertEquals(DataAccessEnum.MMAP_RO, foo.getGraphsDataAccess());
-    }
-
-    @Test
-    void testRawSettingEverythingElseNullElevationProperties() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException {
-        ObjectMapper mapper = new ObjectMapper();
-        EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
-
-        ElevationProperties elevationProperties = foo.getElevation();
-        assertTrue(assertAllNull(elevationProperties, Set.of("dataAccess", "cacheClear")));
     }
 
     @Test
@@ -505,8 +439,8 @@ class EnginePropertiesTest {
         assertEquals(1, hgvExtStorages.size());
         assertTrue(hgvExtStorages.containsKey("HeavyVehicle"));
 
-        ExtendedStorageHeavyVehicle heavyVehicle = (ExtendedStorageHeavyVehicle) hgvExtStorages.get("HeavyVehicle");
-        assertInstanceOf(ExtendedStorageHeavyVehicle.class, heavyVehicle);
+        ExtendedStorage heavyVehicle = hgvExtStorages.get("HeavyVehicle");
+        assertInstanceOf(ExtendedStorage.class, heavyVehicle);
         assertTrue(heavyVehicle.getEnabled());
         assertTrue(heavyVehicle.getRestrictions());
     }
@@ -554,7 +488,7 @@ class EnginePropertiesTest {
         assertEquals(enginePropertiesTest.getProfileDefault().getExtStorages().size(), 2);
         // Check that GreenIndex and WayCategory are set correctly
         assertTrue(enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex").getEnabled());
-        assertEquals(Path.of("/path/to/file.csv"), ((ExtendedStorageGreenIndex) enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex")).getFilepath());
+        assertEquals(Path.of("/path/to/file.csv"), enginePropertiesTest.getProfileDefault().getExtStorages().get("GreenIndex").getFilepath());
         assertTrue(enginePropertiesTest.getProfileDefault().getExtStorages().get("WayCategory").getEnabled());
         // Check Preparation properties
         assertEquals(300, enginePropertiesTest.getProfileDefault().getPreparation().getMinNetworkSize());
@@ -569,10 +503,8 @@ class EnginePropertiesTest {
     @Test
     void testMergeRawSettingsWithDefaultValuesCheckProfiles() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
         // Check the profiles
-        Map<String, ProfileProperties> defaultProfiles = new DefaultProfiles(true).getProfiles();
         Map<String, ProfileProperties> actualProfiles = enginePropertiesTest.getProfiles();
-        assertEquals(defaultProfiles.size() + 1, actualProfiles.size());
-
+        assertEquals(11, actualProfiles.size());
 
         // Check the defaults
         for (Map.Entry<String, ProfileProperties> profile : actualProfiles.entrySet()) {
@@ -594,12 +526,12 @@ class EnginePropertiesTest {
                 assertTrue(actualProfileProperties.getExtStorages().containsKey("GreenIndex"));
                 assertTrue(actualProfileProperties.getExtStorages().get("WayCategory").getEnabled());
                 assertTrue(actualProfileProperties.getExtStorages().get("GreenIndex").getEnabled());
-                assertEquals(Path.of("/path/to/file.csv"), ((ExtendedStorageGreenIndex) actualProfileProperties.getExtStorages().get("GreenIndex")).getFilepath());
+                assertEquals(Path.of("/path/to/file.csv"), actualProfileProperties.getExtStorages().get("GreenIndex").getFilepath());
             } else if (profileMapKey.equals("hgv")) {
                 assertEquals(1, actualProfileProperties.getExtStorages().size());
                 assertEquals(900, actualProfileProperties.getPreparation().getMinNetworkSize());
                 assertTrue(actualProfileProperties.getExtStorages().containsKey("HeavyVehicle"));
-                assertTrue(((ExtendedStorageHeavyVehicle) actualProfileProperties.getExtStorages().get("HeavyVehicle")).getRestrictions());
+                assertTrue(actualProfileProperties.getExtStorages().get("HeavyVehicle").getRestrictions());
             } else if (profileMapKey.equals(EncoderNameEnum.PUBLIC_TRANSPORT.getName())) {
                 assertTrue(actualProfileProperties.getElevation());
                 assertEquals(1000000, actualProfileProperties.getMaximumVisitedNodes());
@@ -615,7 +547,7 @@ class EnginePropertiesTest {
                 assertTrue(actualProfileProperties.getExtStorages().containsKey("GreenIndex"));
                 assertTrue(actualProfileProperties.getExtStorages().get("WayCategory").getEnabled());
                 assertTrue(actualProfileProperties.getExtStorages().get("GreenIndex").getEnabled());
-                assertEquals(Path.of("/path/to/file.csv"), ((ExtendedStorageGreenIndex) actualProfileProperties.getExtStorages().get("GreenIndex")).getFilepath());
+                assertEquals(Path.of("/path/to/file.csv"), actualProfileProperties.getExtStorages().get("GreenIndex").getFilepath());
             }
 
             if (profileMapKey.equals(EncoderNameEnum.WHEELCHAIR.getName())) {

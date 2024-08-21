@@ -35,15 +35,15 @@
 #  packages-to-scan: org.heigit.ors
 #  pathsToMatch: /v2/**
 ##### Logging settings #####
-logging:
+#logging:
 #  file:
 #    name: ./logs/ors.log
 #  pattern:
 #    console: "%d{yyyy-MM-dd HH:mm:ss} %highlight{%-7p} %style{%50t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
 #    file: "%d{yyyy-MM-dd HH:mm:ss} %p [%-40.40c{1.}] - %m%n"
-  level:
+#  level:
 #    root: WARN
-    org.heigit: DEBUG
+#    org.heigit: INFO
 ##### openrouteservice specific settings #####
 ors:
   #  cors:
@@ -102,7 +102,6 @@ ors:
 #      maximum_locations: 5000
 #  ##### ORS engine settings #####
   engine:
-    source_file: ors-api/src/test/files/heidelberg.osm.gz
     graph_management:
 
 
@@ -141,7 +140,8 @@ ors:
 #      cache_clear: false
 #      provider: multi
 #      cache_path: ./elevation_cache
-#    profile_default:
+    profile_default:
+      source_file: ors-api/src/test/files/heidelberg.osm.gz
 #      enabled: false
 #      elevation: true
 #      elevation_smoothing: false
@@ -176,7 +176,7 @@ ors:
 #            active_landmarks: 8
     profiles:
       #      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific. TODO this should be encoder_name based!
-      car:                        # TODO this does not work with e.g. "auto" - internal default profiles should be searched by encoder_name, not profile_name!?
+      driving-car:                # TODO this does not work with e.g. "auto" - internal default profiles should be searched by encoder_name, not profile_name!?
         encoder_name: driving-car # TODO also the routing endpoints are looking for encoder_name instead of profile_name -> to be changed.
                                   # TODO or even better: introduce new property endpoint_name to give users the possibility to change the map keys but keep their old endpoint names
 #        encoder_options:

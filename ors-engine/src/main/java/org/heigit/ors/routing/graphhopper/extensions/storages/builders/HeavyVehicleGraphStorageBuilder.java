@@ -17,7 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
@@ -62,9 +62,9 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorageHeavyVehicle parameters;
+        ExtendedStorage parameters;
         try {
-            parameters = (ExtendedStorageHeavyVehicle) this.parameters;
+            parameters = this.parameters;
         } catch (ClassCastException e) {
             throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
         }

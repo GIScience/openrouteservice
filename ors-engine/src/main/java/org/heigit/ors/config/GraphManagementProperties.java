@@ -33,12 +33,9 @@ public class GraphManagementProperties {// TODO move to new package 'repo' and r
     private String repositoryProfileGroup; // TODO move to ProfileRepoProperties
 
     @JsonProperty("download_schedule")
-    private String downloadSchedule;
-
+    private String downloadSchedule = "0 0 0 31 2 *";
     @JsonProperty("activation_schedule")
-    private String activationSchedule;
-
+    private String activationSchedule = "0 0 0 31 2 *";
     @JsonProperty("max_backups")
-    private Integer maxBackups;
-
+    private Integer maxBackups = 0;
 }

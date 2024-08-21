@@ -37,7 +37,7 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.geojson.geom.GeometryJSON;
-import org.heigit.ors.config.profile.storages.ExtendedStorageHereTraffic;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.mapmatching.GhMapMatcher;
 import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
@@ -104,9 +104,9 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         if (storage != null)
             throw new UnsupportedOperationException("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorageHereTraffic parameters;
+        ExtendedStorage parameters;
         try {
-            parameters = (ExtendedStorageHereTraffic) this.parameters;
+            parameters = this.parameters;
         } catch (ClassCastException e) {
             throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
         }
@@ -124,13 +124,13 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_PATTERNS_15MINUTES);
             }
-            if (parameters.getRefPattern() != null)
-                refPatternIdsFile = parameters.getRefPattern().toString();
+            if (parameters.getRef_pattern() != null)
+                refPatternIdsFile = parameters.getRef_pattern().toString();
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_REFERENCE_PATTERN);
             }
-            if (parameters.getOutputLog() != null)
-                outputLog = parameters.getOutputLog();
+            if (parameters.getOutput_log() != null)
+                outputLog = parameters.getOutput_log();
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_OUTPUT_LOG);
             }

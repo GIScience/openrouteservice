@@ -17,8 +17,8 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.profile.storages.ExtendedStorageHereTraffic;
 import org.heigit.ors.plugins.PluginManager;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
@@ -46,9 +46,9 @@ public class GraphProcessContext {
         PluginManager<GraphStorageBuilder> mgrGraphStorageBuilders = PluginManager.getPluginManager(GraphStorageBuilder.class);
         if (profile.getExtStorages() != null) {
             if (profile.getExtStorages().containsKey("HereTraffic")) {
-                ExtendedStorageHereTraffic parameters;
+                ExtendedStorage parameters;
                 try {
-                    parameters = (ExtendedStorageHereTraffic) profile.getExtStorages().get("HereTraffic");
+                    parameters = profile.getExtStorages().get("HereTraffic");
                     parameters.setGhProfile(ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(profile.getEncoderName().toString())), "fastest", Boolean.TRUE.equals(profile.getEncoderOptions().getTurnCosts())));
                 } catch (ClassCastException e) {
                     throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");

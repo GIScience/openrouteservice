@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.common.EncoderNameEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,73 @@ public class EncoderOptionsProperties {
     @JsonProperty("conditional_speed")
     private Boolean conditionalSpeed = null; // TODO find default
 
-    public EncoderOptionsProperties() {
+    @JsonIgnore
+    public static EncoderOptionsProperties getEncoderOptionsProperties(EncoderNameEnum encoderName) {
+        EncoderOptionsProperties encoderOptions = new EncoderOptionsProperties();
+        switch (encoderName) {
+            case DRIVING_CAR, DRIVING_HGV -> {
+                encoderOptions.setTurnCosts(true);
+                encoderOptions.setBlockFords(false);
+                encoderOptions.setUseAcceleration(true);
+            }
+            case CYCLING_REGULAR, CYCLING_MOUNTAIN, CYCLING_ROAD, CYCLING_ELECTRIC -> {
+                encoderOptions.setConsiderElevation(true);
+                encoderOptions.setTurnCosts(true);
+                encoderOptions.setBlockFords(false);
+            }
+            case FOOT_HIKING, FOOT_WALKING, PUBLIC_TRANSPORT -> {
+                encoderOptions.setBlockFords(false);
+            }
+            case WHEELCHAIR -> {
+                encoderOptions.setBlockFords(true);
+            }
+            default -> {
+            }
+        }
+        return encoderOptions;
+
+//    TODO: check and apply the changes Julian was going to make to the default values
+//    public DefaultEncoderOptionsProperties(Boolean setGlogalDefaults, EncoderNameEnum encoderName) {
+//            if (setGlogalDefaults) {
+//                setBlockFords(false);
+//                setTurnCosts(true);
+//                setConsiderElevation(false);
+//                setUseAcceleration(false);
+//                setConditionalAccess(false); // Default from EncodingManager.java
+//                setMaximumGradeLevel(null); // TODO find default
+//                setPreferredSpeedFactor(null); // TODO find default
+//                setProblematicSpeedFactor(null); // TODO find default
+//                setConditionalSpeed(false); // TODO find default
+//            }
+//            if (encoderName != null) {
+//                switch (encoderName) {
+//                    case DRIVING_CAR -> {
+//                        // Just set the ones from below
+//                        setTurnCosts(true);
+//                        setBlockFords(false);
+//                        setUseAcceleration(true);
+//                        setConsiderElevation(false);
+//                    }
+//                    case DRIVING_HGV -> {
+//                        setTurnCosts(true);
+//                        setBlockFords(false);
+//                        setUseAcceleration(true);
+//                    }
+//                    case CYCLING_REGULAR, CYCLING_MOUNTAIN, CYCLING_ROAD, CYCLING_ELECTRIC -> {
+//                        setConsiderElevation(true);
+//                        setTurnCosts(true);
+//                        setBlockFords(false);
+//                    }
+//                    case FOOT_HIKING, FOOT_WALKING, WHEELCHAIR, PUBLIC_TRANSPORT -> {
+//                        setTurnCosts(false);
+//                        setBlockFords(false);
+//                    }
+//                    default -> {
+//                    }
+//                }
+//            }
+//
+//        }
     }
 
     @JsonIgnore

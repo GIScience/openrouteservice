@@ -21,7 +21,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.config.profile.storages.ExtendedStorageRoadAccessRestrictions;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage;
@@ -80,9 +80,9 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorageRoadAccessRestrictions parameters;
+        ExtendedStorage parameters;
         try {
-            parameters = (ExtendedStorageRoadAccessRestrictions) this.parameters;
+            parameters = this.parameters;
         } catch (ClassCastException e) {
             throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
         }
@@ -91,8 +91,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (parameters.getUseForWarnings() != null)
-            storage.setIsUsedForWarning(parameters.getUseForWarnings());
+        if (parameters.getUse_for_warnings() != null)
+            storage.setIsUsedForWarning(parameters.getUse_for_warnings());
 
         return storage;
     }
@@ -108,9 +108,9 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorageRoadAccessRestrictions parameters;
+        ExtendedStorage parameters;
         try {
-            parameters = (ExtendedStorageRoadAccessRestrictions) this.parameters;
+            parameters = this.parameters;
         } catch (ClassCastException e) {
             throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
         }
@@ -129,8 +129,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (parameters.getUseForWarnings() != null)
-            storage.setIsUsedForWarning(parameters.getUseForWarnings());
+        if (parameters.getUse_for_warnings() != null)
+            storage.setIsUsedForWarning(parameters.getUse_for_warnings());
 
         return storage;
     }

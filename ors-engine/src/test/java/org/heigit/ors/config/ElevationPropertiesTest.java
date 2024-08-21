@@ -32,10 +32,10 @@ class ElevationPropertiesTest {
     @Test
     void isPreprocessedReturnsCorrectValue() {
         elevationProperties.setPreprocessed(true);
-        assertTrue(elevationProperties.isPreprocessed());
+        assertTrue(elevationProperties.getPreprocessed());
 
         elevationProperties.setPreprocessed(false);
-        assertFalse(elevationProperties.isPreprocessed());
+        assertFalse(elevationProperties.getPreprocessed());
     }
 
     @ParameterizedTest

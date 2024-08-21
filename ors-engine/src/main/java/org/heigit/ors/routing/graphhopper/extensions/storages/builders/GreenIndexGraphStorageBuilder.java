@@ -19,7 +19,7 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
 
 import java.io.BufferedReader;
@@ -46,9 +46,9 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorageGreenIndex parameters;
+        ExtendedStorage parameters;
         try {
-            parameters = (ExtendedStorageGreenIndex) this.parameters;
+            parameters = this.parameters;
         } catch (ClassCastException e) {
             throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
         }

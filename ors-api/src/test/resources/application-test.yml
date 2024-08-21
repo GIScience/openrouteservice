@@ -14,7 +14,6 @@ ors:
       maximum_locations: 3
 
   engine:
-    source_file: ./src/test/files/heidelberg.osm.gz
     graphs_root_path: graphs-apitests
     config_output_mode: false
     graph_management:
@@ -29,6 +28,7 @@ ors:
     elevation:
       cache_path: ./src/test/files/elevation
     profile_default:
+      source_file: ./src/test/files/heidelberg.osm.gz
       elevation: true
       elevation_smoothing: true
       encoder_flags_size: 4
@@ -40,7 +40,7 @@ ors:
           weightings: recommended
           maxcellnodes: 5000
     profiles:
-      car:
+      driving-car:
         enabled: true
         encoder_name: driving-car
         encoder_options:
@@ -93,7 +93,7 @@ ors:
             radius: 150
             output_log: false
             log_location: ors/traffic_log
-      hgv:
+      driving-hgv:
         enabled: true
         encoder_name: driving-hgv
         maximum_speed_lower_bound: 75
@@ -147,7 +147,7 @@ ors:
             radius: 150
             output_log: false
             log_location: ors/traffic_log
-      bike-regular:
+      cycling-regular:
         enabled: true
         encoder_name: cycling-regular
         encoder_options:
@@ -171,7 +171,7 @@ ors:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
-      bike-mountain:
+      cycling-mountain:
         enabled: true
         encoder_name: cycling-mountain
         maximum_snapping_radius: 10
@@ -184,7 +184,7 @@ ors:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
-      bike-road:
+      cycling-road:
         enabled: true
         encoder_name: cycling-road
         encoder_options:
@@ -196,7 +196,7 @@ ors:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
-      bike-electric:
+      cycling-electric:
         enabled: true
         encoder_name: cycling-electric
         encoder_options:
@@ -208,7 +208,7 @@ ors:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
-      walking:
+      foot-walking:
         enabled: true
         encoder_name: foot-walking
         interpolate_bridges_and_tunnels: false
@@ -227,7 +227,7 @@ ors:
           WaySurfaceType:
           HillIndex:
           TrailDifficulty:
-      hiking:
+      foot-hiking:
         enabled: true
         encoder_name: foot-hiking
         encoder_options:

@@ -3,10 +3,6 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.defaults.DefaultProfilePropertiesCar;
-import org.heigit.ors.config.profile.storages.ExtendedStorageGreenIndex;
-import org.heigit.ors.config.profile.storages.ExtendedStorageHeavyVehicle;
-import org.heigit.ors.config.profile.storages.ExtendedStorageWayCategory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -35,10 +31,10 @@ class ProfilePropertiesTest {
         //            restrictions: true
         //          GreenIndex:
         //            filepath: /path/to/file.csv
-        String json = "{\"encoder_name\":\"driving-car\",\"ext_storages\":" + "{\"WayCategory\":{}," + "\"HeavyVehicle\":{\"restrictions\":true}, " + "\"GreenIndex\":{\"filepath\":\"/path/to/file.csv\"}}}";
+        String json = "{\"encoder_name\":\"driving-car\",\"ext_storages\":" + "{\"WayCategory\":{ \"enabled\": false },\"HeavyVehicle\":{ \"enabled\": true, \"restrictions\": true },\"GreenIndex\":{ \"enabled\": true, \"filepath\": \"/path/to/file.csv\" }}}";
         ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
         assertEquals("driving-car", foo.getEncoderName().getName());
-        assertInstanceOf(DefaultProfilePropertiesCar.class, foo);
+        assertInstanceOf(ProfileProperties.class, foo);
         assertEquals(3, foo.getExtStorages().size());
         assertTrue(foo.getExtStorages().containsKey("WayCategory"));
         assertTrue(foo.getExtStorages().containsKey("HeavyVehicle"));
@@ -47,17 +43,18 @@ class ProfilePropertiesTest {
         foo.getExtStorages().forEach((key, value) -> {
             switch (key) {
                 case "WayCategory" -> {
-                    assertInstanceOf(ExtendedStorageWayCategory.class, value);
-                    assertTrue(value.getEnabled());
+                    assertInstanceOf(ExtendedStorage.class, value);
+                    assertFalse(value.getEnabled());
                 }
                 case "HeavyVehicle" -> {
-                    assertInstanceOf(ExtendedStorageHeavyVehicle.class, value);
+                    assertInstanceOf(ExtendedStorage.class, value);
                     assertTrue(value.getEnabled());
-                    assertTrue(((ExtendedStorageHeavyVehicle) value).getRestrictions());
+                    assertTrue(value.getRestrictions());
                 }
                 case "GreenIndex" -> {
+                    assertInstanceOf(ExtendedStorage.class, value);
                     assertTrue(value.getEnabled());
-                    assertEquals(Path.of("/path/to/file.csv"), ((ExtendedStorageGreenIndex) value).getFilepath());
+                    assertEquals(Path.of("/path/to/file.csv"), (value).getFilepath());
                 }
                 default -> fail("Unexpected key: " + key);
             }
@@ -74,13 +71,13 @@ class ProfilePropertiesTest {
         String json = "{\"encoder_name\":\"driving-car\",\"ext_storages\":{}}";
         ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
         assertEquals(EncoderNameEnum.DRIVING_CAR, foo.getEncoderName());
-        assertInstanceOf(DefaultProfilePropertiesCar.class, foo);
+        assertInstanceOf(ProfileProperties.class, foo);
         assertEquals(0, foo.getExtStorages().size());
     }
 
     @Test
     void testGetEncoderOptionsString() {
-        ProfileProperties profile = new DefaultProfilePropertiesCar(true);
+        ProfileProperties profile = new ProfileProperties();
         profile.getEncoderOptions().setMaximumGradeLevel(4);
         profile.getEncoderOptions().setPreferredSpeedFactor(0.8);
         profile.getEncoderOptions().setProblematicSpeedFactor(0.5);

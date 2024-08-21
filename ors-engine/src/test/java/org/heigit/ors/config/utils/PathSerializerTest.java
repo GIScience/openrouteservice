@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PathSerializerTest {
     private ObjectMapper mapper;
-    private PathDeserializer deserializer;
 
     /**
      * Helper class to test the deserialization of a Path object.

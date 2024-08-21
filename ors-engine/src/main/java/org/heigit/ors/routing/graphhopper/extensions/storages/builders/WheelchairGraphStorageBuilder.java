@@ -17,7 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.config.profile.storages.ExtendedStorageWheelchair;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
@@ -86,15 +86,15 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorageWheelchair parameters;
+        ExtendedStorage parameters;
         try {
-            parameters = (ExtendedStorageWheelchair) this.parameters;
+            parameters = this.parameters;
         } catch (ClassCastException e) {
             throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
         }
 
-        if (parameters.getKerbsOnCrossings() != null) {
-            kerbHeightOnlyOnCrossing = parameters.getKerbsOnCrossings();
+        if (parameters.getKerbs_on_crossings() != null) {
+            kerbHeightOnlyOnCrossing = parameters.getKerbs_on_crossings();
         }
         storage = new WheelchairAttributesGraphStorage();
         return storage;

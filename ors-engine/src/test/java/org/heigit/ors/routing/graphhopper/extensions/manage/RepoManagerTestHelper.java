@@ -16,7 +16,7 @@ public class RepoManagerTestHelper {
                                                           String profileName, int graphManagementMaxBackups) {
 
         EngineProperties engineProperties = new EngineProperties();
-        engineProperties.initialize();
+        engineProperties.initProfilesMap();
         engineProperties.setGraphsRootPath(localGraphsRootPath);
         engineProperties.getProfiles().get(profileName).setEnabled(true);
 

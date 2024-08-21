@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class ORSInitContextListenerTest {
     @Test
     void testConfigurationOutputTarget() {
-        ORSInitContextListener orsInitContextListener = new ORSInitContextListener(new EndpointsProperties(), new CorsProperties(), new SystemMessageProperties(), new LoggingProperties(), new ServerProperties(), new GraphService());
+        ORSInitContextListener orsInitContextListener = new ORSInitContextListener(new EndpointsProperties(), new EngineProperties(), new CorsProperties(), new SystemMessageProperties(), new LoggingProperties(), new ServerProperties(), new GraphService());
         EngineProperties engineProperties = new EngineProperties();
         Map<String, String> envMap = new HashMap<>();
 
