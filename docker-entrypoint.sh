@@ -5,6 +5,7 @@
 ########################
 # Log level functions
 CONTAINER_LOG_LEVEL=${CONTAINER_LOG_LEVEL:-"INFO"}
+REBUILD_ON_PBF_CHANGE=${REBUILD_ON_PBF_CHANGE:-"false"}
 # Success message in green. Always printed
 function success() {
   echo -e "\e[32m✓ $1\e[0m"
@@ -100,6 +101,55 @@ extract_config_info() {
   fi
   # Return the value
   echo "${config_value}"
+}
+
+calculate_hash() {
+  local file_path="$1"
+  info "Calculating sha256sum of ${file_path}"
+  sha256sum "${file_path}" | awk '{print $1}'
+}
+
+handle_pbf_file() {
+  local pbf_file="$1"
+  local graphs_folder="$2"
+  local pbf_file_name
+  pbf_file_name=$(basename "${pbf_file}")
+
+  # Check if the PBF file is a URL or a local file
+  if [[ "${pbf_file}" =~ ^https?:// ]]; then
+    local local_pbf_file="${ORS_HOME}/files/${pbf_file_name}"
+    # If the local file doesn't exist, download it
+    if [ ! -f "${local_pbf_file}" ]; then
+      info "Downloading PBF file from ${pbf_file} to ${local_pbf_file}"
+      wget -O "${local_pbf_file}" "${pbf_file}" || critical "Failed to download PBF file from ${pbf_file}. Exiting."
+    fi
+    pbf_file="${local_pbf_file}"
+  fi
+
+  # Calculate the current hash of the PBF file and store it in a file called pbf_file_name_hash
+  local current_pbf_hash
+  current_pbf_hash=$(calculate_hash "${pbf_file}")
+  local stored_pbf_hash_file="${graphs_folder}/${pbf_file_name}_hash"
+
+  # Check if the hash file exists and read the stored hash
+  local stored_pbf_hash=""
+  if [ -f "${stored_pbf_hash_file}" ]; then
+    stored_pbf_hash=$(cat "${stored_pbf_hash_file}")
+  fi
+
+  # Compare the hashes
+  if [ "${current_pbf_hash}" != "${stored_pbf_hash}" ]; then
+    info "PBF file hash has changed."
+    if [ "${REBUILD_ON_PBF_CHANGE}" = "true" ]; then
+      info "REBUILD_ON_PBF_CHANGE is true. Setting REBUILD_GRAPHS to true."
+      ors_rebuild_graphs="true"
+    else
+      warning "REBUILD_ON_PBF_CHANGE is false. Not rebuilding graphs based on PBF file changes. Manual rebuild is still possible."
+    fi
+  else
+    success "PBF file hash has not changed."
+  fi
+  echo "${pbf_file}"
 }
 
 echo "#################"
@@ -273,6 +323,10 @@ chown -R "$(whoami)" "${ORS_HOME}"; debug "Changed ownership of ${ORS_HOME} to $
 
 update_file "${ORS_HOME}/files/example-heidelberg.osm.gz" "/heidelberg.osm.gz"
 
+
+# Check if we need to rebuild graphs based on PBF file changes
+ors_engine_source_file=$(handle_pbf_file "${ors_engine_source_file}" "${ors_engine_graphs_root_path}")
+
 # Remove existing graphs if BUILD_GRAPHS is set to true
 if [ "${ors_rebuild_graphs}" = "true" ]; then
   # Warn if ors.engine.graphs_root_path is not set or empty
@@ -350,6 +404,13 @@ if [ "${print_migration_info}" = "true" ]; then
   info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.env ./ors-config.env"
   info "> docker run --name example-ors-instance-env-file --env-file ors-config.env openrouteservice/openrouteservice:latest"
   info ">>> End of migration information <<<"
+fi
+
+
+# Hash the current pbf file and store it in the graphs folder
+if [ -f "${ors_engine_source_file}" ]; then
+  info "Calculating hash of ${ors_engine_source_file} and storing it in ${ors_engine_graphs_root_path}/$(basename "${ors_engine_source_file}")_hash"
+  calculate_hash "${ors_engine_source_file}" >"${ors_engine_graphs_root_path}/$(basename "${ors_engine_source_file}")_hash"
 fi
 
 echo "#####################"
