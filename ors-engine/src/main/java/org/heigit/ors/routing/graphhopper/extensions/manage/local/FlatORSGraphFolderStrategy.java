@@ -20,7 +20,7 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
         this.graphsRootAbsPath = managementProperties.getLocalGraphsRootAbsPath();
         this.profileGroup = managementProperties.getRepoProfileGroup();
         this.extend = managementProperties.getRepoCoverage();
-        this.graphVersion = managementProperties.getLocalGraphVersion();
+        this.graphVersion = managementProperties.getGraphVersion();
         this.repoName = managementProperties.getRepoName();
         this.routeProfileName = managementProperties.getLocalProfileName();
     }

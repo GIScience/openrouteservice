@@ -12,6 +12,7 @@ public class HashSubDirBasedORSGraphFolderStrategy implements ORSGraphFolderStra
     private final String graphsRootAbsPath;
     private final String routeProfileName;
 
+    @Deprecated
     public HashSubDirBasedORSGraphFolderStrategy(EngineProperties engineProperties, String routeProfileName, String hash) {//todo GRC consider changing typ graphsRootPath to Path and get rid of
         this(engineProperties.getGraphsRootPath().toAbsolutePath().toString(), routeProfileName, hash);
     }
@@ -22,6 +23,7 @@ public class HashSubDirBasedORSGraphFolderStrategy implements ORSGraphFolderStra
         this.hash = hash;
     }
 
+    @Deprecated
     public HashSubDirBasedORSGraphFolderStrategy(String graphsRootAbsPath, String routeProfileName, String hash) {
         this.graphsRootAbsPath = graphsRootAbsPath;
         this.routeProfileName = routeProfileName;

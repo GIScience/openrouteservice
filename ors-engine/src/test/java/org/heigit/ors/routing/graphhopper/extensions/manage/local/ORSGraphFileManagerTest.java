@@ -6,6 +6,7 @@ import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.GraphManagementProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.remote.NamedGraphsRepoStrategy;
@@ -53,6 +54,7 @@ class ORSGraphFileManagerTest {
     private static final String GRAPHS_COVERAGE = "planet";
     private static final String GRAPHS_VERSION = "1";
     private static final String VEHICLE = "car";
+    private static final String ENCODER = "driving-car";
     @TempDir(cleanup = CleanupMode.ON_SUCCESS)
     private static Path TEMP_DIR;
 
@@ -114,10 +116,21 @@ class ORSGraphFileManagerTest {
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
-        orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(localDir.getAbsolutePath(), VEHICLE, hash);
-        orsGraphFileManager = new ORSGraphFileManager(engineProperties, VEHICLE, orsGraphFolderStrategy);
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+                .withGraphVersion(GRAPHS_VERSION)
+                .withEncoderName(ENCODER)
+                .withLocalGraphsRootAbsPath(localDir.getAbsolutePath())
+                .withLocalProfileName(VEHICLE)
+                .withRepoBaseUri(GRAPHS_REPO_BASE_URI)
+                .withRepoName(GRAPHS_REPO_NAME)
+                .withRepoProfileGroup(GRAPHS_PROFILE_GROUP)
+                .withRepoCoverage(GRAPHS_COVERAGE)
+                .build();
+
+        orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(managementProps, hash);
+        orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
-        orsGraphRepoManager = new NexusRepoManager(URI.create(GRAPHS_REPO_BASE_URI).toURL(), engineProperties, VEHICLE, GRAPHS_VERSION, new NamedGraphsRepoStrategy(engineProperties, VEHICLE, GRAPHS_VERSION), orsGraphFileManager);
+        orsGraphRepoManager = new NexusRepoManager(managementProps, new NamedGraphsRepoStrategy(managementProps), orsGraphFileManager);
     }
 
     File setupLocalGraphDirectory(String hash, Long osmDateLocal) throws IOException {

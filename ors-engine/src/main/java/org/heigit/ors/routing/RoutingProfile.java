@@ -74,13 +74,6 @@ public class RoutingProfile {
     private Double astarEpsilon;
 
     public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
-        if (profile.getGraphPath() == null) {
-            if (engine.getProfileDefault().getGraphPath() == null) {
-                profile.setGraphPath(Paths.get(engine.getGraphsRootPath().toString(), profileName));
-            } else {
-                profile.setGraphPath(Paths.get(engine.getProfileDefault().getGraphPath().toString(), profileName));
-            }
-        }
 
         this.profileProperties = profile;
 
@@ -148,7 +141,7 @@ public class RoutingProfile {
         }
 
         // Make a stamp which help tracking any changes in the size of OSM file.
-        File file = new File(engineConfig.getSourceFile().toAbsolutePath().toString());
+        File file = new File(profile.getSourceFile().toAbsolutePath().toString());
         Path pathTimestamp = Paths.get(gh.getOrsGraphManager().getActiveGraphDirAbsPath(), "stamp.txt");
         File file2 = pathTimestamp.toFile();
         if (!file2.exists())
@@ -160,7 +153,7 @@ public class RoutingProfile {
     private static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
-        ghConfig.putObject("datareader.file", engineConfig.getSourceFile().toAbsolutePath().toString());
+        ghConfig.putObject("datareader.file", profile.getSourceFile().toAbsolutePath().toString());
         ghConfig.putObject("graph.bytes_for_flags", profile.getEncoderFlagsSize());
 
         if (Boolean.FALSE.equals(profile.getInstructions())) {

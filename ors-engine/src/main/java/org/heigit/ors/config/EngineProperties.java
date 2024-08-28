@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.heigit.ors.common.EncoderNameEnum.*;
 
@@ -48,6 +49,9 @@ public class EngineProperties {
     private Map<String, ProfileProperties> profiles = new LinkedHashMap<>();
 
     @JsonIgnore
+    private boolean initialized = false;
+
+    @JsonIgnore
     public void initProfilesMap() {
         List<EncoderNameEnum> defaultEncoderNames = List.of(DRIVING_CAR, DRIVING_HGV, CYCLING_REGULAR, CYCLING_ROAD, CYCLING_ELECTRIC, CYCLING_MOUNTAIN, FOOT_WALKING, FOOT_HIKING, WHEELCHAIR, PUBLIC_TRANSPORT);
         for (EncoderNameEnum encoderName : defaultEncoderNames) {
@@ -59,6 +63,11 @@ public class EngineProperties {
             }
         }
         for (ProfileProperties profile : profiles.values()) {
+            EncoderNameEnum encoderName = profile.getEncoderName();
+            profile.mergeDefaults(profileDefault);
+            ProfileProperties defaultProfile = ProfileProperties.getProfileInstance(encoderName);
+            profile.mergeDefaults(defaultProfile);
+
             profile.getExtStorages().forEach(
                     (key, value) -> {
                         if (value != null) {
@@ -73,10 +82,15 @@ public class EngineProperties {
 
     @JsonIgnore
     public Map<String, ProfileProperties> getActiveProfiles() {
+        if (!initialized) {
+            initProfilesMap();
+            initialized = true;
+        }
+
         LinkedHashMap<String, ProfileProperties> activeProfiles = new LinkedHashMap<>();
         for (Map.Entry<String, ProfileProperties> entry : profiles.entrySet()) {
             ProfileProperties mergedProfile = entry.getValue().mergeDefaults(profileDefault);
-            if (mergedProfile.getEnabled()) {
+            if (Optional.ofNullable(mergedProfile.getEnabled()).orElse(false)) {
                 activeProfiles.put(entry.getKey(), mergedProfile);
             }
         }

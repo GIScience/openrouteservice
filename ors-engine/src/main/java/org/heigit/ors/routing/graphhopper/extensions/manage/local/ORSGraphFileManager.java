@@ -33,9 +33,10 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphFileManager.class.getName());
 
-    private EngineProperties engineProperties;
+    private EngineProperties engineProperties;//TODO remove
     private String routeProfileName;
     private int maxNumberOfGraphBackups;
+    GraphManagementRuntimeProperties graphManagementRuntimeProperties;
     private ORSGraphFolderStrategy orsGraphFolderStrategy;
 
     public ORSGraphFileManager() {
@@ -45,6 +46,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         this.routeProfileName = graphManagementRuntimeProperties.getLocalProfileName();
         this.orsGraphFolderStrategy = orsGraphFolderStrategy;
     }
+    @Deprecated
     public ORSGraphFileManager(EngineProperties engineProperties, String routeProfileName, ORSGraphFolderStrategy orsGraphFolderStrategy) {
         this.engineProperties = engineProperties;
         this.routeProfileName = routeProfileName;

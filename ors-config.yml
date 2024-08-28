@@ -35,15 +35,15 @@
 #  packages-to-scan: org.heigit.ors
 #  pathsToMatch: /v2/**
 ##### Logging settings #####
-#logging:
+logging:
 #  file:
 #    name: ./logs/ors.log
 #  pattern:
 #    console: "%d{yyyy-MM-dd HH:mm:ss} %highlight{%-7p} %style{%50t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
 #    file: "%d{yyyy-MM-dd HH:mm:ss} %p [%-40.40c{1.}] - %m%n"
-#  level:
+  level:
 #    root: WARN
-#    org.heigit: INFO
+    org.heigit: DEBUG
 ##### openrouteservice specific settings #####
 ors:
   #  cors:

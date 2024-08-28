@@ -9,6 +9,8 @@ import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.utils.NonEmptyMapFilter;
 
+import static java.util.Optional.ofNullable;
+
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -40,6 +42,10 @@ public class ExecutionProperties {
         return methods.isEmpty();
     }
 
+    public void merge(ExecutionProperties other) {
+        methods.merge(other.methods);
+    }
+
     @Getter
     @Setter
     @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
@@ -53,6 +59,13 @@ public class ExecutionProperties {
             return astar.isEmpty() && lm.isEmpty() && core.isEmpty();
         }
 
+        public void merge(MethodsProperties other) {
+            astar.merge(other.astar);
+            lm.merge(other.lm);
+            core.merge(other.core);
+        }
+
+
         @Getter
         @Setter
         @EqualsAndHashCode
@@ -64,6 +77,11 @@ public class ExecutionProperties {
             @JsonIgnore
             public boolean isEmpty() {
                 return approximation == null && epsilon == null;
+            }
+
+            public void merge(AStarProperties other) {
+                approximation = ofNullable(this.approximation).orElse(other.approximation);
+                epsilon = ofNullable(this.epsilon).orElse(other.epsilon);
             }
         }
 
@@ -79,6 +97,10 @@ public class ExecutionProperties {
             public boolean isEmpty() {
                 return activeLandmarks == null;
             }
+
+            public void merge(LMProperties other) {
+                activeLandmarks = ofNullable(this.activeLandmarks).orElse(other.activeLandmarks);
+            }
         }
 
         @Getter
@@ -92,6 +114,10 @@ public class ExecutionProperties {
             @JsonIgnore
             public boolean isEmpty() {
                 return activeLandmarks == null;
+            }
+
+            public void merge(CoreProperties other) {
+                activeLandmarks = ofNullable(this.activeLandmarks).orElse(other.activeLandmarks);
             }
         }
     }

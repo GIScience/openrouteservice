@@ -144,6 +144,18 @@ public class EncoderOptionsProperties {
         }
         return String.join("|", out);
     }
+
+    public void merge(EncoderOptionsProperties other) {
+        blockFords = blockFords == null ? other.blockFords : blockFords;
+        considerElevation = considerElevation == null ? other.considerElevation : considerElevation;
+        turnCosts = turnCosts == null ? other.turnCosts : turnCosts;
+        useAcceleration = useAcceleration == null ? other.useAcceleration : useAcceleration;
+        maximumGradeLevel = maximumGradeLevel == null ? other.maximumGradeLevel : maximumGradeLevel;
+        preferredSpeedFactor = preferredSpeedFactor == null ? other.preferredSpeedFactor : preferredSpeedFactor;
+        problematicSpeedFactor = problematicSpeedFactor == null ? other.problematicSpeedFactor : problematicSpeedFactor;
+        conditionalAccess = conditionalAccess == null ? other.conditionalAccess : conditionalAccess;
+        conditionalSpeed = conditionalSpeed == null ? other.conditionalSpeed : conditionalSpeed;
+    }
 }
 
 

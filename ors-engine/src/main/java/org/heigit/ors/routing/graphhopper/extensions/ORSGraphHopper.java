@@ -224,37 +224,38 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     public void initializeGraphManagement(String graphVersion){
-        initializeGraphManagementWithFlatStructure(graphVersion);
-//        initializeGraphManagementWithDeepHashBasedStructure(graphVersion);
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, routeProfileName, graphVersion).build();
+        initializeGraphManagementWithFlatStructure(managementProps);
+//        initializeGraphManagementWithDeepHashBasedStructure(managementProps);
     }
 
-    public void initializeGraphManagementWithDeepHashBasedStructure(String graphVersion) {
-        String hash = RoutingProfileHashBuilder.builder(graphVersion, engineProperties.getProfiles().get(routeProfileName)).build();
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineProperties, routeProfileName, hash);
+    public void initializeGraphManagementWithDeepHashBasedStructure(GraphManagementRuntimeProperties managementProps) {
+        String hash = RoutingProfileHashBuilder.builder(managementProps.getGraphVersion(), engineProperties.getProfiles().get(routeProfileName)).build();
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(managementProps, hash);
         ORSGraphRepoStrategy orsGraphRepoStrategy = new HashBasedRepoStrategy(hash);
-        initializeGraphManagement(orsGraphFolderStrategy, orsGraphRepoStrategy, graphVersion);
+        initializeGraphManagement(managementProps, orsGraphFolderStrategy, orsGraphRepoStrategy);
     }
 
-    public void initializeGraphManagementWithFlatStructure(String graphVersion) {
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(engineProperties, routeProfileName, graphVersion);
-        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(engineProperties, routeProfileName, graphVersion);
-        initializeGraphManagement(orsGraphFolderStrategy, orsGraphRepoStrategy, graphVersion);
+    public void initializeGraphManagementWithFlatStructure(GraphManagementRuntimeProperties managementProps) {
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
+        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
+        initializeGraphManagement(managementProps, orsGraphFolderStrategy, orsGraphRepoStrategy);
     }
 
-    public void initializeGraphManagement(ORSGraphFolderStrategy orsGraphFolderStrategy, ORSGraphRepoStrategy orsGraphRepoStrategy, String graphVersion) {
-        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineProperties, routeProfileName, orsGraphFolderStrategy);
+    public void initializeGraphManagement(GraphManagementRuntimeProperties managementProps, ORSGraphFolderStrategy orsGraphFolderStrategy, ORSGraphRepoStrategy orsGraphRepoStrategy) {
+        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
 
-        ORSGraphRepoManager orsGraphRepoManager = getOrsGraphRepoManager(engineProperties, orsGraphRepoStrategy, graphVersion, orsGraphFileManager);
+        ORSGraphRepoManager orsGraphRepoManager = getOrsGraphRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
 
         this.orsGraphManager = new ORSGraphManager(engineProperties, orsGraphFileManager, orsGraphRepoManager);
         this.orsGraphManager.manageStartup();
         adaptGraphhopperLocation();
     }
 
-    ORSGraphRepoManager getOrsGraphRepoManager(EngineProperties engineProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, String graphVersion, ORSGraphFileManager orsGraphFileManager) {
+    ORSGraphRepoManager getOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         ORSGraphRepoManager orsGraphRepoManager = new NullRepoManager();
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, routeProfileName, graphVersion).build();
+
         switch (managementProps.getDerivedRepoType()) {
             case HTTP -> {
                 LOGGER.debug("Using HttpRepoManager for repoUrl {}", managementProps.getDerivedRepoBaseUrl());

@@ -3,12 +3,14 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.profile.ProfileProperties;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Getter
 /*
@@ -18,15 +20,16 @@ import java.util.Arrays;
  */
 public class GraphManagementRuntimeProperties {
 
+    private String graphVersion;
+    private String encoderName;
+
     private String localGraphsRootAbsPath;
-    private String localGraphVersion;
     private String localProfileName;
 
     private String repoBaseUri;
     private String repoName;
     private String repoProfileGroup;
     private String repoCoverage;
-    private String repoEncoderName;
 
     private GraphRepoType derivedRepoType = GraphRepoType.NULL;
     private URL derivedRepoBaseUrl;
@@ -36,14 +39,14 @@ public class GraphManagementRuntimeProperties {
 
     public static class Builder {
 
+        private String graphVersion;
+        private String encoderName;
         private String localGraphsRootAbsPath;
-        private String localGraphVersion;
         private String localProfileName;
         private String repoBaseUri;
         private String repoName;
         private String repoProfileGroup;
         private String repoCoverage;
-        private String repoEncoderName;
 
         public static Builder fromNew() {
             return new Builder();
@@ -65,16 +68,23 @@ public class GraphManagementRuntimeProperties {
             builder.repoName = engineProperties.getGraphManagement().getRepositoryName();
             builder.repoCoverage = engineProperties.getGraphManagement().getGraphExtent();
             builder.repoProfileGroup = engineProperties.getGraphManagement().getRepositoryProfileGroup();
-            builder.localGraphVersion = graphVersion;
+            builder.graphVersion = graphVersion;
             builder.localProfileName = routeProfileName;
+            ProfileProperties profileProperties = engineProperties.getProfiles().get(routeProfileName);
+            builder.encoderName = Optional.ofNullable(profileProperties).map(ProfileProperties::getEncoderName).map(String::valueOf).orElse(null);
             return builder;
+        }
+
+        public Builder withGraphVersion(String graphVersion) {
+            this.graphVersion = graphVersion;
+            return this;
+        }
+        public Builder withEncoderName(String encoderName) {
+            this.encoderName = encoderName;
+            return this;
         }
         public Builder withLocalGraphsRootAbsPath(String localGraphsRootAbsPath) {
             this.localGraphsRootAbsPath = localGraphsRootAbsPath;
-            return this;
-        }
-        public Builder withLocalGraphVersion(String localGraphVersion) {
-            this.localGraphVersion = localGraphVersion;
             return this;
         }
         public Builder withLocalProfileName(String localProfileName) {
@@ -97,21 +107,17 @@ public class GraphManagementRuntimeProperties {
             this.repoCoverage = repoCoverage;
             return this;
         }
-        public Builder withRepoEncoderName(String repoEncoderName) {
-            this.repoEncoderName = repoEncoderName;
-            return this;
-        }
 
         public GraphManagementRuntimeProperties build() {
             GraphManagementRuntimeProperties properties = new GraphManagementRuntimeProperties();
             properties.localGraphsRootAbsPath = this.localGraphsRootAbsPath;
-            properties.localGraphVersion = this.localGraphVersion;
+            properties.graphVersion = this.graphVersion;
             properties.localProfileName = this.localProfileName;
             properties.repoBaseUri = this.repoBaseUri;
             properties.repoName = this.repoName;
             properties.repoProfileGroup = this.repoProfileGroup;
             properties.repoCoverage = this.repoCoverage;
-            properties.repoEncoderName = this.repoEncoderName;
+            properties.encoderName = this.encoderName;
             properties.deriveData();
             return properties;
         }

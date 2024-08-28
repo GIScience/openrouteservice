@@ -13,6 +13,8 @@ import org.heigit.ors.config.utils.NonEmptyMapFilter;
 
 import java.util.Objects;
 
+import static java.util.Optional.ofNullable;
+
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -137,6 +139,12 @@ public class PreparationProperties {
         return minNetworkSize == null && minOneWayNetworkSize == null && (methods == null || methods.isEmpty());
     }
 
+    public void merge(PreparationProperties other) {
+        minNetworkSize = ofNullable(this.minNetworkSize).orElse(other.minNetworkSize);
+        minOneWayNetworkSize = ofNullable(this.minOneWayNetworkSize).orElse(other.minOneWayNetworkSize);
+        methods.merge(other.methods);
+    }
+
     @Getter
     @Setter
     @EqualsAndHashCode
@@ -150,6 +158,13 @@ public class PreparationProperties {
         @JsonIgnore
         public boolean isEmpty() {
             return (ch == null || ch.isEmpty()) && (lm == null || lm.isEmpty()) && (core == null || core.isEmpty()) && (fastisochrones == null || fastisochrones.isEmpty());
+        }
+
+        public void merge(MethodsProperties other) {
+            ch.merge(other.ch);
+            lm.merge(other.lm);
+            core.merge(other.core);
+            fastisochrones.merge(other.fastisochrones);
         }
 
         @Getter
@@ -180,6 +195,12 @@ public class PreparationProperties {
             @JsonIgnore
             public Integer getThreadsSave() {
                 return threads == null || threads < 1 ? 1 : threads;
+            }
+
+            public void merge(CHProperties other) {
+                enabled = ofNullable(this.enabled).orElse(other.enabled);
+                threads = ofNullable(this.threads).orElse(other.threads);
+                weightings = ofNullable(this.weightings).orElse(other.weightings);
             }
         }
 
@@ -212,6 +233,13 @@ public class PreparationProperties {
             @JsonIgnore
             public Integer getThreadsSave() {
                 return threads == null || threads < 1 ? 1 : threads;
+            }
+
+            public void merge(LMProperties other) {
+                enabled = ofNullable(this.enabled).orElse(other.enabled);
+                threads = ofNullable(this.threads).orElse(other.threads);
+                weightings = ofNullable(this.weightings).orElse(other.weightings);
+                landmarks = ofNullable(this.landmarks).orElse(other.landmarks);
             }
         }
 
@@ -246,6 +274,14 @@ public class PreparationProperties {
             public Integer getThreadsSave() {
                 return threads == null || threads < 1 ? 1 : threads;
             }
+
+            public void merge(CoreProperties other) {
+                enabled = ofNullable(this.enabled).orElse(other.enabled);
+                threads = ofNullable(this.threads).orElse(other.threads);
+                weightings = ofNullable(this.weightings).orElse(other.weightings);
+                landmarks = ofNullable(this.landmarks).orElse(other.landmarks);
+                lmsets = ofNullable(this.lmsets).orElse(other.lmsets);
+            }
         }
 
         @Getter
@@ -277,6 +313,13 @@ public class PreparationProperties {
             @JsonIgnore
             public Integer getThreadsSave() {
                 return threads == null || threads < 1 ? 1 : threads;
+            }
+
+            public void merge(FastIsochroneProperties other) {
+                enabled = ofNullable(this.enabled).orElse(other.enabled);
+                threads = ofNullable(this.threads).orElse(other.threads);
+                weightings = ofNullable(this.weightings).orElse(other.weightings);
+                maxcellnodes = ofNullable(this.maxcellnodes).orElse(other.maxcellnodes);
             }
         }
     }

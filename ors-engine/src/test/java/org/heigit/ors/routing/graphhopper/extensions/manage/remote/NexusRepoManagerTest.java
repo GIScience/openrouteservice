@@ -3,6 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
 import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.HashSubDirBasedORSGraphFolderStrategy;
@@ -48,6 +49,7 @@ class NexusRepoManagerTest {
     private static final String GRAPHS_PROFILE_GROUP = "traffic";
     private static final String GRAPHS_VERSION = "1";
     private static final String PROFILE_NAME = "car";
+    private static final String ENCODER_NAME = "driving-car";
 
     @TempDir(cleanup = CleanupMode.ALWAYS)
     private static Path TEMP_DIR;
@@ -81,8 +83,19 @@ class NexusRepoManagerTest {
         EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(localGraphsRootPath,
                 GRAPHS_REPO_BASE_URL,GRAPHS_REPO_NAME,GRAPHS_PROFILE_GROUP,GRAPHS_COVERAGE, PROFILE_NAME, 0);
 
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(engineProperties, PROFILE_NAME, hash);
-        orsGraphFileManager = new ORSGraphFileManager(engineProperties, PROFILE_NAME, orsGraphFolderStrategy);
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+                .withLocalGraphsRootAbsPath(localGraphsRootPath.toString())
+                .withRepoBaseUri(GRAPHS_REPO_BASE_URL)
+                .withRepoName(GRAPHS_REPO_NAME)
+                .withRepoProfileGroup(GRAPHS_PROFILE_GROUP)
+                .withRepoCoverage(GRAPHS_COVERAGE)
+                .withEncoderName(ENCODER_NAME)
+                .withGraphVersion(GRAPHS_VERSION)
+                .build();
+
+
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(managementProps, hash);
+        orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
 
         //ORSGraphRepoManager is mocked, empty default constructor was called -> set fields here:

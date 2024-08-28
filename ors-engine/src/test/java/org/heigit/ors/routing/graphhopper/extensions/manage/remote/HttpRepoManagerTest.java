@@ -24,7 +24,7 @@ class HttpRepoManagerTest {
                 .withRepoName("repo")
                 .withRepoProfileGroup("group1")
                 .withRepoCoverage("germany")
-                .withLocalGraphVersion("0")
+                .withGraphVersion("0")
                 .build();
 
         FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);

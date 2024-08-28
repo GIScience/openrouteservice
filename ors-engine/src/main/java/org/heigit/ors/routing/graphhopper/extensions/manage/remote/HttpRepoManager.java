@@ -46,7 +46,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
                 this.managementProps.getRepoName(),
                 this.managementProps.getRepoProfileGroup(),
                 this.managementProps.getRepoCoverage(),
-                this.managementProps.getLocalGraphVersion(),
+                this.managementProps.getGraphVersion(),
                 fileName);
 
         try { return new URL(urlString); }
@@ -69,7 +69,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
 
     @Override
     public void downloadGraphIfNecessary() {
-        if (isNullOrEmpty(this.managementProps.getDerivedRepoBaseUrl().toString()) || isNullOrEmpty(this.managementProps.getRepoName()) || isNullOrEmpty(this.managementProps.getRepoCoverage()) || isNullOrEmpty(this.managementProps.getLocalGraphVersion())) {
+        if (isNullOrEmpty(this.managementProps.getDerivedRepoBaseUrl().toString()) || isNullOrEmpty(this.managementProps.getRepoName()) || isNullOrEmpty(this.managementProps.getRepoCoverage()) || isNullOrEmpty(this.managementProps.getGraphVersion())) {
             LOGGER.debug("[%s] ORSGraphManager is not configured - skipping check".formatted(getProfileDescriptiveName()));
             return;
         }
@@ -116,7 +116,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
         }
         downloadFile(downloadUrl, downloadedGraphInfoFile);//mocked!!!
         if (!downloadedGraphInfoFile.exists()) {
-            LOGGER.info("[%s] No graphInfo found in remote repository".formatted(getProfileDescriptiveName()));
+            LOGGER.info("[%s] No graphInfo found in remote repository.".formatted(getProfileDescriptiveName()));
             return graphInfoInRepo;
         }
 
@@ -157,7 +157,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
                     readTimeoutMillis);
             tempDownloadFile.renameTo(outputFile);
         } catch (IOException e) {
-            throw new IllegalArgumentException(e);
+            LOGGER.debug("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e.getClass().getName(), downloadUrl));
         } finally {
             tempDownloadFile.delete();
         }

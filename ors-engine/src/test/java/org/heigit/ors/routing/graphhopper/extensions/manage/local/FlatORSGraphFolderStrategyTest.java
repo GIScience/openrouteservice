@@ -2,6 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.GraphManagementProperties;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,16 +16,16 @@ class FlatORSGraphFolderStrategyTest {
 
     @BeforeEach
     public void setUp() {
-        GraphManagementProperties graphManagementProperties = new GraphManagementProperties();
-        graphManagementProperties.setRepositoryName("vendor.org");
-        graphManagementProperties.setRepositoryProfileGroup("fun");
-        graphManagementProperties.setGraphExtent("disneyland");
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+                .withRepoName("vendor.org")
+                .withRepoProfileGroup("fun")
+                .withRepoCoverage("disneyland")
+                .withLocalGraphsRootAbsPath("/data/graphs")
+                .withLocalProfileName("bobbycar")
+                .withGraphVersion("0")
+                .build();
 
-        EngineProperties engineProperties = new    EngineProperties();
-        engineProperties.setGraphManagement(graphManagementProperties);
-        engineProperties.setGraphsRootPath(Path.of("/data/graphs"));
-
-        strategy = new FlatORSGraphFolderStrategy(engineProperties, "bobbycar", "0");
+        strategy = new FlatORSGraphFolderStrategy(managementProps);
     }
 
     @Test

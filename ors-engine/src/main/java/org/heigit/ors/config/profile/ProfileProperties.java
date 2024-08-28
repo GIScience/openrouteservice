@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static java.util.Optional.ofNullable;
+
 @Getter
 @Setter
 @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
@@ -83,7 +85,7 @@ public class ProfileProperties {
     @JsonIgnore
     public static ProfileProperties getProfileInstance(EncoderNameEnum encoderName) {
         ProfileProperties profile = new ProfileProperties();
-        profile.setEnabled(false);
+//        profile.setEnabled(false);
         profile.setEncoderName(encoderName);
         profile.setEncoderOptions(EncoderOptionsProperties.getEncoderOptionsProperties(encoderName));
         profile.setPreparation(PreparationProperties.getPreparationProperties(encoderName));
@@ -156,7 +158,7 @@ public class ProfileProperties {
     }
 
     public ProfileProperties mergeDefaults(ProfileProperties profileDefault) {
-        enabled = enabled == null ? profileDefault.enabled : enabled;
+        enabled = ofNullable(enabled).orElse(profileDefault.enabled);
         encoderName = encoderName == null ? profileDefault.encoderName : encoderName;
         sourceFile = sourceFile ==null ? profileDefault.sourceFile : sourceFile;
         elevation = elevation == null ? profileDefault.elevation : elevation;
@@ -167,7 +169,6 @@ public class ProfileProperties {
         traffic = traffic == null ? profileDefault.traffic : traffic;
         interpolateBridgesAndTunnels = interpolateBridgesAndTunnels == null ? profileDefault.interpolateBridgesAndTunnels : interpolateBridgesAndTunnels;
         forceTurnCosts = forceTurnCosts == null ? profileDefault.forceTurnCosts : forceTurnCosts;
-        graphPath = graphPath == null ? profileDefault.graphPath: graphPath;
         locationIndexResolution = locationIndexResolution == null ? profileDefault.locationIndexResolution : locationIndexResolution;
         locationIndexSearchIterations = locationIndexSearchIterations == null ? profileDefault.locationIndexSearchIterations : locationIndexSearchIterations;
         gtfsFile = gtfsFile == null ? profileDefault.gtfsFile : gtfsFile;
@@ -182,10 +183,11 @@ public class ProfileProperties {
         maximumSnappingRadius = maximumSnappingRadius == null ? profileDefault.maximumSnappingRadius : maximumSnappingRadius;
         maximumVisitedNodes = maximumVisitedNodes == null ? profileDefault.maximumVisitedNodes : maximumVisitedNodes;
 
-        encoderOptions = encoderOptions.isEmpty() ? profileDefault.encoderOptions : encoderOptions;
-        preparation = preparation.isEmpty() ? profileDefault.preparation : preparation;
-        execution = execution.isEmpty() ? profileDefault.execution : execution;
+        encoderOptions.merge(profileDefault.encoderOptions);
+        preparation.merge(profileDefault.preparation);
+        execution.merge(profileDefault.execution);
         extStorages = extStorages.isEmpty() ? profileDefault.extStorages : extStorages;
         return this;
     }
+
 }

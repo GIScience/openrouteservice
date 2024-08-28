@@ -8,7 +8,7 @@ import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.config.defaults.DefaultGraphManagementProperties;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
@@ -135,7 +135,7 @@ class ORSGraphHopperTest {
         ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoUrl", "car");
 
         String pathBefore = gh.getGraphHopperLocation();
-        gh.initializeGraphManagementWithDeepHashBasedStructure("0");
+        gh.initializeGraphManagementWithDeepHashBasedStructure(GraphManagementRuntimeProperties.Builder.fromNew().withGraphVersion("0").build());
         gh.importOrLoad();
         String pathAfter = gh.getGraphHopperLocation();
 
@@ -148,7 +148,7 @@ class ORSGraphHopperTest {
         ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("repoDir", "repoUrl", "car");
 
         String pathBefore = gh.getGraphHopperLocation();
-        gh.initializeGraphManagementWithFlatStructure("0");
+        gh.initializeGraphManagementWithFlatStructure(GraphManagementRuntimeProperties.Builder.fromNew().withGraphVersion("0").build());
         gh.importOrLoad();
         String pathAfter = gh.getGraphHopperLocation();
 
@@ -277,16 +277,21 @@ class ORSGraphHopperTest {
         ORSGraphHopper orsGraphHopper = new ORSGraphHopper();
         EngineProperties engineProperties = new EngineProperties();
         engineProperties.setGraphsRootPath(Path.of("graphs"));
-        engineProperties.setGraphManagement(new DefaultGraphManagementProperties());
         engineProperties.getGraphManagement().setRepositoryUri(repoUri);
 
         String profileName = "car";
         String graphVersion = "1";
-        FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(engineProperties, profileName, graphVersion);
-        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(engineProperties, profileName, orsGraphFolderStrategy);
-        NamedGraphsRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(engineProperties, profileName, graphVersion);
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+                .withLocalGraphsRootAbsPath("graphs")
+                .withRepoBaseUri(repoUri)
+                .withGraphVersion("1")
+                .withLocalProfileName("car")
+                .build();
+        FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
+        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
+        NamedGraphsRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
 
-        assertEquals(className, orsGraphHopper.getOrsGraphRepoManager(engineProperties, orsGraphRepoStrategy, graphVersion, orsGraphFileManager).getClass().getSimpleName());
+        assertEquals(className, orsGraphHopper.getOrsGraphRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager).getClass().getSimpleName());
     }
 
 }

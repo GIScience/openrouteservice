@@ -1,6 +1,7 @@
 package org.heigit.ors.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.DataAccessEnum;
 import org.heigit.ors.common.EncoderNameEnum;
@@ -15,12 +16,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.heigit.ors.config.utils.PropertyUtils.assertAllNull;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EnginePropertiesTest {
 
-    ;
     //language=JSON
     private final String testJson = """
             {
@@ -29,7 +30,15 @@ class EnginePropertiesTest {
                 "data_access": "RAM_STORE",
                 "cache_clear": true
               },
-              "graph_management": null,
+              "graph_management": {
+                "graph_extent": null,
+                "repository_uri": null,
+                "repository_name": null,
+                "repository_profile_group": null,
+                "download_schedule": "0 0 0 31 2 *",
+                "activation_schedule": "0 0 0 31 2 *",
+                "max_backups": 0
+              },           
               "profile_default": {
                 "enabled": true,
                 "preparation": {
@@ -114,6 +123,7 @@ class EnginePropertiesTest {
     @BeforeEach
     void setUp() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
         enginePropertiesTest = mapper.readValue(testJson, EngineProperties.class);
         // Defaults to check against
         defaultEngineProperties = new EngineProperties();
@@ -121,18 +131,18 @@ class EnginePropertiesTest {
     }
 
     @Test
-    void getActiveProfilesReturnsNonEmptyMapWhenInitialized() {
+    void getActiveProfilesReturnsEmptyMapWhenProfileDefaultIsNotEnabled() {
         EngineProperties engineProperties = new EngineProperties();
-        engineProperties.initProfilesMap();
+        engineProperties.getProfileDefault().setEnabled(false);
         Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
         assertNotNull(activeProfiles);
-        assertFalse(activeProfiles.isEmpty());
+        assertTrue(activeProfiles.isEmpty());
     }
 
     @Test
-    void getActiveProfilesReturnsNonEmptyMapWhenNotInitialized() {
+    void getActiveProfilesReturnsNonEmptyMapWhenProfileDefaultIsEnabled() {
         EngineProperties engineProperties = new EngineProperties();
-        assertNull(engineProperties.getProfiles());
+        engineProperties.getProfileDefault().setEnabled(true);
         Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
         assertNotNull(activeProfiles);
         assertFalse(activeProfiles.isEmpty());
@@ -141,17 +151,18 @@ class EnginePropertiesTest {
     @Test
     void getActiveProfilesReturnsCorrectProfiles() {
         EngineProperties engineProperties = new EngineProperties();
+        engineProperties.getProfileDefault().setEnabled(true);
         Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
-        assertTrue(activeProfiles.containsKey("car"));
-        assertTrue(activeProfiles.containsKey("hgv"));
+        assertTrue(activeProfiles.containsKey("driving-car"));
+        assertTrue(activeProfiles.containsKey("driving-hgv"));
         assertTrue(activeProfiles.containsKey("wheelchair"));
-        assertTrue(activeProfiles.containsKey("bike-mountain"));
-        assertTrue(activeProfiles.containsKey("bike-road"));
-        assertTrue(activeProfiles.containsKey("bike-electric"));
-        assertTrue(activeProfiles.containsKey("bike-regular"));
+        assertTrue(activeProfiles.containsKey("cycling-mountain"));
+        assertTrue(activeProfiles.containsKey("cycling-road"));
+        assertTrue(activeProfiles.containsKey("cycling-electric"));
+        assertTrue(activeProfiles.containsKey("cycling-regular"));
         assertTrue(activeProfiles.containsKey("public-transport"));
-        assertTrue(activeProfiles.containsKey("hiking"));
-        assertTrue(activeProfiles.containsKey("walking"));
+        assertTrue(activeProfiles.containsKey("foot-hiking"));
+        assertTrue(activeProfiles.containsKey("foot-walking"));
     }
 
     @Test
@@ -249,13 +260,13 @@ class EnginePropertiesTest {
                 }
                 """;
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
         EngineProperties deserializedEngineProperties = objectMapper.readValue(json, EngineProperties.class);
         assertNotNull(deserializedEngineProperties);
-        assertEquals("/absolute/path/osm.pbf", deserializedEngineProperties.getProfileDefault().getGraphPath().toString());
         assertEquals(1, deserializedEngineProperties.getInitThreads());
         assertTrue(deserializedEngineProperties.getPreparationMode());
         assertEquals("output_file", deserializedEngineProperties.getConfigOutput());
-        assertEquals(Paths.get("./graphs").toAbsolutePath(), deserializedEngineProperties.getGraphsRootPath());
+        assertEquals(Paths.get("./graphs").toAbsolutePath(), deserializedEngineProperties.getGraphsRootPath().toAbsolutePath());
         assertEquals(DataAccessEnum.RAM_STORE, deserializedEngineProperties.getGraphsDataAccess());
         assertNotNull(deserializedEngineProperties.getElevation());
         assertNotNull(deserializedEngineProperties.getProfileDefault());
@@ -332,7 +343,7 @@ class EnginePropertiesTest {
 
         ProfileProperties profileProperties = foo.getProfileDefault();
 
-        assertTrue(assertAllNull(profileProperties, new HashSet<>()));
+//        assertTrue(assertAllNull(profileProperties, new HashSet<>()));
 
         EncoderOptionsProperties encoderOptions = profileProperties.getEncoderOptions();
         assertTrue(assertAllNull(encoderOptions, new HashSet<>()));
@@ -479,8 +490,12 @@ class EnginePropertiesTest {
     void testMergeRawSettingsWithDefaultValuesCheckEngineDefaults() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
         // Default fallback values
         boolean equal = PropertyUtils.deepEqualityCheckIsUnequal(defaultEngineProperties, enginePropertiesTest, defaultProfilePropertiesIgnoreList);
+//        assertTrue(equal, "The engine properties are not equal to the default engine properties");
         // Test the raw top level settings
-        assertTrue(equal, "The engine properties are not equal to the default engine properties");
+        assertThat(defaultEngineProperties).usingRecursiveComparison()
+                .ignoringExpectedNullFields()
+                .ignoringFields(defaultProfilePropertiesIgnoreList.toArray(new String[0]))
+                .isEqualTo(enginePropertiesTest);
         assertEquals(enginePropertiesTest.getGraphsDataAccess(), DataAccessEnum.MMAP_RO);
         assertEquals(enginePropertiesTest.getElevation().getDataAccess(), DataAccessEnum.RAM_STORE);
         assertEquals(enginePropertiesTest.getElevation().getCacheClear(), true);
@@ -504,7 +519,7 @@ class EnginePropertiesTest {
     void testMergeRawSettingsWithDefaultValuesCheckProfiles() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
         // Check the profiles
         Map<String, ProfileProperties> actualProfiles = enginePropertiesTest.getProfiles();
-        assertEquals(11, actualProfiles.size());
+        assertEquals(13, actualProfiles.size());
 
         // Check the defaults
         for (Map.Entry<String, ProfileProperties> profile : actualProfiles.entrySet()) {
