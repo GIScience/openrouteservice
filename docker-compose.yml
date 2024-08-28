@@ -17,7 +17,7 @@ services:
     # Advanced option! If you different ids to 0:0 and 1000:1000, you have to rebuild the container with the build args UID,GID.
     # The user command is useful if you want easier bind mount access or better security.
     #user: "1000:1000" # Run "mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/files ors-docker/graphs ors-docker/logs && sudo chown -R 1000:1000 ors" before starting the container!
-    volumes:  # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
+    volumes: # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
       - ./ors-docker:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory
       #- ./graphs:/home/ors/graphs  # Mount graphs directory individually
       #- ./elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory individually
@@ -25,8 +25,9 @@ services:
       #- ./logs:/home/ors/logs  # Mount logs directory individually
       #- ./files:/home/ors/files  # Mount files directory individually
     environment:
-      REBUILD_GRAPHS: False  # Set to True to rebuild graphs on container start.
-      CONTAINER_LOG_LEVEL: INFO  # Log level for the container. Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
+      REBUILD_GRAPHS: False  # Set to True to rebuild graphs on container start in any case.
+      REBUILD_ON_PBF_CHANGE: False # Set to True to rebuild graphs if the PBF file has changed. Overwrites REBUILD_GRAPHS for PBF changes.
+      CONTAINER_LOG_LEVEL: Info  # Log level for the container. Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
       # If you don't want the default ors-config.yml you can specify a custom file name, that should match the file in
       # your 'config' volume mount.
       #ORS_CONFIG_LOCATION: /home/ors/config/my-ors-config.yml  # Location of your ORS configuration file in the docker container
@@ -48,7 +49,9 @@ services:
       # See the ors-config.env file for more options.
       # To have a configuration file-less container, uncomment at least the following properties.
       # The values are examples and provide the default configuration.
-      ors.engine.source_file: https://download.geofabrik.de/europe/andorra-latest.osm.pbf
+      # It is possible to download a remote PBF file or use a local one.
+      #ors.engine.source_file: https://download.geofabrik.de/europe/andorra-latest.osm.pbf
+      ors.engine.source_file: /home/ors/files/example-heidelberg.osm.gz
       #ors.engine.graphs_root_path: /home/ors/graphs
       #ors.engine.elevation.cache_path: /home/ors/elevation_cache
       #ors.engine.profiles.car.enabled: true
