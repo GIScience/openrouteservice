@@ -8,4 +8,4 @@ export CATALINA_OPTS="$CATALINA_OPTS \
 -XX:+UseParallelGC\
 "
 
-export JAVA_OPTS="$JAVA_OPTS -Dors.engine.source_file=/home/ors/files/heidelberg.osm.gz"
+export JAVA_OPTS="$JAVA_OPTS -Dors.engine.profile_default.source_file=/home/ors/files/heidelberg.osm.gz"
