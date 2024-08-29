@@ -1,10 +1,12 @@
 # Running with Docker
 
-If Docker is available on your system, the easiest way to run openrouteservice is starting a [prebuilt image](#running-prebuilt-images).
+If Docker is available on your system, the easiest way to run openrouteservice is starting
+a [prebuilt image](#running-prebuilt-images).
 You don't need to clone the openrouteservice repository, the source code is not needed to run a prebuilt image.
 Also, java and maven don't have to be installed.
 
-If you have special requirements, you can also [build your customized docker image](building-from-source.md#build-docker-image).
+If you have special requirements, you can
+also [build your customized docker image](building-from-source.md#build-docker-image).
 
 ::: warning
 The docker documentation is only valid for openrouteservice since v8.0.0!
@@ -12,24 +14,25 @@ The docker documentation is only valid for openrouteservice since v8.0.0!
 
 ## Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) has to be installed on your system. 
+- [Docker](https://docs.docker.com/get-docker/) has to be installed on your system.
 - An OSM extract, e.g. from [Geofabrik](http://download.geofabrik.de) or for small areas directly export
-    from [osm.org](https://www.openstreetmap.org/export#map=15/49.4197/8.6893).
+  from [osm.org](https://www.openstreetmap.org/export#map=15/49.4197/8.6893).
 
 No java or maven required unless you want to build a customized docker image :)
 
-
 ## Running prebuilt images
 
-The openrouteservice team provides a `docker compose` file that pulls and starts the prebuilt openrouteservice docker image for a specific version in one simple command.
-Starting with openrouteservice v8.0.0, you can (and should) download the compose file from the "assets" section 
-on the [releases page](https://github.com/GIScience/openrouteservice/releases), in the browser or e.g. with 
+The openrouteservice team provides a `docker compose` file that pulls and starts the prebuilt openrouteservice docker
+image for a specific version in one simple command.
+Starting with openrouteservice v8.0.0, you can (and should) download the compose file from the "assets" section
+on the [releases page](https://github.com/GIScience/openrouteservice/releases), in the browser or e.g. with
 
 ```shell
 wget https://github.com/GIScience/openrouteservice/releases/download/v8.0.0/docker-compose.yml
 ```
 
 Now start openrouteservice in the background:
+
 ```shell
 docker compose up -d
 ```
@@ -38,31 +41,41 @@ This will pull the openrouteservice of the selected version and start it up usin
 and the provided test OSM file for Heidelberg/Germany and surrounding area.
 
 To see the container's logs, run
+
 ```shell
 docker compose logs 
 ```
-or 
+
+or
+
 ```shell
 docker compose logs -tf  
 ```
+
 to follow the log.
 
 To stop the container again, execute
+
 ```shell
 docker compose stop 
 ```
+
 or
+
 ```shell
 docker compose down
 ```
+
 to stop and remove the container.
 
-The file `docker-compose.yml` contains plenty of commented options with descriptions. 
+The file `docker-compose.yml` contains plenty of commented options with descriptions.
 You can un-comment those options and set your custom option values.
 
 ::: details Running without docker compose
-It is easier to modify the Docker compose file, but to test a specific setup, you can also run a command similar to what docker compose would run directly on the command line. 
+It is easier to modify the Docker compose file, but to test a specific setup, you can also run a command similar to what
+docker compose would run directly on the command line.
 Here is a basic example:
+
 ```shell
 # create directories for volumes to mount as local user
 mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/graphs ors-docker/files ors-docker/logs 
@@ -77,21 +90,25 @@ docker run -dt --name ors-app \
   -e "XMX=2g" \
   local/openrouteservice:latest 
 ```
-Add `-e "ors.engine.source_file=files/your.osm.pbf" \` to point to your own OSM file that lies in the mounted $PWD/ors-docker/files folder.
+
+Add `-e "ors.engine.source_file=files/your.osm.pbf" \` to point to your own OSM file that lies in the mounted $
+PWD/ors-docker/files folder.
 Add `-e "BUILD_GRAPHS=True" \` to trigger a graph rebuild.
 
 :::
 
-
 ## What you get
 
 After some time, your openrouteservice should be running:
+
 ```shell
 curl http://localhost:8080/ors/v2/health
 {"status":"ready"}
 ```
 
-When you have started the container as described, a directory `ors-docker` with some sub directories and files are created by docker:
+When you have started the container as described, a directory `ors-docker` with some sub directories and files are
+created by docker:
+
 ```shell
 .
 ├── docker-compose.yml
@@ -117,25 +134,44 @@ When you have started the container as described, a directory `ors-docker` with 
 8 directories, 35 files
 ```
 
-* `example-ors-config.env`: env file template. A customized copy of this file can be used in combination with the `docker-compose.yml`, see [Set properties in an environment file](#set-openrouteservice-properties-in-an-environment-file). Do not edit this file directly since it will be overridden by docker! 
-* `example-ors-config.yml`: YAML file template. A customized copy of this file can be used as `ors-config.yml`, see [Use customized config file](#use-customized-config-file). Do not edit this file directly since it can be overridden by docker: If e.g. a newer docker image tag is used in the `docker-compose.yml`, the `example-ors-config.yml` might be updated if in the newer version of openrouteservice there are changes in the configuration properties or their default values. The updated file can be compared with the customized `ors-config.yml`.
-* `ors-config.yml`: The default config used by the openrouteservice inside the container. This file will not be overridden by docker. Initially, the file is identical to `example-ors-config.yml`. See [Use customized config file](#use-customized-config-file)   
+* `example-ors-config.env`: env file template. A customized copy of this file can be used in combination with the
+  `docker-compose.yml`,
+  see [Set properties in an environment file](#set-openrouteservice-properties-in-an-environment-file). Do not edit this
+  file directly since it will be overridden by docker!
+* `example-ors-config.yml`: YAML file template. A customized copy of this file can be used as `ors-config.yml`,
+  see [Use customized config file](#use-customized-config-file). Do not edit this file directly since it can be
+  overridden by docker: If e.g. a newer docker image tag is used in the `docker-compose.yml`, the
+  `example-ors-config.yml` might be updated if in the newer version of openrouteservice there are changes in the
+  configuration properties or their default values. The updated file can be compared with the customized
+  `ors-config.yml`.
+* `ors-config.yml`: The default config used by the openrouteservice inside the container. This file will not be
+  overridden by docker. Initially, the file is identical to `example-ors-config.yml`.
+  See [Use customized config file](#use-customized-config-file)
 * `elevation_cache`: Directory, where openrouteservice stores downloaded elevation data to avoid repeated downloads.
-* `example-heidelberg.osm.gz`: The initial sample OSM data used to run the container in its initial setup. Normally, you will remove this file or add another OSM file to the same directory and adapt your config to use your file.
-* `graphs`: Directory for the generated graphs. Initially, there is only `car` because this is the only enabled routing profile in the default `ors-config.yml`
-* `logs`: Here, the openrouteservice logs are stored. :warning: Logs of several runs will be accumulated here. In contrast, the logs you get with `docker compose logs` are only logs of the current run, but on the other hand they contain very helpful logging from docker or the entrypoint script, which is not visible in the files in `logs`.    
-
+* `example-heidelberg.osm.gz`: The initial sample OSM data used to run the container in its initial setup. Normally, you
+  will remove this file or add another OSM file to the same directory and adapt your config to use your file.
+* `graphs`: Directory for the generated graphs. Initially, there is only `car` because this is the only enabled routing
+  profile in the default `ors-config.yml`
+* `logs`: Here, the openrouteservice logs are stored. :warning: Logs of several runs will be accumulated here. In
+  contrast, the logs you get with `docker compose logs` are only logs of the current run, but on the other hand they
+  contain very helpful logging from docker or the entrypoint script, which is not visible in the files in `logs`.
 
 ### Avoid files owned by root
 
-With the default `docker-compose.yml`, the generated files are owned by root. 
-If you don't have root permissions (sudo) or you just don't want root owned files in your bind-mounts from the container, e.g. cannot edit or add files in `ors-docker/config`, the container provides the possibility to be run with UID 1000 and GID 1000. To be able to access these files, you need to have either the UID 1000 or be part of the group 1000 on your docker host machine.
-Of course, you can configure openrouteservice with the help of the `docker-compose.yml` (see [here](#set-openrouteservice-properties-in-docker-composeyml)) or a referenced environment file (see [there](#set-openrouteservice-properties-in-an-environment-file)), 
-which needs not to be located in the config folder because the openrouteservice running inside docker don't need to 'see' the environment file. 
+With the default `docker-compose.yml`, the generated files are owned by root.
+If you don't have root permissions (sudo) or you just don't want root owned files in your bind-mounts from the
+container, e.g. cannot edit or add files in `ors-docker/config`, the container provides the possibility to be run with
+UID 1000 and GID 1000. To be able to access these files, you need to have either the UID 1000 or be part of the group
+1000 on your docker host machine.
+Of course, you can configure openrouteservice with the help of the `docker-compose.yml` (
+see [here](#set-openrouteservice-properties-in-docker-composeyml)) or a referenced environment file (
+see [there](#set-openrouteservice-properties-in-an-environment-file)),
+which needs not to be located in the config folder because the openrouteservice running inside docker don't need to '
+see' the environment file.
 
 But if you for example want to save a new pbf file to `ors-docker/files`, then you need sudo rights.
 
-To avoid root ownership of the generated folders and files, 
+To avoid root ownership of the generated folders and files,
 
 1. uncomment the 'user' line in your `docker-compose.yml`:
     ```yaml
@@ -146,28 +182,33 @@ To avoid root ownership of the generated folders and files,
     ```shell
     mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/files ors-docker/graphs ors-docker/logs
     ```
-    If the folders already exist (owned by root) and you don't want to delete them, you can change their ownership (again root permissions required).
-3. When you now run `docker compose down && docker compose up -d`, the files and folders should be editable for your user. 
+   If the folders already exist (owned by root) and you don't want to delete them, you can change their ownership (again
+   root permissions required).
+3. When you now run `docker compose down && docker compose up -d`, the files and folders should be editable for your
+   user.
 
-As you can see in the `docker-compose.yml` snippet above, this works for the user with user-id 1000 and group-id 1000, which is the default for the first normal user on a linux host. 
-But if you have different user- and group-id, the formula does not work for you. 
+As you can see in the `docker-compose.yml` snippet above, this works for the user with user-id 1000 and group-id 1000,
+which is the default for the first normal user on a linux host.
+But if you have different user- and group-id, the formula does not work for you.
 
-You can check your own user-id (uid) and group-id (gid) with the command 
+You can check your own user-id (uid) and group-id (gid) with the command
+
 ```shell
 id
 ```
 
-If you have different uid/gid, then what you still can do is building your own docker image after specifying your uid and gid in your docker compose file.
-Let's say, you have uid=1003 and gid=1003: 
+If you have different uid/gid, then what you still can do is building your own docker image after specifying your uid
+and gid in your docker compose file.
+Let's say, you have uid=1003 and gid=1003:
 
 1. Edit your `docker-compose.yml`:
     ```yaml
         #user: "1000:1000" // [!code --]
         user: "1003:1003" // [!code ++]
     ```
-2. Build your docker image locally as described in [build your customized docker image](building-from-source.md#build-docker-image)
-3. Now you should be able to do steps 2. and 3. as described above.  
-
+2. Build your docker image locally as described
+   in [build your customized docker image](building-from-source.md#build-docker-image)
+3. Now you should be able to do steps 2. and 3. as described above.
 
 ### Directories inside the Container and on the Host
 
@@ -178,45 +219,51 @@ The **internal** working directory, where openrouteservice is started, is `/home
 The internal openrouteservice is configured to use the sub folders of this working directory as locations where
 specific input files are expected or where generated data are written to:
 
-* `/home/ors/config` 
-* `/home/ors/graphs` 
-* `/home/ors/files` 
-* `/home/ors/logs` 
-* `/home/ors/elevation_cache` 
-
+* `/home/ors/config`
+* `/home/ors/graphs`
+* `/home/ors/files`
+* `/home/ors/logs`
+* `/home/ors/elevation_cache`
 
 Absolute paths in the yml like
+
 ```yaml
      source_file: /home/ors/files/example-heidelberg.osm.gz
 ```
+
 are interpreted as absolute **inside** the container.
 
-Relative paths like 
+Relative paths like
+
 ```yaml
        cache_path: ./elevation_cache
 ```
+
 are intepreted as relative to the work directory `/home/ors` inside the container.
- 
 
 ## Use different directories as your bind mounts
 
-If you want to mount existing folders of your host file system, that are not sub folders of your openrouteservice docker working directory `ors-docker`,
-you can change the volumes section in your `docker-compose.yml`. 
+If you want to mount existing folders of your host file system, that are not sub folders of your openrouteservice docker
+working directory `ors-docker`,
+you can change the volumes section in your `docker-compose.yml`.
 
-In the following example, a user has a directory `/data/osm` with OSM files. The user wants to reference the files from there directly instead of copying the large files somewhere else. 
-And the graph files generated by openrouteservice should also be stored into a different location, where more disk space is available than in the home directory, let's say in `/data/ors/graphs`.
+In the following example, a user has a directory `/data/osm` with OSM files. The user wants to reference the files from
+there directly instead of copying the large files somewhere else.
+And the graph files generated by openrouteservice should also be stored into a different location, where more disk space
+is available than in the home directory, let's say in `/data/ors/graphs`.
 
-The directories required by the internal openrouteservice are mounted individually, 
-the paths on the host system are defined before the colon, the (unchanged) directory inside the container behind the colon. 
+The directories required by the internal openrouteservice are mounted individually,
+the paths on the host system are defined before the colon, the (unchanged) directory inside the container behind the
+colon.
 
 ```yaml
-    volumes:  # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
-      - ./ors-docker:/home/ors // [!code --]
-      - /data/ors/graphs:/home/ors/graphs // [!code ++]
-      - ./ors-docker/elevation_cache:/home/ors/elevation_cache // [!code ++]
-      - ./ors-docker/config:/home/ors/config // [!code ++]
-      - ./ors-docker/logs:/home/ors/logs // [!code ++]
-      - /data/osm:/home/ors/files // [!code ++]
+    volumes: # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
+        - ./ors-docker:/home/ors // [!code --]
+        - /data/ors/graphs:/home/ors/graphs // [!code ++]
+        - ./ors-docker/elevation_cache:/home/ors/elevation_cache // [!code ++]
+        - ./ors-docker/config:/home/ors/config // [!code ++]
+        - ./ors-docker/logs:/home/ors/logs // [!code ++]
+        - /data/osm:/home/ors/files // [!code ++]
 ```
 
 With these changes, a `source_file` configured in `ors-config.yml`:
@@ -234,7 +281,8 @@ no directory can be mounted directly to the internal `/home/ors`!
 
 ## Use Volumes
 
-Instead of using bind mounts, you can use volumes. Uncomment **and complete** the volume definition in the `docker-compose.yml` (see [docker compose documentation](https://docs.docker.com/compose/compose-file/07-volumes/)):
+Instead of using bind mounts, you can use volumes. Uncomment **and complete** the volume definition in the
+`docker-compose.yml` (see [docker compose documentation](https://docs.docker.com/compose/compose-file/07-volumes/)):
 
 ```yaml
 # ----------------- Docker Volumes configuration ------------------- #
@@ -255,32 +303,89 @@ volumes: // [!code ++]
     files: // [!code ++]
 ```
 
-In the yml section services.ors-app.volumes of your `docker-compose.yml` you set the volume names instead of host paths on the left side of the colon:
+In the yml section services.ors-app.volumes of your `docker-compose.yml` you set the volume names instead of host paths
+on the left side of the colon:
+
 ```yaml
 services:
-  ors-app:
-    volumes:
-      - ./ors-docker:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory // [!code --]
-      #- ./graphs:/home/ors/graphs  # Mount graphs directory individually // [!code --]
-      #- ./elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory individually // [!code --]
-      #- ./config:/home/ors/config  # Mount configuration directory individually // [!code --]
-      #- ./logs:/home/ors/logs  # Mount logs directory individually // [!code --]
-      #- ./files:/home/ors/files  # Mount files directory individually // [!code --]
-      #- ./ors-docker:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory // [!code ++]
-      - graphs:/home/ors/graphs  # Mount graphs directory individually // [!code ++]
-      - elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory individually // [!code ++]
-      - config:/home/ors/config  # Mount configuration directory individually // [!code ++]
-      - logs:/home/ors/logs  # Mount logs directory individually // [!code ++]
-      - files:/home/ors/files  # Mount files directory individually // [!code ++]
+    ors-app:
+        volumes:
+            - ./ors-docker:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory // [!code --]
+            #- ./graphs:/home/ors/graphs  # Mount graphs directory individually // [!code --]
+            #- ./elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory individually // [!code --]
+            #- ./config:/home/ors/config  # Mount configuration directory individually // [!code --]
+            #- ./logs:/home/ors/logs  # Mount logs directory individually // [!code --]
+            #- ./files:/home/ors/files  # Mount files directory individually // [!code --]
+            #- ./ors-docker:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory // [!code ++]
+            - graphs:/home/ors/graphs  # Mount graphs directory individually // [!code ++]
+            - elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory individually // [!code ++]
+            - config:/home/ors/config  # Mount configuration directory individually // [!code ++]
+            - logs:/home/ors/logs  # Mount logs directory individually // [!code ++]
+            - files:/home/ors/files  # Mount files directory individually // [!code ++]
 ```
+
+## External PBF files
+
+The docker setup of openrouteservice has the ability to use external PBF files.
+To achieve that, configure ors the following way:
+
+### Minimal example: With non-persistent data
+
+```shell
+docker run -dt --name ors-app \
+  -p 8080:8082 \
+  -e "ors.engine.source_file=https://download.geofabrik.de/europe/andorra-latest.osm.pbf" \
+  -e "XMS=1g" \
+  -e "XMX=2g" \
+  openrouteservice/openrouteservice:latest 
+```
+
+### Recommended example: With persistent data
+
+```shell
+docker run -dt --name ors-app \
+  -p 8080:8082 \
+  -v $PWD/ors-docker/files:/home/ors/files \
+  -v $PWD/ors-docker/graphs:/home/ors/graphs \
+  -e "ors.engine.source_file=https://download.geofabrik.de/europe/andorra-latest.osm.pbf" \
+  -e "REBUILD_ON_PBF_CHANGE=True" \
+  -e "XMS=1g" \
+  -e "XMX=2g" \
+  openrouteservice/openrouteservice:latest 
+```
+
+* The notes from the first example apply here as well.
+* Additionally, this example persists the file downloads and graph data:
+    * `-v $PWD/ors-docker/files:/home/ors/files` mounts the host directory `ors-docker/files` to the internal directory
+      `/home/ors/files`.
+    * `-v $PWD/ors-docker/graphs:/home/ors/graphs` mounts the host directory `ors-docker/graphs` to the internal
+      directory `/home/ors/graphs`.
+* `REBUILD_ON_PBF_CHANGE=True` triggers a graph rebuild if the PBF file has changed since the last run.
+* The `REBUILD_ON_PBF_CHANGE` option is only available in the docker setup. It is not available in the JAR or WAR setup.
+* This works with any PBF file, not only with the example file from Geofabrik or external Downloads.
+* All used PBF files are hashed and the hash is stored in `graphs/.hash` to detect changes.
+
+### General notes
+
+To remove the file and trigger a re-download, delete the file directly from the container:
+
+```shell
+docker exec -it ors-app rm /home/ors/files/andorra-latest.osm.pbf
+docker restart ors-app
+docker logs ors-app -f
+```
+
+Or, if you mounted the file folder locally, delete the file from your host system and restart the container.
 
 ## Configure
 
-When using the openrouteservice docker image, you have several configuration options: 
+When using the openrouteservice docker image, you have several configuration options:
 
-* You can use a configuration file as you would do when running openrouteservice as JAR or WAR. If you are the owner of the files in `ors-docker/config`, this is straight forward (see [above](#avoid-files-owned-by-root)).
-* You can set configuration properties as environment variables in the `docker-compose.yml` 
-* or you can set configuration properties in an environment file. This is good practice for docker containers in general and the preferred way to configure dockered openrouteservice when the files are owned by root.  
+* You can use a configuration file as you would do when running openrouteservice as JAR or WAR. If you are the owner of
+  the files in `ors-docker/config`, this is straight forward (see [above](#avoid-files-owned-by-root)).
+* You can set configuration properties as environment variables in the `docker-compose.yml`
+* or you can set configuration properties in an environment file. This is good practice for docker containers in general
+  and the preferred way to configure dockered openrouteservice when the files are owned by root.
 
 The following sections explain these options in more detail.
 For detailed information on the configuration settings you can make, see the chapter
@@ -289,69 +394,80 @@ on [configuration](configuration/index.md).
 ::: tip
 If you want to re-build the graphs, many people just delete the graphs folders and restart openrouteservice.
 If you are not owner of the graphs files (but root), you _cannot_ delete those files without root permissions.
-In this case, you can set the environment variable `REBUILD_GRAPHS=True` in your [`docker-compose.yml`](#set-openrouteservice-properties-in-docker-composeyml) (the option is contained in the file, just un-comment it)
-or in your [`ors-config.env`](#set-openrouteservice-properties-in-an-environment-file). 
+In this case, you can set the environment variable `REBUILD_GRAPHS=True` in your [
+`docker-compose.yml`](#set-openrouteservice-properties-in-docker-composeyml) (the option is contained in the file, just
+un-comment it)
+or in your [`ors-config.env`](#set-openrouteservice-properties-in-an-environment-file).
 openrouteservice will then re-build all activated graphs on the next startup.
 :::
 
 ### Use (customized) config file
 
-As described in [Configuration > File location](configuration/index.md#file-location), 
-when openrouteservice is started, it looks for a file named `ors-config.yml` in different directories and uses the file, if it exists.
-Alternatively, an individually named or located configuration file (YAML or the deprecated JSON config) can be used by setting the environment variable `ORS_CONFIG_LOCATION`.
+As described in [Configuration > File location](configuration/index.md#file-location),
+when openrouteservice is started, it looks for a file named `ors-config.yml` in different directories and uses the file,
+if it exists.
+Alternatively, an individually named or located configuration file (YAML or the deprecated JSON config) can be used by
+setting the environment variable `ORS_CONFIG_LOCATION`.
 
-In the Docker version, there is an initialization script that is executed on each container start, 
+In the Docker version, there is an initialization script that is executed on each container start,
 which is using a slightly different approach:
 
-* It checks if `ORS_CONFIG_LOCATION` is set and if the referenced file (YAML or the deprecated JSON config) can be found (the path is evaluated from [inside the container](#directories-inside-the-container-and-on-the-host)).
+* It checks if `ORS_CONFIG_LOCATION` is set and if the referenced file (YAML or the deprecated JSON config) can be
+  found (the path is evaluated from [inside the container](#directories-inside-the-container-and-on-the-host)).
   If this is the case, this config will be used.
-* Otherwise, the file `/home/ors/config/ors-config.yml` or `/home/ors/config/ors-config.json` is searched (path inside container). If it is there, it will be loaded.  
-  If not, it will be added as copy of `/home/ors/config/example-ors-config.yml` **and also be loaded!**  
+* Otherwise, the file `/home/ors/config/ors-config.yml` or `/home/ors/config/ors-config.json` is searched (path inside
+  container). If it is there, it will be loaded.  
+  If not, it will be added as copy of `/home/ors/config/example-ors-config.yml` **and also be loaded!**
 
-This means, that in any case, a config file is loaded! 
+This means, that in any case, a config file is loaded!
 Even if you set environment variables as described in the next two sections,
-you have to take care of the config file that is loaded, and in some cases you have to override single properties, 
-e.g. disable the routing profile `car` - which is enabled in the default `ors-config.yml` - if you don't want it to be enabled.  
+you have to take care of the config file that is loaded, and in some cases you have to override single properties,
+e.g. disable the routing profile `car` - which is enabled in the default `ors-config.yml` - if you don't want it to be
+enabled.
 
-You can configure your openrouteservice by editing the generated `ors-config.yml`. 
+You can configure your openrouteservice by editing the generated `ors-config.yml`.
 This file will never been overridden by openrouteservice, if it still exists.
-But you should never edit `example-ors-config.yml` `example-ors-config.env` - these files will be replaced in some cases.
-
+But you should never edit `example-ors-config.yml` `example-ors-config.env` - these files will be replaced in some
+cases.
 
 ### Set openrouteservice properties in `docker-compose.yml`
 
 It is possible to pass openrouteservice configuration properties into a docker container as environment variables.
 The `docker-compose.yml` contains many available configuration options as comments, with a short description.
-The following example snippet of the modified `docker-compose.yml` shows a setup where the car profile is disabled and wheelchair is enabled:
+The following example snippet of the modified `docker-compose.yml` shows a setup where the car profile is disabled and
+wheelchair is enabled:
 
 ```yaml
     environment:
-      # ----------------- Properties configuration ------------------- #
-      # Configure your whole container with only property ENVs.
-      # These can be set alternatively or additionally to the yml configuration file.
-      # Note, that any values set will override the corresponding values from the yml configuration file.
-      # See the ors-config.env file for more options.
-      # To have a configuration file-less container, uncomment at least the following properties.
-      # The values are examples and provide the default configuration.
-      ors.engine.source_file: /home/ors/files/andorra-latest.osm.pbf
-      ors.engine.profiles.car.enabled: false
-      ors.engine.profiles.wheelchair.enabled: true
-      # Here you can also set more advanced spring and tomcat properties, such as proxy settings.
-      # See the spring documentation for a complete list of options: https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html
-      #server.tomcat.remote-ip-header=x-your-remote-ip-header
-      #server.tomcat.protocol-header=x-your-protocol-header
+        # ----------------- Properties configuration ------------------- #
+        # Configure your whole container with only property ENVs.
+        # These can be set alternatively or additionally to the yml configuration file.
+        # Note, that any values set will override the corresponding values from the yml configuration file.
+        # See the ors-config.env file for more options.
+        # To have a configuration file-less container, uncomment at least the following properties.
+        # The values are examples and provide the default configuration.
+        ors.engine.source_file: /home/ors/files/andorra-latest.osm.pbf
+        ors.engine.profiles.car.enabled: false
+        ors.engine.profiles.wheelchair.enabled: true
+        # Here you can also set more advanced spring and tomcat properties, such as proxy settings.
+        # See the spring documentation for a complete list of options: https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html
+        #server.tomcat.remote-ip-header=x-your-remote-ip-header
+        #server.tomcat.protocol-header=x-your-protocol-header
 ```
 
 ::: warning Hint
 Remember that the container has to be newly created for the changes in `docker-compose.yml` to take effect!
-`docker compose stop && docker compose start` or `docker compose restart` is not enough, you have to execute 
+`docker compose stop && docker compose start` or `docker compose restart` is not enough, you have to execute
+
 ```shell
 docker compose down && docker compose up
 ```
+
 :::
 
 The syntax/name of the configuration properties is not yaml but instead the syntax from java properties files.
-But it is just a different syntax. The properties are the same as described in [Configuration > File Formats](configuration/index.md#file-formats).
+But it is just a different syntax. The properties are the same as described
+in [Configuration > File Formats](configuration/index.md#file-formats).
 
 ### Set openrouteservice properties in an Environment file
 
@@ -359,7 +475,8 @@ Configuring properties in `docker-compose.yml` is a good way to set a handful of
 If you want to customize a great number of properties or if you maybe have different configurations in use,
 it is more convenient to save the properties to a separate file.
 
-The properties that were set in in the `docker-compose.yml` snippet in the previous section could instead be set in a separete file `ors-config.env`.
+The properties that were set in in the `docker-compose.yml` snippet in the previous section could instead be set in a
+separete file `ors-config.env`.
 The only difference is, that equal signs are used instead of colons:
 
 ```
@@ -369,20 +486,21 @@ ors.engine.profiles.wheelchair.enabled=true
 ```
 
 The env file has to be referenced in the `docker-compose.yml`:
+
 ```yaml
     # ----------------- ENV file configuration ------------------- #
     # Too many variables for your 'environment:' section?
     # Use an env_file with the ENV properties instead and define everything in there:
     # Values will be overwritten if set in the 'environment' section.
-#    env_file: ors-config.env // [!code --]
+    #    env_file: ors-config.env // [!code --]
     env_file: ors-config.env // [!code ++]
 ```
 
-If you want to use this configuration option and you start creating your environment file, 
-you can use the file `ors-docker/config/example-ors-config.env` as a template. 
+If you want to use this configuration option and you start creating your environment file,
+you can use the file `ors-docker/config/example-ors-config.env` as a template.
 Copy it next to your `docker-compose.yml` or rename it.
-You should never edit the file `ors-docker/config/example-ors-config.env` because it will be replaced by openrouteservice in some cases!
-
+You should never edit the file `ors-docker/config/example-ors-config.env` because it will be replaced by
+openrouteservice in some cases!
 
 ## Troubleshooting
 
@@ -395,7 +513,8 @@ There are two ways to inspect the logs, with some differences: `docker compose l
 | logs from the current container only             | logs from previous containers that were removed with e.g. `docker compose down` still available |
 
 This section will focus on the logs from docker because they contain additional information.
-To see the container's entrypoint logs, change into your directory with the `docker-compose.yml` and run 
+To see the container's entrypoint logs, change into your directory with the `docker-compose.yml` and run
+
 ```shell
 docker compose logs
 ```
@@ -444,17 +563,21 @@ How you can achieve this is documented in the [logging documentation](configurat
 
 ::: warning Hint
 Remember that the container has to be newly created for the changes in `docker-compose.yml` to take effect!
-`docker compose stop && docker compose start` or `docker compose restart` is not enough, you have to execute 
+`docker compose stop && docker compose start` or `docker compose restart` is not enough, you have to execute
+
 ```shell
 docker compose down && docker compose up
 ```
+
 :::
 
 ::: details Follow logs
-If you want to watch the logs while openrouteservice is running, you can also 
+If you want to watch the logs while openrouteservice is running, you can also
+
 ```shell
 docker compose logs -tf  
 ```
+
 to follow the log. Press Ctrl+C to stop tailing the log, the container will not be stopped.   
 :::
 
@@ -463,11 +586,12 @@ Important information, that you will find in the entrypoint section of the docke
 * The user that is used inside the container, with uid and gid
 * All environment variables inside the container (only with `CONTAINER_LOG_LEVEL=DEBUG`)
 * Information about resolved paths inside the container
-* Information about generation or replacement of example files 
+* Information about generation or replacement of example files
 * Errors concerning the setup
 
 After the entrypoint section, there are the logs from openrouteservice itself.
 The openrouteservice startup log looks similar to this:
+
 ```shell
 ors-app  | ▢ Startup command: java -Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g  -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost  -jar /ors.jar
 ors-app  | 
@@ -503,10 +627,13 @@ ors-app  | 2024-03-12 10:54:47 INFO                                             
 
 Most important information here:
 
-* The version of openrouteservice and java: `Starting Application v8.0-SNAPSHOT using Java 21.0.2` (you do not have to worry about the Java version in the Docker setup)
-* The evaluated configuration file: `Loaded file '/home/ors/config/ors-config.yml'` (this is the path inside the container)
+* The version of openrouteservice and java: `Starting Application v8.0-SNAPSHOT using Java 21.0.2` (you do not have to
+  worry about the Java version in the Docker setup)
+* The evaluated configuration file: `Loaded file '/home/ors/config/ors-config.yml'` (this is the path inside the
+  container)
 * Memory usage: `Total - 1024 MB, Free - 965.93 MB, Max: 2 GB, Used - 58.07 MB`
-* The evaluated OSM file: `====> Initializing profiles from '/home/ors/files/example-heidelberg.osm.gz'` (also internal path)
+* The evaluated OSM file: `====> Initializing profiles from '/home/ors/files/example-heidelberg.osm.gz'` (also internal
+  path)
 * Potential errors with your setup
 
 And after the startup section you will find information about errors at run time.
