@@ -43,6 +43,8 @@ function debug() {
   return 0
 }
 function set_log_level() {
+  # set CONTAINER_LOG_LEVEL to uppercase
+  CONTAINER_LOG_LEVEL=$(echo "${CONTAINER_LOG_LEVEL}" | tr '[:lower:]' '[:upper:]')
   case ${CONTAINER_LOG_LEVEL} in
   "DEBUG")
     container_log_level_int=10
@@ -110,7 +112,8 @@ function calculate_hash() {
 
 function pbf_is_remote() {
   local pbf_source_uri="$1"
-  if [[ "${pbf_source_uri}" =~ ^https?:// ]]; then
+  # if http or https is in the string, it is a remote file
+  if [[ "${pbf_source_uri}" =~ ^http:// || "${pbf_source_uri}" =~ ^https:// ]]; then
     return 0
   else
     return 1
