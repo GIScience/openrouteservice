@@ -56,7 +56,8 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import org.heigit.ors.routing.graphhopper.extensions.manage.*;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.HashSubDirBasedORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
@@ -183,7 +184,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             throw new IllegalStateException("graph is already successfully loaded");
         }
 
-        GraphHopper gh = super.importOrLoad();
+        ORSGraphHopper gh = (ORSGraphHopper) super.importOrLoad();
 
         writeOrsGraphInfoFileIfNotExists(gh);
 
@@ -295,7 +296,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return null;
     }
 
-    URL toURL(URI uri){
+    URL toURL(URI uri) {
         if (isSupportedUrlScheme(uri)) {
             try {
                 return uri.toURL();
@@ -312,7 +313,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         LOGGER.info("adapted graphHopperLocation: {}", adaptedPath);
     }
 
-    private void writeOrsGraphInfoFileIfNotExists(GraphHopper gh) {
+    private void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {
         orsGraphManager.writeOrsGraphInfoFileIfNotExists(gh);
     }
 
@@ -777,5 +778,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             mem += fastIsochroneFactory.getCapacity();
         }
         return mem + getGraphHopperStorage().getCapacity();
+    }
+
+    public EngineProperties getEngineProperties() {
+        return engineProperties;
     }
 }

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
@@ -326,10 +327,10 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next restart check or application start.".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
     }
 
-    public void writeOrsGraphInfoFileIfNotExists(GraphHopper gh) {
-        if (engineProperties.getProfiles()==null)
+    public void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {
+        if (gh.getEngineProperties().getProfiles() == null)
             return;
-        if (engineProperties.getProfiles().isEmpty())
+        if (gh.getEngineProperties().getProfiles().isEmpty())
             return;
 
         File activeGraphDirectory = getActiveGraphDirectory();
@@ -342,7 +343,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             LOGGER.debug("GraphInfo-File %s already existing.".formatted(activeGraphInfoFile.getName()));
             return;
         }
-        Optional<ProfileProperties> routeProfileConfiguration = Optional.ofNullable(engineProperties.getProfiles().get(this.routeProfileName));
+        Optional<ProfileProperties> routeProfileConfiguration = Optional.ofNullable(gh.getEngineProperties().getProfiles().get(this.routeProfileName));
         if (routeProfileConfiguration.isEmpty()) {
             LOGGER.debug("Configuration for profile %s does not exist, could not write GraphInfo-File.".formatted(this.routeProfileName));
             return;
