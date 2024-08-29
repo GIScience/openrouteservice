@@ -27,7 +27,7 @@ services:
     environment:
       REBUILD_GRAPHS: False  # Set to True to rebuild graphs on container start in any case.
       REBUILD_ON_PBF_CHANGE: False # Set to True to rebuild graphs if the PBF file has changed. Overwrites REBUILD_GRAPHS for PBF changes.
-      CONTAINER_LOG_LEVEL: Info  # Log level for the container. Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
+      CONTAINER_LOG_LEVEL: INFO  # Log level for the container. Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
       # If you don't want the default ors-config.yml you can specify a custom file name, that should match the file in
       # your 'config' volume mount.
       #ORS_CONFIG_LOCATION: /home/ors/config/my-ors-config.yml  # Location of your ORS configuration file in the docker container
