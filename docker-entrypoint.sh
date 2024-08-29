@@ -71,15 +71,10 @@ function set_log_level() {
 update_file() {
   local target_file_path="$1"
   local original_file_path="$2"
-  # Default to false
-  local print_migration_info_on_update="${3:-false}"
 
   if [ ! -f "${target_file_path}" ] || ! cmp -s "${original_file_path}" "${target_file_path}"; then
     success "Update the file ${target_file_path} with ${original_file_path}"
     cp -f "${original_file_path}" "${target_file_path}" || warning "Could not copy ${original_file_path} to ${target_file_path}"
-    if [ "${print_migration_info_on_update}" = "true" ]; then
-      print_migration_info="true"
-    fi
   else
     success "The file ${target_file_path} is up to date"
   fi
@@ -201,8 +196,8 @@ else
 fi
 
 # Update the example-ors-config.env and example-ors-config.yml files if they don't exist or have changed
-update_file "${ORS_HOME}/config/example-ors-config.env" "/example-ors-config.env" "true"
-update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml" "true"
+update_file "${ORS_HOME}/config/example-ors-config.env" "/example-ors-config.env"
+update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml"
 
 # The config situation is difficult due to the recent ors versions.
 # To ensure a smooth transition, we need to check if the user is using a .json file or a .yml file.
@@ -217,7 +212,7 @@ if [[ "${ors_config_location}" = *.yml ]] && [[ -f "${ors_config_location}" ]]; 
 elif [[ "${ors_config_location}" = *.json ]] && [[ -f "${ors_config_location}" ]]; then
   success "Using json config from ENV: ${ors_config_location}"
   # Print the above warning message in individual warning calls
-  warning ".json configurations are deprecated and will be removed in the future."
+  warning ".json configurations have been removed. Using json files might lead to unkown behavior."
   print_migration_info="true"
 elif [[ -f ${ORS_HOME}/config/ors-config.yml ]]; then
     success "Using the existing ors-config.yml from: ${ORS_HOME}/config/ors-config.yml"
@@ -338,8 +333,8 @@ if [ "${print_migration_info}" = "true" ]; then
   info "##########################################"
   info "# Config options and migration information #"
   info "##########################################"
-  info ">>> Migration information <<<"
-  warning "Configuring ors with a .json config is deprecated and will be removed in the future."
+  info ">>> .JSON config removal information <<<"
+  warning "Configuring ors with a .json config has been removed. Please use .yml files instead."
   info "You can use the ors-config-migration tool to migrate your .json config to .yml: https://github.com/GIScience/ors-config-migration#usage"
   info ">>> Config options <<<"
   info "You have the following options to configure ORS:"
