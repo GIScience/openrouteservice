@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
@@ -157,37 +156,45 @@ public class ProfileProperties {
         }
     }
 
-    public ProfileProperties mergeDefaults(ProfileProperties profileDefault) {
-        enabled = ofNullable(enabled).orElse(profileDefault.enabled);
-        encoderName = encoderName == null ? profileDefault.encoderName : encoderName;
-        sourceFile = sourceFile ==null ? profileDefault.sourceFile : sourceFile;
-        elevation = elevation == null ? profileDefault.elevation : elevation;
-        elevationSmoothing = elevationSmoothing == null ? profileDefault.elevationSmoothing : elevationSmoothing;
-        encoderFlagsSize = encoderFlagsSize == null ? profileDefault.encoderFlagsSize : encoderFlagsSize;
-        instructions = instructions == null ? profileDefault.instructions : instructions;
-        optimize = optimize == null ? profileDefault.optimize : optimize;
-        traffic = traffic == null ? profileDefault.traffic : traffic;
-        interpolateBridgesAndTunnels = interpolateBridgesAndTunnels == null ? profileDefault.interpolateBridgesAndTunnels : interpolateBridgesAndTunnels;
-        forceTurnCosts = forceTurnCosts == null ? profileDefault.forceTurnCosts : forceTurnCosts;
-        locationIndexResolution = locationIndexResolution == null ? profileDefault.locationIndexResolution : locationIndexResolution;
-        locationIndexSearchIterations = locationIndexSearchIterations == null ? profileDefault.locationIndexSearchIterations : locationIndexSearchIterations;
-        gtfsFile = gtfsFile == null ? profileDefault.gtfsFile : gtfsFile;
+    public ProfileProperties mergeDefaults(ProfileProperties other, Boolean overwrite) {
+        enabled = overwrite ? ofNullable(other.enabled).orElse(this.enabled) : ofNullable(this.enabled).orElse(other.enabled);
+        encoderName = overwrite ? ofNullable(other.encoderName).orElse(this.encoderName) : ofNullable(this.encoderName).orElse(other.encoderName);
+        sourceFile = overwrite ? ofNullable(other.sourceFile).orElse(this.sourceFile) : ofNullable(this.sourceFile).orElse(other.sourceFile);
+        elevation = overwrite ? ofNullable(other.elevation).orElse(this.elevation) : ofNullable(this.elevation).orElse(other.elevation);
+        elevationSmoothing = overwrite ? ofNullable(other.elevationSmoothing).orElse(this.elevationSmoothing) : ofNullable(this.elevationSmoothing).orElse(other.elevationSmoothing);
+        encoderFlagsSize = overwrite ? ofNullable(other.encoderFlagsSize).orElse(this.encoderFlagsSize) : ofNullable(this.encoderFlagsSize).orElse(other.encoderFlagsSize);
+        instructions = overwrite ? ofNullable(other.instructions).orElse(this.instructions) : ofNullable(this.instructions).orElse(other.instructions);
+        optimize = overwrite ? ofNullable(other.optimize).orElse(this.optimize) : ofNullable(this.optimize).orElse(other.optimize);
+        traffic = overwrite ? ofNullable(other.traffic).orElse(this.traffic) : ofNullable(this.traffic).orElse(other.traffic);
+        interpolateBridgesAndTunnels = overwrite ? ofNullable(other.interpolateBridgesAndTunnels).orElse(this.interpolateBridgesAndTunnels) : ofNullable(this.interpolateBridgesAndTunnels).orElse(other.interpolateBridgesAndTunnels);
+        forceTurnCosts = overwrite ? ofNullable(other.forceTurnCosts).orElse(this.forceTurnCosts) : ofNullable(this.forceTurnCosts).orElse(other.forceTurnCosts);
+        locationIndexResolution = overwrite ? ofNullable(other.locationIndexResolution).orElse(this.locationIndexResolution) : ofNullable(this.locationIndexResolution).orElse(other.locationIndexResolution);
+        locationIndexSearchIterations = overwrite ? ofNullable(other.locationIndexSearchIterations).orElse(this.locationIndexSearchIterations) : ofNullable(this.locationIndexSearchIterations).orElse(other.locationIndexSearchIterations);
+        gtfsFile = overwrite ? ofNullable(other.gtfsFile).orElse(this.gtfsFile) : ofNullable(this.gtfsFile).orElse(other.gtfsFile);
+        maximumDistance = overwrite ? ofNullable(other.maximumDistance).orElse(this.maximumDistance) : ofNullable(this.maximumDistance).orElse(other.maximumDistance);
+        maximumDistanceDynamicWeights = overwrite ? ofNullable(other.maximumDistanceDynamicWeights).orElse(this.maximumDistanceDynamicWeights) : ofNullable(this.maximumDistanceDynamicWeights).orElse(other.maximumDistanceDynamicWeights);
+        maximumDistanceAvoidAreas = overwrite ? ofNullable(other.maximumDistanceAvoidAreas).orElse(this.maximumDistanceAvoidAreas) : ofNullable(this.maximumDistanceAvoidAreas).orElse(other.maximumDistanceAvoidAreas);
+        maximumDistanceAlternativeRoutes = overwrite ? ofNullable(other.maximumDistanceAlternativeRoutes).orElse(this.maximumDistanceAlternativeRoutes) : ofNullable(this.maximumDistanceAlternativeRoutes).orElse(other.maximumDistanceAlternativeRoutes);
+        maximumDistanceRoundTripRoutes = overwrite ? ofNullable(other.maximumDistanceRoundTripRoutes).orElse(this.maximumDistanceRoundTripRoutes) : ofNullable(this.maximumDistanceRoundTripRoutes).orElse(other.maximumDistanceRoundTripRoutes);
+        maximumSpeedLowerBound = overwrite ? ofNullable(other.maximumSpeedLowerBound).orElse(this.maximumSpeedLowerBound) : ofNullable(this.maximumSpeedLowerBound).orElse(other.maximumSpeedLowerBound);
+        maximumWayPoints = overwrite ? ofNullable(other.maximumWayPoints).orElse(this.maximumWayPoints) : ofNullable(this.maximumWayPoints).orElse(other.maximumWayPoints);
+        maximumSnappingRadius = overwrite ? ofNullable(other.maximumSnappingRadius).orElse(this.maximumSnappingRadius) : ofNullable(this.maximumSnappingRadius).orElse(other.maximumSnappingRadius);
+        maximumVisitedNodes = overwrite ? ofNullable(other.maximumVisitedNodes).orElse(this.maximumVisitedNodes) : ofNullable(this.maximumVisitedNodes).orElse(other.maximumVisitedNodes);
 
-        maximumDistance = maximumDistance == null ? profileDefault.maximumDistance : maximumDistance;
-        maximumDistanceDynamicWeights = maximumDistanceDynamicWeights == null ? profileDefault.maximumDistanceDynamicWeights : maximumDistanceDynamicWeights;
-        maximumDistanceAvoidAreas = maximumDistanceAvoidAreas == null ? profileDefault.maximumDistanceAvoidAreas : maximumDistanceAvoidAreas;
-        maximumDistanceAlternativeRoutes = maximumDistanceAlternativeRoutes == null ? profileDefault.maximumDistanceAlternativeRoutes : maximumDistanceAlternativeRoutes;
-        maximumDistanceRoundTripRoutes = maximumDistanceRoundTripRoutes == null ? profileDefault.maximumDistanceRoundTripRoutes : maximumDistanceRoundTripRoutes;
-        maximumSpeedLowerBound = maximumSpeedLowerBound == null ? profileDefault.maximumSpeedLowerBound : maximumSpeedLowerBound;
-        maximumWayPoints = maximumWayPoints == null ? profileDefault.maximumWayPoints : maximumWayPoints;
-        maximumSnappingRadius = maximumSnappingRadius == null ? profileDefault.maximumSnappingRadius : maximumSnappingRadius;
-        maximumVisitedNodes = maximumVisitedNodes == null ? profileDefault.maximumVisitedNodes : maximumVisitedNodes;
+        for (Map.Entry<String, ExtendedStorage> entry : other.extStorages.entrySet()) {
+            if (extStorages.containsKey(entry.getKey())) {
+                extStorages.get(entry.getKey()).merge(entry.getValue(), overwrite);
+            } else {
+                extStorages.put(entry.getKey(), entry.getValue());
+            }
+        }
 
-        encoderOptions.merge(profileDefault.encoderOptions);
-        preparation.merge(profileDefault.preparation);
-        execution.merge(profileDefault.execution);
-        extStorages = extStorages.isEmpty() ? profileDefault.extStorages : extStorages;
+        encoderOptions.merge(other.encoderOptions, overwrite);
+        preparation.merge(other.preparation, overwrite);
+        execution.merge(other.execution, overwrite);
+
         return this;
     }
-
 }
+
+

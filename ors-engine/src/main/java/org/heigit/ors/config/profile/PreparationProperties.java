@@ -139,11 +139,12 @@ public class PreparationProperties {
         return minNetworkSize == null && minOneWayNetworkSize == null && (methods == null || methods.isEmpty());
     }
 
-    public void merge(PreparationProperties other) {
-        minNetworkSize = ofNullable(this.minNetworkSize).orElse(other.minNetworkSize);
-        minOneWayNetworkSize = ofNullable(this.minOneWayNetworkSize).orElse(other.minOneWayNetworkSize);
-        methods.merge(other.methods);
+    public void merge(PreparationProperties other, Boolean overwrite) {
+        minNetworkSize = overwrite ? ofNullable(other.minNetworkSize).orElse(this.minNetworkSize) : ofNullable(this.minNetworkSize).orElse(other.minNetworkSize);
+        minOneWayNetworkSize = overwrite ? ofNullable(other.minOneWayNetworkSize).orElse(this.minOneWayNetworkSize) : ofNullable(this.minOneWayNetworkSize).orElse(other.minOneWayNetworkSize);
+        methods.merge(other.methods, overwrite);
     }
+
 
     @Getter
     @Setter
@@ -160,11 +161,11 @@ public class PreparationProperties {
             return (ch == null || ch.isEmpty()) && (lm == null || lm.isEmpty()) && (core == null || core.isEmpty()) && (fastisochrones == null || fastisochrones.isEmpty());
         }
 
-        public void merge(MethodsProperties other) {
-            ch.merge(other.ch);
-            lm.merge(other.lm);
-            core.merge(other.core);
-            fastisochrones.merge(other.fastisochrones);
+        public void merge(MethodsProperties other, Boolean overwrite) {
+            ch.merge(other.ch, overwrite);
+            lm.merge(other.lm, overwrite);
+            core.merge(other.core, overwrite);
+            fastisochrones.merge(other.fastisochrones, overwrite);
         }
 
         @Getter
@@ -197,10 +198,10 @@ public class PreparationProperties {
                 return threads == null || threads < 1 ? 1 : threads;
             }
 
-            public void merge(CHProperties other) {
-                enabled = ofNullable(this.enabled).orElse(other.enabled);
-                threads = ofNullable(this.threads).orElse(other.threads);
-                weightings = ofNullable(this.weightings).orElse(other.weightings);
+            public void merge(CHProperties other, Boolean overwrite) {
+                enabled = overwrite ? ofNullable(other.enabled).orElse(this.enabled) : ofNullable(this.enabled).orElse(other.enabled);
+                threads = overwrite ? ofNullable(other.threads).orElse(this.threads) : ofNullable(this.threads).orElse(other.threads);
+                weightings = overwrite ? ofNullable(other.weightings).orElse(this.weightings) : ofNullable(this.weightings).orElse(other.weightings);
             }
         }
 
@@ -235,11 +236,11 @@ public class PreparationProperties {
                 return threads == null || threads < 1 ? 1 : threads;
             }
 
-            public void merge(LMProperties other) {
-                enabled = ofNullable(this.enabled).orElse(other.enabled);
-                threads = ofNullable(this.threads).orElse(other.threads);
-                weightings = ofNullable(this.weightings).orElse(other.weightings);
-                landmarks = ofNullable(this.landmarks).orElse(other.landmarks);
+            public void merge(LMProperties other, Boolean overwrite) {
+                enabled = overwrite ? ofNullable(other.enabled).orElse(this.enabled) : ofNullable(this.enabled).orElse(other.enabled);
+                threads = overwrite ? ofNullable(other.threads).orElse(this.threads) : ofNullable(this.threads).orElse(other.threads);
+                weightings = overwrite ? ofNullable(other.weightings).orElse(this.weightings) : ofNullable(this.weightings).orElse(other.weightings);
+                landmarks = overwrite ? ofNullable(other.landmarks).orElse(this.landmarks) : ofNullable(this.landmarks).orElse(other.landmarks);
             }
         }
 
@@ -275,12 +276,12 @@ public class PreparationProperties {
                 return threads == null || threads < 1 ? 1 : threads;
             }
 
-            public void merge(CoreProperties other) {
-                enabled = ofNullable(this.enabled).orElse(other.enabled);
-                threads = ofNullable(this.threads).orElse(other.threads);
-                weightings = ofNullable(this.weightings).orElse(other.weightings);
-                landmarks = ofNullable(this.landmarks).orElse(other.landmarks);
-                lmsets = ofNullable(this.lmsets).orElse(other.lmsets);
+            public void merge(CoreProperties other, Boolean overwrite) {
+                enabled = overwrite ? ofNullable(other.enabled).orElse(this.enabled) : ofNullable(this.enabled).orElse(other.enabled);
+                threads = overwrite ? ofNullable(other.threads).orElse(this.threads) : ofNullable(this.threads).orElse(other.threads);
+                weightings = overwrite ? ofNullable(other.weightings).orElse(this.weightings) : ofNullable(this.weightings).orElse(other.weightings);
+                landmarks = overwrite ? ofNullable(other.landmarks).orElse(this.landmarks) : ofNullable(this.landmarks).orElse(other.landmarks);
+                lmsets = overwrite ? ofNullable(other.lmsets).orElse(this.lmsets) : ofNullable(this.lmsets).orElse(other.lmsets);
             }
         }
 
@@ -315,11 +316,11 @@ public class PreparationProperties {
                 return threads == null || threads < 1 ? 1 : threads;
             }
 
-            public void merge(FastIsochroneProperties other) {
-                enabled = ofNullable(this.enabled).orElse(other.enabled);
-                threads = ofNullable(this.threads).orElse(other.threads);
-                weightings = ofNullable(this.weightings).orElse(other.weightings);
-                maxcellnodes = ofNullable(this.maxcellnodes).orElse(other.maxcellnodes);
+            public void merge(FastIsochroneProperties other, Boolean overwrite) {
+                enabled = overwrite ? ofNullable(other.enabled).orElse(this.enabled) : ofNullable(this.enabled).orElse(other.enabled);
+                threads = overwrite ? ofNullable(other.threads).orElse(this.threads) : ofNullable(this.threads).orElse(other.threads);
+                weightings = overwrite ? ofNullable(other.weightings).orElse(this.weightings) : ofNullable(this.weightings).orElse(other.weightings);
+                maxcellnodes = overwrite ? ofNullable(other.maxcellnodes).orElse(this.maxcellnodes) : ofNullable(this.maxcellnodes).orElse(other.maxcellnodes);
             }
         }
     }

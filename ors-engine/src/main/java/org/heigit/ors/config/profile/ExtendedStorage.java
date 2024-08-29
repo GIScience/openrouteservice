@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static java.util.Optional.ofNullable;
+
 /**
  * This the base class for the extended storage configuration. It contains a boolean field to enable or disable the storage.
  */
@@ -102,6 +104,26 @@ public class ExtendedStorage {
         super();
         this.initialize(storageName);
     }
+
+    public void merge(ExtendedStorage other, Boolean overwrite) {
+        storageName = overwrite ? ofNullable(other.storageName).orElse(this.storageName) : ofNullable(this.storageName).orElse(other.storageName);
+        enabled = overwrite ? ofNullable(other.enabled).orElse(this.enabled) : ofNullable(this.enabled).orElse(other.enabled);
+        filepath = overwrite ? ofNullable(other.filepath).orElse(this.filepath) : ofNullable(this.filepath).orElse(other.filepath);
+        restrictions = overwrite ? ofNullable(other.restrictions).orElse(this.restrictions) : ofNullable(this.restrictions).orElse(other.restrictions);
+        streets = overwrite ? ofNullable(other.streets).orElse(this.streets) : ofNullable(this.streets).orElse(other.streets);
+        ref_pattern = overwrite ? ofNullable(other.ref_pattern).orElse(this.ref_pattern) : ofNullable(this.ref_pattern).orElse(other.ref_pattern);
+        pattern_15min = overwrite ? ofNullable(other.pattern_15min).orElse(this.pattern_15min) : ofNullable(this.pattern_15min).orElse(other.pattern_15min);
+        radius = overwrite ? ofNullable(other.radius).orElse(this.radius) : ofNullable(this.radius).orElse(other.radius);
+        output_log = overwrite ? ofNullable(other.output_log).orElse(this.output_log) : ofNullable(this.output_log).orElse(other.output_log);
+        log_location = overwrite ? ofNullable(other.log_location).orElse(this.log_location) : ofNullable(this.log_location).orElse(other.log_location);
+        maximumSlope = overwrite ? ofNullable(other.maximumSlope).orElse(this.maximumSlope) : ofNullable(this.maximumSlope).orElse(other.maximumSlope);
+        boundaries = overwrite ? ofNullable(other.boundaries).orElse(this.boundaries) : ofNullable(this.boundaries).orElse(other.boundaries);
+        ids = overwrite ? ofNullable(other.ids).orElse(this.ids) : ofNullable(this.ids).orElse(other.ids);
+        openborders = overwrite ? ofNullable(other.openborders).orElse(this.openborders) : ofNullable(this.openborders).orElse(other.openborders);
+        use_for_warnings = overwrite ? ofNullable(other.use_for_warnings).orElse(this.use_for_warnings) : ofNullable(this.use_for_warnings).orElse(other.use_for_warnings);
+        kerbs_on_crossings = overwrite ? ofNullable(other.kerbs_on_crossings).orElse(this.kerbs_on_crossings) : ofNullable(this.kerbs_on_crossings).orElse(other.kerbs_on_crossings);
+    }
+
 
     // Write a function that sets every property to null but allows to set excluded properties to a value
     private void setAllPropertiesToNull(ArrayList<String> excludedProperties) {

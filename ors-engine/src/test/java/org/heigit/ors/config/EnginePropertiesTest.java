@@ -108,11 +108,15 @@ class EnginePropertiesTest {
                   }
                 },
                 "car-custom": {
-                  "enabled": false,
+                  "enabled": true,
                   "encoder_name": "driving-car",
                   "preparation": {
                     "min_network_size": 900
                   }
+                },
+                "car-custom2": {
+                  "enabled": false,
+                  "encoder_name": "driving-car"
                 }
               }
             }""";
@@ -272,7 +276,7 @@ class EnginePropertiesTest {
         assertNotNull(deserializedEngineProperties.getProfileDefault());
         Map<String, ProfileProperties> profiles = deserializedEngineProperties.getProfiles();
         assertNotNull(profiles);
-        assertEquals(2, profiles.size());
+        assertEquals(12, profiles.size());
         assertTrue(profiles.containsKey("car"));
         assertTrue(profiles.containsKey("hgv"));
 
@@ -300,7 +304,7 @@ class EnginePropertiesTest {
         assertEquals(300, carProfile.getMaximumSnappingRadius());
         assertEquals(2000000, carProfile.getMaximumVisitedNodes());
         assertNotNull(carProfile.getExtStorages());
-        assertTrue(carProfile.getExtStorages().isEmpty());
+        assertEquals(4, carProfile.getExtStorages().size());
 
         ProfileProperties hgvProfile = profiles.get("hgv");
         assertNotNull(hgvProfile);
@@ -326,7 +330,7 @@ class EnginePropertiesTest {
         assertEquals(400, hgvProfile.getMaximumSnappingRadius());
         assertEquals(1000000, hgvProfile.getMaximumVisitedNodes());
         assertNotNull(hgvProfile.getExtStorages());
-        assertTrue(hgvProfile.getExtStorages().isEmpty());
+        assertEquals(4, hgvProfile.getExtStorages().size());
     }
 
     @Test
@@ -375,7 +379,7 @@ class EnginePropertiesTest {
         EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
 
         Map<String, ProfileProperties> profiles = foo.getProfiles();
-        assertEquals(3, profiles.size());
+        assertEquals(14, profiles.size());
         assertTrue(profiles.containsKey("car"));
 
         ProfileProperties carProfile = profiles.get("car");
@@ -384,39 +388,29 @@ class EnginePropertiesTest {
 
         assertTrue(assertAllNull(carProfile, new HashSet<>(List.of("encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
 
-        EncoderOptionsProperties carEncoderOptions = carProfile.getEncoderOptions();
-        assertTrue(assertAllNull(carEncoderOptions, new HashSet<>()));
-
-        PreparationProperties carPreparation = carProfile.getPreparation();
-        assertTrue(assertAllNull(carPreparation, new HashSet<>(List.of("methods"))));
-
-        PreparationProperties.MethodsProperties carMethods = carPreparation.getMethods();
-        assertTrue(assertAllNull(carMethods, new HashSet<>(List.of("lm"))));
-
-        PreparationProperties.MethodsProperties.LMProperties carLm = carMethods.getLm();
-        assertTrue(assertAllNull(carLm, new HashSet<>(List.of("enabled", "threads"))));
+        PreparationProperties.MethodsProperties.LMProperties carLm = carProfile.getPreparation().getMethods().getLm();
         assertTrue(carLm.isEnabled());
         assertEquals(5, carLm.getThreads());
 
-        ExecutionProperties carExecution = carProfile.getExecution();
-        assertTrue(assertAllNull(carExecution.getMethods(), new HashSet<>(List.of("lm"))));
-
-        ExecutionProperties.MethodsProperties.LMProperties carLmExecution = carExecution.getMethods().getLm();
+        ExecutionProperties.MethodsProperties.LMProperties carLmExecution = carProfile.getExecution().getMethods().getLm();
         assertEquals(2, carLmExecution.getActiveLandmarks());
-        assertEquals(0, carProfile.getExtStorages().size());
+        assertEquals(5, carProfile.getExtStorages().size());
     }
 
     @Test
-    void testRawSettingEverythingElseNullHgvProfileProperties() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException {
+    void testRawSettingOverwriteDefaultHgvProfileProperties() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException {
         ObjectMapper mapper = new ObjectMapper();
         EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
 
-        assertTrue(assertAllNull(foo, defaultProfilePropertiesIgnoreList));
         assertEquals(DataAccessEnum.MMAP_RO, foo.getGraphsDataAccess());
 
 
+        Map<String, ProfileProperties> activeProfiles = foo.getActiveProfiles();
+        assertEquals(12, activeProfiles.size());
+        assertFalse(activeProfiles.containsKey("hgv"));
+
         Map<String, ProfileProperties> profiles = foo.getProfiles();
-        assertEquals(3, profiles.size());
+        assertEquals(14, profiles.size());
         assertTrue(profiles.containsKey("hgv"));
 
         ProfileProperties hgvProfile = profiles.get("hgv");
@@ -425,29 +419,17 @@ class EnginePropertiesTest {
 
         assertTrue(assertAllNull(hgvProfile, new HashSet<>(List.of("encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
 
-        EncoderOptionsProperties hgvEncoderOptions = hgvProfile.getEncoderOptions();
-        assertTrue(assertAllNull(hgvEncoderOptions, new HashSet<>()));
-
         PreparationProperties hgvPreparation = hgvProfile.getPreparation();
         assertEquals(900, hgvPreparation.getMinNetworkSize());
         assertNull(hgvPreparation.getMinOneWayNetworkSize());
         PreparationProperties.MethodsProperties hgvMethods = hgvPreparation.getMethods();
-        assertTrue(assertAllNull(hgvMethods, new HashSet<>(List.of("lm"))));
-        assertTrue(assertAllNull(hgvMethods.getLm(), new HashSet<>(List.of("enabled"))));
-
-        PreparationProperties.MethodsProperties hgvMethodsProperties = hgvPreparation.getMethods();
-        assertTrue(assertAllNull(hgvMethodsProperties, new HashSet<>(List.of("lm"))));
 
         PreparationProperties.MethodsProperties.LMProperties hgvLm = hgvMethods.getLm();
-        assertTrue(assertAllNull(hgvLm, new HashSet<>(List.of("enabled"))));
         assertTrue(hgvLm.isEnabled());
         assertEquals(1, hgvLm.getThreadsSave());
 
-        ExecutionProperties hgvExecution = hgvProfile.getExecution();
-        assertTrue(assertAllNull(hgvExecution.getMethods(), new HashSet<>(List.of("lm"))));
-
         Map<String, ExtendedStorage> hgvExtStorages = hgvProfile.getExtStorages();
-        assertEquals(1, hgvExtStorages.size());
+        assertEquals(5, hgvExtStorages.size());
         assertTrue(hgvExtStorages.containsKey("HeavyVehicle"));
 
         ExtendedStorage heavyVehicle = hgvExtStorages.get("HeavyVehicle");
@@ -462,28 +444,24 @@ class EnginePropertiesTest {
         EngineProperties foo = mapper.readValue(testJson, EngineProperties.class);
 
         Map<String, ProfileProperties> profiles = foo.getProfiles();
-        assertEquals(3, profiles.size());
+        assertEquals(14, profiles.size());
         assertTrue(profiles.containsKey("car-custom"));
 
+        ProfileProperties carCustomProfile2 = profiles.get("car-custom2");
+        assertFalse(carCustomProfile2.getEnabled());
+
         ProfileProperties carCustomProfile = profiles.get("car-custom");
-        assertFalse(carCustomProfile.getEnabled());
+        assertTrue(carCustomProfile.getEnabled());
         assertEquals(EncoderNameEnum.DRIVING_CAR, carCustomProfile.getEncoderName());
 
         assertTrue(assertAllNull(carCustomProfile, new HashSet<>(List.of("encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
 
-        EncoderOptionsProperties carCustomEncoderOptions = carCustomProfile.getEncoderOptions();
-        assertTrue(assertAllNull(carCustomEncoderOptions, new HashSet<>()));
-
         PreparationProperties carCustomPreparation = carCustomProfile.getPreparation();
         assertEquals(900, carCustomPreparation.getMinNetworkSize());
         assertNull(carCustomPreparation.getMinOneWayNetworkSize());
-        assertTrue(assertAllNull(carCustomPreparation.getMethods(), new HashSet<>()));
-
-        ExecutionProperties carCustomExecution = carCustomProfile.getExecution();
-        assertTrue(assertAllNull(carCustomExecution.getMethods(), new HashSet<>(List.of("lm"))));
 
         Map<String, ExtendedStorage> carCustomExtStorages = carCustomProfile.getExtStorages();
-        assertNull(carCustomExtStorages);
+        assertEquals(5, carCustomExtStorages.size());
     }
 
     @Test
@@ -516,35 +494,32 @@ class EnginePropertiesTest {
     }
 
     @Test
-    void testMergeRawSettingsWithDefaultValuesCheckProfiles() throws JsonProcessingException, IllegalAccessException, NoSuchFieldException, CloneNotSupportedException {
+    void testMergeRawSettingsWithDefaultValuesCheckProfiles() {
         // Check the profiles
-        Map<String, ProfileProperties> actualProfiles = enginePropertiesTest.getProfiles();
-        assertEquals(13, actualProfiles.size());
+        Map<String, ProfileProperties> actualProfiles = enginePropertiesTest.getActiveProfiles();
+        assertEquals(12, actualProfiles.size());
 
         // Check the defaults
         for (Map.Entry<String, ProfileProperties> profile : actualProfiles.entrySet()) {
             String profileMapKey = profile.getKey();
 
             ProfileProperties actualProfileProperties = profile.getValue();
-            assertEquals("shortest", actualProfileProperties.getPreparation().getMethods().getLm().getWeightings());
-            assertEquals(2, actualProfileProperties.getPreparation().getMethods().getLm().getLandmarks());
-            assertEquals(2, actualProfileProperties.getExecution().getMethods().getLm().getActiveLandmarks());
+            assertTrue(actualProfileProperties.getEnabled());
             if (profileMapKey.equals("car")) {
+                assertEquals(EncoderNameEnum.DRIVING_CAR, actualProfileProperties.getEncoderName());
                 assertTrue(actualProfileProperties.getPreparation().getMethods().getLm().isEnabled());
-                assertEquals(0, actualProfileProperties.getExtStorages().size());
+                assertEquals(5, actualProfileProperties.getPreparation().getMethods().getLm().getThreads());
+                assertEquals(2, actualProfileProperties.getExecution().getMethods().getLm().getActiveLandmarks());
+                assertEquals(5, actualProfileProperties.getExtStorages().size());
             } else if (profileMapKey.equals("car-custom")) {
-                assertFalse(actualProfileProperties.getEnabled());
                 assertEquals(EncoderNameEnum.DRIVING_CAR, actualProfileProperties.getEncoderName());
                 assertEquals(900, actualProfileProperties.getPreparation().getMinNetworkSize());
-                assertEquals(2, actualProfileProperties.getExtStorages().size());
-                assertTrue(actualProfileProperties.getExtStorages().containsKey("WayCategory"));
-                assertTrue(actualProfileProperties.getExtStorages().containsKey("GreenIndex"));
-                assertTrue(actualProfileProperties.getExtStorages().get("WayCategory").getEnabled());
-                assertTrue(actualProfileProperties.getExtStorages().get("GreenIndex").getEnabled());
-                assertEquals(Path.of("/path/to/file.csv"), actualProfileProperties.getExtStorages().get("GreenIndex").getFilepath());
+                assertEquals(5, actualProfileProperties.getExtStorages().size());
             } else if (profileMapKey.equals("hgv")) {
-                assertEquals(1, actualProfileProperties.getExtStorages().size());
+                assertEquals(EncoderNameEnum.DRIVING_HGV, actualProfileProperties.getEncoderName());
                 assertEquals(900, actualProfileProperties.getPreparation().getMinNetworkSize());
+                assertTrue(actualProfileProperties.getPreparation().getMethods().getLm().isEnabled());
+                assertEquals(3, actualProfileProperties.getExtStorages().size());
                 assertTrue(actualProfileProperties.getExtStorages().containsKey("HeavyVehicle"));
                 assertTrue(actualProfileProperties.getExtStorages().get("HeavyVehicle").getRestrictions());
             } else if (profileMapKey.equals(EncoderNameEnum.PUBLIC_TRANSPORT.getName())) {
@@ -554,20 +529,22 @@ class EnginePropertiesTest {
                 // The profileDefault also sets it for public-transport
                 assertEquals(2, actualProfileProperties.getExtStorages().size());
             } else {
-                assertTrue(actualProfileProperties.getEnabled());
                 assertEquals(300, actualProfileProperties.getPreparation().getMinNetworkSize());
                 assertFalse(actualProfileProperties.getPreparation().getMethods().getLm().isEnabled());
-                assertEquals(2, actualProfileProperties.getExtStorages().size());
-                assertTrue(actualProfileProperties.getExtStorages().containsKey("WayCategory"));
-                assertTrue(actualProfileProperties.getExtStorages().containsKey("GreenIndex"));
-                assertTrue(actualProfileProperties.getExtStorages().get("WayCategory").getEnabled());
-                assertTrue(actualProfileProperties.getExtStorages().get("GreenIndex").getEnabled());
-                assertEquals(Path.of("/path/to/file.csv"), actualProfileProperties.getExtStorages().get("GreenIndex").getFilepath());
+                assertEquals("shortest", actualProfileProperties.getPreparation().getMethods().getLm().getWeightings());
+                assertEquals(2, actualProfileProperties.getPreparation().getMethods().getLm().getLandmarks());
+                assertEquals(2, actualProfileProperties.getExecution().getMethods().getLm().getActiveLandmarks());
             }
-
             if (profileMapKey.equals(EncoderNameEnum.WHEELCHAIR.getName())) {
                 assertEquals(50, actualProfileProperties.getMaximumSnappingRadius());
             }
+            assertTrue(actualProfileProperties.getExtStorages().containsKey("WayCategory"));
+            assertTrue(actualProfileProperties.getExtStorages().containsKey("GreenIndex"));
+            assertTrue(actualProfileProperties.getExtStorages().get("WayCategory").getEnabled());
+            assertTrue(actualProfileProperties.getExtStorages().get("GreenIndex").getEnabled());
+            assertEquals(Path.of("/path/to/file.csv"), actualProfileProperties.getExtStorages().get("GreenIndex").getFilepath());
+
+
         }
     }
 }

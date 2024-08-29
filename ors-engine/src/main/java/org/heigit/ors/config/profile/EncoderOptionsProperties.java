@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+import static java.util.Optional.ofNullable;
 
 @Getter
 @Setter
@@ -145,16 +146,16 @@ public class EncoderOptionsProperties {
         return String.join("|", out);
     }
 
-    public void merge(EncoderOptionsProperties other) {
-        blockFords = blockFords == null ? other.blockFords : blockFords;
-        considerElevation = considerElevation == null ? other.considerElevation : considerElevation;
-        turnCosts = turnCosts == null ? other.turnCosts : turnCosts;
-        useAcceleration = useAcceleration == null ? other.useAcceleration : useAcceleration;
-        maximumGradeLevel = maximumGradeLevel == null ? other.maximumGradeLevel : maximumGradeLevel;
-        preferredSpeedFactor = preferredSpeedFactor == null ? other.preferredSpeedFactor : preferredSpeedFactor;
-        problematicSpeedFactor = problematicSpeedFactor == null ? other.problematicSpeedFactor : problematicSpeedFactor;
-        conditionalAccess = conditionalAccess == null ? other.conditionalAccess : conditionalAccess;
-        conditionalSpeed = conditionalSpeed == null ? other.conditionalSpeed : conditionalSpeed;
+    public void merge(EncoderOptionsProperties other, Boolean overwrite) {
+        blockFords = overwrite ? ofNullable(other.blockFords).orElse(this.blockFords) : ofNullable(this.blockFords).orElse(other.blockFords);
+        considerElevation = overwrite ? ofNullable(other.considerElevation).orElse(this.considerElevation) : ofNullable(this.considerElevation).orElse(other.considerElevation);
+        turnCosts = overwrite ? ofNullable(other.turnCosts).orElse(this.turnCosts) : ofNullable(this.turnCosts).orElse(other.turnCosts);
+        useAcceleration = overwrite ? ofNullable(other.useAcceleration).orElse(this.useAcceleration) : ofNullable(this.useAcceleration).orElse(other.useAcceleration);
+        maximumGradeLevel = overwrite ? ofNullable(other.maximumGradeLevel).orElse(this.maximumGradeLevel) : ofNullable(this.maximumGradeLevel).orElse(other.maximumGradeLevel);
+        preferredSpeedFactor = overwrite ? ofNullable(other.preferredSpeedFactor).orElse(this.preferredSpeedFactor) : ofNullable(this.preferredSpeedFactor).orElse(other.preferredSpeedFactor);
+        problematicSpeedFactor = overwrite ? ofNullable(other.problematicSpeedFactor).orElse(this.problematicSpeedFactor) : ofNullable(this.problematicSpeedFactor).orElse(other.problematicSpeedFactor);
+        conditionalAccess = overwrite ? ofNullable(other.conditionalAccess).orElse(this.conditionalAccess) : ofNullable(this.conditionalAccess).orElse(other.conditionalAccess);
+        conditionalSpeed = overwrite ? ofNullable(other.conditionalSpeed).orElse(this.conditionalSpeed) : ofNullable(this.conditionalSpeed).orElse(other.conditionalSpeed);
     }
 }
 

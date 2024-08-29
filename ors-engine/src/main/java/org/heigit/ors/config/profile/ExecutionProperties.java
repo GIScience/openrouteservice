@@ -42,8 +42,8 @@ public class ExecutionProperties {
         return methods.isEmpty();
     }
 
-    public void merge(ExecutionProperties other) {
-        methods.merge(other.methods);
+    public void merge(ExecutionProperties other, Boolean overwrite) {
+        methods.merge(other.methods, overwrite);
     }
 
     @Getter
@@ -59,10 +59,10 @@ public class ExecutionProperties {
             return astar.isEmpty() && lm.isEmpty() && core.isEmpty();
         }
 
-        public void merge(MethodsProperties other) {
-            astar.merge(other.astar);
-            lm.merge(other.lm);
-            core.merge(other.core);
+        public void merge(MethodsProperties other, Boolean overwrite) {
+            astar.merge(other.astar, overwrite);
+            lm.merge(other.lm, overwrite);
+            core.merge(other.core, overwrite);
         }
 
 
@@ -79,9 +79,9 @@ public class ExecutionProperties {
                 return approximation == null && epsilon == null;
             }
 
-            public void merge(AStarProperties other) {
-                approximation = ofNullable(this.approximation).orElse(other.approximation);
-                epsilon = ofNullable(this.epsilon).orElse(other.epsilon);
+            public void merge(AStarProperties other, Boolean overwrite) {
+                approximation = overwrite ? ofNullable(other.approximation).orElse(this.approximation) : ofNullable(this.approximation).orElse(other.approximation);
+                epsilon = overwrite ? ofNullable(other.epsilon).orElse(this.epsilon) : ofNullable(this.epsilon).orElse(other.epsilon);
             }
         }
 
@@ -98,8 +98,8 @@ public class ExecutionProperties {
                 return activeLandmarks == null;
             }
 
-            public void merge(LMProperties other) {
-                activeLandmarks = ofNullable(this.activeLandmarks).orElse(other.activeLandmarks);
+            public void merge(LMProperties other, Boolean overwrite) {
+                activeLandmarks = overwrite ? ofNullable(other.activeLandmarks).orElse(this.activeLandmarks) : ofNullable(this.activeLandmarks).orElse(other.activeLandmarks);
             }
         }
 
@@ -116,8 +116,8 @@ public class ExecutionProperties {
                 return activeLandmarks == null;
             }
 
-            public void merge(CoreProperties other) {
-                activeLandmarks = ofNullable(this.activeLandmarks).orElse(other.activeLandmarks);
+            public void merge(CoreProperties other, Boolean overwrite) {
+                activeLandmarks = overwrite ? ofNullable(other.activeLandmarks).orElse(this.activeLandmarks) : ofNullable(this.activeLandmarks).orElse(other.activeLandmarks);
             }
         }
     }

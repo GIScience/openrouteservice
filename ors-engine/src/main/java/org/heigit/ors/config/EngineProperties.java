@@ -56,18 +56,19 @@ public class EngineProperties {
         List<EncoderNameEnum> defaultEncoderNames = List.of(DRIVING_CAR, DRIVING_HGV, CYCLING_REGULAR, CYCLING_ROAD, CYCLING_ELECTRIC, CYCLING_MOUNTAIN, FOOT_WALKING, FOOT_HIKING, WHEELCHAIR, PUBLIC_TRANSPORT);
         for (EncoderNameEnum encoderName : defaultEncoderNames) {
             ProfileProperties defaultProfile = ProfileProperties.getProfileInstance(encoderName);
+            defaultProfile.mergeDefaults(profileDefault, true);
             if (profiles.containsKey(encoderName.name)) {
-                profiles.get(encoderName.name).mergeDefaults(defaultProfile);
+                profiles.get(encoderName.name).mergeDefaults(defaultProfile, false);
             } else {
                 profiles.put(encoderName.name, defaultProfile);
             }
         }
-        for (ProfileProperties profile : profiles.values()) {
+        for (Map.Entry<String, ProfileProperties> entry : profiles.entrySet()) {
+            ProfileProperties profile = entry.getValue();
             EncoderNameEnum encoderName = profile.getEncoderName();
-            profile.mergeDefaults(profileDefault);
             ProfileProperties defaultProfile = ProfileProperties.getProfileInstance(encoderName);
-            profile.mergeDefaults(defaultProfile);
-
+            defaultProfile.mergeDefaults(profileDefault, true);
+            profile.mergeDefaults(defaultProfile, false);
             profile.getExtStorages().forEach(
                     (key, value) -> {
                         if (value != null) {
@@ -81,6 +82,15 @@ public class EngineProperties {
     }
 
     @JsonIgnore
+    public Map<String, ProfileProperties> getProfiles() {
+        if (!initialized) {
+            initProfilesMap();
+            initialized = true;
+        }
+        return profiles;
+    }
+
+    @JsonIgnore
     public Map<String, ProfileProperties> getActiveProfiles() {
         if (!initialized) {
             initProfilesMap();
@@ -89,7 +99,7 @@ public class EngineProperties {
 
         LinkedHashMap<String, ProfileProperties> activeProfiles = new LinkedHashMap<>();
         for (Map.Entry<String, ProfileProperties> entry : profiles.entrySet()) {
-            ProfileProperties mergedProfile = entry.getValue().mergeDefaults(profileDefault);
+            ProfileProperties mergedProfile = entry.getValue().mergeDefaults(profileDefault, false);
             if (Optional.ofNullable(mergedProfile.getEnabled()).orElse(false)) {
                 activeProfiles.put(entry.getKey(), mergedProfile);
             }
