@@ -23,43 +23,48 @@ public class PropertyUtils {
                 continue;
             }
             Object value = field.get(o);
+            boolean isNull = true;
             if (value == null) {
                 continue;
             }
             if (value.getClass().isPrimitive()) {
-                return false;
+                isNull = false;
             } else if (value instanceof Collection) {
                 if (!((Collection<?>) value).isEmpty()) {
-                    return false;
+                    isNull = false;
                 }
             } else if (value instanceof Map) {
                 if (!((Map<?, ?>) value).isEmpty()) {
-                    return false;
+                    isNull = false;
                 }
             } else if (value instanceof Object[]) {
                 if (((Object[]) value).length > 0) {
-                    return false;
+                    isNull = false;
                 }
             } else if (value instanceof Path) {
-                return false;
+                isNull = false;
             } else if (value instanceof String) {
                 if (!value.equals("")) {
-                    return false;
+                    isNull = false;
                 }
             } else if (value instanceof Number) {
                 if (((Number) value).doubleValue() != 0) {
-                    return false;
+                    isNull = false;
                 }
             } else if (value instanceof Boolean) {
                 if ((Boolean) value) {
-                    return false;
+                    isNull = false;
                 }
             } else if (value instanceof Enum) {
-                return false;
+                isNull = false;
             } else {
                 if (!assertAllNull(value, excludeFields, fullPath)) {
-                    return false;
+                    isNull = false;
                 }
+            }
+            if (!isNull) {
+                System.out.println("Field " + fullPath + " is not null");
+                return false;
             }
         }
         return true;
