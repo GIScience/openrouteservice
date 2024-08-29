@@ -14,11 +14,12 @@ import java.util.Optional;
 
 @Getter
 /*
-    * This class must not be used as configuration class.
-    * It is created at runtime as container of properties for managing a named graph
-    * which is used in constructors or methods of classes in the graph management package.
+ * This class must not be used as configuration class.
+ * It is created at runtime as container of properties for managing a named graph
+ * which is used in constructors or methods of classes in the graph management package.
  */
 public class GraphManagementRuntimeProperties {
+    private Boolean enabled;
 
     private String graphVersion;
     private String encoderName;
@@ -35,10 +36,12 @@ public class GraphManagementRuntimeProperties {
     private URL derivedRepoBaseUrl;
     private Path derivedRepoPath;
 
-    private GraphManagementRuntimeProperties() {}
+    private GraphManagementRuntimeProperties() {
+    }
 
     public static class Builder {
 
+        private Boolean enabled;
         private String graphVersion;
         private String encoderName;
         private String localGraphsRootAbsPath;
@@ -54,6 +57,7 @@ public class GraphManagementRuntimeProperties {
 
         public static Builder fromEngineProperties(EngineProperties engineProperties) {
             Builder builder = new Builder();
+            builder.enabled = engineProperties.getGraphManagement().getEnabled();
             builder.repoBaseUri = engineProperties.getGraphManagement().getRepositoryUri();
             builder.repoName = engineProperties.getGraphManagement().getRepositoryName();
             builder.repoCoverage = engineProperties.getGraphManagement().getGraphExtent();
@@ -64,6 +68,7 @@ public class GraphManagementRuntimeProperties {
 
         public static Builder from(EngineProperties engineProperties, String routeProfileName, String graphVersion) {
             Builder builder = new Builder();
+            builder.enabled = engineProperties.getGraphManagement().getEnabled();
             builder.repoBaseUri = engineProperties.getGraphManagement().getRepositoryUri();
             builder.repoName = engineProperties.getGraphManagement().getRepositoryName();
             builder.repoCoverage = engineProperties.getGraphManagement().getGraphExtent();
@@ -110,6 +115,7 @@ public class GraphManagementRuntimeProperties {
 
         public GraphManagementRuntimeProperties build() {
             GraphManagementRuntimeProperties properties = new GraphManagementRuntimeProperties();
+            properties.enabled = this.enabled;
             properties.localGraphsRootAbsPath = this.localGraphsRootAbsPath;
             properties.graphVersion = this.graphVersion;
             properties.localProfileName = this.localProfileName;

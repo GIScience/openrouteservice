@@ -3,6 +3,7 @@ package org.heigit.ors.api.services;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.Application;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class GraphService {
+
+    // get this value from ors.engine.graph_management.enabled
+    @Value("${ors.engine.graph_management.enabled:false}")
+    Boolean enabled = false;
+
     private static final Logger LOGGER = Logger.getLogger(GraphService.class.getName());
 
     public List<ORSGraphManager> graphManagers = new ArrayList<>();
@@ -29,6 +35,11 @@ public class GraphService {
     @Async
     @Scheduled(cron = "${ors.engine.graph_management.download_schedule:0 0 0 31 2 *}")//Default is "never"
     public void checkForUpdatesInRepo() {
+
+        if (!enabled) {
+            LOGGER.debug("Graph management is disabled, skipping scheduled repository check...");
+            return;
+        }
 
         LOGGER.debug("Scheduled repository check...");
 
@@ -56,6 +67,11 @@ public class GraphService {
     @Async
     @Scheduled(cron = "${ors.engine.graph_management.activation_schedule:0 0 0 31 2 *}")//Default is "never"
     public void checkForDownloadedGraphsToActivate() {
+
+        if (!enabled) {
+            LOGGER.debug("Graph management is disabled, skipping scheduled activation check...");
+            return;
+        }
 
         LOGGER.debug("Restart check...");
 

@@ -11,6 +11,8 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class GraphManagementProperties {// TODO move to new package 'repo' and rename to GraphManagementConfigProperties
 
+    @JsonProperty
+    private Boolean enabled = false;
 
     //TODO add
 //    @JsonProperty("profiles")
