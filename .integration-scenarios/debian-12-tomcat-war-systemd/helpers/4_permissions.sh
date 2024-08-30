@@ -11,6 +11,56 @@ if [ -z "$CONTAINER_ENGINE" ] || [ "$CONTAINER_ENGINE" != "podman" ] && [ "$CONT
     return 1
 fi
 
+# Function to recursively check ownership of all files and directories in a folder
+# Usage: check_recursive_ownership <folder> <user> <group>
+check_recursive_ownership() {
+    local folder="$1"
+    local user="$2"
+    local group="$3"
+
+    # Fail if any of the variables are empty
+    if [ -z "$folder" ] || [ -z "$user" ] || [ -z "$group" ]; then
+        log_error "Please provide all variables to the check_recursive_ownership function."
+        return 1
+    fi
+
+    # Find all files and directories in the folder and check their ownership
+    while IFS= read -r -d '' item; do
+        local result
+        result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "stat -c '%U %G' $item")
+        if [[ "$result" != "$user $group" ]]; then
+            log_error "Ownership for $item should be $user:$group but is $result"
+            return 1
+        fi
+    done < <(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "find $folder -print0")
+
+    log_success "All items in $folder are owned by $user:$group as expected."
+    return 0
+}
+
+# Function to check ownership of a file or folder
+# Usage: check_ownership <path_to_file> <user> <group>
+check_ownership() {
+    local path_to_file="$1"
+    local user="$2"
+    local group="$3"
+
+    # Fail if any of the variables are empty
+    if [ -z "$path_to_file" ] || [ -z "$user" ] || [ -z "$group" ]; then
+        log_error "Please provide all variables to the check_ownership function."
+        return 1
+    fi
+
+    local result
+    result=$(${CONTAINER_ENGINE} exec -u root "$CONTAINER_NAME" bash -c "stat -c '%U %G' $path_to_file")
+    if [[ "$result" != "$user $group" ]]; then
+        log_error "Ownership for $path_to_file should be $user:$group but is $result"
+        return 1
+    fi
+
+    log_success "Ownership for $path_to_file is $user:$group as expected."
+    return 0
+}
 
 # Function to check user and group permissions on a file or folder
 # Usage: check_user_group_permissions <path_to_file> <user> <group> <permissions>

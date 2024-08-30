@@ -47,7 +47,7 @@ check_number_of_profiles_loaded "127.0.0.1:${PORT}/ors/v2/status" 1 || exit 1
 check_profile_loaded "127.0.0.1:${PORT}/ors/v2/status" "driving-car" true|| exit 1
 
 # Activate the hgv profile
-podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profiles.hgv.enabled = true' /home/ors/ors-config.yml" || exit 1
+podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profiles.\"driving-hgv\".enabled = true' /home/ors/ors-config.yml" || exit 1
 
 # Restart the container silently
 log_info "Restarting the container to activate the hgv profile"
@@ -66,8 +66,8 @@ check_profile_loaded "127.0.0.1:${PORT}/ors/v2/status" "driving-hgv" true|| exit
 
 # Check that each of the following folders exist
 folders_to_expect=(
-  "/home/ors/graphs/car"
-  "/home/ors/graphs/hgv"
+  "/home/ors/graphs/driving-car"
+  "/home/ors/graphs/driving-hgv"
 )
 for folder in "${folders_to_expect[@]}"; do
   check_folder_exists $folder true || exit 1

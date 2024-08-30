@@ -46,17 +46,20 @@ check_number_of_profiles_loaded "127.0.0.1:${PORT}/ors/v2/status" 1 || exit 1
 # Check that 'driving-car' is loaded
 check_profile_loaded "127.0.0.1:${PORT}/ors/v2/status" "driving-car" true|| exit 1
 
-log_info "Deactivating the hgv profile explicitly"
-podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profiles.hgv.enabled = false' /home/ors/ors-config.yml" || exit 1
+log_info "Deactivating the driving-hgv profile explicitly"
+podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profiles.\"driving-hgv\".enabled = false' /home/ors/ors-config.yml" || exit 1
 
-log_info "Activating the hgv and bike-regular profiles through overwriting the setenv.sh"
+log_info "Activating the driving-hgv and bike-regular profiles through overwriting the setenv.sh"
 podman exec -it $CONTAINER_NAME /bin/bash -c "echo 'export JAVA_OPTS=\"\$JAVA_OPTS \
--Dors.engine.profiles.hgv.enabled=true \
--Dors.engine.profiles.bike-regular.enabled=true\"' > /home/ors/setenv.sh" || exit 1
+-Dors.engine.profiles.driving-hgv.enabled=true \
+-Dors.engine.profiles.driving-hgv.encoder_name=driving-hgv \
+-Dors.engine.profiles.bike-regular.enabled=true \
+-Dors.engine.profiles.bike-regular.encoder_name=cycling-regular\"' > /home/ors/setenv.sh" || exit 1
+
 
 
 # Restart the container silently
-log_info "Restarting the container to activate the hgv and bike-regular profiles"
+log_info "Restarting the container to activate the driving-hgv and bike-regular profiles"
 podman stop $CONTAINER_NAME > /dev/null || exit 1
 podman start $CONTAINER_NAME > /dev/null || exit 1
 
@@ -73,8 +76,8 @@ check_profile_loaded "127.0.0.1:${PORT}/ors/v2/status" "cycling-regular" true|| 
 
 # Check that each of the following folders exist
 folders_to_expect=(
-  "/home/ors/graphs/car"
-  "/home/ors/graphs/hgv"
+  "/home/ors/graphs/driving-car"
+  "/home/ors/graphs/driving-hgv"
   "/home/ors/graphs/bike-regular"
 )
 for folder in "${folders_to_expect[@]}"; do

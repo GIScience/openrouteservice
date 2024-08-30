@@ -224,7 +224,12 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return gh;
     }
 
-    public void initializeGraphManagement(String graphVersion){
+    public void initializeGraphManagement(String graphVersion) {
+        // TODO @Haeussler rework the whole GraphManagement logic
+        // The graph locations are currently picked up from three different locations
+        // EngineProperties/ProfileProperties/GraphManagement.
+        // We should streamline that to ProfileProperties/EngineProperties and give the GraphManagment the relevant Objects.
+        // This class should not introduce new storing logic if possible.
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, routeProfileName, graphVersion).build();
         initializeGraphManagementWithFlatStructure(managementProps);
 //        initializeGraphManagementWithDeepHashBasedStructure(managementProps);
@@ -280,6 +285,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         if (uri == null) return false;
         return Arrays.asList("http", "https").contains(uri.getScheme());
     }
+
     private boolean isSupportedFileScheme(URI uri) {
         if (uri == null) return false;
         return Arrays.asList("file").contains(uri.getScheme());

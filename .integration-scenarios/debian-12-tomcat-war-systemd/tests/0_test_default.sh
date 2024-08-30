@@ -48,15 +48,15 @@ check_number_of_profiles_loaded "127.0.0.1:${PORT}/ors/v2/status" 1 || exit 1
 check_profile_loaded "127.0.0.1:${PORT}/ors/v2/status" "driving-car" true|| exit 1
 
 # Check that the graphs are properly build
-count_owned_content "/home/ors/" "ors" "tomcat" 32 || exit 1
-count_owned_content "/home/ors/graphs/" "ors" "tomcat" 1 || exit 1
-count_owned_content "/home/ors/graphs/car" "tomcat" "tomcat" 29 || exit 1
+check_ownership "/home/ors/" "ors" "tomcat" || exit 1
+check_ownership "/home/ors/graphs/" "ors" "tomcat" || exit 1
+check_recursive_ownership "/home/ors/graphs/**" "tomcat" "tomcat" || exit 1
 
 # Check that each of the following folders exist
 folders_to_expect=(
   "/opt/tomcat/10/webapps/ors"
   "/opt/tomcat/10/temp"
-  "/home/ors/graphs/car"
+  "/home/ors/graphs/driving-car"
   "/home/ors/elevation_cache"
 )
 for folder in "${folders_to_expect[@]}"; do

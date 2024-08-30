@@ -52,16 +52,7 @@ podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profile_defa
 
 log_info "Activating all profiles through the setenv.sh"
 podman exec -it $CONTAINER_NAME /bin/bash -c "echo 'export JAVA_OPTS=\"\$JAVA_OPTS \
--Dors.engine.profiles.car.enabled=true \
--Dors.engine.profiles.hgv.enabled=true \
--Dors.engine.profiles.bike-regular.enabled=true \
--Dors.engine.profiles.bike-mountain.enabled=true \
--Dors.engine.profiles.bike-road.enabled=true \
--Dors.engine.profiles.bike-electric.enabled=true \
--Dors.engine.profiles.walking.enabled=true \
--Dors.engine.profiles.hiking.enabled=true \
--Dors.engine.profiles.wheelchair.enabled=true \
--Dors.engine.profiles.public-transport.enabled=true \
+-Dors.engine.profiles.profile_default.enabled=true \
 -Dors.engine.profiles.car.ext_storages.Borders.boundaries=/home/ors/files/borders/borders\.geojson \
 -Dors.engine.profiles.car.ext_storages.Borders.ids=/home/ors/files/borders/ids.csv \
 -Dors.engine.profiles.car.ext_storages.Borders.openborders=/home/ors/files/borders/openborders.csv \
@@ -117,8 +108,8 @@ done
 
 # Check that each of the following folders exist
 folders_to_expect=(
-  "/home/ors/graphs/car"
-  "/home/ors/graphs/hgv"
+  "/home/ors/graphs/driving-car"
+  "/home/ors/graphs/driving-hgv"
   "/home/ors/graphs/bike-regular"
   "/home/ors/graphs/bike-mountain"
   "/home/ors/graphs/bike-road"

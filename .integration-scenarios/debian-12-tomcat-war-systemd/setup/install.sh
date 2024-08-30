@@ -241,6 +241,23 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
+
+cat <<EOF > "$HOME_FOLDER/README.md"
+Tomcat $TOMCAT_VERSION has been installed with a systemd service file to start and stop the service.
+Alongside, a user '$USER' has been created and added to the tomcat group.
+The user should be used to do further configurations in the $HOME_FOLDER folder.
+--------------------- Manual steps ------------------------
+0. Investigate the service file with: sudo systemctl cat openrouteservice
+1. Adjust the default ors-config.yml and setenv.sh files in $HOME_FOLDER
+Note: Everything defined in setenv.sh overwrites the default ors-config.yml file via ENVs.
+Note: The default configs run an example setup with the heidelberg.osm.gz file. You should replace this with your own data.
+2. Start tomcat using the command: sudo systemctl start openrouteservice
+3. Check tomcat logs with: cat $TOMCAT_FOLDER/logs/catalina.out
+4. Check ors logs with: cat $HOME_FOLDER/logs/ors.log
+5. Make the openrouteservice tomcat process permanent: sudo systemctl enable openrouteservice
+-----------------------------------------------------------
+EOF
+
 # Set correct permissions for the systemd service file
 if ! chmod 664 "/etc/systemd/system/openrouteservice.service"; then
     log_error "Failed to set permissions for openrouteservice.service."
@@ -282,21 +299,5 @@ if ! chmod -R 770 "$TOMCAT_FOLDER/conf" "$TOMCAT_FOLDER/logs" "$HOME_FOLDER"; th
     log_error "Failed to set permissions."
     exit 1
 fi
-
-cat <<EOF > "$HOME_FOLDER/README.md"
-Tomcat $TOMCAT_VERSION has been installed with a systemd service file to start and stop the service.
-Alongside, a user '$USER' has been created and added to the tomcat group.
-The user should be used to do further configurations in the $HOME_FOLDER folder.
---------------------- Manual steps ------------------------
-0. Investigate the service file with: sudo systemctl cat openrouteservice
-1. Adjust the default ors-config.yml and setenv.sh files in $HOME_FOLDER
-Note: Everything defined in setenv.sh overwrites the default ors-config.yml file via ENVs.
-Note: The default configs run an example setup with the heidelberg.osm.gz file. You should replace this with your own data.
-2. Start tomcat using the command: sudo systemctl start openrouteservice
-3. Check tomcat logs with: cat $TOMCAT_FOLDER/logs/catalina.out
-4. Check ors logs with: cat $HOME_FOLDER/logs/ors.log
-5. Make the openrouteservice tomcat process permanent: sudo systemctl enable openrouteservice
------------------------------------------------------------
-EOF
 
 log_success "Successfully installed Tomcat $TOMCAT_VERSION with systemd service file. Check the README.md file in $HOME_FOLDER for further instructions."
