@@ -103,7 +103,7 @@ ors:
 #  ##### ORS engine settings #####
   engine:
     graph_management:
-
+      enabled: false
 
 #      4 NexusRepoManager
 #      repository_uri: 'http://localhost:8081/service/rest'
