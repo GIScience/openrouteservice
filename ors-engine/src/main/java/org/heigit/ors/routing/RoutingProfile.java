@@ -155,6 +155,7 @@ public class RoutingProfile {
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
         ghConfig.putObject("datareader.file", profile.getSourceFile().toAbsolutePath().toString());
         ghConfig.putObject("graph.bytes_for_flags", profile.getEncoderFlagsSize());
+        ghConfig.putObject("graph.location", profile.getProfileGraphPath().toAbsolutePath().toString());
 
         if (Boolean.FALSE.equals(profile.getInstructions())) {
             ghConfig.putObject("instructions", false);
