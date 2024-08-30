@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
@@ -29,6 +30,9 @@ public class ProfileProperties {
     private String profileName;
     @JsonProperty("encoder_name")
     private EncoderNameEnum encoderName;
+    @JsonIgnore
+    @Setter(AccessLevel.NONE)
+    private Path profileGraphPath;
     @JsonProperty("source_file")
     @JsonSerialize(using = PathSerializer.class)
     private Path sourceFile;
@@ -87,7 +91,9 @@ public class ProfileProperties {
     @JsonIgnore
     public static ProfileProperties getProfileInstance(EncoderNameEnum encoderName) {
         ProfileProperties profile = new ProfileProperties();
-//        profile.setEnabled(false);
+        if (ofNullable(encoderName).isEmpty()) {
+            encoderName = EncoderNameEnum.DEFAULT;
+        }
         profile.setEncoderName(encoderName);
         profile.setEncoderOptions(EncoderOptionsProperties.getEncoderOptionsProperties(encoderName));
         profile.setPreparation(PreparationProperties.getPreparationProperties(encoderName));
@@ -128,6 +134,17 @@ public class ProfileProperties {
             }
         }
         return profile;
+    }
+
+    @JsonIgnore
+    public void setProfileGraphPath(Path graphPath) {
+        if (ofNullable(profileName).isEmpty()) {
+            // use the encoder name as profile name if not set
+            this.profileGraphPath = graphPath.resolve(encoderName.toString());
+        } else {
+            // combine the graph path with the profile name
+            this.profileGraphPath = graphPath.resolve(profileName);
+        }
     }
 
     @JsonIgnore

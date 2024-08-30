@@ -66,7 +66,6 @@ public class ORSInitContextListener implements ServletContextListener {
 
     public ORSInitContextListener(EndpointsProperties endpointsProperties, EngineProperties engineProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties, GraphService graphService) {
         // Initialize properties object loaded by spring
-        engineProperties.initProfilesMap();
         this.endpointsProperties = endpointsProperties;
         this.engineProperties = engineProperties;
         this.corsProperties = corsProperties;

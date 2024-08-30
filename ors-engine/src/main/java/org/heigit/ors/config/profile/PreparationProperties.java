@@ -32,6 +32,9 @@ public class PreparationProperties {
 
     public static PreparationProperties getPreparationProperties(EncoderNameEnum encoderName) {
         PreparationProperties preparationProperties = new PreparationProperties();
+        if (encoderName == null) {
+            encoderName = EncoderNameEnum.DEFAULT;
+        }
         switch (encoderName) {
             case DRIVING_CAR -> {
                 preparationProperties.setMinNetworkSize(200);

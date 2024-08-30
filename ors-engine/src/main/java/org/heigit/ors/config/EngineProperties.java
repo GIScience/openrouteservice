@@ -28,6 +28,11 @@ import static org.heigit.ors.common.EncoderNameEnum.*;
 @EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EngineProperties {
+    @JsonIgnore
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    static List<EncoderNameEnum> DEFAULT_ENCODER_NAMES = List.of(DRIVING_CAR, DRIVING_HGV, CYCLING_REGULAR, CYCLING_ROAD, CYCLING_ELECTRIC, CYCLING_MOUNTAIN, FOOT_WALKING, FOOT_HIKING, WHEELCHAIR, PUBLIC_TRANSPORT);
+
     @JsonProperty("init_threads")
     private Integer initThreads = 2;
     @JsonProperty("preparation_mode")
@@ -53,10 +58,14 @@ public class EngineProperties {
     @JsonIgnore
     private boolean initialized = false;
 
+    /**
+     * Initialize the profiles map with default profiles.
+     * This method should be called directly but only through different getters.
+     * It should only be initialized once the profiles are needed.
+     */
     @JsonIgnore
-    public void initProfilesMap() {
-        List<EncoderNameEnum> defaultEncoderNames = List.of(DRIVING_CAR, DRIVING_HGV, CYCLING_REGULAR, CYCLING_ROAD, CYCLING_ELECTRIC, CYCLING_MOUNTAIN, FOOT_WALKING, FOOT_HIKING, WHEELCHAIR, PUBLIC_TRANSPORT);
-        for (EncoderNameEnum encoderName : defaultEncoderNames) {
+    private void initProfilesMap() {
+        for (EncoderNameEnum encoderName : DEFAULT_ENCODER_NAMES) {
             ProfileProperties defaultProfile = ProfileProperties.getProfileInstance(encoderName);
             defaultProfile.mergeDefaults(profileDefault, true);
             if (profiles.containsKey(encoderName.name)) {
@@ -68,6 +77,7 @@ public class EngineProperties {
         for (Map.Entry<String, ProfileProperties> entry : profiles.entrySet()) {
             ProfileProperties profile = entry.getValue();
             profile.setProfileName(entry.getKey());
+            profile.setProfileGraphPath(this.graphsRootPath);
 
             EncoderNameEnum encoderName = profile.getEncoderName();
             ProfileProperties defaultProfile = ProfileProperties.getProfileInstance(encoderName);
@@ -87,10 +97,7 @@ public class EngineProperties {
 
     @JsonIgnore
     public Map<String, ProfileProperties> getProfiles() {
-        if (!initialized) {
-            initProfilesMap();
-            initialized = true;
-        }
+        initProfilesMap();
         return profiles;
     }
 

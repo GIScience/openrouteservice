@@ -42,6 +42,9 @@ public class EncoderOptionsProperties {
     @JsonIgnore
     public static EncoderOptionsProperties getEncoderOptionsProperties(EncoderNameEnum encoderName) {
         EncoderOptionsProperties encoderOptions = new EncoderOptionsProperties();
+        if (ofNullable(encoderName).isEmpty()) {
+            encoderName = EncoderNameEnum.DEFAULT;
+        }
         switch (encoderName) {
             case DRIVING_CAR, DRIVING_HGV -> {
                 encoderOptions.setTurnCosts(true);

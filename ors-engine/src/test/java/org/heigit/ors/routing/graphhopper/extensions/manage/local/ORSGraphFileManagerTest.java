@@ -26,7 +26,6 @@ import org.openapitools.client.model.AssetXO;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -99,7 +98,6 @@ class ORSGraphFileManagerTest {
         graphManagementProperties.setRepositoryProfileGroup(GRAPHS_PROFILE_GROUP);
         graphManagementProperties.setMaxBackups(3);
         engineProperties.setGraphManagement(graphManagementProperties);
-        engineProperties.initProfilesMap();
         return engineProperties;
     }
 

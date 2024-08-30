@@ -5,8 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,6 +21,23 @@ class ProfilePropertiesTest {
     @BeforeAll
     static void setUp() {
         mapper = new ObjectMapper();
+    }
+
+    public static Stream<Arguments> encoderNameProvider() {
+        return Stream.of(
+                Arguments.of((Object) null),
+                Arguments.of(EncoderNameEnum.DEFAULT),
+                Arguments.of(EncoderNameEnum.DRIVING_CAR),
+                Arguments.of(EncoderNameEnum.DRIVING_HGV),
+                Arguments.of(EncoderNameEnum.CYCLING_REGULAR),
+                Arguments.of(EncoderNameEnum.CYCLING_ROAD),
+                Arguments.of(EncoderNameEnum.CYCLING_ELECTRIC),
+                Arguments.of(EncoderNameEnum.CYCLING_MOUNTAIN),
+                Arguments.of(EncoderNameEnum.FOOT_WALKING),
+                Arguments.of(EncoderNameEnum.FOOT_HIKING),
+                Arguments.of(EncoderNameEnum.WHEELCHAIR),
+                Arguments.of(EncoderNameEnum.PUBLIC_TRANSPORT)
+        );
     }
 
     @Test
@@ -114,4 +135,28 @@ class ProfilePropertiesTest {
 
     }
 
+    @Test
+    void testSetProfileGraphPath() {
+        ProfileProperties profile = new ProfileProperties();
+        profile.setEncoderName(EncoderNameEnum.DRIVING_CAR);
+        Path graphPath = Path.of("path/to/graph");
+        profile.setProfileGraphPath(graphPath);
+        assertEquals(Path.of("path/to/graph/driving-car"), profile.getProfileGraphPath());
+
+        profile.setProfileName("car");
+        profile.setProfileGraphPath(graphPath);
+        assertEquals(Path.of("path/to/graph/car"), profile.getProfileGraphPath());
+    }
+
+    @ParameterizedTest
+    // get input from a function
+    @MethodSource("encoderNameProvider")
+    void getProfileInstance(EncoderNameEnum encoderName) {
+        ProfileProperties profile = ProfileProperties.getProfileInstance(encoderName);
+        if (encoderName == EncoderNameEnum.DEFAULT || encoderName == null) {
+            assertNull(profile.getEncoderName());
+        } else {
+            assertEquals(encoderName, profile.getEncoderName());
+        }
+    }
 }

@@ -20,6 +20,9 @@ public class ExecutionProperties {
 
     public static ExecutionProperties getExecutionProperties(EncoderNameEnum encoderName) {
         ExecutionProperties executionProperties = new ExecutionProperties();
+        if (ofNullable(encoderName).isEmpty()) {
+            encoderName = EncoderNameEnum.DEFAULT;
+        }
         switch (encoderName) {
             case DRIVING_CAR -> {
                 executionProperties.getMethods().getLm().setActiveLandmarks(6);

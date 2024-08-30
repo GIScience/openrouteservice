@@ -131,7 +131,6 @@ class EnginePropertiesTest {
         enginePropertiesTest = mapper.readValue(testJson, EngineProperties.class);
         // Defaults to check against
         defaultEngineProperties = new EngineProperties();
-        enginePropertiesTest.initProfilesMap();
     }
 
     @Test
@@ -170,7 +169,41 @@ class EnginePropertiesTest {
     }
 
     @Test
-    void testCorrectProfileNames() {
+    void getActiveProfilesReturnsCorrectProfileNames() {
+        EngineProperties engineProperties = new EngineProperties();
+        engineProperties.getProfileDefault().setEnabled(true);
+        Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
+        assertEquals("driving-car", activeProfiles.get("driving-car").getProfileName());
+        assertEquals("driving-hgv", activeProfiles.get("driving-hgv").getProfileName());
+        assertEquals("wheelchair", activeProfiles.get("wheelchair").getProfileName());
+        assertEquals("cycling-mountain", activeProfiles.get("cycling-mountain").getProfileName());
+        assertEquals("cycling-road", activeProfiles.get("cycling-road").getProfileName());
+        assertEquals("cycling-electric", activeProfiles.get("cycling-electric").getProfileName());
+        assertEquals("cycling-regular", activeProfiles.get("cycling-regular").getProfileName());
+        assertEquals("public-transport", activeProfiles.get("public-transport").getProfileName());
+        assertEquals("foot-hiking", activeProfiles.get("foot-hiking").getProfileName());
+        assertEquals("foot-walking", activeProfiles.get("foot-walking").getProfileName());
+    }
+
+    @Test
+    void getActiveProfilesReturnsCorrectGraphsRootPath() {
+        EngineProperties engineProperties = new EngineProperties();
+        engineProperties.getProfileDefault().setEnabled(true);
+        Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
+        assertEquals(engineProperties.getGraphsRootPath().resolve("driving-car"), activeProfiles.get("driving-car").getProfileGraphPath());
+        assertEquals(engineProperties.getGraphsRootPath().resolve("driving-hgv"), activeProfiles.get("driving-hgv").getProfileGraphPath());
+        assertEquals(engineProperties.getGraphsRootPath().resolve("wheelchair"), activeProfiles.get("wheelchair").getProfileGraphPath());
+        assertEquals(engineProperties.getGraphsRootPath().resolve("cycling-mountain"), activeProfiles.get("cycling-mountain").getProfileGraphPath());
+        assertEquals(engineProperties.getGraphsRootPath().resolve("cycling-road"), activeProfiles.get("cycling-road").getProfileGraphPath());
+        assertEquals(engineProperties.getGraphsRootPath().resolve("cycling-electric"), activeProfiles.get("cycling-electric").getProfileGraphPath());
+        assertEquals(engineProperties.getGraphsRootPath().resolve("cycling-regular"), activeProfiles.get("cycling-regular").getProfileGraphPath());
+        assertEquals(engineProperties.getGraphsRootPath().resolve("public-transport"), activeProfiles.get("public-transport").getProfileGraphPath());
+        assertEquals(engineProperties.getGraphsRootPath().resolve("foot-hiking"), activeProfiles.get("foot-hiking").getProfileGraphPath());
+        assertEquals(engineProperties.getGraphsRootPath().resolve("foot-walking"), activeProfiles.get("foot-walking").getProfileGraphPath());
+    }
+
+    @Test
+    void testCorrectCustomProfiles() {
         EngineProperties engineProperties = new EngineProperties();
         engineProperties.getProfileDefault().setEnabled(true);
         // add a custom profile
@@ -181,6 +214,8 @@ class EnginePropertiesTest {
         List<String> expectedProfileNames = List.of("car", "driving-car", "driving-hgv", "wheelchair", "cycling-mountain", "cycling-road", "cycling-electric", "cycling-regular", "public-transport", "foot-hiking", "foot-walking");
         for (String expectedProfileName : expectedProfileNames) {
             assertTrue(activeProfiles.containsKey(expectedProfileName));
+            assertEquals(expectedProfileName, activeProfiles.get(expectedProfileName).getProfileName());
+            assertEquals(engineProperties.getGraphsRootPath().resolve(expectedProfileName), activeProfiles.get(expectedProfileName).getProfileGraphPath());
         }
         assertFalse(activeProfiles.containsKey("car2"));
     }
@@ -401,8 +436,10 @@ class EnginePropertiesTest {
         ProfileProperties carProfile = profiles.get("car");
         assertTrue(carProfile.getEnabled());
         assertEquals(EncoderNameEnum.DRIVING_CAR, carProfile.getEncoderName());
+        assertEquals("car", carProfile.getProfileName());
+        assertEquals(foo.getGraphsRootPath().resolve("car"), carProfile.getProfileGraphPath());
 
-        assertTrue(assertAllNull(carProfile, new HashSet<>(List.of("profileName", "encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
+        assertTrue(assertAllNull(carProfile, new HashSet<>(List.of("profileGraphPath", "profileName", "encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
 
         PreparationProperties.MethodsProperties.LMProperties carLm = carProfile.getPreparation().getMethods().getLm();
         assertTrue(carLm.isEnabled());
@@ -433,7 +470,10 @@ class EnginePropertiesTest {
         assertFalse(hgvProfile.getEnabled());
         assertEquals(EncoderNameEnum.DRIVING_HGV, hgvProfile.getEncoderName());
 
-        assertTrue(assertAllNull(hgvProfile, new HashSet<>(List.of("profileName", "encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
+        assertEquals("hgv", hgvProfile.getProfileName());
+        assertEquals(foo.getGraphsRootPath().resolve("hgv"), hgvProfile.getProfileGraphPath());
+
+        assertTrue(assertAllNull(hgvProfile, new HashSet<>(List.of("profileGraphPath", "profileName", "encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
 
         PreparationProperties hgvPreparation = hgvProfile.getPreparation();
         assertEquals(900, hgvPreparation.getMinNetworkSize());
@@ -469,8 +509,10 @@ class EnginePropertiesTest {
         ProfileProperties carCustomProfile = profiles.get("car-custom");
         assertTrue(carCustomProfile.getEnabled());
         assertEquals(EncoderNameEnum.DRIVING_CAR, carCustomProfile.getEncoderName());
+        assertEquals("car-custom", carCustomProfile.getProfileName());
+        assertEquals(foo.getGraphsRootPath().resolve("car-custom"), carCustomProfile.getProfileGraphPath());
 
-        assertTrue(assertAllNull(carCustomProfile, new HashSet<>(List.of("profileName", "encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
+        assertTrue(assertAllNull(carCustomProfile, new HashSet<>(List.of("profileGraphPath", "profileName", "encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
 
         PreparationProperties carCustomPreparation = carCustomProfile.getPreparation();
         assertEquals(900, carCustomPreparation.getMinNetworkSize());

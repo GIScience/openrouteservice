@@ -294,6 +294,9 @@ public class ExtendedStorage {
     public static Map<String, ExtendedStorage> getDefaultExtStoragesMap(EncoderNameEnum encoderName) {
         // TODO: check why Julian has changed defaults and if the changes are good
         Map<String, ExtendedStorage> extStorages = new LinkedHashMap<>();
+        if (ofNullable(encoderName).isEmpty()) {
+            encoderName = EncoderNameEnum.DEFAULT;
+        }
         switch (encoderName) {
             case DRIVING_CAR -> {
                 extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
