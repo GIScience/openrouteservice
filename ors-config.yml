@@ -176,7 +176,8 @@ ors:
 #            active_landmarks: 8
     profiles:
       #      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific. TODO this should be encoder_name based!
-      driving-car:                # TODO this does not work with e.g. "auto" - internal default profiles should be searched by encoder_name, not profile_name!?
+      driving-car:
+        enabled: true             # TODO this does not work with e.g. "auto" - internal default profiles should be searched by encoder_name, not profile_name!?
         encoder_name: driving-car # TODO also the routing endpoints are looking for encoder_name instead of profile_name -> to be changed.
                                   # TODO or even better: introduce new property endpoint_name to give users the possibility to change the map keys but keep their old endpoint names
 #        encoder_options:
@@ -213,10 +214,9 @@ ors:
 #          WaySurfaceType:
 #          RoadAccessRestrictions:
 #            use_for_warnings: true
-        enabled: true
-      hgv:
-        enabled: true
-        encoder_name: driving-hgv
+#      hgv:
+#        enabled: true
+#        encoder_name: driving-hgv
 #        encoder_options:
 #          turn_costs: true
 #          block_fords: false
