@@ -66,8 +66,8 @@ check_user_group_permissions() {
 }
 
 # Function to check if owned content count matches expected count
-# Usage: find_owned_content <folder> <user> <group> <count>
-find_owned_content() {
+# Usage: count_owned_content <folder> <user> <group> <count>
+count_owned_content() {
     local folder="$1"
     local user="$2"
     local group="$3"
