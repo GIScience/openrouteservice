@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,6 +47,7 @@ public class EngineProperties {
     @JsonProperty("profile_default")
     private ProfileProperties profileDefault = ProfileProperties.getProfileInstance(EncoderNameEnum.DEFAULT);
     @JsonProperty("profiles")
+    @Getter(AccessLevel.NONE)
     private Map<String, ProfileProperties> profiles = new LinkedHashMap<>();
 
     @JsonIgnore
@@ -94,13 +96,8 @@ public class EngineProperties {
 
     @JsonIgnore
     public Map<String, ProfileProperties> getActiveProfiles() {
-        if (!initialized) {
-            initProfilesMap();
-            initialized = true;
-        }
-
         LinkedHashMap<String, ProfileProperties> activeProfiles = new LinkedHashMap<>();
-        for (Map.Entry<String, ProfileProperties> entry : profiles.entrySet()) {
+        for (Map.Entry<String, ProfileProperties> entry : getProfiles().entrySet()) {
             ProfileProperties mergedProfile = entry.getValue().mergeDefaults(profileDefault, false);
             if (Optional.ofNullable(mergedProfile.getEnabled()).orElse(false)) {
                 activeProfiles.put(entry.getKey(), mergedProfile);

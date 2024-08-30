@@ -85,14 +85,6 @@ public class ProfileProperties {
     private Map<String, ExtendedStorage> extStorages = new LinkedHashMap<>();
 
     @JsonIgnore
-    public String getProfileName() {
-        if (ofNullable(profileName).isEmpty()) {
-            return encoderName.toString().toLowerCase();
-        }
-        return profileName;
-    }
-
-    @JsonIgnore
     public static ProfileProperties getProfileInstance(EncoderNameEnum encoderName) {
         ProfileProperties profile = new ProfileProperties();
 //        profile.setEnabled(false);
