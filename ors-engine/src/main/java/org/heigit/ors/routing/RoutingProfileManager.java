@@ -79,7 +79,6 @@ public class RoutingProfileManager {
             ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<>(executor);
             int nTotalTasks = 0;
             for (Map.Entry<String, ProfileProperties> profile : profiles.entrySet()) {
-                // TODO only submit if enabled
                 if (profile.getValue().getProfilesTypes() != null && profile.getValue().getEnabled()) {
                     Callable<RoutingProfile> task = new RoutingProfileLoader(profile.getKey(), profile.getValue(), config, graphVersion, loadContext);
                     compService.submit(task);
