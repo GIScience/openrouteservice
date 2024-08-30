@@ -170,6 +170,22 @@ class EnginePropertiesTest {
     }
 
     @Test
+    void testCorrectProfileNames() {
+        EngineProperties engineProperties = new EngineProperties();
+        engineProperties.getProfileDefault().setEnabled(true);
+        // add a custom profile
+        engineProperties.getProfiles().put("car", new ProfileProperties());
+        engineProperties.getProfiles().put("car2", new ProfileProperties());
+        engineProperties.getProfiles().get("car2").setEnabled(false);
+        Map<String, ProfileProperties> activeProfiles = engineProperties.getActiveProfiles();
+        List<String> expectedProfileNames = List.of("car", "driving-car", "driving-hgv", "wheelchair", "cycling-mountain", "cycling-road", "cycling-electric", "cycling-regular", "public-transport", "foot-hiking", "foot-walking");
+        for (String expectedProfileName : expectedProfileNames) {
+            assertTrue(activeProfiles.containsKey(expectedProfileName));
+        }
+        assertFalse(activeProfiles.containsKey("car2"));
+    }
+
+    @Test
     void testDeserialize() throws JsonProcessingException {
         //language=JSON
         String json = """
@@ -386,7 +402,7 @@ class EnginePropertiesTest {
         assertTrue(carProfile.getEnabled());
         assertEquals(EncoderNameEnum.DRIVING_CAR, carProfile.getEncoderName());
 
-        assertTrue(assertAllNull(carProfile, new HashSet<>(List.of("encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
+        assertTrue(assertAllNull(carProfile, new HashSet<>(List.of("profileName", "encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
 
         PreparationProperties.MethodsProperties.LMProperties carLm = carProfile.getPreparation().getMethods().getLm();
         assertTrue(carLm.isEnabled());
@@ -417,7 +433,7 @@ class EnginePropertiesTest {
         assertFalse(hgvProfile.getEnabled());
         assertEquals(EncoderNameEnum.DRIVING_HGV, hgvProfile.getEncoderName());
 
-        assertTrue(assertAllNull(hgvProfile, new HashSet<>(List.of("encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
+        assertTrue(assertAllNull(hgvProfile, new HashSet<>(List.of("profileName", "encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
 
         PreparationProperties hgvPreparation = hgvProfile.getPreparation();
         assertEquals(900, hgvPreparation.getMinNetworkSize());
@@ -454,7 +470,7 @@ class EnginePropertiesTest {
         assertTrue(carCustomProfile.getEnabled());
         assertEquals(EncoderNameEnum.DRIVING_CAR, carCustomProfile.getEncoderName());
 
-        assertTrue(assertAllNull(carCustomProfile, new HashSet<>(List.of("encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
+        assertTrue(assertAllNull(carCustomProfile, new HashSet<>(List.of("profileName", "encoderName", "enabled", "encoderOptions", "preparation", "execution", "extStorages"))));
 
         PreparationProperties carCustomPreparation = carCustomProfile.getPreparation();
         assertEquals(900, carCustomPreparation.getMinNetworkSize());
@@ -470,10 +486,7 @@ class EnginePropertiesTest {
         boolean equal = PropertyUtils.deepEqualityCheckIsUnequal(defaultEngineProperties, enginePropertiesTest, defaultProfilePropertiesIgnoreList);
 //        assertTrue(equal, "The engine properties are not equal to the default engine properties");
         // Test the raw top level settings
-        assertThat(defaultEngineProperties).usingRecursiveComparison()
-                .ignoringExpectedNullFields()
-                .ignoringFields(defaultProfilePropertiesIgnoreList.toArray(new String[0]))
-                .isEqualTo(enginePropertiesTest);
+        assertThat(defaultEngineProperties).usingRecursiveComparison().ignoringExpectedNullFields().ignoringFields(defaultProfilePropertiesIgnoreList.toArray(new String[0])).isEqualTo(enginePropertiesTest);
         assertEquals(enginePropertiesTest.getGraphsDataAccess(), DataAccessEnum.MMAP_RO);
         assertEquals(enginePropertiesTest.getElevation().getDataAccess(), DataAccessEnum.RAM_STORE);
         assertEquals(enginePropertiesTest.getElevation().getCacheClear(), true);

@@ -24,6 +24,9 @@ import static java.util.Optional.ofNullable;
 public class ProfileProperties {
     @JsonProperty("enabled")
     private Boolean enabled;
+    // The following field stores the name of the profile that was assigned to the profile in the configuration file.
+    @JsonIgnore
+    private String profileName;
     @JsonProperty("encoder_name")
     private EncoderNameEnum encoderName;
     @JsonProperty("source_file")
@@ -80,6 +83,14 @@ public class ProfileProperties {
     private ExecutionProperties execution = new ExecutionProperties();
     @JsonProperty("ext_storages")
     private Map<String, ExtendedStorage> extStorages = new LinkedHashMap<>();
+
+    @JsonIgnore
+    public String getProfileName() {
+        if (ofNullable(profileName).isEmpty()) {
+            return encoderName.toString().toLowerCase();
+        }
+        return profileName;
+    }
 
     @JsonIgnore
     public static ProfileProperties getProfileInstance(EncoderNameEnum encoderName) {
@@ -159,6 +170,7 @@ public class ProfileProperties {
     public ProfileProperties mergeDefaults(ProfileProperties other, Boolean overwrite) {
         enabled = overwrite ? ofNullable(other.enabled).orElse(this.enabled) : ofNullable(this.enabled).orElse(other.enabled);
         encoderName = overwrite ? ofNullable(other.encoderName).orElse(this.encoderName) : ofNullable(this.encoderName).orElse(other.encoderName);
+        profileName = overwrite ? ofNullable(other.profileName).orElse(this.profileName) : ofNullable(this.profileName).orElse(other.profileName);
         sourceFile = overwrite ? ofNullable(other.sourceFile).orElse(this.sourceFile) : ofNullable(this.sourceFile).orElse(other.sourceFile);
         elevation = overwrite ? ofNullable(other.elevation).orElse(this.elevation) : ofNullable(this.elevation).orElse(other.elevation);
         elevationSmoothing = overwrite ? ofNullable(other.elevationSmoothing).orElse(this.elevationSmoothing) : ofNullable(this.elevationSmoothing).orElse(other.elevationSmoothing);

@@ -65,6 +65,8 @@ public class EngineProperties {
         }
         for (Map.Entry<String, ProfileProperties> entry : profiles.entrySet()) {
             ProfileProperties profile = entry.getValue();
+            profile.setProfileName(entry.getKey());
+
             EncoderNameEnum encoderName = profile.getEncoderName();
             ProfileProperties defaultProfile = ProfileProperties.getProfileInstance(encoderName);
             defaultProfile.mergeDefaults(profileDefault, true);
