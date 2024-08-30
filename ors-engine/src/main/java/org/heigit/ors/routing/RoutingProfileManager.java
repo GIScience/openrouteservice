@@ -116,7 +116,7 @@ public class RoutingProfileManager {
             LOGGER.info("========================================================================");
             RoutingProfileManagerStatus.setReady(true);
         } catch (ExecutionException ex) {
-            fail("Failed to initialize RoutingProfileManager instance. Exiting. One possible reason could be a bad value in configuration property '%s' - this needs to be a valid osm pbf file if you want to calculate graphs locally, or a valid graph repository URL, if you want to use pre-calculated graphs!".formatted(SOURCE_PROPERTY_NAME));
+            fail("ExecutionException while initializing RoutingProfileManager: " + ex.getMessage());
             Thread.currentThread().interrupt();
             return;
         } catch (Exception ex) {
