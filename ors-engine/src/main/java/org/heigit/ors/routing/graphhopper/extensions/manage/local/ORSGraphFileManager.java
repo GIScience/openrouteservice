@@ -34,8 +34,6 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphFileManager.class.getName());
 
-    private String routeProfileName;
-    private int maxNumberOfGraphBackups;
     GraphManagementRuntimeProperties graphManagementRuntimeProperties;
     private ORSGraphFolderStrategy orsGraphFolderStrategy;
 
@@ -43,7 +41,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     }
 
     public ORSGraphFileManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphFolderStrategy orsGraphFolderStrategy) {
-        this.routeProfileName = graphManagementRuntimeProperties.getLocalProfileName();
+        this.graphManagementRuntimeProperties = graphManagementRuntimeProperties;
         this.orsGraphFolderStrategy = orsGraphFolderStrategy;
     }
 
@@ -156,7 +154,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     public void deleteOldestBackups() {
         List<File> existingBackups = findGraphBackupsSortedByName();
-        int numBackupsToDelete = existingBackups.size() - Math.max(maxNumberOfGraphBackups, 0);
+        int numBackupsToDelete = existingBackups.size() - Math.max(graphManagementRuntimeProperties.getMaxNumberOfGraphBackups(), 0);
         if (numBackupsToDelete < 1) {
             return;
         }
@@ -334,9 +332,9 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             LOGGER.debug("GraphInfo-File %s already existing.".formatted(activeGraphInfoFile.getName()));
             return;
         }
-        Optional<ProfileProperties> routeProfileConfiguration = Optional.ofNullable(gh.getEngineProperties().getProfiles().get(this.routeProfileName));
+        Optional<ProfileProperties> routeProfileConfiguration = Optional.ofNullable(gh.getEngineProperties().getProfiles().get(this.graphManagementRuntimeProperties.getLocalProfileName()));
         if (routeProfileConfiguration.isEmpty()) {
-            LOGGER.debug("Configuration for profile %s does not exist, could not write GraphInfo-File.".formatted(this.routeProfileName));
+            LOGGER.debug("Configuration for profile %s does not exist, could not write GraphInfo-File.".formatted(this.graphManagementRuntimeProperties.getLocalProfileName()));
             return;
         }
 

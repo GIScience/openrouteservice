@@ -31,6 +31,7 @@ public class GraphManagementRuntimeProperties {
     private String repoName;
     private String repoProfileGroup;
     private String repoCoverage;
+    private int maxNumberOfGraphBackups = 0;
 
     private GraphRepoType derivedRepoType = GraphRepoType.NULL;
     private URL derivedRepoBaseUrl;
@@ -50,6 +51,7 @@ public class GraphManagementRuntimeProperties {
         private String repoName;
         private String repoProfileGroup;
         private String repoCoverage;
+        private int maxNumberOfGraphBackups = 0;
 
         public static Builder empty() {
             return new Builder();
@@ -62,6 +64,7 @@ public class GraphManagementRuntimeProperties {
             builder.repoName = engineProperties.getGraphManagement().getRepositoryName();
             builder.repoCoverage = engineProperties.getGraphManagement().getGraphExtent();
             builder.repoProfileGroup = engineProperties.getGraphManagement().getRepositoryProfileGroup();
+            builder.maxNumberOfGraphBackups = engineProperties.getGraphManagement().getMaxBackups();
             builder.graphVersion = graphVersion;
             builder.localProfileName = routeProfileName;
             ProfileProperties profileProperties = engineProperties.getProfiles().get(routeProfileName);
@@ -99,6 +102,10 @@ public class GraphManagementRuntimeProperties {
         }
         public Builder withRepoCoverage(String repoCoverage) {
             this.repoCoverage = repoCoverage;
+            return this;
+        }
+        public Builder withMaxNumberOfGraphBackups(int maxNumberOfGraphBackups) {
+            this.maxNumberOfGraphBackups = maxNumberOfGraphBackups;
             return this;
         }
 
