@@ -120,6 +120,7 @@ public class GraphManagementRuntimeProperties {
             properties.repoProfileGroup = this.repoProfileGroup;
             properties.repoCoverage = this.repoCoverage;
             properties.encoderName = this.encoderName;
+            properties.maxNumberOfGraphBackups = this.maxNumberOfGraphBackups;
 
             properties.deriveData();
 
