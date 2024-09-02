@@ -55,17 +55,6 @@ public class GraphManagementRuntimeProperties {
             return new Builder();
         }
 
-        public static Builder fromEngineProperties(EngineProperties engineProperties) {
-            Builder builder = new Builder();
-            builder.enabled = engineProperties.getGraphManagement().getEnabled();
-            builder.repoBaseUri = engineProperties.getGraphManagement().getRepositoryUri();
-            builder.repoName = engineProperties.getGraphManagement().getRepositoryName();
-            builder.repoCoverage = engineProperties.getGraphManagement().getGraphExtent();
-            builder.repoProfileGroup = engineProperties.getGraphManagement().getRepositoryProfileGroup();
-            return builder;
-
-        }
-
         public static Builder from(EngineProperties engineProperties, String routeProfileName, String graphVersion) {
             Builder builder = new Builder();
             builder.enabled = engineProperties.getGraphManagement().getEnabled();
