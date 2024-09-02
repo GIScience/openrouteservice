@@ -281,39 +281,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return orsGraphRepoManager;
     }
 
-    private boolean isSupportedUrlScheme(URI uri) {
-        if (uri == null) return false;
-        return Arrays.asList("http", "https").contains(uri.getScheme());
-    }
-
-    private boolean isSupportedFileScheme(URI uri) {
-        if (uri == null) return false;
-        return Arrays.asList("file").contains(uri.getScheme());
-    }
-
-    URI toUri(String string) {
-        if (StringUtils.isBlank(string))
-            return null;
-
-        URI uri = URI.create(string);
-        if (isSupportedUrlScheme(uri) || isSupportedFileScheme(uri)) {
-            return uri;
-        }
-
-        return null;
-    }
-
-    URL toURL(URI uri) {
-        if (isSupportedUrlScheme(uri)) {
-            try {
-                return uri.toURL();
-            } catch (MalformedURLException e) {
-                return null;
-            }
-        }
-        return null;
-    }
-
     private void adaptGraphhopperLocation() {
         String adaptedPath = getOrsGraphManager().getActiveGraphDirAbsPath();
         this.setGraphHopperLocation(adaptedPath);

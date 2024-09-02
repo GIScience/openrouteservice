@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -224,36 +223,6 @@ class ORSGraphHopperTest {
                 "repoName", "profileGroup", "graphExtent", routeProfileName, 0
         );
         return createORSGraphHopper(routeProfileName, ghConfig, engineProperties);
-    }
-
-    @Test
-    public void toUrl() {
-        ORSGraphHopper orsGraphHopper = new ORSGraphHopper();
-        assertNotNull(orsGraphHopper.toURL(URI.create("http://my.domain.com")));
-        assertNotNull(orsGraphHopper.toURL(URI.create("https://my.domain.com/")));
-        assertNull(orsGraphHopper.toURL(URI.create("file://relative/path")));
-        assertNull(orsGraphHopper.toURL(URI.create("file://relative/path.txt")));
-        assertNull(orsGraphHopper.toURL(URI.create("file:///absolute/path")));
-        assertNull(orsGraphHopper.toURL(URI.create("file:///absolute/path.txt")));
-        assertNull(orsGraphHopper.toURL(URI.create("relative/path")));
-        assertNull(orsGraphHopper.toURL(URI.create("relative/path.txt")));
-        assertNull(orsGraphHopper.toURL(URI.create("/absolute/path")));
-        assertNull(orsGraphHopper.toURL(URI.create("/absolute/path.txt")));
-    }
-
-    @Test
-    public void toPath() {
-        ORSGraphHopper orsGraphHopper = new ORSGraphHopper();
-        assertNotNull(orsGraphHopper.toUri("http://my.domain.com"));
-        assertNotNull(orsGraphHopper.toUri("https://my.domain.com/"));
-        assertNotNull(orsGraphHopper.toUri("file://relative/path"));
-        assertNotNull(orsGraphHopper.toUri("file://relative/path.txt"));
-        assertNotNull(orsGraphHopper.toUri("file:///absolute/path"));
-        assertNotNull(orsGraphHopper.toUri("file:///absolute/path.txt"));
-        assertNull(orsGraphHopper.toUri("relative/path"));
-        assertNull(orsGraphHopper.toUri("relative/path.txt"));
-        assertNull(orsGraphHopper.toUri("/absolute/path"));
-        assertNull(orsGraphHopper.toUri("/absolute/path.txt"));
     }
 
     @ParameterizedTest

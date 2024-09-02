@@ -1,12 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
-import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.config.GraphManagementProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

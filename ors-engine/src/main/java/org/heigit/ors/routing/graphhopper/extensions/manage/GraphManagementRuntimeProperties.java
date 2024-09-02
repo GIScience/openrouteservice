@@ -124,13 +124,17 @@ public class GraphManagementRuntimeProperties {
             properties.repoProfileGroup = this.repoProfileGroup;
             properties.repoCoverage = this.repoCoverage;
             properties.encoderName = this.encoderName;
+
             properties.deriveData();
+
             return properties;
         }
     }
+
     public enum GraphRepoType {
         HTTP, FILESYSTEM, NULL
     }
+
     private void deriveData() {
         if (StringUtils.isNotBlank(repoBaseUri)) {
             try {
@@ -163,7 +167,7 @@ public class GraphManagementRuntimeProperties {
         return Arrays.asList("file").contains(uri.getScheme());
     }
 
-    URI toUri(String string) {
+    private URI toUri(String string) {
         if (StringUtils.isBlank(string))
             return null;
 
@@ -175,7 +179,7 @@ public class GraphManagementRuntimeProperties {
         return null;
     }
 
-    URL toURL(URI uri){
+    private URL toURL(URI uri){
         if (isSupportedUrlScheme(uri)) {
             try {
                 return uri.toURL();
@@ -185,5 +189,4 @@ public class GraphManagementRuntimeProperties {
         }
         return null;
     }
-
 }
