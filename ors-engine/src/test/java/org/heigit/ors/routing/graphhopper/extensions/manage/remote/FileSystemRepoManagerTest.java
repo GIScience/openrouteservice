@@ -72,7 +72,7 @@ class FileSystemRepoManagerTest {
         return createFileSystemRepoManager(ENCODER_NAME);
     }
     private FileSystemRepoManager createFileSystemRepoManager(String profileName) {
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath(localGraphsRootPath.toString())
                 .withLocalProfileName(profileName)
                 .withRepoBaseUri(testReposPath)

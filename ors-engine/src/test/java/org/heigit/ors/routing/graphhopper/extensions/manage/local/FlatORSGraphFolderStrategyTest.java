@@ -12,7 +12,7 @@ class FlatORSGraphFolderStrategyTest {
 
     @BeforeEach
     public void setUp() {
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withRepoName("vendor.org")
                 .withRepoProfileGroup("fun")
                 .withRepoCoverage("disneyland")

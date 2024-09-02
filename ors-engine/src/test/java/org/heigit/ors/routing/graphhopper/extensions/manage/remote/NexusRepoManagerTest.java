@@ -83,7 +83,7 @@ class NexusRepoManagerTest {
         EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(localGraphsRootPath,
                 GRAPHS_REPO_BASE_URL,GRAPHS_REPO_NAME,GRAPHS_PROFILE_GROUP,GRAPHS_COVERAGE, PROFILE_NAME, 0);
 
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath(localGraphsRootPath.toString())
                 .withRepoBaseUri(GRAPHS_REPO_BASE_URL)
                 .withRepoName(GRAPHS_REPO_NAME)

@@ -51,7 +51,7 @@ public class GraphManagementRuntimeProperties {
         private String repoProfileGroup;
         private String repoCoverage;
 
-        public static Builder fromNew() {
+        public static Builder empty() {
             return new Builder();
         }
 

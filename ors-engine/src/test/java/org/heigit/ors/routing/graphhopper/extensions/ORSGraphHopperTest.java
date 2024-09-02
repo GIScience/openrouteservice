@@ -134,7 +134,7 @@ class ORSGraphHopperTest {
         ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoUrl", "car");
 
         String pathBefore = gh.getGraphHopperLocation();
-        gh.initializeGraphManagementWithDeepHashBasedStructure(GraphManagementRuntimeProperties.Builder.fromNew().withGraphVersion("0").build());
+        gh.initializeGraphManagementWithDeepHashBasedStructure(GraphManagementRuntimeProperties.Builder.empty().withGraphVersion("0").build());
         gh.importOrLoad();
         String pathAfter = gh.getGraphHopperLocation();
 
@@ -147,7 +147,7 @@ class ORSGraphHopperTest {
         ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("repoDir", "repoUrl", "car");
 
         String pathBefore = gh.getGraphHopperLocation();
-        gh.initializeGraphManagementWithFlatStructure(GraphManagementRuntimeProperties.Builder.fromNew().withGraphVersion("0").build());
+        gh.initializeGraphManagementWithFlatStructure(GraphManagementRuntimeProperties.Builder.empty().withGraphVersion("0").build());
         gh.importOrLoad();
         String pathAfter = gh.getGraphHopperLocation();
 
@@ -250,7 +250,7 @@ class ORSGraphHopperTest {
 
         String profileName = "car";
         String graphVersion = "1";
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath("graphs")
                 .withRepoBaseUri(repoUri)
                 .withGraphVersion("1")

@@ -19,7 +19,7 @@ class HttpRepoManagerTest {
 
     @Test
     void createDownloadUrl() {
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withRepoBaseUri("http://localhost:8080/")
                 .withRepoName("repo")
                 .withRepoProfileGroup("group1")

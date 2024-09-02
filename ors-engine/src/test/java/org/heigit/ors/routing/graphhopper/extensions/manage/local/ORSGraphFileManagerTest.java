@@ -114,7 +114,7 @@ class ORSGraphFileManagerTest {
         vehicleDirAbsPath = String.join("/", localDir.getAbsolutePath(), VEHICLE);
         hashDirAbsPath = String.join("/", vehicleDirAbsPath, hash);
 
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.fromNew()
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withGraphVersion(GRAPHS_VERSION)
                 .withEncoderName(ENCODER)
                 .withLocalGraphsRootAbsPath(localDir.getAbsolutePath())
