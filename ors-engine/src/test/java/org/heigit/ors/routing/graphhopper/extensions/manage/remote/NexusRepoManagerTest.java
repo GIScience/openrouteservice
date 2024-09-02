@@ -48,7 +48,7 @@ class NexusRepoManagerTest {
     private static final String GRAPHS_COVERAGE = "planet";
     private static final String GRAPHS_PROFILE_GROUP = "traffic";
     private static final String GRAPHS_VERSION = "1";
-    private static final String PROFILE_NAME = "car";
+    private static final String PROFILE_NAME = "driving-car";
     private static final String ENCODER_NAME = "driving-car";
 
     @TempDir(cleanup = CleanupMode.ALWAYS)
@@ -79,12 +79,9 @@ class NexusRepoManagerTest {
         hashDir = new File(hashDirAbsPath);
         hashDir.mkdirs();
 
-
-        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(localGraphsRootPath,
-                GRAPHS_REPO_BASE_URL,GRAPHS_REPO_NAME,GRAPHS_PROFILE_GROUP,GRAPHS_COVERAGE, PROFILE_NAME, 0);
-
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath(localGraphsRootPath.toString())
+                .withLocalProfileName(PROFILE_NAME)
                 .withRepoBaseUri(GRAPHS_REPO_BASE_URL)
                 .withRepoName(GRAPHS_REPO_NAME)
                 .withRepoProfileGroup(GRAPHS_PROFILE_GROUP)
@@ -92,7 +89,6 @@ class NexusRepoManagerTest {
                 .withEncoderName(ENCODER_NAME)
                 .withGraphVersion(GRAPHS_VERSION)
                 .build();
-
 
         ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(managementProps, hash);
         orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
@@ -204,22 +200,22 @@ class NexusRepoManagerTest {
         String hash = "b6714103ccd4";
         setupORSGraphManager(hash);
         List<AssetXO> items = Arrays.asList(
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202201011200/b6714103ccd4.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202201011200/b6714103ccd4.yml"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/b6714103ccd4.yml"), //this one is expected
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/wrong.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/wrong.yml"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/wrong/202301011200/b6714103ccd4.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/1/car/wrong/202301011200/b6714103ccd4.yml"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/driving-car/b6714103ccd4/202201011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/driving-car/b6714103ccd4/202201011200/b6714103ccd4.yml"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/driving-car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/driving-car/b6714103ccd4/202301011200/b6714103ccd4.yml"), //this one is expected
+                new AssetXO().path("https://example.com/test-repo/planet/1/driving-car/b6714103ccd4/202301011200/wrong.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/driving-car/b6714103ccd4/202301011200/wrong.yml"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/driving-car/wrong/202301011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/1/driving-car/wrong/202301011200/b6714103ccd4.yml"),
                 new AssetXO().path("https://example.com/test-repo/planet/1/wrong/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
                 new AssetXO().path("https://example.com/test-repo/planet/1/wrong/b6714103ccd4/202301011200/b6714103ccd4.yml"),
-                new AssetXO().path("https://example.com/test-repo/planet/wrong/car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
-                new AssetXO().path("https://example.com/test-repo/planet/wrong/car/b6714103ccd4/202301011200/b6714103ccd4.yml"),
-                new AssetXO().path("https://example.com/test-repo/wrong/1/car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
-                new AssetXO().path("https://example.com/test-repo/wrong/1/car/b6714103ccd4/202301011200/b6714103ccd4.yml")
+                new AssetXO().path("https://example.com/test-repo/planet/wrong/driving-car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/planet/wrong/driving-car/b6714103ccd4/202301011200/b6714103ccd4.yml"),
+                new AssetXO().path("https://example.com/test-repo/wrong/1/driving-car/b6714103ccd4/202301011200/b6714103ccd4.ghz"),
+                new AssetXO().path("https://example.com/test-repo/wrong/1/driving-car/b6714103ccd4/202301011200/b6714103ccd4.yml")
         );
         AssetXO filtered = orsGraphRepoManager.filterLatestAsset(items);
-        assertEquals("https://example.com/test-repo/planet/1/car/b6714103ccd4/202301011200/b6714103ccd4.yml", filtered.getPath());
+        assertEquals("https://example.com/test-repo/planet/1/driving-car/b6714103ccd4/202301011200/b6714103ccd4.yml", filtered.getPath());
     }
 }

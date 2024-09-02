@@ -256,8 +256,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         this.orsGraphManager = new ORSGraphManager(engineProperties, orsGraphFileManager, orsGraphRepoManager);
         this.orsGraphManager.manageStartup();
-        // TODO @Haeussler fix this. The profile graph locations are now directly in the ProfileProperties. Do we need to set this here or can we always derive them from the ProfileProperties?
-        //        adaptGraphhopperLocation();
+        adaptGraphhopperLocation();
     }
 
     ORSGraphRepoManager getOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {

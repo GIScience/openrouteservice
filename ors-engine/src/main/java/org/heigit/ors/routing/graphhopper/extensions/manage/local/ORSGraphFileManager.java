@@ -34,7 +34,6 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphFileManager.class.getName());
 
-    private EngineProperties engineProperties;//TODO remove
     private String routeProfileName;
     private int maxNumberOfGraphBackups;
     GraphManagementRuntimeProperties graphManagementRuntimeProperties;
@@ -46,14 +45,6 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     public ORSGraphFileManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphFolderStrategy orsGraphFolderStrategy) {
         this.routeProfileName = graphManagementRuntimeProperties.getLocalProfileName();
         this.orsGraphFolderStrategy = orsGraphFolderStrategy;
-    }
-    @Deprecated
-    public ORSGraphFileManager(EngineProperties engineProperties, String routeProfileName, ORSGraphFolderStrategy orsGraphFolderStrategy) {
-        this.engineProperties = engineProperties;
-        this.routeProfileName = routeProfileName;
-        this.orsGraphFolderStrategy = orsGraphFolderStrategy;
-        int maxBak = engineProperties.getGraphManagement().getMaxBackups();
-        this.maxNumberOfGraphBackups = Math.max(maxBak, 0);
     }
 
     public void initialize() {

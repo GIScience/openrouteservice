@@ -81,7 +81,7 @@ class ORSGraphHopperTest {
      */
     @Test
     void buildGraphWithPreprocessedData() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("car", "repoDir", "car");
+        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("driving-car", "repoDir", "driving-car");
 
         gh.initializeGraphManagement("0");
         gh.importOrLoad();
@@ -131,7 +131,7 @@ class ORSGraphHopperTest {
 
     @Test
     public void profileHashAddedToGraphHopperLocationWithDeepHashStrategy() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoUrl", "car");
+        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoUrl", "driving-car");
 
         String pathBefore = gh.getGraphHopperLocation();
         gh.initializeGraphManagementWithDeepHashBasedStructure(GraphManagementRuntimeProperties.Builder.empty().withGraphVersion("0").build());
@@ -139,12 +139,12 @@ class ORSGraphHopperTest {
         String pathAfter = gh.getGraphHopperLocation();
 
         assertNotEquals(pathAfter, pathBefore);
-        assertTrue(pathAfter.endsWith("graphs-apitests/car/603a087fb90e76a16bf4020a2f91226c"));
+        assertTrue(pathAfter.endsWith("graphs-apitests/driving-car/603a087fb90e76a16bf4020a2f91226c"));
     }
 
     @Test
     public void noProfileHashAddedToGraphHopperLocationWithFlatStrategy() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("repoDir", "repoUrl", "car");
+        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("repoDir", "repoUrl", "driving-car");
 
         String pathBefore = gh.getGraphHopperLocation();
         gh.initializeGraphManagementWithFlatStructure(GraphManagementRuntimeProperties.Builder.empty().withGraphVersion("0").build());
@@ -152,12 +152,12 @@ class ORSGraphHopperTest {
         String pathAfter = gh.getGraphHopperLocation();
 
         assertNotEquals(pathAfter, pathBefore);
-        assertTrue(pathAfter.endsWith("graphs-apitests/car"));
+        assertTrue(pathAfter.endsWith("graphs-apitests/driving-car"));
     }
 
     @Test
     public void importOrLoad_orsGraphManagerCreated_usesRepo() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoUrl", "car");
+        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoUrl", "driving-car");
 
         gh.initializeGraphManagement("0");
         gh.importOrLoad();
@@ -169,7 +169,7 @@ class ORSGraphHopperTest {
 
     @Test
     public void importOrLoad_orsGraphManagerCreated_notUsingRepo() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile(null, "car");
+        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile(null, "driving-car");
 
         gh.initializeGraphManagement("0");
         gh.importOrLoad();
