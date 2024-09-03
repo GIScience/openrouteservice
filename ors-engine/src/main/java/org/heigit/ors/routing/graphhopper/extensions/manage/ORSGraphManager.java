@@ -2,7 +2,6 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.remote.ORSGraphRepoManager;
@@ -15,15 +14,15 @@ public class ORSGraphManager {
     private static final String UPDATE_LOCKFILE_NAME = "update.lock";
     private static final String RESTART_LOCKFILE_NAME = "restart.lock";
 
-    private EngineProperties engineProperties;
+    private GraphManagementRuntimeProperties managementRuntimeProperties;
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphRepoManager orsGraphRepoManager;
 
     public ORSGraphManager() {
     }
 
-    public ORSGraphManager(EngineProperties engineProperties, ORSGraphFileManager orsGraphFileManager, ORSGraphRepoManager orsGraphRepoManager) {
-        this.engineProperties = engineProperties;
+    public ORSGraphManager(GraphManagementRuntimeProperties managementRuntimeProperties, ORSGraphFileManager orsGraphFileManager, ORSGraphRepoManager orsGraphRepoManager) {
+        this.managementRuntimeProperties = managementRuntimeProperties;
         this.orsGraphFileManager = orsGraphFileManager;
         this.orsGraphRepoManager = orsGraphRepoManager;
     }
@@ -49,9 +48,9 @@ public class ORSGraphManager {
     }
 
     public boolean useGraphRepository() {
-        if (StringUtils.isBlank(engineProperties.getGraphManagement().getRepositoryName())) return false;
+        if (StringUtils.isBlank(managementRuntimeProperties.getRepoName())) return false;
 
-        return engineProperties.getGraphManagement().getRepositoryUri() != null;
+        return managementRuntimeProperties.getDerivedRepoType() != GraphManagementRuntimeProperties.GraphRepoType.NULL;
     }
 
     public void manageStartup() {

@@ -67,6 +67,7 @@ public class GraphManagementRuntimeProperties {
             builder.maxNumberOfGraphBackups = engineProperties.getGraphManagement().getMaxBackups();
             builder.graphVersion = graphVersion;
             builder.localProfileName = routeProfileName;
+            builder.localGraphsRootAbsPath = engineProperties.getGraphsRootPath().toAbsolutePath().toString();
             ProfileProperties profileProperties = engineProperties.getProfiles().get(routeProfileName);
             builder.encoderName = Optional.ofNullable(profileProperties).map(ProfileProperties::getEncoderName).map(String::valueOf).orElse(null);
             return builder;
