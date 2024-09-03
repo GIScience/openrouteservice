@@ -225,11 +225,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     public void initializeGraphManagement(String graphVersion) {
-        // TODO @Haeussler rework the whole GraphManagement logic
-        // The graph locations are currently picked up from three different locations
-        // EngineProperties/ProfileProperties/GraphManagement.
-        // We should streamline that to ProfileProperties/EngineProperties and give the GraphManagment the relevant Objects.
-        // This class should not introduce new storing logic if possible.
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, routeProfileName, graphVersion).build();
         initializeGraphManagementWithFlatStructure(managementProps);
 //        initializeGraphManagementWithDeepHashBasedStructure(managementProps);
