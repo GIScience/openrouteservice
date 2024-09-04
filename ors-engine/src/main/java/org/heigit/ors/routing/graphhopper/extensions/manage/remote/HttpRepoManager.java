@@ -114,7 +114,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
         if (downloadedGraphInfoFile.exists()) {
             downloadedGraphInfoFile.delete();
         }
-        downloadFile(downloadUrl, downloadedGraphInfoFile);//mocked!!!
+        downloadFile(downloadUrl, downloadedGraphInfoFile);
         if (!downloadedGraphInfoFile.exists()) {
             LOGGER.info("[%s] No graphInfo found in remote repository.".formatted(getProfileDescriptiveName()));
             return graphInfoInRepo;
