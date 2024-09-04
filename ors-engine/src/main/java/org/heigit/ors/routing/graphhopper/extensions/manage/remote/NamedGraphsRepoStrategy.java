@@ -5,28 +5,18 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolder
 
 public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
 
-    private final String repoName;
-    private final String profileGroup;
-    private final String graphVersion;
-    private final String extend;
-    private final String routeProfileName;
-    private final String encoderName;
+    private final GraphManagementRuntimeProperties managementProperties;
 
-    public NamedGraphsRepoStrategy(GraphManagementRuntimeProperties graphManagementRuntimeProperties) {
-        this.repoName = graphManagementRuntimeProperties.getRepoName();
-        this.profileGroup = graphManagementRuntimeProperties.getRepoProfileGroup();
-        this.extend = graphManagementRuntimeProperties.getRepoCoverage();
-        this.routeProfileName = graphManagementRuntimeProperties.getLocalProfileName();
-        this.graphVersion = graphManagementRuntimeProperties.getGraphVersion();
-        this.encoderName = graphManagementRuntimeProperties.getEncoderName();
+    public NamedGraphsRepoStrategy(GraphManagementRuntimeProperties managementProperties) {
+        this.managementProperties = managementProperties;
     }
 
     private String getConcatenatedRepoFileName() {
         return String.join("_",
-                profileGroup,
-                extend,
-                graphVersion,
-                encoderName
+                managementProperties.getRepoProfileGroup(),
+                managementProperties.getRepoCoverage(),
+                managementProperties.getGraphVersion(),
+                managementProperties.getEncoderName()
         );
     }
 
@@ -43,14 +33,4 @@ public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
     public String getRepoGraphInfoFileName() {
         return getConcatenatedRepoFileName(ORSGraphFolderStrategy.GRAPH_INFO_FILE_EXTENSION);
     }
-
-    public String getAssetFilterPattern(String repository, String coverage, String graphVersion, String profileGroup, String profileName, String fileName){
-        return "%s/%s/%s/%s".formatted(
-                profileGroup,
-                coverage,
-                graphVersion,
-                fileName);
-    }
-
-
 }

@@ -17,16 +17,13 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.stream.Stream;
 
+import static org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestAbstractRepoManagerTest {
 
-    private static final long EARLIER_DATE = 1692373111000L;
-    private static final long MIDDLE_DATE = 1692373222000L;
-    private static final long LATER_DATE = 1692373333000L;
-
-    @TempDir(cleanup = CleanupMode.ON_SUCCESS)
-    private static Path TEMP_DIR;
+    @TempDir(cleanup = CleanupMode.ALWAYS)
+    private static Path tempDir;
 
     TestAbstractRepoManager orsGraphRepoManager = new TestAbstractRepoManager();
 
@@ -65,7 +62,7 @@ public class TestAbstractRepoManagerTest {
         return Stream.of(
                 Arguments.of(new Date(0), null),
                 Arguments.of(new Date(0), new GraphInfo()),
-                Arguments.of(new Date(0), new GraphInfo().withLocalDirectory(TEMP_DIR.toFile())),
+                Arguments.of(new Date(0), new GraphInfo().withLocalDirectory(tempDir.toFile())),
                 Arguments.of(new Date(0), new GraphInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
                 Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(null)),
                 Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(new ORSGraphInfoV1())),
@@ -82,7 +79,7 @@ public class TestAbstractRepoManagerTest {
 
     public static Stream<Arguments> comparisonDatesForDownloadFiles() throws IOException {
         Date osmDate = new Date();
-        File resourcesDir = TEMP_DIR.toFile();
+        File resourcesDir = tempDir.toFile();
         File nonexistingFile = new File(resourcesDir, "missing.ghz");
         File existingFile = new File(resourcesDir, "some.ghz");
         existingFile.createNewFile();

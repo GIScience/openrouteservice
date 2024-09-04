@@ -13,11 +13,12 @@ class FlatORSGraphFolderStrategyTest {
     @BeforeEach
     public void setUp() {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
-                .withRepoName("vendor.org")
+                .withRepoName("vendor")
                 .withRepoProfileGroup("fun")
                 .withRepoCoverage("disneyland")
                 .withLocalGraphsRootAbsPath("/data/graphs")
                 .withLocalProfileName("bobbycar")
+                .withEncoderName("driving-car")
                 .withGraphVersion("0")
                 .build();
 
@@ -71,22 +72,22 @@ class FlatORSGraphFolderStrategyTest {
 
     @Test
     void getDownloadedGraphInfoFileName() {
-        assertEquals("vendor.org_fun_disneyland_0_bobbycar.yml", strategy.getDownloadedGraphInfoFileName());
+        assertEquals("vendor_fun_disneyland_0_driving-car.yml", strategy.getDownloadedGraphInfoFileName());
     }
 
     @Test
     void getDownloadedGraphInfoFileAbsPath() {
-        assertEquals("/data/graphs/vendor.org_fun_disneyland_0_bobbycar.yml", strategy.getDownloadedGraphInfoFileAbsPath());
+        assertEquals("/data/graphs/vendor_fun_disneyland_0_driving-car.yml", strategy.getDownloadedGraphInfoFileAbsPath());
     }
 
     @Test
     void getDownloadedCompressedGraphFileName() {
-        assertEquals("vendor.org_fun_disneyland_0_bobbycar.ghz", strategy.getDownloadedCompressedGraphFileName());
+        assertEquals("vendor_fun_disneyland_0_driving-car.ghz", strategy.getDownloadedCompressedGraphFileName());
     }
 
     @Test
     void getDownloadedCompressedGraphFileAbsPath() {
-        assertEquals("/data/graphs/vendor.org_fun_disneyland_0_bobbycar.ghz", strategy.getDownloadedCompressedGraphFileAbsPath());
+        assertEquals("/data/graphs/vendor_fun_disneyland_0_driving-car.ghz", strategy.getDownloadedCompressedGraphFileAbsPath());
     }
 
     @Test

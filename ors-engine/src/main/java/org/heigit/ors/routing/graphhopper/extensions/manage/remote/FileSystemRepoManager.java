@@ -1,7 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
@@ -19,7 +18,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public class FileSystemRepoManager extends AbstractRepoManager implements ORSGraphRepoManager {
 
     private static final Logger LOGGER = Logger.getLogger(FileSystemRepoManager.class.getName());
-    private String routeProfileName;
     private String graphsRepoPath;
     private String graphsRepoName;
     private String graphsProfileGroup;
@@ -28,27 +26,12 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphRepoStrategy orsGraphRepoStrategy;
 
-    public FileSystemRepoManager() {
-    }
-
     public FileSystemRepoManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        this.routeProfileName = graphManagementRuntimeProperties.getLocalProfileName();
         this.graphsRepoPath = graphManagementRuntimeProperties.getDerivedRepoPath().toAbsolutePath().toString();
         this.graphsRepoName = graphManagementRuntimeProperties.getRepoName();
         this.graphsProfileGroup = graphManagementRuntimeProperties.getRepoProfileGroup();
         this.graphsRepoCoverage = graphManagementRuntimeProperties.getRepoCoverage();
         this.graphsRepoGraphVersion = graphManagementRuntimeProperties.getGraphVersion();
-        this.orsGraphRepoStrategy = orsGraphRepoStrategy;
-        this.orsGraphFileManager = orsGraphFileManager;
-    }
-    @Deprecated
-    public FileSystemRepoManager(Path repoPath, EngineProperties engineConfig, String routeProfileName, String graphVersion, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        this.graphsRepoPath = repoPath.toString();
-        this.graphsRepoName = engineConfig.getGraphManagement().getRepositoryName();
-        this.graphsProfileGroup = engineConfig.getGraphManagement().getRepositoryProfileGroup();
-        this.graphsRepoGraphVersion = graphVersion;
-        this.graphsRepoCoverage = engineConfig.getGraphManagement().getGraphExtent();
-        this.routeProfileName = routeProfileName;
         this.orsGraphRepoStrategy = orsGraphRepoStrategy;
         this.orsGraphFileManager = orsGraphFileManager;
     }

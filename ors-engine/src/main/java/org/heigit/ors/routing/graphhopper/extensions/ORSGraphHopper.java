@@ -38,7 +38,6 @@ import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
-import org.apache.commons.lang3.StringUtils;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.config.EngineProperties;
@@ -81,9 +80,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;

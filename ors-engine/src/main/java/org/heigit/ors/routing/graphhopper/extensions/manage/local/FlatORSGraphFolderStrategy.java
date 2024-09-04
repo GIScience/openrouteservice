@@ -9,42 +9,19 @@ import java.io.File;
 
 public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
 
-    private final String graphsRootAbsPath;
-    private final String routeProfileName;
-    private final String repoName;
-    private final String extend;
-    private final String graphVersion;
-    private final String profileGroup;
+    private final GraphManagementRuntimeProperties managementProperties;
 
     public FlatORSGraphFolderStrategy(GraphManagementRuntimeProperties managementProperties) {
-        this.graphsRootAbsPath = managementProperties.getLocalGraphsRootAbsPath();
-        this.profileGroup = managementProperties.getRepoProfileGroup();
-        this.extend = managementProperties.getRepoCoverage();
-        this.graphVersion = managementProperties.getGraphVersion();
-        this.repoName = managementProperties.getRepoName();
-        this.routeProfileName = managementProperties.getLocalProfileName();
-    }
-
-    public FlatORSGraphFolderStrategy(EngineProperties engineProperties, String routeProfileName, String graphVersion) {//todo GRC consider changing typ graphsRootPath to Path and get rid of
-        this(engineProperties.getGraphManagement(), routeProfileName, graphVersion, engineProperties.getGraphsRootPath().toAbsolutePath().toString());
-    }
-
-    public FlatORSGraphFolderStrategy(GraphManagementProperties graphManagementProperties, String routeProfileName, String graphVersion, String graphsRootAbsPath) {
-        this.graphsRootAbsPath = graphsRootAbsPath;
-        this.profileGroup = graphManagementProperties.getRepositoryProfileGroup();
-        this.extend = graphManagementProperties.getGraphExtent();
-        this.graphVersion = graphVersion;
-        this.repoName = graphManagementProperties.getRepositoryName();
-        this.routeProfileName = routeProfileName;
+        this.managementProperties = managementProperties;
     }
 
     private String getConcatenatedLocalFileName() {
         return String.join("_",
-                repoName,
-                profileGroup,
-                extend,
-                graphVersion,
-                routeProfileName
+                managementProperties.getRepoName(),
+                managementProperties.getRepoProfileGroup(),
+                managementProperties.getRepoCoverage(),
+                managementProperties.getGraphVersion(),
+                managementProperties.getEncoderName()
         );
     }
 
@@ -54,12 +31,12 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
 
     @Override
     public String getProfileDescriptiveName() {
-        return routeProfileName;
+        return managementProperties.getLocalProfileName();
     }
 
     @Override
     public String getGraphInfoFileNameInRepository() {
-        return routeProfileName + "." + GRAPH_INFO_FILE_EXTENSION;
+        return managementProperties.getLocalProfileName() + "." + GRAPH_INFO_FILE_EXTENSION;
     }
 
     @Override
@@ -69,7 +46,7 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
 
     @Override
     public String getGraphsRootDirAbsPath() {
-        return graphsRootAbsPath;
+        return managementProperties.getLocalGraphsRootAbsPath();
     }
 
     @Override
@@ -79,17 +56,17 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
 
     @Override
     public String getProfileGraphsDirAbsPath() {
-        return graphsRootAbsPath;
+        return managementProperties.getLocalGraphsRootAbsPath();
     }
 
     @Override
     public String getActiveGraphDirName() {
-        return routeProfileName;
+        return managementProperties.getLocalProfileName();
     }
 
     @Override
     public String getActiveGraphDirAbsPath() {
-        return graphsRootAbsPath + File.separator + routeProfileName;
+        return managementProperties.getLocalGraphsRootAbsPath() + File.separator + managementProperties.getLocalProfileName();
     }
 
     @Override
@@ -104,7 +81,7 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
 
     @Override
     public String getDownloadedGraphInfoFileAbsPath() {
-        return graphsRootAbsPath + File.separator + getDownloadedGraphInfoFileName();
+        return managementProperties.getLocalGraphsRootAbsPath() + File.separator + getDownloadedGraphInfoFileName();
     }
 
     @Override
@@ -114,17 +91,17 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
 
     @Override
     public String getDownloadedCompressedGraphFileAbsPath() {
-        return graphsRootAbsPath + File.separator + getDownloadedCompressedGraphFileName();
+        return managementProperties.getLocalGraphsRootAbsPath() + File.separator + getDownloadedCompressedGraphFileName();
     }
 
     @Override
     public String getDownloadedExtractedGraphDirName() {
-        return routeProfileName + "_" + GRAPH_EXTRACTION_DIRECTORY_EXTENSION;
+        return managementProperties.getLocalProfileName() + "_" + GRAPH_EXTRACTION_DIRECTORY_EXTENSION;
     }
 
     @Override
     public String getDownloadedExtractedGraphDirAbsPath() {
-        return graphsRootAbsPath + File.separator + getDownloadedExtractedGraphDirName();
+        return managementProperties.getLocalGraphsRootAbsPath() + File.separator + getDownloadedExtractedGraphDirName();
     }
 
     @Override

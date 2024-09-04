@@ -8,9 +8,9 @@ import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.GraphManagementProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
-import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.remote.NamedGraphsRepoStrategy;
@@ -179,6 +179,27 @@ class ORSGraphHopperTest {
         assertFalse(orsGraphManager.useGraphRepository());
     }
 
+    private static EngineProperties createEngineProperties(Path localGraphsRootPath,
+                                                          String graphManagementRepositoryUrl,
+                                                          String graphManagementRepositoryName,
+                                                          String graphManagementRepositoryProfileGroup,
+                                                          String graphManagementGraphExtent,
+                                                          String profileName, int graphManagementMaxBackups) {
+
+        EngineProperties engineProperties = new EngineProperties();
+        engineProperties.setGraphsRootPath(localGraphsRootPath);
+        engineProperties.getProfiles().get(profileName).setEnabled(true);
+
+        GraphManagementProperties graphManagementProperties = engineProperties.getGraphManagement();
+        graphManagementProperties.setRepositoryUri(graphManagementRepositoryUrl);
+        graphManagementProperties.setRepositoryName(graphManagementRepositoryName);
+        graphManagementProperties.setRepositoryProfileGroup(graphManagementRepositoryProfileGroup);
+        graphManagementProperties.setGraphExtent(graphManagementGraphExtent);
+        graphManagementProperties.setMaxBackups(graphManagementMaxBackups);
+
+        return engineProperties;
+    }
+
     private static ORSGraphHopper createORSGraphHopper(ORSGraphHopperConfig ghConfig,
                                                        EngineProperties engineProperties) throws Exception {
         GraphProcessContext gpc = new GraphProcessContext(engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
@@ -208,7 +229,7 @@ class ORSGraphHopperTest {
     private static ORSGraphHopper createORSGraphHoopperWithoutOsmFile(String repoDir, String repoUrl) throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
         Path repoPath = repoDir.isEmpty() ? null : Path.of(repoDir);
-        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(repoPath, repoUrl,
+        EngineProperties engineProperties = createEngineProperties(repoPath, repoUrl,
                 "repoName", "profileGroup", "graphExtent",
                 ROUTE_PROFILE_NAME, 0
         );
@@ -219,7 +240,7 @@ class ORSGraphHopperTest {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithOsmFile();
 
         Path repoPath = repoDir.isEmpty() ? null : Path.of(repoDir);
-        EngineProperties engineProperties = RepoManagerTestHelper.createEngineProperties(repoPath, repoUrl,
+        EngineProperties engineProperties = createEngineProperties(repoPath, repoUrl,
                 "repoName", "profileGroup", "graphExtent",
                 ROUTE_PROFILE_NAME, 0
         );
