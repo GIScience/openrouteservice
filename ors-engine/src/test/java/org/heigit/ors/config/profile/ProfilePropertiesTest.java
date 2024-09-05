@@ -89,7 +89,7 @@ class ProfilePropertiesTest {
         profile.getEncoderOptions().setConditionalSpeed(true);
 
         String result = profile.getEncoderOptionsString();
-        assertEquals("block_fords=false|consider_elevation=false|turn_costs=true|use_acceleration=false|maximum_grade_level=4|preferred_speed_factor=0.8|problematic_speed_factor=0.5|conditional_access=true|conditional_speed=true", result);
+        assertEquals("consider_elevation=false|turn_costs=true|block_fords=false|use_acceleration=false|maximum_grade_level=4|preferred_speed_factor=0.8|problematic_speed_factor=0.5|conditional_access=true|conditional_speed=true", result);
         // Variance of the parameter values
         profile.getEncoderOptions().setMaximumGradeLevel(4);
         profile.getEncoderOptions().setBlockFords(null);

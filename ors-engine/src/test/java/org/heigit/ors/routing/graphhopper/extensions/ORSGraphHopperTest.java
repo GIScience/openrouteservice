@@ -1,5 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
@@ -141,7 +144,7 @@ class ORSGraphHopperTest {
 
         String pathAfter = gh.getGraphHopperLocation();
         assertNotEquals(pathAfter, pathBefore);
-        assertTrue(pathAfter.endsWith("graphs-apitests/driving-car/603a087fb90e76a16bf4020a2f91226c"));
+        assertTrue(pathAfter.endsWith("graphs-apitests/driving-car/6f779cc93716407f07c169054b12f307"));
     }
 
     @Test
@@ -184,11 +187,80 @@ class ORSGraphHopperTest {
                                                           String graphManagementRepositoryName,
                                                           String graphManagementRepositoryProfileGroup,
                                                           String graphManagementGraphExtent,
-                                                          String profileName, int graphManagementMaxBackups) {
+                                                          String profileName, int graphManagementMaxBackups) throws JsonProcessingException {
 
-        EngineProperties engineProperties = new EngineProperties();
-        engineProperties.setGraphsRootPath(localGraphsRootPath);
+        String testJson = """
+            {
+              "graph_management": {
+                "graph_extent": null,
+                "repository_uri": null,
+                "repository_name": null,
+                "repository_profile_group": null,
+                "download_schedule": "0 0 0 31 2 *",
+                "activation_schedule": "0 0 0 31 2 *",
+                "max_backups": 0
+              },           
+              "profile_default": {
+                "enabled": false,
+                "source_file": "/path/to/source/file",
+                "graph_path": "/path/to/graphs",
+                "preparation": {
+                  "min_network_size": 300,
+                  "methods": {
+                    "lm": {
+                      "enabled": false,
+                      "weightings": "shortest",
+                      "landmarks": 2
+                    }
+                  }
+                },
+                "execution": {
+                  "methods": {
+                    "lm": {
+                      "active_landmarks": 2
+                    }
+                  }
+                },
+                "ext_storages": {
+                  "WayCategory": {
+                    "enabled": true
+                  },
+                  "GreenIndex": {
+                    "enabled": true,
+                    "filepath": "/path/to/file.csv"
+                  }
+                }
+              },
+              "profiles": {
+                "driving-car": {
+                  "encoder_name": "driving-car",
+                  "encoder_options": {},
+                  "preparation": {
+                    "methods": {
+                      "lm": {
+                        "enabled": true,
+                        "threads": 5
+                      }
+                    }
+                  },
+                  "execution": {
+                    "methods": {
+                      "lm": {
+                        "active_landmarks": 2
+                      }
+                    }
+                  },
+                  "ext_storages": {}
+                }
+              }
+            }""";
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
+        EngineProperties engineProperties = mapper.readValue(testJson, EngineProperties.class);
+
+        engineProperties.getProfileDefault().setGraphPath(localGraphsRootPath);
         engineProperties.getProfiles().get(profileName).setEnabled(true);
+        engineProperties.getProfiles().get(profileName).setMaximumWayPoints(50);
 
         GraphManagementProperties graphManagementProperties = engineProperties.getGraphManagement();
         graphManagementProperties.setRepositoryUri(graphManagementRepositoryUrl);
