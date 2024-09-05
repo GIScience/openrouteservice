@@ -907,7 +907,7 @@ class ResultTest extends ServiceTest {
         body.put("locations", getParameter("locations2"));
         body.put("resolve_locations", true);
         body.put("metrics", getParameter("metricsDuration"));
-//        body.put("options", options.put("dynamic_speeds", true));// enforce use of CALT over CH
+        body.put("options", options.put("dynamic_speeds", true));// enforce use of CALT over CH
 
 
         given()
