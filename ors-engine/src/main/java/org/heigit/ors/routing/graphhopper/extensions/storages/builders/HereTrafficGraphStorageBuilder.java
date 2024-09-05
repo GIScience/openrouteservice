@@ -119,18 +119,18 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_STREETS);
             }
-            if (parameters.getPattern_15min() != null)
-                patterns15MinutesFile = parameters.getPattern_15min().toString();
+            if (parameters.getPattern15Min() != null)
+                patterns15MinutesFile = parameters.getPattern15Min().toString();
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_PATTERNS_15MINUTES);
             }
-            if (parameters.getRef_pattern() != null)
-                refPatternIdsFile = parameters.getRef_pattern().toString();
+            if (parameters.getRefPattern() != null)
+                refPatternIdsFile = parameters.getRefPattern().toString();
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_REFERENCE_PATTERN);
             }
-            if (parameters.getOutput_log() != null)
-                outputLog = parameters.getOutput_log();
+            if (parameters.getOutputLog() != null)
+                outputLog = parameters.getOutputLog();
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_OUTPUT_LOG);
             }

@@ -93,8 +93,8 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
             throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
         }
 
-        if (parameters.getKerbs_on_crossings() != null) {
-            kerbHeightOnlyOnCrossing = parameters.getKerbs_on_crossings();
+        if (parameters.getKerbsOnCrossings() != null) {
+            kerbHeightOnlyOnCrossing = parameters.getKerbsOnCrossings();
         }
         storage = new WheelchairAttributesGraphStorage();
         return storage;

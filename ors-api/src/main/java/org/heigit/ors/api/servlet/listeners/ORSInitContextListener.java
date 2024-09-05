@@ -20,19 +20,10 @@
  */
 package org.heigit.ors.api.servlet.listeners;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
-import org.heigit.ors.api.config.*;
 import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.config.EngineProperties;
@@ -49,49 +40,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
-import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.*;
 
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
-    private final EndpointsProperties endpointsProperties;
     private final EngineProperties engineProperties;
-    private final CorsProperties corsProperties;
-    private final SystemMessageProperties systemMessageProperties;
-    private final LoggingProperties loggingProperties;
-    private final ServerProperties serverProperties;
     private final GraphService graphService;
-    private final ObjectMapper mapper;
 
-    public ORSInitContextListener(EndpointsProperties endpointsProperties, EngineProperties engineProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties, GraphService graphService) {
+    public ORSInitContextListener(EngineProperties engineProperties, GraphService graphService) {
         // Initialize properties object loaded by spring
-        this.endpointsProperties = endpointsProperties;
         this.engineProperties = engineProperties;
-        this.corsProperties = corsProperties;
-        this.systemMessageProperties = systemMessageProperties;
-        this.loggingProperties = loggingProperties;
-        this.serverProperties = serverProperties;
         this.graphService = graphService;
-        YAMLFactory yf = new CustomYAMLFactory()
-                .disable(WRITE_DOC_START_MARKER)
-                .disable(SPLIT_LINES)
-                .disable(USE_NATIVE_TYPE_ID)
-                .enable(INDENT_ARRAYS_WITH_INDICATOR)
-                .enable(MINIMIZE_QUOTES);
-        mapper = new ObjectMapper(yf);
-        mapper.configure(WRITE_BIGDECIMAL_AS_PLAIN, true);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, false);
-        mapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
     }
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
         String outputTarget = configurationOutputTarget(engineProperties, System.getenv());
         if (!StringUtility.isNullOrEmpty(outputTarget)) {
-            writeConfigurationFile(outputTarget, engineProperties);
+            copyDefaultConfigurationToFile(outputTarget);
             return;
         }
         new Thread(() -> {
@@ -131,47 +97,16 @@ public class ORSInitContextListener implements ServletContextListener {
         return output;
     }
 
-    private void writeConfigurationFile(String output, EngineProperties engineProperties) {
-        try (FileOutputStream fos = new FileOutputStream(output); JsonGenerator generator = mapper.createGenerator(fos)) {
+    private void copyDefaultConfigurationToFile(String output) {
+        try (FileOutputStream fos = new FileOutputStream(output)) {
             LOGGER.info("Creating configuration file " + output);
-            ORSConfigBundle ors = new ORSConfigBundle(corsProperties, systemMessageProperties, endpointsProperties, engineProperties);
-            ConfigBundle configBundle = new ConfigBundle(serverProperties, loggingProperties, ors);
-            generator.writeObject(configBundle);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Configuration written: \n" + mapper.writeValueAsString(configBundle));
-            }
+            // TODO: simply copy application.yml to output file
         } catch (IOException e) {
             LOGGER.error("Failed to write output configuration file.", e);
         }
         LOGGER.info("Configuration output completed.");
         RoutingProfileManagerStatus.setShutdown(true);
     }
-
-    record ORSConfigBundle(
-            @JsonIgnoreProperties({"$$beanFactory"})
-            CorsProperties cors,
-            @JsonInclude(JsonInclude.Include.CUSTOM)
-            @JsonIgnoreProperties({"$$beanFactory"})
-            SystemMessageProperties messages,
-            @JsonIgnoreProperties({"$$beanFactory"})
-            EndpointsProperties endpoints,
-            @JsonIgnoreProperties({"$$beanFactory"})
-            EngineProperties engine
-    ) {
-    }
-
-    record ConfigBundle(
-            @JsonProperty
-            @JsonIgnoreProperties({"$$beanFactory"})
-            ServerProperties server,
-            @JsonProperty
-            @JsonIgnoreProperties({"$$beanFactory"})
-            LoggingProperties logging,
-            @JsonProperty
-            ORSConfigBundle ors
-    ) {
-    }
-
 
     @Override
     public void contextDestroyed(ServletContextEvent contextEvent) {

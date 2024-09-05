@@ -267,7 +267,7 @@ class ORSGraphHopperTest {
 
         ORSGraphHopper orsGraphHopper = new ORSGraphHopper();
         EngineProperties engineProperties = new EngineProperties();
-        engineProperties.setGraphsRootPath(Path.of("graphs"));
+        engineProperties.getProfileDefault().setGraphPath(Path.of("graphs"));
         engineProperties.getGraphManagement().setRepositoryUri(repoUri);
 
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()

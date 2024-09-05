@@ -66,7 +66,7 @@ public class RoutingProfileManager {
         RuntimeUtility.printRAMInfo("", LOGGER);
         long startTime = System.currentTimeMillis();
         try {
-            Map<String, ProfileProperties> profiles = config.getActiveProfiles();
+            Map<String, ProfileProperties> profiles = config.getInitializedActiveProfiles();
             if (profiles.isEmpty()) {
                 fail("No profiles configured. Exiting.");
                 return;

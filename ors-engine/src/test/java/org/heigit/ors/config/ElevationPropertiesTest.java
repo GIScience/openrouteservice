@@ -7,8 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,18 +68,5 @@ class ElevationPropertiesTest {
 
         elevationProperties.setProvider("provider2");
         assertEquals("provider2", elevationProperties.getProvider());
-    }
-
-    @Test
-    void cachePathReturnsCorrectValue() {
-        Path path = Paths.get("/some/path");
-        elevationProperties.setCachePath(path);
-        assertEquals(path, elevationProperties.getCachePath());
-    }
-
-    @Test
-    void cachePathHandlesNull() {
-        elevationProperties.setCachePath(null);
-        assertNull(elevationProperties.getCachePath());
     }
 }

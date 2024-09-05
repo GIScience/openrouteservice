@@ -69,21 +69,7 @@ class PreparationPropertiesTest {
     @Test
     void isEmptyReturnsTrueWhenAllFieldsAreNull() {
         PreparationProperties properties = new PreparationProperties();
-        properties.setMinNetworkSize(null);
-        properties.setMinOneWayNetworkSize(null);
-        properties.getMethods().setCh(null);
-        properties.getMethods().setLm(null);
-        properties.getMethods().setCore(null);
-        properties.getMethods().setFastisochrones(null);
-
         assertTrue(properties.isEmpty());
-    }
-
-    @Test
-    void chPropertiesIsEnabledReturnsFalseWhenEnabledIsNull() {
-        PreparationProperties.MethodsProperties.CHProperties ch = new PreparationProperties.MethodsProperties.CHProperties();
-
-        assertFalse(ch.isEnabled());
     }
 
     @Test

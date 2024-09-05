@@ -95,7 +95,7 @@ class RoadAccessRestrictionsGraphStorageBuilderTest {
             }
 
             public void setUse_for_warnings(boolean useForWarnings) {
-                super.setUse_for_warnings(useForWarnings);
+                super.setUseForWarnings(useForWarnings);
             }
         }
         builder = new RoadAccessRestrictionsGraphStorageBuilder();

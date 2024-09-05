@@ -1,112 +1,36 @@
 package org.heigit.ors.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
-import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.profile.ExtendedStorage;
-import org.heigit.ors.config.profile.ExtendedStorageName;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.config.utils.PathSerializer;
 
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
-import static org.heigit.ors.common.EncoderNameEnum.*;
 
 @Getter
 @Setter
-@EqualsAndHashCode
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class EngineProperties {
-    @JsonIgnore
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
-    static List<EncoderNameEnum> DEFAULT_ENCODER_NAMES = List.of(DRIVING_CAR, DRIVING_HGV, CYCLING_REGULAR, CYCLING_ROAD, CYCLING_ELECTRIC, CYCLING_MOUNTAIN, FOOT_WALKING, FOOT_HIKING, WHEELCHAIR, PUBLIC_TRANSPORT);
-
-    @JsonProperty("init_threads")
-    private Integer initThreads = 2;
-    @JsonProperty("preparation_mode")
-    private Boolean preparationMode = false;
-    @JsonProperty("config_output")
+    private Integer initThreads;
+    private Boolean preparationMode;
     private String configOutput;
-    @JsonProperty("graphs_root_path")
-    @JsonSerialize(using = PathSerializer.class)
-    private Path graphsRootPath = Path.of("graphs");
-    @JsonProperty("graphs_data_access")
-    private DataAccessEnum graphsDataAccess = DataAccessEnum.RAM_STORE;
+    private DataAccessEnum graphsDataAccess;
 
-    @JsonProperty("elevation")
     private ElevationProperties elevation = new ElevationProperties();
     @JsonProperty("graph_management")
     private GraphManagementProperties graphManagement = new GraphManagementProperties();
     @JsonProperty("profile_default")
-    private ProfileProperties profileDefault = ProfileProperties.getProfileInstance(EncoderNameEnum.DEFAULT);
-    @JsonProperty("profiles")
-    @Getter(AccessLevel.NONE)
+    private ProfileProperties profileDefault = new ProfileProperties();
     private Map<String, ProfileProperties> profiles = new LinkedHashMap<>();
 
     @JsonIgnore
-    private boolean initialized = false;
-
-    /**
-     * Initialize the profiles map with default profiles.
-     * This method should be called directly but only through different getters.
-     * It should only be initialized once the profiles are needed.
-     */
-    @JsonIgnore
-    private void initProfilesMap() {
-        for (EncoderNameEnum encoderName : DEFAULT_ENCODER_NAMES) {
-            ProfileProperties defaultProfile = ProfileProperties.getProfileInstance(encoderName);
-            defaultProfile.mergeDefaults(profileDefault, true);
-            if (profiles.containsKey(encoderName.name)) {
-                profiles.get(encoderName.name).mergeDefaults(defaultProfile, false);
-            } else {
-                profiles.put(encoderName.name, defaultProfile);
-            }
-        }
-        for (Map.Entry<String, ProfileProperties> entry : profiles.entrySet()) {
-            ProfileProperties profile = entry.getValue();
-            profile.setProfileName(entry.getKey());
-            profile.setProfileGraphPath(this.graphsRootPath);
-
-            EncoderNameEnum encoderName = profile.getEncoderName();
-            ProfileProperties defaultProfile = ProfileProperties.getProfileInstance(encoderName);
-            defaultProfile.mergeDefaults(profileDefault, true);
-            profile.mergeDefaults(defaultProfile, false);
-            profile.getExtStorages().forEach(
-                    (key, value) -> {
-                        if (value != null) {
-                            value.initialize(ExtendedStorageName.getEnum(key));
-                        } else {
-                            profile.getExtStorages().put(key, new ExtendedStorage(ExtendedStorageName.getEnum(key)));
-                        }
-                    }
-            );
-        }
-    }
-
-    @JsonIgnore
-    public Map<String, ProfileProperties> getProfiles() {
-        initProfilesMap();
-        return profiles;
-    }
-
-    @JsonIgnore
-    public Map<String, ProfileProperties> getActiveProfiles() {
+    public Map<String, ProfileProperties> getInitializedActiveProfiles() {
         LinkedHashMap<String, ProfileProperties> activeProfiles = new LinkedHashMap<>();
-        for (Map.Entry<String, ProfileProperties> entry : getProfiles().entrySet()) {
-            ProfileProperties mergedProfile = entry.getValue().mergeDefaults(profileDefault, false);
-            if (Optional.ofNullable(mergedProfile.getEnabled()).orElse(false)) {
+        for (Map.Entry<String, ProfileProperties> entry : profiles.entrySet()) {
+            ProfileProperties mergedProfile = entry.getValue().mergeDefaults(profileDefault, entry.getKey());
+            if (Boolean.TRUE.equals(mergedProfile.getEnabled())) {
                 activeProfiles.put(entry.getKey(), mergedProfile);
             }
         }

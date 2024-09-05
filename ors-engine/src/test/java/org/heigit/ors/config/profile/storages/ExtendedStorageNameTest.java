@@ -11,7 +11,7 @@ class ExtendedStorageNameTest {
     @Test
     void testGetName() {
         assertEquals("Borders", ExtendedStorageName.BORDERS.getName());
-        assertEquals("csv", ExtendedStorageName.CSV.getName());
+        assertEquals("Csv", ExtendedStorageName.CSV.getName());
         assertEquals("GreenIndex", ExtendedStorageName.GREEN_INDEX.getName());
         assertEquals("HeavyVehicle", ExtendedStorageName.HEAVY_VEHICLE.getName());
         assertEquals("HereTraffic", ExtendedStorageName.HERE_TRAFFIC.getName());
@@ -31,7 +31,7 @@ class ExtendedStorageNameTest {
     @Test
     void getValue() {
         assertEquals("Borders", ExtendedStorageName.BORDERS.getValue());
-        assertEquals("csv", ExtendedStorageName.CSV.getValue());
+        assertEquals("Csv", ExtendedStorageName.CSV.getValue());
         assertEquals("GreenIndex", ExtendedStorageName.GREEN_INDEX.getValue());
         assertEquals("HeavyVehicle", ExtendedStorageName.HEAVY_VEHICLE.getValue());
         assertEquals("HereTraffic", ExtendedStorageName.HERE_TRAFFIC.getValue());
@@ -51,7 +51,7 @@ class ExtendedStorageNameTest {
     @Test
     void testToString() {
         assertEquals("Borders", ExtendedStorageName.BORDERS.toString());
-        assertEquals("csv", ExtendedStorageName.CSV.toString());
+        assertEquals("Csv", ExtendedStorageName.CSV.toString());
         assertEquals("GreenIndex", ExtendedStorageName.GREEN_INDEX.toString());
         assertEquals("HeavyVehicle", ExtendedStorageName.HEAVY_VEHICLE.toString());
         assertEquals("HereTraffic", ExtendedStorageName.HERE_TRAFFIC.toString());
@@ -70,7 +70,7 @@ class ExtendedStorageNameTest {
     @Test
     void getEnum() {
         assertEquals(ExtendedStorageName.BORDERS, ExtendedStorageName.getEnum("Borders"));
-        assertEquals(ExtendedStorageName.CSV, ExtendedStorageName.getEnum("csv"));
+        assertEquals(ExtendedStorageName.CSV, ExtendedStorageName.getEnum("Csv"));
         assertEquals(ExtendedStorageName.GREEN_INDEX, ExtendedStorageName.getEnum("GreenIndex"));
         assertEquals(ExtendedStorageName.HEAVY_VEHICLE, ExtendedStorageName.getEnum("HeavyVehicle"));
         assertEquals(ExtendedStorageName.HERE_TRAFFIC, ExtendedStorageName.getEnum("HereTraffic"));

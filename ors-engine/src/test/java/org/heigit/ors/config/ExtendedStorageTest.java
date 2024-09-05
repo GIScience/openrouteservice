@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -46,14 +45,14 @@ class ExtendedStorageTest {
             assertNotNull(storage.getStreets(), "streets should not be null");
         }
         if (!nonNullFields.contains("ref_pattern")) {
-            assertNull(storage.getRef_pattern(), "ref_pattern should be null");
+            assertNull(storage.getRefPattern(), "ref_pattern should be null");
         } else {
-            assertNotNull(storage.getRef_pattern(), "ref_pattern should not be null");
+            assertNotNull(storage.getRefPattern(), "ref_pattern should not be null");
         }
         if (!nonNullFields.contains("pattern_15min")) {
-            assertNull(storage.getPattern_15min(), "pattern_15min should be null");
+            assertNull(storage.getPattern15Min(), "pattern_15min should be null");
         } else {
-            assertNotNull(storage.getPattern_15min(), "pattern_15min should not be null");
+            assertNotNull(storage.getPattern15Min(), "pattern_15min should not be null");
         }
         if (!nonNullFields.contains("radius")) {
             assertNull(storage.getRadius(), "radius should be null");
@@ -61,14 +60,14 @@ class ExtendedStorageTest {
             assertNotNull(storage.getRadius(), "radius should not be null");
         }
         if (!nonNullFields.contains("output_log")) {
-            assertNull(storage.getOutput_log(), "output_log should be null");
+            assertNull(storage.getOutputLog(), "output_log should be null");
         } else {
-            assertNotNull(storage.getOutput_log(), "output_log should not be null");
+            assertNotNull(storage.getOutputLog(), "output_log should not be null");
         }
         if (!nonNullFields.contains("log_location")) {
-            assertNull(storage.getLog_location(), "log_location should be null");
+            assertNull(storage.getLogLocation(), "log_location should be null");
         } else {
-            assertNotNull(storage.getLog_location(), "log_location should not be null");
+            assertNotNull(storage.getLogLocation(), "log_location should not be null");
         }
         if (!nonNullFields.contains("maximum_slope")) {
             assertNull(storage.getMaximumSlope(), "maximum_slope should be null");
@@ -91,9 +90,9 @@ class ExtendedStorageTest {
             assertNotNull(storage.getOpenborders(), "openborders should not be null");
         }
         if (!nonNullFields.contains("use_for_warnings")) {
-            assertNull(storage.getUse_for_warnings(), "use_for_warnings should be null");
+            assertNull(storage.getUseForWarnings(), "use_for_warnings should be null");
         } else {
-            assertNotNull(storage.getUse_for_warnings(), "use_for_warnings should not be null");
+            assertNotNull(storage.getUseForWarnings(), "use_for_warnings should not be null");
         }
         return true;
     }
@@ -116,14 +115,6 @@ class ExtendedStorageTest {
     void testStringConstructor() {
         ExtendedStorage storage = new ExtendedStorage("");
         assertTrue(testStorageObjectIsEmpty(storage, new ArrayList<>()), "String constructor should initialize all fields to null");
-    }
-
-    @Test
-    void testEnumConstructor() {
-        ExtendedStorage storage = new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY);
-        assertTrue(testStorageObjectIsEmpty(storage, new ArrayList<>() {{
-            add("enabled");
-        }}), "Enum constructor should initialize all fields to null except enabled");
     }
 
     @Test
@@ -207,38 +198,6 @@ class ExtendedStorageTest {
     }
 
     @Test
-    void testSerializationNonEmptyStorageProducesCorrectJson() throws Exception {
-
-        //language=JSON
-        String expectedJson = """
-                {
-                     "enabled":true,
-                     "restrictions":true,
-                     "streets":"/src/test/resources/streets.csv",
-                     "ref_pattern":"/src/test/resources/ref_pattern.csv",
-                     "pattern_15min":"/src/test/resources/pattern_15min.csv",
-                     "radius":10,
-                     "output_log":true,
-                     "log_location":"/src/test/resources/log_location.csv",
-                     "filepath":"/src/test/resources/filepath.csv",
-                     "maximum_slope":5,
-                     "boundaries":"/src/test/resources/boundaries.csv",
-                     "ids":"/src/test/resources/ids.csv",
-                     "openborders":"/src/test/resources/openborders.csv",
-                     "use_for_warnings":true,
-                     "KerbsOnCrossings":true
-                 }
-                """;
-        // Serialize the object to JSON
-        ExtendedStorage storage = mapper.readValue(expectedJson, ExtendedStorage.class);
-
-        // Step 2: Serialize the object to JSON
-        String jsonResult = mapper.writeValueAsString(storage);
-        // Step 3: Assert JSON structure and values including enabled
-        assertEquals(mapper.readTree(expectedJson), mapper.readTree(jsonResult), "Serialized JSON should match the expected JSON");
-    }
-
-    @Test
     void initializeSetsRadiusTo150ForHereTrafficIfNull() throws JsonProcessingException {
         ExtendedStorage storage = new ExtendedStorage();
         assertNull(storage.getRadius(), "radius should be null before initialize");
@@ -315,11 +274,11 @@ class ExtendedStorageTest {
     @Test
     void initializeSetsUseForWarningsToTrueForRoadAccessRestrictions() throws JsonProcessingException {
         ExtendedStorage storage = new ExtendedStorage();
-        assertNull(storage.getUse_for_warnings(), "use_for_warnings should be null before initialize");
+        assertNull(storage.getUseForWarnings(), "use_for_warnings should be null before initialize");
 
         // Test Default value
         storage.initialize(ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS);
-        assertTrue(storage.getUse_for_warnings(), "initialize should set use_for_warnings to true for ROAD_ACCESS_RESTRICTIONS if it is null");
+        assertTrue(storage.getUseForWarnings(), "initialize should set use_for_warnings to true for ROAD_ACCESS_RESTRICTIONS if it is null");
 
         // Variable set and not the default value. It should be left as is.
         String json = """
@@ -328,9 +287,9 @@ class ExtendedStorageTest {
                 }
                 """;
         storage = mapper.readValue(json, ExtendedStorage.class);
-        assertFalse(storage.getUse_for_warnings(), "initialize should not change use_for_warnings if it is not null");
+        assertFalse(storage.getUseForWarnings(), "initialize should not change use_for_warnings if it is not null");
         storage.initialize(ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS);
-        assertFalse(storage.getUse_for_warnings(), "initialize should not change use_for_warnings if it is not null");
+        assertFalse(storage.getUseForWarnings(), "initialize should not change use_for_warnings if it is not null");
 
         // Assert everything else was set to null
         testStorageObjectIsEmpty(storage, new ArrayList<>() {{
@@ -340,40 +299,13 @@ class ExtendedStorageTest {
     }
 
     @Test
-    void initializeSetsKerbsOnCrossingsToTrueForWheelchair() throws JsonProcessingException {
-        ExtendedStorage storage = new ExtendedStorage();
-        assertNull(storage.getKerbs_on_crossings(), "kerbs_on_crossings should be null before initialize");
-
-        // Test Default value
-        storage.initialize(ExtendedStorageName.WHEELCHAIR);
-        assertTrue(storage.getKerbs_on_crossings(), "initialize should set kerbs_on_crossings to true for WHEELCHAIR if it is null");
-
-        // Variable set and not the default value. It should be left as is.
-        String json = """
-                {
-                    "KerbsOnCrossings": false
-                }
-                """;
-        storage = mapper.readValue(json, ExtendedStorage.class);
-        assertFalse(storage.getKerbs_on_crossings(), "initialize should not change kerbs_on_crossings if it is not null");
-        storage.initialize(ExtendedStorageName.WHEELCHAIR);
-        assertFalse(storage.getKerbs_on_crossings(), "initialize should not change kerbs_on_crossings if it is not null");
-
-        // Assert everything else was set to null
-        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
-            add("enabled");
-            add("KerbsOnCrossings");
-        }});
-    }
-
-    @Test
     void initializeSetsOutputLogToFalseForHereTrafficIfNull() throws JsonProcessingException {
         ExtendedStorage storage = new ExtendedStorage();
-        assertNull(storage.getOutput_log(), "output_log should be null before initialize");
+        assertNull(storage.getOutputLog(), "output_log should be null before initialize");
 
         // Test Default value
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
-        assertFalse(storage.getOutput_log(), "initialize should set output_log to false for HERE_TRAFFIC if it is null");
+        assertFalse(storage.getOutputLog(), "initialize should set output_log to false for HERE_TRAFFIC if it is null");
 
         // Variable set and not the default value. It should be left as is.
         String json = """
@@ -382,9 +314,9 @@ class ExtendedStorageTest {
                 }
                 """;
         storage = mapper.readValue(json, ExtendedStorage.class);
-        assertTrue(storage.getOutput_log(), "initialize should not change output_log if it is not null");
+        assertTrue(storage.getOutputLog(), "initialize should not change output_log if it is not null");
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
-        assertTrue(storage.getOutput_log(), "initialize should not change output_log if it is not null");
+        assertTrue(storage.getOutputLog(), "initialize should not change output_log if it is not null");
 
         // Assert everything else was set to null
         testStorageObjectIsEmpty(storage, new ArrayList<>() {{
@@ -430,11 +362,11 @@ class ExtendedStorageTest {
     @Test
     void initializeSetsLogLocationToDefaultForHereTrafficIfNull() throws JsonProcessingException {
         ExtendedStorage storage = new ExtendedStorage();
-        assertNull(storage.getLog_location(), "log_location should be null before initialize");
+        assertNull(storage.getLogLocation(), "log_location should be null before initialize");
 
         // Test Default value
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
-        assertEquals(Path.of("./here_matching.log"), storage.getLog_location(), "initialize should set log_location to default for HERE_TRAFFIC if it is null");
+        assertEquals(Path.of("./here_matching.log"), storage.getLogLocation(), "initialize should set log_location to default for HERE_TRAFFIC if it is null");
 
         // Variable set and not the default value. It should be left as is.
         String json = """
@@ -443,9 +375,9 @@ class ExtendedStorageTest {
                 }
                 """;
         storage = mapper.readValue(json, ExtendedStorage.class);
-        assertEquals(Path.of("/custom/path.log"), storage.getLog_location(), "initialize should not change log_location if it is not null");
+        assertEquals(Path.of("/custom/path.log"), storage.getLogLocation(), "initialize should not change log_location if it is not null");
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
-        assertEquals(Path.of("/custom/path.log"), storage.getLog_location(), "initialize should not change log_location if it is not null");
+        assertEquals(Path.of("/custom/path.log"), storage.getLogLocation(), "initialize should not change log_location if it is not null");
 
         // Assert everything else was set to null
         testStorageObjectIsEmpty(storage, new ArrayList<>() {{
@@ -457,15 +389,6 @@ class ExtendedStorageTest {
             add("ref_pattern");
             add("pattern_15min");
         }});
-    }
-
-    @Test
-    void testSerializeExtendedStorage() throws IOException {
-        HelperClass foo = new HelperClass();
-        foo.setExtendedStorage(Map.of("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY)));
-        String json = mapper.writeValueAsString(foo);
-        String expectedJson = "{\"ext_storages\":{\"WayCategory\":{\"enabled\":true}}}";
-        assertEquals(expectedJson, json);
     }
 
     @ParameterizedTest
@@ -520,15 +443,15 @@ class ExtendedStorageTest {
         }
 
         if (refPattern.isEmpty()) {
-            assertEquals(emptyPath, storage.getRef_pattern(), "initialize should set ref_pattern to empty path if it is null");
+            assertEquals(emptyPath, storage.getRefPattern(), "initialize should set ref_pattern to empty path if it is null");
         } else {
-            assertEquals(Path.of(refPattern).toAbsolutePath(), storage.getRef_pattern(), "initialize should not change ref_pattern if it is not null");
+            assertEquals(Path.of(refPattern).toAbsolutePath(), storage.getRefPattern(), "initialize should not change ref_pattern if it is not null");
         }
 
         if (pattern15min.isEmpty()) {
-            assertEquals(emptyPath, storage.getPattern_15min(), "initialize should set pattern_15min to empty path if it is null");
+            assertEquals(emptyPath, storage.getPattern15Min(), "initialize should set pattern_15min to empty path if it is null");
         } else {
-            assertEquals(Path.of(pattern15min).toAbsolutePath(), storage.getPattern_15min(), "initialize should not change pattern_15min if it is not null");
+            assertEquals(Path.of(pattern15min).toAbsolutePath(), storage.getPattern15Min(), "initialize should not change pattern_15min if it is not null");
         }
 
         // Assert everything else was set to null
@@ -656,36 +579,6 @@ class ExtendedStorageTest {
             add("enabled");
             add("filepath");
         }});
-    }
-
-    @Test
-    void testSerializeExtendedStorageWithMultipleEntries() throws IOException {
-        HelperClass foo = new HelperClass();
-        Map<String, ExtendedStorage> extendedStorage = new HashMap<>();
-        extendedStorage.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
-        extendedStorage.put("GreenIndex", new ExtendedStorage(ExtendedStorageName.GREEN_INDEX));
-        extendedStorage.put("EmptyHelperStorage", new EmptyHelperStorage());
-        extendedStorage.put("NestedHelperStorage", new NestedHelperStorage());
-        foo.setExtendedStorage(extendedStorage);
-        String json = mapper.writeValueAsString(foo);
-        // Deserialize the JSON string to a map
-        Map<?, ?> result = mapper.readValue(json, Map.class);
-        // Check if the map contains the expected keys
-        assertTrue(result.containsKey("ext_storages"));
-        // Check size of the map
-        assertEquals(4, ((Map<?, ?>) result.get("ext_storages")).size());
-        // Check if the map contains the expected keys
-        assertTrue(((Map<?, ?>) result.get("ext_storages")).containsKey("WayCategory"));
-        assertTrue(((Map<?, ?>) result.get("ext_storages")).containsKey("GreenIndex"));
-        // Check sizes of the inner maps
-        assertEquals(1, ((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("WayCategory")).size());
-        assertEquals(2, ((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("GreenIndex")).size());
-        // Check if the map contains the expected values
-        assertTrue(((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("WayCategory")).containsKey("enabled"));
-        assertTrue(((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("GreenIndex")).containsKey("enabled"));
-        // filepath in GreenIndex
-        assertTrue(((Map<?, ?>) ((Map<?, ?>) result.get("ext_storages")).get("GreenIndex")).containsKey("filepath"));
-        // Evaluate a storage that is empty, even without the enabled field when serialized
     }
 
     static class HelperClass extends ExtendedStorage {

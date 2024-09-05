@@ -14,7 +14,6 @@ ors:
       maximum_locations: 3
 
   engine:
-    graphs_root_path: graphs-apitests
     config_output_mode: false
     graph_management:
       repository_path:
@@ -29,6 +28,7 @@ ors:
       cache_path: ./src/test/files/elevation
     profile_default:
       source_file: ./src/test/files/heidelberg.osm.gz
+      graph_path: graphs-apitests
       elevation: true
       elevation_smoothing: true
       encoder_flags_size: 4
@@ -219,7 +219,7 @@ ors:
             filepath: ./src/test/files/green_streets_hd.csv
           NoiseIndex:
             filepath: ./src/test/files/noise_data_hd.csv
-          csv:
+          Csv:
             filepath: ./src/test/files/csv_data_hd.csv
           ShadowIndex:
             filepath: ./src/test/files/shadow_index_hd.csv
@@ -251,7 +251,7 @@ ors:
           block_fords: false
         ext_storages:
           Wheelchair:
-            KerbsOnCrossings: true
+            kerbs_on_crossings: true
           WaySurfaceType:
           WayCategory:
           OsmId:

@@ -4,18 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.utils.PathSerializer;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static java.util.Optional.ofNullable;
 
@@ -24,7 +18,6 @@ import static java.util.Optional.ofNullable;
  */
 @Getter
 @Setter
-@EqualsAndHashCode
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExtendedStorage {
     @JsonIgnore
@@ -34,60 +27,51 @@ public class ExtendedStorage {
     private ExtendedStorageName storageName;
 
     // Relevant for all
-    @JsonProperty
+    @JsonProperty("enabled")
     private Boolean enabled;
 
     // Relevant for most index storages
-    @JsonProperty
-    @JsonSerialize(using = PathSerializer.class)
+    @JsonProperty("filepath")
     private Path filepath;
 
     // Relevant for HGV profile
-    @JsonProperty
+    @JsonProperty("restrictions")
     private Boolean restrictions;
 
-    @JsonProperty
     // Relevant for HereTraffic profile
-    @JsonSerialize(using = PathSerializer.class)
+    @JsonProperty("streets")
     private Path streets;
-    @JsonSerialize(using = PathSerializer.class)
-    private Path ref_pattern;
-    @JsonProperty
-    @JsonSerialize(using = PathSerializer.class)
-    private Path pattern_15min;
-    @JsonProperty
+    @JsonProperty("ref_pattern")
+    private Path refPattern;
+    @JsonProperty("pattern_15min")
+    private Path pattern15Min;
+    @JsonProperty("radius")
     private Integer radius;
-    @JsonProperty
-    private Boolean output_log;
-    @JsonProperty
-    @JsonSerialize(using = PathSerializer.class)
-    private Path log_location;
+    @JsonProperty("output_log")
+    private Boolean outputLog;
+    @JsonProperty("log_location")
+    private Path logLocation;
 
     // Relevant for HillIndex
     @JsonProperty("maximum_slope")
     private Integer maximumSlope;
 
     // Relevant for borders
-    @JsonProperty
-    @JsonSerialize(using = PathSerializer.class)
+    @JsonProperty("boundaries")
     private Path boundaries;
-    @JsonProperty
-    @JsonSerialize(using = PathSerializer.class)
+    @JsonProperty("ids")
     private Path ids;
-    @JsonProperty
-    @JsonSerialize(using = PathSerializer.class)
+    @JsonProperty("openborders")
     private Path openborders;
 
     // Relevant for RoadAccessRestrictions
     @JsonProperty("use_for_warnings")
-    private Boolean use_for_warnings;
+    private Boolean useForWarnings;
 
     // Relevant for Wheelchair
-    @JsonProperty("KerbsOnCrossings")
-    private Boolean kerbs_on_crossings;
+    @JsonProperty("kerbs_on_crossings")
+    private Boolean kerbsOnCrossings;
 
-    @Getter
-    @Setter
     @JsonIgnore
     private String ghProfile;
 
@@ -99,29 +83,23 @@ public class ExtendedStorage {
     public ExtendedStorage(String ignoredEmpty) {
     }
 
-    @JsonIgnore
-    public ExtendedStorage(ExtendedStorageName storageName) {
-        super();
-        this.initialize(storageName);
-    }
-
-    public void merge(ExtendedStorage other, Boolean overwrite) {
-        storageName = overwrite ? ofNullable(other.storageName).orElse(this.storageName) : ofNullable(this.storageName).orElse(other.storageName);
-        enabled = overwrite ? ofNullable(other.enabled).orElse(this.enabled) : ofNullable(this.enabled).orElse(other.enabled);
-        filepath = overwrite ? ofNullable(other.filepath).orElse(this.filepath) : ofNullable(this.filepath).orElse(other.filepath);
-        restrictions = overwrite ? ofNullable(other.restrictions).orElse(this.restrictions) : ofNullable(this.restrictions).orElse(other.restrictions);
-        streets = overwrite ? ofNullable(other.streets).orElse(this.streets) : ofNullable(this.streets).orElse(other.streets);
-        ref_pattern = overwrite ? ofNullable(other.ref_pattern).orElse(this.ref_pattern) : ofNullable(this.ref_pattern).orElse(other.ref_pattern);
-        pattern_15min = overwrite ? ofNullable(other.pattern_15min).orElse(this.pattern_15min) : ofNullable(this.pattern_15min).orElse(other.pattern_15min);
-        radius = overwrite ? ofNullable(other.radius).orElse(this.radius) : ofNullable(this.radius).orElse(other.radius);
-        output_log = overwrite ? ofNullable(other.output_log).orElse(this.output_log) : ofNullable(this.output_log).orElse(other.output_log);
-        log_location = overwrite ? ofNullable(other.log_location).orElse(this.log_location) : ofNullable(this.log_location).orElse(other.log_location);
-        maximumSlope = overwrite ? ofNullable(other.maximumSlope).orElse(this.maximumSlope) : ofNullable(this.maximumSlope).orElse(other.maximumSlope);
-        boundaries = overwrite ? ofNullable(other.boundaries).orElse(this.boundaries) : ofNullable(this.boundaries).orElse(other.boundaries);
-        ids = overwrite ? ofNullable(other.ids).orElse(this.ids) : ofNullable(this.ids).orElse(other.ids);
-        openborders = overwrite ? ofNullable(other.openborders).orElse(this.openborders) : ofNullable(this.openborders).orElse(other.openborders);
-        use_for_warnings = overwrite ? ofNullable(other.use_for_warnings).orElse(this.use_for_warnings) : ofNullable(this.use_for_warnings).orElse(other.use_for_warnings);
-        kerbs_on_crossings = overwrite ? ofNullable(other.kerbs_on_crossings).orElse(this.kerbs_on_crossings) : ofNullable(this.kerbs_on_crossings).orElse(other.kerbs_on_crossings);
+    public void merge(ExtendedStorage other) {
+        storageName = ofNullable(this.storageName).orElse(other.storageName);
+        enabled = ofNullable(this.enabled).orElse(other.enabled);
+        filepath = ofNullable(this.filepath).orElse(other.filepath);
+        restrictions = ofNullable(this.restrictions).orElse(other.restrictions);
+        streets = ofNullable(this.streets).orElse(other.streets);
+        refPattern = ofNullable(this.refPattern).orElse(other.refPattern);
+        pattern15Min = ofNullable(this.pattern15Min).orElse(other.pattern15Min);
+        radius = ofNullable(this.radius).orElse(other.radius);
+        outputLog = ofNullable(this.outputLog).orElse(other.outputLog);
+        logLocation = ofNullable(this.logLocation).orElse(other.logLocation);
+        maximumSlope = ofNullable(this.maximumSlope).orElse(other.maximumSlope);
+        boundaries = ofNullable(this.boundaries).orElse(other.boundaries);
+        ids = ofNullable(this.ids).orElse(other.ids);
+        openborders = ofNullable(this.openborders).orElse(other.openborders);
+        useForWarnings = ofNullable(this.useForWarnings).orElse(other.useForWarnings);
+        kerbsOnCrossings = ofNullable(this.kerbsOnCrossings).orElse(other.kerbsOnCrossings);
     }
 
 
@@ -137,19 +115,19 @@ public class ExtendedStorage {
             this.streets = null;
         }
         if (!excludedProperties.contains("ref_pattern")) {
-            this.ref_pattern = null;
+            this.refPattern = null;
         }
         if (!excludedProperties.contains("pattern_15min")) {
-            this.pattern_15min = null;
+            this.pattern15Min = null;
         }
         if (!excludedProperties.contains("radius")) {
             this.radius = null;
         }
         if (!excludedProperties.contains("output_log")) {
-            this.output_log = null;
+            this.outputLog = null;
         }
         if (!excludedProperties.contains("log_location")) {
-            this.log_location = null;
+            this.logLocation = null;
         }
         if (!excludedProperties.contains("maximum_slope")) {
             this.maximumSlope = null;
@@ -164,14 +142,13 @@ public class ExtendedStorage {
             this.openborders = null;
         }
         if (!excludedProperties.contains("use_for_warnings")) {
-            this.use_for_warnings = null;
+            this.useForWarnings = null;
         }
         if (!excludedProperties.contains("kerbs_on_crossings")) {
-            this.kerbs_on_crossings = null;
+            this.kerbsOnCrossings = null;
         }
     }
 
-    @JsonIgnore
     public void initialize(ExtendedStorageName storageName) {
         if (storageName == null) {
             this.setEnabled(false);
@@ -200,13 +177,13 @@ public class ExtendedStorage {
             }
             nonNullableProperties.add("maximum_slope");
         } else if (storageName == ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS) {
-            if (use_for_warnings == null) {
-                this.use_for_warnings = true;
+            if (useForWarnings == null) {
+                this.useForWarnings = true;
             }
             nonNullableProperties.add("use_for_warnings");
         } else if (storageName == ExtendedStorageName.WHEELCHAIR) {
-            if (kerbs_on_crossings == null) {
-                this.kerbs_on_crossings = true;
+            if (kerbsOnCrossings == null) {
+                this.kerbsOnCrossings = true;
             }
             nonNullableProperties.add("kerbs_on_crossings");
         }
@@ -251,13 +228,13 @@ public class ExtendedStorage {
                 this.radius = 150;
             }
 
-            if (output_log == null) {
-                this.output_log = false;
+            if (outputLog == null) {
+                this.outputLog = false;
             }
 
-            if (log_location == null || log_location.equals(emptyPath)) {
+            if (logLocation == null || logLocation.equals(emptyPath)) {
                 // TODO: check if we want to keep this functionality
-                this.log_location = Path.of("./here_matching.log");
+                this.logLocation = Path.of("./here_matching.log");
             }
 
             if (streets == null || streets.equals(emptyPath)) {
@@ -267,19 +244,19 @@ public class ExtendedStorage {
             } else {
                 streets = streets.toAbsolutePath();
             }
-            if (ref_pattern == null || ref_pattern.equals(emptyPath)) {
+            if (refPattern == null || refPattern.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing ref_pattern. Disabling storage.");
                 enabled = false;
-                ref_pattern = Path.of("");
+                refPattern = Path.of("");
             } else {
-                ref_pattern = ref_pattern.toAbsolutePath();
+                refPattern = refPattern.toAbsolutePath();
             }
-            if (pattern_15min == null || pattern_15min.equals(emptyPath)) {
+            if (pattern15Min == null || pattern15Min.equals(emptyPath)) {
                 LOGGER.warn("Storage " + storageName + " is missing pattern_15min. Disabling storage.");
                 enabled = false;
-                pattern_15min = Path.of("");
+                pattern15Min = Path.of("");
             } else {
-                pattern_15min = pattern_15min.toAbsolutePath();
+                pattern15Min = pattern15Min.toAbsolutePath();
             }
             nonNullableProperties.add("radius");
             nonNullableProperties.add("output_log");
@@ -289,47 +266,6 @@ public class ExtendedStorage {
             nonNullableProperties.add("pattern_15min");
         }
         setAllPropertiesToNull(nonNullableProperties);
-    }
-
-    public static Map<String, ExtendedStorage> getDefaultExtStoragesMap(EncoderNameEnum encoderName) {
-        // TODO: check why Julian has changed defaults and if the changes are good
-        Map<String, ExtendedStorage> extStorages = new LinkedHashMap<>();
-        if (ofNullable(encoderName).isEmpty()) {
-            encoderName = EncoderNameEnum.DEFAULT;
-        }
-        switch (encoderName) {
-            case DRIVING_CAR -> {
-                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
-                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
-                extStorages.put("HeavyVehicle", new ExtendedStorage(ExtendedStorageName.HEAVY_VEHICLE));
-                extStorages.put("RoadAccessRestrictions", new ExtendedStorage(ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS));
-            }
-            case DRIVING_HGV -> {
-                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
-                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
-                extStorages.put("HeavyVehicle", new ExtendedStorage(ExtendedStorageName.HEAVY_VEHICLE));
-                extStorages.put("Tollways", new ExtendedStorage(ExtendedStorageName.TOLLWAYS));
-            }
-            case CYCLING_REGULAR, CYCLING_MOUNTAIN, CYCLING_ROAD, CYCLING_ELECTRIC, FOOT_WALKING, FOOT_HIKING -> {
-                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
-                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
-                extStorages.put("HillIndex", new ExtendedStorage(ExtendedStorageName.HILL_INDEX));
-                extStorages.put("TrailDifficulty", new ExtendedStorage(ExtendedStorageName.TRAIL_DIFFICULTY));
-            }
-            case WHEELCHAIR -> {
-                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
-                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
-                extStorages.put("Wheelchair", new ExtendedStorage(ExtendedStorageName.WHEELCHAIR));
-                extStorages.put("OsmId", new ExtendedStorage(ExtendedStorageName.OSM_ID));
-            }
-            case PUBLIC_TRANSPORT -> {
-            }
-            default -> {
-                extStorages.put("WayCategory", new ExtendedStorage(ExtendedStorageName.WAY_CATEGORY));
-                extStorages.put("WaySurfaceType", new ExtendedStorage(ExtendedStorageName.WAY_SURFACE_TYPE));
-            }
-        }
-        return extStorages;
     }
 }
 

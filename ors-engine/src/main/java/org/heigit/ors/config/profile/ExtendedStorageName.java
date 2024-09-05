@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public enum ExtendedStorageName {
     BORDERS("Borders"),
-    CSV("csv"),
+    CSV("Csv"),
     GREEN_INDEX("GreenIndex"),
     HEAVY_VEHICLE("HeavyVehicle"),
     HERE_TRAFFIC("HereTraffic"),
@@ -24,8 +24,8 @@ public enum ExtendedStorageName {
     final String name;
 
     @JsonCreator
-    ExtendedStorageName(String wayCategory) {
-        this.name = wayCategory;
+    ExtendedStorageName(String name) {
+        this.name = name;
     }
 
     public static ExtendedStorageName getEnum(String value) {

@@ -91,8 +91,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (parameters.getUse_for_warnings() != null)
-            storage.setIsUsedForWarning(parameters.getUse_for_warnings());
+        if (parameters.getUseForWarnings() != null)
+            storage.setIsUsedForWarning(parameters.getUseForWarnings());
 
         return storage;
     }
@@ -129,8 +129,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
 
         storage = new RoadAccessRestrictionsGraphStorage();
 
-        if (parameters.getUse_for_warnings() != null)
-            storage.setIsUsedForWarning(parameters.getUse_for_warnings());
+        if (parameters.getUseForWarnings() != null)
+            storage.setIsUsedForWarning(parameters.getUseForWarnings());
 
         return storage;
     }

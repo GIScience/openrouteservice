@@ -2,7 +2,7 @@ package org.heigit.ors.api;
 
 import jakarta.servlet.ServletContextListener;
 import org.apache.log4j.Logger;
-import org.heigit.ors.api.config.*;
+import org.heigit.ors.api.config.EngineProperties;
 import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.heigit.ors.api.util.AppInfo;
@@ -56,9 +56,9 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean("orsInitContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EndpointsProperties endpointsProperties, EngineProperties engineProperties, CorsProperties corsProperties, SystemMessageProperties systemMessageProperties, LoggingProperties loggingProperties, ServerProperties serverProperties, GraphService graphService) {
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties, GraphService graphService) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener(endpointsProperties, engineProperties, corsProperties, systemMessageProperties, loggingProperties, serverProperties, graphService));
+        bean.setListener(new ORSInitContextListener(engineProperties, graphService));
         return bean;
     }
 }

@@ -153,9 +153,9 @@ public class RoutingProfile {
     private static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
-        ghConfig.putObject("datareader.file", profile.getSourceFile().toAbsolutePath().toString());
+        ghConfig.putObject("datareader.file", profile.getSourceFile().toString());
         ghConfig.putObject("graph.bytes_for_flags", profile.getEncoderFlagsSize());
-        ghConfig.putObject("graph.location", profile.getProfileGraphPath().toAbsolutePath().toString());
+        ghConfig.putObject("graph.location", profile.getGraphPath().toString());
 
         if (Boolean.FALSE.equals(profile.getInstructions())) {
             ghConfig.putObject("instructions", false);
@@ -164,7 +164,7 @@ public class RoutingProfile {
         ElevationProperties elevationProps = engineConfig.getElevation();
         if (elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
             ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
-            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toAbsolutePath().toString()));
+            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
             // TODO check
             ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
             ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
@@ -215,7 +215,7 @@ public class RoutingProfile {
             if (!preparations.getMethods().isEmpty()) {
                 if (!preparations.getMethods().getCh().isEmpty()) {
                     PreparationProperties.MethodsProperties.CHProperties chOpts = preparations.getMethods().getCh();
-                    prepareCH = chOpts.isEnabled() == null || chOpts.isEnabled();
+                    prepareCH = Boolean.TRUE.equals(chOpts.getEnabled());
                     if (prepareCH) {
                         if (chOpts.getThreadsSave() != null)
                             ghConfig.putObject("prepare.ch.threads", chOpts.getThreadsSave());
@@ -231,7 +231,7 @@ public class RoutingProfile {
 
                 if (!preparations.getMethods().getLm().isEmpty()) {
                     PreparationProperties.MethodsProperties.LMProperties lmOpts = preparations.getMethods().getLm();
-                    prepareLM = lmOpts.isEnabled() == null || lmOpts.isEnabled();
+                    prepareLM = Boolean.TRUE.equals(lmOpts.getEnabled());
                     if (prepareLM) {
                         if (lmOpts.getThreadsSave() != null)
                             ghConfig.putObject("prepare.lm.threads", lmOpts.getThreadsSave());
@@ -249,7 +249,7 @@ public class RoutingProfile {
 
                 if (!preparations.getMethods().getCore().isEmpty()) {
                     PreparationProperties.MethodsProperties.CoreProperties coreOpts = preparations.getMethods().getCore();
-                    prepareCore = coreOpts.isEnabled() == null || coreOpts.isEnabled();
+                    prepareCore = Boolean.TRUE.equals(coreOpts.getEnabled());
                     if (prepareCore) {
                         if (coreOpts.getThreadsSave() != null) {
                             // TODO check with taki
@@ -289,7 +289,7 @@ public class RoutingProfile {
 
                 if (!preparations.getMethods().getFastisochrones().isEmpty()) {
                     PreparationProperties.MethodsProperties.FastIsochroneProperties fastisochroneOpts = preparations.getMethods().getFastisochrones();
-                    prepareFI = fastisochroneOpts.isEnabled() == null || fastisochroneOpts.isEnabled();
+                    prepareFI = Boolean.TRUE.equals(fastisochroneOpts.getEnabled());
                     if (prepareFI) {
                         ghConfig.putObject(ORSParameters.FastIsochrone.PROFILE, profile.getEncoderName().toString());
                         //Copied from core
@@ -350,7 +350,7 @@ public class RoutingProfile {
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", profile.getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", profile.getLocationIndexSearchIterations());
-        ghConfig.putObject("ext_storages", profile.getExtStorages());
+//        ghConfig.putObject("ext_storages", profile.getExtStorages());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
