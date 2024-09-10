@@ -68,17 +68,25 @@ public class RoutingProfile {
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
     private final Integer[] mRoutePrefs;
-    private final ProfileProperties profileProperties;
+
+    private String profileName;
+    private ProfileProperties profileProperties;
+    private EngineProperties engineProperties;
+    private String graphVersion;
+
     private final ORSGraphHopper mGraphHopper;
     private String astarApproximation;
     private Double astarEpsilon;
 
     public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
 
+        this.profileName = profileName;
         this.profileProperties = profile;
+        this.engineProperties = engine;
+        this.graphVersion = graphVersion;
 
         mRoutePrefs = profile.getProfilesTypes();
-        mGraphHopper = initGraphHopper(profileName, profile, engine, graphVersion, loadCntx);
+        mGraphHopper = initGraphHopper(loadCntx);
         ExecutionProperties execution = profile.getExecution();
         if (execution.getMethods().getAstar().getApproximation() != null)
             astarApproximation = execution.getMethods().getAstar().getApproximation();
@@ -86,8 +94,8 @@ public class RoutingProfile {
             astarEpsilon = execution.getMethods().getAstar().getEpsilon();
     }
 
-    public static ORSGraphHopper initGraphHopper(String profileName, ProfileProperties profile, EngineProperties engineConfig, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
-        ORSGraphHopperConfig args = createGHSettings(profile, engineConfig);
+    public ORSGraphHopper initGraphHopper(RoutingProfileLoadContext loadCntx) throws Exception {
+        ORSGraphHopperConfig args = createGHSettings(profileProperties, engineProperties);
 
         int profileId;
         synchronized (lockObj) {
@@ -97,11 +105,11 @@ public class RoutingProfile {
 
         long startTime = System.currentTimeMillis();
 
-        GraphProcessContext gpc = new GraphProcessContext(profile);
-        gpc.setGetElevationFromPreprocessedData(engineConfig.getElevation().getPreprocessed());
+        GraphProcessContext gpc = new GraphProcessContext(profileProperties);
+        gpc.setGetElevationFromPreprocessedData(engineProperties.getElevation().getPreprocessed());
 
-        ORSGraphHopper gh = new ORSGraphHopper(gpc, engineConfig);
-        gh.setRouteProfileName(profileName);
+        ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profileProperties);
+        gh.setProfileName(profileName);
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
@@ -122,7 +130,7 @@ public class RoutingProfile {
         }
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
 
-        gh.initializeGraphManagement(graphVersion);
+        profileProperties = gh.initializeGraphManagement(graphVersion);
 
         gh.importOrLoad();
         // store CountryBordersReader for later use
@@ -133,15 +141,15 @@ public class RoutingProfile {
         }
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, profile.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));
+            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, profileProperties.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
             LOGGER.info("[%d] Edges: %s - Nodes: %s.".formatted(profileId, ghStorage.getEdges(), ghStorage.getNodes()));
             LOGGER.info("[%d] Total time: %s.".formatted(profileId, TimeUtility.getElapsedTime(startTime, true)));
             LOGGER.info("[%d] Finished at: %s.".formatted(profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
         }
 
-        // Make a stamp which help tracking any changes in the size of OSM file.
-        File file = new File(profile.getSourceFile().toAbsolutePath().toString());
+        // Make a stamp which help tracking any changes in the size of OSM file. TODO check if this is still in use
+        File file = new File(profileProperties.getSourceFile().toAbsolutePath().toString());
         Path pathTimestamp = Paths.get(gh.getOrsGraphManager().getActiveGraphDirAbsPath(), "stamp.txt");
         File file2 = pathTimestamp.toFile();
         if (!file2.exists())

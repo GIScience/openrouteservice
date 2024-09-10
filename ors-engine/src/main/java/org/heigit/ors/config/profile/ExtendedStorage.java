@@ -31,7 +31,7 @@ public class ExtendedStorage {
     private Boolean enabled;
 
     // Relevant for most index storages
-    @JsonProperty("filepath")
+    @JsonIgnore
     private Path filepath;
 
     // Relevant for HGV profile
@@ -39,17 +39,17 @@ public class ExtendedStorage {
     private Boolean restrictions;
 
     // Relevant for HereTraffic profile
-    @JsonProperty("streets")
+    @JsonIgnore
     private Path streets;
-    @JsonProperty("ref_pattern")
+    @JsonIgnore
     private Path refPattern;
-    @JsonProperty("pattern_15min")
+    @JsonIgnore
     private Path pattern15Min;
-    @JsonProperty("radius")
+    @JsonIgnore
     private Integer radius;
-    @JsonProperty("output_log")
+    @JsonIgnore
     private Boolean outputLog;
-    @JsonProperty("log_location")
+    @JsonIgnore
     private Path logLocation;
 
     // Relevant for HillIndex
@@ -57,11 +57,11 @@ public class ExtendedStorage {
     private Integer maximumSlope;
 
     // Relevant for borders
-    @JsonProperty("boundaries")
+    @JsonIgnore
     private Path boundaries;
-    @JsonProperty("ids")
+    @JsonIgnore
     private Path ids;
-    @JsonProperty("openborders")
+    @JsonIgnore
     private Path openborders;
 
     // Relevant for RoadAccessRestrictions

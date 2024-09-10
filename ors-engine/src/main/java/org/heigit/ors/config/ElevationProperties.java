@@ -15,6 +15,12 @@ public class ElevationProperties {
     private String provider;
     private Path cachePath;
 
+    public ElevationProperties() {
+    }
+
+    public ElevationProperties(String ignored) {
+    }
+
     public Path getCachePath() {
         return cachePath.toAbsolutePath();
     }

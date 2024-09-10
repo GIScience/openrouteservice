@@ -6,8 +6,6 @@ import org.heigit.ors.common.EncoderNameEnum;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProfilePropertiesTest {
@@ -17,48 +15,6 @@ class ProfilePropertiesTest {
     @BeforeAll
     static void setUp() {
         mapper = new ObjectMapper();
-    }
-
-    @Test
-    void testDeserializeExtendedStoragesWithNonDefaultStorages() throws JsonProcessingException {
-        // This will initialize custom storages to make sure only them are deserialized without adding any other default storages.
-        // Example JSON:
-        //       car:
-        //        encoder_name: driving-car
-        //        ext_storages:
-        //          WayCategory:
-        //          HeavyVehicle:
-        //            restrictions: true
-        //          GreenIndex:
-        //            filepath: /path/to/file.csv
-        String json = "{\"encoder_name\":\"driving-car\",\"ext_storages\":" + "{\"WayCategory\":{ \"enabled\": false },\"HeavyVehicle\":{ \"enabled\": true, \"restrictions\": true },\"GreenIndex\":{ \"enabled\": true, \"filepath\": \"/path/to/file.csv\" }}}";
-        ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
-        assertEquals("driving-car", foo.getEncoderName().getName());
-        assertInstanceOf(ProfileProperties.class, foo);
-        assertEquals(3, foo.getExtStorages().size());
-        assertTrue(foo.getExtStorages().containsKey("WayCategory"));
-        assertTrue(foo.getExtStorages().containsKey("HeavyVehicle"));
-        assertTrue(foo.getExtStorages().containsKey("GreenIndex"));
-
-        foo.getExtStorages().forEach((key, value) -> {
-            switch (key) {
-                case "WayCategory" -> {
-                    assertInstanceOf(ExtendedStorage.class, value);
-                    assertFalse(value.getEnabled());
-                }
-                case "HeavyVehicle" -> {
-                    assertInstanceOf(ExtendedStorage.class, value);
-                    assertTrue(value.getEnabled());
-                    assertTrue(value.getRestrictions());
-                }
-                case "GreenIndex" -> {
-                    assertInstanceOf(ExtendedStorage.class, value);
-                    assertTrue(value.getEnabled());
-                    assertEquals(Path.of("/path/to/file.csv"), (value).getFilepath());
-                }
-                default -> fail("Unexpected key: " + key);
-            }
-        });
     }
 
     @Test
@@ -112,5 +68,45 @@ class ProfilePropertiesTest {
         result = profile.getEncoderOptionsString();
         assertEquals("", result);
 
+    }
+
+    @Test
+    void mergeLoaded() {
+        ProfileProperties profile = new ProfileProperties();
+        profile.setElevation(true);
+        profile.setMaximumDistance(100.0);
+        profile.getEncoderOptions().setMaximumGradeLevel(1);
+        profile.getEncoderOptions().setPreferredSpeedFactor(0.8);
+        profile.getEncoderOptions().setBlockFords(true);
+        profile.getEncoderOptions().setTurnCosts(true);
+        profile.getExecution().getMethods().getAstar().setApproximation("Beeline");
+        profile.getPreparation().getMethods().getLm().setEnabled(true);
+        profile.getPreparation().getMethods().getCore().setEnabled(true);
+        profile.getExtStorages().put("WayCategory", new ExtendedStorage());
+
+        ProfileProperties loadedProfile = new ProfileProperties();
+        loadedProfile.setElevation(false);
+        loadedProfile.getEncoderOptions().setMaximumGradeLevel(99);
+        loadedProfile.getEncoderOptions().setProblematicSpeedFactor(9.9);
+        loadedProfile.getEncoderOptions().setBlockFords(false);
+        loadedProfile.getExecution().getMethods().getAstar().setApproximation("should not be here");
+        loadedProfile.getPreparation().getMethods().getCh().setEnabled(true);
+        loadedProfile.getPreparation().getMethods().getLm().setEnabled(false);
+        loadedProfile.getExtStorages().put("HeavyVehicle", new ExtendedStorage());
+
+        profile.mergeLoaded(loadedProfile);
+
+        assertFalse(profile.getElevation(), "Elevation should be overwritten");
+        assertEquals(100.0, profile.getMaximumDistance(), "Maximum distance should not be overwritten");
+        assertEquals(99, profile.getEncoderOptions().getMaximumGradeLevel(), "Maximum grade level should be overwritten");
+        assertNull(profile.getEncoderOptions().getPreferredSpeedFactor(), "Preferred speed factor should be null");
+        assertEquals(9.9, profile.getEncoderOptions().getProblematicSpeedFactor(), "Problematic speed factor should be set");
+        assertFalse(profile.getEncoderOptions().getBlockFords(), "Block fords should be overwritten");
+        assertNull(profile.getEncoderOptions().getTurnCosts(), "Turn costs should be null");
+        assertEquals("Beeline", profile.getExecution().getMethods().getAstar().getApproximation(), "Execution options should not be overwritten");
+        assertEquals(true, profile.getPreparation().getMethods().getCh().getEnabled(), "CH should be set");
+        assertEquals(false, profile.getPreparation().getMethods().getLm().getEnabled(), "LM should be overwritten");
+        assertNull(profile.getPreparation().getMethods().getCore().getEnabled(), "Core should be null");
+        assertTrue(profile.getExtStorages().size() == 1 && profile.getExtStorages().containsKey("HeavyVehicle"), "extStrorages should be replaced");
     }
 }

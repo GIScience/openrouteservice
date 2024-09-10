@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.heigit.ors.config.utils.NonEmptyMapFilter;
 
 import static java.util.Optional.ofNullable;
 
 @Getter
 @Setter
+@JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
 public class PreparationProperties {
     @JsonProperty("min_network_size")
     private Integer minNetworkSize;
@@ -17,6 +19,12 @@ public class PreparationProperties {
     private Integer minOneWayNetworkSize;
     @JsonProperty("methods")
     private MethodsProperties methods = new MethodsProperties();
+
+    public PreparationProperties() {
+    }
+
+    public PreparationProperties(String ignored) {
+    }
 
     @JsonIgnore
     public boolean isEmpty() {
@@ -32,6 +40,7 @@ public class PreparationProperties {
 
     @Getter
     @Setter
+    @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
     public static class MethodsProperties {
         private CHProperties ch = new CHProperties();
         private LMProperties lm = new LMProperties();

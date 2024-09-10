@@ -57,19 +57,18 @@ public class GraphManagementRuntimeProperties {
             return new Builder();
         }
 
-        public static Builder from(EngineProperties engineProperties, String routeProfileName, String graphVersion) {
+        public static Builder from(EngineProperties engineProperties, ProfileProperties profileProperties, String graphVersion) {
             Builder builder = new Builder();
             builder.enabled = engineProperties.getGraphManagement().getEnabled();
-            builder.repoBaseUri = engineProperties.getGraphManagement().getRepositoryUri();
-            builder.repoName = engineProperties.getGraphManagement().getRepositoryName();
-            builder.repoCoverage = engineProperties.getGraphManagement().getGraphExtent();
-            builder.repoProfileGroup = engineProperties.getGraphManagement().getRepositoryProfileGroup();
+            builder.repoBaseUri = profileProperties.getRepo().getRepositoryUri();
+            builder.repoName = profileProperties.getRepo().getRepositoryName();
+            builder.repoCoverage = profileProperties.getRepo().getGraphExtent();
+            builder.repoProfileGroup = profileProperties.getRepo().getRepositoryProfileGroup();
             builder.maxNumberOfGraphBackups = engineProperties.getGraphManagement().getMaxBackups();
             builder.graphVersion = graphVersion;
-            builder.localProfileName = routeProfileName;
-            builder.localGraphsRootAbsPath = engineProperties.getProfileDefault().getGraphPath().toString();
-            ProfileProperties profileProperties = engineProperties.getProfiles().get(routeProfileName);
-            builder.encoderName = Optional.ofNullable(profileProperties).map(ProfileProperties::getEncoderName).map(String::valueOf).orElse(null);
+            builder.localProfileName = profileProperties.getProfileName();
+            builder.localGraphsRootAbsPath = profileProperties.getGraphPath().toString();
+            builder.encoderName = Optional.of(profileProperties).map(ProfileProperties::getEncoderName).map(String::valueOf).orElse(null);
             return builder;
         }
 

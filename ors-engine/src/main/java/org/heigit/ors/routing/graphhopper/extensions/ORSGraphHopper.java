@@ -41,6 +41,7 @@ import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
@@ -94,6 +95,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     private GraphProcessContext processContext;
     private EngineProperties engineProperties;
+    private ProfileProperties profileProperties;
     private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
     private HashMap<Integer, Long> tmcEdges;
     private Eccentricity eccentricity;
@@ -104,27 +106,31 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
     private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
-    private String routeProfileName;
+    private String profileName;
     private ORSGraphManager orsGraphManager;
 
     public ORSGraphManager getOrsGraphManager() {
         return this.orsGraphManager;
     }
 
-    public void setRouteProfileName(String routeProfileName) {
-        this.routeProfileName = routeProfileName;
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
     }
 
     public GraphHopperConfig getConfig() {
         return config;
     }
 
+    public ProfileProperties getProfileProperties() {
+        return profileProperties;
+    }
+
     private GraphHopperConfig config;
 
-    public ORSGraphHopper(GraphProcessContext processContext, EngineProperties engineProperties) {
-        this.engineProperties = engineProperties;
+    public ORSGraphHopper(GraphProcessContext processContext, EngineProperties engineProperties, ProfileProperties profileProperties) {
         this.processContext = processContext;
-//        processContext.init(this);
+        this.engineProperties = engineProperties;
+        this.profileProperties = profileProperties;
     }
 
     public ORSGraphHopper() {
@@ -220,14 +226,15 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return gh;
     }
 
-    public void initializeGraphManagement(String graphVersion) {
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, routeProfileName, graphVersion).build();
+    public ProfileProperties initializeGraphManagement(String graphVersion) {
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, graphVersion).build();
         initializeGraphManagementWithFlatStructure(managementProps);
 //        initializeGraphManagementWithDeepHashBasedStructure(managementProps);
+        return loadProfilePropertiesFromActiveGraph();
     }
 
     public void initializeGraphManagementWithDeepHashBasedStructure(GraphManagementRuntimeProperties managementProps) {
-        String hash = RoutingProfileHashBuilder.builder(managementProps.getGraphVersion(), engineProperties.getProfiles().get(routeProfileName)).build();
+        String hash = RoutingProfileHashBuilder.builder(managementProps.getGraphVersion(), engineProperties.getProfiles().get(profileName)).build();
         ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(managementProps, hash);
         ORSGraphRepoStrategy orsGraphRepoStrategy = new HashBasedRepoStrategy(hash);
         initializeGraphManagement(managementProps, orsGraphFolderStrategy, orsGraphRepoStrategy);
@@ -248,6 +255,13 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         this.orsGraphManager = new ORSGraphManager(managementProps, orsGraphFileManager, orsGraphRepoManager);
         this.orsGraphManager.manageStartup();
         adaptGraphhopperLocation();
+    }
+
+    public ProfileProperties loadProfilePropertiesFromActiveGraph() {
+        if (orsGraphManager.useGraphRepository()) {
+            profileProperties.mergeLoaded(orsGraphManager.getActiveGraphProfileProperties());
+        }
+        return profileProperties;
     }
 
     ORSGraphRepoManager getOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
@@ -274,7 +288,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private void adaptGraphhopperLocation() {
         String adaptedPath = getOrsGraphManager().getActiveGraphDirAbsPath();
         this.setGraphHopperLocation(adaptedPath);
-        LOGGER.info("adapted graphHopperLocation: {}", adaptedPath);
+        LOGGER.debug("adapted graphHopperLocation: {}", adaptedPath);
     }
 
     private void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {

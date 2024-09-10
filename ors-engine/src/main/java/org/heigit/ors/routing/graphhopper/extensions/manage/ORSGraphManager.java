@@ -2,6 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.remote.ORSGraphRepoManager;
@@ -60,27 +61,27 @@ public class ORSGraphManager {
         boolean hasDownloadedExtractedGraph = orsGraphFileManager.hasDownloadedExtractedGraph();
 
         if (!hasActiveGraph && !hasDownloadedExtractedGraph && useGraphRepository()) {
-            LOGGER.info("[%s] No local graph or extracted downloaded graph found - trying to download and extract graph from repository".formatted(getQualifiedProfileName()));
+            LOGGER.debug("[%s] No local graph or extracted downloaded graph found - trying to download and extract graph from repository".formatted(getQualifiedProfileName()));
             downloadAndExtractLatestGraphIfNecessary();
             orsGraphFileManager.activateExtractedDownloadedGraph();
         }
         if (!hasActiveGraph && hasDownloadedExtractedGraph) {
-            LOGGER.info("[%s] Found extracted downloaded graph only".formatted(getQualifiedProfileName()));
+            LOGGER.debug("[%s] Found extracted downloaded graph only".formatted(getQualifiedProfileName()));
             orsGraphFileManager.activateExtractedDownloadedGraph();
         }
         if (hasActiveGraph && hasDownloadedExtractedGraph) {
-            LOGGER.info("[%s] Found local graph and extracted downloaded graph".formatted(getQualifiedProfileName()));
+            LOGGER.debug("[%s] Found local graph and extracted downloaded graph".formatted(getQualifiedProfileName()));
             orsGraphFileManager.backupExistingGraph();
             orsGraphFileManager.activateExtractedDownloadedGraph();
         }
         if (hasActiveGraph && !hasDownloadedExtractedGraph) {
-            LOGGER.info("[%s] Found local graph only".formatted(getQualifiedProfileName()));
+            LOGGER.debug("[%s] Found local graph only".formatted(getQualifiedProfileName()));
         }
     }
 
     public void downloadAndExtractLatestGraphIfNecessary() {
         if (orsGraphFileManager.isBusy()) {
-            LOGGER.info("[%s] ORSGraphManager is busy - skipping download".formatted(getQualifiedProfileName()));
+            LOGGER.debug("[%s] ORSGraphManager is busy - skipping download".formatted(getQualifiedProfileName()));
             return;
         }
         orsGraphRepoManager.downloadGraphIfNecessary();
@@ -99,5 +100,13 @@ public class ORSGraphManager {
 
     public void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {
         orsGraphFileManager.writeOrsGraphInfoFileIfNotExists(gh);
+    }
+
+    public GraphInfo getActiveGraphInfo() {
+        return orsGraphFileManager.getActiveGraphInfo();
+    }
+
+    public ProfileProperties getActiveGraphProfileProperties() {
+        return getActiveGraphInfo().getPersistedGraphInfo().getProfileProperties();
     }
 }

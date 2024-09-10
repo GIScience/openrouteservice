@@ -12,6 +12,7 @@ import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.GraphManagementProperties;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
@@ -138,7 +139,7 @@ class ORSGraphHopperTest {
     public void profileHashAddedToGraphHopperLocationWithDeepHashStrategy() throws Exception {
         ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("graphs-apitests", "https://my.domain.com/");
         String pathBefore = gh.getGraphHopperLocation();
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(gh.getEngineProperties(), ROUTE_PROFILE_NAME, "0").build();
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(gh.getEngineProperties(), gh.getProfileProperties(), "0").build();
 
         gh.initializeGraphManagementWithDeepHashBasedStructure(managementProps);
 
@@ -151,7 +152,7 @@ class ORSGraphHopperTest {
     public void noProfileHashAddedToGraphHopperLocationWithFlatStrategy() throws Exception {
         ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("graphs-apitests", "https://my.domain.com/");
         String pathBefore = gh.getGraphHopperLocation();
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(gh.getEngineProperties(), ROUTE_PROFILE_NAME, "0").build();
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(gh.getEngineProperties(), gh.getProfileProperties(), "0").build();
 
         gh.initializeGraphManagementWithFlatStructure(managementProps);
 
@@ -263,24 +264,24 @@ class ORSGraphHopperTest {
         engineProperties.getProfiles().get(profileName).setMaximumWayPoints(50);
 
         GraphManagementProperties graphManagementProperties = engineProperties.getGraphManagement();
-        graphManagementProperties.setRepositoryUri(graphManagementRepositoryUrl);
-        graphManagementProperties.setRepositoryName(graphManagementRepositoryName);
-        graphManagementProperties.setRepositoryProfileGroup(graphManagementRepositoryProfileGroup);
-        graphManagementProperties.setGraphExtent(graphManagementGraphExtent);
+        engineProperties.getProfiles().get(profileName).getRepo().setRepositoryUri(graphManagementRepositoryUrl);
+        engineProperties.getProfiles().get(profileName).getRepo().setRepositoryName(graphManagementRepositoryName);
+        engineProperties.getProfiles().get(profileName).getRepo().setRepositoryProfileGroup(graphManagementRepositoryProfileGroup);
+        engineProperties.getProfiles().get(profileName).getRepo().setGraphExtent(graphManagementGraphExtent);
         graphManagementProperties.setMaxBackups(graphManagementMaxBackups);
 
         return engineProperties;
     }
 
     private static ORSGraphHopper createORSGraphHopper(ORSGraphHopperConfig ghConfig,
-                                                       EngineProperties engineProperties) throws Exception {
+                                                       EngineProperties engineProperties, ProfileProperties profileProperties) throws Exception {
         GraphProcessContext gpc = new GraphProcessContext(engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
         gpc.setGetElevationFromPreprocessedData(true);
 
-        ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties);
+        ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profileProperties);
         gh.init(ghConfig);
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
-        gh.setRouteProfileName(ROUTE_PROFILE_NAME);
+        gh.setProfileName(ROUTE_PROFILE_NAME);
         return gh;
     }
 
@@ -305,7 +306,7 @@ class ORSGraphHopperTest {
                 "repoName", "profileGroup", "graphExtent",
                 ROUTE_PROFILE_NAME, 0
         );
-        return createORSGraphHopper(ghConfig, engineProperties);
+        return createORSGraphHopper(ghConfig, engineProperties, engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
     }
 
     private static ORSGraphHopper createORSGraphHoopperWithOsmFile(String repoDir, String repoUrl) throws Exception {
@@ -316,7 +317,7 @@ class ORSGraphHopperTest {
                 "repoName", "profileGroup", "graphExtent",
                 ROUTE_PROFILE_NAME, 0
         );
-        return createORSGraphHopper(ghConfig, engineProperties);
+        return createORSGraphHopper(ghConfig, engineProperties, engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
     }
 
     @ParameterizedTest
@@ -340,7 +341,6 @@ class ORSGraphHopperTest {
         ORSGraphHopper orsGraphHopper = new ORSGraphHopper();
         EngineProperties engineProperties = new EngineProperties();
         engineProperties.getProfileDefault().setGraphPath(Path.of("graphs"));
-        engineProperties.getGraphManagement().setRepositoryUri(repoUri);
 
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath("graphs")

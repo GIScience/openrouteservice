@@ -109,10 +109,15 @@ ors:
 
   ##### ORS engine settings #####
   engine:
-    source_file:
     init_threads: 1
     preparation_mode: false
     graphs_data_access: RAM_STORE
+    graph_management:
+      enabled: false
+      # HINT default is NEVER (there is no Feb 31)
+      download_schedule:   '0 0 0 31 2 *'
+      activation_schedule: '0 0 0 31 2 *'
+      max_backups: 1
     elevation:
       preprocessed: false
       data_access: MMAP
@@ -122,6 +127,7 @@ ors:
     profile_default:
       enabled: false
       graph_path: graphs
+      source_file: ors-api/src/test/files/heidelberg.test.pbf
       elevation: true
       elevation_smoothing: false
       encoder_flags_size: 8

@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,14 +19,13 @@ import static java.util.Optional.ofNullable;
 public class ProfileProperties {
     @JsonIgnore
     private String profileName;
-
-    @JsonProperty("enabled")
+    @JsonIgnore
     private Boolean enabled;
     @JsonProperty("encoder_name")
     private EncoderNameEnum encoderName;
-    @JsonProperty("graph_path")
+    @JsonIgnore
     private Path graphPath;
-    @JsonProperty("source_file")
+    @JsonIgnore
     private Path sourceFile;
     @JsonProperty("elevation")
     private Boolean elevation;
@@ -49,33 +47,35 @@ public class ProfileProperties {
     private Integer locationIndexResolution;
     @JsonProperty("location_index_search_iterations")
     private Integer locationIndexSearchIterations;
-    @JsonProperty("gtfs_file")
+    @JsonIgnore
     private Path gtfsFile;
 
-    @JsonProperty("maximum_distance")
+    @JsonIgnore
     private Double maximumDistance;
-    @JsonProperty("maximum_distance_dynamic_weights")
+    @JsonIgnore
     private Double maximumDistanceDynamicWeights;
-    @JsonProperty("maximum_distance_avoid_areas")
+    @JsonIgnore
     private Double maximumDistanceAvoidAreas;
-    @JsonProperty("maximum_distance_alternative_routes")
+    @JsonIgnore
     private Double maximumDistanceAlternativeRoutes;
-    @JsonProperty("maximum_distance_round_trip_routes")
+    @JsonIgnore
     private Double maximumDistanceRoundTripRoutes;
-    @JsonProperty("maximum_speed_lower_bound")
+    @JsonIgnore
     private Double maximumSpeedLowerBound;
-    @JsonProperty("maximum_way_points")
+    @JsonIgnore
     private Integer maximumWayPoints;
-    @JsonProperty("maximum_snapping_radius")
+    @JsonIgnore
     private Integer maximumSnappingRadius;
-    @JsonProperty("maximum_visited_nodes")
+    @JsonIgnore
     private Integer maximumVisitedNodes;
 
+    @JsonIgnore
+    private RepoProperties repo = new RepoProperties();
     @JsonProperty("encoder_options")
     private EncoderOptionsProperties encoderOptions = new EncoderOptionsProperties();
     @JsonProperty("preparation")
     private PreparationProperties preparation = new PreparationProperties();
-    @JsonProperty("execution")
+    @JsonIgnore
     private ExecutionProperties execution = new ExecutionProperties();
     @JsonProperty("ext_storages")
     private Map<String, ExtendedStorage> extStorages = new LinkedHashMap<>();
@@ -111,29 +111,29 @@ public class ProfileProperties {
 
     public ProfileProperties mergeDefaults(ProfileProperties profileDefault, String key) {
         // set the profile name to the key
-        profileName = ofNullable(this.profileName).orElse(key);
+        profileName = ofNullable(profileName).orElse(key);
 
         // set values from profileDefault if they are not set
-        enabled = ofNullable(this.enabled).orElse(profileDefault.enabled);
-        elevation = ofNullable(this.elevation).orElse(profileDefault.elevation);
-        elevationSmoothing = ofNullable(this.elevationSmoothing).orElse(profileDefault.elevationSmoothing);
-        encoderFlagsSize = ofNullable(this.encoderFlagsSize).orElse(profileDefault.encoderFlagsSize);
-        instructions = ofNullable(this.instructions).orElse(profileDefault.instructions);
-        optimize = ofNullable(this.optimize).orElse(profileDefault.optimize);
-        traffic = ofNullable(this.traffic).orElse(profileDefault.traffic);
-        interpolateBridgesAndTunnels = ofNullable(this.interpolateBridgesAndTunnels).orElse(profileDefault.interpolateBridgesAndTunnels);
-        forceTurnCosts = ofNullable(this.forceTurnCosts).orElse(profileDefault.forceTurnCosts);
-        locationIndexResolution = ofNullable(this.locationIndexResolution).orElse(profileDefault.locationIndexResolution);
-        locationIndexSearchIterations = ofNullable(this.locationIndexSearchIterations).orElse(profileDefault.locationIndexSearchIterations);
-        maximumDistance = ofNullable(this.maximumDistance).orElse(profileDefault.maximumDistance);
-        maximumDistanceDynamicWeights = ofNullable(this.maximumDistanceDynamicWeights).orElse(profileDefault.maximumDistanceDynamicWeights);
-        maximumDistanceAvoidAreas = ofNullable(this.maximumDistanceAvoidAreas).orElse(profileDefault.maximumDistanceAvoidAreas);
-        maximumDistanceAlternativeRoutes = ofNullable(this.maximumDistanceAlternativeRoutes).orElse(profileDefault.maximumDistanceAlternativeRoutes);
-        maximumDistanceRoundTripRoutes = ofNullable(this.maximumDistanceRoundTripRoutes).orElse(profileDefault.maximumDistanceRoundTripRoutes);
-        maximumSpeedLowerBound = ofNullable(this.maximumSpeedLowerBound).orElse(profileDefault.maximumSpeedLowerBound);
-        maximumWayPoints = ofNullable(this.maximumWayPoints).orElse(profileDefault.maximumWayPoints);
-        maximumSnappingRadius = ofNullable(this.maximumSnappingRadius).orElse(profileDefault.maximumSnappingRadius);
-        maximumVisitedNodes = ofNullable(this.maximumVisitedNodes).orElse(profileDefault.maximumVisitedNodes);
+        enabled = ofNullable(enabled).orElse(profileDefault.enabled);
+        elevation = ofNullable(elevation).orElse(profileDefault.elevation);
+        elevationSmoothing = ofNullable(elevationSmoothing).orElse(profileDefault.elevationSmoothing);
+        encoderFlagsSize = ofNullable(encoderFlagsSize).orElse(profileDefault.encoderFlagsSize);
+        instructions = ofNullable(instructions).orElse(profileDefault.instructions);
+        optimize = ofNullable(optimize).orElse(profileDefault.optimize);
+        traffic = ofNullable(traffic).orElse(profileDefault.traffic);
+        interpolateBridgesAndTunnels = ofNullable(interpolateBridgesAndTunnels).orElse(profileDefault.interpolateBridgesAndTunnels);
+        forceTurnCosts = ofNullable(forceTurnCosts).orElse(profileDefault.forceTurnCosts);
+        locationIndexResolution = ofNullable(locationIndexResolution).orElse(profileDefault.locationIndexResolution);
+        locationIndexSearchIterations = ofNullable(locationIndexSearchIterations).orElse(profileDefault.locationIndexSearchIterations);
+        maximumDistance = ofNullable(maximumDistance).orElse(profileDefault.maximumDistance);
+        maximumDistanceDynamicWeights = ofNullable(maximumDistanceDynamicWeights).orElse(profileDefault.maximumDistanceDynamicWeights);
+        maximumDistanceAvoidAreas = ofNullable(maximumDistanceAvoidAreas).orElse(profileDefault.maximumDistanceAvoidAreas);
+        maximumDistanceAlternativeRoutes = ofNullable(maximumDistanceAlternativeRoutes).orElse(profileDefault.maximumDistanceAlternativeRoutes);
+        maximumDistanceRoundTripRoutes = ofNullable(maximumDistanceRoundTripRoutes).orElse(profileDefault.maximumDistanceRoundTripRoutes);
+        maximumSpeedLowerBound = ofNullable(maximumSpeedLowerBound).orElse(profileDefault.maximumSpeedLowerBound);
+        maximumWayPoints = ofNullable(maximumWayPoints).orElse(profileDefault.maximumWayPoints);
+        maximumSnappingRadius = ofNullable(maximumSnappingRadius).orElse(profileDefault.maximumSnappingRadius);
+        maximumVisitedNodes = ofNullable(maximumVisitedNodes).orElse(profileDefault.maximumVisitedNodes);
 
         // deep merge from profileDefault
         encoderOptions.merge(profileDefault.encoderOptions);
@@ -148,13 +148,31 @@ public class ProfileProperties {
         }
 
         // Fix paths
-        graphPath = ofNullable(graphPath).orElse(Paths.get(profileDefault.graphPath.toString(), key)).toAbsolutePath();
+        graphPath = ofNullable(graphPath).orElse(profileDefault.graphPath).toAbsolutePath();
         sourceFile = ofNullable(sourceFile).orElse(profileDefault.sourceFile).toAbsolutePath();
         gtfsFile = ofNullable(gtfsFile).orElse(profileDefault.gtfsFile);
         if (gtfsFile != null) {
             gtfsFile = gtfsFile.toAbsolutePath();
         }
         return this;
+    }
+
+    public void mergeLoaded(ProfileProperties loadedProfile) {
+        // Copy only relevant values from loadedProfile if they are set
+        elevation = ofNullable(loadedProfile.elevation).orElse(elevation);
+        elevationSmoothing = ofNullable(loadedProfile.elevationSmoothing).orElse(elevationSmoothing);
+        encoderFlagsSize = ofNullable(loadedProfile.encoderFlagsSize).orElse(encoderFlagsSize);
+        instructions = ofNullable(loadedProfile.instructions).orElse(instructions);
+        optimize = ofNullable(loadedProfile.optimize).orElse(optimize);
+        traffic = ofNullable(loadedProfile.traffic).orElse(traffic);
+        interpolateBridgesAndTunnels = ofNullable(loadedProfile.interpolateBridgesAndTunnels).orElse(interpolateBridgesAndTunnels);
+        forceTurnCosts = ofNullable(loadedProfile.forceTurnCosts).orElse(forceTurnCosts);
+        locationIndexResolution = ofNullable(loadedProfile.locationIndexResolution).orElse(locationIndexResolution);
+        locationIndexSearchIterations = ofNullable(loadedProfile.locationIndexSearchIterations).orElse(locationIndexSearchIterations);
+        // replace object params
+        encoderOptions = ofNullable(loadedProfile.encoderOptions).orElse(encoderOptions);
+        preparation = ofNullable(loadedProfile.preparation).orElse(preparation);
+        extStorages = ofNullable(loadedProfile.extStorages).orElse(extStorages);
     }
 }
 

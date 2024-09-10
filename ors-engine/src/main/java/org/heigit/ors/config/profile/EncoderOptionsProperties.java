@@ -35,6 +35,12 @@ public class EncoderOptionsProperties {
     @JsonProperty("conditional_speed")
     private Boolean conditionalSpeed;
 
+    public EncoderOptionsProperties() {
+    }
+
+    public EncoderOptionsProperties(String ignored) {
+    }
+
     @JsonIgnore
     public boolean isEmpty() {
         return blockFords == null && considerElevation == null && turnCosts == null && useAcceleration == null && maximumGradeLevel == null && preferredSpeedFactor == null && problematicSpeedFactor == null && conditionalAccess == null && conditionalSpeed == null;

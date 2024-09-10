@@ -102,50 +102,30 @@ ors:
 #      maximum_locations: 5000
 #  ##### ORS engine settings #####
   engine:
-    graph_management:
-      enabled: false
-
-#      4 NexusRepoManager
-#      repository_uri: 'http://localhost:8081/service/rest'
-#      repository_name: bkg-flat
-
-#      Nexus 4  HttpRepoManager
-#      repository_uri: 'http://localhost:8081/repository'
-#      repository_name: bkg-flat
-
-      # nginx HttpRepoManager
-      repository_uri: 'http://localhost:8080'
-      repository_name: vendor-xyz
-
-#     FilesystemRepoManager
-#      repository_uri: 'ors-engine/src/test/resources/test-filesystem-repos'
-#      repository_name: vendor-xyz
-
-      repository_profile_group: fastisochrones
-      graph_extent: heidelberg
-
-      max_backups: 2
-      # HINT default is NEVER (there is no Feb 31)
-#      download_schedule:   '0 0 0 31 2 *'
-#      activation_schedule: '0 0 0 31 2 *'
-      download_schedule:   '0/20 * * * * *'
-      activation_schedule: '5/20 * * * * *'
 #    config_output_mode: false
 #    preparation_mode: false
 #    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
+#    graph_management:
+#      enabled: false
+#      max_backups: 1
+#      # HINT default is NEVER (there is no Feb 31)
+#      download_schedule:   '0 0 0 31 2 *'
+#      activation_schedule: '0 0 0 31 2 *'
+#      download_schedule:   '0/20 * * * * *'
+#      activation_schedule: '5/20 * * * * *'
 #    elevation:
 #      preprocessed: false
 #      data_access: MMAP
 #      cache_clear: false
 #      provider: multi
 #      cache_path: ./elevation_cache
-    profile_default:
-      source_file: ors-api/src/test/files/heidelberg.osm.gz
+#    profile_default:
+#      source_file: ors-api/src/test/files/heidelberg.test.pbf
 #      enabled: false
 #      elevation: true
 #      elevation_smoothing: false
-    #      encoder_flags_size: 8
+#      encoder_flags_size: 8
 #      instructions: true
 #      optimize: false
 #      traffic: false
@@ -180,6 +160,15 @@ ors:
         enabled: true             # TODO this does not work with e.g. "auto" - internal default profiles should be searched by encoder_name, not profile_name!?
         encoder_name: driving-car # TODO also the routing endpoints are looking for encoder_name instead of profile_name -> to be changed.
                                   # TODO or even better: introduce new property endpoint_name to give users the possibility to change the map keys but keep their old endpoint names
+        repo:
+#          # nginx HttpRepoManager
+#          repository_uri: 'http://localhost:8080'
+#          repository_name: vendor-xyz
+#          # FilesystemRepoManager
+#          repository_uri: 'ors-engine/src/test/resources/test-filesystem-repos'
+#          repository_name: vendor-xyz
+#          repository_profile_group: fastisochrones
+#          graph_extent: heidelberg
 #        encoder_options:
 #          turn_costs: true
 #          block_fords: false

@@ -24,7 +24,7 @@ public class GraphService {
 
     public List<ORSGraphManager> graphManagers = new ArrayList<>();
 
-    public void addGraphhopperLocation(ORSGraphManager orsGraphManager) {
+    public void addGraphManagerInstance(ORSGraphManager orsGraphManager) {
         if (orsGraphManager.useGraphRepository()) {
             graphManagers.add(orsGraphManager);
         }

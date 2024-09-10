@@ -27,18 +27,19 @@ ors:
     elevation:
       cache_path: ./src/test/files/elevation
     profile_default:
-      source_file: ./src/test/files/heidelberg.osm.gz
+      source_file: ./src/test/files/heidelberg.test.pbf
       graph_path: graphs-apitests
       elevation: true
       elevation_smoothing: true
       encoder_flags_size: 4
       maximum_snapping_radius: 350
       preparation:
-        fastisochrones:
-          enabled: false
-          threads: 12
-          weightings: recommended
-          maxcellnodes: 5000
+        methods:
+          fastisochrones:
+            enabled: false
+            threads: 12
+            weightings: recommended
+            maxcellnodes: 5000
     profiles:
       driving-car:
         enabled: true

@@ -15,6 +15,12 @@ import static java.util.Optional.ofNullable;
 public class ExecutionProperties {
     private MethodsProperties methods = new MethodsProperties();
 
+    public ExecutionProperties() {
+    }
+
+    public ExecutionProperties(String ignored) {
+    }
+
     @JsonIgnore
     public boolean isEmpty() {
         return methods.isEmpty();
@@ -46,7 +52,7 @@ public class ExecutionProperties {
 
         @Getter
         @Setter
-        @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class AStarProperties {
             private String approximation;
             private Double epsilon;
@@ -64,7 +70,7 @@ public class ExecutionProperties {
 
         @Getter
         @Setter
-        @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class LMProperties {
             @JsonProperty("active_landmarks")
             private Integer activeLandmarks;
@@ -81,7 +87,7 @@ public class ExecutionProperties {
 
         @Getter
         @Setter
-        @JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = NonEmptyMapFilter.class)
+        @JsonInclude(JsonInclude.Include.NON_NULL)
         public static class CoreProperties {
             @JsonProperty("active_landmarks")
             private Integer activeLandmarks;
