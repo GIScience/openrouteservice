@@ -337,7 +337,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             return;
         }
 
-        ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1(getDateFromGhProperty(gh, "datareader.data.date"));
+        ORSGraphInfoV1 orsGraphInfoV1 = ORSGraphInfoV1.withOsmDate(getDateFromGhProperty(gh, "datareader.data.date"));
         orsGraphInfoV1.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
         orsGraphInfoV1.setProfileProperties(routeProfileConfiguration.get());
 

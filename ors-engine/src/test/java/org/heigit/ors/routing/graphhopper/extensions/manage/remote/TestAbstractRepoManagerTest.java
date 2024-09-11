@@ -58,16 +58,17 @@ public class TestAbstractRepoManagerTest {
     }
 
     public static Stream<Arguments> comparisonDates() throws MalformedURLException {
-        Date osmDate = new Date();
+        Date now = new Date();
+        Date epocStart = new Date(0);
         return Stream.of(
                 Arguments.of(new Date(0), null),
-                Arguments.of(new Date(0), new GraphInfo()),
-                Arguments.of(new Date(0), new GraphInfo().withLocalDirectory(tempDir.toFile())),
-                Arguments.of(new Date(0), new GraphInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
-                Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(null)),
-                Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(new ORSGraphInfoV1())),
-                Arguments.of(new Date(0), new GraphInfo().withPersistedInfo(new ORSGraphInfoV1(null))),
-                Arguments.of(osmDate, new GraphInfo().withPersistedInfo(new ORSGraphInfoV1(osmDate)))
+                Arguments.of(epocStart, new GraphInfo()),
+                Arguments.of(epocStart, new GraphInfo().withLocalDirectory(tempDir.toFile())),
+                Arguments.of(epocStart, new GraphInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
+                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(null)),
+                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(new ORSGraphInfoV1())),
+                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(ORSGraphInfoV1.withOsmDate(now))),
+                Arguments.of(now, new GraphInfo().withPersistedInfo(ORSGraphInfoV1.withImportDate(now)))
         );
     }
 
@@ -78,24 +79,27 @@ public class TestAbstractRepoManagerTest {
     }
 
     public static Stream<Arguments> comparisonDatesForDownloadFiles() throws IOException {
-        Date osmDate = new Date();
+        Date now = new Date();
+        Date epocStart = new Date(0);
         File resourcesDir = tempDir.toFile();
         File nonexistingFile = new File(resourcesDir, "missing.ghz");
         File existingFile = new File(resourcesDir, "some.ghz");
         existingFile.createNewFile();
         return Stream.of(
-                Arguments.of(new Date(0), null, null),
-                Arguments.of(new Date(0), null, new ORSGraphInfoV1()),
-                Arguments.of(new Date(0), null, new ORSGraphInfoV1(null)),
-                Arguments.of(new Date(0), null, new ORSGraphInfoV1(osmDate)),
-                Arguments.of(new Date(0), nonexistingFile, null),
-                Arguments.of(new Date(0), nonexistingFile, new ORSGraphInfoV1()),
-                Arguments.of(new Date(0), nonexistingFile, new ORSGraphInfoV1(null)),
-                Arguments.of(new Date(0), nonexistingFile, new ORSGraphInfoV1(osmDate)),
-                Arguments.of(new Date(0), existingFile, null),
-                Arguments.of(new Date(0), existingFile, new ORSGraphInfoV1()),
-                Arguments.of(new Date(0), existingFile, new ORSGraphInfoV1(null)),
-                Arguments.of(osmDate, existingFile, new ORSGraphInfoV1(osmDate))
+                Arguments.of(epocStart, null, null),
+                Arguments.of(epocStart, null, new ORSGraphInfoV1()),
+                Arguments.of(epocStart, null, ORSGraphInfoV1.withOsmDate(now)),
+                Arguments.of(epocStart, null, ORSGraphInfoV1.withImportDate(now)),
+
+                Arguments.of(epocStart, nonexistingFile, null),
+                Arguments.of(epocStart, nonexistingFile, new ORSGraphInfoV1()),
+                Arguments.of(epocStart, nonexistingFile, ORSGraphInfoV1.withOsmDate(now)),
+                Arguments.of(epocStart, nonexistingFile, ORSGraphInfoV1.withImportDate(now)),
+
+                Arguments.of(epocStart, existingFile, null),
+                Arguments.of(epocStart, existingFile, new ORSGraphInfoV1()),
+                Arguments.of(epocStart, existingFile, ORSGraphInfoV1.withOsmDate(now)),
+                Arguments.of(now, existingFile, ORSGraphInfoV1.withImportDate(now))
         );
     }
 

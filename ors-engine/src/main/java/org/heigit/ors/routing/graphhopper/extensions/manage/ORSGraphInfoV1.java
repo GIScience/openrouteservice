@@ -23,7 +23,16 @@ public class ORSGraphInfoV1 { //TOOD rename (remove V1)
     @JsonProperty("profile_properties")
     private ProfileProperties profileProperties;
 
-    public ORSGraphInfoV1(Date osmDate) {
-        this.osmDate = osmDate;
+    public static ORSGraphInfoV1 withOsmDate(Date osmDate){
+        ORSGraphInfoV1 graphInfo = new ORSGraphInfoV1();
+        graphInfo.setOsmDate(osmDate);
+        return graphInfo;
     }
+
+    public static ORSGraphInfoV1 withImportDate(Date importDate){
+        ORSGraphInfoV1 graphInfo = new ORSGraphInfoV1();
+        graphInfo.setImportDate(importDate);
+        return graphInfo;
+    }
+
 }
