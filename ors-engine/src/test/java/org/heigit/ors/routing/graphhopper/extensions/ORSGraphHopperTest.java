@@ -1,8 +1,5 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.ResponsePath;
@@ -10,8 +7,9 @@ import com.graphhopper.config.Profile;
 import com.graphhopper.util.Instruction;
 import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.config.GraphManagementProperties;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
@@ -145,7 +143,7 @@ class ORSGraphHopperTest {
 
         String pathAfter = gh.getGraphHopperLocation();
         assertNotEquals(pathAfter, pathBefore);
-        assertTrue(pathAfter.endsWith("graphs-apitests/driving-car/6f779cc93716407f07c169054b12f307"));
+        assertTrue(pathAfter.endsWith("graphs-apitests/driving-car/447aad7c28d1d19891ae212e4433381e"));
     }
 
     @Test
@@ -188,87 +186,45 @@ class ORSGraphHopperTest {
                                                           String graphManagementRepositoryName,
                                                           String graphManagementRepositoryProfileGroup,
                                                           String graphManagementGraphExtent,
-                                                          String profileName, int graphManagementMaxBackups) throws JsonProcessingException {
+                                                          String profileName, int graphManagementMaxBackups) {
 
-        String testJson = """
-            {
-              "graph_management": {
-                "graph_extent": null,
-                "repository_uri": null,
-                "repository_name": null,
-                "repository_profile_group": null,
-                "download_schedule": "0 0 0 31 2 *",
-                "activation_schedule": "0 0 0 31 2 *",
-                "max_backups": 0
-              },           
-              "profile_default": {
-                "enabled": false,
-                "source_file": "/path/to/source/file",
-                "graph_path": "/path/to/graphs",
-                "preparation": {
-                  "min_network_size": 300,
-                  "methods": {
-                    "lm": {
-                      "enabled": false,
-                      "weightings": "shortest",
-                      "landmarks": 2
-                    }
-                  }
-                },
-                "execution": {
-                  "methods": {
-                    "lm": {
-                      "active_landmarks": 2
-                    }
-                  }
-                },
-                "ext_storages": {
-                  "WayCategory": {
-                    "enabled": true
-                  },
-                  "GreenIndex": {
-                    "enabled": true,
-                    "filepath": "/path/to/file.csv"
-                  }
-                }
-              },
-              "profiles": {
-                "driving-car": {
-                  "encoder_name": "driving-car",
-                  "encoder_options": {},
-                  "preparation": {
-                    "methods": {
-                      "lm": {
-                        "enabled": true,
-                        "threads": 5
-                      }
-                    }
-                  },
-                  "execution": {
-                    "methods": {
-                      "lm": {
-                        "active_landmarks": 2
-                      }
-                    }
-                  },
-                  "ext_storages": {}
-                }
-              }
-            }""";
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
-        EngineProperties engineProperties = mapper.readValue(testJson, EngineProperties.class);
+        EngineProperties engineProperties = new EngineProperties();
 
-        engineProperties.getProfileDefault().setGraphPath(localGraphsRootPath);
-        engineProperties.getProfiles().get(profileName).setEnabled(true);
-        engineProperties.getProfiles().get(profileName).setMaximumWayPoints(50);
+        engineProperties.getGraphManagement().setEnabled(false);
+        engineProperties.getGraphManagement().setDownloadSchedule("0 0 0 31 2 *");
+        engineProperties.getGraphManagement().setActivationSchedule("0 0 0 31 2 *");
+        engineProperties.getGraphManagement().setMaxBackups(graphManagementMaxBackups);
 
-        GraphManagementProperties graphManagementProperties = engineProperties.getGraphManagement();
-        engineProperties.getProfiles().get(profileName).getRepo().setRepositoryUri(graphManagementRepositoryUrl);
-        engineProperties.getProfiles().get(profileName).getRepo().setRepositoryName(graphManagementRepositoryName);
-        engineProperties.getProfiles().get(profileName).getRepo().setRepositoryProfileGroup(graphManagementRepositoryProfileGroup);
-        engineProperties.getProfiles().get(profileName).getRepo().setGraphExtent(graphManagementGraphExtent);
-        graphManagementProperties.setMaxBackups(graphManagementMaxBackups);
+        engineProperties.getProfileDefault().setEnabled(false);
+        engineProperties.getProfileDefault().setGraphPath(Path.of(localGraphsRootPath.toString()));
+        engineProperties.getProfileDefault().setSourceFile(Path.of("/path/to/source/file"));
+        engineProperties.getProfileDefault().getPreparation().setMinNetworkSize(300);
+        engineProperties.getProfileDefault().getPreparation().getMethods().getLm().setEnabled(false);
+        engineProperties.getProfileDefault().getPreparation().getMethods().getLm().setWeightings("shortest");
+        engineProperties.getProfileDefault().getPreparation().getMethods().getLm().setLandmarks(2);
+        engineProperties.getProfileDefault().getExecution().getMethods().getLm().setActiveLandmarks(2);
+
+        ExtendedStorage wayCategory = new ExtendedStorage();
+        wayCategory.setEnabled(true);
+        engineProperties.getProfileDefault().getExtStorages().put("WayCategory", wayCategory);
+
+        ExtendedStorage greenIndex = new ExtendedStorage();
+        greenIndex.setEnabled(true);
+        greenIndex.setFilepath(Path.of("/path/to/file.csv"));
+        engineProperties.getProfileDefault().getExtStorages().put("GreenIndex", greenIndex);
+
+        ProfileProperties carProperties = new ProfileProperties();
+        carProperties.setProfileName(profileName);
+        carProperties.setEncoderName(EncoderNameEnum.DRIVING_CAR);
+        carProperties.getPreparation().getMethods().getLm().setEnabled(true);
+        carProperties.getPreparation().getMethods().getLm().setThreads(5);
+        carProperties.getExecution().getMethods().getLm().setActiveLandmarks(2);
+        carProperties.setMaximumWayPoints(50);
+        carProperties.getRepo().setRepositoryUri(graphManagementRepositoryUrl);
+        carProperties.getRepo().setRepositoryName(graphManagementRepositoryName);
+        carProperties.getRepo().setRepositoryProfileGroup(graphManagementRepositoryProfileGroup);
+        carProperties.getRepo().setGraphExtent(graphManagementGraphExtent);
+        engineProperties.getProfiles().put(profileName, carProperties);
 
         return engineProperties;
     }
