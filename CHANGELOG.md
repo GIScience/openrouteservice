@@ -37,13 +37,13 @@ RELEASING:
 
 ### Added
 ### Changed
+- updated dependencies: GraphHopper, Spring ([#1844](https://github.com/GIScience/openrouteservice/pull/1844))
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
 
 ## [8.1.2] - 2024-08-13
-
 ### Changed
 - updated dependencies: guava, commons, rest-assured etc. ([#1831](https://github.com/GIScience/openrouteservice/pull/1831))
 - updated dependencies: spring, swagger, geotools etc. ([#1827](https://github.com/GIScience/openrouteservice/pull/1827))
