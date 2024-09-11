@@ -300,12 +300,12 @@
             <groupId>org.codehaus.janino</groupId>
             <artifactId>commons-compiler</artifactId>
         </dependency>
+        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- TODO: remove this if nothing breaks
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>

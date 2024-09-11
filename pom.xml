@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.2</version>
+        <version>3.3.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -48,7 +48,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
         <!-- switch graphhopper versions to enable debugging -->
-        <graphhopper.version>v4.9.1</graphhopper.version>
+        <graphhopper.version>v4.9.3</graphhopper.version>
         <!--graphhopper.version>v4.9-SNAPSHOT</graphhopper.version-->
         <springdoc-openapi-starter.version>2.6.0</springdoc-openapi-starter.version>
         <swagger-parser.version>2.1.22</swagger-parser.version>
