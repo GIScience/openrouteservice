@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.config.profile.RepoProperties;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -11,6 +12,8 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 @Getter
 /*
@@ -60,16 +63,30 @@ public class GraphManagementRuntimeProperties {
         public static Builder from(EngineProperties engineProperties, ProfileProperties profileProperties, String graphVersion) {
             Builder builder = new Builder();
             builder.enabled = engineProperties.getGraphManagement().getEnabled();
-            builder.repoBaseUri = profileProperties.getRepo().getRepositoryUri();
-            builder.repoName = profileProperties.getRepo().getRepositoryName();
-            builder.repoCoverage = profileProperties.getRepo().getGraphExtent();
-            builder.repoProfileGroup = profileProperties.getRepo().getRepositoryProfileGroup();
+            builder.repoBaseUri = getFirstPresentString(
+                    ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUri),
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUri));
+            builder.repoName = getFirstPresentString(
+                    ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryName),
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryName));
+            builder.repoCoverage = getFirstPresentString(
+                    ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getGraphExtent),
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getGraphExtent));
+            builder.repoProfileGroup = getFirstPresentString(
+                    ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryProfileGroup),
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryProfileGroup));
             builder.maxNumberOfGraphBackups = engineProperties.getGraphManagement().getMaxBackups();
             builder.graphVersion = graphVersion;
-            builder.localProfileName = profileProperties.getProfileName();
-            builder.localGraphsRootAbsPath = profileProperties.getGraphPath().toString();
-            builder.encoderName = Optional.of(profileProperties).map(ProfileProperties::getEncoderName).map(String::valueOf).orElse(null);
+            builder.localProfileName = ofNullable(profileProperties).map(ProfileProperties::getProfileName).map(String::valueOf).orElse(null);
+            builder.localGraphsRootAbsPath = getFirstPresentString(
+                    ofNullable(profileProperties).map(ProfileProperties::getGraphPath).map(Path::toString),
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getGraphPath).map(Path::toString));
+            builder.encoderName = ofNullable(profileProperties).map(ProfileProperties::getEncoderName).map(String::valueOf).orElse(null);
             return builder;
+        }
+
+        private static String getFirstPresentString(Optional... objects) {
+            return Arrays.stream(objects).filter(Optional::isPresent).findFirst().map(Optional::get).map(String::valueOf).orElse(null);
         }
 
         public Builder withGraphVersion(String graphVersion) {

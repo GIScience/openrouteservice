@@ -9,6 +9,8 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.remote.ORSGraphRepoM
 
 import java.io.File;
 
+import static java.util.Optional.ofNullable;
+
 public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
@@ -107,6 +109,9 @@ public class ORSGraphManager {
     }
 
     public ProfileProperties getActiveGraphProfileProperties() {
-        return getActiveGraphInfo().getPersistedGraphInfo().getProfileProperties();
+        return ofNullable(getActiveGraphInfo())
+                .map(GraphInfo::getPersistedGraphInfo)
+                .map(ORSGraphInfoV1::getProfileProperties)
+                .orElse(null);
     }
 }
