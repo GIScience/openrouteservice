@@ -8,14 +8,14 @@ prepareTest $(basename $0) $*
 configPT=$(makeTempFile $(basename $0) "\
 ors:
   engine:
-    source_file: ors-api/src/test/files/heidelberg.osm.gz
     profile_default:
+      source_file: ors-api/src/test/files/heidelberg.test.pbf
       maximum_distance: 111111
       maximum_distance_dynamic_weights: 111111
       maximum_distance_avoid_areas: 111111
       maximum_waypoints: 11
     profiles:
-      car:
+      driving-car:
         enabled: true
         maximum_waypoints: 55
 ")

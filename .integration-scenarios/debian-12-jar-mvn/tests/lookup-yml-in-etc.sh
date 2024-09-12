@@ -9,9 +9,9 @@ configCar=$(makeTempFile $(basename $0) "\
 ors:
   engine:
     profile_default:
-      source_file:  ors-api/src/test/files/heidelberg.osm.gz
+      source_file:  ors-api/src/test/files/heidelberg.test.pbf
     profiles:
-      car:
+      driving-car:
         enabled: true")
 
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \

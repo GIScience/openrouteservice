@@ -11,9 +11,9 @@ prepareTest $(basename $0) $*
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
-  --env ORS_ENGINE_SOURCE_FILE=ors-api/src/test/files/heidelberg.osm.gz \
+  --env ORS_ENGINE_SOURCE_FILE=files/heidelberg.test.pbf \
   "local/${IMAGE}:latest" \
-  $(getProgramArguments ${runType} --ors.engine.profiles.hgv.enabled=true) &
+  $(getProgramArguments ${runType} --ors.engine.profiles.driving-hgv.enabled=true) &
 
 awaitOrsReady 60 "${HOST_PORT}"
 profiles=$(requestEnabledProfiles ${HOST_PORT})

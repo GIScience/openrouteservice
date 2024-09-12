@@ -9,18 +9,18 @@ configCar=$(makeTempFile $(basename $0) "\
 ors:
   engine:
     profile_default:
-      source_file:  ors-api/src/test/files/heidelberg.osm.gz
+      source_file:  ors-api/src/test/files/heidelberg.test.pbf
     profiles:
-      car:
+      driving-car:
         enabled: true")
 
 configHgv=$(makeTempFile $(basename $0) "\
 ors:
   engine:
     profile_default:
-      source_file:  ors-api/src/test/files/heidelberg.osm.gz
+      source_file:  ors-api/src/test/files/heidelberg.test.pbf
     profiles:
-      hgv:
+      driving-hgv:
         enabled: true")
 
 # A default yml ${CONTAINER_WORK_DIR}/ors-config.yml is present and would normally be used,

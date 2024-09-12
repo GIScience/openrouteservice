@@ -9,9 +9,9 @@ configCar=$(makeTempFile $(basename $0) "\
 ors:
   engine:
     profile_default:
-      source_file:  ors-api/src/test/files/heidelberg.osm.gz
+      source_file:  ors-api/src/test/files/heidelberg.test.pbf
     profiles:
-      car:
+      driving-car:
         enabled: true")
 
 # The profile configured as run argument should be preferred over environment variable.

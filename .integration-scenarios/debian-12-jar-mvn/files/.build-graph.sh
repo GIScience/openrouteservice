@@ -14,7 +14,7 @@ orsConfig=$(makeTempFile $callingScript "\
 ors:
   engine:
     profile_default:
-      source_file:  ors-api/src/test/files/heidelberg.osm.gz
+      source_file: ors-api/src/test/files/heidelberg.test.pbf
     profiles:
       ${enabledProfile}:
         enabled: true")
