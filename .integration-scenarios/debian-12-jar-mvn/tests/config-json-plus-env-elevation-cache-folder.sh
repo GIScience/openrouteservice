@@ -117,7 +117,7 @@ configWithNonExistingElevationCacheFolder=$(makeTempFile $(basename $0) '{
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "openrouteservice routing",
         "sources": [
-          "ors-api/src/test/files/heidelberg.osm.gz"
+          "ors-api/src/test/files/heidelberg.test.pbf"
         ],
         "init_threads": 1,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",
@@ -419,7 +419,7 @@ configWithNonExistingElevationCacheFolder=$(makeTempFile $(basename $0) '{
 # When trying to build a graph, it would fail. So the graph must not be there.
 # But if ELEVATION_CACHE_FOLDER is evaluated correctly,
 # it should build the graph and start with the expected activated profile.
-rm -rf ${TESTROOT}/graphs_volume/car
+rm -rf ${TESTROOT}/graphs_volume/driving-car
 
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \

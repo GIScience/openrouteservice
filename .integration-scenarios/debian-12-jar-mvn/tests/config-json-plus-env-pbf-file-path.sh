@@ -423,7 +423,7 @@ podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${TESTROOT}/graphs_volume":"${CONTAINER_WORK_DIR}/graphs" \
   -v "${configWithNonExistingPbf}":${CONTAINER_WORK_DIR}/ors-config.json \
   --env ORS_CONFIG="${CONTAINER_WORK_DIR}/ors-config.json" \
-  --env PBF_FILE_PATH=ors-api/src/test/files/heidelberg.osm.gz \
+  --env PBF_FILE_PATH=files/heidelberg.test.pbf \
   "local/${IMAGE}:latest" &
 
 awaitOrsReady 60 "${HOST_PORT}"

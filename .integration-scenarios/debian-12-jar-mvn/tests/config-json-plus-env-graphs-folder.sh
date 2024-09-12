@@ -117,7 +117,7 @@ jsonConfigFileWithNonexistingGraphsFolder=$(makeTempFile $(basename $0) '{
         "routing_description": "This is a routing file from openrouteservice",
         "routing_name": "openrouteservice routing",
         "sources": [
-          "ors-api/src/test/files/heidelberg.osm.gz"
+           "ors-api/src/test/files/heidelberg.test.pbf"
         ],
         "init_threads": 1,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",
