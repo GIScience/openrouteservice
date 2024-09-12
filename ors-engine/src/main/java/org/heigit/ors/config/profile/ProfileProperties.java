@@ -110,6 +110,7 @@ public class ProfileProperties {
     }
 
     public ProfileProperties mergeDefaults(ProfileProperties profileDefault, String key) {
+        if (profileDefault == null) return this;
         // set the profile name to the key
         profileName = ofNullable(profileName).orElse(key);
 
@@ -158,21 +159,22 @@ public class ProfileProperties {
     }
 
     public void mergeLoaded(ProfileProperties loadedProfile) {
+        if (loadedProfile == null) return;
         // Copy only relevant values from loadedProfile if they are set
-        elevation = ofNullable(loadedProfile).map(ProfileProperties::getElevation).orElse(elevation);
-        elevationSmoothing = ofNullable(loadedProfile).map(ProfileProperties::getElevationSmoothing).orElse(elevationSmoothing);
-        encoderFlagsSize = ofNullable(loadedProfile).map(ProfileProperties::getEncoderFlagsSize).orElse(encoderFlagsSize);
-        instructions = ofNullable(loadedProfile).map(ProfileProperties::getInstructions).orElse(instructions);
-        optimize = ofNullable(loadedProfile).map(ProfileProperties::getOptimize).orElse(optimize);
-        traffic = ofNullable(loadedProfile).map(ProfileProperties::getTraffic).orElse(traffic);
-        interpolateBridgesAndTunnels = ofNullable(loadedProfile).map(ProfileProperties::getInterpolateBridgesAndTunnels).orElse(interpolateBridgesAndTunnels);
-        forceTurnCosts = ofNullable(loadedProfile).map(ProfileProperties::getForceTurnCosts).orElse(forceTurnCosts);
-        locationIndexResolution = ofNullable(loadedProfile).map(ProfileProperties::getLocationIndexResolution).orElse(locationIndexResolution);
-        locationIndexSearchIterations = ofNullable(loadedProfile).map(ProfileProperties::getLocationIndexSearchIterations).orElse(locationIndexSearchIterations);
-        // replace object params
-        encoderOptions = ofNullable(loadedProfile).map(ProfileProperties::getEncoderOptions).orElse(encoderOptions);
-        preparation = ofNullable(loadedProfile).map(ProfileProperties::getPreparation).orElse(preparation);
-        extStorages = ofNullable(loadedProfile).map(ProfileProperties::getExtStorages).orElse(extStorages);
+        elevation = ofNullable(loadedProfile.elevation).orElse(elevation);
+        elevationSmoothing = ofNullable(loadedProfile.elevationSmoothing).orElse(elevationSmoothing);
+        encoderFlagsSize = ofNullable(loadedProfile.encoderFlagsSize).orElse(encoderFlagsSize);
+        instructions = ofNullable(loadedProfile.instructions).orElse(instructions);
+        optimize = ofNullable(loadedProfile.optimize).orElse(optimize);
+        traffic = ofNullable(loadedProfile.traffic).orElse(traffic);
+        interpolateBridgesAndTunnels = ofNullable(loadedProfile.interpolateBridgesAndTunnels).orElse(interpolateBridgesAndTunnels);
+        forceTurnCosts = ofNullable(loadedProfile.forceTurnCosts).orElse(forceTurnCosts);
+        locationIndexResolution = ofNullable(loadedProfile.locationIndexResolution).orElse(locationIndexResolution);
+        locationIndexSearchIterations = ofNullable(loadedProfile.locationIndexSearchIterations).orElse(locationIndexSearchIterations);
+        // replace object params, no deep merge
+        encoderOptions = ofNullable(loadedProfile.encoderOptions).orElse(encoderOptions);
+        preparation = ofNullable(loadedProfile.preparation).orElse(preparation);
+        extStorages = ofNullable(loadedProfile.extStorages).orElse(extStorages);
     }
 }
 

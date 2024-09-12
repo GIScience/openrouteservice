@@ -1,166 +1,97 @@
 package org.heigit.ors.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.heigit.ors.common.EncoderNameEnum;
+import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-import java.util.List;
+import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EnginePropertiesTest {
 
-    //language=JSON
-    private final String testJson = """
-            {
-              "graph_management": {
-                "graph_extent": null,
-                "repository_uri": null,
-                "repository_name": null,
-                "repository_profile_group": null,
-                "download_schedule": "0 0 0 31 2 *",
-                "activation_schedule": "0 0 0 31 2 *",
-                "max_backups": 0
-              },           
-              "profile_default": {
-                "enabled": false,
-                "source_file": "/path/to/source/file",
-                "graph_path": "/path/to/graphs",
-                "preparation": {
-                  "min_network_size": 300,
-                  "methods": {
-                    "lm": {
-                      "enabled": false,
-                      "weightings": "shortest",
-                      "landmarks": 2
-                    }
-                  }
-                },
-                "execution": {
-                  "methods": {
-                    "lm": {
-                      "active_landmarks": 2
-                    }
-                  }
-                },
-                "ext_storages": {
-                  "WayCategory": {
-                    "enabled": true
-                  },
-                  "GreenIndex": {
-                    "enabled": true,
-                    "filepath": "/path/to/file.csv"
-                  }
-                }
-              },
-              "profiles": {
-                "car": {
-                  "encoder_name": "driving-car",
-                  "encoder_options": {},
-                  "preparation": {
-                    "methods": {
-                      "lm": {
-                        "enabled": true,
-                        "threads": 5
-                      }
-                    }
-                  },
-                  "execution": {
-                    "methods": {
-                      "lm": {
-                        "active_landmarks": 2
-                      }
-                    }
-                  },
-                  "ext_storages": {}
-                },
-                "hgv": {
-                  "encoder_name": "driving-hgv",
-                  "preparation": {
-                    "min_network_size": 900,
-                    "methods": {
-                      "lm": {
-                        "enabled": true
-                      }
-                    }
-                  },
-                  "ext_storages": {
-                    "HeavyVehicle": {
-                      "restrictions": true
-                    }
-                  }
-                },
-                "car-custom": {
-                  "enabled": true,
-                  "encoder_name": "driving-car",
-                  "preparation": {
-                    "min_network_size": 900
-                  }
-                },
-                "car-custom2": {
-                  "enabled": false,
-                  "encoder_name": "driving-car"
-                }
-              }
-            }""";
     EngineProperties enginePropertiesTest;
-    EngineProperties defaultEngineProperties;
-    HashSet<String> defaultProfilePropertiesIgnoreList = new HashSet<>(List.of("initialized", "graphsDataAccess", "elevation.dataAccess", "elevation.cacheClear", "graphManagement", "profileDefault.enabled", "profileDefault.extStorages", "profileDefault.preparation.minNetworkSize", "profileDefault.preparation.methods.lm.enabled", "profileDefault.preparation.methods.lm.weightings", "profileDefault.preparation.methods.lm.landmarks", "profileDefault.execution.methods.lm.activeLandmarks", "profiles"));
 
     @BeforeEach
-    void setUp() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
-        enginePropertiesTest = mapper.readValue(testJson, EngineProperties.class);
-        // Defaults to check against
-        defaultEngineProperties = new EngineProperties();
+    void setUp() {
+        enginePropertiesTest = new EngineProperties();
+
+        enginePropertiesTest.getProfileDefault().setEnabled(false);
+        enginePropertiesTest.getProfileDefault().setSourceFile(Path.of("/path/to/source/file"));
+        enginePropertiesTest.getProfileDefault().setGraphPath(Path.of("/path/to/graphs"));
+        enginePropertiesTest.getProfileDefault().getPreparation().setMinNetworkSize(300);
+        enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().setEnabled(false);
+        enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().setWeightings("shortest");
+        enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().setLandmarks(2);
+        enginePropertiesTest.getProfileDefault().getExecution().getMethods().getLm().setActiveLandmarks(2);
+        Map<String, ExtendedStorage> extStoragesDef = new LinkedHashMap<>();
+        ExtendedStorage extWayCategoryDefault = new ExtendedStorage();
+        extWayCategoryDefault.setEnabled(true);
+        extStoragesDef.put("WayCategory", extWayCategoryDefault);
+        ExtendedStorage extGreenIndexDefault = new ExtendedStorage();
+        extGreenIndexDefault.setEnabled(true);
+        extGreenIndexDefault.setFilepath(Path.of("/path/to/file.csv"));
+        extStoragesDef.put("GreenIndex", extGreenIndexDefault);
+        enginePropertiesTest.getProfileDefault().setExtStorages(extStoragesDef);
+
+        ProfileProperties carProfile = new ProfileProperties();
+        carProfile.setEncoderName(EncoderNameEnum.DRIVING_CAR);
+        carProfile.getPreparation().setMinNetworkSize(300);
+        carProfile.getPreparation().getMethods().getLm().setEnabled(true);
+        carProfile.getPreparation().getMethods().getLm().setThreads(5);
+        carProfile.getExecution().getMethods().getLm().setActiveLandmarks(2);
+        enginePropertiesTest.getProfiles().put("car", carProfile);
+
+        ProfileProperties hgvProfile = new ProfileProperties();
+        hgvProfile.setEncoderName(EncoderNameEnum.DRIVING_HGV);
+        hgvProfile.getPreparation().setMinNetworkSize(900);
+        hgvProfile.getPreparation().getMethods().getLm().setEnabled(true);
+        Map<String, ExtendedStorage> extStoragesHgv = new LinkedHashMap<>();
+        ExtendedStorage extHeavyVehicle = new ExtendedStorage();
+        extHeavyVehicle.setRestrictions(true);
+        extStoragesHgv.put("HeavyVehicle", extHeavyVehicle);
+        hgvProfile.setExtStorages(extStoragesHgv);
+        enginePropertiesTest.getProfiles().put("hgv", hgvProfile);
+
+        ProfileProperties carCustomProfile = new ProfileProperties();
+        carCustomProfile.setEnabled(true);
+        carCustomProfile.setEncoderName(EncoderNameEnum.DRIVING_CAR);
+        carCustomProfile.getPreparation().setMinNetworkSize(900);
+        enginePropertiesTest.getProfiles().put("car-custom", carCustomProfile);
+
+        ProfileProperties carCustom2Profile = new ProfileProperties();
+        carCustom2Profile.setEnabled(false);
+        carCustom2Profile.setEncoderName(EncoderNameEnum.DRIVING_CAR);
+        enginePropertiesTest.getProfiles().put("car-custom2", carCustom2Profile);
     }
 
     @Test
-    void getActiveProfilesReturnsEmptyMapWhenProfileDefaultIsNotEnabled() {
-        EngineProperties engineProperties = new EngineProperties();
-        Map<String, ProfileProperties> activeProfiles = engineProperties.getInitializedActiveProfiles();
-        assertNotNull(activeProfiles);
-        assertTrue(activeProfiles.isEmpty());
-    }
-
-    @Test
-    void getActiveProfilesReturnsNonEmptyMapWhenProfileDefaultIsEnabled() {
-        enginePropertiesTest.getProfileDefault().setEnabled(true);
+    void getActiveProfilesReturnsEnabledProfilesWhenProfileDefaultIsNotEnabled() {
         Map<String, ProfileProperties> activeProfiles = enginePropertiesTest.getInitializedActiveProfiles();
         assertNotNull(activeProfiles);
-        assertFalse(activeProfiles.isEmpty());
-    }
-
-    @Test
-    void getActiveProfilesReturnsCorrectProfiles() {
-        enginePropertiesTest.getProfileDefault().setEnabled(true);
-        Map<String, ProfileProperties> activeProfiles = enginePropertiesTest.getInitializedActiveProfiles();
-        assertTrue(activeProfiles.containsKey("car"));
-        assertTrue(activeProfiles.containsKey("hgv"));
+        assertFalse(activeProfiles.containsKey("car"));
+        assertFalse(activeProfiles.containsKey("hgv"));
         assertTrue(activeProfiles.containsKey("car-custom"));
-    }
-
-    @Test
-    void getActiveProfilesReturnsCorrectProfileNames() {
-        enginePropertiesTest.getProfileDefault().setEnabled(true);
-        Map<String, ProfileProperties> activeProfiles = enginePropertiesTest.getInitializedActiveProfiles();
-        assertEquals("car", activeProfiles.get("car").getProfileName());
-        assertEquals("hgv", activeProfiles.get("hgv").getProfileName());
+        assertFalse(activeProfiles.containsKey("car-custom2"));
         assertEquals("car-custom", activeProfiles.get("car-custom").getProfileName());
     }
 
     @Test
-    void getActiveProfilesReturnsCorrectGraphPath() {
+    void getActiveProfilesReturnsCorrectProfilesWhenProfileDefaultIsEnabled() {
         enginePropertiesTest.getProfileDefault().setEnabled(true);
         Map<String, ProfileProperties> activeProfiles = enginePropertiesTest.getInitializedActiveProfiles();
-        assertEquals(enginePropertiesTest.getProfileDefault().getGraphPath().resolve("car"), activeProfiles.get("car").getGraphPath());
-        assertEquals(enginePropertiesTest.getProfileDefault().getGraphPath().resolve("hgv"), activeProfiles.get("hgv").getGraphPath());
-        assertEquals(enginePropertiesTest.getProfileDefault().getGraphPath().resolve("car-custom"), activeProfiles.get("car-custom").getGraphPath());
+        assertNotNull(activeProfiles);
+        assertFalse(activeProfiles.isEmpty());
+        assertTrue(activeProfiles.containsKey("car"));
+        assertTrue(activeProfiles.containsKey("hgv"));
+        assertTrue(activeProfiles.containsKey("car-custom"));
+        assertFalse(activeProfiles.containsKey("car-custom2"));
+        assertEquals("car", activeProfiles.get("car").getProfileName());
+        assertEquals("hgv", activeProfiles.get("hgv").getProfileName());
+        assertEquals("car-custom", activeProfiles.get("car-custom").getProfileName());
     }
 }

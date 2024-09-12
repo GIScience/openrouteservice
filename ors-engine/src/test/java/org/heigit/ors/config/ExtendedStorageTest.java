@@ -207,12 +207,8 @@ class ExtendedStorageTest {
         assertEquals(150, storage.getRadius(), "initialize should set radius to 150 for HERE_TRAFFIC if it is null");
 
         // Variable set and not the default value. It should be left as is.
-        String json = """
-                {
-                    "radius": 100
-                }
-                """;
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
+        storage.setRadius(100);
         assertEquals(100, storage.getRadius(), "initialize should not change radius if it is not null");
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
         assertEquals(100, storage.getRadius(), "initialize should not change radius if it is not null");
@@ -252,14 +248,10 @@ class ExtendedStorageTest {
         assertTrue(storage.getRestrictions(), "initialize should set restrictions to true for HEAVY_VEHICLE if it is null");
 
         // Variable set and not the default value. It should be left as is.
-        String json = """
-                {
-                    "enabled": false,
-                    "restrictions": false,
-                    "filepath": "/custom/path.csv"
-                }
-                """;
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
+        storage.setEnabled(true);
+        storage.setRestrictions(false);
+        storage.setFilepath(Path.of("/custom/path.csv"));
         assertFalse(storage.getRestrictions(), "initialize should not change restrictions if it is not null");
         storage.initialize(ExtendedStorageName.HEAVY_VEHICLE);
         assertFalse(storage.getRestrictions(), "initialize should not change restrictions if it is not null");
@@ -281,12 +273,8 @@ class ExtendedStorageTest {
         assertTrue(storage.getUseForWarnings(), "initialize should set use_for_warnings to true for ROAD_ACCESS_RESTRICTIONS if it is null");
 
         // Variable set and not the default value. It should be left as is.
-        String json = """
-                {
-                    "use_for_warnings": false
-                }
-                """;
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
+        storage.setUseForWarnings(false);
         assertFalse(storage.getUseForWarnings(), "initialize should not change use_for_warnings if it is not null");
         storage.initialize(ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS);
         assertFalse(storage.getUseForWarnings(), "initialize should not change use_for_warnings if it is not null");
@@ -308,12 +296,8 @@ class ExtendedStorageTest {
         assertFalse(storage.getOutputLog(), "initialize should set output_log to false for HERE_TRAFFIC if it is null");
 
         // Variable set and not the default value. It should be left as is.
-        String json = """
-                {
-                    "output_log": true
-                }
-                """;
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
+        storage.setOutputLog(true);
         assertTrue(storage.getOutputLog(), "initialize should not change output_log if it is not null");
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
         assertTrue(storage.getOutputLog(), "initialize should not change output_log if it is not null");
@@ -342,12 +326,7 @@ class ExtendedStorageTest {
         assertNull(storage.getMaximumSlope(), "initialize should set maximum_slope to null for HILL_INDEX if it is null");
 
         // Variable set and not the default value. It should be left as is.
-        String json = """
-                {
-                    "maximum_slope": 5
-                }
-                """;
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage.setMaximumSlope(5);
         assertEquals(5, storage.getMaximumSlope(), "initialize should not change maximum_slope if it is not null");
         storage.initialize(ExtendedStorageName.HILL_INDEX);
         assertEquals(5, storage.getMaximumSlope(), "initialize should not change maximum_slope if it is not null");
@@ -369,12 +348,8 @@ class ExtendedStorageTest {
         assertEquals(Path.of("./here_matching.log"), storage.getLogLocation(), "initialize should set log_location to default for HERE_TRAFFIC if it is null");
 
         // Variable set and not the default value. It should be left as is.
-        String json = """
-                {
-                    "log_location": "/custom/path.log"
-                }
-                """;
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
+        storage.setLogLocation(Path.of("/custom/path.log"));
         assertEquals(Path.of("/custom/path.log"), storage.getLogLocation(), "initialize should not change log_location if it is not null");
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
         assertEquals(Path.of("/custom/path.log"), storage.getLogLocation(), "initialize should not change log_location if it is not null");
@@ -406,28 +381,15 @@ class ExtendedStorageTest {
         ExtendedStorage storage;
 
         // Test null values
-        String json = """
-                {
-                    "streets":null,
-                    "ref_pattern":null,
-                    "pattern_15min":null
-                }
-                """;
-
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
         assertFalse(storage.getEnabled(), "initialize should disable storage if all paths are null");
 
         // Create JSON string based on parameters
-        json = String.format("""
-                {
-                    "streets": "%s",
-                    "ref_pattern": "%s",
-                    "pattern_15min": "%s"
-                }
-                """, streets, refPattern, pattern15min);
-
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
+        storage.setStreets(Path.of(streets));
+        storage.setRefPattern(Path.of(refPattern));
+        storage.setPattern15Min(Path.of(pattern15min));
         storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
 
         // Check if storage is enabled or disabled based on paths
@@ -481,28 +443,15 @@ class ExtendedStorageTest {
         ObjectMapper mapper = new ObjectMapper();
         ExtendedStorage storage;
         // Test null values
-        String json = """
-                {
-                    "boundaries":null,
-                    "ids":null,
-                    "openborders":null
-                }
-                """;
-
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
         storage.initialize(ExtendedStorageName.BORDERS);
         assertFalse(storage.getEnabled(), "initialize should disable storage if all paths are null");
 
         // Create JSON string based on parameters
-        json = String.format("""
-                {
-                    "boundaries": "%s",
-                    "ids": "%s",
-                    "openborders": "%s"
-                }
-                """, boundaries, ids, openborders);
-
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
+        storage.setBoundaries(Path.of(boundaries));
+        storage.setIds(Path.of(ids));
+        storage.setOpenborders(Path.of(openborders));
         storage.initialize(ExtendedStorageName.BORDERS);
 
         // Check if storage is enabled or disabled based on paths
@@ -548,28 +497,16 @@ class ExtendedStorageTest {
         storage.initialize(ExtendedStorageName.getEnum(storageName));
         assertFalse(storage.getEnabled(), "initialize should disable storage if filepath is null");
 
-        //language=JSON
-        String json = """
-                { 
-                  "enabled": true,
-                  "filepath": ""
-                }  
-                """;
-
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
+        storage.setEnabled(true);
+        storage.setFilepath(Path.of(""));
         storage.initialize(ExtendedStorageName.getEnum(storageName));
         assertFalse(storage.getEnabled(), "initialize should disable storage if filepath is empty");
         assertEquals(Path.of(""), storage.getFilepath(), "initialize should not change filepath if it is empty");
 
         // Initialize with non-empty path
-        //language=JSON
-        json = """
-                {
-                    "filepath": "custom/path.csv"
-                }
-                """;
-
-        storage = mapper.readValue(json, ExtendedStorage.class);
+        storage = new ExtendedStorage();
+        storage.setFilepath(Path.of("custom/path.csv"));
         storage.initialize(ExtendedStorageName.getEnum(storageName));
         assertTrue(storage.getEnabled(), "initialize should not disable storage if filepath is not null");
         assertEquals(Path.of("custom/path.csv").toAbsolutePath(), storage.getFilepath(), "initialize should not change filepath if it is not null");

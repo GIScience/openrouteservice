@@ -6,6 +6,8 @@ import org.heigit.ors.common.EncoderNameEnum;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProfilePropertiesTest {
@@ -71,7 +73,50 @@ class ProfilePropertiesTest {
     }
 
     @Test
-    void mergeLoaded() {
+    void testMergeDefaults() {
+        ProfileProperties profile = new ProfileProperties();
+        profile.setElevation(true);
+        profile.setMaximumDistance(100.0);
+        profile.getEncoderOptions().setMaximumGradeLevel(1);
+        profile.getEncoderOptions().setPreferredSpeedFactor(0.8);
+        profile.getPreparation().getMethods().getCore().setEnabled(true);
+        profile.getExtStorages().put("WayCategory", new ExtendedStorage());
+
+        ProfileProperties defaultProfile = new ProfileProperties();
+        defaultProfile.setGraphPath(Path.of("/path/to/graphs/cannot/be/null"));
+        defaultProfile.setSourceFile(Path.of("/path/to/source/cannot/be/null"));
+        defaultProfile.setElevation(false);
+        defaultProfile.setMaximumDistanceAvoidAreas(100.0);
+        defaultProfile.getEncoderOptions().setMaximumGradeLevel(2);
+        defaultProfile.getEncoderOptions().setProblematicSpeedFactor(9.9);
+        defaultProfile.getExecution().getMethods().getAstar().setApproximation("Beeline");
+        defaultProfile.getPreparation().getMethods().getLm().setEnabled(true);
+        defaultProfile.getExtStorages().put("HeavyVehicle", new ExtendedStorage());
+
+        profile.mergeDefaults(defaultProfile, "profName");
+
+        assertEquals("profName", profile.getProfileName(), "Profile name should be set");
+
+        assertTrue(profile.getElevation(), "Elevation should not be overwritten");
+        assertEquals(100.0, profile.getMaximumDistance(), "Maximum distance should not be overwritten");
+        assertEquals(100.0, profile.getMaximumDistanceAvoidAreas(), "Maximum distance avoid areas should not be written");
+
+        assertEquals(1, profile.getEncoderOptions().getMaximumGradeLevel(), "Maximum grade level should not be overwritten");
+        assertEquals(0.8, profile.getEncoderOptions().getPreferredSpeedFactor(), "Preferred speed factor should be left alone");
+        assertEquals(9.9, profile.getEncoderOptions().getProblematicSpeedFactor(), "Problematic speed factor should be set");
+        assertNull(profile.getEncoderOptions().getBlockFords(), "Block fords should be null");
+
+        assertEquals("Beeline", profile.getExecution().getMethods().getAstar().getApproximation(), "Execution options should be set by default");
+        assertTrue(profile.getPreparation().getMethods().getCore().getEnabled(), "Core should be enabled");
+        assertTrue( profile.getPreparation().getMethods().getLm().getEnabled(), "LM should be enabled by default");
+
+        assertEquals(2, profile.getExtStorages().size(), "extStrorages should be merged");
+        assertTrue(profile.getExtStorages().containsKey("WayCategory"), "extStrorages should be merged");
+        assertTrue(profile.getExtStorages().containsKey("HeavyVehicle"), "extStrorages should be merged");
+    }
+
+    @Test
+    void testMergeLoaded() {
         ProfileProperties profile = new ProfileProperties();
         profile.setElevation(true);
         profile.setMaximumDistance(100.0);
