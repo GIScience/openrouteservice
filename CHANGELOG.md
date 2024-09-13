@@ -37,11 +37,15 @@ RELEASING:
 
 ### Added
 ### Changed
-- updated dependencies: GraphHopper, Spring ([#1844](https://github.com/GIScience/openrouteservice/pull/1844))
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
+
+## [8.1.3] - 2024-09-13
+### Changed
+- updated dependencies: GraphHopper, Spring ([#1844](https://github.com/GIScience/openrouteservice/pull/1844))
+- upgrade the docker container versions ([#1839](https://github.com/GIScience/openrouteservice/pull/1839))
 
 ## [8.1.2] - 2024-08-13
 ### Changed
@@ -791,7 +795,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.3...HEAD
+[8.1.3]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...v8.1.3
 [8.1.2]: https://github.com/GIScience/openrouteservice/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/GIScience/openrouteservice/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/GIScience/openrouteservice/compare/v8.0.1...v8.1.0
