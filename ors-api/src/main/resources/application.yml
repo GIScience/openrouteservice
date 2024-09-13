@@ -160,7 +160,6 @@ ors:
           lm:
             active_landmarks: 8
     profiles:
-      # All properties defined in ors.engine.profile_default can also be set in each profile to overwrite the defaults profile-specific.
       driving-car:
         encoder_name: driving-car
         encoder_options:

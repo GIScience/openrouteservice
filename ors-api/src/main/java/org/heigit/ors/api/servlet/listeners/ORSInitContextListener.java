@@ -34,9 +34,11 @@ import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static org.heigit.ors.api.ORSEnvironmentPostProcessor.*;
@@ -98,7 +100,7 @@ public class ORSInitContextListener implements ServletContextListener {
     private void copyDefaultConfigurationToFile(String output) {
         try (FileOutputStream fos = new FileOutputStream(output)) {
             LOGGER.info("Creating configuration file " + output);
-            // TODO: simply copy application.yml to output file
+            fos.write(new ClassPathResource("application.yml").getContentAsString(StandardCharsets.UTF_8).getBytes());
         } catch (IOException e) {
             LOGGER.error("Failed to write output configuration file.", e);
         }
