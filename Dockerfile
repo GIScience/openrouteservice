@@ -1,5 +1,5 @@
 # Image is reused in the workflow builds for master and the latest version
-FROM docker.io/maven:3.8.7-openjdk-18-slim AS build
+FROM docker.io/maven:3.9.8-eclipse-temurin-21-alpine AS build
 ARG DEBIAN_FRONTEND=noninteractive
 
 # hadolint ignore=DL3002
@@ -23,7 +23,7 @@ RUN sed -i "/ors.engine.source_file=.*/s/.*/ors.engine.source_file=\/home\/ors\/
         sed -i "/    source_file:.*/s/.*/    source_file: \/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.yml"
 
 # build final image, just copying stuff inside
-FROM docker.io/amazoncorretto:21.0.3-alpine3.19 AS publish
+FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS publish
 
 # Build ARGS
 ARG UID=1000

@@ -4,14 +4,14 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.2</version>
+        <version>3.3.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>8.2.0-SNAPSHOT</version>
+    <version>8.1.3</version>
     <packaging>pom</packaging>
     <name>openrouteservice</name>
     <url>https://openrouteservice.org</url>
@@ -48,7 +48,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
         <!-- switch graphhopper versions to enable debugging -->
-        <graphhopper.version>v4.9.1</graphhopper.version>
+        <graphhopper.version>v4.9.3</graphhopper.version>
         <!--graphhopper.version>v4.9-SNAPSHOT</graphhopper.version-->
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
