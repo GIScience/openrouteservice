@@ -250,7 +250,7 @@ The user should be used to do further configurations in the $HOME_FOLDER folder.
 0. Investigate the service file with: sudo systemctl cat openrouteservice
 1. Adjust the default ors-config.yml and setenv.sh files in $HOME_FOLDER
 Note: Everything defined in setenv.sh overwrites the default ors-config.yml file via ENVs.
-Note: The default configs run an example setup with the heidelberg.osm.gz file. You should replace this with your own data.
+Note: The default configs run an example setup with the heidelberg.test.pbf file. You should replace this with your own data.
 2. Start tomcat using the command: sudo systemctl start openrouteservice
 3. Check tomcat logs with: cat $TOMCAT_FOLDER/logs/catalina.out
 4. Check ors logs with: cat $HOME_FOLDER/logs/ors.log
@@ -265,7 +265,7 @@ if ! chmod 664 "/etc/systemd/system/openrouteservice.service"; then
 fi
 # Copy relevant files
 if ! cp -rf ors-api/src/test/files "$HOME_FOLDER/files"; then
-    log_error "Failed to copy heidelberg.osm.gz."
+    log_error "Failed to copy heidelberg.test.pbf."
     exit 1
 fi
 

@@ -1,7 +1,6 @@
 .metadata/
 .git
 .gitignore
-**/*.pbf
 
 .idea/
 *.iml

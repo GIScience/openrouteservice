@@ -84,8 +84,8 @@ done
 log_info "Remove the source file from the ors-config.yml"
 podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profile_default.source_file = \"\"' /home/ors/ors-config.yml" || exit 1
 
-# assert export JAVA_OPTS="$JAVA_OPTS -Dors.engine.source_file=/home/ors/files/heidelberg.osm.gz" in file setenv.sh
-check_line_in_file "export JAVA_OPTS=\"\$JAVA_OPTS -Dors.engine.profile_default.source_file=/home/ors/files/heidelberg.osm.gz\"" /home/ors/setenv.sh true || exit 1
+# assert export JAVA_OPTS="$JAVA_OPTS -Dors.engine.source_file=/home/ors/files/heidelberg.test.pbf" in file setenv.sh
+check_line_in_file "export JAVA_OPTS=\"\$JAVA_OPTS -Dors.engine.profile_default.source_file=/home/ors/files/heidelberg.test.pbf\"" /home/ors/setenv.sh true || exit 1
 
 # Check that /opt/tomcat/10/temp/GeoTools folder doesnt exist yet
 check_folder_exists "/opt/tomcat/10/temp/GeoTools" false || exit 1

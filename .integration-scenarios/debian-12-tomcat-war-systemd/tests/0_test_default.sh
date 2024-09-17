@@ -68,7 +68,7 @@ files_to_expect=(
   "/home/ors/ors-config.yml"
   "/home/ors/logs/ors.log"
   "/home/ors/setenv.sh"
-  "/home/ors/files/heidelberg.osm.gz"
+  "/home/ors/files/heidelberg.test.pbf"
   "/opt/tomcat/10/bin/setenv.sh"
   "/opt/tomcat/10/webapps/ors.war"
   "/etc/systemd/system/openrouteservice.service"
@@ -77,8 +77,8 @@ for file in "${files_to_expect[@]}"; do
   check_file_exists $file true || exit 1
 done
 
-# assert export JAVA_OPTS="$JAVA_OPTS -Dors.engine.source_file=/home/ors/files/heidelberg.osm.gz" in file setenv.sh
-check_line_in_file "export JAVA_OPTS=\"\$JAVA_OPTS -Dors.engine.profile_default.source_file=/home/ors/files/heidelberg.osm.gz\"" /home/ors/setenv.sh true || exit 1
+# assert export JAVA_OPTS="$JAVA_OPTS -Dors.engine.source_file=/home/ors/files/heidelberg.test.pbf" in file setenv.sh
+check_line_in_file "export JAVA_OPTS=\"\$JAVA_OPTS -Dors.engine.profile_default.source_file=/home/ors/files/heidelberg.test.pbf\"" /home/ors/setenv.sh true || exit 1
 
 # Assert source /home/ors/setenv.sh in file /opt/tomcat/10/bin/setenv.sh
 check_line_in_file ". /home/ors/setenv.sh" /opt/tomcat/10/bin/setenv.sh true || exit 1

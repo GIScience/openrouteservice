@@ -47,8 +47,8 @@ check_number_of_profiles_loaded "127.0.0.1:${PORT}/ors/v2/status" 1 || exit 1
 check_profile_loaded "127.0.0.1:${PORT}/ors/v2/status" "driving-car" true|| exit 1
 
 
-log_info "Set the source file to heidelberg.osm.gz through the ors-config.yml"
-podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profile_default.source_file = \"/home/ors/files/heidelberg.osm.gz\"' /home/ors/ors-config.yml" || exit 1
+log_info "Set the source file to heidelberg.test.pbf through the ors-config.yml"
+podman exec -it $CONTAINER_NAME /bin/bash -c "yq -y -i '.ors.engine.profile_default.source_file = \"/home/ors/files/heidelberg.test.pbf\"' /home/ors/ors-config.yml" || exit 1
 
 log_info "Activating all profiles through the setenv.sh"
 podman exec -it $CONTAINER_NAME /bin/bash -c "echo 'export JAVA_OPTS=\"\$JAVA_OPTS \
