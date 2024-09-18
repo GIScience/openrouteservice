@@ -29,6 +29,7 @@ ${B}Options:${N}
                 Quote patterns with '*' or use '%' which will be replaced by '*'
                 Multiple patterns can be defined in one argument, separated by blanks
     ${B}-v      ${N} -- Verbose: Print tests console output
+    ${B}-k      ${N} -- Keep temp files and directories after test run
     ${B}-l      ${N} -- List tests and exit
     ${B}-h      ${N} -- Display this help and exit
 "
@@ -93,23 +94,24 @@ function listTests() {
   ls -A ${TESTROOT}/tests
 }
 
-while getopts :bcCd:fjmt:vlh FLAG; do
+while getopts :bcCd:fhjklmt:v FLAG; do
   case $FLAG in
     b) wantBuildContainers=1;;
     c) clearGraphs=1;;
     C) clearGraphsBeforeEachTest=1;;
     d) dockerImageBase="$OPTARG";;
     f) failFast=1;;
-    j) jar=1;;
-    m) mvn=1;;
-    t) pattern="$OPTARG";;
-    v) verbose=1;;
-    l)
-      listTests
-      exit 0;;
     h)
       printCliHelp
       exit 0;;
+    j) jar=1;;
+    k) keepTempFiles=1;;
+    l)
+      listTests
+      exit 0;;
+    m) mvn=1;;
+    t) pattern="$OPTARG";;
+    v) verbose=1;;
     \?)
       echo -e "${FG_RED}${B}Error: Unknown option -${B}$OPTARG${N}. Type ${B}$SCRIPT -h${N} for help."
       exit 1;;
@@ -153,6 +155,7 @@ for word in $pattern; do
     (($jar)) && runTest jar $testscript $dockerImageJar $verbose
     (($mvn)) && runTest mvn $testscript $dockerImageMvn $verbose
   done
+  (($keepTempFiles)) || rm -rf ${TESTROOT}/tmp/*
 done
 
 (($passed)) && passedText=", ${FG_GRN}${B}${passed} passed${N}"

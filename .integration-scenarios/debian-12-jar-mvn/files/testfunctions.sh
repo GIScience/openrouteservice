@@ -182,12 +182,12 @@ function prepareTest() {
   HOST_PORT=$(findFreePort 8083)
 
   mkdir -p ~/.m2
+  mkdir -p "$TESTROOT/tmp"
   M2_FOLDER="$(realpath ~/.m2)"
 }
 
 function cleanupTest() {
   podman stop "$CONTAINER"
-  deleteTempFiles "$script"
 }
 
 function printVariables(){
@@ -201,13 +201,26 @@ function printVariables(){
 function makeTempFile() {
   script=$1
   content=$2
+  script=$(removeExtension $script)
   mkdir -p "$TESTROOT/tmp"
   tempFile=$(mktemp "${TESTROOT}/tmp/${script}.XXXXXXXXX")
   echo "$content" >> $tempFile
   echo "$tempFile"
 }
 
-function deleteTempFiles() {
+function makeTempDir() {
   script=$1
-  rm "${TESTROOT}/tmp/${script}"*
+  script=$(removeExtension $script)
+  tempDir=$(mktemp -d "${TESTROOT}/tmp/${script}.XXXXXXXXX")
+  echo "$tempDir"
 }
+
+function writeToFile() {
+  directory=$1
+  file=$2
+  content=$3
+  tempFile="${directory}/${file}"
+  echo "$content" >> $tempFile
+  echo "$tempFile"
+}
+

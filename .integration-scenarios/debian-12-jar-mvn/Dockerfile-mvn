@@ -5,6 +5,7 @@ RUN apt-get update -y && \
 
 ARG CONTAINER_CONF_DIR_USER=/root/.config/openrouteservice
 ARG CONTAINER_CONF_DIR_ETC=/etc/openrouteservice
+ARG CONTAINER_HOME_DIR=/home/ors
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
 WORKDIR $CONTAINER_WORK_DIR
@@ -16,10 +17,12 @@ COPY pom.xml                pom.xml
 COPY ors-api/src/test/files/elevation elevation_cache
 
 RUN mkdir graphs
+RUN mkdir /home/ors/graph_repo
 RUN mkdir -p "$CONTAINER_CONF_DIR_USER"
 RUN mkdir -p "$CONTAINER_CONF_DIR_ETC"
 
 RUN chmod -R 770 .
+RUN chmod -R 770 $CONTAINER_HOME_DIR
 RUN chmod -R 770 "$CONTAINER_CONF_DIR_USER"
 RUN chmod -R 770 "$CONTAINER_CONF_DIR_ETC"
 
