@@ -51,12 +51,16 @@ public class ORSGraphManager {
     }
 
     public boolean useGraphRepository() {
+        if (managementRuntimeProperties == null) return false;
+        if (!managementRuntimeProperties.getEnabled()) return false;
         if (StringUtils.isBlank(managementRuntimeProperties.getRepoName())) return false;
 
         return managementRuntimeProperties.getDerivedRepoType() != GraphManagementRuntimeProperties.GraphRepoType.NULL;
     }
 
     public void manageStartup() {
+        if (!useGraphRepository()) return;
+
         orsGraphFileManager.cleanupIncompleteFiles();
 
         boolean hasActiveGraph = orsGraphFileManager.hasActiveGraph();
@@ -82,6 +86,7 @@ public class ORSGraphManager {
     }
 
     public void downloadAndExtractLatestGraphIfNecessary() {
+        if (!useGraphRepository()) return;
         if (orsGraphFileManager.isBusy()) {
             LOGGER.debug("[%s] ORSGraphManager is busy - skipping download".formatted(getQualifiedProfileName()));
             return;

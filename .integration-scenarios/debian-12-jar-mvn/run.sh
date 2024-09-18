@@ -24,13 +24,14 @@ ${B}Options:${N}
     ${B}-d <arg>${N} -- Base name for docker image, will be extended with '-jar'/'-mvn', default: ${dockerImageBase}
     ${B}-f      ${N} -- Fail fast
     ${B}-j      ${N} -- Run with ${B}java -jar${N}
+    ${B}-k      ${N} -- Keep temp files and directories after test run
+    ${B}-K      ${N} -- Keep temp files and directories before test run
+    ${B}-l      ${N} -- List tests and exit
     ${B}-m      ${N} -- Run with ${B}mvn spring-boot:run${N}
     ${B}-t <arg>${N} -- Tests to run specified by globbing pattern
                 Quote patterns with '*' or use '%' which will be replaced by '*'
                 Multiple patterns can be defined in one argument, separated by blanks
     ${B}-v      ${N} -- Verbose: Print tests console output
-    ${B}-k      ${N} -- Keep temp files and directories after test run
-    ${B}-l      ${N} -- List tests and exit
     ${B}-h      ${N} -- Display this help and exit
 "
 }
@@ -94,7 +95,7 @@ function listTests() {
   ls -A ${TESTROOT}/tests
 }
 
-while getopts :bcCd:fhjklmt:v FLAG; do
+while getopts :bcCd:fhjkKlmt:v FLAG; do
   case $FLAG in
     b) wantBuildContainers=1;;
     c) clearGraphs=1;;
@@ -106,6 +107,7 @@ while getopts :bcCd:fhjklmt:v FLAG; do
       exit 0;;
     j) jar=1;;
     k) keepTempFiles=1;;
+    K) keepTempFilesBefore=1;;
     l)
       listTests
       exit 0;;
@@ -127,6 +129,11 @@ shift $((OPTIND-1))
 if (($clearGraphs)); then
   echo -e "Clearing ${TESTROOT}/graphs_volume/"
   rm -rf ${TESTROOT}/graphs_volume/*
+fi
+
+if ! (($keepTempFilesBefore)); then
+  echo -e "Clearing ${TESTROOT}/tmp/"
+  rm -rf ${TESTROOT}/tmp/*
 fi
 
 dockerImageJar="${dockerImageBase}-jar"

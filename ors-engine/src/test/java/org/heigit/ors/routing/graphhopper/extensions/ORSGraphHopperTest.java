@@ -190,7 +190,7 @@ class ORSGraphHopperTest {
 
         EngineProperties engineProperties = new EngineProperties();
 
-        engineProperties.getGraphManagement().setEnabled(false);
+        engineProperties.getGraphManagement().setEnabled(true);
         engineProperties.getGraphManagement().setDownloadSchedule("0 0 0 31 2 *");
         engineProperties.getGraphManagement().setActivationSchedule("0 0 0 31 2 *");
         engineProperties.getGraphManagement().setMaxBackups(graphManagementMaxBackups);
