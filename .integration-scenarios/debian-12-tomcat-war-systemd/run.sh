@@ -29,6 +29,7 @@ display_usage() {
     echo "-t: Run integration tests. Default is false."
     echo "-p: Run tests in parallel. Default is false."
     echo "-u: Run unit tests. Default is false."
+    echo "-g: Which tests to run (glob pattern). Default: [0-9]_*.sh"
     echo "-i: Container image to use. Default is '-i local/tomcat-test:latest'"
     echo "-l: Log level. Default is '-l SUCCESS'"
     echo "-h: Display this help message"
