@@ -149,8 +149,8 @@ public class ProfileProperties {
         }
 
         // Fix paths
-        graphPath = ofNullable(graphPath).orElse(profileDefault.graphPath).toAbsolutePath();
-        sourceFile = ofNullable(sourceFile).orElse(profileDefault.sourceFile).toAbsolutePath();
+        graphPath = ofNullable(graphPath).orElse(profileDefault.graphPath);
+        sourceFile = ofNullable(sourceFile).orElse(profileDefault.sourceFile);
         gtfsFile = ofNullable(gtfsFile).orElse(profileDefault.gtfsFile);
         if (gtfsFile != null) {
             gtfsFile = gtfsFile.toAbsolutePath();

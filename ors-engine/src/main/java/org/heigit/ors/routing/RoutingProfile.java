@@ -149,19 +149,20 @@ public class RoutingProfile {
         }
 
         // Make a stamp which help tracking any changes in the size of OSM file. TODO check if this is still in use
-        File file = new File(profileProperties.getSourceFile().toAbsolutePath().toString());
-        Path pathTimestamp = Paths.get(gh.getOrsGraphManager().getActiveGraphDirAbsPath(), "stamp.txt");
-        File file2 = pathTimestamp.toFile();
-        if (!file2.exists())
-            Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
-
+        if (profileProperties.getSourceFile() != null) {
+            File file = new File(profileProperties.getSourceFile().toAbsolutePath().toString());
+            Path pathTimestamp = Paths.get(gh.getOrsGraphManager().getActiveGraphDirAbsPath(), "stamp.txt");
+            File file2 = pathTimestamp.toFile();
+            if (!file2.exists())
+                Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
+        }
         return gh;
     }
 
     private static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
-        ghConfig.putObject("datareader.file", profile.getSourceFile().toString());
+        ghConfig.putObject("datareader.file", Optional.ofNullable(profile).map(ProfileProperties::getSourceFile).map(Path::toString).orElse(null));
         ghConfig.putObject("graph.bytes_for_flags", profile.getEncoderFlagsSize());
         ghConfig.putObject("graph.location", profile.getGraphPath().toString());
 
