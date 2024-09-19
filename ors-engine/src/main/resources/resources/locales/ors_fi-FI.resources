@@ -13,42 +13,42 @@
 			"10": "10."
 		},
 		"directions": {
-			"north": "pohjoinen",
-			"northeast": "koillinen",
-			"east": "itä",
-			"southeast": "kaakko",
-			"south": "etelä",
-			"southwest": "lounas",
-			"west": "länsi",
-			"northwest": "luode"
+			"north": "pohjoiseen",
+			"northeast": "koilliseen",
+			"east": "itään",
+			"southeast": "kaakkoon",
+			"south": "etelään",
+			"southwest": "lounaseen",
+			"west": "länteen",
+			"northwest": "luoteseen"
 		},
 		"turn_maneuvers": {
 			"left": "vasemmalle",
 			"right": "oikealle",
-			"sharp_left": "jyrkkä vasen",
-			"sharp_right": "jyrkkä oikea",
-			"slight_left": "loiva vasen",
-			"slight_right": "loiva oikea",
+			"sharp_left": "jyrkästi vasemalle",
+			"sharp_right": "jyrkästi oikealle",
+			"slight_left": "loivasti vasemalle",
+			"slight_right": "loivasti oikealle",
 			"straight": "suoraan",
 			"uturn": "u-käännös"
 		},
 		"actions": {
 			"arrive": {
            		 	"default": {
-		                "default": "Arrive at your destination",
-						"name": "Arrive at {way_name}"
+		                "default": "Kohde saavutettu",
+						"name": "Saavu tielle {way_name}"
                 	},
 					"left": {
-						"default": "Arrive at your destination, on the left",
-						"name": "Arrive at {way_name}, on the left"
+						"default": "Kohde saavutettu (vasemmalla)",
+						"name": "Saavu tielle {way_name}, (vasemalla)"
 					},
 					"right": {
-						"default": "Arrive at your destination, on the right",
-						"name": "Arrive at {way_name}, on the right"
+						"default": "Kohde saavutettu (oikealla)",
+						"name": "Saavu tielle {way_name}, (oikealla)"
 					},
 					"straight": {
-						"default": "Arrive at your destination, straight ahead",
-						"name": "Arrive at {way_name}, straight ahead"
+						"default": "Kohde saavutettu (suoraan edessä)",
+						"name": "Saavu tielle {way_name}, (suoraan edessä)"
 					}
 			},          
 			"depart": {
@@ -60,8 +60,8 @@
 			"roundabout": {
 				"default": {
 					"exit": {
-						"default": "Aja liikenneympyrään ja poistu {exit_number} liittymästä",
-						"name": "Aja liikenneympyrään ja poistu {exit_number} liittymästä {wayname}"
+						"default": "Aja liikenneympyrään ja poistu liittymästä {exit_number}",
+						"name": "Aja liikenneympyrään ja poistu liittymästä {exit_number} tielle {wayname}"
 					},
 					"default": {
 						"default": "Aja liikenneympyrään",
@@ -78,7 +78,7 @@
 			"continue": {
 				"default": {
 					"default": "Jatka {turn_maneuver}",
-					"name": "Jatka {turn_maneuver} {way_name}"
+					"name": "Jatka {turn_maneuver} tielle {way_name}"
 				},
 				"uturn": {
 					"default": "Tee u-käännös",
@@ -87,8 +87,8 @@
 			}
 			"keep": {
 				"default": {
-					"default": "Keep {turn_maneuver}",
-					"name": "Keep {turn_maneuver} onto {way_name}"
+					"default": "Ryhmittäydy {turn_maneuver}",
+					"name": "Ryhmittäydy {turn_maneuver} tielle {way_name}"
 				},
 			}
 		}
