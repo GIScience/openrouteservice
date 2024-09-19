@@ -126,16 +126,6 @@ shift $((OPTIND-1))
 ! (($jar)) && ! (($mvn)) && (($wantBuildContainers)) && exitWithRunTypeMissing
 ! (($jar)) && ! (($mvn)) && [ -n "$pattern" ] && exitWithRunTypeMissing
 
-if (($clearGraphs)); then
-  echo -e "Clearing ${TESTROOT}/graphs_volume/"
-  rm -rf ${TESTROOT}/graphs_volume/*
-fi
-
-if ! (($keepTempFilesBefore)); then
-  echo -e "Clearing ${TESTROOT}/tmp/"
-  rm -rf ${TESTROOT}/tmp/*
-fi
-
 dockerImageJar="${dockerImageBase}-jar"
 dockerImageMvn="${dockerImageBase}-mvn"
 
@@ -151,6 +141,17 @@ fi
 if [ -z "$pattern" ]; then echo -e "${B}No tests specified!${N}"; exit 0; fi
 
 mkdir -p "${TESTROOT}/graphs_volume"
+mkdir -p "${TESTROOT}/tmp"
+
+if (($clearGraphs)); then
+  echo -e "Clearing ${TESTROOT}/graphs_volume/"
+  rm -rf ${TESTROOT}/graphs_volume/*
+fi
+
+if ! (($keepTempFilesBefore)); then
+  echo -e "Clearing ${TESTROOT}/tmp/"
+  rm -rf ${TESTROOT}/tmp/*
+fi
 
 hasErrors=0
 passed=0

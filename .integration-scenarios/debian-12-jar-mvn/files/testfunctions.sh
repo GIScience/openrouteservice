@@ -94,9 +94,9 @@ function assertSortedWordsEquals() {
 }
 
 function assertEquals() {
-  expected=$1
-  received=$2
-  check=$3
+  local expected=$1
+  local received=$2
+  local check=$3
   if [ -n "$check" ]; then checkMsg="Checking '$check': "; fi
   if [ "$expected" != "$received" ]; then
     echo -e "${FG_RED}ASSERTION ERROR:${N} ${checkMsg}"
@@ -203,7 +203,7 @@ function makeTempFile() {
   content=$2
   script=$(removeExtension $script)
   mkdir -p "$TESTROOT/tmp"
-  tempFile=$(mktemp "${TESTROOT}/tmp/${script}.XXXXXXXXX")
+  tempFile=$(mktemp "${TESTROOT}/tmp/${script}.${runType}.XXXXXXXXX")
   echo "$content" >> $tempFile
   echo "$tempFile"
 }
@@ -211,7 +211,7 @@ function makeTempFile() {
 function makeTempDir() {
   script=$1
   script=$(removeExtension $script)
-  tempDir=$(mktemp -d "${TESTROOT}/tmp/${script}.XXXXXXXXX")
+  tempDir=$(mktemp -d "${TESTROOT}/tmp/${script}.${runType}.XXXXXXXXX")
   echo "$tempDir"
 }
 
