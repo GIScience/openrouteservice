@@ -82,7 +82,7 @@ public class StatusAPI {
                     ProfileProperties profile = rp.getProfileConfiguration();
                     org.json.JSONObject jProfileProps = new org.json.JSONObject(true);
 
-                    jProfileProps.put("profiles", profile.getEncoderName().toString());
+                    jProfileProps.put("profiles", profile.getProfileName().toString());
                     StorableProperties storageProps = rp.getGraphProperties();
                     jProfileProps.put("creation_date", storageProps.get("osmreader.import.date"));
 

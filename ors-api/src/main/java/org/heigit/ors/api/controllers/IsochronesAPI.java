@@ -34,6 +34,7 @@ import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.responses.isochrones.geojson.GeoJSONIsochronesResponse;
 import org.heigit.ors.api.services.IsochronesService;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMapCollection;
 import org.heigit.ors.isochrones.IsochronesErrorCodes;
@@ -105,7 +106,7 @@ public class IsochronesAPI {
             )
             })
     public GeoJSONIsochronesResponse getDefaultIsochrones(
-            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
         return getGeoJsonIsochrones(profile, request);
     }
@@ -130,9 +131,9 @@ public class IsochronesAPI {
             )
             })
     public GeoJSONIsochronesResponse getGeoJsonIsochrones(
-            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
-        request.setProfile(profile);
+        request.setProfile(getProfileEnum(profile));
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
         isochronesService.generateIsochronesFromRequest(request);
@@ -170,5 +171,10 @@ public class IsochronesAPI {
     @ExceptionHandler(StatusCodeException.class)
     public ResponseEntity<Object> handleException(final StatusCodeException e) {
         return errorHandler.handleStatusCodeException(e);
+    }
+
+    private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
+        EncoderNameEnum encoderForProfile = isochronesService.getEncoderForProfile(profile);
+        return APIEnums.Profile.forValue(encoderForProfile.getName());
     }
 }

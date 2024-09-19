@@ -1,6 +1,7 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.EngineProperties;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.*;
@@ -19,8 +20,9 @@ import java.util.List;
 public class SnappingService extends ApiService {
 
     @Autowired
-    public SnappingService(EndpointsProperties endpointsProperties) {
+    public SnappingService(EndpointsProperties endpointsProperties, EngineProperties engineProperties) {
         this.endpointsProperties = endpointsProperties;
+        this.engineProperties = engineProperties;
     }
 
     public SnappingResult generateSnappingFromRequest(SnappingApiRequest snappingApiRequest) throws StatusCodeException {

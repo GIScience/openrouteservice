@@ -3,6 +3,7 @@ package org.heigit.ors.api.services;
 import com.google.common.primitives.Doubles;
 import com.graphhopper.util.shapes.BBox;
 import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.EngineProperties;
 import org.heigit.ors.api.requests.export.ExportApiRequest;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.InternalServerException;
@@ -21,8 +22,9 @@ import java.util.List;
 public class ExportService extends ApiService {
 
     @Autowired
-    public ExportService(EndpointsProperties endpointsProperties) {
+    public ExportService(EndpointsProperties endpointsProperties, EngineProperties engineProperties) {
         this.endpointsProperties = endpointsProperties;
+        this.engineProperties = engineProperties;
     }
 
     public ExportResult generateExportFromRequest(ExportApiRequest exportApiRequest) throws StatusCodeException {

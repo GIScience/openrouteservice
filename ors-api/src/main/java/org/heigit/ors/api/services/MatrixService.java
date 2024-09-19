@@ -2,6 +2,7 @@ package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.EngineProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
@@ -30,8 +31,9 @@ import static org.heigit.ors.api.requests.matrix.MatrixRequest.isFlexibleMode;
 public class MatrixService extends ApiService {
 
     @Autowired
-    public MatrixService(EndpointsProperties endpointsProperties) {
+    public MatrixService(EndpointsProperties endpointsProperties, EngineProperties engineProperties) {
         this.endpointsProperties = endpointsProperties;
+        this.engineProperties = engineProperties;
     }
 
     public MatrixResult generateMatrixFromRequest(MatrixRequest matrixRequest) throws StatusCodeException {

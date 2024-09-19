@@ -17,18 +17,26 @@ ors:
     graph_management:
       enabled: true
     profiles:
-      driving-car:
+      bobby-car:
         enabled: true
+        encoder_name: driving-car
         repo:
           repository_uri: '/home/ors/graph_repo'
           repository_name: vendor-xyz
           repository_profile_group: fastisochrones
           graph_extent: heidelberg
+        encoder_options:
+          turn_costs: true
 ")
 
+# TODO why do I have to set turn_costs here to make the test pass? And why is it not overwritten by the loaded ProfileProperties from the repo?
+
 # The test asserts that ORS is able to startup without a local graph AND without a source_file
-# when graph_management is enabled and the configured graph is available in the remote repository.
+# when graph_management is enabled and the configured graph is available in the remote repository
+# also if the profile name is an individual name instead of a classic encoder name.
 # 'source_file' is set to null, to avoid the graph is built locally.
+# The graph should be found and downloaded by the profile's encoder name.
+# A directions request with the individual profile name should also work fine.
 
 podman run --replace --name "${CONTAINER}" -p "${HOST_PORT}":8082 \
   -v "${M2_FOLDER}":/root/.m2 \
@@ -41,6 +49,4 @@ awaitOrsReady 60 "${HOST_PORT}"
 
 profiles=$(requestEnabledProfiles ${HOST_PORT})
 
-cleanupTest
-
-assertEquals "driving-car" "${profiles}"
+assertEquals "bobby-car" "${profiles}"

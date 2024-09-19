@@ -34,6 +34,7 @@ import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.responses.matrix.json.JSONMatrixResponse;
 import org.heigit.ors.api.services.MatrixService;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixResult;
@@ -104,7 +105,7 @@ public class MatrixAPI {
                     schema = @Schema(implementation = JSONMatrixResponse.class)
             )
             })
-    public JSONMatrixResponse getDefault(@Parameter(name = "profile", description = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+    public JSONMatrixResponse getDefault(@Parameter(name = "profile", description = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable String profile,
                                          @Parameter(description = "The request payload", required = true) @RequestBody MatrixRequest request) throws StatusCodeException {
         return getJsonMime(profile, request);
     }
@@ -123,9 +124,9 @@ public class MatrixAPI {
             )
             })
     public JSONMatrixResponse getJsonMime(
-            @Parameter(description = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
-        originalRequest.setProfile(profile);
+        originalRequest.setProfile(getProfileEnum(profile));
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
         MatrixResult matrixResult = matrixService.generateMatrixFromRequest(originalRequest);
 
@@ -162,5 +163,10 @@ public class MatrixAPI {
     @ExceptionHandler(StatusCodeException.class)
     public ResponseEntity<Object> handleException(final StatusCodeException e) {
         return errorHandler.handleStatusCodeException(e);
+    }
+
+    private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
+        EncoderNameEnum encoderForProfile = matrixService.getEncoderForProfile(profile);
+        return APIEnums.Profile.forValue(encoderForProfile.getName());
     }
 }
