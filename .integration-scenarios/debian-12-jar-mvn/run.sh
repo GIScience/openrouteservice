@@ -13,19 +13,19 @@ pattern=""
 
 function printCliHelp() {
   echo -e "\
-${B}$SCRIPT${N} - run ors tests in containers
+${B}$SCRIPT${N} - run ors tests in podman containers
 
 ${B}Usage:${N} $SCRIPT [options] (at least one of -j|-m is required)
 
 ${B}Options:${N}
-    ${B}-b      ${N} -- Build docker containers
+    ${B}-b      ${N} -- Build podman containers
     ${B}-c      ${N} -- Clear graphs volume
     ${B}-C      ${N} -- Clear graphs volume before each test (caution when running tests in parallel)
-    ${B}-d <arg>${N} -- Base name for docker image, will be extended with '-jar'/'-mvn', default: ${dockerImageBase}
+    ${B}-d <arg>${N} -- Base name for podman image, will be extended with '-jar'/'-mvn', default: ${dockerImageBase}
     ${B}-f      ${N} -- Fail fast
+    ${B}-i      ${N} -- Investigate: Keep temp files/directories and do not stop podman containers of failed tests
+    ${B}-I      ${N} -- Investigate strong: Like -i, but also do not clear temp before test run and do not stop any containers
     ${B}-j      ${N} -- Run with ${B}java -jar${N}
-    ${B}-k      ${N} -- Keep temp files and directories after test run
-    ${B}-K      ${N} -- Keep temp files and directories before test run
     ${B}-l      ${N} -- List tests and exit
     ${B}-m      ${N} -- Run with ${B}mvn spring-boot:run${N}
     ${B}-t <arg>${N} -- Tests to run specified by globbing pattern
@@ -66,23 +66,39 @@ function runTest() {
 
     (($clearGraphsBeforeEachTest)) && rm -rf ${TESTROOT}/graphs_volume/*
 
+    local container=$(createContainerName $testscript $runType)
+
     if (($verbose)); then
       $testscript "${runType}" "${imageName}"
     else
       $testscript "${runType}" "${imageName}" 1>/dev/null 2>&1
     fi
     testStatus=$?
+    stopContainerMsg=""
+
     if [ $testStatus -eq 1 ]; then
       hasErrors=1
       ((failed++))
-      echo -e "${FG_RED}${B}failed${N}"
+      if (($investigate)) || (($investigateStrong)); then
+        stopContainerMsg="investigate: ${FG_BLU}podman exec -ti ${FG_PUR}${container} ${FG_BLU}bash${N}"
+      else
+        podman stop "$container" 1>/dev/null
+      fi
+      echo -e "${FG_RED}${B}failed${N} ${stopContainerMsg}${N}"
       (($failFast)) && exit 1
+
     elif [ $testStatus -eq 2 ]; then
       ((skipped++))
       echo -e "${FG_ORA}${B}skipped${N}"
+
     else
       ((passed++))
-      echo -e "${FG_GRN}passed${N}"
+      if (($investigateStrong)); then
+        stopContainerMsg="investigate: ${FG_BLU}podman exec -ti ${FG_PUR}${container} ${FG_BLU}bash${N}"
+      else
+        podman stop "$container" 1>/dev/null
+      fi
+      echo -e "${FG_GRN}passed${N} ${stopContainerMsg}${N}"
     fi
 }
 
@@ -95,7 +111,7 @@ function listTests() {
   ls -A ${TESTROOT}/tests
 }
 
-while getopts :bcCd:fhjkKlmt:v FLAG; do
+while getopts :bcCd:fhiIjlmt:v FLAG; do
   case $FLAG in
     b) wantBuildContainers=1;;
     c) clearGraphs=1;;
@@ -105,9 +121,9 @@ while getopts :bcCd:fhjkKlmt:v FLAG; do
     h)
       printCliHelp
       exit 0;;
+    i) investigate=1;;
+    I) investigate=1; investigateStrong=1;;
     j) jar=1;;
-    k) keepTempFiles=1;;
-    K) keepTempFilesBefore=1;;
     l)
       listTests
       exit 0;;
@@ -148,7 +164,7 @@ if (($clearGraphs)); then
   rm -rf ${TESTROOT}/graphs_volume/*
 fi
 
-if ! (($keepTempFilesBefore)); then
+if ! (($investigateStrong)); then
   echo -e "Clearing ${TESTROOT}/tmp/"
   rm -rf ${TESTROOT}/tmp/*
 fi
@@ -163,7 +179,7 @@ for word in $pattern; do
     (($jar)) && runTest jar $testscript $dockerImageJar $verbose
     (($mvn)) && runTest mvn $testscript $dockerImageMvn $verbose
   done
-  (($keepTempFiles)) || rm -rf ${TESTROOT}/tmp/*
+  (($investigate)) || rm -rf ${TESTROOT}/tmp/*
 done
 
 (($passed)) && passedText=", ${FG_GRN}${B}${passed} passed${N}"

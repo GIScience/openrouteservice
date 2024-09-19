@@ -170,6 +170,12 @@ function printError(){
   echo -e "${FG_RED}ERROR: ${N}${B}${FG_RED}${message}"
 }
 
+function createContainerName() {
+  local script=$1
+  local runType=$2
+  echo "$(removeExtension "$(basename $script)")-${runType}"
+}
+
 function prepareTest() {
   script=$1
   runType=$2
@@ -178,7 +184,7 @@ function prepareTest() {
   if [ -z "$runType" ]; then printError "missing param 1: runType (jar|mvn)"; exit 1; fi
   if [ -z "$IMAGE" ]; then printError "missing param 2: docker image"; exit 1; fi
 
-  CONTAINER=${runType}-$(removeExtension "$(basename $script)")
+  CONTAINER=$(createContainerName $script $runType)
   HOST_PORT=$(findFreePort 8083)
 
   mkdir -p ~/.m2
@@ -187,7 +193,8 @@ function prepareTest() {
 }
 
 function cleanupTest() {
-  podman stop "$CONTAINER"
+#  podman stop "$CONTAINER"
+  donothing=true
 }
 
 function printVariables(){
@@ -203,7 +210,7 @@ function makeTempFile() {
   content=$2
   script=$(removeExtension $script)
   mkdir -p "$TESTROOT/tmp"
-  tempFile=$(mktemp "${TESTROOT}/tmp/${script}.${runType}.XXXXXXXXX")
+  tempFile=$(mktemp "${TESTROOT}/tmp/${script}-${runType}.XXXXXXXXX")
   echo "$content" >> $tempFile
   echo "$tempFile"
 }
@@ -211,7 +218,7 @@ function makeTempFile() {
 function makeTempDir() {
   script=$1
   script=$(removeExtension $script)
-  tempDir=$(mktemp -d "${TESTROOT}/tmp/${script}.${runType}.XXXXXXXXX")
+  tempDir=$(mktemp -d "${TESTROOT}/tmp/${script}-${runType}.XXXXXXXXX")
   echo "$tempDir"
 }
 
@@ -224,3 +231,40 @@ function writeToFile() {
   echo "$tempFile"
 }
 
+function sendSeveralRequestsExpecting200() {
+  local port=$1
+  local profile=$2
+  sendDirectionsRequest $port $profile 200
+  sendAvoidAreaDirectionsRequest $port $profile 200
+}
+
+function sendDirectionsRequest() {
+  local port=$1
+  local profile=$2
+  local expectedHttpCode=$3
+
+  httpCode=$(curl -X POST -s -o /dev/null -w '%{response_code}' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/geo+json' \
+  -d '{"coordinates":[[8.681774139404299,49.40806923011853],[8.669285774230959,49.39910493294992]]}' \
+   "$(getOrsUrl ${port})/directions/${profile}/geojson"
+  )
+  assertEquals "$expectedHttpCode" "$httpCode" "sendDirectionsRequestExpecting200"
+}
+
+function sendAvoidAreaDirectionsRequest() {
+  local port=$1
+  local profile=$2
+  local expectedHttpCode=$3
+
+  set -o xtrace
+  httpCode=$(
+  curl -X POST -s -o /dev/null -w '%{response_code}' \
+  "$(getOrsUrl ${port})/directions/${profile}/geojson" \
+  -H 'Content-Type: application/json; charset=utf-8' \
+  -H 'Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8' \
+  -d '{"coordinates":[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]],"options":{"avoid_polygons":{"type":"Polygon","coordinates":[[[8.68076562,49.4192374],[8.68076562,49.416990],[8.6859798,49.416990],[8.68076562,49.416990],[8.68076562,49.4192374]]]}}}'
+  )
+  set +o xtrace
+  assertEquals "$expectedHttpCode" "$httpCode" "sendAvoidAreaDirectionsRequestExpecting200"
+}

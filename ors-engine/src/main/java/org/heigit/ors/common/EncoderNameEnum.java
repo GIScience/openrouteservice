@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 public enum EncoderNameEnum {
+    UNKNOWN("unknown", -1),
     DEFAULT("default", 0),
 
     // DRIVING STUFF
