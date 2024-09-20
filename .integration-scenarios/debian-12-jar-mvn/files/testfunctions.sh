@@ -234,37 +234,119 @@ function writeToFile() {
 function sendSeveralRequestsExpecting200() {
   local port=$1
   local profile=$2
-  sendDirectionsRequest $port $profile 200
-  sendAvoidAreaDirectionsRequest $port $profile 200
+  local tempdir=$3
+
+  sendDirectionsRequest $port $profile 200 $tempdir
+  sendDirectionsRequestAvoidArea $port $profile 200 $tempdir
+  sendIsochronesRequest $port $profile 200 $tempdir
+  sendMatrixRequest $port $profile 200 $tempdir
+  sendSnappingRequest $port $profile 200 $tempdir
+  sendExportRequest $port $profile 200 $tempdir
 }
 
 function sendDirectionsRequest() {
+  local name=DirectionsRequest
   local port=$1
   local profile=$2
   local expectedHttpCode=$3
+  local tempdir=$4
 
-  httpCode=$(curl -X POST -s -o /dev/null -w '%{response_code}' \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/geo+json' \
-  -d '{"coordinates":[[8.681774139404299,49.40806923011853],[8.669285774230959,49.39910493294992]]}' \
-   "$(getOrsUrl ${port})/directions/${profile}/geojson"
+  httpCode=$(curl -X POST -s -o ${tempdir}/response-${name}.json -w '%{response_code}' \
+    "$(getOrsUrl ${port})/directions/${profile}/geojson" \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/geo+json' \
+    -d '{"coordinates":[[8.681774139404299,49.40806923011853],[8.669285774230959,49.39910493294992]]}'
   )
-  assertEquals "$expectedHttpCode" "$httpCode" "sendDirectionsRequestExpecting200"
+  assertEquals "$expectedHttpCode" "$httpCode" "$name"
 }
 
-function sendAvoidAreaDirectionsRequest() {
+function sendDirectionsRequestAvoidArea() {
+  local name=DirectionsRequestAvoidArea
   local port=$1
   local profile=$2
   local expectedHttpCode=$3
+  local tempdir=$4
 
   set -o xtrace
-  httpCode=$(
-  curl -X POST -s -o /dev/null -w '%{response_code}' \
-  "$(getOrsUrl ${port})/directions/${profile}/geojson" \
-  -H 'Content-Type: application/json; charset=utf-8' \
-  -H 'Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8' \
-  -d '{"coordinates":[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]],"options":{"avoid_polygons":{"type":"Polygon","coordinates":[[[8.68076562,49.4192374],[8.68076562,49.416990],[8.6859798,49.416990],[8.68076562,49.416990],[8.68076562,49.4192374]]]}}}'
+  httpCode=$(curl -X POST -s -o ${tempdir}/response-${name}.json -w '%{response_code}' \
+    "$(getOrsUrl ${port})/directions/${profile}/geojson" \
+    -H 'Content-Type: application/json; charset=utf-8' \
+    -H 'Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8' \
+    -d '{"coordinates":[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]],"options":{"avoid_polygons":{"type":"Polygon","coordinates":[[[8.68076562,49.4192374],[8.68076562,49.416990],[8.6859798,49.416990],[8.68076562,49.416990],[8.68076562,49.4192374]]]}}}'
   )
   set +o xtrace
-  assertEquals "$expectedHttpCode" "$httpCode" "sendAvoidAreaDirectionsRequestExpecting200"
+  assertEquals "$expectedHttpCode" "$httpCode" "$name"
 }
+
+function sendIsochronesRequest() {
+  local name=IsochronesRequest
+  local port=$1
+  local profile=$2
+  local expectedHttpCode=$3
+  local tempdir=$4
+
+  set -o xtrace
+  httpCode=$(curl -X POST -s -o ${tempdir}/response-${name}.json -w '%{response_code}' \
+    "$(getOrsUrl ${port})/isochrones/${profile}/geojson" \
+    -H 'Content-Type: application/json; charset=utf-8' \
+    -H 'Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8' \
+    -d '{"locations":[[8.681495,49.41461],[8.686507,49.41943]],"range":[300,200]}'
+  )
+  set +o xtrace
+  assertEquals "$expectedHttpCode" "$httpCode" "$name"
+}
+
+function sendMatrixRequest() {
+  local name=MatrixRequest
+  local port=$1
+  local profile=$2
+  local expectedHttpCode=$3
+  local tempdir=$4
+
+  set -o xtrace
+  httpCode=$(curl -X POST -s -o ${tempdir}/response-${name}.json -w '%{response_code}' \
+    "$(getOrsUrl ${port})/matrix/${profile}" \
+    -H 'Content-Type: application/json; charset=utf-8' \
+    -H 'Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8' \
+    -d '{"locations":[[8.681774139404299,49.40806923011853],[8.670208454132082,49.402368992287066],[8.686307072639467,49.42800263965198],[8.729581832885744,49.40248419041755]]}'
+  )
+  set +o xtrace
+  assertEquals "$expectedHttpCode" "$httpCode" "$name"
+}
+
+function sendSnappingRequest() {
+  local name=SnappingRequest
+  local port=$1
+  local profile=$2
+  local expectedHttpCode=$3
+  local tempdir=$4
+
+  set -o xtrace
+  httpCode=$(curl -X POST -s -o ${tempdir}/response-${name}.json -w '%{response_code}' \
+    "$(getOrsUrl ${port})/snap/${profile}/geojson" \
+    -H 'Content-Type: application/json; charset=utf-8' \
+    -H 'Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8' \
+    -d '{"locations":[[8.669629,49.413025],[8.675841,49.418532],[8.665144,49.415594]],"radius":350}'
+  )
+  set +o xtrace
+  assertEquals "$expectedHttpCode" "$httpCode" "$name"
+}
+
+function sendExportRequest() {
+  local name=ExportRequest
+  local port=$1
+  local profile=$2
+  local expectedHttpCode=$3
+  local tempdir=$4
+
+  set -o xtrace
+  httpCode=$(curl -X POST -s -o ${tempdir}/response-${name}.json -w '%{response_code}' \
+    "$(getOrsUrl ${port})/export/${profile}" \
+    -H 'Content-Type: application/json; charset=utf-8' \
+    -H 'Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8' \
+    -d '{ "bbox": [ [ 8.681495, 49.41461 ], [ 8.686507, 49.41943 ] ], "id": "export_request" }'
+  )
+  set +o xtrace
+  assertEquals "$expectedHttpCode" "$httpCode" "$name"
+}
+
