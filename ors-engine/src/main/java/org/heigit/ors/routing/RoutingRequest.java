@@ -461,4 +461,65 @@ public class RoutingRequest extends ServiceRequest {
 
         return resp;
     }
+
+    public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
+            bearing, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile) throws Exception {
+        GHResponse resp;
+
+        try {
+            int profileType = searchParams.getProfileType();
+            int weightingMethod = searchParams.getWeightingMethod();
+            RouteSearchContext searchCntx = routingProfile.createSearchContext(searchParams);
+
+            List<GHPoint> points = new ArrayList<>();
+            points.add(new GHPoint(lat0, lon0));
+            List<Double> bearings = new ArrayList<>();
+            GHRequest req;
+
+            if (bearing != null) {
+                bearings.add(bearing.getValue());
+                req = new GHRequest(points, bearings);
+            } else {
+                req = new GHRequest(points);
+            }
+
+            req.setProfile(searchCntx.profileName());
+            req.getHints().putObject(Parameters.Algorithms.RoundTrip.DISTANCE, searchParams.getRoundTripLength());
+            req.getHints().putObject(Parameters.Algorithms.RoundTrip.POINTS, searchParams.getRoundTripPoints());
+
+            if (searchParams.getRoundTripSeed() > -1) {
+                req.getHints().putObject(Parameters.Algorithms.RoundTrip.SEED, searchParams.getRoundTripSeed());
+            }
+
+            PMap props = searchCntx.getProperties();
+            req.setAdditionalHints(props);
+
+            if (props != null && !props.isEmpty())
+                req.getHints().putAll(props);
+
+            if (TemporaryUtilShelter.supportWeightingMethod(profileType))
+                ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, false);
+            else
+                throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
+
+            //Roundtrip not possible with preprocessed edges.
+            routingProfile.setSpeedups(req, false, false, true, searchCntx.profileNameCH());
+
+            if (routingProfile.getAstarEpsilon() != null)
+                req.getHints().putObject("astarbi.epsilon", routingProfile.getAstarEpsilon());
+            if (routingProfile.getAstarApproximation() != null)
+                req.getHints().putObject("astarbi.approximation", routingProfile.getAstarApproximation());
+            //Overwrite algorithm selected in setSpeedups
+            req.setAlgorithm(Parameters.Algorithms.ROUND_TRIP);
+
+            routingProfile.getGraphhopper().getRouterConfig().setSimplifyResponse(geometrySimplify);
+            resp = routingProfile.getGraphhopper().route(req);
+
+        } catch (Exception ex) {
+            LOGGER.error(ex);
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to compute a route");
+        }
+
+        return resp;
+    }
 }
