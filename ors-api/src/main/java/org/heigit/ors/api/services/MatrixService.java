@@ -84,6 +84,11 @@ public class MatrixService extends ApiService {
             coreRequest.setUnits(convertUnits(matrixRequest.getUnits()));
 
         MatrixSearchParameters params = new MatrixSearchParameters();
+        try {
+            params.setProfileType(coreRequest.getProfileType());
+        } catch (Exception e) {
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
+        }
         if (matrixRequest.hasMatrixOptions())
             coreRequest.setFlexibleMode(processMatrixRequestOptions(matrixRequest, params));
         coreRequest.setSearchParameters(params);
@@ -91,12 +96,6 @@ public class MatrixService extends ApiService {
     }
 
     private boolean processMatrixRequestOptions(MatrixRequest matrixRequest, MatrixSearchParameters params) throws StatusCodeException {
-        try {
-            int profileType = convertRouteProfileType(matrixRequest.getProfile());
-            params.setProfileType(profileType);
-        } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
-        }
         processRequestOptions(matrixRequest.getMatrixOptions(), params);
 
         if (matrixRequest.getMatrixOptions().hasDynamicSpeeds()) {
