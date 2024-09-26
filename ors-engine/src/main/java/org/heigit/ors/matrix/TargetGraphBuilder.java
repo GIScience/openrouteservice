@@ -7,6 +7,7 @@ import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.storage.RoutingCHGraph;
 import org.heigit.ors.routing.algorithms.SubGraph;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.ExclusiveDownwardSearchEdgeFilter;
+import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 
 import java.util.PriorityQueue;
 
