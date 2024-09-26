@@ -69,7 +69,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
         super(chGraph, weighting, tMode);
         this.chGraph = chGraph;
         this.coreNodeLevel = GraphUtils.getBaseGraph(chGraph).getNodes();
-        this.nodeCount = chGraph.getNodes();
+        this.nodeCount = GraphUtils.getBaseGraph(chGraph).getNodes();
         int size = Math.min(Math.max(200, chGraph.getNodes() / 10), 2000);
         initCollections(size);
     }
