@@ -20,7 +20,7 @@ import org.heigit.ors.routing.RouteSearchParameters;
  * It can be called from any class and the values be set according to the needs of the route calculation.
  */
 public class MatrixSearchParameters extends RouteSearchParameters {
-    private boolean dynamicSpeeds = false;
+    private boolean dynamicSpeeds = true;
 
     public boolean getDynamicSpeeds() {
         return dynamicSpeeds;
