@@ -162,30 +162,49 @@ Properties beneath `ors.engine.profiles.*.execution.methods.core`:
 
 For each profile it can be defined which auxiliary metadata should be included in the graph.
 This information is made available as `extra_info` in a routing response.
-Additionally, data from `WayCategory` and `Tollways` is being used to filter out certain roads via
-the [`avoid_features`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-features) query parameter, and `Borders` is necessary for the functionality behind [`avoid_borders`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-borders)
-and [`avoid_countries`](directions/routing-options#options-avoid-countries) query parameters.
-
 To do so, add a key from the list below.
 Leave its value empty, unless you want to specify further options (currently only available for
-`RoadAccessRestrictions`, `Borders` and `Wheelchair`).
+[RoadAccessRestrictions](#roadaccessrestrictions), [Borders](#borders), [Wheelchair](#wheelchair) and [HeavyVehicle](#heavyvehicle)).
+
+::: warning
+In addition to providing the information in query response, data from `WayCategory` and `Tollways` storages is being
+used to filter out certain roads via the
+[`options.avoid_features`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-features)
+query parameter, and `Borders` is necessary for the functionality behind
+[`options.avoid_borders`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-borders) and
+[`options.avoid_countries`](../../../../api-reference/endpoints/directions/routing-options.md#options-avoid-countries)
+query parameters. Options from
+[`options.profile_params.restrictions`](../../../../api-reference/endpoints/directions/routing-options.md#options-profile-params-restrictions)
+require `HeavyVehicle` or `Wheelchair` storages being enabled. Furthermore, hgv profile-specific access restrictions specified in
+[`options.vehicle_type`](../../../../api-reference/endpoints/directions/routing-options.md#options-vehicle-type) parameter
+rely on the `HeavyVehicle` storage.
+:::
 
 Properties beneath `ors.engine.profiles.*.ext_storages`:
 
-| key                    | type   | description                                                                                                                  | example value                                     |
-|------------------------|--------|------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
-| WayCategory            | object | Returns the way category in the route response, compatible with any profile type                                             |                                                   |
-| WaySurfaceType         | object | Returns the way surface in the route response, compatible with any profile type                                              |                                                   |
-| Tollways               | object | Returns way tolls in the route response, compatible with driving profiles                                                    |                                                   |
-| HillIndex              | object | Returns the ascent/descent in the route response, compatible with any profile type                                           |                                                   |
-| TrailDifficulty        | object | Returns the trail difficulty in the route response, compatible with profile-hiking                                           |                                                   |
-| RoadAccessRestrictions | object | RoadAccessRestrictions are where roads are restricted to certain vehicles to certain circumstances, e.g. access=destination. | [RoadAccessRestrictions](#roadaccessrestrictions) |
-| Wheelchair             | object | Compatible for wheelchair                                                                                                    | [Wheelchair](#wheelchair)                         |
-| OsmId                  | object | Returns the OsmId of the way, Compatible for wheelchair                                                                      |                                                   |
-| Borders                | object | Borders allows the restriction of routes to not cross country borders, compatible with any profile type                      | [Borders](#borders)                               |
+| key                    | type   | description                                                                                                                                      | example value                                     |
+|------------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| WayCategory            | object | Returns the way category in the route response, compatible with any profile type                                                                 |                                                   |
+| WaySurfaceType         | object | Returns the way surface in the route response, compatible with any profile type                                                                  |                                                   |
+| Tollways               | object | Returns way tolls in the route response, compatible with driving profiles                                                                        |                                                   |
+| Borders                | object | Borders allows the restriction of routes to not cross country borders, compatible with any profile type                                          | [Borders](#borders)                               |
+| RoadAccessRestrictions | object | Information on restriction of roads to certain vehicles or circumstances, e.g. `access=destination`                                              | [RoadAccessRestrictions](#roadaccessrestrictions) |
+| HeavyVehicle           | object | Heavy vehicle-specific storage compatible only with that profile; it contains weight and size limits as well as vehicle-type access restrictions | [HeavyVehicle](#heavyvehicle)                     |
+| HillIndex              | object | Returns the ascent/descent in the route response, compatible with any profile type                                                               |                                                   |
+| TrailDifficulty        | object | Returns the trail difficulty in the route response, compatible with walking and cycling profiles                                                 |                                                   |
+| Wheelchair             | object | Wheelchair-specific attributes compatible only with that profile                                                                                 | [Wheelchair](#wheelchair)                         |
+| OsmId                  | object | Returns the OsmId of the way, compatible only with wheelchair profile                                                                            |                                                   |
 
+Check [this table](../../../../api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) for extra info availability.
+The following table summarizes which storages are enabled for which profile by default.
 
-Have a look at [this table](../../../../api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) to check which external storages are enabled for which profile by default.
+|             | WayCategory | WaySurfaceType | Tollways | Borders | RoadAccessRestrictions | HeavyVehicle | HillIndex | TrailDifficulty | Wheelchair | OsmId |
+|:------------|:-----------:|:--------------:|:--------:|---------|:----------------------:|:------------:|:---------:|:---------------:|:----------:|:-----:|
+| driving-car |      x      |       x        |    x     |         |           x            |              |           |                 |            |       |
+| driving-hgv |      x      |       x        |    x     |         |                        |      x       |           |                 |            |       |
+| cycling-*   |      x      |       x        |          |         |                        |              |     x     |        x        |            |       |
+| foot-*      |      x      |       x        |          |         |                        |              |     x     |        x        |            |       |
+| wheelchair  |      x      |       x        |          |         |                        |              |           |                 |     x      |   x   |
 
 
 ### RoadAccessRestrictions
@@ -203,10 +222,16 @@ The `use_for_warnings` parameter tells the ors that this storage can be used for
 
 ### Borders
 
-Properties beneath `ors.engine.profiles.*.ext_storages.Borders` allows to define restriction of routes to not cross country borders, compatible for any profile type.:
+Properties beneath `ors.engine.profiles.*.ext_storages.Borders` allows to define restriction of routes to not cross country borders, compatible with any profile type.
 
 | key         | type   | description                                                                                         | example value            |
 |-------------|--------|-----------------------------------------------------------------------------------------------------|--------------------------|
-| boundaries  | string | The path to a file containing geojson data representing the borders of countries                    | `borders.geojson.tar.gz` |
+| boundaries  | string | The path to a geojson file containing polygons representing country borders                         | `borders.geojson.tar.gz` |
 | ids         | string | Path to a csv file containing a unique id for each country, its local name and its English name     | `ids.csv`                |
 | openborders | string | Path to a csv file containing pairs of countries where the borders are open (i.e. Schengen borders) | `openborders.csv`        |
+
+### HeavyVehicle
+
+| key          | type    | description                                                                                                                                                                                                                                                    | example value |
+|--------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| restrictions | boolean | Encode certain size and weight limits such as ones contained in `maxheight`, `maxlength`, `maxwidth`, `maxweight` and `maxaxleload` OSM way tags. Includes also access restrictions for vehicles carrying hazardous materials as provided by the `hazmat` tag. | `true`        |
