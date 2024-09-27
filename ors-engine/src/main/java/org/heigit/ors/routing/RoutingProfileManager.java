@@ -198,7 +198,7 @@ public class RoutingProfileManager {
             bearing = searchParams.getBearings()[0];
         }
 
-        GHResponse gr = rp.computeRoundTripRoute(c0.y, c0.x, bearing, searchParams, req.getGeometrySimplify());
+        GHResponse gr = req.computeRoundTripRoute(c0.y, c0.x, bearing, searchParams, req.getGeometrySimplify(), rp);
 
         if (gr.hasErrors()) {
             if (!gr.getErrors().isEmpty()) {

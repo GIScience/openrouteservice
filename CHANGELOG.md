@@ -37,6 +37,7 @@ RELEASING:
 
 ### Added
 ### Changed
+- refactor: cleanup routing profile management ([#1850](https://github.com/GIScience/openrouteservice/pull/1850)
 ### Deprecated
 ### Removed
 ### Fixed
