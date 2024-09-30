@@ -38,6 +38,7 @@ RELEASING:
 ### Added
 ### Changed
 - refactor: cleanup routing profile management ([#1850](https://github.com/GIScience/openrouteservice/pull/1850)
+- improved documentation on the configuration of external storages ([#1811](https://github.com/GIScience/openrouteservice/pull/1811)))
 ### Deprecated
 ### Removed
 ### Fixed

@@ -182,6 +182,7 @@ ors:
 #          WayCategory:
 #          HeavyVehicle:
 #          WaySurfaceType:
+#          Tollways:
 #          RoadAccessRestrictions:
 #            use_for_warnings: true
         enabled: true
@@ -213,6 +214,7 @@ ors:
 #          HeavyVehicle:
 #            restrictions: true
 #          WaySurfaceType:
+#          Tollways:
 #      bike-regular:
 #        profile: cycling-regular
 #        encoder_options:
