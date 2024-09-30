@@ -160,7 +160,7 @@ Properties beneath `ors.engine.profiles.*.execution.methods.core`:
 
 ## ext_storages
 
-For each profile it can be defined which auxiliary metadata should be included in the graph.
+It can be defined for each profile which auxiliary metadata should be included in the graph.
 This information is made available as `extra_info` in a routing response.
 To do so, add a key from the list below.
 Leave its value empty, unless you want to specify further options (currently only available for
