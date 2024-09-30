@@ -130,9 +130,9 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
 
                 if (!destinationEdges.contains(EdgeIteratorStateHelper.getOriginalEdge(edge))) {
                     int vt = gsHeavyVehicles.getEdgeVehicleType(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
-                    boolean dstFlag = buffer[1] != 0; // ((buffer[1] >> (vehicleType >> 1)) & 1) == 1
+                    boolean dstFlag = buffer[1] != 0;
 
-                    if (((vt & vehicleType) == vehicleType) && (dstFlag))
+                    if (isVehicleType(vt, vehicleType) && (dstFlag))
                         destinationEdges.add(EdgeIteratorStateHelper.getOriginalEdge(edge));
                 }
 
@@ -148,22 +148,22 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
         int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
 
         int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId, buffer);
-        boolean dstFlag = buffer[1] != 0; // ((buffer[1] >> (vehicleType >> 1)) & 1) == 1
+        boolean dstFlag = buffer[1] != 0;
 
         // if edge has some restrictions
         if (vt != HeavyVehicleAttributes.UNKNOWN) {
             if (mode == MODE_CLOSEST_EDGE) {
                 // current vehicle type is not forbidden
-                boolean edgeRestricted = ((vt & vehicleType) == vehicleType);
+                boolean edgeRestricted = isVehicleType(vt, vehicleType);
                 if ((edgeRestricted || dstFlag) && buffer[1] != vehicleType)
                     return false;
             } else if (mode == MODE_DESTINATION_EDGES) {
                 // Here we are looking for all edges that have destination
-                return dstFlag && ((vt & vehicleType) == vehicleType);
+                return dstFlag && isVehicleType(vt, vehicleType);
             } else {
                 // Check an edge with destination attribute
                 if (dstFlag) {
-                    if ((vt & vehicleType) == vehicleType) {
+                    if (isVehicleType(vt, vehicleType)) {
                         if (destinationEdges != null) {
                             if (!destinationEdges.contains(edgeId))
                                 return false;
@@ -171,7 +171,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
                             return false;
                     } else
                         return false;
-                } else if ((vt & vehicleType) == vehicleType)
+                } else if (isVehicleType(vt, vehicleType))
                     return false;
             }
         } else {
@@ -180,7 +180,7 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
             }
         }
 
-        if (hasHazmat && (vt & HeavyVehicleAttributes.HAZMAT) != 0) {
+        if (hasHazmat && isVehicleType(vt, HeavyVehicleAttributes.HAZMAT)) {
             return false;
         }
 
@@ -200,5 +200,9 @@ public class HeavyVehicleEdgeFilter implements DestinationDependentEdgeFilter {
             }
         }
         return true;
+    }
+
+    private boolean isVehicleType(int vt, int vehicleType) {
+        return (vt & vehicleType) == vehicleType;
     }
 }

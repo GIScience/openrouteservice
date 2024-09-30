@@ -42,6 +42,7 @@ RELEASING:
 ### Deprecated
 ### Removed
 ### Fixed
+- access to roads where transporting hazardous materials is forbidden ([#1853](https://github.com/GIScience/openrouteservice/pull/1853))
 ### Security
 
 ## [8.1.3] - 2024-09-13

@@ -135,11 +135,11 @@ public class HeavyVehicleAttributesGraphStorage implements GraphExtension {
 
     public int getEdgeVehicleType(int edgeId, byte[] buffer) {
         long edgeBase = (long) edgeId * edgeEntryBytes;
-        orsEdges.getBytes(edgeBase + efVehicleType, buffer, 2);
+        orsEdges.getBytes(edgeBase + efVehicleType, buffer, 1);
 
         int result = buffer[0];
         if (result < 0)
-            result = (byte) (result & 0xff);
+            result = result & 0xFF;
 
         return result;
     }
