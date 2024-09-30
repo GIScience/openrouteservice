@@ -39,6 +39,7 @@ RELEASING:
 ### Changed
 - refactor: cleanup routing profile management ([#1850](https://github.com/GIScience/openrouteservice/pull/1850)
 - improved documentation on the configuration of external storages ([#1811](https://github.com/GIScience/openrouteservice/pull/1811)))
+- refactor: remove unused access destination logic from hgv edge filter ([#1854](https://github.com/GIScience/openrouteservice/pull/1854))
 ### Deprecated
 ### Removed
 ### Fixed
