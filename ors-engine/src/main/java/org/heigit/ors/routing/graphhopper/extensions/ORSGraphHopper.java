@@ -56,7 +56,6 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
@@ -67,7 +66,6 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTraff
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
-import org.heigit.ors.routing.util.RoutingProfileHashBuilder;
 import org.heigit.ors.util.CoordTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -106,6 +104,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     public ORSGraphManager getOrsGraphManager() {
         return this.orsGraphManager;
+    }
+
+    public void setOrsGraphManager(ORSGraphManager orsGraphManager) {
+        this.orsGraphManager = orsGraphManager;
     }
 
     public void setProfileName(String profileName) {
@@ -219,71 +221,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
 
         return gh;
-    }
-
-    public ProfileProperties initializeGraphManagement(String graphVersion) {
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, graphVersion).build();
-        initializeGraphManagementWithFlatStructure(managementProps);
-//        initializeGraphManagementWithDeepHashBasedStructure(managementProps);
-        return loadProfilePropertiesFromActiveGraph();
-    }
-
-    public void initializeGraphManagementWithDeepHashBasedStructure(GraphManagementRuntimeProperties managementProps) {
-        String hash = RoutingProfileHashBuilder.builder(managementProps.getGraphVersion(), engineProperties.getProfiles().get(profileName)).build();
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new HashSubDirBasedORSGraphFolderStrategy(managementProps, hash);
-        ORSGraphRepoStrategy orsGraphRepoStrategy = new HashBasedRepoStrategy(hash);
-        initializeGraphManagement(managementProps, orsGraphFolderStrategy, orsGraphRepoStrategy);
-    }
-
-    public void initializeGraphManagementWithFlatStructure(GraphManagementRuntimeProperties managementProps) {
-        ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
-        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
-        initializeGraphManagement(managementProps, orsGraphFolderStrategy, orsGraphRepoStrategy);
-    }
-
-    public void initializeGraphManagement(GraphManagementRuntimeProperties managementProps, ORSGraphFolderStrategy orsGraphFolderStrategy, ORSGraphRepoStrategy orsGraphRepoStrategy) {
-        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
-        orsGraphFileManager.initialize();
-
-        ORSGraphRepoManager orsGraphRepoManager = getOrsGraphRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
-
-        this.orsGraphManager = new ORSGraphManager(managementProps, orsGraphFileManager, orsGraphRepoManager);
-        this.orsGraphManager.manageStartup();
-        adaptGraphhopperLocation();
-    }
-
-    public ProfileProperties loadProfilePropertiesFromActiveGraph() {
-        if (orsGraphManager.useGraphRepository()) {
-            profileProperties.mergeLoaded(orsGraphManager.getActiveGraphProfileProperties());
-        }
-        return profileProperties;
-    }
-
-    ORSGraphRepoManager getOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        ORSGraphRepoManager orsGraphRepoManager = new NullRepoManager();
-
-        switch (managementProps.getDerivedRepoType()) {
-            case HTTP -> {
-                LOGGER.debug("Using HttpRepoManager for repoUrl {}", managementProps.getDerivedRepoBaseUrl());
-                orsGraphRepoManager = new HttpRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
-            }
-            case FILESYSTEM -> {
-                LOGGER.debug("Using FileSystemRepoManager for repoUri {}", managementProps.getDerivedRepoPath());
-                orsGraphRepoManager = new FileSystemRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
-            }
-            case NULL -> {
-                LOGGER.debug("No valid repositoryUri configured, using NullRepoManager.");
-                orsGraphRepoManager = new NullRepoManager();
-            }
-        }
-
-        return orsGraphRepoManager;
-    }
-
-    private void adaptGraphhopperLocation() {
-        String adaptedPath = getOrsGraphManager().getActiveGraphDirAbsPath();
-        this.setGraphHopperLocation(adaptedPath);
-        LOGGER.debug("adapted graphHopperLocation: {}", adaptedPath);
     }
 
     private void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {

@@ -13,12 +13,7 @@ import org.heigit.ors.config.profile.ExtendedStorage;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
-import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
-import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
-import org.heigit.ors.routing.graphhopper.extensions.manage.remote.NamedGraphsRepoStrategy;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -86,8 +81,14 @@ class ORSGraphHopperTest {
     @Test
     void buildGraphWithPreprocessedData() throws Exception {
         ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("repoDir", "https://my.domain.com/");
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
+                .withEnabled(true)
+                .withRepoName("repoName")
+                .withRepoBaseUri("http://my.domain.com")
+                .build();
+        ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(managementProps);
+        gh.setOrsGraphManager(orsGraphManager);
 
-        gh.initializeGraphManagement("0");
         gh.importOrLoad();
 
         ORSGraphHopperStorage storage = (ORSGraphHopperStorage) gh.getGraphHopperStorage();
@@ -133,60 +134,12 @@ class ORSGraphHopperTest {
         assertEquals(8.687160015106201, waypoints.getLon(1), 0);
     }
 
-    @Test
-    public void profileHashAddedToGraphHopperLocationWithDeepHashStrategy() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("graphs-apitests", "https://my.domain.com/");
-        String pathBefore = gh.getGraphHopperLocation();
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(gh.getEngineProperties(), gh.getProfileProperties(), "0").build();
-
-        gh.initializeGraphManagementWithDeepHashBasedStructure(managementProps);
-
-        String pathAfter = gh.getGraphHopperLocation();
-        assertNotEquals(pathAfter, pathBefore);
-        assertTrue(pathAfter.endsWith("graphs-apitests/driving-car/447aad7c28d1d19891ae212e4433381e"));
-    }
-
-    @Test
-    public void noProfileHashAddedToGraphHopperLocationWithFlatStrategy() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("graphs-apitests", "https://my.domain.com/");
-        String pathBefore = gh.getGraphHopperLocation();
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(gh.getEngineProperties(), gh.getProfileProperties(), "0").build();
-
-        gh.initializeGraphManagementWithFlatStructure(managementProps);
-
-        String pathAfter = gh.getGraphHopperLocation();
-        assertNotEquals(pathAfter, pathBefore);
-        assertTrue(pathAfter.endsWith("graphs-apitests/driving-car"));
-    }
-
-    @Test
-    public void importOrLoad_orsGraphManagerCreated_usesRepo() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoDir", "https://my.domain.com/");
-
-        gh.initializeGraphManagement("0");
-
-        ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
-        assertNotNull(orsGraphManager);
-        assertTrue(orsGraphManager.useGraphRepository());
-    }
-
-    @Test
-    public void importOrLoad_orsGraphManagerCreated_notUsingRepo() throws Exception {
-        ORSGraphHopper gh = createORSGraphHoopperWithoutOsmFile("repoDir", null);
-
-        gh.initializeGraphManagement("0");
-
-        ORSGraphManager orsGraphManager = gh.getOrsGraphManager();
-        assertNotNull(orsGraphManager);
-        assertFalse(orsGraphManager.useGraphRepository());
-    }
-
     private static EngineProperties createEngineProperties(Path localGraphsRootPath,
-                                                          String graphManagementRepositoryUrl,
-                                                          String graphManagementRepositoryName,
-                                                          String graphManagementRepositoryProfileGroup,
-                                                          String graphManagementGraphExtent,
-                                                          String profileName, int graphManagementMaxBackups) {
+                                                           String graphManagementRepositoryUrl,
+                                                           String graphManagementRepositoryName,
+                                                           String graphManagementRepositoryProfileGroup,
+                                                           String graphManagementGraphExtent,
+                                                           String profileName, int graphManagementMaxBackups) {
 
         EngineProperties engineProperties = new EngineProperties();
 
@@ -255,16 +208,6 @@ class ORSGraphHopperTest {
         return ghConfig;
     }
 
-    private static ORSGraphHopper createORSGraphHoopperWithoutOsmFile(String repoDir, String repoUrl) throws Exception {
-        ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithoutOsmFile();
-        Path repoPath = repoDir.isEmpty() ? null : Path.of(repoDir);
-        EngineProperties engineProperties = createEngineProperties(repoPath, repoUrl,
-                "repoName", "profileGroup", "graphExtent",
-                ROUTE_PROFILE_NAME, 0
-        );
-        return createORSGraphHopper(ghConfig, engineProperties, engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
-    }
-
     private static ORSGraphHopper createORSGraphHoopperWithOsmFile(String repoDir, String repoUrl) throws Exception {
         ORSGraphHopperConfig ghConfig = createORSGraphHopperConfigWithOsmFile();
 
@@ -274,41 +217,6 @@ class ORSGraphHopperTest {
                 ROUTE_PROFILE_NAME, 0
         );
         return createORSGraphHopper(ghConfig, engineProperties, engineProperties.getProfiles().get(ROUTE_PROFILE_NAME));
-    }
-
-    @ParameterizedTest
-    @CsvSource({
-            "HttpRepoManager, http://my.domain.com",
-            "HttpRepoManager, https://my.domain.com/",
-            "NullRepoManager, file:relative/path",
-            "NullRepoManager, file://relative/path",
-            "NullRepoManager, file://relative/path.txt",
-            "FileSystemRepoManager, file:///absolute/path",
-            "FileSystemRepoManager, file:///absolute/path.txt",
-            "FileSystemRepoManager, relative/path",
-            "FileSystemRepoManager, relative/path.txt",
-            "FileSystemRepoManager, /absolute/path",
-            "FileSystemRepoManager, /absolute/path.txt",
-            "FileSystemRepoManager, ~/absolute/path",
-            "FileSystemRepoManager, ~/absolute/path.txt"
-    })
-    public void getOrsGraphRepoManager(String className, String repoUri) throws ClassNotFoundException {
-
-        ORSGraphHopper orsGraphHopper = new ORSGraphHopper();
-        EngineProperties engineProperties = new EngineProperties();
-        engineProperties.getProfileDefault().setGraphPath(Path.of("graphs"));
-
-        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
-                .withLocalGraphsRootAbsPath("graphs")
-                .withRepoBaseUri(repoUri)
-                .withGraphVersion("1")
-                .withLocalProfileName("driving-car")
-                .build();
-        FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
-        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
-        NamedGraphsRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
-
-        assertEquals(className, orsGraphHopper.getOrsGraphRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager).getClass().getSimpleName());
     }
 
 }

@@ -41,6 +41,7 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
@@ -94,7 +95,11 @@ public class RoutingProfile {
             astarEpsilon = execution.getMethods().getAstar().getEpsilon();
     }
 
+
     public ORSGraphHopper initGraphHopper(RoutingProfileLoadContext loadCntx) throws Exception {
+        ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(graphVersion, engineProperties, profileProperties);
+        profileProperties = orsGraphManager.loadProfilePropertiesFromActiveGraph(orsGraphManager, profileProperties);
+
         ORSGraphHopperConfig args = createGHSettings(profileProperties, engineProperties);
 
         int profileId;
@@ -110,6 +115,7 @@ public class RoutingProfile {
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profileProperties);
         gh.setProfileName(profileName);
+        gh.setOrsGraphManager(orsGraphManager);
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
@@ -129,8 +135,6 @@ public class RoutingProfile {
             loadCntx.setElevationProvider(gh.getElevationProvider());
         }
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
-
-        profileProperties = gh.initializeGraphManagement(graphVersion);
 
         gh.importOrLoad();
         // store CountryBordersReader for later use

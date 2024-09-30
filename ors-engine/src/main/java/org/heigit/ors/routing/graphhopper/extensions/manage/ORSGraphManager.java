@@ -2,12 +2,16 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
+import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
-import org.heigit.ors.routing.graphhopper.extensions.manage.remote.ORSGraphRepoManager;
+import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;
+import org.heigit.ors.routing.graphhopper.extensions.manage.remote.*;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import static java.util.Optional.ofNullable;
 
@@ -28,6 +32,54 @@ public class ORSGraphManager {
         this.managementRuntimeProperties = managementRuntimeProperties;
         this.orsGraphFileManager = orsGraphFileManager;
         this.orsGraphRepoManager = orsGraphRepoManager;
+    }
+
+
+    public static ORSGraphManager initializeGraphManagement(String graphVersion, EngineProperties engineProperties, ProfileProperties profileProperties) {
+        GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, graphVersion).build();
+        ORSGraphManager orsGraphManager = initializeGraphManagement(managementProps);
+        profileProperties.setGraphPath(Path.of(orsGraphManager.getActiveGraphDirAbsPath()));
+        return orsGraphManager;
+    }
+
+
+    public static ORSGraphManager initializeGraphManagement(GraphManagementRuntimeProperties managementProps) {
+        ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
+        ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
+        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
+        orsGraphFileManager.initialize();
+
+        ORSGraphRepoManager orsGraphRepoManager = getOrsGraphRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+
+        ORSGraphManager orsGraphManager = new ORSGraphManager(managementProps, orsGraphFileManager, orsGraphRepoManager);
+        orsGraphManager.manageStartup();
+        return orsGraphManager;
+    }
+
+    public static ORSGraphRepoManager getOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+        ORSGraphRepoManager orsGraphRepoManager = new NullRepoManager();
+
+        switch (managementProps.getDerivedRepoType()) {
+            case HTTP -> {
+                LOGGER.debug("Using HttpRepoManager for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
+                orsGraphRepoManager = new HttpRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+            }
+            case FILESYSTEM -> {
+                LOGGER.debug("Using FileSystemRepoManager for repoUri %s".formatted(managementProps.getDerivedRepoPath()));
+                orsGraphRepoManager = new FileSystemRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+            }
+            case NULL -> {
+                LOGGER.debug("No valid repositoryUri configured, using NullRepoManager.");
+                orsGraphRepoManager = new NullRepoManager();
+            }
+        }
+
+        return orsGraphRepoManager;
+    }
+
+    public ProfileProperties loadProfilePropertiesFromActiveGraph(ORSGraphManager orsGraphManager, ProfileProperties profileProperties) {
+        profileProperties.mergeLoaded(orsGraphManager.getActiveGraphProfileProperties());
+        return profileProperties;
     }
 
     public String getQualifiedProfileName() {
@@ -52,7 +104,7 @@ public class ORSGraphManager {
 
     public boolean useGraphRepository() {
         if (managementRuntimeProperties == null) return false;
-        if (!managementRuntimeProperties.getEnabled()) return false;
+        if (!managementRuntimeProperties.isEnabled()) return false;
         if (StringUtils.isBlank(managementRuntimeProperties.getRepoName())) return false;
 
         return managementRuntimeProperties.getDerivedRepoType() != GraphManagementRuntimeProperties.GraphRepoType.NULL;

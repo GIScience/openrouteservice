@@ -3,6 +3,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.GraphManagementProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.config.profile.RepoProperties;
 
@@ -22,7 +23,7 @@ import static java.util.Optional.ofNullable;
  * which is used in constructors or methods of classes in the graph management package.
  */
 public class GraphManagementRuntimeProperties {
-    private Boolean enabled;
+    private boolean enabled;
 
     private String graphVersion;
     private String encoderName;
@@ -45,7 +46,7 @@ public class GraphManagementRuntimeProperties {
 
     public static class Builder {
 
-        private Boolean enabled;
+        private boolean enabled;
         private String graphVersion;
         private String encoderName;
         private String localGraphsRootAbsPath;
@@ -62,7 +63,7 @@ public class GraphManagementRuntimeProperties {
 
         public static Builder from(EngineProperties engineProperties, ProfileProperties profileProperties, String graphVersion) {
             Builder builder = new Builder();
-            builder.enabled = engineProperties.getGraphManagement().getEnabled();
+            builder.enabled = ofNullable(engineProperties).map(EngineProperties::getGraphManagement).map(GraphManagementProperties::getEnabled).orElse(false);
             builder.repoBaseUri = getFirstPresentString(
                     ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUri),
                     ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUri));
@@ -87,6 +88,11 @@ public class GraphManagementRuntimeProperties {
 
         private static String getFirstPresentString(Optional... objects) {
             return Arrays.stream(objects).filter(Optional::isPresent).findFirst().map(Optional::get).map(String::valueOf).orElse(null);
+        }
+
+        public Builder withEnabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
         }
 
         public Builder withGraphVersion(String graphVersion) {
