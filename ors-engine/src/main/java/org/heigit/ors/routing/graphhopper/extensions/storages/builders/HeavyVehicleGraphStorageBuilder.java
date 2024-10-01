@@ -31,7 +31,6 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
     private boolean includeRestrictions = true;
     private HeavyVehicleAttributesGraphStorage storage;
     private int hgvType = 0;
-    private int hgvDestination = 0;
     private boolean hasRestrictionValues;
     private final double[] restrictionValues = new double[VehicleDimensionRestrictions.COUNT];
     private final List<String> motorVehicleRestrictions = new ArrayList<>(5);
@@ -76,7 +75,6 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
     public void processWay(ReaderWay way) {
         // reset values
         hgvType = 0;
-        hgvDestination = 0;
 
         if (hasRestrictionValues) {
             restrictionValues[0] = 0.0;
@@ -193,7 +191,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
     }
 
     public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-        storage.setEdgeValue(edge.getEdge(), hgvType, hgvDestination, restrictionValues);
+        storage.setEdgeValue(edge.getEdge(), hgvType, restrictionValues);
     }
 
     private String getVehicleType(String key, String value) {
