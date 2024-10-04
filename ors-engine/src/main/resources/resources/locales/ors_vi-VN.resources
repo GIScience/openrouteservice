@@ -1,0 +1,107 @@
+{
+    "instructions": {
+        "numerals": {
+            "1": "thứ 1",
+            "2": "thứ 2",
+            "3": "thứ 3",
+            "4": "thứ 4",
+            "5": "thứ 5",
+            "6": "thứ 6",
+            "7": "thứ 7",
+            "8": "thứ 8",
+            "9": "thứ 9",
+            "10": "thứ 10"
+        },
+        "directions": {
+            "north": "Hướng bắc",
+            "northeast": "Hướng đông bắc",
+            "east": "Hướng đông",
+            "southeast": "Hướng đông nam",
+            "south": "Hướng nam",
+            "southwest": "Hướng tây nam",
+            "west": "Hướng tây",
+            "northwest": "Hướng tây bắc"
+        },
+        "turn_maneuvers": {
+            "left": "Rẽ trái",
+            "right": "Rẽ phải",
+            "sharp_left": "Ngoặt sang trái",
+            "sharp_right": "Ngoặt sang phải",
+            "slight_left": "Chếch sang trái",
+            "slight_right": "Chếch sang phải",
+            "straight": "Đi thẳng",
+            "uturn": "Quay đầu xe"
+        },
+        "actions": {
+            "arrive": {
+                "default": {
+                    "default": "Bạn đã đến nơi!",
+                    "name": "Đã đến {way_name}"
+                },
+                "left": {
+                    "default": "Đã đến nơi, điểm đến của bạn bên tay trái",
+                    "name": "Đã đến {way_name}, điểm đến của bạn bên tay trái"
+                },
+                "right": {
+                    "default": "Đã đến nơi, điểm đến của bạn bên tay phải",
+                    "name": "Đã đến {way_name}, điểm đến của bạn bên tay phải"
+                },
+                "straight": {
+                    "default": "Đã đến nơi, điểm đến của bạn ngay phía trước",
+                    "name": "Đã đến {way_name}, điểm đến của bạn ngay phía trước"
+                }
+            },
+            "depart": {
+                "default": {
+                    "default": "Đi về hướng {direction}",
+                    "name": "Đi theo hướng {direction} trên đường {way_name}"
+                }
+            },
+            "roundabout": {
+                "default": {
+                    "exit": {
+                        "default": "Tại vòng xuyến, đi theo lối ra {exit_number}",
+                        "name": "Tại vòng xuyến, đi theo lối ra {exit_number} vào {way_name}"
+                    },
+                    "default": {
+                        "default": "Ra khỏi vòng xuyến",
+                        "name": "Ra khỏi vòng xuyến, vào {way_name}"
+                    }
+                }
+            },
+            "turn": {
+                "default": {
+                    "default": "Rẽ {turn_maneuver}",
+                    "name": "Rẽ {turn_maneuver}, vào {way_name}"
+                }
+            },
+            "continue": {
+                "default": {
+                    "default": "Thêm chút nữa {turn_maneuver}",
+                    "name": "Thêm chút nữa {turn_maneuver}, vào {way_name}"
+                },
+                "uturn": {
+                    "default": "Quay đầu xe",
+                    "name": "Quay đầu xe, vào {way_name}"
+                }
+            },
+            "keep": {
+                "default": {
+                    "default": "Giữ theo hướng {turn_maneuver}",
+                    "name": "Giữ theo hướng {turn_maneuver}, vào đường {way_name}"
+                }
+            },
+            "pt": {
+                "start": {
+                    "default": "Đi vào {name}",
+                    "headsign": "Đi vào {name}, theo hướng {headsign}"
+                },
+                "transfer": {
+                    "default": "Chuyển sang {name}",
+                    "headsign": "Chuyển sang {name}, theo hướng về {headsign}"
+                },
+                "end": "Ra khỏi {name}"
+            }
+        }
+    }
+}
