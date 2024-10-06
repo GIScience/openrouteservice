@@ -8,31 +8,23 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
+import utils.ContainerInitializer;
 import utils.OrsApiRequests;
 import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static utils.OrsApiRequests.checkAvoidAreaRequest;
 
-@Testcontainers
 @ExtendWith(TestcontainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class EnvironmentChecks extends ContainerInitializer {
-
-    static Stream<Object[]> data() {
-        return Stream.of(
-                new Object[]{ContainerTestImage.WAR_CONTAINER},
-                new Object[]{ContainerTestImage.JAR_CONTAINER}
-        );
-    }
-
+@Testcontainers(disabledWithoutDocker = true)
+public class EnvironmentTest extends ContainerInitializer {
 
     @Order(1)
-    @MethodSource("data")
+    @MethodSource("utils.ContainerInitializer#imageStream")
     @ParameterizedTest(name = "{0}")
     void testBuildAllImagesAndGraphs(ContainerTestImage targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage);
@@ -40,8 +32,7 @@ public class EnvironmentChecks extends ContainerInitializer {
         container.addEnv("ors.engine.profile_default.enabled", "true");
         // sharedOrsTestContainer.addEnv("gtfs_file", "/home/ors/openrouteservice/ors-api/src/test/files/vrn_gtfs_cut.zip");
 
-        container.stop();
-        container.start();
+        restartContainer(container);
 
         JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(9, profiles.size());
@@ -75,7 +66,7 @@ public class EnvironmentChecks extends ContainerInitializer {
     }
 
     @Order(2)
-    @MethodSource("data")
+    @MethodSource("utils.ContainerInitializer#imageStream")
     @ParameterizedTest(name = "{0}")
     void testAvoidAreaRequestAndGeoToolsPopulation(ContainerTestImage targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage);
@@ -91,17 +82,16 @@ public class EnvironmentChecks extends ContainerInitializer {
     }
 
     @Order(3)
-    @MethodSource("data")
+    @MethodSource("utils.ContainerInitializer#imageStream")
     @ParameterizedTest(name = "{0}")
-    void testTwoProfilesActivatedByEnv(ContainerTestImage targetImage) throws IOException {
+    void testTwoProfilesActivatedByEnv(ContainerTestImage targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage);
 
         // Activate two new profiles alongside the default driving-car profile
         container.addEnv("ors.engine.profile_default.enabled", "false");
         container.addEnv("ors.engine.profiles.driving-hgv.enabled", "true");
         container.addEnv("ors.engine.profiles.cycling-regular.enabled", "true");
-        container.stop();
-        container.start();
+        restartContainer(container);
 
         JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(3, profiles.size());
