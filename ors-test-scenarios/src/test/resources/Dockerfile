@@ -1,8 +1,13 @@
 # Use this Dockerfile for custom testing with the following command from the repo root.
 # Any volume mount is an example and optional.
-# To use other container paths please temporary rewrite the setenv.sh section in this Dockerfile
-# docker build --tag ors-test-scenarios:latest -f ors-test-scenarios/src/test/resources/ubuntu-jammy-tomcat-war/Dockerfile .
-#  docker run -d -it --name bkg-test-war \
+# This Dockerfile constists of multiple targets: ors-test-scenarios-maven, ors-test-scenarios-jar, ors-test-scenarios-war
+# To use the targets, you need to build the desired Dockerfile target.
+# export ORS_DOCKERFILE_TARGET=ors-test-scenarios-maven
+# docker build --target $ORS_DOCKERFILE_TARGET --tag $ORS_DOCKERFILE_TARGET:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
+# You can now run the container with the following command:
+# docker run -d -it -e 'logging.level.org.heigit=DEBUG' --name $ORS_DOCKERFILE_TARGET -p 8082:8080 $ORS_DOCKERFILE_TARGET:latestL
+# To customize the container you can mount custom elements and files. E.g.:
+# docker run -d -it --name ors-test-scenarios-war \
 #  -v /your-pbf-file.osm.pbf:/home/ors/openrouteservice/files/heidelberg.test.pbf \
 #  -v /your/graph/public-transport:/home/ors/openrouteservice/graphs/public-transport \
 #  -v /your/modified/ors.war:/usr/local/tomcat/webapps/ors.war \
@@ -48,16 +53,36 @@ RUN yq -i '\
     .ors.engine.profile_default.source_file = "/home/ors/openrouteservice/files/heidelberg.test.pbf"\
     ' $CONTAINER_BUILD_DIR/ors-config.yml
 
+FROM builder AS ors-test-scenarios-maven
+
+
+ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
+ARG CONTAINER_BUILD_DIR=/build
+
+WORKDIR $CONTAINER_WORK_DIR
+
+RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_DIR/graphs $CONTAINER_WORK_DIR/elevation_cache \
+    $CONTAINER_WORK_DIR/graph_repo
+
+COPY --from=builder $CONTAINER_BUILD_DIR/ ./
+COPY ors-api/src/test/files "$CONTAINER_WORK_DIR"/files
+COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
+
+EXPOSE 8080
+
+ENTRYPOINT [ "mvn", "spring-boot:run", "-DskiptTests", "-Dmaven.test.skip=true" ]
+
 FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar
 
 RUN apk add --no-cache bash yq
 
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
+ARG CONTAINER_BUILD_DIR=/build
 
 WORKDIR $CONTAINER_WORK_DIR
 
-COPY --from=builder /build/ors-api/target/ors.jar "$CONTAINER_WORK_DIR"/ors.jar
-COPY --from=builder /build/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml
+COPY --from=builder $CONTAINER_BUILD_DIR/ors-api/target/ors.jar "$CONTAINER_WORK_DIR"/ors.jar
+COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml
 COPY ors-api/src/test/files "$CONTAINER_WORK_DIR"/files
 COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
 
@@ -77,14 +102,15 @@ FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war
 RUN apt-get update
 
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
+ARG CONTAINER_BUILD_DIR=/build
 
 # Create necessary directories and copy test files
 RUN mkdir -p /usr/local/tomcat/logs /usr/local/tomcat/temp /usr/local/tomcat/conf && \
     mkdir -p /home/ors/openrouteservice/logs /home/ors/openrouteservice/files /home/ors/openrouteservice/graphs /home/ors/openrouteservice/elevation_cache
 
 # Copy the test files
-COPY --from=builder /build/ors-api/target/ors.war /usr/local/tomcat/webapps/ors.war
-COPY --from=builder /build/ors-config.yml /home/ors/openrouteservice/ors-config.yml
+COPY --from=builder $CONTAINER_BUILD_DIR/ors-api/target/ors.war /usr/local/tomcat/webapps/ors.war
+COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservice/ors-config.yml
 COPY ors-api/src/test/files /home/ors/openrouteservice/files
 COPY ors-api/src/test/files/elevation /home/ors/openrouteservice/elevation_cache
 
