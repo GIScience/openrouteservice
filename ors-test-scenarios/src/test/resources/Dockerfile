@@ -47,9 +47,10 @@ RUN yq -i '\
     .ors.engine.profile.public-transport.gtfs_file = "/home/ors/openrouteservice/files/vrn_gtfs_cut.zip" | \
     .ors.engine.profile_default.source_file = "/home/ors/openrouteservice/files/heidelberg.test.pbf"\
     ' $CONTAINER_BUILD_DIR/ors-config.yml
+
 FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar
 
-RUN apk add --no-cache bash
+RUN apk add --no-cache bash yq
 
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
@@ -70,7 +71,10 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 EXPOSE 8080
 
 ENTRYPOINT [ "java", "-jar", "ors.jar" ]
+
 FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war
+
+RUN apt-get update
 
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
