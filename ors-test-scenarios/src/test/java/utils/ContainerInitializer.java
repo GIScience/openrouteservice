@@ -11,6 +11,7 @@ import org.testcontainers.lifecycle.Startables;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -74,8 +75,8 @@ public abstract class ContainerInitializer {
             }
             if (autoStart && !jarContainer.isRunning())
                 jarContainer.start();
+            return jarContainer;
         }
-        return jarContainer;
     }
 
     protected void restartContainer(GenericContainer<?> container) throws IOException, InterruptedException {
@@ -87,9 +88,11 @@ public abstract class ContainerInitializer {
     @BeforeEach
     public void resetEnv() {
         if (warContainer != null) {
+            warContainer.setEnv(List.of());
             warContainer.withEnv(defaultEnv);
         }
         if (jarContainer != null) {
+            jarContainer.setEnv(List.of());
             jarContainer.withEnv(defaultEnv);
         }
     }

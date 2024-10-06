@@ -63,9 +63,37 @@ public class EnvironmentTest extends ContainerInitializer {
                 "/home/ors/openrouteservice/graphs/wheelchair"
         );
         OrsContainerFileSystemCheck.assertDirectoriesExist(container, directories.toArray(new String[0]));
+        container.addEnv("ors.engine.profile_default.enabled", "false");
     }
 
     @Order(2)
+    @MethodSource("imageStream")
+    @ParameterizedTest(name = "Test {0} with individual profiles activated")
+    void testActivateEachProfileExceptWheelchair(ContainerTestImage targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage);
+
+        List<String> allProfiles = List.of(
+                "cycling-electric", "cycling-road", "cycling-mountain", "cycling-regular",
+                "driving-car", "driving-hgv", "foot-hiking", "foot-walking"
+        );
+
+        // Prepare the environment
+        container.execInContainer("yq", "-i", ".ors.engine.driving-car.enabled=false", "/home/ors/openrouteservice/ors-config.yml");
+        container.addEnv("ors.engine.profile_default.enabled", "false");
+        container.addEnv("ors.engine.profiles.wheelchair.enabled", "false");
+        allProfiles.forEach(profile -> container.addEnv("ors.engine.profiles." + profile + ".enabled", "true"));
+
+        restartContainer(container);
+
+        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        Assertions.assertEquals(8, profiles.size());
+
+        for (JsonNode profile : profiles) {
+            Assertions.assertTrue(allProfiles.contains(profile.get("profiles").asText()));
+        }
+    }
+
+    @Order(3)
     @MethodSource("utils.ContainerInitializer#imageStream")
     @ParameterizedTest(name = "{0}")
     void testAvoidAreaRequestAndGeoToolsPopulation(ContainerTestImage targetImage) throws IOException, InterruptedException {
@@ -81,7 +109,7 @@ public class EnvironmentTest extends ContainerInitializer {
         OrsContainerFileSystemCheck.assertDirectoryExists(container, geoToolsPath, true);
     }
 
-    @Order(3)
+    @Order(4)
     @MethodSource("utils.ContainerInitializer#imageStream")
     @ParameterizedTest(name = "{0}")
     void testTwoProfilesActivatedByEnv(ContainerTestImage targetImage) throws IOException, InterruptedException {
