@@ -435,6 +435,8 @@ public class APIEnums {
         RU_RU("ru-ru"),
         TR("tr"),
         TR_TR("tr-tr"),
+        VI("vi"),
+        VI_VN("vi-vn"),
         ZH("zh"),
         ZH_CN("zh-cn");
 
