@@ -1,7 +1,7 @@
 package org.heigit.ors.config;
 
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,11 +28,11 @@ class EnginePropertiesTest {
         enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().setWeightings("shortest");
         enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().setLandmarks(2);
         enginePropertiesTest.getProfileDefault().getExecution().getMethods().getLm().setActiveLandmarks(2);
-        Map<String, ExtendedStorage> extStoragesDef = new LinkedHashMap<>();
-        ExtendedStorage extWayCategoryDefault = new ExtendedStorage();
+        Map<String, ExtendedStorageProperties> extStoragesDef = new LinkedHashMap<>();
+        ExtendedStorageProperties extWayCategoryDefault = new ExtendedStorageProperties();
         extWayCategoryDefault.setEnabled(true);
         extStoragesDef.put("WayCategory", extWayCategoryDefault);
-        ExtendedStorage extGreenIndexDefault = new ExtendedStorage();
+        ExtendedStorageProperties extGreenIndexDefault = new ExtendedStorageProperties();
         extGreenIndexDefault.setEnabled(true);
         extGreenIndexDefault.setFilepath(Path.of("/path/to/file.csv"));
         extStoragesDef.put("GreenIndex", extGreenIndexDefault);
@@ -50,8 +50,8 @@ class EnginePropertiesTest {
         hgvProfile.setEncoderName(EncoderNameEnum.DRIVING_HGV);
         hgvProfile.getPreparation().setMinNetworkSize(900);
         hgvProfile.getPreparation().getMethods().getLm().setEnabled(true);
-        Map<String, ExtendedStorage> extStoragesHgv = new LinkedHashMap<>();
-        ExtendedStorage extHeavyVehicle = new ExtendedStorage();
+        Map<String, ExtendedStorageProperties> extStoragesHgv = new LinkedHashMap<>();
+        ExtendedStorageProperties extHeavyVehicle = new ExtendedStorageProperties();
         extHeavyVehicle.setRestrictions(true);
         extStoragesHgv.put("HeavyVehicle", extHeavyVehicle);
         hgvProfile.setExtStorages(extStoragesHgv);

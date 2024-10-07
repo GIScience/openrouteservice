@@ -127,6 +127,7 @@ public class MatrixAPI {
             @Parameter(description = "Specifies the matrix profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody MatrixRequest originalRequest) throws StatusCodeException {
         originalRequest.setProfile(getProfileEnum(profile));
+        originalRequest.setProfileName(profile);
         originalRequest.setResponseType(APIEnums.MatrixResponseType.JSON);
         MatrixResult matrixResult = matrixService.generateMatrixFromRequest(originalRequest);
 

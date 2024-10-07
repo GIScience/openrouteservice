@@ -14,8 +14,8 @@ import java.util.Date;
 import java.util.Optional;
 
 /*
-    * Helper class for testing against the files in ors-engine/src/test/resources/test-filesystem-repos
-    * reflecting a graph repository with content for car and hgv profiles.
+ * Helper class for testing against the files in ors-engine/src/test/resources/test-filesystem-repos
+ * reflecting a graph repository with content for car and hgv profiles.
  */
 public class RepoManagerTestHelper {
 
@@ -37,8 +37,8 @@ public class RepoManagerTestHelper {
 
     static {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-        REPO_CAR_OSM_DATE =    ZonedDateTime.parse("2024-06-26T10:23:31+0000", formatter).toInstant().toEpochMilli();
-        REPO_HGV_OSM_DATE =    ZonedDateTime.parse("2024-01-26T10:23:31+0000", formatter).toInstant().toEpochMilli();
+        REPO_CAR_OSM_DATE = ZonedDateTime.parse("2024-06-26T10:23:31+0000", formatter).toInstant().toEpochMilli();
+        REPO_HGV_OSM_DATE = ZonedDateTime.parse("2024-01-26T10:23:31+0000", formatter).toInstant().toEpochMilli();
         REPO_CAR_IMPORT_DATE = ZonedDateTime.parse("2024-06-26T10:23:31+0000", formatter).toInstant().toEpochMilli();
         REPO_HGV_IMPORT_DATE = ZonedDateTime.parse("2024-06-26T10:23:39+0000", formatter).toInstant().toEpochMilli();
     }
@@ -65,11 +65,11 @@ public class RepoManagerTestHelper {
     }
 
     public static void saveActiveGraphInfoFile(File activeGraphInfoFile, Long importDate, Long osmDate) throws IOException {
-        ORSGraphInfoV1 activeGraphInfoV1Object = new ORSGraphInfoV1();
-        if (importDate != null) activeGraphInfoV1Object.setImportDate(new Date(importDate));
-        if (osmDate != null) activeGraphInfoV1Object.setOsmDate(new Date(osmDate));
-        activeGraphInfoV1Object.setProfileProperties(new ProfileProperties());
-        ORSGraphFileManager.writeOrsGraphInfoV1(activeGraphInfoV1Object, activeGraphInfoFile);
+        PersistedGraphInfo activeGraphInfoObject = new PersistedGraphInfo();
+        if (importDate != null) activeGraphInfoObject.setImportDate(new Date(importDate));
+        if (osmDate != null) activeGraphInfoObject.setOsmDate(new Date(osmDate));
+        activeGraphInfoObject.setProfileProperties(new ProfileProperties());
+        ORSGraphFileManager.writeOrsGraphInfo(activeGraphInfoObject, activeGraphInfoFile);
     }
 
     public static void cleanupLocalGraphsRootDirectory(Path localGraphsRootPath) throws IOException {

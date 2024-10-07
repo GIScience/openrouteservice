@@ -25,12 +25,13 @@ public class EngineProperties {
     @JsonIgnore
     public Map<String, ProfileProperties> getInitializedActiveProfiles() {
         LinkedHashMap<String, ProfileProperties> activeProfiles = new LinkedHashMap<>();
-        for (Map.Entry<String, ProfileProperties> entry : profiles.entrySet()) {
-            ProfileProperties mergedProfile = entry.getValue().mergeDefaults(profileDefault, entry.getKey());
+        profiles.forEach((key, profile) -> {
+            profile.initExtStorages();
+            ProfileProperties mergedProfile = profile.mergeDefaults(profileDefault, key);
             if (Boolean.TRUE.equals(mergedProfile.getEnabled())) {
-                activeProfiles.put(entry.getKey(), mergedProfile);
+                activeProfiles.put(key, mergedProfile);
             }
-        }
+        });
         return activeProfiles;
     }
 }

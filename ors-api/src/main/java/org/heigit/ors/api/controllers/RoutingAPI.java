@@ -112,6 +112,7 @@ public class RoutingAPI {
                                                       @Parameter(description = "Destination coordinate of the route in `longitude,latitude` format.", required = true, example = "8.687872,49.420318") @RequestParam Coordinate end) throws StatusCodeException {
         RouteRequest request = new RouteRequest(start, end);
         request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
 
         RouteResult[] result = routingService.generateRouteFromRequest(request);
 
@@ -152,6 +153,7 @@ public class RoutingAPI {
             @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
 
         RouteResult[] result = routingService.generateRouteFromRequest(request);
@@ -176,6 +178,7 @@ public class RoutingAPI {
             @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
 
         RouteResult[] result = routingService.generateRouteFromRequest(request);
@@ -201,6 +204,7 @@ public class RoutingAPI {
             @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
         RouteResult[] result = routingService.generateRouteFromRequest(request);

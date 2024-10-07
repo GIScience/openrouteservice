@@ -31,7 +31,7 @@ public class ExportService extends ApiService {
         org.heigit.ors.export.ExportRequest exportRequest = this.convertExportRequest(exportApiRequest);
 
         try {
-            RoutingProfile rp = RoutingProfileManager.getInstance().getProfileFromType(exportRequest.getProfileType());
+            RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(exportRequest.getProfileName());
             if (rp == null)
                 throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             return exportRequest.computeExport(rp);
@@ -44,7 +44,7 @@ public class ExportService extends ApiService {
 
     private org.heigit.ors.export.ExportRequest convertExportRequest(ExportApiRequest exportApiRequest) throws StatusCodeException {
         org.heigit.ors.export.ExportRequest exportRequest = new org.heigit.ors.export.ExportRequest();
-
+        exportRequest.setProfileName(exportApiRequest.getProfileName());
         if (exportApiRequest.hasId())
             exportRequest.setId(exportApiRequest.getId());
 

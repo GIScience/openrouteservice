@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.export.ExportApiRequest;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
@@ -34,7 +35,6 @@ import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportResult;
-import org.heigit.ors.api.APIEnums;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -119,6 +119,7 @@ public class ExportAPI {
             @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody ExportApiRequest request) throws StatusCodeException {
         request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.ExportResponseType.JSON);
 
         ExportResult result = exportService.generateExportFromRequest(request);

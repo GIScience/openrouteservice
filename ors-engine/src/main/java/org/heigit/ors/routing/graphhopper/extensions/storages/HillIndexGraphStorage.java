@@ -17,7 +17,7 @@ import com.graphhopper.storage.DataAccess;
 import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.GraphExtension;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 
 public class HillIndexGraphStorage implements GraphExtension {
     private final int efHillIndex;
@@ -31,7 +31,7 @@ public class HillIndexGraphStorage implements GraphExtension {
 
     private final byte[] byteValues;
 
-    public HillIndexGraphStorage(ExtendedStorage parameters) {
+    public HillIndexGraphStorage(ExtendedStorageProperties parameters) {
         efHillIndex = 0;
 
         if (parameters.getMaximumSlope() != null)

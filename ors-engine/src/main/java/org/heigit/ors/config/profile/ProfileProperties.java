@@ -2,7 +2,6 @@ package org.heigit.ors.config.profile;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
@@ -78,7 +77,7 @@ public class ProfileProperties {
     @JsonIgnore
     private ExecutionProperties execution = new ExecutionProperties();
     @JsonProperty("ext_storages")
-    private Map<String, ExtendedStorage> extStorages = new LinkedHashMap<>();
+    private Map<String, ExtendedStorageProperties> extStorages = new LinkedHashMap<>();
 
     @JsonIgnore
     public String getEncoderOptionsString() {
@@ -96,10 +95,8 @@ public class ProfileProperties {
         return list.toArray(new Integer[0]);
     }
 
-    @JsonSetter("ext_storages")
-    public void setExtStorages(Map<String, ExtendedStorage> extStorages) {
+    public void initExtStorages() {
         if (extStorages != null) {
-            this.extStorages = new LinkedHashMap<>();
             extStorages.forEach((key, storage) -> {
                 if (storage != null) {
                     storage.initialize(ExtendedStorageName.getEnum(key));
@@ -140,7 +137,7 @@ public class ProfileProperties {
         encoderOptions.merge(profileDefault.encoderOptions);
         preparation.merge(profileDefault.preparation);
         execution.merge(profileDefault.execution);
-        for (Map.Entry<String, ExtendedStorage> entry : profileDefault.extStorages.entrySet()) {
+        for (Map.Entry<String, ExtendedStorageProperties> entry : profileDefault.extStorages.entrySet()) {
             if (extStorages.containsKey(entry.getKey())) {
                 extStorages.get(entry.getKey()).merge(entry.getValue());
             } else {

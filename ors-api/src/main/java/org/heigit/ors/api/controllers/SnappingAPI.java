@@ -130,6 +130,7 @@ public class SnappingAPI {
             @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody SnappingApiRequest request) throws StatusCodeException {
         request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.SnappingResponseType.JSON);
 
         SnappingResult result = snappingService.generateSnappingFromRequest(request);
@@ -159,6 +160,7 @@ public class SnappingAPI {
             @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody SnappingApiRequest request) throws StatusCodeException {
         request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.SnappingResponseType.GEOJSON);
 
         SnappingResult result = snappingService.generateSnappingFromRequest(request);

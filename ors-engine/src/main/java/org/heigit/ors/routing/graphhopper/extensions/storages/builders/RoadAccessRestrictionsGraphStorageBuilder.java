@@ -21,7 +21,7 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.RoadAccessRestrictionsGraphStorage;
@@ -80,7 +80,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorage parameters;
+        ExtendedStorageProperties parameters;
         try {
             parameters = this.parameters;
         } catch (ClassCastException e) {
@@ -108,7 +108,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorage parameters;
+        ExtendedStorageProperties parameters;
         try {
             parameters = this.parameters;
         } catch (ClassCastException e) {

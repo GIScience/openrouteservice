@@ -1,7 +1,7 @@
 package org.heigit.ors.config.utils;
 
 import lombok.Getter;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -26,7 +26,7 @@ class PropertyUtilsTest {
         PropertyUtils.assertAllNull(test, ignoreList);
     }
 
-    static class TestExtendedStorage extends ExtendedStorage {
+    static class TestExtendedStorageProperties extends ExtendedStorageProperties {
         @Getter
         private final String field3;
         public String field1;
@@ -34,7 +34,7 @@ class PropertyUtilsTest {
         public int field2;
         TestPropertyNestedClass subclass;
 
-        TestExtendedStorage(String field1, int field2, String field3, Boolean enabled) {
+        TestExtendedStorageProperties(String field1, int field2, String field3, Boolean enabled) {
             this.field1 = field1;
             this.field2 = field2;
             this.field3 = field3;

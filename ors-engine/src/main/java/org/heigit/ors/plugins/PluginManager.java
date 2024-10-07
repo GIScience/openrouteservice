@@ -14,7 +14,7 @@
 package org.heigit.ors.plugins;
 
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -45,10 +45,10 @@ public class PluginManager<T extends Plugin> {
         lockObj = new Object();
     }
 
-    public List<T> createInstances(Map<String, ExtendedStorage> parameters) {
+    public List<T> createInstances(Map<String, ExtendedStorageProperties> parameters) {
         List<T> result = new ArrayList<>(parameters.size());
         if (!parameters.isEmpty()) {
-            for (Map.Entry<String, ExtendedStorage> storageEntry : parameters.entrySet()) {
+            for (Map.Entry<String, ExtendedStorageProperties> storageEntry : parameters.entrySet()) {
                 T instance = createInstance(storageEntry.getKey(), storageEntry.getValue());
 
                 if (instance != null) {
@@ -61,7 +61,7 @@ public class PluginManager<T extends Plugin> {
     }
 
     @SuppressWarnings("unchecked")
-    public T createInstance(String name, ExtendedStorage params) {
+    public T createInstance(String name, ExtendedStorageProperties params) {
         T instance = null;
         try {
             // ServiceLoader is not threadsafe

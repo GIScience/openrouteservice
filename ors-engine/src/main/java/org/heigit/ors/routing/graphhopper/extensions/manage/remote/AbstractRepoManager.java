@@ -1,7 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
-import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
+import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
 
 import java.io.File;
 import java.util.Arrays;
@@ -18,18 +18,18 @@ abstract class AbstractRepoManager {
     public Date getDateOrEpocStart(GraphInfo graphInfo) {
         return Optional.ofNullable(graphInfo)
                 .map(GraphInfo::getPersistedGraphInfo)
-                .map(ORSGraphInfoV1::getImportDate)
+                .map(PersistedGraphInfo::getImportDate)
                 .orElse(new Date(0L));
     }
 
-    public Date getDateOrEpocStart(File persistedDownloadFile, ORSGraphInfoV1 persistedRemoteGraphInfo) {
-        if (persistedDownloadFile==null) {
+    public Date getDateOrEpocStart(File persistedDownloadFile, PersistedGraphInfo persistedRemoteGraphInfo) {
+        if (persistedDownloadFile == null) {
             return new Date(0L);
         }
 
         if (persistedDownloadFile.exists()) {
             return Optional.ofNullable(persistedRemoteGraphInfo)
-                    .map(ORSGraphInfoV1::getImportDate)
+                    .map(PersistedGraphInfo::getImportDate)
                     .orElse(new Date(0L));
         }
 

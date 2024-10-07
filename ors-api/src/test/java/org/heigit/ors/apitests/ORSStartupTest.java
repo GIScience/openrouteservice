@@ -14,7 +14,7 @@ public class ORSStartupTest extends ServiceTest {
     @Test
     void testGraphInfoFilesWrittenCorrectly() {
         RoutingProfileManager rpm = RoutingProfileManager.getInstance();
-        RoutingProfile profile = rpm.getProfiles().getRouteProfile(EncoderNameEnum.DRIVING_CAR.getValue());
+        RoutingProfile profile = rpm.getRoutingProfile(EncoderNameEnum.DRIVING_CAR.getName());
         GraphInfo graphInfo = profile.getGraphhopper().getOrsGraphManager().getActiveGraphInfo();
         ProfileProperties profileProperties = graphInfo.getPersistedGraphInfo().getProfileProperties();
 

@@ -28,6 +28,7 @@ import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.GHPoint;
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.ElevationProperties;
 import org.heigit.ors.config.EngineProperties;
@@ -70,7 +71,9 @@ public class RoutingProfile {
     private static int profileIdentifier = 0;
     private final Integer[] mRoutePrefs;
 
+    @Getter
     private String profileName;
+    @Getter
     private ProfileProperties profileProperties;
     private EngineProperties engineProperties;
     private String graphVersion;

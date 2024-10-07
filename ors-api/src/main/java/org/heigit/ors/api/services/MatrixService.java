@@ -40,7 +40,7 @@ public class MatrixService extends ApiService {
         org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest(matrixRequest);
 
         try {
-            RoutingProfile rp = RoutingProfileManager.getInstance().getProfileFromType(coreRequest.getProfileType(), !coreRequest.getFlexibleMode());
+            RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(coreRequest.getProfileName());
             if (rp == null)
                 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             return coreRequest.computeMatrix(rp);
@@ -57,6 +57,7 @@ public class MatrixService extends ApiService {
                 endpointsProperties.getMatrix().getMaximumVisitedNodes(),
                 endpointsProperties.getMatrix().getUTurnCost());
 
+        coreRequest.setProfileName(matrixRequest.getProfileName());
         int numberOfSources = matrixRequest.getSources() == null ? matrixRequest.getLocations().size() : matrixRequest.getSources().length;
         int numberODestinations = matrixRequest.getDestinations() == null ? matrixRequest.getLocations().size() : matrixRequest.getDestinations().length;
         Coordinate[] locations = convertLocations(matrixRequest.getLocations(), numberOfSources * numberODestinations, endpointsProperties);

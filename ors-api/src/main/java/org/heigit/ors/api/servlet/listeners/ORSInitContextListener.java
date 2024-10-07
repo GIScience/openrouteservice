@@ -65,13 +65,11 @@ public class ORSInitContextListener implements ServletContextListener {
             try {
                 LOGGER.info("Initializing ORS...");
                 RoutingProfileManager routingProfileManager = new RoutingProfileManager(engineProperties, AppInfo.GRAPH_VERSION);
-                if (routingProfileManager.getProfiles() != null) {
-                    for (RoutingProfile profile : routingProfileManager.getProfiles().getUniqueProfiles()) {
-                        ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
-                        if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
-                            LOGGER.debug("Adding orsGraphManager for profile %s to GraphService".formatted(profile.getProfileConfiguration().getEncoderName()));
-                            graphService.addGraphManagerInstance(orsGraphManager);
-                        }
+                for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
+                    ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
+                    if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
+                        LOGGER.debug("Adding orsGraphManager for profile %s to GraphService".formatted(profile.getProfileConfiguration().getEncoderName()));
+                        graphService.addGraphManagerInstance(orsGraphManager);
                     }
                 }
                 if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {

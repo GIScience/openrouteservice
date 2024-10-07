@@ -2,7 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
-import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
+import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper.*;
@@ -69,13 +71,13 @@ class ORSGraphFileManagerTest {
         assertTrue(new File(backupDir, orsGraphFolderStrategy.getActiveGraphInfoFileName()).exists());
     }
 
-    private static ORSGraphInfoV1 createOrsGraphInfoV1() {
-        ORSGraphInfoV1 orsGraphInfoV1 = new ORSGraphInfoV1();
-        orsGraphInfoV1.setOsmDate(new Date(EARLIER_DATE));
-        orsGraphInfoV1.setImportDate(new Date(LATER_DATE));
+    private static PersistedGraphInfo createOrsGraphInfoV1() {
+        PersistedGraphInfo persistedGraphInfo = new PersistedGraphInfo();
+        persistedGraphInfo.setOsmDate(new Date(EARLIER_DATE));
+        persistedGraphInfo.setImportDate(new Date(LATER_DATE));
         ProfileProperties profileProperties = new ProfileProperties();
-        orsGraphInfoV1.setProfileProperties(profileProperties);
-        return orsGraphInfoV1;
+        persistedGraphInfo.setProfileProperties(profileProperties);
+        return persistedGraphInfo;
     }
 
     private GraphManagementRuntimeProperties.Builder managementPropsBuilder() {
@@ -83,27 +85,27 @@ class ORSGraphFileManagerTest {
     }
 
     @Test
-    void writeOrsGraphInfoV1() throws IOException {
+    void writeOrsGraphInfo() throws IOException {
         setupORSGraphManager(managementPropsBuilder().build());
         File testFile = new File(localGraphPath.toFile(), "writeOrsGraphInfoV1.yml");
-        ORSGraphInfoV1 orsGraphInfoV1 = createOrsGraphInfoV1();
+        PersistedGraphInfo persistedGraphInfo = createOrsGraphInfoV1();
         assertFalse(testFile.exists());
 
-        orsGraphFileManager.writeOrsGraphInfoV1(orsGraphInfoV1, testFile);
+        orsGraphFileManager.writeOrsGraphInfo(persistedGraphInfo, testFile);
 
         assertTrue(testFile.exists());
     }
 
     @Test
-    void readOrsGraphInfoV1() throws IOException {
+    void readOrsGraphInfo() throws IOException {
         setupORSGraphManager(managementPropsBuilder().build());
         File writtenTestFile = new File(localGraphPath.toFile(), "readOrsGraphInfoV1.yml");
-        ORSGraphInfoV1 writtenOrsGraphInfoV1 = createOrsGraphInfoV1();
-        ORSGraphFileManager.writeOrsGraphInfoV1(writtenOrsGraphInfoV1, writtenTestFile);
+        PersistedGraphInfo writtenPersistedGraphInfo = createOrsGraphInfoV1();
+        ORSGraphFileManager.writeOrsGraphInfo(writtenPersistedGraphInfo, writtenTestFile);
 
-        ORSGraphInfoV1 readOrsGraphInfoV1 = orsGraphFileManager.readOrsGraphInfoV1(writtenTestFile);
+        PersistedGraphInfo readPersistedGraphInfo = orsGraphFileManager.readOrsGraphInfo(writtenTestFile);
 
-        assertThat(readOrsGraphInfoV1).usingRecursiveComparison().isEqualTo(writtenOrsGraphInfoV1);
+        assertThat(readPersistedGraphInfo).usingRecursiveComparison().isEqualTo(writtenPersistedGraphInfo);
     }
 
     @Test

@@ -6,17 +6,22 @@ import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.matrix.MatrixSearchContext;
 import org.heigit.ors.matrix.MatrixSearchContextBuilder;
+import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.util.ProfileTools;
-import org.heigit.ors.routing.RoutingProfile;
 import org.locationtech.jts.geom.Coordinate;
 
 public class SnappingRequest extends ServiceRequest {
+    @Getter
+    @Setter
+    private String profileName;
     private final int profileType;
     private final Coordinate[] locations;
     private final double maximumSearchRadius;

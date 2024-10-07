@@ -168,7 +168,7 @@ public class ORSGraphManager {
     public ProfileProperties getActiveGraphProfileProperties() {
         return ofNullable(getActiveGraphInfo())
                 .map(GraphInfo::getPersistedGraphInfo)
-                .map(ORSGraphInfoV1::getProfileProperties)
+                .map(PersistedGraphInfo::getProfileProperties)
                 .orElse(null);
     }
 }

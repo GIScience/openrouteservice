@@ -429,7 +429,8 @@ public class ApiService {
 
     public EncoderNameEnum getEncoderForProfile(String profile) {
         //TODO Change: use RoutingProfileManager
-        return ofNullable(engineProperties.getInitializedActiveProfiles().get(profile))
+        return ofNullable(RoutingProfileManager.getInstance().getRoutingProfile(profile))
+                .map(RoutingProfile::getProfileProperties)
                 .map(ProfileProperties::getEncoderName)
                 .orElse(EncoderNameEnum.UNKNOWN);
     }

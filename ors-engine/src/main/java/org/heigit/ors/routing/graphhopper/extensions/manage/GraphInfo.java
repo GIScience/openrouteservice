@@ -16,7 +16,7 @@ public class GraphInfo {
     private Integer compressedGraphBytes;
     private String compressedGraphMd5Sum;
 
-    private ORSGraphInfoV1 persistedGraphInfo;
+    private PersistedGraphInfo persistedGraphInfo;
 
     public URI getRemoteUri() {
         return remoteUri;
@@ -50,11 +50,11 @@ public class GraphInfo {
         this.localDirectory = localDirectory;
     }
 
-    public ORSGraphInfoV1 getPersistedGraphInfo() {
+    public PersistedGraphInfo getPersistedGraphInfo() {
         return persistedGraphInfo;
     }
 
-    public void setPersistedGraphInfo(ORSGraphInfoV1 persistedGraphInfo) {
+    public void setPersistedGraphInfo(PersistedGraphInfo persistedGraphInfo) {
         this.persistedGraphInfo = persistedGraphInfo;
     }
 
@@ -96,7 +96,7 @@ public class GraphInfo {
         return this;
     }
 
-    public GraphInfo withPersistedInfo(ORSGraphInfoV1 persistedGraphInfo) {
+    public GraphInfo withPersistedInfo(PersistedGraphInfo persistedGraphInfo) {
         this.persistedGraphInfo = persistedGraphInfo;
         return this;
     }

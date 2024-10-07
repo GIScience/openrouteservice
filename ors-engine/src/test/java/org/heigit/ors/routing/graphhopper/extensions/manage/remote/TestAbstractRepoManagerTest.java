@@ -1,7 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
-import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
+import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
@@ -30,7 +30,8 @@ public class TestAbstractRepoManagerTest {
     /**
      * This class is used to test the methods of AbstractRepoManager
      */
-    static class TestAbstractRepoManager extends AbstractRepoManager {}
+    static class TestAbstractRepoManager extends AbstractRepoManager {
+    }
 
     @ParameterizedTest
     @MethodSource("shouldDownloadGraphMethodSource")
@@ -66,16 +67,16 @@ public class TestAbstractRepoManagerTest {
                 Arguments.of(epocStart, new GraphInfo().withLocalDirectory(tempDir.toFile())),
                 Arguments.of(epocStart, new GraphInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
                 Arguments.of(epocStart, new GraphInfo().withPersistedInfo(null)),
-                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(new ORSGraphInfoV1())),
-                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(ORSGraphInfoV1.withOsmDate(now))),
-                Arguments.of(now, new GraphInfo().withPersistedInfo(ORSGraphInfoV1.withImportDate(now)))
+                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(new PersistedGraphInfo())),
+                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(PersistedGraphInfo.withOsmDate(now))),
+                Arguments.of(now, new GraphInfo().withPersistedInfo(PersistedGraphInfo.withImportDate(now)))
         );
     }
 
     @ParameterizedTest
     @MethodSource("comparisonDatesForDownloadFiles")
-    public void getDateOrEpocStart(Date expectedDate, File downloadFile, ORSGraphInfoV1 orsGraphInfoV1) throws IOException {
-        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(downloadFile, orsGraphInfoV1));
+    public void getDateOrEpocStart(Date expectedDate, File downloadFile, PersistedGraphInfo persistedGraphInfo) throws IOException {
+        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(downloadFile, persistedGraphInfo));
     }
 
     public static Stream<Arguments> comparisonDatesForDownloadFiles() throws IOException {
@@ -87,19 +88,19 @@ public class TestAbstractRepoManagerTest {
         existingFile.createNewFile();
         return Stream.of(
                 Arguments.of(epocStart, null, null),
-                Arguments.of(epocStart, null, new ORSGraphInfoV1()),
-                Arguments.of(epocStart, null, ORSGraphInfoV1.withOsmDate(now)),
-                Arguments.of(epocStart, null, ORSGraphInfoV1.withImportDate(now)),
+                Arguments.of(epocStart, null, new PersistedGraphInfo()),
+                Arguments.of(epocStart, null, PersistedGraphInfo.withOsmDate(now)),
+                Arguments.of(epocStart, null, PersistedGraphInfo.withImportDate(now)),
 
                 Arguments.of(epocStart, nonexistingFile, null),
-                Arguments.of(epocStart, nonexistingFile, new ORSGraphInfoV1()),
-                Arguments.of(epocStart, nonexistingFile, ORSGraphInfoV1.withOsmDate(now)),
-                Arguments.of(epocStart, nonexistingFile, ORSGraphInfoV1.withImportDate(now)),
+                Arguments.of(epocStart, nonexistingFile, new PersistedGraphInfo()),
+                Arguments.of(epocStart, nonexistingFile, PersistedGraphInfo.withOsmDate(now)),
+                Arguments.of(epocStart, nonexistingFile, PersistedGraphInfo.withImportDate(now)),
 
                 Arguments.of(epocStart, existingFile, null),
-                Arguments.of(epocStart, existingFile, new ORSGraphInfoV1()),
-                Arguments.of(epocStart, existingFile, ORSGraphInfoV1.withOsmDate(now)),
-                Arguments.of(now, existingFile, ORSGraphInfoV1.withImportDate(now))
+                Arguments.of(epocStart, existingFile, new PersistedGraphInfo()),
+                Arguments.of(epocStart, existingFile, PersistedGraphInfo.withOsmDate(now)),
+                Arguments.of(now, existingFile, PersistedGraphInfo.withImportDate(now))
         );
     }
 

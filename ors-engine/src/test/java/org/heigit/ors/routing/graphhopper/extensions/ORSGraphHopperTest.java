@@ -9,7 +9,7 @@ import com.graphhopper.util.InstructionList;
 import com.graphhopper.util.PointList;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
@@ -157,11 +157,11 @@ class ORSGraphHopperTest {
         engineProperties.getProfileDefault().getPreparation().getMethods().getLm().setLandmarks(2);
         engineProperties.getProfileDefault().getExecution().getMethods().getLm().setActiveLandmarks(2);
 
-        ExtendedStorage wayCategory = new ExtendedStorage();
+        ExtendedStorageProperties wayCategory = new ExtendedStorageProperties();
         wayCategory.setEnabled(true);
         engineProperties.getProfileDefault().getExtStorages().put("WayCategory", wayCategory);
 
-        ExtendedStorage greenIndex = new ExtendedStorage();
+        ExtendedStorageProperties greenIndex = new ExtendedStorageProperties();
         greenIndex.setEnabled(true);
         greenIndex.setFilepath(Path.of("/path/to/file.csv"));
         engineProperties.getProfileDefault().getExtStorages().put("GreenIndex", greenIndex);

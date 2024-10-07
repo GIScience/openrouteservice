@@ -17,7 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.plugins.Plugin;
 import org.locationtech.jts.geom.Coordinate;
 
@@ -34,7 +34,7 @@ public interface GraphStorageBuilder extends Plugin {
 
     void processEdge(ReaderWay way, EdgeIteratorState edge, Coordinate[] coords);
 
-    void setParameters(ExtendedStorage parameters);
+    void setParameters(ExtendedStorageProperties parameters);
 
     String getName();
 

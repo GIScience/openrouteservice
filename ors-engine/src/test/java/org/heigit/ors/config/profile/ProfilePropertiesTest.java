@@ -80,7 +80,7 @@ class ProfilePropertiesTest {
         profile.getEncoderOptions().setMaximumGradeLevel(1);
         profile.getEncoderOptions().setPreferredSpeedFactor(0.8);
         profile.getPreparation().getMethods().getCore().setEnabled(true);
-        profile.getExtStorages().put("WayCategory", new ExtendedStorage());
+        profile.getExtStorages().put("WayCategory", new ExtendedStorageProperties());
 
         ProfileProperties defaultProfile = new ProfileProperties();
         defaultProfile.setGraphPath(Path.of("/path/to/graphs/cannot/be/null"));
@@ -91,7 +91,7 @@ class ProfilePropertiesTest {
         defaultProfile.getEncoderOptions().setProblematicSpeedFactor(9.9);
         defaultProfile.getExecution().getMethods().getAstar().setApproximation("Beeline");
         defaultProfile.getPreparation().getMethods().getLm().setEnabled(true);
-        defaultProfile.getExtStorages().put("HeavyVehicle", new ExtendedStorage());
+        defaultProfile.getExtStorages().put("HeavyVehicle", new ExtendedStorageProperties());
 
         profile.mergeDefaults(defaultProfile, "profName");
 
@@ -127,7 +127,7 @@ class ProfilePropertiesTest {
         profile.getExecution().getMethods().getAstar().setApproximation("Beeline");
         profile.getPreparation().getMethods().getLm().setEnabled(true);
         profile.getPreparation().getMethods().getCore().setEnabled(true);
-        profile.getExtStorages().put("WayCategory", new ExtendedStorage());
+        profile.getExtStorages().put("WayCategory", new ExtendedStorageProperties());
 
         ProfileProperties loadedProfile = new ProfileProperties();
         loadedProfile.setElevation(false);
@@ -137,7 +137,7 @@ class ProfilePropertiesTest {
         loadedProfile.getExecution().getMethods().getAstar().setApproximation("should not be here");
         loadedProfile.getPreparation().getMethods().getCh().setEnabled(true);
         loadedProfile.getPreparation().getMethods().getLm().setEnabled(false);
-        loadedProfile.getExtStorages().put("HeavyVehicle", new ExtendedStorage());
+        loadedProfile.getExtStorages().put("HeavyVehicle", new ExtendedStorageProperties());
 
         profile.mergeLoaded(loadedProfile);
 

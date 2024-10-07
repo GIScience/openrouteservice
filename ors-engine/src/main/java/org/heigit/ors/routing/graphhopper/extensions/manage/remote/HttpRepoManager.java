@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
-import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphInfoV1;
+import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 
 import java.io.File;
@@ -49,8 +49,9 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
                 this.managementProps.getGraphVersion(),
                 fileName);
 
-        try { return new URL(urlString); }
-        catch (MalformedURLException e) {
+        try {
+            return new URL(urlString);
+        } catch (MalformedURLException e) {
             LOGGER.debug("[%s] Generated invalid download URL for graphInfo file: %s".formatted(getProfileDescriptiveName(), urlString));
             return null;
         }
@@ -80,7 +81,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
 
         LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
         try {
-            ORSGraphInfoV1 previouslyDownloadedGraphInfo = orsGraphFileManager.getDownloadedGraphInfo();
+            PersistedGraphInfo previouslyDownloadedGraphInfo = orsGraphFileManager.getDownloadedGraphInfo();
             File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
             GraphInfo activeGraphInfo = orsGraphFileManager.getActiveGraphInfo();
             GraphInfo downloadedExtractedGraphInfo = orsGraphFileManager.getDownloadedExtractedGraphInfo();
@@ -121,8 +122,8 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
         }
 
         graphInfoInRepo.setRemoteUrl(downloadUrl);
-        ORSGraphInfoV1 orsGraphInfoV1 = orsGraphFileManager.readOrsGraphInfoV1(downloadedGraphInfoFile);
-        graphInfoInRepo.withPersistedInfo(orsGraphInfoV1);
+        PersistedGraphInfo persistedGraphInfo = orsGraphFileManager.readOrsGraphInfo(downloadedGraphInfoFile);
+        graphInfoInRepo.withPersistedInfo(persistedGraphInfo);
         return graphInfoInRepo;
     }
 

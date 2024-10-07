@@ -118,6 +118,8 @@ public class RoutingService extends ApiService {
 
         RouteSearchParameters params = new RouteSearchParameters();
 
+        params.setProfileName(request.getProfileName());
+
         if (request.hasExtraInfo()) {
             routingRequest.setExtraInfo(convertExtraInfo(request));//todo remove duplicate?
             params.setExtraInfo(convertExtraInfo(request));

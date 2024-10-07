@@ -134,6 +134,7 @@ public class IsochronesAPI {
             @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody IsochronesRequest request) throws Exception {
         request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
         isochronesService.generateIsochronesFromRequest(request);

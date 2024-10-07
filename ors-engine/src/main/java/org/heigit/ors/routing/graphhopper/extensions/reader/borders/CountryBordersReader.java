@@ -27,7 +27,7 @@ import org.locationtech.jts.geom.Geometry;
 import java.io.*;
 import java.util.*;
 
-public class CountryBordersReader {
+public class CountryBordersReader implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(CountryBordersReader.class);
 
     public static final String INTERNATIONAL_NAME = "INTERNATIONAL";
@@ -445,10 +445,28 @@ public class CountryBordersReader {
         }
     }
 
+    public void serialize(File file) {
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file))) {
+            objectOutputStream.writeObject(this);
+            objectOutputStream.flush();
+        } catch (Exception exception) {
+            LOGGER.error("Could not write the CountryBordersReader object to file: " + exception.getMessage());
+        }
+    }
+
+    public static CountryBordersReader deserialize(File file) {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file))) {
+            currentInstance = (CountryBordersReader) objectInputStream.readObject();
+        } catch (Exception exception) {
+            LOGGER.error("Could not read the CountryBordersReader object from file: " + exception.getMessage());
+        }
+        return currentInstance;
+    }
+
     /**
      * Holder class for storing information about a country read from the ids csv.
      */
-    private static class CountryInfo {
+    private static class CountryInfo implements Serializable {
         private String id;
         private String name;
         private String nameEng;

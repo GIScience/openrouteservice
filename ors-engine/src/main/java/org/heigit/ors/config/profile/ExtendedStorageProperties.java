@@ -19,9 +19,9 @@ import static java.util.Optional.ofNullable;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ExtendedStorage {
+public class ExtendedStorageProperties {
     @JsonIgnore
-    private static final Logger LOGGER = Logger.getLogger(ExtendedStorage.class);
+    private static final Logger LOGGER = Logger.getLogger(ExtendedStorageProperties.class);
 
     @JsonIgnore
     private ExtendedStorageName storageName;
@@ -72,18 +72,22 @@ public class ExtendedStorage {
     @JsonProperty("kerbs_on_crossings")
     private Boolean kerbsOnCrossings;
 
+    // Relevant for Csv
+    @JsonProperty("column_names")
+    private String[] columnNames;
+
     @JsonIgnore
     private String ghProfile;
 
     @JsonCreator
-    public ExtendedStorage() {
+    public ExtendedStorageProperties() {
     }
 
     @JsonCreator
-    public ExtendedStorage(String ignoredEmpty) {
+    public ExtendedStorageProperties(String ignoredEmpty) {
     }
 
-    public void merge(ExtendedStorage other) {
+    public void merge(ExtendedStorageProperties other) {
         storageName = ofNullable(this.storageName).orElse(other.storageName);
         enabled = ofNullable(this.enabled).orElse(other.enabled);
         filepath = ofNullable(this.filepath).orElse(other.filepath);

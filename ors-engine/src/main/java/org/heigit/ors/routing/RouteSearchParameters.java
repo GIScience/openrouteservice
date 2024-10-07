@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.parameters.VehicleParameters;
@@ -29,6 +31,9 @@ import java.time.LocalDateTime;
 public class RouteSearchParameters {
 
     public static final int DEFAULT_HGV_VEHICLE_TYPE = HeavyVehicleAttributes.HGV;
+    @Getter
+    @Setter
+    private String profileName;
     private int profileType;
     private int weightingMethod = WeightingMethod.RECOMMENDED;
     private Boolean considerTurnRestrictions = false;

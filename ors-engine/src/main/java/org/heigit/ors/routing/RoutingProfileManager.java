@@ -26,7 +26,6 @@ import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
-import org.heigit.ors.mapmatching.MapMatchingRequest;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
@@ -36,6 +35,7 @@ import org.locationtech.jts.geom.Coordinate;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -45,7 +45,7 @@ public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
     private static final String SOURCE_PROPERTY_NAME = "source_file";
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
-    private RoutingProfilesCollection routingProfiles;
+    private LinkedHashMap<String, RoutingProfile> routingProfiles = new LinkedHashMap<>();
     private static RoutingProfileManager instance;
 
     public RoutingProfileManager(EngineProperties config, String graphVersion) {
@@ -73,7 +73,6 @@ public class RoutingProfileManager {
             }
             int initializationThreads = config.getInitThreads();
             LOGGER.info("====> Initializing %d profiles (%d threads) ...".formatted(profiles.size(), initializationThreads));
-            routingProfiles = new RoutingProfilesCollection();
             RoutingProfileLoadContext loadContext = new RoutingProfileLoadContext();
             ExecutorService executor = Executors.newFixedThreadPool(initializationThreads);
             ExecutorCompletionService<RoutingProfile> compService = new ExecutorCompletionService<>(executor);
@@ -94,8 +93,7 @@ public class RoutingProfileManager {
                 try {
                     RoutingProfile rp = future.get();
                     nCompletedTasks++;
-                    if (!routingProfiles.add(rp))
-                        LOGGER.warn("Routing profile has already been added.");
+                    routingProfiles.put(rp.getProfileName(), rp);
                 } catch (ExecutionException e) {
                     LOGGER.debug(e);
                     if (ExceptionUtils.indexOfThrowable(e, FileNotFoundException.class) != -1) {
@@ -125,11 +123,39 @@ public class RoutingProfileManager {
         }
         RuntimeUtility.clearMemory(LOGGER);
         if (LOGGER.isInfoEnabled())
-            routingProfiles.printStatistics(LOGGER);
+            printStatistics();
+    }
+
+    private void printStatistics() {
+        LOGGER.info("====> Memory usage by profiles:");
+        long totalUsedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long totalProfilesMemory = 0;
+
+        int i = 0;
+        for (RoutingProfile profile : getUniqueProfiles()) {
+            i++;
+            long profileMemory = profile.getMemoryUsage();
+            totalProfilesMemory += profileMemory;
+            LOGGER.info("[%d] %s (%.1f%%)".formatted(i, RuntimeUtility.getMemorySize(profileMemory), ((double) profileMemory / totalUsedMemory) * 100));
+        }
+        LOGGER.info("Total: %s (%.1f%%)".formatted(RuntimeUtility.getMemorySize(totalProfilesMemory), ((double) totalProfilesMemory / totalUsedMemory) * 100));
+        LOGGER.info("========================================================================");
+    }
+
+    public RoutingProfile getRoutingProfile(String profileName) {
+        if (!routingProfiles.containsKey(profileName))
+            return null;
+        return routingProfiles.get(profileName);
+    }
+
+    public List<RoutingProfile> getUniqueProfiles() {
+        return new ArrayList<>(routingProfiles.values());
     }
 
     public void destroy() {
-        routingProfiles.destroy();
+        for (RoutingProfile rp : routingProfiles.values()) {
+            rp.close();
+        }
         instance = null;
     }
 
@@ -141,27 +167,10 @@ public class RoutingProfileManager {
         RoutingProfileManagerStatus.setShutdown(true);
     }
 
-    public RoutingProfilesCollection getProfiles() {
-        return routingProfiles;
-    }
-
-    public RoutingProfile getProfileFromType(int profileType) {
-        return routingProfiles.getRouteProfile(profileType);
-    }
-
-    public RoutingProfile getProfileFromType(int profileType, boolean chEnabled) {
-        return routingProfiles.getRouteProfile(profileType, chEnabled);
-    }
-
-    public RouteResult matchTrack(MapMatchingRequest req) throws Exception {
-        LOGGER.error("mapmatching not implemented. " + req);
-        throw new UnsupportedOperationException("mapmatching not implemented. " + req);
-    }
-
     public RouteResult[] computeRoundTripRoute(RoutingRequest req) throws Exception {
         List<GHResponse> routes = new ArrayList<>();
 
-        RoutingProfile rp = getRouteProfile(req, false);
+        RoutingProfile rp = getRouteProfileForRequest(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
         ProfileProperties profileProperties = rp.getProfileConfiguration();
 
@@ -248,7 +257,7 @@ public class RoutingProfileManager {
         List<Integer> skipSegments = req.getSkipSegments();
         List<GHResponse> routes = new ArrayList<>();
 
-        RoutingProfile rp = getRouteProfile(req, false);
+        RoutingProfile rp = getRouteProfileForRequest(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
 
         Coordinate[] coords = req.getCoordinates();
@@ -257,7 +266,7 @@ public class RoutingProfileManager {
         int nSegments = coords.length - 1;
         GHResponse prevResp = null;
         WayPointBearing[] bearings = (req.getContinueStraight() || searchParams.getBearings() != null) ? new WayPointBearing[2] : null;
-        int profileType = req.getSearchParameters().getProfileType();
+        String profileName = req.getSearchParameters().getProfileName();
         double[] radiuses = null;
 
         if (req.getSearchParameters().getAlternativeRoutesCount() > 1 && coords.length > 2) {
@@ -288,7 +297,7 @@ public class RoutingProfileManager {
                 radiuses[1] = searchParams.getMaximumRadiuses()[i];
             } else {
                 try {
-                    int maximumSnappingRadius = routingProfiles.getRouteProfile(profileType).getProfileConfiguration().getMaximumSnappingRadius();
+                    int maximumSnappingRadius = getRoutingProfile(profileName).getProfileConfiguration().getMaximumSnappingRadius();
                     radiuses = new double[2];
                     radiuses[0] = maximumSnappingRadius;
                     radiuses[1] = maximumSnappingRadius;
@@ -361,7 +370,7 @@ public class RoutingProfileManager {
                                 // -1 is used to indicate the use of internal limits instead of specifying it in the request.
                                 // we should therefore let them know that they are already using the limit.
                                 if (pointRadius == -1) {
-                                    pointRadius = routingProfiles.getRouteProfile(profileType).getProfileConfiguration().getMaximumSnappingRadius();
+                                    pointRadius = getRoutingProfile(profileName).getProfileConfiguration().getMaximumSnappingRadius();
                                     message.append("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.".formatted(
                                             pointRadius,
                                             pointReference,
@@ -499,21 +508,18 @@ public class RoutingProfileManager {
             return 0;
     }
 
-    public RoutingProfile getRouteProfile(RoutingRequest req, boolean oneToMany) throws Exception {
+    public RoutingProfile getRouteProfileForRequest(RoutingRequest req, boolean oneToMany) throws Exception {
         RouteSearchParameters searchParams = req.getSearchParameters();
-        int profileType = searchParams.getProfileType();
+        String profileName = searchParams.getProfileName();
 
         boolean fallbackAlgorithm = searchParams.requiresFullyDynamicWeights();
         boolean dynamicWeights = searchParams.requiresDynamicPreprocessedWeights();
         boolean useAlternativeRoutes = searchParams.getAlternativeRoutesCount() > 1;
 
-        RoutingProfile rp = routingProfiles.getRouteProfile(profileType, !dynamicWeights);
-
-        if (rp == null && !dynamicWeights)
-            rp = routingProfiles.getRouteProfile(profileType, false);
+        RoutingProfile rp = getRoutingProfile(profileName);
 
         if (rp == null)
-            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to get an appropriate route profile for RoutePreference = " + RoutingProfileType.getName(req.getSearchParameters().getProfileType()));
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to get an appropriate routing profile for the name " + profileName + ".");
 
         ProfileProperties profileProperties = rp.getProfileConfiguration();
 
@@ -585,10 +591,7 @@ public class RoutingProfileManager {
      * @throws Exception
      */
     public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
-
-        int profileType = parameters.getRouteParameters().getProfileType();
-        RoutingProfile rp = routingProfiles.getRouteProfile(profileType, false);
-
+        RoutingProfile rp = getRoutingProfile(parameters.getRouteParameters().getProfileName());
         return rp.buildIsochrone(parameters);
     }
 

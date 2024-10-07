@@ -154,6 +154,7 @@ public class IsochronesService extends ApiService {
 
     IsochroneRequest convertIsochroneRequest(IsochronesRequest isochronesRequest) throws Exception {
         IsochroneRequest convertedIsochroneRequest = new IsochroneRequest();
+        convertedIsochroneRequest.setProfileName(isochronesRequest.getProfileName());
         EndpointsProperties.EndpointIsochronesProperties isochroneProperties = endpointsProperties.getIsochrones();
         convertedIsochroneRequest.setMaximumLocations(isochroneProperties.getMaximumLocations());
         convertedIsochroneRequest.setAllowComputeArea(isochroneProperties.isAllowComputeArea());
@@ -256,6 +257,7 @@ public class IsochronesService extends ApiService {
 
     RouteSearchParameters constructRouteSearchParameters(IsochronesRequest isochronesRequest) throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setProfileName(isochronesRequest.getProfileName());
         int profileType;
         try {
             profileType = convertToIsochronesProfileType(isochronesRequest.getProfile());
@@ -314,7 +316,7 @@ public class IsochronesService extends ApiService {
         Integer res;
 
         RoutingProfileManager rpm = RoutingProfileManager.getInstance();
-        FastIsochroneFactory fastIsochroneFactory = rpm.getProfiles().getRouteProfile(profileType).getGraphhopper().getFastIsochroneFactory();
+        FastIsochroneFactory fastIsochroneFactory = rpm.getRoutingProfile(traveller.getRouteSearchParameters().getProfileName()).getGraphhopper().getFastIsochroneFactory();
         if (fastIsochroneFactory.isEnabled() && calcMethod.equalsIgnoreCase("fastisochrone"))
             return getMaximumRangeFastIsochrone(traveller, isochroneRequest);
 

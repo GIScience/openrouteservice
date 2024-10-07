@@ -17,7 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
@@ -86,7 +86,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorage parameters;
+        ExtendedStorageProperties parameters;
         try {
             parameters = this.parameters;
         } catch (ClassCastException e) {

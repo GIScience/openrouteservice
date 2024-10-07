@@ -29,7 +29,7 @@ public class SnappingService extends ApiService {
         SnappingRequest snappingRequest = this.convertSnappingRequest(snappingApiRequest);
         validateAgainstConfig(snappingRequest);
         try {
-            RoutingProfile rp = RoutingProfileManager.getInstance().getProfileFromType(snappingRequest.getProfileType());
+            RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(snappingRequest.getProfileName());
             if (rp == null)
                 throw new InternalServerException(SnappingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             return snappingRequest.computeResult(rp);
@@ -53,6 +53,7 @@ public class SnappingService extends ApiService {
         SnappingRequest snappingRequest = new SnappingRequest(profileType,
                 convertLocations(snappingApiRequest.getLocations()), snappingApiRequest.getMaximumSearchRadius());
         EndpointsProperties.EndpointSnapProperties snapProperties = endpointsProperties.getSnap();
+        snappingRequest.setProfileName(snappingApiRequest.getProfileName());
         snappingRequest.setMaximumLocations(snapProperties.getMaximumLocations());
         if (snappingApiRequest.hasId())
             snappingRequest.setId(snappingApiRequest.getId());
@@ -63,7 +64,7 @@ public class SnappingService extends ApiService {
     private Coordinate[] convertLocations(List<List<Double>> locations) throws StatusCodeException {
         Coordinate[] coordinates = new Coordinate[locations.size()];
         int i = 0; // apparently stream().map() does not work with exceptions
-        for (var location: locations) {
+        for (var location : locations) {
             coordinates[i] = convertLocation(location);
             i++;
         }

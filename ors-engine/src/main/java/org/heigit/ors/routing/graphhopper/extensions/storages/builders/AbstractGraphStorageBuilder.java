@@ -16,14 +16,14 @@ package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
 import lombok.Setter;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Map;
 
 @Setter
 public abstract class AbstractGraphStorageBuilder implements GraphStorageBuilder {
-    protected ExtendedStorage parameters;
+    protected ExtendedStorageProperties parameters;
 
     public void processWay(ReaderWay way, Coordinate[] coords, Map<Integer, Map<String, String>> nodeTags) {
         processWay(way);

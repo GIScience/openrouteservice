@@ -37,7 +37,7 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.geojson.geom.GeometryJSON;
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.mapmatching.GhMapMatcher;
 import org.heigit.ors.mapmatching.MapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
@@ -56,6 +56,7 @@ import org.locationtech.jts.io.WKTReader;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -104,7 +105,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         if (storage != null)
             throw new UnsupportedOperationException("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorage parameters;
+        ExtendedStorageProperties parameters;
         try {
             parameters = this.parameters;
         } catch (ClassCastException e) {
@@ -114,47 +115,52 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
         enabled = parameters.getEnabled() == null || parameters.getEnabled();
 
         if (enabled) {
-            if (parameters.getStreets() != null)
-                streetsFile = parameters.getStreets().toString();
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_STREETS);
-            }
-            if (parameters.getPattern15Min() != null)
-                patterns15MinutesFile = parameters.getPattern15Min().toString();
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_PATTERNS_15MINUTES);
-            }
-            if (parameters.getRefPattern() != null)
-                refPatternIdsFile = parameters.getRefPattern().toString();
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_REFERENCE_PATTERN);
-            }
-            if (parameters.getOutputLog() != null)
-                outputLog = parameters.getOutputLog();
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_OUTPUT_LOG);
-            }
-            if (parameters.getRadius() != null)
-                matchingRadius = parameters.getRadius();
-            else {
-                ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, MATCHING_RADIUS);
-                LOGGER.info("The Here matching radius is not set. The default is applied!");
+            File expectedStorageFileLocation1 = Path.of(graphhopper.getGraphHopperLocation() + "/ext_traffic_edge_properties").toFile();
+            File expectedStorageFileLocation2 = Path.of(graphhopper.getGraphHopperLocation() + "/ext_traffic_edges_traffic_lookup").toFile();
+            File expectedStorageFileLocation3 = Path.of(graphhopper.getGraphHopperLocation() + "/ext_traffic_pattern_lookup").toFile();
+            if (!expectedStorageFileLocation1.exists() || !expectedStorageFileLocation2.exists() || !expectedStorageFileLocation3.exists()) {
+                if (parameters.getStreets() != null)
+                    streetsFile = parameters.getStreets().toString();
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_STREETS);
+                }
+                if (parameters.getPattern15Min() != null)
+                    patterns15MinutesFile = parameters.getPattern15Min().toString();
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_PATTERNS_15MINUTES);
+                }
+                if (parameters.getRefPattern() != null)
+                    refPatternIdsFile = parameters.getRefPattern().toString();
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_REFERENCE_PATTERN);
+                }
+                if (parameters.getOutputLog() != null)
+                    outputLog = parameters.getOutputLog();
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, PARAM_KEY_OUTPUT_LOG);
+                }
+                if (parameters.getRadius() != null)
+                    matchingRadius = parameters.getRadius();
+                else {
+                    ErrorLoggingUtility.logMissingConfigParameter(HereTrafficGraphStorageBuilder.class, MATCHING_RADIUS);
+                    LOGGER.info("The Here matching radius is not set. The default is applied!");
+                }
+
+                gh = graphhopper;
+                mMapMatcher = new GhMapMatcher(graphhopper, parameters.getGhProfile());
+
+                Logger progressBarLogger = ProgressBarLogger.getLogger();
+
+                // Initialize the progress bar with the print stream and the style of the progress bar.
+                progressBar = new ProgressBarBuilder()
+                        .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
+                        .setUpdateIntervalMillis(5000) // slow update for better visualization and less IO. Avoids % calculation for each element.
+                        .setConsumer(new DelegatingProgressBarConsumer(progressBarLogger::info));
             }
             storage = new TrafficGraphStorage();
         } else {
             LOGGER.info("Traffic not enabled.");
         }
-
-        gh = graphhopper;
-        mMapMatcher = new GhMapMatcher(graphhopper, parameters.getGhProfile());
-
-        Logger progressBarLogger = ProgressBarLogger.getLogger();
-
-        // Initialize the progress bar with the print stream and the style of the progress bar.
-        progressBar = new ProgressBarBuilder()
-                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
-                .setUpdateIntervalMillis(5000) // slow update for better visualization and less IO. Avoids % calculation for each element.
-                .setConsumer(new DelegatingProgressBarConsumer(progressBarLogger::info));
         return storage;
     }
 

@@ -12,7 +12,7 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ORSGraphInfoV1 { //TOOD rename (remove V1)
+public class PersistedGraphInfo {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     private Date importDate;
@@ -23,14 +23,14 @@ public class ORSGraphInfoV1 { //TOOD rename (remove V1)
     @JsonProperty("profile_properties")
     private ProfileProperties profileProperties;
 
-    public static ORSGraphInfoV1 withOsmDate(Date osmDate){
-        ORSGraphInfoV1 graphInfo = new ORSGraphInfoV1();
+    public static PersistedGraphInfo withOsmDate(Date osmDate) {
+        PersistedGraphInfo graphInfo = new PersistedGraphInfo();
         graphInfo.setOsmDate(osmDate);
         return graphInfo;
     }
 
-    public static ORSGraphInfoV1 withImportDate(Date importDate){
-        ORSGraphInfoV1 graphInfo = new ORSGraphInfoV1();
+    public static PersistedGraphInfo withImportDate(Date importDate) {
+        PersistedGraphInfo graphInfo = new PersistedGraphInfo();
         graphInfo.setImportDate(importDate);
         return graphInfo;
     }

@@ -13,10 +13,10 @@
  */
 package org.heigit.ors.plugins;
 
-import org.heigit.ors.config.profile.ExtendedStorage;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 
 public interface Plugin {
     String getName();
 
-    void setParameters(ExtendedStorage parameters);
+    void setParameters(ExtendedStorageProperties parameters);
 }

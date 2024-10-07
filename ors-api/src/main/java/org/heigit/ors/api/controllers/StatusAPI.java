@@ -61,7 +61,7 @@ public class StatusAPI {
         if (RoutingProfileManagerStatus.isReady()) {
             RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
 
-            if (!profileManager.getProfiles().getUniqueProfiles().isEmpty()) {
+            if (!profileManager.getUniqueProfiles().isEmpty()) {
 
                 List<String> list = new ArrayList<>(4);
                 if (endpointsProperties.getRouting().isEnabled())
@@ -78,7 +78,7 @@ public class StatusAPI {
                 org.json.JSONObject jProfiles = new org.json.JSONObject(true);
                 int i = 1;
 
-                for (RoutingProfile rp : profileManager.getProfiles().getUniqueProfiles()) {
+                for (RoutingProfile rp : profileManager.getUniqueProfiles()) {
                     ProfileProperties profile = rp.getProfileConfiguration();
                     org.json.JSONObject jProfileProps = new org.json.JSONObject(true);
 
