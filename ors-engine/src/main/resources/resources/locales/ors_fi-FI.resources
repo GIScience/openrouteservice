@@ -1,0 +1,96 @@
+{
+	instructions {
+		"numerals": {
+			"1": "1.",
+			"2": "2.",
+			"3": "3.",
+			"4": "4.",
+			"5": "5.",
+			"6": "6.",
+			"7": "7.",
+			"8": "8.",
+			"9": "9.",
+			"10": "10."
+		},
+		"directions": {
+			"north": "pohjoiseen",
+			"northeast": "koilliseen",
+			"east": "itään",
+			"southeast": "kaakkoon",
+			"south": "etelään",
+			"southwest": "lounaseen",
+			"west": "länteen",
+			"northwest": "luoteseen"
+		},
+		"turn_maneuvers": {
+			"left": "vasemmalle",
+			"right": "oikealle",
+			"sharp_left": "jyrkästi vasemalle",
+			"sharp_right": "jyrkästi oikealle",
+			"slight_left": "loivasti vasemalle",
+			"slight_right": "loivasti oikealle",
+			"straight": "suoraan",
+			"uturn": "u-käännös"
+		},
+		"actions": {
+			"arrive": {
+           		 	"default": {
+		                "default": "Kohde saavutettu",
+						"name": "Saavu tielle {way_name}"
+                	},
+					"left": {
+						"default": "Kohde saavutettu (vasemmalla)",
+						"name": "Saavu tielle {way_name}, (vasemalla)"
+					},
+					"right": {
+						"default": "Kohde saavutettu (oikealla)",
+						"name": "Saavu tielle {way_name}, (oikealla)"
+					},
+					"straight": {
+						"default": "Kohde saavutettu (suoraan edessä)",
+						"name": "Saavu tielle {way_name}, (suoraan edessä)"
+					}
+			},          
+			"depart": {
+				"default": {
+					"default": "Suntaa {direction}",
+					"name": "Suntaa {direction} tielle {way_name}"
+				}
+			},
+			"roundabout": {
+				"default": {
+					"exit": {
+						"default": "Aja liikenneympyrään ja poistu liittymästä {exit_number}",
+						"name": "Aja liikenneympyrään ja poistu liittymästä {exit_number} tielle {wayname}"
+					},
+					"default": {
+						"default": "Aja liikenneympyrään",
+						"name": "Aja liikenneympyrään ja poistu tielle {way_name}"
+					}
+				}
+			},
+			"turn": {
+				"default": {
+					"default": "Käänny {turn_maneuver}",
+					"name": "Käänny {turn_maneuver} tielle {way_name}",
+				},
+			},
+			"continue": {
+				"default": {
+					"default": "Jatka {turn_maneuver}",
+					"name": "Jatka {turn_maneuver} tielle {way_name}"
+				},
+				"uturn": {
+					"default": "Tee u-käännös",
+					"name": "Tee u-käännös {way_name}"
+				}
+			}
+			"keep": {
+				"default": {
+					"default": "Ryhmittäydy {turn_maneuver}",
+					"name": "Ryhmittäydy {turn_maneuver} tielle {way_name}"
+				},
+			}
+		}
+	}
+}
