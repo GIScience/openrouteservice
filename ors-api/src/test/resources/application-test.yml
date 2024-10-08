@@ -263,6 +263,18 @@ ors:
           block_fords: false
         maximum_visited_nodes: 15000
         gtfs_file: ./src/test/files/vrn_gtfs_cut.zip
+      driving-car-no-preparations:
+        enabled: true
+        encoder_name: driving-car
+        encoder_options:
+          turn_costs: false
+          block_fords: false
+          use_acceleration: false
+          maximum_grade_level: 1
+          conditional_access: false
+          conditional_speed: false
+        preparation:
+          min_network_size: 200
 
   messages:
     - active: true

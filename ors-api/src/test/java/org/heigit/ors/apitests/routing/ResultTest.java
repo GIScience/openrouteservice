@@ -153,6 +153,7 @@ class ResultTest extends ServiceTest {
         addParameter("carProfile", "driving-car");
         addParameter("footProfile", "foot-walking");
         addParameter("ptProfile", "public-transport");
+        addParameter("carCustomProfile", "driving-car-no-preparations");
     }
 
     @Test
@@ -837,6 +838,31 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('segments')", is(true))
+                .body("routes[0].containsKey('legs')", is(false))
+                .statusCode(200);
+    }
+
+    @Test
+    void testSecondCarProfileLookup() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesLong"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carCustomProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("metadata.query.profile", is("driving-car"))
+                .body("metadata.query.profileName", is("driving-car-no-preparations"))
                 .body("routes[0].containsKey('segments')", is(true))
                 .body("routes[0].containsKey('legs')", is(false))
                 .statusCode(200);
