@@ -405,6 +405,8 @@ public class APIEnums {
         EO_EO("eo-eo"),
         ES("es"),
         ES_ES("es-es"),
+        FI("fi"),
+        FI("fi-fi"),
         FR("fr"),
         FR_FR("fr-fr"),
         GR("gr"),
