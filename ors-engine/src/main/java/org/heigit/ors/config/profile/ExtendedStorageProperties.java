@@ -23,9 +23,6 @@ public class ExtendedStorageProperties {
     @JsonIgnore
     private static final Logger LOGGER = Logger.getLogger(ExtendedStorageProperties.class);
 
-    @JsonIgnore
-    private ExtendedStorageName storageName;
-
     // Relevant for all
     @JsonProperty("enabled")
     private Boolean enabled;
@@ -88,7 +85,6 @@ public class ExtendedStorageProperties {
     }
 
     public void merge(ExtendedStorageProperties other) {
-        storageName = ofNullable(this.storageName).orElse(other.storageName);
         enabled = ofNullable(this.enabled).orElse(other.enabled);
         filepath = ofNullable(this.filepath).orElse(other.filepath);
         restrictions = ofNullable(this.restrictions).orElse(other.restrictions);
@@ -158,8 +154,6 @@ public class ExtendedStorageProperties {
             this.setEnabled(false);
             return;
         }
-
-        this.storageName = storageName;
 
         if (enabled == null) {
             enabled = true;

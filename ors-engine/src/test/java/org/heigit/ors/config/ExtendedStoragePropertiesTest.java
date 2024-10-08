@@ -97,14 +97,6 @@ class ExtendedStoragePropertiesTest {
         return true;
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"WayCategory", "WaySurfaceType", "HeavyVehicle", "RoadAccessRestrictions", "Tollways", "HillIndex", "TrailDifficulty", "Wheelchair", "OsmId"})
-    void testStorageName(String storageName) {
-        ExtendedStorageProperties storage = new ExtendedStorageProperties();
-        storage.initialize(ExtendedStorageName.getEnum(storageName));
-        assertEquals(ExtendedStorageName.getEnum(storageName), storage.getStorageName(), "Storage name should be set correctly");
-    }
-
     @Test
     void testDefaultConstructor() {
         ExtendedStorageProperties storage = new ExtendedStorageProperties();

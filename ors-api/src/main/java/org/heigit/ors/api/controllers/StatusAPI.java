@@ -76,18 +76,12 @@ public class StatusAPI {
                 jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
 
                 org.json.JSONObject jProfiles = new org.json.JSONObject(true);
-                int i = 1;
-
                 for (RoutingProfile rp : profileManager.getUniqueProfiles()) {
                     ProfileProperties profile = rp.getProfileConfiguration();
                     org.json.JSONObject jProfileProps = new org.json.JSONObject(true);
 
-                    jProfileProps.put("profiles", profile.getProfileName().toString());
-                    StorableProperties storageProps = rp.getGraphProperties();
-                    jProfileProps.put("creation_date", storageProps.get("osmreader.import.date"));
-
-                    if (profile.getExtStorages() != null && !profile.getExtStorages().isEmpty())
-                        jProfileProps.put("storages", profile.getExtStorages());
+                    jProfileProps.put("encoder_name", profile.getEncoderName().getName());
+                    jProfileProps.put("creation_date", rp.getGraphProperties().get("datareader.import.date"));
 
                     org.json.JSONObject jProfileLimits = new org.json.JSONObject(true);
                     if (profile.getMaximumDistance() != null)
@@ -105,9 +99,10 @@ public class StatusAPI {
                     if (!jProfileLimits.isEmpty())
                         jProfileProps.put("limits", jProfileLimits);
 
-                    jProfiles.put("profile " + i, jProfileProps);
+                    if (profile.getExtStorages() != null && !profile.getExtStorages().isEmpty())
+                        jProfileProps.put("storages", profile.getExtStorages());
 
-                    i++;
+                    jProfiles.put(profile.getProfileName(), jProfileProps);
                 }
 
                 jInfo.put("profiles", jProfiles);
