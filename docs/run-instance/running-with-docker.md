@@ -26,7 +26,7 @@ Starting with openrouteservice v8.0.0, you can (and should) download the compose
 on the [releases page](https://github.com/GIScience/openrouteservice/releases), in the browser or e.g. with 
 
 ```shell
-wget https://github.com/GIScience/openrouteservice/releases/download/v8.0.0/docker-compose.yml
+wget https://github.com/GIScience/openrouteservice/releases/latest/download/docker-compose.yml
 ```
 
 Now start openrouteservice in the background:
