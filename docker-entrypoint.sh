@@ -5,6 +5,7 @@
 ########################
 # Log level functions
 CONTAINER_LOG_LEVEL=${CONTAINER_LOG_LEVEL:-"INFO"}
+REBUILD_ON_PBF_CHANGE=${REBUILD_ON_PBF_CHANGE:-"false"}
 # Success message in green. Always printed
 function success() {
   echo -e "\e[32m✓ $1\e[0m"
@@ -42,6 +43,8 @@ function debug() {
   return 0
 }
 function set_log_level() {
+  # set CONTAINER_LOG_LEVEL to uppercase
+  CONTAINER_LOG_LEVEL=$(echo "${CONTAINER_LOG_LEVEL}" | tr '[:lower:]' '[:upper:]')
   case ${CONTAINER_LOG_LEVEL} in
   "DEBUG")
     container_log_level_int=10
@@ -68,7 +71,7 @@ function set_log_level() {
   success "CONTAINER_LOG_LEVEL: ${CONTAINER_LOG_LEVEL}. Set CONTAINER_LOG_LEVEL=DEBUG for more details."
 }
 
-update_file() {
+function update_file() {
   local target_file_path="$1"
   local original_file_path="$2"
   # Default to false
@@ -85,7 +88,7 @@ update_file() {
   fi
 }
 
-extract_config_info() {
+function extract_config_info() {
   local config_location="$1"
   local config_variable="$2"
   local config_value=""
@@ -100,6 +103,63 @@ extract_config_info() {
   fi
   # Return the value
   echo "${config_value}"
+}
+
+function calculate_hash() {
+  local file_path="$1"
+  sha256sum "${file_path}" | awk '{print $1}'
+}
+
+function pbf_is_remote() {
+  local pbf_source_uri="$1"
+  # if http or https is in the string, it is a remote file
+  if [[ "${pbf_source_uri}" =~ ^http:// || "${pbf_source_uri}" =~ ^https:// ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+function download_pbf_file() {
+  local pbf_source_uri="$1"
+  local pbf_target_file="$2"
+
+  if pbf_is_remote "${pbf_source_uri}"; then
+    if [ ! -f "${pbf_target_file}" ]; then
+      wget -O "${pbf_target_file}" "${pbf_source_uri}" || critical "Failed to download PBF file from ${pbf_source_uri}. Exiting."
+      success "Downloaded PBF file from ${pbf_source_uri} to ${pbf_target_file}"
+    else
+      success "PBF file is an URL and already exists locally. Skipping download."
+      info "For a fresh download remove it with: docker exec -it ors-container-name rm ${pbf_target_file}"
+    fi
+  else
+    debug "PBF file is a local file."
+  fi
+}
+
+
+function validate_rebuild_needed() {
+  # Validate the PBF file hash and return 0 if the hash has changed.
+  local pbf_target_file="$1"
+  local pbf_target_hash_path="$2"
+
+  local external_pbf_file_hash
+  external_pbf_file_hash=$(calculate_hash "${pbf_target_file}")
+
+  local stored_pbf_hash_file="${pbf_target_hash_path}"
+  local stored_pbf_hash="NONE"
+  if [ -f "${stored_pbf_hash_file}" ]; then
+    stored_pbf_hash=$(cat "${stored_pbf_hash_file}")
+  fi
+
+  debug "External PBF file Hash: ${external_pbf_file_hash}"
+  debug "Graph PBF file Hash: ${stored_pbf_hash}"
+
+  if [ "${external_pbf_file_hash}" != "${stored_pbf_hash}" ]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 echo "#################"
@@ -254,10 +314,21 @@ else
 fi
 
 if [ -n "${ors_engine_source_file}" ]; then
-  debug "OSM source file set to ${ors_engine_source_file}"
+  success "OSM source file set to ${ors_engine_source_file}"
   # Check if it is the example file in root or the home folder
   if [[ "${ors_engine_source_file}" = "${ORS_HOME}/files/example-heidelberg.osm.gz" ]]; then
     info "Default to example osm source file: \"${ors_engine_source_file}\""
+  fi
+fi
+
+# Check if osm file is remote and if so, check its reachable
+if pbf_is_remote "${ors_engine_source_file}"; then
+  debug "Testing if OSM remote source file is reachable."
+  if ! wget --quiet --spider "${ors_engine_source_file}"; then
+    warning "OSM source file is a remote file but not reachable."
+    warning "Check the URL and your network connection. Continuing with the broken link."
+  else
+    success "OSM source file is a remote file and reachable."
   fi
 fi
 
@@ -273,6 +344,33 @@ chown -R "$(whoami)" "${ORS_HOME}"; debug "Changed ownership of ${ORS_HOME} to $
 
 update_file "${ORS_HOME}/files/example-heidelberg.osm.gz" "/heidelberg.osm.gz"
 
+
+# Check if we need to rebuild graphs based on PBF file changes
+if pbf_is_remote "${ors_engine_source_file}"; then
+  debug "ors_engine_source_file is a remote file: ${ors_engine_source_file}"
+  ors_engine_target_file="${ORS_HOME}/files/$(basename "${ors_engine_source_file}")"
+  download_pbf_file "${ors_engine_source_file}" "${ors_engine_target_file}"
+  ors_engine_source_file="${ors_engine_target_file}"
+  debug "ors_engine_source_file is now set to: ${ors_engine_source_file}"
+fi
+
+if validate_rebuild_needed "${ors_engine_source_file}" "${ors_engine_graphs_root_path}/.hash"; then
+  if [ "${REBUILD_ON_PBF_CHANGE}" = "true" ]; then
+    ors_rebuild_graphs="true"
+    success "PBF and Graph hashes not equal and REBUILD_ON_PBF_CHANGE=true. Rebuilding graphs."
+  else
+    info "PBF and Graph hashes are not equal but REBUILD_ON_PBF_CHANGE=false. Skipping graph rebuild."
+    info "Set environment variable REBUILD_ON_PBF_CHANGE=true to rebuild graphs based on PBF file changes."
+  fi
+else
+  if [ "${ors_rebuild_graphs}" = "true" ]; then
+    success "PBF and graph hashes are equal but REBUILD_GRAPHS=true. Rebuilding graphs."
+  else
+    success "PBF and graph hashes are equal and no rebuild configured. Skipping graph rebuild."
+  fi
+fi
+
+
 # Remove existing graphs if BUILD_GRAPHS is set to true
 if [ "${ors_rebuild_graphs}" = "true" ]; then
   # Warn if ors.engine.graphs_root_path is not set or empty
@@ -281,12 +379,22 @@ if [ "${ors_rebuild_graphs}" = "true" ]; then
   elif [ -d "${ors_engine_graphs_root_path}" ]; then
     # Check the ors.engine.graphs_root_path folder exists
     rm -rf "${ors_engine_graphs_root_path:?}"/* || warning "Could not remove ${ors_engine_graphs_root_path}"
+    # Remove hash file
+    rm -f "${ors_engine_graphs_root_path}/.hash" || warning "Could not remove ${ors_engine_graphs_root_path}/.hash"
     success "Removed graphs at ${ors_engine_graphs_root_path}/*."
   else
     debug "${ors_engine_graphs_root_path} does not exist (yet). Skipping cleanup."
   fi
   # Create the graphs folder again
   mkdir -p "${ors_engine_graphs_root_path}" || warning "Could not populate graph folder at ${ors_engine_graphs_root_path}"
+fi
+
+# Write the hash file for new graphs only.
+graph_folder_content=$(find "${ors_engine_graphs_root_path}" -mindepth 1 -maxdepth 1 | wc -l)
+if [ "${graph_folder_content}" -eq 0 ]; then
+  # Don't calculate the hash if an existing graph is present.
+  success "Calculating hash of ${ors_engine_source_file} and storing it in ${ors_engine_graphs_root_path}/.hash"
+  calculate_hash "${ors_engine_source_file}" >"${ors_engine_graphs_root_path}/.hash"
 fi
 
 success "Container file system preparation complete. For details set CONTAINER_LOG_LEVEL=DEBUG."
@@ -357,8 +465,10 @@ echo "# ORS startup phase #"
 echo "#####################"
 # Start the jar with the given arguments and add the ORS_HOME env var
 success "🙭 Ready to start the ORS application 🙭"
-debug "Startup command: java ${JAVA_OPTS} ${CATALINA_OPTS} -jar ${jar_file}"
+debug "Startup command: java ${JAVA_OPTS} ${CATALINA_OPTS} -Dors.engine.source_file=${ors_engine_source_file} -jar ${jar_file}"
 # Export ORS_CONFIG_LOCATION to the environment of child processes
 export ORS_CONFIG_LOCATION=${ors_config_location}
 # shellcheck disable=SC2086 # we need word splitting here
-exec java ${JAVA_OPTS} ${CATALINA_OPTS} -jar "${jar_file}" "$@"
+exec java ${JAVA_OPTS} ${CATALINA_OPTS} \
+"-Dors.engine.source_file=${ors_engine_source_file}" \
+-jar "${jar_file}" "$@"
