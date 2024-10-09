@@ -16,16 +16,28 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public abstract class ContainerInitializer {
-    private static final Map<String, String> defaultEnv = Map.of("logging.level.org.heigit", "INFO", "ors.engine.graphs_data_access", "MMAP");
+    private static final Map<String, String> defaultEnv = Map.of("logging.level.org.heigit",
+            "INFO",
+            "ors.engine.graphs_data_access",
+            "MMAP");
     private static GenericContainer<?> warContainer;
     private static GenericContainer<?> jarContainer;
+    private static GenericContainer<?> mvnContainer;
 
     static {
-        Startables.deepStart(initContainer(ContainerTestImage.JAR_CONTAINER, false), initContainer(ContainerTestImage.WAR_CONTAINER, false)).join();
+        Startables.deepStart(
+                initContainer(ContainerTestImage.JAR_CONTAINER, false),
+                initContainer(ContainerTestImage.WAR_CONTAINER, false),
+                initContainer(ContainerTestImage.MAVEN_CONTAINER, false)
+        ).join();
     }
 
     public static Stream<Object[]> imageStream() {
-        return Stream.of(new Object[]{ContainerTestImage.JAR_CONTAINER}, new Object[]{ContainerTestImage.WAR_CONTAINER});
+        return Stream.of(
+                new Object[]{ContainerTestImage.JAR_CONTAINER},
+                new Object[]{ContainerTestImage.WAR_CONTAINER},
+                new Object[]{ContainerTestImage.MAVEN_CONTAINER}
+        );
     }
 
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage) {
@@ -69,13 +81,20 @@ public abstract class ContainerInitializer {
                 warContainer.start();
             }
             return warContainer;
-        } else {
+        } else if (containerTestImage == ContainerTestImage.JAR_CONTAINER) {
             if (jarContainer == null) {
                 jarContainer = container;
             }
             if (autoStart && !jarContainer.isRunning())
                 jarContainer.start();
             return jarContainer;
+        } else {
+            if (mvnContainer == null) {
+                mvnContainer = container;
+            }
+            if (autoStart && !mvnContainer.isRunning())
+                mvnContainer.start();
+            return mvnContainer;
         }
     }
 
@@ -99,7 +118,9 @@ public abstract class ContainerInitializer {
 
     // Create enum for available test images
     public enum ContainerTestImage {
-        WAR_CONTAINER("ors-test-scenarios-war"), JAR_CONTAINER("ors-test-scenarios-jar");
+        WAR_CONTAINER("ors-test-scenarios-war"),
+        JAR_CONTAINER("ors-test-scenarios-jar"),
+        MAVEN_CONTAINER("ors-test-scenarios-maven");
 
         private final String name;
 
