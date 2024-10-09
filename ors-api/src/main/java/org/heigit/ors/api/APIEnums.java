@@ -240,7 +240,8 @@ public class APIEnums {
         TOLLWAYS("tollways"),
         FERRIES("ferries"),
         FORDS("fords"),
-        STEPS("steps");
+        STEPS("steps"),
+        JUNCTION("junction");
 
         private final String value;
 
@@ -299,6 +300,7 @@ public class APIEnums {
         CYCLING_ROAD("cycling-road"),
         CYCLING_MOUNTAIN("cycling-mountain"),
         CYCLING_ELECTRIC("cycling-electric"),
+        CYCLING_CARGO("cycling-cargo"),
         FOOT_WALKING("foot-walking"),
         FOOT_HIKING("foot-hiking"),
         WHEELCHAIR("wheelchair"),
