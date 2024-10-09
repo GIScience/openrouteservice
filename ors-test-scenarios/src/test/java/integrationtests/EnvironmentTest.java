@@ -14,6 +14,7 @@ import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static utils.OrsApiRequests.checkAvoidAreaRequest;
 
@@ -63,13 +64,25 @@ public class EnvironmentTest extends ContainerInitializer {
                 "/home/ors/openrouteservice/graphs/wheelchair"
         );
         OrsContainerFileSystemCheck.assertDirectoriesExist(container, directories.toArray(new String[0]));
-        container.addEnv("ors.engine.profile_default.enabled", "false");
     }
 
     @Order(2)
+    @MethodSource("utils.ContainerInitializer#imageStream")
+    @ParameterizedTest(name = "{0}")
+    void testDefaultProfileActivated(ContainerTestImage targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage);
+
+        container.addEnv("ors.engine.profile_default.enabled", "false");
+        restartContainer(container);
+
+        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        Assertions.assertEquals(1, profiles.size());
+        Assertions.assertEquals("driving-car", profiles.get("profile 1").get("profiles").asText());
+    }
+
     @MethodSource("imageStream")
     @ParameterizedTest(name = "Test {0} with individual profiles activated")
-    void testActivateEachProfileExceptWheelchair(ContainerTestImage targetImage) throws IOException, InterruptedException {
+    void testActivateEachProfileWithEnvExceptWheelchair(ContainerTestImage targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage);
 
         List<String> allProfiles = List.of(
@@ -77,8 +90,10 @@ public class EnvironmentTest extends ContainerInitializer {
                 "driving-car", "driving-hgv", "foot-hiking", "foot-walking"
         );
 
+        // Delete default config
+        container.execInContainer("rm", "/home/ors/openrouteservice/ors-config.yml");
         // Prepare the environment
-        container.execInContainer("yq", "-i", ".ors.engine.driving-car.enabled=false", "/home/ors/openrouteservice/ors-config.yml");
+        container.withEnv(Map.of());
         container.addEnv("ors.engine.profile_default.enabled", "false");
         container.addEnv("ors.engine.profiles.wheelchair.enabled", "false");
         allProfiles.forEach(profile -> container.addEnv("ors.engine.profiles." + profile + ".enabled", "true"));
@@ -93,7 +108,6 @@ public class EnvironmentTest extends ContainerInitializer {
         }
     }
 
-    @Order(3)
     @MethodSource("utils.ContainerInitializer#imageStream")
     @ParameterizedTest(name = "{0}")
     void testAvoidAreaRequestAndGeoToolsPopulation(ContainerTestImage targetImage) throws IOException, InterruptedException {
@@ -109,7 +123,6 @@ public class EnvironmentTest extends ContainerInitializer {
         OrsContainerFileSystemCheck.assertDirectoryExists(container, geoToolsPath, true);
     }
 
-    @Order(4)
     @MethodSource("utils.ContainerInitializer#imageStream")
     @ParameterizedTest(name = "{0}")
     void testTwoProfilesActivatedByEnv(ContainerTestImage targetImage) throws IOException, InterruptedException {

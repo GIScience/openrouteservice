@@ -20,31 +20,51 @@ public abstract class ContainerInitializer {
             "INFO",
             "ors.engine.graphs_data_access",
             "MMAP");
+    private static List<ContainerTestImage> selectedContainers = List.of();
     private static GenericContainer<?> warContainer;
     private static GenericContainer<?> jarContainer;
     private static GenericContainer<?> mvnContainer;
 
     static {
+        initializeContainers();
+    }
+
+    public static void initializeContainers() {
+        String containerValue = System.getenv("CONTAINER_SCENARIO");
+        if (containerValue == null) {
+            containerValue = "all";
+        }
+        selectedContainers = switch (containerValue) {
+            case "war" -> List.of(ContainerTestImage.WAR_CONTAINER);
+            case "maven" -> List.of(ContainerTestImage.MAVEN_CONTAINER);
+            case "jar" -> List.of(ContainerTestImage.JAR_CONTAINER);
+            default ->
+                    List.of(ContainerTestImage.JAR_CONTAINER, ContainerTestImage.WAR_CONTAINER, ContainerTestImage.MAVEN_CONTAINER);
+        };
+
         Startables.deepStart(
-                initContainer(ContainerTestImage.JAR_CONTAINER, false),
-                initContainer(ContainerTestImage.WAR_CONTAINER, false),
-                initContainer(ContainerTestImage.MAVEN_CONTAINER, false)
+                selectedContainers.stream()
+                        .map(container -> initContainer(container, false, false))
+                        .toArray(GenericContainer[]::new)
         ).join();
     }
 
     public static Stream<Object[]> imageStream() {
-        return Stream.of(
-                new Object[]{ContainerTestImage.JAR_CONTAINER},
-                new Object[]{ContainerTestImage.WAR_CONTAINER},
-                new Object[]{ContainerTestImage.MAVEN_CONTAINER}
-        );
+        // Check selectedContainers and return a stream of ContainerTestImage Enum objects
+        return Stream.of(selectedContainers)
+                .flatMap(List::stream)
+                .map(container -> new Object[]{container});
     }
 
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage) {
-        return initContainer(containerTestImage, true);
+        return initContainer(containerTestImage, false, true);
     }
 
-    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart) {
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean recreate) {
+        return initContainer(containerTestImage, recreate, true);
+    }
+
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean recreate, Boolean autoStart) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");
         }
@@ -74,7 +94,10 @@ public abstract class ContainerInitializer {
                 .waitingFor(waitStrategy);
 
         if (containerTestImage == ContainerTestImage.WAR_CONTAINER) {
-            if (warContainer == null) {
+            if (warContainer == null || recreate) {
+                if (warContainer != null && recreate) {
+                    warContainer.stop();
+                    }
                 warContainer = container;
             }
             if (autoStart && !warContainer.isRunning()) {
@@ -82,14 +105,20 @@ public abstract class ContainerInitializer {
             }
             return warContainer;
         } else if (containerTestImage == ContainerTestImage.JAR_CONTAINER) {
-            if (jarContainer == null) {
+            if (jarContainer == null || recreate) {
+                if (jarContainer != null && recreate) {
+                    jarContainer.stop();
+                    }
                 jarContainer = container;
             }
             if (autoStart && !jarContainer.isRunning())
                 jarContainer.start();
             return jarContainer;
         } else {
-            if (mvnContainer == null) {
+            if (mvnContainer == null || recreate) {
+                if (mvnContainer != null && recreate) {
+                    mvnContainer.stop();
+                    }
                 mvnContainer = container;
             }
             if (autoStart && !mvnContainer.isRunning())
@@ -97,12 +126,10 @@ public abstract class ContainerInitializer {
             return mvnContainer;
         }
     }
-
     protected void restartContainer(GenericContainer<?> container) throws IOException, InterruptedException {
         container.stop();
         container.start();
     }
-
 
     @BeforeEach
     public void resetEnv() {
