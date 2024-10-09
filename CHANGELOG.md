@@ -32,21 +32,19 @@ RELEASING:
 6. Add [unreleased] section with all subsections as above
 7. Adding the corresponding tag is done when releasing via GitHub.
 -->
-
 ## [unreleased]
 
+## [8.2.0] - 2024-10-09
+
 ### Added
-- added Vietnamese tranlations
-- added Finnish tranlations
+- added Vietnamese tranlations ([#1859](https://github.com/GIScience/openrouteservice/pull/1859))
+- added Finnish tranlations ([#1862](https://github.com/GIScience/openrouteservice/pull/1862))
 ### Changed
-- refactor: cleanup routing profile management ([#1850](https://github.com/GIScience/openrouteservice/pull/1850)
-- improved documentation on the configuration of external storages ([#1811](https://github.com/GIScience/openrouteservice/pull/1811)))
+- refactor: cleanup routing profile management ([#1850](https://github.com/GIScience/openrouteservice/pull/1850))
+- improved documentation on the configuration of external storages ([#1811](https://github.com/GIScience/openrouteservice/pull/1811))
 - refactor: remove unused access destination logic from hgv edge filter ([#1854](https://github.com/GIScience/openrouteservice/pull/1854))
-### Deprecated
-### Removed
 ### Fixed
 - access to roads where transporting hazardous materials is forbidden ([#1853](https://github.com/GIScience/openrouteservice/pull/1853))
-### Security
 
 ## [8.1.3] - 2024-09-13
 ### Changed
@@ -801,7 +799,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.1.3...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.2.0...HEAD
+[8.2.0]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...v8.2.0
 [8.1.3]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...v8.1.3
 [8.1.2]: https://github.com/GIScience/openrouteservice/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/GIScience/openrouteservice/compare/v8.1.0...v8.1.1
