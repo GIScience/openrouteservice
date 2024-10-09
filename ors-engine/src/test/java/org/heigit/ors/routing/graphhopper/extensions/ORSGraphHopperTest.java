@@ -150,29 +150,29 @@ class ORSGraphHopperTest {
 
         engineProperties.getProfileDefault().setEnabled(false);
         engineProperties.getProfileDefault().setGraphPath(Path.of(localGraphsRootPath.toString()));
-        engineProperties.getProfileDefault().setSourceFile(Path.of("/path/to/source/file"));
-        engineProperties.getProfileDefault().getPreparation().setMinNetworkSize(300);
-        engineProperties.getProfileDefault().getPreparation().getMethods().getLm().setEnabled(false);
-        engineProperties.getProfileDefault().getPreparation().getMethods().getLm().setWeightings("shortest");
-        engineProperties.getProfileDefault().getPreparation().getMethods().getLm().setLandmarks(2);
-        engineProperties.getProfileDefault().getExecution().getMethods().getLm().setActiveLandmarks(2);
+        engineProperties.getProfileDefault().getBuild().setSourceFile(Path.of("/path/to/source/file"));
+        engineProperties.getProfileDefault().getBuild().getPreparation().setMinNetworkSize(300);
+        engineProperties.getProfileDefault().getBuild().getPreparation().getMethods().getLm().setEnabled(false);
+        engineProperties.getProfileDefault().getBuild().getPreparation().getMethods().getLm().setWeightings("shortest");
+        engineProperties.getProfileDefault().getBuild().getPreparation().getMethods().getLm().setLandmarks(2);
+        engineProperties.getProfileDefault().getService().getExecution().getMethods().getLm().setActiveLandmarks(2);
 
         ExtendedStorageProperties wayCategory = new ExtendedStorageProperties();
         wayCategory.setEnabled(true);
-        engineProperties.getProfileDefault().getExtStorages().put("WayCategory", wayCategory);
+        engineProperties.getProfileDefault().getBuild().getExtStorages().put("WayCategory", wayCategory);
 
         ExtendedStorageProperties greenIndex = new ExtendedStorageProperties();
         greenIndex.setEnabled(true);
         greenIndex.setFilepath(Path.of("/path/to/file.csv"));
-        engineProperties.getProfileDefault().getExtStorages().put("GreenIndex", greenIndex);
+        engineProperties.getProfileDefault().getBuild().getExtStorages().put("GreenIndex", greenIndex);
 
         ProfileProperties carProperties = new ProfileProperties();
         carProperties.setProfileName(profileName);
         carProperties.setEncoderName(EncoderNameEnum.DRIVING_CAR);
-        carProperties.getPreparation().getMethods().getLm().setEnabled(true);
-        carProperties.getPreparation().getMethods().getLm().setThreads(5);
-        carProperties.getExecution().getMethods().getLm().setActiveLandmarks(2);
-        carProperties.setMaximumWayPoints(50);
+        carProperties.getBuild().getPreparation().getMethods().getLm().setEnabled(true);
+        carProperties.getBuild().getPreparation().getMethods().getLm().setThreads(5);
+        carProperties.getService().getExecution().getMethods().getLm().setActiveLandmarks(2);
+        carProperties.getService().setMaximumWayPoints(50);
         carProperties.getRepo().setRepositoryUri(graphManagementRepositoryUrl);
         carProperties.getRepo().setRepositoryName(graphManagementRepositoryName);
         carProperties.getRepo().setRepositoryProfileGroup(graphManagementRepositoryProfileGroup);

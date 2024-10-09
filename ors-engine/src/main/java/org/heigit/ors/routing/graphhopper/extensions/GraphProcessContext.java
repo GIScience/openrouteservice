@@ -44,19 +44,19 @@ public class GraphProcessContext {
 
     public GraphProcessContext(ProfileProperties profile) throws Exception {
         PluginManager<GraphStorageBuilder> mgrGraphStorageBuilders = PluginManager.getPluginManager(GraphStorageBuilder.class);
-        if (profile.getExtStorages() != null) {
-            if (profile.getExtStorages().containsKey("HereTraffic")) {
+        if (profile.getBuild().getExtStorages() != null) {
+            if (profile.getBuild().getExtStorages().containsKey("HereTraffic")) {
                 ExtendedStorageProperties parameters;
                 try {
-                    parameters = profile.getExtStorages().get("HereTraffic");
-                    parameters.setGhProfile(ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(profile.getEncoderName().toString())), "fastest", Boolean.TRUE.equals(profile.getEncoderOptions().getTurnCosts())));
+                    parameters = profile.getBuild().getExtStorages().get("HereTraffic");
+                    parameters.setGhProfile(ProfileTools.makeProfileName(RoutingProfileType.getEncoderName(RoutingProfileType.getFromString(profile.getEncoderName().toString())), "fastest", Boolean.TRUE.equals(profile.getBuild().getEncoderOptions().getTurnCosts())));
                 } catch (ClassCastException e) {
                     throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
                 }
             }
-            storageBuilders = mgrGraphStorageBuilders.createInstances(profile.getExtStorages());
+            storageBuilders = mgrGraphStorageBuilders.createInstances(profile.getBuild().getExtStorages());
         }
-        maximumSpeedLowerBound = profile.getMaximumSpeedLowerBound() == null ? 80 : profile.getMaximumSpeedLowerBound();
+        maximumSpeedLowerBound = profile.getBuild().getMaximumSpeedLowerBound() == null ? 80 : profile.getBuild().getMaximumSpeedLowerBound();
     }
 
     public void initArrays() {

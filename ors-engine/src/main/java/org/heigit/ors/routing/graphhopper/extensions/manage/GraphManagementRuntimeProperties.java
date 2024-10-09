@@ -99,34 +99,42 @@ public class GraphManagementRuntimeProperties {
             this.graphVersion = graphVersion;
             return this;
         }
+
         public Builder withEncoderName(String encoderName) {
             this.encoderName = encoderName;
             return this;
         }
+
         public Builder withLocalGraphsRootAbsPath(String localGraphsRootAbsPath) {
             this.localGraphsRootAbsPath = localGraphsRootAbsPath;
             return this;
         }
+
         public Builder withLocalProfileName(String localProfileName) {
             this.localProfileName = localProfileName;
             return this;
         }
+
         public Builder withRepoBaseUri(String repoBaseUri) {
             this.repoBaseUri = repoBaseUri;
             return this;
         }
+
         public Builder withRepoName(String repoName) {
             this.repoName = repoName;
             return this;
         }
+
         public Builder withRepoProfileGroup(String repoProfileGroup) {
             this.repoProfileGroup = repoProfileGroup;
             return this;
         }
+
         public Builder withRepoCoverage(String repoCoverage) {
             this.repoCoverage = repoCoverage;
             return this;
         }
+
         public Builder withMaxNumberOfGraphBackups(int maxNumberOfGraphBackups) {
             this.maxNumberOfGraphBackups = maxNumberOfGraphBackups;
             return this;
@@ -199,7 +207,7 @@ public class GraphManagementRuntimeProperties {
         return null;
     }
 
-    private URL toURL(URI uri){
+    private URL toURL(URI uri) {
         if (isSupportedUrlScheme(uri)) {
             try {
                 return uri.toURL();

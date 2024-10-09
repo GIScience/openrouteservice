@@ -174,10 +174,10 @@ public class RoutingProfileManager {
         RouteSearchParameters searchParams = req.getSearchParameters();
         ProfileProperties profileProperties = rp.getProfileConfiguration();
 
-        if (profileProperties.getMaximumDistanceRoundTripRoutes() != null && profileProperties.getMaximumDistanceRoundTripRoutes() < searchParams.getRoundTripLength()) {
+        if (profileProperties.getService().getMaximumDistanceRoundTripRoutes() != null && profileProperties.getService().getMaximumDistanceRoundTripRoutes() < searchParams.getRoundTripLength()) {
             throw new ServerLimitExceededException(
                     RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT,
-                    "The requested route length must not be greater than %s meters.".formatted(profileProperties.getMaximumDistanceRoundTripRoutes())
+                    "The requested route length must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceRoundTripRoutes())
             );
         }
 
@@ -297,7 +297,7 @@ public class RoutingProfileManager {
                 radiuses[1] = searchParams.getMaximumRadiuses()[i];
             } else {
                 try {
-                    int maximumSnappingRadius = getRoutingProfile(profileName).getProfileConfiguration().getMaximumSnappingRadius();
+                    int maximumSnappingRadius = getRoutingProfile(profileName).getProfileConfiguration().getService().getMaximumSnappingRadius();
                     radiuses = new double[2];
                     radiuses[0] = maximumSnappingRadius;
                     radiuses[1] = maximumSnappingRadius;
@@ -370,7 +370,7 @@ public class RoutingProfileManager {
                                 // -1 is used to indicate the use of internal limits instead of specifying it in the request.
                                 // we should therefore let them know that they are already using the limit.
                                 if (pointRadius == -1) {
-                                    pointRadius = getRoutingProfile(profileName).getProfileConfiguration().getMaximumSnappingRadius();
+                                    pointRadius = getRoutingProfile(profileName).getProfileConfiguration().getService().getMaximumSnappingRadius();
                                     message.append("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.".formatted(
                                             pointRadius,
                                             pointReference,
@@ -523,20 +523,20 @@ public class RoutingProfileManager {
 
         ProfileProperties profileProperties = rp.getProfileConfiguration();
 
-        if (profileProperties.getMaximumDistance() != null
-                || dynamicWeights && profileProperties.getMaximumDistanceDynamicWeights() != null
-                || profileProperties.getMaximumWayPoints() != null
-                || fallbackAlgorithm && profileProperties.getMaximumDistanceAvoidAreas() != null
+        if (profileProperties.getService().getMaximumDistance() != null
+                || dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null
+                || profileProperties.getService().getMaximumWayPoints() != null
+                || fallbackAlgorithm && profileProperties.getService().getMaximumDistanceAvoidAreas() != null
         ) {
             Coordinate[] coords = req.getCoordinates();
             int nCoords = coords.length;
-            if (profileProperties.getMaximumWayPoints() > 0 && !oneToMany && nCoords > profileProperties.getMaximumWayPoints()) {
-                throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + profileProperties.getMaximumWayPoints() + ".");
+            if (profileProperties.getService().getMaximumWayPoints() > 0 && !oneToMany && nCoords > profileProperties.getService().getMaximumWayPoints()) {
+                throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + profileProperties.getService().getMaximumWayPoints() + ".");
             }
 
-            if (profileProperties.getMaximumDistance() != null
-                    || dynamicWeights && profileProperties.getMaximumDistanceDynamicWeights() != null
-                    || fallbackAlgorithm && profileProperties.getMaximumDistanceAvoidAreas() != null
+            if (profileProperties.getService().getMaximumDistance() != null
+                    || dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null
+                    || fallbackAlgorithm && profileProperties.getService().getMaximumDistanceAvoidAreas() != null
             ) {
                 DistanceCalc distCalc = DistanceCalcEarth.DIST_EARTH;
 
@@ -560,20 +560,20 @@ public class RoutingProfileManager {
                     }
                 }
 
-                if (profileProperties.getMaximumDistance() != null && totalDist > profileProperties.getMaximumDistance())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters.".formatted(profileProperties.getMaximumDistance()));
-                if (dynamicWeights && profileProperties.getMaximumDistanceDynamicWeights() != null && totalDist > profileProperties.getMaximumDistanceDynamicWeights())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.".formatted(profileProperties.getMaximumDistanceDynamicWeights()));
-                if (fallbackAlgorithm && profileProperties.getMaximumDistanceAvoidAreas() != null && totalDist > profileProperties.getMaximumDistanceAvoidAreas())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With these options, the approximated route distance must not be greater than %s meters.".formatted(profileProperties.getMaximumDistanceAvoidAreas()));
-                if (useAlternativeRoutes && profileProperties.getMaximumDistanceAlternativeRoutes() != null && totalDist > profileProperties.getMaximumDistanceAlternativeRoutes())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters for use with the alternative Routes algorithm.".formatted(profileProperties.getMaximumDistanceAlternativeRoutes()));
+                if (profileProperties.getService().getMaximumDistance() != null && totalDist > profileProperties.getService().getMaximumDistance())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistance()));
+                if (dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null && totalDist > profileProperties.getService().getMaximumDistanceDynamicWeights())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceDynamicWeights()));
+                if (fallbackAlgorithm && profileProperties.getService().getMaximumDistanceAvoidAreas() != null && totalDist > profileProperties.getService().getMaximumDistanceAvoidAreas())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With these options, the approximated route distance must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceAvoidAreas()));
+                if (useAlternativeRoutes && profileProperties.getService().getMaximumDistanceAlternativeRoutes() != null && totalDist > profileProperties.getService().getMaximumDistanceAlternativeRoutes())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters for use with the alternative Routes algorithm.".formatted(profileProperties.getService().getMaximumDistanceAlternativeRoutes()));
             }
         }
 
-        if (searchParams.hasMaximumSpeed() && profileProperties.getMaximumSpeedLowerBound() != null) {
-            if (searchParams.getMaximumSpeed() < profileProperties.getMaximumSpeedLowerBound()) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_MAXIMUM_SPEED, String.valueOf(searchParams.getMaximumSpeed()), "The maximum speed must not be lower than " + profileProperties.getMaximumSpeedLowerBound() + " km/h.");
+        if (searchParams.hasMaximumSpeed() && profileProperties.getBuild().getMaximumSpeedLowerBound() != null) {
+            if (searchParams.getMaximumSpeed() < profileProperties.getBuild().getMaximumSpeedLowerBound()) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_MAXIMUM_SPEED, String.valueOf(searchParams.getMaximumSpeed()), "The maximum speed must not be lower than " + profileProperties.getBuild().getMaximumSpeedLowerBound() + " km/h.");
             }
             if (RoutingProfileCategory.getFromEncoder(rp.getGraphhopper().getEncodingManager()) != RoutingProfileCategory.DRIVING) {
                 throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "The maximum speed feature can only be used with cars and heavy vehicles.");

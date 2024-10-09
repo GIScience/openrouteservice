@@ -32,6 +32,7 @@ import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.ElevationProperties;
 import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.profile.BuildProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.PreparationProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
@@ -91,7 +92,8 @@ public class RoutingProfile {
 
         mRoutePrefs = profile.getProfilesTypes();
         mGraphHopper = initGraphHopper(loadCntx);
-        ExecutionProperties execution = profile.getExecution();
+        ExecutionProperties execution = profile.getService().getExecution();
+        ;
         if (execution.getMethods().getAstar().getApproximation() != null)
             astarApproximation = execution.getMethods().getAstar().getApproximation();
         if (execution.getMethods().getAstar().getEpsilon() != null)
@@ -156,8 +158,8 @@ public class RoutingProfile {
         }
 
         // Make a stamp which help tracking any changes in the size of OSM file. TODO check if this is still in use
-        if (profileProperties.getSourceFile() != null) {
-            File file = new File(profileProperties.getSourceFile().toAbsolutePath().toString());
+        if (profileProperties.getBuild().getSourceFile() != null) {
+            File file = new File(profileProperties.getBuild().getSourceFile().toAbsolutePath().toString());
             Path pathTimestamp = Paths.get(gh.getOrsGraphManager().getActiveGraphDirAbsPath(), "stamp.txt");
             File file2 = pathTimestamp.toFile();
             if (!file2.exists())
@@ -169,11 +171,11 @@ public class RoutingProfile {
     private static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
-        ghConfig.putObject("datareader.file", Optional.ofNullable(profile).map(ProfileProperties::getSourceFile).map(Path::toString).orElse(null));
-        ghConfig.putObject("graph.bytes_for_flags", profile.getEncoderFlagsSize());
+        ghConfig.putObject("datareader.file", Optional.ofNullable(profile).map(ProfileProperties::getBuild).map(BuildProperties::getSourceFile).map(Path::toString).orElse(null));
+        ghConfig.putObject("graph.bytes_for_flags", profile.getBuild().getEncoderFlagsSize());
         ghConfig.putObject("graph.location", profile.getGraphPath().toString());
 
-        if (Boolean.FALSE.equals(profile.getInstructions())) {
+        if (Boolean.FALSE.equals(profile.getBuild().getInstructions())) {
             ghConfig.putObject("instructions", false);
         }
 
@@ -184,9 +186,9 @@ public class RoutingProfile {
             // TODO check
             ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
             ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
-            if (Boolean.TRUE.equals(profile.getInterpolateBridgesAndTunnels()))
+            if (Boolean.TRUE.equals(profile.getBuild().getInterpolateBridgesAndTunnels()))
                 ghConfig.putObject("graph.encoded_values", "road_environment");
-            if (Boolean.TRUE.equals(profile.getElevationSmoothing()))
+            if (Boolean.TRUE.equals(profile.getBuild().getElevationSmoothing()))
                 ghConfig.putObject("graph.elevation.smoothing", true);
         }
 
@@ -207,7 +209,7 @@ public class RoutingProfile {
 
         String vehicle = RoutingProfileType.getEncoderName(profilesTypes[0]);
 
-        boolean hasTurnCosts = Boolean.TRUE.equals(profile.getEncoderOptions().getTurnCosts());
+        boolean hasTurnCosts = Boolean.TRUE.equals(profile.getBuild().getEncoderOptions().getTurnCosts());
 
         // TODO Future improvement : make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {ProfileTools.VAL_FASTEST, ProfileTools.VAL_SHORTEST, ProfileTools.VAL_RECOMMENDED};
@@ -221,8 +223,8 @@ public class RoutingProfile {
         }
 
         ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
-        if (profile.getPreparation() != null) {
-            PreparationProperties preparations = profile.getPreparation();
+        if (profile.getBuild().getPreparation() != null) {
+            PreparationProperties preparations = profile.getBuild().getPreparation();
 
 
             if (preparations.getMinNetworkSize() != null)
@@ -340,8 +342,8 @@ public class RoutingProfile {
             }
         }
 
-        if (profile.getExecution() != null) {
-            ExecutionProperties execution = profile.getExecution();
+        if (profile.getService().getExecution() != null) {
+            ExecutionProperties execution = profile.getService().getExecution();
             if (!execution.getMethods().getCore().isEmpty()) {
                 if (execution.getMethods().getCore().getActiveLandmarks() != null)
                     ghConfig.putObject("routing.corelm.active_landmarks", execution.getMethods().getCore().getActiveLandmarks());
@@ -352,20 +354,20 @@ public class RoutingProfile {
             }
         }
 
-        if (profile.getOptimize() && !prepareCH)
+        if (profile.getBuild().getOptimize() && !prepareCH)
             ghConfig.putObject("graph.do_sort", true);
 
         // Check if getGTFSFile exists
-        if (profile.getGtfsFile() != null && !profile.getGtfsFile().toString().isEmpty())
-            ghConfig.putObject("gtfs.file", profile.getGtfsFile().toAbsolutePath().toString());
+        if (profile.getBuild().getGtfsFile() != null && !profile.getBuild().getGtfsFile().toString().isEmpty())
+            ghConfig.putObject("gtfs.file", profile.getBuild().getGtfsFile().toAbsolutePath().toString());
 
         String flagEncoder = vehicle;
-        if (!Helper.isEmpty(profile.getEncoderOptionsString()))
-            flagEncoder += "|" + profile.getEncoderOptionsString();
+        if (!Helper.isEmpty(profile.getBuild().getEncoderOptionsString()))
+            flagEncoder += "|" + profile.getBuild().getEncoderOptionsString();
 
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
-        ghConfig.putObject("index.high_resolution", profile.getLocationIndexResolution());
-        ghConfig.putObject("index.max_region_search", profile.getLocationIndexSearchIterations());
+        ghConfig.putObject("index.high_resolution", profile.getBuild().getLocationIndexResolution());
+        ghConfig.putObject("index.max_region_search", profile.getBuild().getLocationIndexSearchIterations());
 //        ghConfig.putObject("ext_storages", profile.getExtStorages());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
@@ -593,7 +595,7 @@ public class RoutingProfile {
             }
         }
 
-        String profileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), Boolean.TRUE.equals(profileProperties.getEncoderOptions().getTurnCosts()));
+        String profileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), Boolean.TRUE.equals(profileProperties.getBuild().getEncoderOptions().getTurnCosts()));
         String profileNameCH = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName, profileNameCH);
         searchCntx.setProperties(props);

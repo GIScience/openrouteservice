@@ -1,7 +1,6 @@
 package org.heigit.ors.config.profile;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,8 +18,7 @@ public class RepoProperties {
     public RepoProperties(String ignored) {
     }
 
-    @JsonIgnore
     public boolean isEmpty() {
-        return repositoryUri == null && repositoryName == null && repositoryProfileGroup == null && graphExtent == null;
+        return repositoryUri == null || repositoryName == null || repositoryProfileGroup == null || graphExtent == null;
     }
 }

@@ -15,7 +15,6 @@
 
 package org.heigit.ors.api.controllers;
 
-import com.graphhopper.storage.StorableProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.config.EndpointsProperties;
@@ -83,24 +82,21 @@ public class StatusAPI {
                     jProfileProps.put("encoder_name", profile.getEncoderName().getName());
                     jProfileProps.put("creation_date", rp.getGraphProperties().get("datareader.import.date"));
 
-                    org.json.JSONObject jProfileLimits = new org.json.JSONObject(true);
-                    if (profile.getMaximumDistance() != null)
-                        jProfileLimits.put("maximum_distance", profile.getMaximumDistance());
-
-                    if (profile.getMaximumDistanceDynamicWeights() != null)
-                        jProfileLimits.put("maximum_distance_dynamic_weights", profile.getMaximumDistanceDynamicWeights());
-
-                    if (profile.getMaximumDistanceAvoidAreas() != null)
-                        jProfileLimits.put("maximum_distance_avoid_areas", profile.getMaximumDistanceAvoidAreas());
-
-                    if (profile.getMaximumWayPoints() != null)
-                        jProfileLimits.put("maximum_waypoints", profile.getMaximumWayPoints());
+                    org.json.JSONObject jProfileLimits = new org.json.JSONObject();
+                    if (profile.getService().getMaximumDistance() != null)
+                        jProfileLimits.put("maximum_distance", profile.getService().getMaximumDistance());
+                    if (profile.getService().getMaximumDistanceDynamicWeights() != null)
+                        jProfileLimits.put("maximum_distance_dynamic_weights", profile.getService().getMaximumDistanceDynamicWeights());
+                    if (profile.getService().getMaximumDistanceAvoidAreas() != null)
+                        jProfileLimits.put("maximum_distance_avoid_areas", profile.getService().getMaximumDistanceAvoidAreas());
+                    if (profile.getService().getMaximumWayPoints() != null)
+                        jProfileLimits.put("maximum_waypoints", profile.getService().getMaximumWayPoints());
 
                     if (!jProfileLimits.isEmpty())
                         jProfileProps.put("limits", jProfileLimits);
 
-                    if (profile.getExtStorages() != null && !profile.getExtStorages().isEmpty())
-                        jProfileProps.put("storages", profile.getExtStorages());
+                    if (profile.getBuild().getExtStorages() != null && !profile.getBuild().getExtStorages().isEmpty())
+                        jProfileProps.put("storages", profile.getBuild().getExtStorages());
 
                     jProfiles.put(profile.getProfileName(), jProfileProps);
                 }

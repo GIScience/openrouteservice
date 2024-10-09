@@ -21,13 +21,13 @@ class EnginePropertiesTest {
         enginePropertiesTest = new EngineProperties();
 
         enginePropertiesTest.getProfileDefault().setEnabled(false);
-        enginePropertiesTest.getProfileDefault().setSourceFile(Path.of("/path/to/source/file"));
         enginePropertiesTest.getProfileDefault().setGraphPath(Path.of("/path/to/graphs"));
-        enginePropertiesTest.getProfileDefault().getPreparation().setMinNetworkSize(300);
-        enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().setEnabled(false);
-        enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().setWeightings("shortest");
-        enginePropertiesTest.getProfileDefault().getPreparation().getMethods().getLm().setLandmarks(2);
-        enginePropertiesTest.getProfileDefault().getExecution().getMethods().getLm().setActiveLandmarks(2);
+        enginePropertiesTest.getProfileDefault().getBuild().setSourceFile(Path.of("/path/to/source/file"));
+        enginePropertiesTest.getProfileDefault().getBuild().getPreparation().setMinNetworkSize(300);
+        enginePropertiesTest.getProfileDefault().getBuild().getPreparation().getMethods().getLm().setEnabled(false);
+        enginePropertiesTest.getProfileDefault().getBuild().getPreparation().getMethods().getLm().setWeightings("shortest");
+        enginePropertiesTest.getProfileDefault().getBuild().getPreparation().getMethods().getLm().setLandmarks(2);
+        enginePropertiesTest.getProfileDefault().getService().getExecution().getMethods().getLm().setActiveLandmarks(2);
         Map<String, ExtendedStorageProperties> extStoragesDef = new LinkedHashMap<>();
         ExtendedStorageProperties extWayCategoryDefault = new ExtendedStorageProperties();
         extWayCategoryDefault.setEnabled(true);
@@ -36,31 +36,31 @@ class EnginePropertiesTest {
         extGreenIndexDefault.setEnabled(true);
         extGreenIndexDefault.setFilepath(Path.of("/path/to/file.csv"));
         extStoragesDef.put("GreenIndex", extGreenIndexDefault);
-        enginePropertiesTest.getProfileDefault().setExtStorages(extStoragesDef);
+        enginePropertiesTest.getProfileDefault().getBuild().setExtStorages(extStoragesDef);
 
         ProfileProperties carProfile = new ProfileProperties();
         carProfile.setEncoderName(EncoderNameEnum.DRIVING_CAR);
-        carProfile.getPreparation().setMinNetworkSize(300);
-        carProfile.getPreparation().getMethods().getLm().setEnabled(true);
-        carProfile.getPreparation().getMethods().getLm().setThreads(5);
-        carProfile.getExecution().getMethods().getLm().setActiveLandmarks(2);
+        carProfile.getBuild().getPreparation().setMinNetworkSize(300);
+        carProfile.getBuild().getPreparation().getMethods().getLm().setEnabled(true);
+        carProfile.getBuild().getPreparation().getMethods().getLm().setThreads(5);
+        carProfile.getService().getExecution().getMethods().getLm().setActiveLandmarks(2);
         enginePropertiesTest.getProfiles().put("car", carProfile);
 
         ProfileProperties hgvProfile = new ProfileProperties();
         hgvProfile.setEncoderName(EncoderNameEnum.DRIVING_HGV);
-        hgvProfile.getPreparation().setMinNetworkSize(900);
-        hgvProfile.getPreparation().getMethods().getLm().setEnabled(true);
+        hgvProfile.getBuild().getPreparation().setMinNetworkSize(900);
+        hgvProfile.getBuild().getPreparation().getMethods().getLm().setEnabled(true);
         Map<String, ExtendedStorageProperties> extStoragesHgv = new LinkedHashMap<>();
         ExtendedStorageProperties extHeavyVehicle = new ExtendedStorageProperties();
         extHeavyVehicle.setRestrictions(true);
         extStoragesHgv.put("HeavyVehicle", extHeavyVehicle);
-        hgvProfile.setExtStorages(extStoragesHgv);
+        hgvProfile.getBuild().setExtStorages(extStoragesHgv);
         enginePropertiesTest.getProfiles().put("hgv", hgvProfile);
 
         ProfileProperties carCustomProfile = new ProfileProperties();
         carCustomProfile.setEnabled(true);
         carCustomProfile.setEncoderName(EncoderNameEnum.DRIVING_CAR);
-        carCustomProfile.getPreparation().setMinNetworkSize(900);
+        carCustomProfile.getBuild().getPreparation().setMinNetworkSize(900);
         enginePropertiesTest.getProfiles().put("car-custom", carCustomProfile);
 
         ProfileProperties carCustom2Profile = new ProfileProperties();

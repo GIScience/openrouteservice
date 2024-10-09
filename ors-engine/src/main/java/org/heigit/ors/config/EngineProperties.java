@@ -26,7 +26,7 @@ public class EngineProperties {
     public Map<String, ProfileProperties> getInitializedActiveProfiles() {
         LinkedHashMap<String, ProfileProperties> activeProfiles = new LinkedHashMap<>();
         profiles.forEach((key, profile) -> {
-            profile.initExtStorages();
+            profile.getBuild().initExtStorages();
             ProfileProperties mergedProfile = profile.mergeDefaults(profileDefault, key);
             if (Boolean.TRUE.equals(mergedProfile.getEnabled())) {
                 activeProfiles.put(key, mergedProfile);
