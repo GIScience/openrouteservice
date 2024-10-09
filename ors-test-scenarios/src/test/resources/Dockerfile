@@ -70,7 +70,7 @@ COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
 
 EXPOSE 8080
 
-ENTRYPOINT [ "mvn", "spring-boot:run", "-DskiptTests", "-Dmaven.test.skip=true" ]
+ENTRYPOINT ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-Xms200m -Xmx500m", "-DskipTests", "-Dmaven.test.skip=true"]
 
 FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar
 
@@ -95,7 +95,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 EXPOSE 8080
 
-ENTRYPOINT [ "java", "-jar", "ors.jar" ]
+ENTRYPOINT [ "java", "-Xms200M", "-Xmx500M", "-jar", "ors.jar" ]
 
 FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war
 
@@ -114,7 +114,7 @@ COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservi
 COPY ors-api/src/test/files /home/ors/openrouteservice/files
 COPY ors-api/src/test/files/elevation /home/ors/openrouteservice/elevation_cache
 
-RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -Xms225M -Xmx1500M -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh && \
+RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -Xms225M -Xmx500M -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh && \
     echo 'export JAVA_OPTS="$JAVA_OPTS \
     -Dors.config.location=/home/ors/openrouteservice/ors-config.yml"' >> /usr/local/tomcat/bin/setenv.sh
 
