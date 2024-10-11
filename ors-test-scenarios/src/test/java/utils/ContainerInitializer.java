@@ -6,23 +6,33 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.lifecycle.Startables;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import static utils.TestContainersHelper.healthyOrsWaitStrategy;
 
+/**
+ * Abstract class for initializing and managing TestContainers.
+ */
 public abstract class ContainerInitializer {
-    private static final Map<String, String> defaultEnv = Map.of("logging.level.org.heigit", "DEBUG", "ors.engine.graphs_data_access", "MMAP", "server.port", "8080");
+    // @formatter:off
+    private static final Map<String, String> defaultEnv = Map.of(
+            "logging.level.org.heigit", "DEBUG",
+            "ors.engine.graphs_data_access", "MMAP",
+            "server.port", "8080"
+    );
+
     private static List<ContainerTestImage> selectedDefaultContainers = List.of();
     private static List<ContainerTestImage> selectedNoConfigContainers = List.of();
-    private static GenericContainer<?> warContainer;
-    private static GenericContainer<?> jarContainer;
-    private static GenericContainer<?> mvnContainer;
-    private static GenericContainer<?> warContainerNoConfig;
-    private static GenericContainer<?> jarContainerNoConfig;
-    private static GenericContainer<?> mvnContainerNoConfig;
+    private static final Map<ContainerTestImage, GenericContainer<?>> containers = new HashMap<>();
 
+    /**
+     * Initializes the containers based on the environment variable `CONTAINER_SCENARIO`.
+     *
+     * @param startDefaultContainers Whether to start the default containers.
+     */
     public static void initializeContainers(Boolean startDefaultContainers) {
         String containerValue = System.getenv("CONTAINER_SCENARIO");
         if (containerValue == null) {
@@ -42,36 +52,72 @@ public abstract class ContainerInitializer {
                 selectedNoConfigContainers = List.of(ContainerTestImageNoConfigs.MAVEN_CONTAINER_NO_CONFIG);
                 break;
             default:
-                selectedDefaultContainers = List.of(ContainerTestImageDefaults.WAR_CONTAINER, ContainerTestImageDefaults.JAR_CONTAINER, ContainerTestImageDefaults.MAVEN_CONTAINER);
-                selectedNoConfigContainers = List.of(ContainerTestImageNoConfigs.WAR_CONTAINER_NO_CONFIG, ContainerTestImageNoConfigs.JAR_CONTAINER_NO_CONFIG, ContainerTestImageNoConfigs.MAVEN_CONTAINER_NO_CONFIG);
+                // @formatter:off
+                selectedDefaultContainers = List.of(
+                        ContainerTestImageDefaults.WAR_CONTAINER,
+                        ContainerTestImageDefaults.JAR_CONTAINER,
+                        ContainerTestImageDefaults.MAVEN_CONTAINER
+                );
+                // @formatter:off
+                selectedNoConfigContainers = List.of(
+                        ContainerTestImageNoConfigs.WAR_CONTAINER_NO_CONFIG,
+                        ContainerTestImageNoConfigs.JAR_CONTAINER_NO_CONFIG,
+                        ContainerTestImageNoConfigs.MAVEN_CONTAINER_NO_CONFIG
+                );
                 break;
         }
         if (startDefaultContainers) {
-            Startables.deepStart(selectedDefaultContainers.stream().map(container -> initContainer(container, false, false)).toArray(GenericContainer[]::new)).join();
+            // @formatter:off
+            Startables.deepStart(selectedDefaultContainers.stream()
+                    .map(container -> initContainer(container, false, false))
+                    .toArray(GenericContainer[]::new)).join();
         }
     }
 
+    /**
+     * Provides a stream of default container test images for unit tests.
+     *
+     * @return A stream of default container test images.
+     */
     public static Stream<Object[]> ContainerTestImageDefaultsImageStream() {
         initializeContainers(false);
-        // Check selectedContainers and return a stream of ContainerTestImage Enum objects
-        return Stream.of(selectedDefaultContainers).flatMap(List::stream).map(container -> new Object[]{container});
+        return selectedDefaultContainers.stream().map(container -> new Object[]{container});
     }
 
+    /**
+     * Provides a stream of no-config container test images for unit tests.
+     *
+     * @return A stream of no-config container test images.
+     */
     public static Stream<Object[]> ContainerTestImageNoConfigsImageStream() {
         initializeContainers(false);
-        // Create container selection
-        return Stream.of(selectedNoConfigContainers).flatMap(List::stream).map(container -> new Object[]{container});
+        return selectedNoConfigContainers.stream().map(container -> new Object[]{container});
     }
 
+    /**
+     * Initializes a container with the given test image.
+     *
+     * @param containerTestImage The container test image.
+     * @return The initialized container.
+     */
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage) {
         return initContainer(containerTestImage, false, true);
     }
 
+    /**
+     * Initializes a container with the given test image, with options to recreate and auto-start.
+     *
+     * @param containerTestImage The container test image.
+     * @param recreate           Whether to recreate the container.
+     * @param autoStart          Whether to auto-start the container.
+     * @return The initialized container.
+     */
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean recreate, Boolean autoStart) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");
         }
-        //@formatter:off
+
+        // @formatter:off
         GenericContainer<?> container = new GenericContainer<>(
                 new ImageFromDockerfile(containerTestImage.getName(), false)
                         .withFileFromPath("ors-api", Path.of("../ors-api"))
@@ -89,69 +135,40 @@ public abstract class ContainerInitializer {
                 .withExposedPorts(8080)
                 .withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()))
                 .waitingFor(healthyOrsWaitStrategy());
-        GenericContainer<?> containerToReturn;
 
-        if (containerTestImage == ContainerTestImageNoConfigs.WAR_CONTAINER_NO_CONFIG) {
-            if (warContainerNoConfig == null || recreate) {
-                if (warContainerNoConfig!=null) {
-                    warContainerNoConfig.stop();
-                }
-                warContainerNoConfig = container;
-            }
-            containerToReturn = warContainerNoConfig;
-        } else if (containerTestImage == ContainerTestImageNoConfigs.JAR_CONTAINER_NO_CONFIG) {
-            if (jarContainerNoConfig == null || recreate) {
-                if (jarContainerNoConfig!=null) {
-                    jarContainerNoConfig.stop();
-                }
-                jarContainerNoConfig = container;
-            }
-            containerToReturn = jarContainerNoConfig;
-        } else if (containerTestImage == ContainerTestImageNoConfigs.MAVEN_CONTAINER_NO_CONFIG) {
-            if (mvnContainerNoConfig == null || recreate) {
-                if (mvnContainerNoConfig!=null) {
-                    mvnContainerNoConfig.stop();
-                }
-                mvnContainerNoConfig = container;
-            }
-            containerToReturn = mvnContainerNoConfig;
-        } else if (containerTestImage == ContainerTestImageDefaults.WAR_CONTAINER) {
-            if (warContainer == null || recreate) {
-                if (warContainer!=null) {
-                    warContainer.stop();
-                    }
-                warContainer = container;
-            }
-            if (autoStart && !warContainer.isRunning()) {
-                warContainer.start();
-            }
-            containerToReturn = warContainer;
-        } else if (containerTestImage == ContainerTestImageDefaults.JAR_CONTAINER) {
-            if (jarContainer == null || recreate) {
-                if (jarContainer!=null) {
-                    jarContainer.stop();
-                    }
-                jarContainer = container;
-            }
-            if (autoStart && !jarContainer.isRunning())
-                jarContainer.start();
-            containerToReturn = jarContainer;
-        } else {
-            if (mvnContainer == null || recreate) {
-                if (mvnContainer!=null) {
-                    mvnContainer.stop();
-                    }
-                mvnContainer = container;
-            }
-            if (autoStart && !mvnContainer.isRunning()) {
-                mvnContainer.start();
-            }
-            containerToReturn = mvnContainer;
+        GenericContainer<?> containerToReturn = getOrCreateContainer(containerTestImage, container, recreate, containers.get(containerTestImage));
+
+        if (autoStart && !containerToReturn.isRunning()) {
+            containerToReturn.start();
         }
+
         return containerToReturn;
     }
 
-    // Create enum for available test images
+    /**
+     * Retrieves or creates a container based on the given parameters.
+     * Created containers are added to the running containers map.
+     *
+     * @param containerTestImage The container test image.
+     * @param container          The container to initialize.
+     * @param recreate           Whether to recreate the container.
+     * @param existingContainer  The existing container.
+     * @return The retrieved or created container.
+     */
+    private static GenericContainer<?> getOrCreateContainer(ContainerTestImage containerTestImage, GenericContainer<?> container, Boolean recreate, GenericContainer<?> existingContainer) {
+        if (existingContainer == null || recreate) {
+            if (existingContainer != null) {
+                existingContainer.stop();
+            }
+            existingContainer = container;
+            containers.put(containerTestImage, existingContainer);
+        }
+        return existingContainer;
+    }
+
+    /**
+     * Enum representing default container test images.
+     */
     public enum ContainerTestImageDefaults implements ContainerTestImage {
         WAR_CONTAINER("ors-test-scenarios-war"),
         JAR_CONTAINER("ors-test-scenarios-jar"),
@@ -168,7 +185,9 @@ public abstract class ContainerInitializer {
         }
     }
 
-    // Create enum for available test images
+    /**
+     * Enum representing no-config container test images.
+     */
     public enum ContainerTestImageNoConfigs implements ContainerTestImage {
         WAR_CONTAINER_NO_CONFIG("ors-test-scenarios-war-no-config"),
         JAR_CONTAINER_NO_CONFIG("ors-test-scenarios-jar-no-config"),
@@ -185,9 +204,11 @@ public abstract class ContainerInitializer {
         }
     }
 
-    public  interface ContainerTestImage {
-
-        public String getName();
+    /**
+     * Interface representing a container test image.
+     * Allows for generic usage  of the inheriting enums.
+     */
+    public interface ContainerTestImage {
+        String getName();
     }
-
 }
