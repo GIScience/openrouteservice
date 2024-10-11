@@ -33,8 +33,18 @@ public class ConfigTest {
     @TempDir
     File anotherTempDir;
 
-
-
+    /**
+     * build-graph-cycling-electric.sh
+     * build-graph-cycling-mountain.sh
+     * build-graph-cycling-regular.sh
+     * build-graph-cycling-road.sh
+     * build-graph-driving-car.sh
+     * build-graph-driving-hgv.sh
+     * build-graph-foot-hiking.sh
+     * build-graph-foot-walking.sh
+     * build-graph-public-transport.sh --> Missing
+     * build-graph-wheelchair.sh
+     */
     @Order(1)
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
@@ -80,6 +90,9 @@ public class ConfigTest {
         }
     }
 
+    /**
+     * missing-config.sh
+     */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageNoConfigsImageStream")
     @ParameterizedTest(name = "{0}")
     void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageNoConfigs targetImage) {
@@ -90,6 +103,9 @@ public class ConfigTest {
         container.stop();
     }
 
+    /**
+     * profile-default-enabled-false.sh
+     */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
     void testFailStartupWithProfileDefaultEnabledFalse(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException {
@@ -123,5 +139,23 @@ public class ConfigTest {
 
         // Shutdown the container
         container.stop();
+    }
+
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testPropertyOverridesDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException {
+        GenericContainer<?> container = initContainer(targetImage, true, false);
+
+        container.addEnv("ors.engine.profiles.driving-hgv.enabled", "true");
+
+        container.start();
+
+        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        Assertions.assertEquals(2, profiles.size());
+
+        List<String> expectedProfiles = List.of("driving-car", "driving-hgv");
+        for (JsonNode profile : profiles) {
+            Assertions.assertTrue(expectedProfiles.contains(profile.get("profiles").asText()));
+        }
     }
 }
