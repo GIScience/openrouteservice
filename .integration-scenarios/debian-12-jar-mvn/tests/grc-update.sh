@@ -46,7 +46,7 @@ awaitOrsReady 20 "${HOST_PORT}"
 
 graphInfoFileName="$graphs_path/driving-car/graph_info.yml"
 
-yq -i '.importDate = "2020-06-26T10:00:00+0000"' $graphInfoFileName  || exit 1
+yq -i '.import_date = "2020-06-26T10:00:00+0000"' $graphInfoFileName  || exit 1
 sleep 20 # more than the download_schedule and (shifted) activation_schedule
 
 profiles=$(requestEnabledProfiles ${HOST_PORT})

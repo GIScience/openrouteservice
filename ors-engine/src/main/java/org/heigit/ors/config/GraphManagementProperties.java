@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GraphManagementProperties {// TODO move to new package 'repo' and rename to GraphManagementConfigProperties
+public class GraphManagementProperties {
     private Boolean enabled;
     private String downloadSchedule;
     private String activationSchedule;

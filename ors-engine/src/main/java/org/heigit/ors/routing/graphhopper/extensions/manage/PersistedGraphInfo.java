@@ -14,9 +14,11 @@ import java.util.Date;
 @NoArgsConstructor
 public class PersistedGraphInfo {
 
+    @JsonProperty("import_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     private Date importDate;
 
+    @JsonProperty("osm_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     private Date osmDate;
 
