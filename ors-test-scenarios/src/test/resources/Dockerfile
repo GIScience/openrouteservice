@@ -12,11 +12,15 @@
 #  -v /your/graph/public-transport:/home/ors/openrouteservice/graphs/public-transport \
 #  -v /your/modified/ors.war:/usr/local/tomcat/webapps/ors.war \
 #  -p 8082:8080 ors-test-scenarios:latest
+
+ARG CONTAINER_BUILD_DIR=/build
+ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
+
 FROM docker.io/maven:3.9.9-amazoncorretto-21-alpine AS builder
 
 RUN apk add --no-cache bash yq
 
-ARG CONTAINER_BUILD_DIR=/build
+ARG CONTAINER_BUILD_DIR
 
 # Set the working directory
 WORKDIR $CONTAINER_BUILD_DIR
@@ -56,8 +60,8 @@ RUN yq -i '\
 FROM builder AS ors-test-scenarios-maven
 
 
-ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
-ARG CONTAINER_BUILD_DIR=/build
+ARG CONTAINER_WORK_DIR
+ARG CONTAINER_BUILD_DIR
 
 WORKDIR $CONTAINER_WORK_DIR
 
@@ -76,8 +80,8 @@ FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar
 
 RUN apk add --no-cache bash yq
 
-ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
-ARG CONTAINER_BUILD_DIR=/build
+ARG CONTAINER_WORK_DIR
+ARG CONTAINER_BUILD_DIR
 
 WORKDIR $CONTAINER_WORK_DIR
 
@@ -101,8 +105,8 @@ FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war
 
 RUN apt-get update
 
-ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
-ARG CONTAINER_BUILD_DIR=/build
+ARG CONTAINER_WORK_DIR
+ARG CONTAINER_BUILD_DIR
 
 # Create necessary directories and copy test files
 RUN mkdir -p /usr/local/tomcat/logs /usr/local/tomcat/temp /usr/local/tomcat/conf && \
@@ -126,3 +130,25 @@ EXPOSE 8080
 # Command to run Tomcat
 CMD ["catalina.sh", "run"]
 
+# ---------------------------
+# Targets without config files
+
+FROM ors-test-scenarios-maven AS ors-test-scenarios-maven-no-config
+
+ARG CONTAINER_WORK_DIR
+
+RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated
+
+
+FROM ors-test-scenarios-jar AS ors-test-scenarios-jar-no-config
+
+ARG CONTAINER_WORK_DIR
+
+RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated
+
+
+FROM ors-test-scenarios-war AS ors-test-scenarios-war-no-config
+
+ARG CONTAINER_WORK_DIR
+
+RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated

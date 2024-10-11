@@ -1,0 +1,30 @@
+package integrationtests;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.testcontainers.containers.GenericContainer;
+import utils.ContainerInitializer;
+import utils.OrsContainerFileSystemCheck;
+
+import java.io.IOException;
+
+import static utils.ContainerInitializer.initContainer;
+import static utils.OrsApiRequests.checkAvoidAreaRequest;
+
+public class GeoToolsTest {
+
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testAvoidAreaRequestAndGeoToolsPopulation(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage, true, true);
+
+        String geoToolsPath;
+        if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER))
+            geoToolsPath = "/usr/local/tomcat/temp/GeoTools";
+        else geoToolsPath = "/tmp/GeoTools";
+
+        OrsContainerFileSystemCheck.assertDirectoryExists(container, geoToolsPath, false);
+        checkAvoidAreaRequest("http://" + container.getHost() + ":" + container.getFirstMappedPort() + "/ors/v2/directions/driving-car/geojson", 200);
+        OrsContainerFileSystemCheck.assertDirectoryExists(container, geoToolsPath, true);
+    }
+}
