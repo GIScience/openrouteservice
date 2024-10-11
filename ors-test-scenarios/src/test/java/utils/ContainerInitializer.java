@@ -7,19 +7,23 @@ import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.lifecycle.Startables;
+import org.testcontainers.utility.MountableFile;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
 public abstract class ContainerInitializer {
     private static final Map<String, String> defaultEnv = Map.of("logging.level.org.heigit",
-            "INFO",
+            "DEBUG",
             "ors.engine.graphs_data_access",
-            "MMAP");
+            "MMAP",
+            "server.port",
+            "8080"
+    );
     private static List<ContainerTestImage> selectedContainers = List.of();
     private static GenericContainer<?> warContainer;
     private static GenericContainer<?> jarContainer;
@@ -58,10 +62,6 @@ public abstract class ContainerInitializer {
 
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage) {
         return initContainer(containerTestImage, false, true);
-    }
-
-    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean recreate) {
-        return initContainer(containerTestImage, recreate, true);
     }
 
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean recreate, Boolean autoStart) {
@@ -126,7 +126,42 @@ public abstract class ContainerInitializer {
             return mvnContainer;
         }
     }
-    protected void restartContainer(GenericContainer<?> container) throws IOException, InterruptedException {
+
+/**
+     * Restarts the container with the provided files. TestContainers doesn't support a normal docker restart and stop/start is the only way to restart a container.
+     * The downside is that stop/start will create a fresh container from the original image.
+     * Therefore, we preserve files with a FileSystemBind.
+     *
+     * @param container     The container to restart
+     * @param preserveFiles A map of containerPath -> hostPath to preserve files
+     * @return The original binds of the container for a later reset
+     */
+    protected void restartContainer(GenericContainer<?> container, Map<String, Path> preserveFiles) {
+        // deep copy
+        if (preserveFiles != null) {
+            for (Map.Entry<String, Path> entry : preserveFiles.entrySet()) {
+                String containerPath = entry.getKey();
+                Path hostPath = entry.getValue();
+                container.copyFileFromContainer(containerPath, hostPath.toString());
+                container.withCopyFileToContainer(MountableFile.forHostPath(hostPath), containerPath);
+            }
+        }
+        restartContainer(container);
+    }
+
+/**
+* Restarts the container and resets the binds to the original binds.
+ * @param container The container to restart
+ * @param resetPreservedFiles Whether to reset the preserved files
+*/
+    protected void restartContainer(GenericContainer<?> container, Boolean resetPreservedFiles) {
+        if (resetPreservedFiles) {
+            container.setCopyToFileContainerPathMap(new HashMap<>());
+        }
+        restartContainer(container);
+    }
+
+    protected void restartContainer(GenericContainer<?> container) {
         container.stop();
         container.start();
     }
