@@ -2,7 +2,6 @@ package integrationtests;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
@@ -13,7 +12,6 @@ import utils.ContainerInitializer;
 import utils.OrsApiRequests;
 import utils.OrsContainerFileSystemCheck;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +25,10 @@ import static utils.TestContainersHelper.restartContainer;
 @Testcontainers(disabledWithoutDocker = true)
 public class EnvironmentTest {
 
-    @TempDir
-    File anotherTempDir;
-
+    /**
+     * build-all-graphs.sh
+     * profile-default-enabled-true.sh
+     */
     @Order(1)
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
@@ -69,9 +68,12 @@ public class EnvironmentTest {
     }
 
 
+    /**
+     * arg-overrides-default-prop.sh
+     */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0} overwrite default config with env")
-    void testActivateEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
+    void testActivateEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException {
         GenericContainer<?> container = initContainer(targetImage, true, false);
 
         List<String> allProfiles = List.of("cycling-electric", "cycling-road", "cycling-mountain", "cycling-regular", "driving-car", "driving-hgv", "foot-hiking", "foot-walking", "wheelchair");
