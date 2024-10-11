@@ -2,7 +2,7 @@
 
 Since v9 openrouteservice includes a client for graph repositories. 
 This makes it possible to download and use graphs built elsewhere instead of building them locally.
-When using only graphs from a repository and configure [ors.engine.graphs_data_acces](/run-instance/configuration/ors/engine/#ors-engine)=`MMAP`, 
+When using only graphs from a repository and configuring [ors.engine.graphs_data_acces](/run-instance/configuration/ors/engine/#ors-engine)=`MMAP`, 
 it is now possible to run openrouteservice on pretty small machines even with planet data.
 
 ## Graph Repository
@@ -259,7 +259,6 @@ and also backuped old graphs.
 
 The following diagram shows the startup logic that es executed for each enabled routing profile.
 For simplification we use only the routing profile `wheelchair` as an example:
-:
 ```mermaid
 flowchart TD
     AS[Application Start] --> QN{wheelchair_new?}
@@ -279,15 +278,21 @@ flowchart TD
     W[wheelchair] --> L                
     L[load wheelchair] --> AR[Application Running]
 ```
-The backup logic is not shown in the diagram:
+The detailed backup logic is not shown in the diagram:
 Graph folders are backed up by renaming. 
-A timestamp suffix is added with the current date, i.e. the date when the backup is created.
+A timestamp suffix is added to the folder name of the active graph directory.
+The current date is used for this. 
+I.e. the backup directories have the backup date, 
+not the osm date or graph build date as their timestamp.
 Before doing so, 
 the number of existing backups (existing directories `<profile>_<timestamp>`) is checked. 
-If there are more than `max_backups - 1` backups, oldest backup directory is removed. 
+If there are more than `max_backups - 1` backups, 
+the oldest backup directory is removed. 
+This avoids that at any point in time more than `max_backups` graphs are stored, 
+because graph directories can be very large.
 
 In addition to backup and activate graphs,
-the startup process also wipes out incomplete files or directory (they could reside after a system crash).
+the startup process also wipes out incomplete files or directories (they could reside after a system crash).
 
 ## Configuration
 
