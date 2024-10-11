@@ -355,14 +355,15 @@ Repository settings that are common for multiple or all routing profiles can als
 ::: details Configuration Example
 In this configuration example, graph management is enabled and all three profiles use graph management,
 because the repo parameters in `profile_default` are filled.
-`ors.engine.profile_default.source_file` is empty to avoid that graphs are built locally if an expected graph is missing in the repository.
+`ors.engine.profile_default.build.source_file` is empty to avoid that graphs are built locally if an expected graph is missing in the repository.
 ```yaml
 ors:
   engine:
     graph_management:
       enabled: true
     profile_default:
-      source_file:
+      build:
+        source_file:
       repo:
         repository_uri: http://graphs.provider.com/repos
         repository_name: repo1
