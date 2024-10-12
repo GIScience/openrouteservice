@@ -264,4 +264,25 @@ public class ConfigTest {
         Assertions.assertEquals("driving-hgv", profiles.get("profile 1").get("profiles").asText());
         container.stop();
     }
+
+    /**
+     * missing-config-but-profile-enabled-as-env-dot-jar-only.sh
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testMissingConfigButProfileEnabledAsEnvDot(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage, true, false);
+        container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
+        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+        container.addEnv("ors.engine.profiles.driving-hgv.enabled", "true");
+        container.start();
+
+        // Assert ors-config.yml not present for a sane test.
+        OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
+        // Get active profiles
+        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        Assertions.assertEquals(1, profiles.size());
+        Assertions.assertEquals("driving-hgv", profiles.get("profile 1").get("profiles").asText());
+        container.stop();
+    }
 }
