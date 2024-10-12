@@ -136,18 +136,18 @@ public class ConfigTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
-    void testDeclaredYmlPreferredOverOrsConfigLocation(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException {
+    void testSpecificYmlPreferredOverOrsConfigLocationEnv(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException {
         GenericContainer<?> container = initContainer(targetImage, true, false);
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config-car.yml"));
         // Setup the config file
         Path testConfigCar = configWithCustomProfilesActivated(anotherTempDir, "ors-config-car.yml", Map.of("driving-car", true));
-        Path testConfigHGV = configWithCustomProfilesActivated(anotherTempDir, "ors-config-hgv.yml", Map.of("driving-hgv", true));
+        Path defaultConfig = setupConfigFileProfileDefaultFalse(anotherTempDir, "ors-config-wrong.yml");
 
         // Mount the config file to the container
-        container.withCopyFileToContainer(forHostPath(testConfigHGV), "/home/ors/openrouteservice/ors-config-hgv.yml");
+        container.withCopyFileToContainer(forHostPath(defaultConfig), "/home/ors/openrouteservice/ors-config-wrong.yml");
         container.withCopyFileToContainer(forHostPath(testConfigCar), "/home/ors/openrouteservice/ors-config-car.yml");
         // Point the ORS_CONFIG_LOCATION to the testConfigCar
-        container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-hgv.yml");
+        container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-wrong.yml");
         if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
             targetImage.getCommand().add("/home/ors/openrouteservice/ors-config-car.yml");
         } else {
