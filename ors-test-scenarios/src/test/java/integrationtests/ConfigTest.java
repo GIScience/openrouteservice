@@ -188,4 +188,31 @@ public class ConfigTest {
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", true);
         container.stop();
     }
+
+    /**
+     * specify-yml-prefer-env-over-lookup.sh
+     **/
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testSpecificEnvYamlPreferredOverWorkingDirectoryLookup(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage, true, false);
+        container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config-hgv.yml"));
+        // Setup the config file
+        Path testConfigHGV = configWithCustomProfilesActivated(anotherTempDir, "ors-config-hgv.yml", Map.of("driving-hgv", true));
+        Path defaultConfig = setupConfigFileProfileDefaultFalse(anotherTempDir, "ors-config.yml");
+
+        // Prepare the container
+        container.withCopyFileToContainer(forHostPath(testConfigHGV), "/home/ors/openrouteservice/ors-config-hgv.yml");
+        container.withCopyFileToContainer(forHostPath(defaultConfig), "/home/ors/openrouteservice/ors-config.yml");
+        container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-hgv.yml");
+        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+
+        // Set the env variables
+        container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-hgv.yml");
+
+        container.start();
+        // Assert ors-config.yml is present and the test is sane
+        OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", true);
+        container.stop();
+    }
 }
