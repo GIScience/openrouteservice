@@ -6,6 +6,7 @@ import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.lifecycle.Startables;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +25,8 @@ public abstract class ContainerInitializer {
             "server.port", "8080"
     );
 
-    private static List<ContainerTestImage> selectedDefaultContainers = List.of();
-    private static List<ContainerTestImage> selectedNoConfigContainers = List.of();
+    private static List<ContainerTestImageDefaults> selectedDefaultContainers = List.of();
+    private static List<ContainerTestImageBare> selectedBareContainers = List.of();
     private static final Map<ContainerTestImage, GenericContainer<?>> containers = new HashMap<>();
 
     /**
@@ -41,15 +42,14 @@ public abstract class ContainerInitializer {
         switch (containerValue) {
             case "war":
                 selectedDefaultContainers = List.of(ContainerTestImageDefaults.WAR_CONTAINER);
-                selectedNoConfigContainers = List.of(ContainerTestImageNoConfigs.WAR_CONTAINER_NO_CONFIG);
                 break;
             case "jar":
                 selectedDefaultContainers = List.of(ContainerTestImageDefaults.JAR_CONTAINER);
-                selectedNoConfigContainers = List.of(ContainerTestImageNoConfigs.JAR_CONTAINER_NO_CONFIG);
+                selectedBareContainers = List.of(ContainerTestImageBare.JAR_CONTAINER_BARE);
                 break;
             case "maven":
                 selectedDefaultContainers = List.of(ContainerTestImageDefaults.MAVEN_CONTAINER);
-                selectedNoConfigContainers = List.of(ContainerTestImageNoConfigs.MAVEN_CONTAINER_NO_CONFIG);
+                selectedBareContainers = List.of(ContainerTestImageBare.MAVEN_CONTAINER_BARE);
                 break;
             default:
                 // @formatter:off
@@ -58,11 +58,9 @@ public abstract class ContainerInitializer {
                         ContainerTestImageDefaults.JAR_CONTAINER,
                         ContainerTestImageDefaults.MAVEN_CONTAINER
                 );
-                // @formatter:off
-                selectedNoConfigContainers = List.of(
-                        ContainerTestImageNoConfigs.WAR_CONTAINER_NO_CONFIG,
-                        ContainerTestImageNoConfigs.JAR_CONTAINER_NO_CONFIG,
-                        ContainerTestImageNoConfigs.MAVEN_CONTAINER_NO_CONFIG
+                selectedBareContainers = List.of(
+                        ContainerTestImageBare.JAR_CONTAINER_BARE,
+                        ContainerTestImageBare.MAVEN_CONTAINER_BARE
                 );
                 break;
         }
@@ -85,13 +83,13 @@ public abstract class ContainerInitializer {
     }
 
     /**
-     * Provides a stream of no-config container test images for unit tests.
+     * Provides a stream of bare container test images for unit tests.
      *
-     * @return A stream of no-config container test images.
+     * @return A stream of bare container test images.
      */
-    public static Stream<Object[]> ContainerTestImageNoConfigsImageStream() {
+    public static Stream<Object[]> ContainerTestImageBareImageStream() {
         initializeContainers(false);
-        return selectedNoConfigContainers.stream().map(container -> new Object[]{container});
+        return selectedBareContainers.stream().map(container -> new Object[]{container});
     }
 
     /**
@@ -201,6 +199,31 @@ public abstract class ContainerInitializer {
 
         public String getName() {
             return name;
+        }
+    }
+
+    /**
+     * Enum representing bare container test images.
+     * These can be adjusted to fit specific CMD requirements.
+     */
+    public enum ContainerTestImageBare implements ContainerTestImage {
+        // WAR_CONTAINER_BARE("ors-test-scenarios-war-bare"), Do not activate. The maven container is special!
+        JAR_CONTAINER_BARE("ors-test-scenarios-jar-bare", new ArrayList<>(List.of("java", "-Xmx400M", "-jar", "ors.jar"))),
+        MAVEN_CONTAINER_BARE("ors-test-scenarios-maven-bare", new ArrayList<>(List.of("mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-Xmx400m" , "-DskipTests", "-Dmaven.test.skip=true", "-T 1C")));
+        private final String name;
+        private final ArrayList<String> command;
+
+        ContainerTestImageBare(String name, ArrayList<String> command) {
+            this.name = name;
+            this.command = command;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public ArrayList<String> getCommand() {
+            return command;
         }
     }
 

@@ -40,8 +40,9 @@ COPY ors-engine $CONTAINER_BUILD_DIR/ors-engine
 COPY ors-report-aggregation $CONTAINER_BUILD_DIR/ors-report-aggregation
 
 # Build the projects war and jar files
-RUN mvn clean package -q -DskipTests -PbuildWar -T$(nproc)
-RUN mvn package -q -DskipTests -PbuildFatJar -T$(nproc)
+RUN mvn clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -T 1C
+RUN mvn package -q -DskipTests -Dmaven.test.skip=true -PbuildFatJar -T 1C
+RUN mvn install -q -o -DskipTests -Dmaven.test.skip=true -PbuildFatJar -T 1C
 
 # Prepare the config file
 COPY ors-config.yml $CONTAINER_BUILD_DIR/ors-config.yml
@@ -57,7 +58,7 @@ RUN yq -i '\
     .ors.engine.profile_default.source_file = "/home/ors/openrouteservice/files/heidelberg.test.pbf"\
     ' $CONTAINER_BUILD_DIR/ors-config.yml
 
-FROM builder AS ors-test-scenarios-maven
+FROM builder AS ors-test-scenarios-maven-bare
 
 
 ARG CONTAINER_WORK_DIR
@@ -69,14 +70,14 @@ RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_
     $CONTAINER_WORK_DIR/graph_repo
 
 COPY --from=builder $CONTAINER_BUILD_DIR/ ./
+COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml.deactivated
 COPY ors-api/src/test/files "$CONTAINER_WORK_DIR"/files
 COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
 
 EXPOSE 8080
 
-ENTRYPOINT ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-Xms200m -Xmx500m", "-DskipTests", "-Dmaven.test.skip=true"]
 
-FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar
+FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar-bare
 
 RUN apk add --no-cache bash yq
 
@@ -86,22 +87,20 @@ ARG CONTAINER_BUILD_DIR
 WORKDIR $CONTAINER_WORK_DIR
 
 COPY --from=builder $CONTAINER_BUILD_DIR/ors-api/target/ors.jar "$CONTAINER_WORK_DIR"/ors.jar
-COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml
+COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml.deactivated
 COPY ors-api/src/test/files "$CONTAINER_WORK_DIR"/files
 COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
 
 
-RUN mkdir -p graphs /home/ors/graph_repo "$CONTAINER_WORK_DIR" && \
-    chmod -R 770 "$CONTAINER_WORK_DIR"
+RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_DIR/graphs $CONTAINER_WORK_DIR/elevation_cache \
+    $CONTAINER_WORK_DIR/graph_repo
 
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 EXPOSE 8080
 
-ENTRYPOINT [ "java", "-Xms200M", "-Xmx500M", "-jar", "ors.jar" ]
-
-FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war
+FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war-bare
 
 RUN apt-get update
 
@@ -109,16 +108,16 @@ ARG CONTAINER_WORK_DIR
 ARG CONTAINER_BUILD_DIR
 
 # Create necessary directories and copy test files
-RUN mkdir -p /usr/local/tomcat/logs /usr/local/tomcat/temp /usr/local/tomcat/conf && \
-    mkdir -p /home/ors/openrouteservice/logs /home/ors/openrouteservice/files /home/ors/openrouteservice/graphs /home/ors/openrouteservice/elevation_cache
+RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_DIR/graphs $CONTAINER_WORK_DIR/elevation_cache \
+    $CONTAINER_WORK_DIR/graph_repo
 
 # Copy the test files
 COPY --from=builder $CONTAINER_BUILD_DIR/ors-api/target/ors.war /usr/local/tomcat/webapps/ors.war
-COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservice/ors-config.yml
+COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservice/ors-config.yml.deactivated
 COPY ors-api/src/test/files /home/ors/openrouteservice/files
 COPY ors-api/src/test/files/elevation /home/ors/openrouteservice/elevation_cache
 
-RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -Xms225M -Xmx500M -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh && \
+RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -Xmx400M -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh && \
     echo 'export JAVA_OPTS="$JAVA_OPTS \
     -Dors.config.location=/home/ors/openrouteservice/ors-config.yml"' >> /usr/local/tomcat/bin/setenv.sh
 
@@ -127,28 +126,33 @@ WORKDIR /usr/local/tomcat
 
 EXPOSE 8080
 
+# ---------------------------
+# Targets with config files
+# ---------------------------
+
+FROM ors-test-scenarios-maven-bare AS ors-test-scenarios-maven
+
+ARG CONTAINER_WORK_DIR
+
+RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-config.yml
+
+# Command to run Maven
+ENTRYPOINT ["mvn", "spring-boot:run", "-T 2C", "-Dspring-boot.run.jvmArguments=-Xmx400m", "-DskipTests", "-Dmaven.test.skip=true"]
+
+FROM ors-test-scenarios-jar-bare AS ors-test-scenarios-jar
+
+ARG CONTAINER_WORK_DIR
+
+RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-config.yml
+
+# Command to run the JAR
+CMD ["java", "-Xmx400M", "-jar", "ors.jar"]
+
+FROM ors-test-scenarios-war-bare AS ors-test-scenarios-war
+
+ARG CONTAINER_WORK_DIR
+
+RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-config.yml
+
 # Command to run Tomcat
 CMD ["catalina.sh", "run"]
-
-# ---------------------------
-# Targets without config files
-
-FROM ors-test-scenarios-maven AS ors-test-scenarios-maven-no-config
-
-ARG CONTAINER_WORK_DIR
-
-RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated
-
-
-FROM ors-test-scenarios-jar AS ors-test-scenarios-jar-no-config
-
-ARG CONTAINER_WORK_DIR
-
-RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated
-
-
-FROM ors-test-scenarios-war AS ors-test-scenarios-war-no-config
-
-ARG CONTAINER_WORK_DIR
-
-RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated
