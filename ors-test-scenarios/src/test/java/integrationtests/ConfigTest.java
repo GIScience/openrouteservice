@@ -22,8 +22,7 @@ import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
 import static utils.OrsConfigHelper.configWithCustomProfilesActivated;
 import static utils.OrsConfigHelper.setupConfigFileProfileDefaultFalse;
-import static utils.TestContainersHelper.noConfigWaitStrategy;
-import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
+import static utils.TestContainersHelper.*;
 
 @ExtendWith(TestcontainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -213,6 +212,30 @@ public class ConfigTest {
         container.start();
         // Assert ors-config.yml is present and the test is sane
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", true);
+        container.stop();
+    }
+
+    /**
+     * missing-config-but-required-params-as-env-upper.sh
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testMissingConfigButRequiredParamsAsEnvUpperAndLower(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage, true, false);
+        container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
+        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+        container.addEnv("ors.engine.profiles.driving-car.enabled", "true");
+        container.addEnv("ORS_ENGINE_PROFILES_DRIVING_HGV_ENABLED", "true");
+        container.start();
+
+        // Assert ors-config.yml not present for a sane test.
+        OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
+        // Get active profiles
+        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        Assertions.assertEquals(2, profiles.size());
+        for (JsonNode profile : profiles) {
+            Assertions.assertTrue(List.of("driving-car", "driving-hgv").contains(profile.get("profiles").asText()));
+        }
         container.stop();
     }
 }

@@ -17,6 +17,12 @@ public class TestContainersHelper {
         return new LogMessageWaitStrategy().withRegEx(".*No profiles configured. Exiting.*");
     }
 
+    public static WaitStrategy noConfigHealthyWaitStrategy(String logLookupMessage) {
+        return new WaitAllStrategy()
+                .withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*"))
+                .withStrategy(healthyOrsWaitStrategy());
+    }
+
     public static WaitStrategy healthyOrsWaitStrategy() {
         //@formatter:off
         return new HttpWaitStrategy()
