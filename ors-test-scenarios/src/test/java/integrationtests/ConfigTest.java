@@ -238,4 +238,30 @@ public class ConfigTest {
         }
         container.stop();
     }
+
+    /**
+     * missing-config-but-required-params-as-arg.sh
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testMissingConfigButRequiredParamsAsArg(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage, true, false);
+        container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
+
+        if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
+            targetImage.getCommand().add("--ors.engine.profiles.driving-hgv.enabled=true");
+        } else {
+            targetImage.getCommand().add("-Dspring-boot.run.arguments=--ors.engine.profiles.driving-hgv.enabled=true");
+        }
+        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+        container.start();
+
+        // Assert ors-config.yml not present for a sane test.
+        OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
+        // Get active profiles
+        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        Assertions.assertEquals(1, profiles.size());
+        Assertions.assertEquals("driving-hgv", profiles.get("profile 1").get("profiles").asText());
+        container.stop();
+    }
 }
