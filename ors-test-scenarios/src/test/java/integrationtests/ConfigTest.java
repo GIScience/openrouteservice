@@ -11,6 +11,7 @@ import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import utils.ContainerInitializer;
 import utils.OrsApiRequests;
+import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -155,6 +156,36 @@ public class ConfigTest {
         container.setCommand(targetImage.getCommand().toArray(new String[0]));
 
         container.start();
+        container.stop();
+    }
+
+    /**
+     * specify-yml-prefer-arg-over-lookup.sh
+     **/
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testSpecificYamlPreferredOverConfigWorkingDirectoryLookup(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage, true, false);
+        container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config-hgv.yml"));
+        // Setup the config file
+        Path testConfigHGV = configWithCustomProfilesActivated(anotherTempDir, "ors-config-hgv.yml", Map.of("driving-hgv", true));
+        Path defaultConfig = setupConfigFileProfileDefaultFalse(anotherTempDir, "ors-config.yml");
+
+        // Mount the config file to the container
+        container.withCopyFileToContainer(forHostPath(testConfigHGV), "/home/ors/openrouteservice/ors-config-hgv.yml");
+        container.withCopyFileToContainer(forHostPath(defaultConfig), "/home/ors/openrouteservice/ors-config.yml");
+
+        // Construct the command
+        if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
+            targetImage.getCommand().add("/home/ors/openrouteservice/ors-config-hgv.yml");
+        } else {
+            targetImage.getCommand().add("-Dspring-boot.run.arguments=/home/ors/openrouteservice/ors-config-hgv.yml");
+        }
+        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+
+        container.start();
+        // Assert ors-config.yml is present and the test is sane
+        OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", true);
         container.stop();
     }
 }
