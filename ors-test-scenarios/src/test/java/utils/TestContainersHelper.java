@@ -3,6 +3,7 @@ package utils;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.utility.MountableFile;
 
@@ -23,6 +24,14 @@ public class TestContainersHelper {
                 .forStatusCode(200)
                 .forPath("/ors/v2/health")
                 .withStartupTimeout(Duration.ofSeconds(80));
+    }
+
+    // Wait strategy that looks for "Loaded file 'ors-config-car.yml'" in the logs and waits for the container to be healthy
+    public static WaitStrategy orsCorrectConfigLoadedWaitStrategy(String configName) {
+        //@formatter:off
+        return new WaitAllStrategy()
+                .withStrategy(new LogMessageWaitStrategy().withRegEx(".*Loaded file '" + configName + "'.*"))
+                .withStrategy(healthyOrsWaitStrategy());
     }
 
     /**

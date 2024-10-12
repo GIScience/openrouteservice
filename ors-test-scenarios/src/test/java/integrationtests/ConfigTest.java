@@ -1,9 +1,5 @@
 package integrationtests;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -16,13 +12,17 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import utils.ContainerInitializer;
 import utils.OrsApiRequests;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
+import static utils.OrsConfigHelper.configWithCustomProfilesActivated;
+import static utils.OrsConfigHelper.setupConfigFileProfileDefaultFalse;
 import static utils.TestContainersHelper.noConfigWaitStrategy;
+import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
 
 @ExtendWith(TestcontainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -31,7 +31,7 @@ import static utils.TestContainersHelper.noConfigWaitStrategy;
 public class ConfigTest {
 
     @TempDir
-    File anotherTempDir;
+    Path anotherTempDir;
 
     /**
      * build-graph-cycling-electric.sh
@@ -49,56 +49,42 @@ public class ConfigTest {
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
     void testActivateEachProfileWithConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException {
-        List<String> allProfiles = List.of("cycling-electric", "cycling-road", "cycling-mountain", "cycling-regular", "driving-car", "driving-hgv", "foot-hiking", "foot-walking");
+        Map<String, Boolean> allProfiles = Map.of(
+                "cycling-electric", true,
+                "cycling-road", true,
+                "cycling-mountain", true,
+                "cycling-regular", true,
+                "driving-car", true,
+                "driving-hgv", true,
+                "foot-hiking", true,
+                "foot-walking", true
+        );
         // Create another file in anotherTempDir called ors-config2.yml
-        File testConfig = new File(anotherTempDir, "ors-config.yml");
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode rootNode = mapper.createObjectNode();
-        // Create the profile_default node
-        ObjectNode profileDefaultNode = mapper.createObjectNode();
-        profileDefaultNode.put("enabled", false);
-        profileDefaultNode.put("source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
-        profileDefaultNode.put("graph_path", "/home/ors/openrouteservice/graphs");
+        Path testConfig = configWithCustomProfilesActivated(anotherTempDir, "ors-config.yml", allProfiles);
 
-        // Create the profiles node
-        ObjectNode profilesNode = mapper.createObjectNode();
-        profilesNode.put("wheelchair", mapper.createObjectNode().put("enabled", false));
-        for (String profile : allProfiles) {
-            // Add each profile to the profiles node
-            profilesNode.put(profile, mapper.createObjectNode().put("enabled", true));
-        }
-        // Create the engine object
-        ObjectNode engineNode = mapper.createObjectNode();
-        engineNode.set("profile_default", profileDefaultNode);
-        engineNode.set("profiles", profilesNode);
-        // Add the engine object to the root node
-        rootNode.set("ors", mapper.createObjectNode().set("engine", engineNode));
-        // Write the JsonNode to a YAML file
-        YAMLMapper yamlMapper = new YAMLMapper(new YAMLFactory());
-        yamlMapper.writeValue(testConfig, rootNode);
         // Insert the same content as ors-config.yml
         GenericContainer<?> container = initContainer(targetImage, true, false);
 
-        container.withCopyFileToContainer(forHostPath(testConfig.getPath()), "/home/ors/openrouteservice/ors-config.yml");
+        container.withCopyFileToContainer(forHostPath(testConfig), "/home/ors/openrouteservice/ors-config.yml");
         container.start();
 
         JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(8, profiles.size());
 
         for (JsonNode profile : profiles) {
-            Assertions.assertTrue(allProfiles.contains(profile.get("profiles").asText()));
+            Assertions.assertTrue(allProfiles.get(profile.get("profiles").asText()));
         }
     }
 
     /**
      * missing-config.sh
      */
-    @MethodSource("utils.ContainerInitializer#ContainerTestImageNoConfigsImageStream")
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
-    void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageNoConfigs targetImage) {
+    void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageBare targetImage) {
         GenericContainer<?> container = initContainer(targetImage, true, false);
         container.waitingFor(noConfigWaitStrategy());
-
+        container.withCommand(targetImage.getCommand().toString());
         container.start();
         container.stop();
     }
@@ -114,25 +100,10 @@ public class ConfigTest {
         container.waitingFor(noConfigWaitStrategy());
 
         // Setup the config file
-        File testConfig = new File(anotherTempDir, "ors-config.yml");
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode rootNode = mapper.createObjectNode();
-        // Create the profile_default node
-        ObjectNode profileDefaultNode = mapper.createObjectNode();
-        profileDefaultNode.put("enabled", false);
-        profileDefaultNode.put("source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
-        profileDefaultNode.put("graph_path", "/home/ors/openrouteservice/graphs");
-        // Create the engine object
-        ObjectNode engineNode = mapper.createObjectNode();
-        engineNode.set("profile_default", profileDefaultNode);
-        // Add the engine object to the root node
-        rootNode.set("ors", mapper.createObjectNode().set("engine", engineNode));
-        // Write the JsonNode to a YAML file
-        YAMLMapper yamlMapper = new YAMLMapper(new YAMLFactory());
-        yamlMapper.writeValue(testConfig, rootNode);
+        Path testConfig = setupConfigFileProfileDefaultFalse(anotherTempDir, "ors-config.yml");
 
         // Add the config file to te container and overwrite the default config
-        container.withCopyFileToContainer(forHostPath(testConfig.getPath()), "/home/ors/openrouteservice/ors-config.yml");
+        container.withCopyFileToContainer(forHostPath(testConfig), "/home/ors/openrouteservice/ors-config.yml");
 
         // Start the container. Succeeds if the expected log message is found.
         container.start();
@@ -157,5 +128,33 @@ public class ConfigTest {
         for (JsonNode profile : profiles) {
             Assertions.assertTrue(expectedProfiles.contains(profile.get("profiles").asText()));
         }
+    }
+
+    /**
+     * specify-yml-prefer-arg-over-env.sh
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testDeclaredYmlPreferredOverOrsConfigLocation(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException {
+        GenericContainer<?> container = initContainer(targetImage, true, false);
+        container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config-car.yml"));
+        // Setup the config file
+        Path testConfigCar = configWithCustomProfilesActivated(anotherTempDir, "ors-config-car.yml", Map.of("driving-car", true));
+        Path testConfigHGV = configWithCustomProfilesActivated(anotherTempDir, "ors-config-hgv.yml", Map.of("driving-hgv", true));
+
+        // Mount the config file to the container
+        container.withCopyFileToContainer(forHostPath(testConfigHGV), "/home/ors/openrouteservice/ors-config-hgv.yml");
+        container.withCopyFileToContainer(forHostPath(testConfigCar), "/home/ors/openrouteservice/ors-config-car.yml");
+        // Point the ORS_CONFIG_LOCATION to the testConfigCar
+        container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-hgv.yml");
+        if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
+            targetImage.getCommand().add("/home/ors/openrouteservice/ors-config-car.yml");
+        } else {
+            targetImage.getCommand().add("-Dspring-boot.run.arguments=/home/ors/openrouteservice/ors-config-car.yml");
+        }
+        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+
+        container.start();
+        container.stop();
     }
 }
