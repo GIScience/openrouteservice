@@ -69,10 +69,10 @@ WORKDIR $CONTAINER_WORK_DIR
 RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_DIR/graphs $CONTAINER_WORK_DIR/elevation_cache \
     $CONTAINER_WORK_DIR/graph_repo
 
-COPY --from=builder $CONTAINER_BUILD_DIR/ ./
-COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml.deactivated
+COPY --from=builder $CONTAINER_BUILD_DIR/ "$CONTAINER_WORK_DIR"/
 COPY ors-api/src/test/files "$CONTAINER_WORK_DIR"/files
 COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
+RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated
 
 EXPOSE 8080
 

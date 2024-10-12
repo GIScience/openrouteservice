@@ -84,7 +84,7 @@ public class ConfigTest {
     void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageBare targetImage) {
         GenericContainer<?> container = initContainer(targetImage, true, false);
         container.waitingFor(noConfigWaitStrategy());
-        container.withCommand(targetImage.getCommand().toString());
+        container.setCommand(targetImage.getCommand().toArray(new String[0]));
         container.start();
         container.stop();
     }
