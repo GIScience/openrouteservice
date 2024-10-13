@@ -20,7 +20,7 @@ import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.restartContainer;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Testcontainers(disabledWithoutDocker = true)
 public class EnvironmentTest {

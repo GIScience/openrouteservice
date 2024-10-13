@@ -23,7 +23,7 @@ import static utils.ContainerInitializer.initContainer;
 import static utils.OrsConfigHelper.configWithCustomProfilesActivated;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers(disabledWithoutDocker = true)
 public class ConfigProfileTest {
 

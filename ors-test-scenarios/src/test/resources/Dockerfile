@@ -72,7 +72,9 @@ RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_
 COPY --from=builder $CONTAINER_BUILD_DIR/ "$CONTAINER_WORK_DIR"/
 COPY ors-api/src/test/files "$CONTAINER_WORK_DIR"/files
 COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
-RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated
+RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated && \
+    # Cache the dependencies to speed up the runtime process
+    mvn install -q -o -DskipTests -Dmaven.test.skip=true -T 1C
 
 EXPOSE 8080
 

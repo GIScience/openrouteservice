@@ -108,14 +108,18 @@ public abstract class ContainerInitializer {
                         .withFileFromPath(".dockerignore", Path.of("../.dockerignore"))
                         .withTarget(containerTestImage.getName())
         )
-                .withStartupTimeout(Duration.ofMinutes(100))
-
                 .withEnv(defaultEnv)
                 .withFileSystemBind("./graphs-integrationtests/" + containerTestImage.getName(),
                         "/home/ors/openrouteservice/graphs", BindMode.READ_WRITE)
                 .withExposedPorts(8080)
                 .withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()))
                 .waitingFor(healthyOrsWaitStrategy());
+
+        if (containerTestImage == ContainerTestImageDefaults.MAVEN_CONTAINER || containerTestImage == ContainerTestImageBare.MAVEN_CONTAINER_BARE) {
+            container.withStartupTimeout(Duration.ofSeconds(120));
+        } else {
+            container.withStartupTimeout(Duration.ofSeconds(80));
+        }
 
         if (autoStart) {
             container.start();
@@ -149,14 +153,13 @@ public abstract class ContainerInitializer {
      */
     public enum ContainerTestImageBare implements ContainerTestImage {
         // WAR_CONTAINER_BARE("ors-test-scenarios-war-bare"), Do not activate. The maven container is special!
-        JAR_CONTAINER_BARE("ors-test-scenarios-jar-bare", new ArrayList<>(List.of("java", "-Xmx400M", "-jar", "ors.jar"))),
-        MAVEN_CONTAINER_BARE("ors-test-scenarios-maven-bare", new ArrayList<>(List.of("mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-Xmx400m" , "-DskipTests", "-Dmaven.test.skip=true", "-T 1C")));
-        private final String name;
-        private final ArrayList<String> command;
+        JAR_CONTAINER_BARE("ors-test-scenarios-jar-bare"),
+        MAVEN_CONTAINER_BARE("ors-test-scenarios-maven-bare");
 
-        ContainerTestImageBare(String name, ArrayList<String> command) {
+        private final String name;
+
+        ContainerTestImageBare(String name) {
             this.name = name;
-            this.command = command;
         }
 
         public String getName() {
@@ -164,6 +167,23 @@ public abstract class ContainerInitializer {
         }
 
         public ArrayList<String> getCommand() {
+            ArrayList<String> command = new ArrayList<>();
+            switch (this) {
+                case JAR_CONTAINER_BARE:
+                    command.add("java");
+                    command.add("-Xmx400M");
+                    command.add("-jar");
+                    command.add("ors.jar");
+                    break;
+                case MAVEN_CONTAINER_BARE:
+                    command.add("mvn");
+                    command.add("spring-boot:run");
+                    command.add("-Dspring-boot.run.jvmArguments=-Xmx400m");
+                    command.add("-DskipTests");
+                    command.add("-Dmaven.test.skip=true");
+                    command.add("-T 1C");
+                    break;
+            }
             return command;
         }
     }

@@ -1,8 +1,6 @@
 package integrationtests;
 
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,6 +13,7 @@ import utils.OrsApiHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
@@ -23,8 +22,7 @@ import static utils.OrsConfigHelper.configWithCustomProfilesActivated;
 import static utils.TestContainersHelper.*;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers(disabledWithoutDocker = true)
 public class LookupTest {
 
@@ -38,7 +36,7 @@ public class LookupTest {
         container.waitingFor(noConfigFailWaitStrategy());
         container.setCommand(targetImage.getCommand().toArray(new String[0]));
         container.start();
-
+        container.stop();
     }
 
     /*
@@ -67,7 +65,8 @@ public class LookupTest {
     @ParameterizedTest(name = "{0}")
     void testLookupYmlEscalation(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
         GenericContainer<?> container = initContainer(targetImage, false);
-        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+        ArrayList<String> command = targetImage.getCommand();
+        container.setCommand(command.toArray(new String[0]));
 
         // 4. Test that the bare container looks first in /etc/openrouteservice/ors-config.yml.
         Path testConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", Map.of("cycling-regular", true));
@@ -94,14 +93,13 @@ public class LookupTest {
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/tmp/ors-config-env.yml"));
         restartContainer(container);
         OrsApiHelper.assertProfiles(container, Map.of("cycling-regular", true));
-
         // 0. Test that the bare container looks for the ors-config.yml file in the path provided as a positional argument with the highest priority.
         if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
-            targetImage.getCommand().add("/tmp/ors-config-arg.yml");
+            command.add("/tmp/ors-config-arg.yml");
         } else {
-            targetImage.getCommand().add("-Dspring-boot.run.arguments=/tmp/ors-config-arg.yml");
+            command.add("-Dspring-boot.run.arguments=/tmp/ors-config-arg.yml");
         }
-        container.withCommand(targetImage.getCommand().toArray(new String[0]));
+        container.withCommand(command.toArray(new String[0]));
         container.withCopyFileToContainer(forHostPath(testConfig), "/tmp/ors-config-arg.yml");
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/tmp/ors-config-arg.yml"));
         restartContainer(container);

@@ -18,7 +18,7 @@ import static utils.ContainerInitializer.initContainer;
 import static utils.OrsApiHelper.checkAvoidAreaRequest;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Testcontainers(disabledWithoutDocker = true)
 public class GeoToolsTest {
