@@ -49,16 +49,7 @@ public class ConfigTest {
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
     void testActivateEachProfileWithConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException {
-        Map<String, Boolean> allProfiles = Map.of(
-                "cycling-electric", true,
-                "cycling-road", true,
-                "cycling-mountain", true,
-                "cycling-regular", true,
-                "driving-car", true,
-                "driving-hgv", true,
-                "foot-hiking", true,
-                "foot-walking", true
-        );
+        Map<String, Boolean> allProfiles = Map.of("cycling-electric", true, "cycling-road", true, "cycling-mountain", true, "cycling-regular", true, "driving-car", true, "driving-hgv", true, "foot-hiking", true, "foot-walking", true);
         // Create another file in anotherTempDir called ors-config2.yml
         Path testConfig = configWithCustomProfilesActivated(anotherTempDir, "ors-config.yml", allProfiles);
 
@@ -83,7 +74,7 @@ public class ConfigTest {
     @ParameterizedTest(name = "{0}")
     void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageBare targetImage) {
         GenericContainer<?> container = initContainer(targetImage, true, false);
-        container.waitingFor(noConfigWaitStrategy());
+        container.waitingFor(noConfigFailWaitStrategy());
         container.setCommand(targetImage.getCommand().toArray(new String[0]));
         container.start();
         container.stop();
@@ -97,7 +88,7 @@ public class ConfigTest {
     void testFailStartupWithProfileDefaultEnabledFalse(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException {
         GenericContainer<?> container = initContainer(targetImage, true, false);
         // Wait for the log message when running container.start()
-        container.waitingFor(noConfigWaitStrategy());
+        container.waitingFor(noConfigFailWaitStrategy());
 
         // Setup the config file
         Path testConfig = setupConfigFileProfileDefaultFalse(anotherTempDir, "ors-config.yml");
