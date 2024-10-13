@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TestContainersHelper {
-    public static WaitStrategy noConfigWaitStrategy() {
+    public static WaitStrategy noConfigFailWaitStrategy() {
         return new LogMessageWaitStrategy().withRegEx(".*No profiles configured. Exiting.*");
     }
 
