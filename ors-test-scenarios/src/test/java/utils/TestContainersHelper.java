@@ -1,23 +1,19 @@
 package utils;
 
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.*;
+import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.utility.MountableFile;
 
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
 
 public class TestContainersHelper {
     public static WaitStrategy noConfigFailWaitStrategy() {
         return new LogMessageWaitStrategy().withRegEx(".*No profiles configured. Exiting.*");
-    }
-
-    public static WaitStrategy noConfigFailWithCommandConditionWaitStrategy(String command) {
-        return new WaitAllStrategy()
-                .withStrategy(Wait.forSuccessfulCommand(command))
-                .withStrategy(new LogMessageWaitStrategy().withRegEx(".*No profiles configured. Exiting.*"));
     }
 
     public static WaitStrategy noConfigHealthyWaitStrategy(String logLookupMessage) {
@@ -62,20 +58,6 @@ public class TestContainersHelper {
             }
         }
         restartContainer(container);
-    }
-
-    /**
-     * Restarts the container and resets the binds to the original binds.
-     * @param container The container to restart
-     * @param resetPreservedFiles Whether to reset the preserved files
-     */
-    public static void resetContainer(GenericContainer<?> container, Boolean resetPreservedFiles, Boolean restartContainer) {
-        if (resetPreservedFiles) {
-            container.setCopyToFileContainerPathMap(new HashMap<>());
-        }
-        if (restartContainer) {
-            restartContainer(container);
-        }
     }
 
     public static void restartContainer(GenericContainer<?> container) {
