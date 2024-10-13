@@ -14,6 +14,7 @@ import utils.OrsApiHelper;
 import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static utils.ContainerInitializer.initContainer;
@@ -21,7 +22,7 @@ import static utils.TestContainersHelper.healthyOrsWaitStrategy;
 import static utils.TestContainersHelper.noConfigHealthyWaitStrategy;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers(disabledWithoutDocker = true)
 public class ConfigEnvTest {
 
@@ -57,13 +58,13 @@ public class ConfigEnvTest {
     void testMissingConfigButRequiredParamsAsArg(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
-
+        ArrayList<String> command = targetImage.getCommand();
         if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
-            targetImage.getCommand().add("--ors.engine.profiles.driving-hgv.enabled=true");
+            command.add("--ors.engine.profiles.driving-hgv.enabled=true");
         } else {
-            targetImage.getCommand().add("-Dspring-boot.run.arguments=--ors.engine.profiles.driving-hgv.enabled=true");
+            command.add("-Dspring-boot.run.arguments=--ors.engine.profiles.driving-hgv.enabled=true");
         }
-        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+        container.setCommand(command.toArray(new String[0]));
         container.start();
 
         // Assert ors-config.yml not present for a sane test.

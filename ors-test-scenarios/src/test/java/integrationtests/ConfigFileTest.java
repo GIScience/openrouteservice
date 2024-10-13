@@ -19,7 +19,7 @@ import static utils.OrsConfigHelper.setupConfigFileProfileDefaultFalse;
 import static utils.TestContainersHelper.noConfigFailWaitStrategy;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers(disabledWithoutDocker = true)
 public class ConfigFileTest {
 
