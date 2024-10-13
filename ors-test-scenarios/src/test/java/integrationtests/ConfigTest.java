@@ -296,4 +296,32 @@ public class ConfigTest {
         container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-that-does-not-exist.yml");
         container.start();
     }
+
+    /**
+     * config-yml-plus-env-pbf-file-path.sh
+     * <p>
+     * This test asserts that the environment variable PBF_FILE_PATH
+     * IS NOT EVALUATED when a YAML config is used.
+     * Here, the yml config contains a valid path to an existing OSM file
+     * and PBF_FILE_PATH contains a wrong path.
+     * The expectation is, that the correct path from the yml survives
+     * and openrouteservice starts up with the expected routing profile.
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testConfigYmlPlusEnvPbfFilePath(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage, true, false);
+        container.waitingFor(healthyOrsWaitStrategy());
+        // Start with fresh graphs
+        container.addEnv("ors.engine.profile_default.graph_path", "/tmp/graphs");
+
+        container.addEnv("PBF_FILE_PATH", "/home/ors/openrouteservice/i-do-not-exist.osm.pbf");
+        container.start();
+        // Assert pbf file does not exist
+        OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/i-do-not-exist.osm.pbf", false);
+        // Assert default profile is loaded
+        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        Assertions.assertEquals(1, profiles.size());
+        Assertions.assertEquals("driving-car", profiles.get("profile 1").get("profiles").asText());
+    }
 }
