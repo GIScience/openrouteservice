@@ -276,4 +276,22 @@ public class ConfigTest {
         Assertions.assertEquals("driving-hgv", profiles.get("profile 1").get("profiles").asText());
         container.stop();
     }
+
+    /**
+     * ors-config-location-to-nonexisting-file.sh
+     * The profile configured as run argument should be preferred over environment variable.
+     * The default yml file should not be used when ORS_CONFIG_LOCATION is set,
+     * even if the file does not exist. Fallback to default ors-config.yml is not desired!
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testOrsConfigLocationToNonExistingFile(ContainerInitializer.ContainerTestImageDefaults targetImage) {
+        if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
+            return;
+        }
+        GenericContainer<?> container = initContainer(targetImage, true, false);
+        container.waitingFor(noConfigFailWaitStrategy());
+        container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-that-does-not-exist.yml");
+        container.start();
+    }
 }
