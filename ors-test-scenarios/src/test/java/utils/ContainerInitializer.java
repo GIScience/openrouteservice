@@ -3,11 +3,10 @@ package utils;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
-import org.testcontainers.lifecycle.Startables;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -27,7 +26,6 @@ public abstract class ContainerInitializer {
 
     private static List<ContainerTestImageDefaults> selectedDefaultContainers = List.of();
     private static List<ContainerTestImageBare> selectedBareContainers = List.of();
-    private static final Map<ContainerTestImage, GenericContainer<?>> containers = new HashMap<>();
 
     /**
      * Initializes the containers based on the environment variable `CONTAINER_SCENARIO`.
@@ -64,12 +62,6 @@ public abstract class ContainerInitializer {
                 );
                 break;
         }
-        if (startDefaultContainers) {
-            // @formatter:off
-            Startables.deepStart(selectedDefaultContainers.stream()
-                    .map(container -> initContainer(container, false, false))
-                    .toArray(GenericContainer[]::new)).join();
-        }
     }
 
     /**
@@ -93,24 +85,13 @@ public abstract class ContainerInitializer {
     }
 
     /**
-     * Initializes a container with the given test image.
-     *
-     * @param containerTestImage The container test image.
-     * @return The initialized container.
-     */
-    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage) {
-        return initContainer(containerTestImage, false, true);
-    }
-
-    /**
      * Initializes a container with the given test image, with options to recreate and auto-start.
      *
      * @param containerTestImage The container test image.
-     * @param recreate           Whether to recreate the container.
      * @param autoStart          Whether to auto-start the container.
      * @return The initialized container.
      */
-    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean recreate, Boolean autoStart) {
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");
         }
@@ -127,6 +108,8 @@ public abstract class ContainerInitializer {
                         .withFileFromPath(".dockerignore", Path.of("../.dockerignore"))
                         .withTarget(containerTestImage.getName())
         )
+                .withStartupTimeout(Duration.ofMinutes(100))
+
                 .withEnv(defaultEnv)
                 .withFileSystemBind("./graphs-integrationtests/" + containerTestImage.getName(),
                         "/home/ors/openrouteservice/graphs", BindMode.READ_WRITE)
@@ -134,34 +117,11 @@ public abstract class ContainerInitializer {
                 .withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()))
                 .waitingFor(healthyOrsWaitStrategy());
 
-        GenericContainer<?> containerToReturn = getOrCreateContainer(containerTestImage, container, recreate, containers.get(containerTestImage));
-
-        if (autoStart && !containerToReturn.isRunning()) {
-            containerToReturn.start();
+        if (autoStart) {
+            container.start();
         }
 
-        return containerToReturn;
-    }
-
-    /**
-     * Retrieves or creates a container based on the given parameters.
-     * Created containers are added to the running containers map.
-     *
-     * @param containerTestImage The container test image.
-     * @param container          The container to initialize.
-     * @param recreate           Whether to recreate the container.
-     * @param existingContainer  The existing container.
-     * @return The retrieved or created container.
-     */
-    private static GenericContainer<?> getOrCreateContainer(ContainerTestImage containerTestImage, GenericContainer<?> container, Boolean recreate, GenericContainer<?> existingContainer) {
-        if (existingContainer == null || recreate) {
-            if (existingContainer != null) {
-                existingContainer.stop();
-            }
-            existingContainer = container;
-            containers.put(containerTestImage, existingContainer);
-        }
-        return existingContainer;
+        return container;
     }
 
     /**

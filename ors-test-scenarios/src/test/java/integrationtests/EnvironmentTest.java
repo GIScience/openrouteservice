@@ -20,7 +20,7 @@ import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.restartContainer;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Testcontainers(disabledWithoutDocker = true)
 public class EnvironmentTest {
@@ -33,12 +33,12 @@ public class EnvironmentTest {
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
     void testBuildAllImagesAndGraphsWithEnv(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
-        GenericContainer<?> container = initContainer(targetImage, false, false);
+        GenericContainer<?> container = initContainer(targetImage, false);
         container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
         container.addEnv("ors.engine.profile_default.enabled", "true");
         // sharedOrsTestContainer.addEnv("gtfs_file", "/home/ors/openrouteservice/ors-api/src/test/files/vrn_gtfs_cut.zip");
 
-        restartContainer(container);
+        container.start();
 
         JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(9, profiles.size());
@@ -54,19 +54,20 @@ public class EnvironmentTest {
 
         List<String> directories = List.of("/home/ors/openrouteservice/graphs/driving-car", "/home/ors/openrouteservice/graphs/driving-hgv", "/home/ors/openrouteservice/graphs/cycling-mountain", "/home/ors/openrouteservice/graphs/cycling-road", "/home/ors/openrouteservice/graphs/foot-walking", "/home/ors/openrouteservice/graphs/foot-hiking", "/home/ors/openrouteservice/graphs/wheelchair");
         OrsContainerFileSystemCheck.assertDirectoriesExist(container, directories.toArray(new String[0]));
+        container.stop();
     }
 
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
     void testDefaultProfileActivated(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
         // Get a fresh container
-        GenericContainer<?> container = initContainer(targetImage, true, true);
+        GenericContainer<?> container = initContainer(targetImage, true);
 
         JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(1, profiles.size());
         Assertions.assertEquals("driving-car", profiles.get("profile 1").get("profiles").asText());
+        container.stop();
     }
-
 
     /**
      * arg-overrides-default-prop.sh
@@ -74,7 +75,7 @@ public class EnvironmentTest {
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0} overwrite default config with env")
     void testActivateEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException {
-        GenericContainer<?> container = initContainer(targetImage, true, false);
+        GenericContainer<?> container = initContainer(targetImage, false);
 
         List<String> allProfiles = List.of("cycling-electric", "cycling-road", "cycling-mountain", "cycling-regular", "driving-car", "driving-hgv", "foot-hiking", "foot-walking", "wheelchair");
 
@@ -91,5 +92,6 @@ public class EnvironmentTest {
         for (JsonNode profile : profiles) {
             Assertions.assertTrue(allProfiles.contains(profile.get("profiles").asText()));
         }
+        container.stop();
     }
 }
