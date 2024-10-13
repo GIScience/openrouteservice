@@ -1,10 +1,7 @@
 package utils;
 
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
-import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
-import org.testcontainers.containers.wait.strategy.WaitStrategy;
+import org.testcontainers.containers.wait.strategy.*;
 import org.testcontainers.utility.MountableFile;
 
 import java.nio.file.Path;
@@ -15,6 +12,12 @@ import java.util.Map;
 public class TestContainersHelper {
     public static WaitStrategy noConfigFailWaitStrategy() {
         return new LogMessageWaitStrategy().withRegEx(".*No profiles configured. Exiting.*");
+    }
+
+    public static WaitStrategy noConfigFailWithCommandConditionWaitStrategy(String command) {
+        return new WaitAllStrategy()
+                .withStrategy(Wait.forSuccessfulCommand(command))
+                .withStrategy(new LogMessageWaitStrategy().withRegEx(".*No profiles configured. Exiting.*"));
     }
 
     public static WaitStrategy noConfigHealthyWaitStrategy(String logLookupMessage) {
