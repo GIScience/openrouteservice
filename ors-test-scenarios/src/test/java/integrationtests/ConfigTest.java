@@ -258,6 +258,8 @@ public class ConfigTest {
 
     /**
      * missing-config-but-profile-enabled-as-env-dot-jar-only.sh
+     * Even if no yml config file is present, the ors is runnable
+     * if at least one routing profile is enabled with a environment variable.
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
