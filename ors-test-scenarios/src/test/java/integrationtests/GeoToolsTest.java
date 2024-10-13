@@ -9,7 +9,7 @@ import utils.OrsContainerFileSystemCheck;
 import java.io.IOException;
 
 import static utils.ContainerInitializer.initContainer;
-import static utils.OrsApiRequests.checkAvoidAreaRequest;
+import static utils.OrsApiHelper.checkAvoidAreaRequest;
 
 public class GeoToolsTest {
 

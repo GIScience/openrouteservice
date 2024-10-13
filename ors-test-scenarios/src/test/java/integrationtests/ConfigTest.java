@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import utils.ContainerInitializer;
-import utils.OrsApiRequests;
+import utils.OrsApiHelper;
 import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
@@ -59,7 +59,7 @@ public class ConfigTest {
         container.withCopyFileToContainer(forHostPath(testConfig), "/home/ors/openrouteservice/ors-config.yml");
         container.start();
 
-        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(8, profiles.size());
 
         for (JsonNode profile : profiles) {
@@ -112,7 +112,7 @@ public class ConfigTest {
 
         container.start();
 
-        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(2, profiles.size());
 
         List<String> expectedProfiles = List.of("driving-car", "driving-hgv");
@@ -222,7 +222,7 @@ public class ConfigTest {
         // Assert ors-config.yml not present for a sane test.
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
         // Get active profiles
-        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(2, profiles.size());
         for (JsonNode profile : profiles) {
             Assertions.assertTrue(List.of("driving-car", "driving-hgv").contains(profile.get("profiles").asText()));
@@ -250,7 +250,7 @@ public class ConfigTest {
         // Assert ors-config.yml not present for a sane test.
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
         // Get active profiles
-        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(1, profiles.size());
         Assertions.assertEquals("driving-hgv", profiles.get("profile 1").get("profiles").asText());
         container.stop();
@@ -273,7 +273,7 @@ public class ConfigTest {
         // Assert ors-config.yml not present for a sane test.
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
         // Get active profiles
-        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(1, profiles.size());
         Assertions.assertEquals("driving-hgv", profiles.get("profile 1").get("profiles").asText());
         container.stop();
@@ -320,7 +320,7 @@ public class ConfigTest {
         // Assert pbf file does not exist
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/i-do-not-exist.osm.pbf", false);
         // Assert default profile is loaded
-        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(1, profiles.size());
         Assertions.assertEquals("driving-car", profiles.get("profile 1").get("profiles").asText());
     }
