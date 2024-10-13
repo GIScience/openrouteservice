@@ -184,25 +184,6 @@ public abstract class ContainerInitializer {
     }
 
     /**
-     * Enum representing no-config container test images.
-     */
-    public enum ContainerTestImageNoConfigs implements ContainerTestImage {
-        WAR_CONTAINER_NO_CONFIG("ors-test-scenarios-war-no-config"),
-        JAR_CONTAINER_NO_CONFIG("ors-test-scenarios-jar-no-config"),
-        MAVEN_CONTAINER_NO_CONFIG("ors-test-scenarios-maven-no-config");
-
-        private final String name;
-
-        ContainerTestImageNoConfigs(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
-    /**
      * Enum representing bare container test images.
      * These can be adjusted to fit specific CMD requirements.
      */
