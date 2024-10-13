@@ -1,5 +1,7 @@
 package utils;
 
+import org.junit.jupiter.api.Assertions;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -9,8 +11,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class OrsApiRequests {
+public class OrsApiHelper {
 
     private static final String REQUEST_BODY = "{\"coordinates\":[[8.681495,49.41461],[8.686507,49.41943],[8.687872,49.420318]],\"options\":{\"avoid_polygons\":{\"coordinates\":[[[8.684881031827587,49.41768066444595],[8.684881031827587,49.41699648134178],[8.685816955915811,49.41699648134178],[8.685816955915811,49.41768066444595],[8.684881031827587,49.41768066444595]]],\"type\":\"Polygon\"}}}";
 
@@ -50,5 +53,14 @@ public class OrsApiRequests {
         JsonNode profileNames = node.get("profiles");
 
         return profileNames;
+    }
+
+    public static void assertProfiles(GenericContainer<?> container, Map<String, Boolean> expectedProfiles) throws IOException {
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
+        Assertions.assertEquals(expectedProfiles.size(), profiles.size());
+        for (JsonNode profile : profiles) {
+            String profileName = profile.get("profiles").asText();
+            Assertions.assertTrue(expectedProfiles.containsKey(profileName) && expectedProfiles.get(profileName), "Unexpected profile: " + profileName);
+        }
     }
 }

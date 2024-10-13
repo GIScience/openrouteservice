@@ -9,7 +9,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import utils.ContainerInitializer;
-import utils.OrsApiRequests;
+import utils.OrsApiHelper;
 import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class EnvironmentTest {
 
         restartContainer(container);
 
-        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(9, profiles.size());
         List<String> expectedProfiles = List.of("foot-walking", "wheelchair", "foot-hiking", "cycling-electric", "cycling-mountain", "driving-car", "driving-hgv", "cycling-regular", "cycling-road"
                 // "public-transport"
@@ -62,7 +62,7 @@ public class EnvironmentTest {
         // Get a fresh container
         GenericContainer<?> container = initContainer(targetImage, true, true);
 
-        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(1, profiles.size());
         Assertions.assertEquals("driving-car", profiles.get("profile 1").get("profiles").asText());
     }
@@ -85,7 +85,7 @@ public class EnvironmentTest {
 
         restartContainer(container);
 
-        JsonNode profiles = OrsApiRequests.getProfiles(container.getHost(), container.getFirstMappedPort());
+        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
         Assertions.assertEquals(9, profiles.size());
 
         for (JsonNode profile : profiles) {
