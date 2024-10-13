@@ -31,7 +31,7 @@ import static utils.TestContainersHelper.*;
 public class ConfigTest {
 
     @TempDir
-    Path anotherTempDir;
+    Path tempDir;
 
     /**
      * build-graph-cycling-electric.sh
@@ -51,7 +51,7 @@ public class ConfigTest {
     void testActivateEachProfileWithConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException {
         Map<String, Boolean> allProfiles = Map.of("cycling-electric", true, "cycling-road", true, "cycling-mountain", true, "cycling-regular", true, "driving-car", true, "driving-hgv", true, "foot-hiking", true, "foot-walking", true);
         // Create another file in anotherTempDir called ors-config2.yml
-        Path testConfig = configWithCustomProfilesActivated(anotherTempDir, "ors-config.yml", allProfiles);
+        Path testConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", allProfiles);
 
         // Insert the same content as ors-config.yml
         GenericContainer<?> container = initContainer(targetImage, true, false);
@@ -91,7 +91,7 @@ public class ConfigTest {
         container.waitingFor(noConfigFailWaitStrategy());
 
         // Setup the config file
-        Path testConfig = setupConfigFileProfileDefaultFalse(anotherTempDir, "ors-config.yml");
+        Path testConfig = setupConfigFileProfileDefaultFalse(tempDir, "ors-config.yml");
 
         // Add the config file to te container and overwrite the default config
         container.withCopyFileToContainer(forHostPath(testConfig), "/home/ors/openrouteservice/ors-config.yml");
@@ -130,8 +130,8 @@ public class ConfigTest {
         GenericContainer<?> container = initContainer(targetImage, true, false);
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config-car.yml"));
         // Setup the config file
-        Path testConfigCar = configWithCustomProfilesActivated(anotherTempDir, "ors-config-car.yml", Map.of("driving-car", true));
-        Path defaultConfig = setupConfigFileProfileDefaultFalse(anotherTempDir, "ors-config-wrong.yml");
+        Path testConfigCar = configWithCustomProfilesActivated(tempDir, "ors-config-car.yml", Map.of("driving-car", true));
+        Path defaultConfig = setupConfigFileProfileDefaultFalse(tempDir, "ors-config-wrong.yml");
 
         // Mount the config file to the container
         container.withCopyFileToContainer(forHostPath(defaultConfig), "/home/ors/openrouteservice/ors-config-wrong.yml");
@@ -158,8 +158,8 @@ public class ConfigTest {
         GenericContainer<?> container = initContainer(targetImage, true, false);
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config-hgv.yml"));
         // Setup the config file
-        Path testConfigHGV = configWithCustomProfilesActivated(anotherTempDir, "ors-config-hgv.yml", Map.of("driving-hgv", true));
-        Path defaultConfig = setupConfigFileProfileDefaultFalse(anotherTempDir, "ors-config.yml");
+        Path testConfigHGV = configWithCustomProfilesActivated(tempDir, "ors-config-hgv.yml", Map.of("driving-hgv", true));
+        Path defaultConfig = setupConfigFileProfileDefaultFalse(tempDir, "ors-config.yml");
 
         // Mount the config file to the container
         container.withCopyFileToContainer(forHostPath(testConfigHGV), "/home/ors/openrouteservice/ors-config-hgv.yml");
@@ -188,8 +188,8 @@ public class ConfigTest {
         GenericContainer<?> container = initContainer(targetImage, true, false);
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config-hgv.yml"));
         // Setup the config file
-        Path testConfigHGV = configWithCustomProfilesActivated(anotherTempDir, "ors-config-hgv.yml", Map.of("driving-hgv", true));
-        Path defaultConfig = setupConfigFileProfileDefaultFalse(anotherTempDir, "ors-config.yml");
+        Path testConfigHGV = configWithCustomProfilesActivated(tempDir, "ors-config-hgv.yml", Map.of("driving-hgv", true));
+        Path defaultConfig = setupConfigFileProfileDefaultFalse(tempDir, "ors-config.yml");
 
         // Prepare the container
         container.withCopyFileToContainer(forHostPath(testConfigHGV), "/home/ors/openrouteservice/ors-config-hgv.yml");
@@ -324,4 +324,6 @@ public class ConfigTest {
         Assertions.assertEquals(1, profiles.size());
         Assertions.assertEquals("driving-car", profiles.get("profile 1").get("profiles").asText());
     }
+
+
 }
