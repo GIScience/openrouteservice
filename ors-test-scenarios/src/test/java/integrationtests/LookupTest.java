@@ -20,17 +20,26 @@ import java.util.Map;
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
 import static utils.OrsConfigHelper.configWithCustomProfilesActivated;
-import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
-import static utils.TestContainersHelper.restartContainer;
+import static utils.TestContainersHelper.*;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Testcontainers(disabledWithoutDocker = true)
 public class LookupTest {
 
-    @TempDir
-    Path tempDir;
+    /**
+     * missing-config.sh
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageBare targetImage) {
+        GenericContainer<?> container = initContainer(targetImage, false);
+        container.waitingFor(noConfigFailWaitStrategy());
+        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+        container.start();
+
+    }
 
     /*
      * lookup-yml-in-etc.sh
@@ -38,6 +47,13 @@ public class LookupTest {
      * lookup-yml-in-workdir.sh
      * lookup-yml-pefer-userconf-over-etc.sh
      * lookup-yml-prefer-workdir-over-userconf.sh
+     *
+     * Additional tests covered in here:
+     * specify-yml-prefer-arg-over-env.sh
+     * specify-yml-prefer-arg-over-lookup.sh
+     * specify-yml-prefer-env-over-lookup.sh
+     * specify-yml-prefer-env-over-lookup.sh
+     *
      *
      * Test that openrouteservice correctly looks for the ors-config.yml file in the correct order.
      * The lookup sequence is as follows:
@@ -49,8 +65,8 @@ public class LookupTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
-    void testLookupYmlEscalation(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException {
-        GenericContainer<?> container = initContainer(targetImage, true, false);
+    void testLookupYmlEscalation(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
+        GenericContainer<?> container = initContainer(targetImage, false);
         container.setCommand(targetImage.getCommand().toArray(new String[0]));
 
         // 4. Test that the bare container looks first in /etc/openrouteservice/ors-config.yml.
@@ -90,5 +106,6 @@ public class LookupTest {
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/tmp/ors-config-arg.yml"));
         restartContainer(container);
         OrsApiHelper.assertProfiles(container, Map.of("cycling-regular", true));
+        container.stop();
     }
 }
