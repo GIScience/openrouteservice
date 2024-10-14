@@ -33,12 +33,13 @@ RELEASING:
 7. Adding the corresponding tag is done when releasing via GitHub.
 -->
 ## [unreleased]
+### Fixed
+- do not enforce a time-dependent routing algorithm unless the weighting requires it ([#1865](https://github.com/GIScience/openrouteservice/pull/1865))
 
 ## [8.2.0] - 2024-10-09
-
 ### Added
-- added Vietnamese tranlations ([#1859](https://github.com/GIScience/openrouteservice/pull/1859))
-- added Finnish tranlations ([#1862](https://github.com/GIScience/openrouteservice/pull/1862))
+- Vietnamese translations ([#1859](https://github.com/GIScience/openrouteservice/pull/1859))
+- Finnish translations ([#1862](https://github.com/GIScience/openrouteservice/pull/1862))
 ### Changed
 - refactor: cleanup routing profile management ([#1850](https://github.com/GIScience/openrouteservice/pull/1850))
 - improved documentation on the configuration of external storages ([#1811](https://github.com/GIScience/openrouteservice/pull/1811))

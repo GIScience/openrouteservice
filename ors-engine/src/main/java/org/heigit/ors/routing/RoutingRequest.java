@@ -390,8 +390,10 @@ public class RoutingRequest extends ServiceRequest {
 
             if (TemporaryUtilShelter.supportWeightingMethod(profileType)) {
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, TemporaryUtilShelter.hasTimeDependentSpeed(searchParams, searchCntx));
-                if (routingProfile.requiresTimeDependentWeighting(searchParams, searchCntx))
+                if (routingProfile.requiresTimeDependentWeighting(searchParams, searchCntx)) {
+                    req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
                     flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
+                }
                 flexibleMode = TemporaryUtilShelter.getFlexibilityMode(flexibleMode, searchParams, profileType);
             } else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
@@ -410,8 +412,6 @@ public class RoutingRequest extends ServiceRequest {
                 routingProfile.setSpeedups(req, false, false, true, searchCntx.profileNameCH());
 
             if (searchParams.isTimeDependent()) {
-                req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
-
                 String key;
                 LocalDateTime time;
                 if (searchParams.hasDeparture()) {
