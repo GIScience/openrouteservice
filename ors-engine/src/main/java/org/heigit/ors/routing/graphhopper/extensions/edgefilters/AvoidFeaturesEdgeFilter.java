@@ -21,13 +21,17 @@ import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.JunctionGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 import org.heigit.ors.routing.pathprocessors.TollwayExtractor;
+import org.heigit.ors.routing.pathprocessors.JunctionExtractor;
+
 
 public class AvoidFeaturesEdgeFilter implements EdgeFilter {
     private final byte[] buffer;
     private final WayCategoryGraphStorage storage;
     private TollwayExtractor tollwayExtractor;
+    private JunctionExtractor junctionExtractor;
     private final int avoidFeatureType;
 
     private static final int NOT_TOLLWAYS = ~AvoidFeatureFlags.TOLLWAYS;
@@ -45,6 +49,10 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
         TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
         if (extTollways != null)
             tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
+
+        JunctionGraphStorage extJunction = GraphStorageUtils.getGraphExtension(graphStorage, JunctionGraphStorage.class);
+        if (extJunction != null)
+            junctionExtractor = new JunctionExtractor(extJunction, searchParams.getProfileType(), searchParams.getProfileParameters());
     }
 
     public AvoidFeaturesEdgeFilter(int avoidFeatureType, GraphHopperStorage graphStorage) throws Exception {

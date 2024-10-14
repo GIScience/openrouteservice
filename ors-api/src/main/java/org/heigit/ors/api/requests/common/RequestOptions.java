@@ -34,7 +34,7 @@ public class RequestOptions implements RouteRequestParameterNames {
     @Schema(name = PARAM_AVOID_FEATURES, description = "List of features to avoid. ",
             extensions = {@Extension(name = "itemRestrictions", properties = {
                     @ExtensionProperty(name = "ref", value = "profile"),
-                    @ExtensionProperty(name = "itemsWhen", value = "{\"driving-*\":[\"highways\",\"tollways\",\"ferries\"],\"cycling-*\":[\"ferries\",\"steps\",\"fords\"],\"foot-*\":[\"ferries\",\"fords\",\"steps\"],\"wheelchair\":[\"ferries\",\"steps\"]}", parseValue = true)}
+                    @ExtensionProperty(name = "itemsWhen", value = "{\"driving-*\":[\"highways\",\"tollways\",\"ferries\"],\"cycling-*\":[\"ferries\",\"steps\",\"fords\",\"junction\"],\"foot-*\":[\"ferries\",\"fords\",\"steps\"],\"wheelchair\":[\"ferries\",\"steps\"]}", parseValue = true)}
             )},
             example = "[\"highways\"]")
     @JsonProperty(PARAM_AVOID_FEATURES)

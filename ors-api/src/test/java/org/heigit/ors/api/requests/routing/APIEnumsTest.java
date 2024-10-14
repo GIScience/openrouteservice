@@ -104,6 +104,7 @@ class APIEnumsTest {
         assertEquals(APIEnums.AvoidFeatures.HIGHWAYS, APIEnums.AvoidFeatures.forValue("highways"));
         assertEquals(APIEnums.AvoidFeatures.STEPS, APIEnums.AvoidFeatures.forValue("steps"));
         assertEquals(APIEnums.AvoidFeatures.TOLLWAYS, APIEnums.AvoidFeatures.forValue("tollways"));
+        assertEquals(APIEnums.AvoidFeatures.JUNCTION, APIEnums.AvoidFeatures.forValue("junction"));
         assertThrows(ParameterValueException.class, () -> APIEnums.AvoidFeatures.forValue("invalid"));
     }
 
@@ -114,6 +115,8 @@ class APIEnumsTest {
         assertEquals("highways", APIEnums.AvoidFeatures.HIGHWAYS.toString());
         assertEquals("steps", APIEnums.AvoidFeatures.STEPS.toString());
         assertEquals("tollways", APIEnums.AvoidFeatures.TOLLWAYS.toString());
+        assertEquals("junction", APIEnums.AvoidFeatures.JUNCTION.toString());
+
     }
 
     @Test
@@ -139,6 +142,7 @@ class APIEnumsTest {
         assertEquals(APIEnums.Profile.CYCLING_ROAD, APIEnums.Profile.forValue("cycling-road"));
         assertEquals(APIEnums.Profile.CYCLING_MOUNTAIN, APIEnums.Profile.forValue("cycling-mountain"));
         assertEquals(APIEnums.Profile.CYCLING_ELECTRIC, APIEnums.Profile.forValue("cycling-electric"));
+        assertEquals(APIEnums.Profile.CYCLING_CARGO, APIEnums.Profile.forValue("cycling-cargo"));
         assertEquals(APIEnums.Profile.FOOT_WALKING, APIEnums.Profile.forValue("foot-walking"));
         assertEquals(APIEnums.Profile.FOOT_HIKING, APIEnums.Profile.forValue("foot-hiking"));
         assertEquals(APIEnums.Profile.WHEELCHAIR, APIEnums.Profile.forValue("wheelchair"));
@@ -153,6 +157,7 @@ class APIEnumsTest {
         assertEquals("cycling-road", APIEnums.Profile.CYCLING_ROAD.toString());
         assertEquals("cycling-mountain", APIEnums.Profile.CYCLING_MOUNTAIN.toString());
         assertEquals("cycling-electric", APIEnums.Profile.CYCLING_ELECTRIC.toString());
+        assertEquals("cycling-cargo", APIEnums.Profile.CYCLING_CARGO.toString());
         assertEquals("foot-walking", APIEnums.Profile.FOOT_WALKING.toString());
         assertEquals("foot-hiking", APIEnums.Profile.FOOT_HIKING.toString());
         assertEquals("wheelchair", APIEnums.Profile.WHEELCHAIR.toString());
