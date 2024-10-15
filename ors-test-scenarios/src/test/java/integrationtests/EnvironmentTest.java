@@ -36,6 +36,7 @@ public class EnvironmentTest {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
         container.addEnv("ors.engine.profile_default.enabled", "true");
+        container.addEnv("JAVA_OPTS", "-Xmx400m");
         // sharedOrsTestContainer.addEnv("gtfs_file", "/home/ors/openrouteservice/ors-api/src/test/files/vrn_gtfs_cut.zip");
 
         container.start();
@@ -52,8 +53,9 @@ public class EnvironmentTest {
         List<String> files = List.of("/home/ors/openrouteservice/ors-config.yml", "/home/ors/openrouteservice/logs/ors.log", "/home/ors/openrouteservice/files/heidelberg.test.pbf", "/home/ors/openrouteservice/elevation_cache/srtm_38_03.gh");
         OrsContainerFileSystemCheck.assertFilesExist(container, files.toArray(new String[0]));
 
-        List<String> directories = List.of("/home/ors/openrouteservice/graphs/driving-car", "/home/ors/openrouteservice/graphs/driving-hgv", "/home/ors/openrouteservice/graphs/cycling-mountain", "/home/ors/openrouteservice/graphs/cycling-road", "/home/ors/openrouteservice/graphs/foot-walking", "/home/ors/openrouteservice/graphs/foot-hiking", "/home/ors/openrouteservice/graphs/wheelchair");
-        OrsContainerFileSystemCheck.assertDirectoriesExist(container, directories.toArray(new String[0]));
+        for (String profile : expectedProfiles) {
+            OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/" + profile, true);
+        }
         container.stop();
     }
 
@@ -82,6 +84,7 @@ public class EnvironmentTest {
         // Prepare the environment
         container.withEnv(Map.of());
         container.addEnv("ors.engine.profile_default.enabled", "false");
+        container.addEnv("JAVA_OPTS", "-Xmx400m");
         allProfiles.forEach(profile -> container.addEnv("ors.engine.profiles." + profile + ".enabled", "true"));
 
         restartContainer(container);

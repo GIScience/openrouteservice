@@ -119,7 +119,7 @@ COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservi
 COPY ors-api/src/test/files /home/ors/openrouteservice/files
 COPY ors-api/src/test/files/elevation /home/ors/openrouteservice/elevation_cache
 
-RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -Xmx400M -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh && \
+RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh && \
     echo 'export JAVA_OPTS="$JAVA_OPTS \
     -Dors.config.location=/home/ors/openrouteservice/ors-config.yml"' >> /usr/local/tomcat/bin/setenv.sh
 
@@ -138,8 +138,12 @@ ARG CONTAINER_WORK_DIR
 
 RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-config.yml
 
+COPY ors-test-scenarios/src/test/resources/maven-entrypoint.sh $CONTAINER_WORK_DIR/maven-entrypoint.sh
+
+ENV JAVA_OPTS="-Xmx350M"
+
 # Command to run Maven
-ENTRYPOINT ["mvn", "spring-boot:run", "-T 2C", "-Dspring-boot.run.jvmArguments=-Xmx400m", "-DskipTests", "-Dmaven.test.skip=true"]
+CMD ["sh", "maven-entrypoint.sh"]
 
 FROM ors-test-scenarios-jar-bare AS ors-test-scenarios-jar
 
@@ -147,14 +151,18 @@ ARG CONTAINER_WORK_DIR
 
 RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-config.yml
 
+ENV JAVA_OPTS="-Xmx350M"
+
 # Command to run the JAR
-CMD ["java", "-Xmx400M", "-jar", "ors.jar"]
+CMD ["java", "-jar", "ors.jar"]
 
 FROM ors-test-scenarios-war-bare AS ors-test-scenarios-war
 
 ARG CONTAINER_WORK_DIR
 
 RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-config.yml
+
+ENV JAVA_OPTS="-Xmx350M"
 
 # Command to run Tomcat
 CMD ["catalina.sh", "run"]
