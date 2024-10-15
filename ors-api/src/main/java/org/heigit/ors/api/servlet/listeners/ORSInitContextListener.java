@@ -56,7 +56,7 @@ public class ORSInitContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
-        String outputTarget = configurationOutputTarget(engineProperties, System.getenv());
+        String outputTarget = configurationOutputTarget(engineProperties);
         if (!StringUtility.isNullOrEmpty(outputTarget)) {
             copyDefaultConfigurationToFile(outputTarget);
             return;
@@ -82,12 +82,8 @@ public class ORSInitContextListener implements ServletContextListener {
         }, "ORS-Init").start();
     }
 
-    public String configurationOutputTarget(EngineProperties engineProperties, Map<String, String> envMap) {
+    public String configurationOutputTarget(EngineProperties engineProperties) {
         String output = engineProperties.getConfigOutput();
-        output = envMap.get(ORS_CONFIG_OUTPUT_ENV) != null ? envMap.get(ORS_CONFIG_OUTPUT_ENV) : output;
-        output = System.getProperty(ORS_CONFIG_OUTPUT_PROPERTY) != null ? System.getProperty(ORS_CONFIG_OUTPUT_PROPERTY) : output;
-        output = envMap.get(ORS_CONFIG_DEFAULT_OUTPUT_ENV) != null ? envMap.get(ORS_CONFIG_DEFAULT_OUTPUT_ENV) : output;
-        output = System.getProperty(ORS_CONFIG_DEFAULT_OUTPUT_PROPERTY) != null ? System.getProperty(ORS_CONFIG_DEFAULT_OUTPUT_PROPERTY) : output;
         if (StringUtility.isNullOrEmpty(output))
             return null;
         if (!output.endsWith(".yml") && !output.endsWith(".yaml"))

@@ -14,7 +14,6 @@ ors:
       maximum_locations: 3
 
   engine:
-    config_output_mode: false
     graph_management:
       repository_path:
       repository_url:

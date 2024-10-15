@@ -20,10 +20,6 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     public static final String ORS_CONFIG_LOCATION_ENV = "ORS_CONFIG_LOCATION";
     public static final String ORS_CONFIG_LOCATION_PROPERTY = "ors.config.location";
-    public static final String ORS_CONFIG_OUTPUT_ENV = "ORS_CONFIG_OUTPUT";
-    public static final String ORS_CONFIG_DEFAULT_OUTPUT_ENV = "ORS_CONFIG_DEFAULT_OUTPUT";
-    public static final String ORS_CONFIG_OUTPUT_PROPERTY = "ors.config.output";
-    public static final String ORS_CONFIG_DEFAULT_OUTPUT_PROPERTY = "ors.config.default_output";
     private final YamlPropertySourceLoader loader = new YamlPropertySourceLoader();
     private final Log log;
 
@@ -35,10 +31,6 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         if (environment.matchesProfiles("test")) {
             log.info("No additional configuration loaded, test profile is active.");
-            return;
-        }
-        if (!StringUtility.isNullOrEmpty(System.getProperty(ORS_CONFIG_DEFAULT_OUTPUT_PROPERTY)) || !StringUtility.isNullOrEmpty(System.getenv(ORS_CONFIG_DEFAULT_OUTPUT_ENV))) {
-            log.info("Configuration default output mode, skipping configuration lookup.");
             return;
         }
         // Override values from application.yml with contents of custom config yml file.
