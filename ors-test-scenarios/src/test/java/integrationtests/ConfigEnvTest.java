@@ -34,7 +34,7 @@ public class ConfigEnvTest {
     void testMissingConfigButRequiredParamsAsEnvUpperAndLower(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
-        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+        container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
         container.addEnv("ors.engine.profiles.driving-car.enabled", "true");
         container.addEnv("ORS_ENGINE_PROFILES_DRIVING_HGV_ENABLED", "true");
         container.start();
@@ -58,7 +58,7 @@ public class ConfigEnvTest {
     void testMissingConfigButRequiredParamsAsArg(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
-        ArrayList<String> command = targetImage.getCommand();
+        ArrayList<String> command = targetImage.getCommand("250M");
         if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
             command.add("--ors.engine.profiles.driving-hgv.enabled=true");
         } else {
@@ -86,7 +86,7 @@ public class ConfigEnvTest {
     void testMissingConfigButProfileEnabledAsEnvDot(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
-        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+        container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
         container.addEnv("ors.engine.profiles.driving-hgv.enabled", "true");
         container.start();
 

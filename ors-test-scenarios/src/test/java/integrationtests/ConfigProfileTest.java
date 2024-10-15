@@ -15,6 +15,7 @@ import utils.OrsApiHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,8 @@ public class ConfigProfileTest {
         GenericContainer<?> container = initContainer(targetImage, false);
 
         container.withCopyFileToContainer(forHostPath(testConfig), "/home/ors/openrouteservice/ors-config.yml");
+        container.withStartupTimeout(Duration.ofSeconds(200));
+        container.addEnv("JAVA_OPTS", "-Xmx500m");
         container.start();
 
         JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());

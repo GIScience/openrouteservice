@@ -34,7 +34,7 @@ public class LookupTest {
     void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageBare targetImage) {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.waitingFor(noConfigFailWaitStrategy());
-        container.setCommand(targetImage.getCommand().toArray(new String[0]));
+        container.setCommand(targetImage.getCommand("100M").toArray(new String[0]));
         container.start();
         container.stop();
     }
@@ -65,7 +65,7 @@ public class LookupTest {
     @ParameterizedTest(name = "{0}")
     void testLookupYmlEscalation(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
         GenericContainer<?> container = initContainer(targetImage, false);
-        ArrayList<String> command = targetImage.getCommand();
+        ArrayList<String> command = targetImage.getCommand("200M");
         container.setCommand(command.toArray(new String[0]));
 
         // 4. Test that the bare container looks first in /etc/openrouteservice/ors-config.yml.

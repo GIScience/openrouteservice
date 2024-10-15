@@ -69,9 +69,9 @@ public abstract class ContainerInitializer {
      *
      * @return A stream of default container test images.
      */
-    public static Stream<Object[]> ContainerTestImageDefaultsImageStream() {
+    public static Stream<ContainerTestImage[]> ContainerTestImageDefaultsImageStream() {
         initializeContainers(false);
-        return selectedDefaultContainers.stream().map(container -> new Object[]{container});
+        return selectedDefaultContainers.stream().map(container -> new ContainerTestImage[]{container});
     }
 
     /**
@@ -79,9 +79,9 @@ public abstract class ContainerInitializer {
      *
      * @return A stream of bare container test images.
      */
-    public static Stream<Object[]> ContainerTestImageBareImageStream() {
+    public static Stream<ContainerTestImage[]> ContainerTestImageBareImageStream() {
         initializeContainers(false);
-        return selectedBareContainers.stream().map(container -> new Object[]{container});
+        return selectedBareContainers.stream().map(container -> new ContainerTestImage[]{container});
     }
 
     /**
@@ -106,6 +106,8 @@ public abstract class ContainerInitializer {
                         .withFileFromPath("ors-config.yml", Path.of("../ors-config.yml"))
                         .withFileFromPath("Dockerfile", Path.of("../ors-test-scenarios/src/test/resources/Dockerfile"))
                         .withFileFromPath(".dockerignore", Path.of("../.dockerignore"))
+                        // Special case for maven container entrypoint. This is not needed for the other containers.
+                        .withFileFromPath("./ors-test-scenarios/src/test/resources/maven-entrypoint.sh", Path.of("./src/test/resources/maven-entrypoint.sh"))
                         .withTarget(containerTestImage.getName())
         )
                 .withEnv(defaultEnv)
@@ -152,7 +154,7 @@ public abstract class ContainerInitializer {
      * These can be adjusted to fit specific CMD requirements.
      */
     public enum ContainerTestImageBare implements ContainerTestImage {
-        // WAR_CONTAINER_BARE("ors-test-scenarios-war-bare"), Do not activate. The maven container is special!
+        WAR_CONTAINER_BARE("ors-test-scenarios-war-bare"),
         JAR_CONTAINER_BARE("ors-test-scenarios-jar-bare"),
         MAVEN_CONTAINER_BARE("ors-test-scenarios-maven-bare");
 
@@ -166,19 +168,19 @@ public abstract class ContainerInitializer {
             return name;
         }
 
-        public ArrayList<String> getCommand() {
+        public ArrayList<String> getCommand(String xmx) {
             ArrayList<String> command = new ArrayList<>();
             switch (this) {
                 case JAR_CONTAINER_BARE:
                     command.add("java");
-                    command.add("-Xmx400M");
+                    command.add("-Xmx" + xmx);
                     command.add("-jar");
                     command.add("ors.jar");
                     break;
                 case MAVEN_CONTAINER_BARE:
                     command.add("mvn");
                     command.add("spring-boot:run");
-                    command.add("-Dspring-boot.run.jvmArguments=-Xmx400m");
+                    command.add("-Dspring-boot.run.jvmArguments=-Xmx" + xmx);
                     command.add("-DskipTests");
                     command.add("-Dmaven.test.skip=true");
                     command.add("-T 1C");
