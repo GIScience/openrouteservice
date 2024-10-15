@@ -440,7 +440,7 @@ ors-app  | 2024-03-12T08:13:19.200130392Z ✓ 🙭 Ready to start the ORS applic
 
 As explained in the log, by setting `CONTAINER_LOG_LEVEL=DEBUG` in the `docker-compose.yml` you get more information.
 This setting is only relevant for the entrypoint logging, it does not change the log level of openrouteservice.
-How you can achieve this is documented in the [logging documentation](configuration/spring/logging.md).
+How you can achieve this is documented in the [logging documentation](configuration/logging.md).
 
 ::: warning Hint
 Remember that the container has to be newly created for the changes in `docker-compose.yml` to take effect!

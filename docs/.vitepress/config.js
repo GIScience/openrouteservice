@@ -117,33 +117,32 @@ export default withMermaid({
                             {
                                 text: 'Configuration', collapsed: true, link: '/run-instance/configuration/',
                                 items: [
-                                    {text: 'Spring Properties', link: '/run-instance/configuration/spring/', collapsed:true,
+                                    {text: 'server', link: '/run-instance/configuration/server.md'},
+                                    {text: 'logging', link: '/run-instance/configuration/logging.md'},
+                                    {text: 'endpoints', link: '/run-instance/configuration/endpoints/', collapsed: true,
                                         items: [
-                                            {text: 'server', link: '/run-instance/configuration/spring/server.md'},
-                                            {text: 'logging', link: '/run-instance/configuration/spring/logging.md'},
+                                            {text: 'defaults', link: '/run-instance/configuration/endpoints/defaults.md'},
+                                            {text: 'routing', link: '/run-instance/configuration/endpoints/routing.md'},
+                                            {text: 'matrix', link: '/run-instance/configuration/endpoints/matrix.md'},
+                                            {text: 'isochrones', link: '/run-instance/configuration/endpoints/isochrones.md'},
+                                            {text: 'snap', link: '/run-instance/configuration/endpoints/snap.md'},
                                         ]
                                     },
-                                    {text: 'ORS Properties', collapsed:true,
+                                    {text: 'engine', link: '/run-instance/configuration/engine/', collapsed: true,
                                         items: [
-                                            {text: 'endpoints', link: '/run-instance/configuration/ors/endpoints/', collapsed: true,
+                                            {text: 'graph_management', link: '/run-instance/configuration/engine/graph-management.md'},
+                                            {text: 'elevation', link: '/run-instance/configuration/engine/elevation.md'},
+                                            {text: 'profiles', link: '/run-instance/configuration/engine/profiles/', collapsed: true,
                                                 items: [
-                                                    {text: 'defaults', link: '/run-instance/configuration/ors/endpoints/defaults.md'},
-                                                    {text: 'routing', link: '/run-instance/configuration/ors/endpoints/routing.md'},
-                                                    {text: 'matrix', link: '/run-instance/configuration/ors/endpoints/matrix.md'},
-                                                    {text: 'isochrones', link: '/run-instance/configuration/ors/endpoints/isochrones.md'},
-                                                    {text: 'snap', link: '/run-instance/configuration/ors/endpoints/snap.md'},
+                                                    {text: 'build', link: '/run-instance/configuration/engine/profiles/build.md'},
+                                                    {text: 'repo', link: '/run-instance/configuration/engine/profiles/repo.md'},
+                                                    {text: 'service', link: '/run-instance/configuration/engine/profiles/service.md'},
                                                 ]
                                             },
-                                            {text: 'engine', link: '/run-instance/configuration/ors/engine/', collapsed: true,
-                                                items: [
-                                                    {text: 'profiles', link: '/run-instance/configuration/ors/engine/profiles.md'},
-                                                    {text: 'elevation', link: '/run-instance/configuration/ors/engine/elevation.md'},
-                                                ]
-                                            },
-                                            {text: 'cors', link: '/run-instance/configuration/ors/cors/'},
-                                            {text: 'messages', link: '/run-instance/configuration/ors/messages/'}
                                         ]
                                     },
+                                    {text: 'cors', link: '/run-instance/configuration/cors/'},
+                                    {text: 'messages', link: '/run-instance/configuration/messages/'},
                                     {text: 'JSON config (deprecated)', link:'/run-instance/configuration/json.md'}
                                 ]
                             },
@@ -169,7 +168,8 @@ export default withMermaid({
                                     {text: 'Surface Speeds', link: '/technical-details/travel-speeds/surface-speeds.md'},
                                 ]
                             },
-                            {text: 'Tag Filtering', link: '/technical-details/tag-filtering'}
+                            {text: 'Tag Filtering', link: '/technical-details/tag-filtering'},
+                            {text: 'Graph Management', link: '/technical-details/graph-repo-client/'},
                         ]
                     },
                     {text: 'FAQ', link: '/frequently-asked-questions'}

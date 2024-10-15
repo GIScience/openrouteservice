@@ -1,5 +1,7 @@
 # Graph Repository Client
 
+[//]: # (TODO: Can we come up with a consistent way to talk about it? "graph management" vs "graph repo client")
+
 Since v9 openrouteservice includes a client for graph repositories. 
 This makes it possible to download and use graphs built elsewhere instead of building them locally.
 When using only graphs from a repository and configuring [ors.engine.graphs_data_acces](/run-instance/configuration/ors/engine/#ors-engine)=`MMAP`, 
@@ -294,6 +296,7 @@ because graph directories can be very large.
 In addition to backup and activate graphs,
 the startup process also wipes out incomplete files or directories (they could reside after a system crash).
 
+[//]: # (TODO: The configuration details below should be moved to the configuration section)
 ## Configuration
 
 ### General Graph Management Setup
