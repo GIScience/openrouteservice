@@ -55,12 +55,17 @@ public class OrsApiHelper {
         return profileNames;
     }
 
-    public static void assertProfiles(GenericContainer<?> container, Map<String, Boolean> expectedProfiles) throws IOException {
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(expectedProfiles.size(), profiles.size());
-        for (JsonNode profile : profiles) {
-            String profileName = profile.get("profiles").asText();
-            Assertions.assertTrue(expectedProfiles.containsKey(profileName) && expectedProfiles.get(profileName), "Unexpected profile: " + profileName);
+    public static void assertProfilesLoaded(GenericContainer<?> container, Map<String, Boolean> expectedProfiles) {
+        JsonNode profiles;
+        try {
+            profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
+            Assertions.assertEquals(expectedProfiles.size(), profiles.size());
+            for (JsonNode profile : profiles) {
+                String profileName = profile.get("profiles").asText();
+                Assertions.assertTrue(expectedProfiles.containsKey(profileName) && expectedProfiles.get(profileName), "Unexpected profile: " + profileName);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
