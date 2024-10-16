@@ -1,6 +1,5 @@
 package integrationtests;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,14 +7,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import utils.ContainerInitializer;
 import utils.OrsApiHelper;
 import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.healthyOrsWaitStrategy;
@@ -42,11 +40,7 @@ public class ConfigEnvTest {
         // Assert ors-config.yml not present for a sane test.
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
         // Get active profiles
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(2, profiles.size());
-        for (JsonNode profile : profiles) {
-            Assertions.assertTrue(List.of("driving-car", "driving-hgv").contains(profile.get("profiles").asText()));
-        }
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true, "driving-hgv", true));
         container.stop();
     }
 
@@ -70,9 +64,7 @@ public class ConfigEnvTest {
         // Assert ors-config.yml not present for a sane test.
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
         // Get active profiles
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(1, profiles.size());
-        Assertions.assertEquals("driving-hgv", profiles.get("profile 1").get("profiles").asText());
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-hgv", true));
         container.stop();
     }
 
@@ -93,9 +85,7 @@ public class ConfigEnvTest {
         // Assert ors-config.yml not present for a sane test.
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
         // Get active profiles
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(1, profiles.size());
-        Assertions.assertEquals("driving-hgv", profiles.get("profile 1").get("profiles").asText());
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-hgv", true));
         container.stop();
     }
 
@@ -123,9 +113,7 @@ public class ConfigEnvTest {
         // Assert pbf file does not exist
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/i-do-not-exist.osm.pbf", false);
         // Assert default profile is loaded
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(1, profiles.size());
-        Assertions.assertEquals("driving-car", profiles.get("profile 1").get("profiles").asText());
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
         container.stop();
     }
 }

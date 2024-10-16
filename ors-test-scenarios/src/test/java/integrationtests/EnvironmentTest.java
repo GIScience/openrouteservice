@@ -1,18 +1,21 @@
 package integrationtests;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import utils.ContainerInitializer;
 import utils.OrsApiHelper;
 import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,14 +44,10 @@ public class EnvironmentTest {
 
         container.start();
 
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(9, profiles.size());
         List<String> expectedProfiles = List.of("foot-walking", "wheelchair", "foot-hiking", "cycling-electric", "cycling-mountain", "driving-car", "driving-hgv", "cycling-regular", "cycling-road"
                 // "public-transport"
         );
-        for (JsonNode profile : profiles) {
-            Assertions.assertTrue(expectedProfiles.contains(profile.get("profiles").asText()));
-        }
+        OrsApiHelper.assertProfilesLoaded(container, expectedProfiles.stream().collect(HashMap::new, (m, v) -> m.put(v, true), HashMap::putAll));
 
         List<String> files = List.of("/home/ors/openrouteservice/ors-config.yml", "/home/ors/openrouteservice/logs/ors.log", "/home/ors/openrouteservice/files/heidelberg.test.pbf", "/home/ors/openrouteservice/elevation_cache/srtm_38_03.gh");
         OrsContainerFileSystemCheck.assertFilesExist(container, files.toArray(new String[0]));
@@ -65,9 +64,7 @@ public class EnvironmentTest {
         // Get a fresh container
         GenericContainer<?> container = initContainer(targetImage, true);
 
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(1, profiles.size());
-        Assertions.assertEquals("driving-car", profiles.get("profile 1").get("profiles").asText());
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
         container.stop();
     }
 
@@ -89,12 +86,7 @@ public class EnvironmentTest {
 
         restartContainer(container);
 
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(9, profiles.size());
-
-        for (JsonNode profile : profiles) {
-            Assertions.assertTrue(allProfiles.contains(profile.get("profiles").asText()));
-        }
+        OrsApiHelper.assertProfilesLoaded(container, allProfiles.stream().collect(HashMap::new, (m, v) -> m.put(v, true), HashMap::putAll));
         container.stop();
     }
 }

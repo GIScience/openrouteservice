@@ -1,6 +1,5 @@
 package integrationtests;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -9,14 +8,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.JsonNode;
 import utils.ContainerInitializer;
 import utils.OrsApiHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.List;
 import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
@@ -55,12 +52,7 @@ public class ConfigProfileTest {
         container.addEnv("JAVA_OPTS", "-Xmx500m");
         container.start();
 
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(8, profiles.size());
-
-        for (JsonNode profile : profiles) {
-            Assertions.assertTrue(allProfiles.get(profile.get("profiles").asText()));
-        }
+        OrsApiHelper.assertProfilesLoaded(container, allProfiles);
         container.stop();
     }
 
@@ -73,13 +65,7 @@ public class ConfigProfileTest {
 
         container.start();
 
-        JsonNode profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-        Assertions.assertEquals(2, profiles.size());
-
-        List<String> expectedProfiles = List.of("driving-car", "driving-hgv");
-        for (JsonNode profile : profiles) {
-            Assertions.assertTrue(expectedProfiles.contains(profile.get("profiles").asText()));
-        }
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-hgv", true, "driving-car", true));
         container.stop();
     }
 }

@@ -33,7 +33,7 @@ public class OrsApiHelper {
         }
     }
 
-    public static JsonNode getProfiles(String address, int port) throws IOException {
+    private static JsonNode getProfiles(String address, int port) throws IOException {
         // Create a new URL object with the address and port
         URL url = new URL("http://" + address + ":" + port + "/ors/v2/status");
         // Create a new HTTP connection object with the URL
