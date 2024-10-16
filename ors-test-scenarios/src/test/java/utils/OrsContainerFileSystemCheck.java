@@ -13,12 +13,19 @@ public class OrsContainerFileSystemCheck {
         }
     }
 
-    public static void assertDirectoryExists(GenericContainer<?> container, String directoryPath, Boolean shouldExist) throws IOException, InterruptedException {
-        int exitCode = container.execInContainer("test", "-d", directoryPath).getExitCode();
-        if (shouldExist) {
-            Assertions.assertEquals(0, exitCode, "Directory does not exist: " + directoryPath);
-        } else {
-            Assertions.assertNotEquals(0, exitCode, "Directory exists: " + directoryPath);
+    public static void assertDirectoryExists(GenericContainer<?> container, String directoryPath, Boolean shouldExist) {
+        int exitCode;
+        try {
+            exitCode = container.execInContainer("test", "-d", directoryPath).getExitCode();
+            if (shouldExist) {
+                Assertions.assertEquals(0, exitCode, "Directory does not exist: " + directoryPath);
+            } else {
+                Assertions.assertNotEquals(0, exitCode, "Directory exists: " + directoryPath);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -28,12 +35,20 @@ public class OrsContainerFileSystemCheck {
         }
     }
 
-    public static void assertFileExists(GenericContainer<?> container, String filePath, Boolean shouldExist) throws IOException, InterruptedException {
-        int exitCode = container.execInContainer("test", "-f", filePath).getExitCode();
-        if (shouldExist) {
-            Assertions.assertEquals(0, exitCode, "File does not exist: " + filePath);
-        } else {
-            Assertions.assertNotEquals(0, exitCode, "File exists: " + filePath);
+    public static void assertFileExists(GenericContainer<?> container, String filePath, Boolean shouldExist) {
+        int exitCode;
+        try {
+            exitCode = container.execInContainer("test", "-f", filePath).getExitCode();
+            if (shouldExist) {
+                Assertions.assertEquals(0, exitCode, "File does not exist: " + filePath);
+            } else {
+                Assertions.assertNotEquals(0, exitCode, "File exists: " + filePath);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+
     }
 }

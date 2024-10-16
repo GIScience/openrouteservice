@@ -62,7 +62,7 @@ public class LookupTest {
         container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_ETC);
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_ETC));
         container.start();
-        OrsApiHelper.assertProfiles(container, Map.of(testProfile, true));
+        OrsApiHelper.assertProfilesLoaded(container, Map.of(testProfile, true));
         container.stop();
     }
 
@@ -85,7 +85,7 @@ public class LookupTest {
         container.withCopyFileToContainer(forHostPath(testConfigCyclingRegular), CONFIG_FILE_PATH_USERCONF);
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_USERCONF));
         container.start();
-        OrsApiHelper.assertProfiles(container, Map.of("cycling-regular", true));
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
         container.stop();
     }
 
@@ -111,7 +111,7 @@ public class LookupTest {
         container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR);
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
         container.start();
-        OrsApiHelper.assertProfiles(container, Map.of("cycling-regular", true));
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
         container.stop();
     }
 
@@ -140,7 +140,7 @@ public class LookupTest {
         container.withEnv(Map.of("ORS_CONFIG_LOCATION", CONFIG_FILE_PATH_TMP));
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_TMP));
         container.start();
-        OrsApiHelper.assertProfiles(container, Map.of("cycling-regular", true));
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
         container.stop();
     }
 
@@ -177,7 +177,7 @@ public class LookupTest {
 
         container.setCommand(command.toArray(new String[0]));
         container.start();
-        OrsApiHelper.assertProfiles(container, Map.of("cycling-regular", true));
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
         container.stop();
     }
 
@@ -214,7 +214,7 @@ public class LookupTest {
         container.withCopyFileToContainer(forHostPath(testConfig2), "/tmp/ors-config-arg.yml");
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/tmp/ors-config-arg.yml"));
         container.start();
-        OrsApiHelper.assertProfiles(container, Map.of("cycling-regular", true));
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
         container.stop();
     }
 }
