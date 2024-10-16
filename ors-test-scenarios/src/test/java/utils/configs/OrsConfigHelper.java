@@ -1,4 +1,4 @@
-package utils;
+package utils.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -73,5 +73,4 @@ public class OrsConfigHelper {
 
         return testConfig;
     }
-
 }
