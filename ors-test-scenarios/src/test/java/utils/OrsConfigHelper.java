@@ -36,7 +36,7 @@ public class OrsConfigHelper {
         return testConfig;
     }
 
-    public static Path configWithCustomProfilesActivated(Path tempDir, String fileName, Map<String, Boolean> profiles) throws IOException {
+    public static Path configWithCustomProfilesActivated(Path tempDir, String fileName, Map<String, Boolean> profiles) {
         Path testConfig = tempDir.resolve(fileName);
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode rootNode = mapper.createObjectNode();
@@ -52,7 +52,7 @@ public class OrsConfigHelper {
         ObjectNode profilesNode = mapper.createObjectNode();
         for (String profile : profiles.keySet()) {
             // Add each profile to the profiles node
-            profilesNode.put(profile, mapper.createObjectNode().put("enabled", profiles.get(profile)));
+            profilesNode.set(profile, mapper.createObjectNode().put("enabled", profiles.get(profile)));
         }
 
         // Create the engine object
@@ -65,7 +65,11 @@ public class OrsConfigHelper {
 
         // Write the JsonNode to a YAML file
         YAMLMapper yamlMapper = new YAMLMapper(new YAMLFactory());
-        yamlMapper.writeValue(testConfig.toFile(), rootNode);
+        try {
+            yamlMapper.writeValue(testConfig.toFile(), rootNode);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return testConfig;
     }
