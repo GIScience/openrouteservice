@@ -15,8 +15,8 @@ import java.nio.file.Path;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
-import static utils.OrsConfigHelper.setupConfigFileProfileDefaultFalse;
 import static utils.TestContainersHelper.noConfigFailWaitStrategy;
+import static utils.configs.OrsConfigHelper.setupConfigFileProfileDefaultFalse;
 
 @ExtendWith(TestcontainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

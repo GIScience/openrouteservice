@@ -18,9 +18,9 @@ import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
-import static utils.OrsConfigHelper.configWithCustomProfilesActivated;
 import static utils.TestContainersHelper.noConfigFailWaitStrategy;
 import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
+import static utils.configs.OrsConfigHelper.configWithCustomProfilesActivated;
 
 @ExtendWith(TestcontainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
