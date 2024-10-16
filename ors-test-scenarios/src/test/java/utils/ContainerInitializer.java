@@ -154,7 +154,7 @@ public abstract class ContainerInitializer {
      * These can be adjusted to fit specific CMD requirements.
      */
     public enum ContainerTestImageBare implements ContainerTestImage {
-        WAR_CONTAINER_BARE("ors-test-scenarios-war-bare"),
+        // WAR_CONTAINER_BARE("ors-test-scenarios-war-bare"), // War works different. The default CMD is hardcoded to catalina.sh run.
         JAR_CONTAINER_BARE("ors-test-scenarios-jar-bare"),
         MAVEN_CONTAINER_BARE("ors-test-scenarios-maven-bare");
 
