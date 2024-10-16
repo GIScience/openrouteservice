@@ -98,7 +98,7 @@ public class LookupTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
-    void lookupYmlInWorkdirOverwriteUserConfAndEtc(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
+    void lookupYmlInWorkdirOverUserConfAndEtc(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
         GenericContainer<?> container = initContainer(targetImage, false);
         ArrayList<String> command = targetImage.getCommand("200M");
         container.setCommand(command.toArray(new String[0]));
