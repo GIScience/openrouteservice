@@ -21,6 +21,8 @@ public class GrcConfigBuilder {
     public String repositoryName;
     public String repositoryProfileGroup;
     public String graphExtent;
+    public String profileDefaultGraphPath;
+
     @Builder.Default
     private HashMap<String, Boolean> profiles = new HashMap<>();
     @Builder.Default
@@ -32,7 +34,6 @@ public class GrcConfigBuilder {
         Path testConfig = tempDir.resolve(fileName);
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode rootNode = mapper.createObjectNode();
-
         // Create the graph_management node
         ObjectNode graphManagementNode = mapper.createObjectNode();
         graphManagementNode.put("enabled", graphManagementEnabled);
@@ -59,6 +60,9 @@ public class GrcConfigBuilder {
         // Create the profile_default node
         ObjectNode profileDefaultNode = mapper.createObjectNode();
         profileDefaultNode.put("source_file", "");
+        if (profileDefaultGraphPath != null) {
+            profileDefaultNode.put("graph_path", profileDefaultGraphPath);
+        }
 
         // If setGraphManagementPerProfile is false, set the graph management in profile_default
         if (!setRepoManagementPerProfile) {

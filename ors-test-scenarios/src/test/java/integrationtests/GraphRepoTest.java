@@ -27,9 +27,9 @@ public class GraphRepoTest {
      * Ors doesn't come with another graph. According to the config ORS will look in the graph folder of the GRC configuration.
      * The driving-car graph will then be downloaded and ors started normally.
      */
-    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
-    void testGrcStartupWithDownloadedGraphs(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) {
+    void testGrcStartupWithDownloadedGraphs(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) {
         GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false);
         container.withCopyFileToContainer(
                 MountableFile.forHostPath("../ors-engine/src/test/resources/test-filesystem-repos/"),
@@ -42,21 +42,30 @@ public class GraphRepoTest {
                 .profiles(new HashMap<>() {{
                     put("driving-car", true);
                 }})
+                .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
                 .repositoryUri("/tmp/graphs-repo")
                 .repositoryName("vendor-xyz")
                 .repositoryProfileGroup("fastisochrones")
                 .graphExtent("heidelberg")
                 .build();
         Path grcConfig = grcConfigFilePath.toYAML(tempDir, "grc-config.yml");
-        String containerConfigPath = "/tmp/grc-config.yml";
+        String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
         container.withCopyFileToContainer(forHostPath(grcConfig), containerConfigPath);
-        container.withEnv(Map.of("ORS_CONFIG_LOCATION", containerConfigPath));
-        container.waitingFor(orsCorrectConfigLoadedWaitStrategy(containerConfigPath));
+        if (ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER.equals(targetImage)) {
+            container.withCopyFileToContainer(forHostPath(grcConfig), containerConfigPath);
+            // The war container has another working directory /usr/lib/tomcat/.
+            // Tomcat therefore prints the config location as an absolute path to /home/ors/openrouteservice/ors-config.yml.
+            // The waiting strategy needs to be different.
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy(containerConfigPath));
+        } else {
+            // Jar and Maven both have the working directory /home/ors/openrouteservice/. Therefore, the config location is printed as ./ors-config.yml.
+            container.withCopyFileToContainer(forHostPath(grcConfig), containerConfigPath);
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
+        }
 
         // Clean the container binds
         container.setBinds(List.of());
 
-        container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
         container.start();
 
         OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/graphs-repo", true);
