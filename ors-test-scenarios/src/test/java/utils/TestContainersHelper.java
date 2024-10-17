@@ -22,6 +22,14 @@ public class TestContainersHelper {
                 .withStrategy(healthyOrsWaitStrategy());
     }
 
+    public static WaitStrategy noConfigHealthyWaitStrategy(String[] logLookupMessages) {
+        WaitAllStrategy waitAllStrategy = new WaitAllStrategy();
+        for (String logLookupMessage : logLookupMessages) {
+            waitAllStrategy.withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*"));
+        }
+        return waitAllStrategy.withStrategy(healthyOrsWaitStrategy());
+    }
+
     public static WaitStrategy healthyOrsWaitStrategy() {
         //@formatter:off
         return new HttpWaitStrategy()

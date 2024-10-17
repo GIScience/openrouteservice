@@ -9,6 +9,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import utils.ContainerInitializer;
+import utils.configs.OrsConfigHelperBuilder;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,7 +17,6 @@ import java.nio.file.Path;
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.noConfigFailWaitStrategy;
-import static utils.configs.OrsConfigHelper.setupConfigFileProfileDefaultFalse;
 
 @ExtendWith(TestcontainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -34,7 +34,12 @@ public class ConfigFileTest {
         container.waitingFor(noConfigFailWaitStrategy());
 
         // Setup the config file
-        Path testConfig = setupConfigFileProfileDefaultFalse(tempDir, "ors-config.yml");
+        Path testConfig = OrsConfigHelperBuilder.builder()
+                .profileDefaultEnabled(false)
+                .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                .ProfileDefaultGraphPath("/home/ors/openrouteservice/graphs")
+                .build()
+                .toYaml(tempDir, "ors-config.yml");
 
         // Add the config file to te container and overwrite the default config
         container.withCopyFileToContainer(forHostPath(testConfig), "/home/ors/openrouteservice/ors-config.yml");
