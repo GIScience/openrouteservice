@@ -42,7 +42,6 @@ COPY ors-report-aggregation $CONTAINER_BUILD_DIR/ors-report-aggregation
 # Build the projects war and jar files
 RUN mvn clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -T 1C
 RUN mvn package -q -DskipTests -Dmaven.test.skip=true -PbuildFatJar -T 1C
-RUN mvn install -q -o -DskipTests -Dmaven.test.skip=true -PbuildFatJar -T 1C
 
 # Prepare the config file
 COPY ors-config.yml $CONTAINER_BUILD_DIR/ors-config.yml
