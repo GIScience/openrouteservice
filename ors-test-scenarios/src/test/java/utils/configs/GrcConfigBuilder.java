@@ -17,8 +17,6 @@ import java.util.HashMap;
 @Setter(AccessLevel.PUBLIC)
 @Builder(toBuilder = true, access = AccessLevel.PUBLIC)
 public class GrcConfigBuilder {
-    public Path tempDir;
-    public String fileName;
     public String repositoryUri;
     public String repositoryName;
     public String repositoryProfileGroup;
@@ -30,7 +28,7 @@ public class GrcConfigBuilder {
     @Builder.Default
     private boolean setRepoManagementPerProfile = false;
 
-    public Path getConfig() {
+    public Path toYAML(Path tempDir, String fileName) {
         Path testConfig = tempDir.resolve(fileName);
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode rootNode = mapper.createObjectNode();

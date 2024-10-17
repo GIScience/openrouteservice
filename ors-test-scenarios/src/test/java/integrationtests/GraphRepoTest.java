@@ -37,8 +37,6 @@ public class GraphRepoTest {
         );
 
         GrcConfigBuilder grcConfigFilePath = GrcConfigBuilder.builder()
-                .tempDir(tempDir)
-                .fileName("grc-config.yml")
                 .graphManagementEnabled(true)
                 .setRepoManagementPerProfile(true)
                 .profiles(new HashMap<>() {{
@@ -49,7 +47,7 @@ public class GraphRepoTest {
                 .repositoryProfileGroup("fastisochrones")
                 .graphExtent("heidelberg")
                 .build();
-        Path grcConfig = grcConfigFilePath.getConfig();
+        Path grcConfig = grcConfigFilePath.toYAML(tempDir, "grc-config.yml");
         String containerConfigPath = "/tmp/grc-config.yml";
         container.withCopyFileToContainer(forHostPath(grcConfig), containerConfigPath);
         container.withEnv(Map.of("ORS_CONFIG_LOCATION", containerConfigPath));
