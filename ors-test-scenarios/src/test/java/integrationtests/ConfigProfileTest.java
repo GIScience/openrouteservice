@@ -10,6 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import utils.ContainerInitializer;
 import utils.OrsApiHelper;
+import utils.configs.OrsConfigHelperBuilder;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -18,7 +19,6 @@ import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
-import static utils.configs.OrsConfigHelper.configWithCustomProfilesActivated;
 
 @ExtendWith(TestcontainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -42,8 +42,13 @@ public class ConfigProfileTest {
     void testActivateEachProfileWithConfig(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException {
         Map<String, Boolean> allProfiles = Map.of("cycling-electric", true, "cycling-road", true, "cycling-mountain", true, "cycling-regular", true, "driving-car", true, "driving-hgv", true, "foot-hiking", true, "foot-walking", true);
         // Create another file in anotherTempDir called ors-config2.yml
-        Path testConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", allProfiles);
-
+        Path testConfig = OrsConfigHelperBuilder.builder()
+                .profileDefaultEnabled(false)
+                .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                .ProfileDefaultGraphPath("/home/ors/openrouteservice/graphs")
+                .profiles(allProfiles)
+                .build()
+                .toYaml(tempDir, "ors-config.yml");
         // Insert the same content as ors-config.yml
         GenericContainer<?> container = initContainer(targetImage, false);
 

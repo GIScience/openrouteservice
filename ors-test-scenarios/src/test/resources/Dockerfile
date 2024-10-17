@@ -18,7 +18,7 @@ ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
 FROM docker.io/maven:3.9.9-amazoncorretto-21-alpine AS builder
 
-RUN apk add --no-cache bash yq
+RUN apk add --no-cache bash yq zip
 
 ARG CONTAINER_BUILD_DIR
 
@@ -80,7 +80,7 @@ EXPOSE 8080
 
 FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar-bare
 
-RUN apk add --no-cache bash yq
+RUN apk add --no-cache bash yq zip
 
 ARG CONTAINER_WORK_DIR
 ARG CONTAINER_BUILD_DIR
@@ -103,7 +103,7 @@ EXPOSE 8080
 
 FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war-bare
 
-RUN apt-get update
+RUN apt update && apt install -y zip unzip
 
 ARG CONTAINER_WORK_DIR
 ARG CONTAINER_BUILD_DIR
@@ -141,6 +141,9 @@ COPY ors-test-scenarios/src/test/resources/maven-entrypoint.sh $CONTAINER_WORK_D
 
 ENV JAVA_OPTS="-Xmx350M"
 
+# Define the healthcheck
+HEALTHCHECK --interval=3s --timeout=2s --retries=4 CMD wget --quiet --tries=1 --spider http://localhost:8080/ors/v2/health || exit 1
+
 # Command to run Maven
 CMD ["sh", "maven-entrypoint.sh"]
 
@@ -152,6 +155,9 @@ RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-co
 
 ENV JAVA_OPTS="-Xmx350M"
 
+# Define the healthcheck
+HEALTHCHECK --interval=3s --timeout=2s --retries=4 CMD wget --quiet --tries=1 --spider http://localhost:8080/ors/v2/health || exit 1
+
 # Command to run the JAR
 CMD ["java", "-jar", "ors.jar"]
 
@@ -162,6 +168,9 @@ ARG CONTAINER_WORK_DIR
 RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-config.yml
 
 ENV JAVA_OPTS="-Xmx350M"
+
+# Define the healthcheck
+HEALTHCHECK --interval=3s --timeout=2s --retries=4 CMD wget --quiet --tries=1 --spider http://localhost:8080/ors/v2/health || exit 1
 
 # Command to run Tomcat
 CMD ["catalina.sh", "run"]

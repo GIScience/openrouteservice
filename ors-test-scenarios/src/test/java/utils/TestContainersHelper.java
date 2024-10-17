@@ -1,5 +1,6 @@
 package utils;
 
+import org.testcontainers.containers.Container;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
@@ -7,8 +8,11 @@ import org.testcontainers.containers.wait.strategy.WaitAllStrategy;
 import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.utility.MountableFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 public class TestContainersHelper {
@@ -17,9 +21,15 @@ public class TestContainersHelper {
     }
 
     public static WaitStrategy noConfigHealthyWaitStrategy(String logLookupMessage) {
-        return new WaitAllStrategy()
-                .withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*"))
-                .withStrategy(healthyOrsWaitStrategy());
+        return new WaitAllStrategy().withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*")).withStrategy(healthyOrsWaitStrategy());
+    }
+
+    public static WaitStrategy noConfigHealthyWaitStrategy(String[] logLookupMessages) {
+        WaitAllStrategy waitAllStrategy = new WaitAllStrategy();
+        for (String logLookupMessage : logLookupMessages) {
+            waitAllStrategy.withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*"));
+        }
+        return waitAllStrategy.withStrategy(healthyOrsWaitStrategy());
     }
 
     public static WaitStrategy healthyOrsWaitStrategy() {
@@ -63,6 +73,37 @@ public class TestContainersHelper {
     public static void restartContainer(GenericContainer<?> container) {
         container.stop();
         container.start();
+    }
+
+    public static void copyFolderContentFromContainer(GenericContainer<?> container, String containerPath, String destinationPath) throws IOException, InterruptedException {
+        Container.ExecResult result = container.execInContainer("ls", "-p", "-1", containerPath);
+        String[] files = result.getStdout().split("\n");
+
+        for (String fileName : files) {
+            if (fileName.trim().isEmpty()) {
+                continue;
+            }
+            if (fileName.endsWith("/")) {
+                String folderName = fileName.substring(0, fileName.length() - 1);
+                new File(destinationPath, folderName).mkdirs();
+                copyFolderContentFromContainer(container, containerPath + "/" + folderName, destinationPath + "/" + folderName);
+            } else {
+                container.copyFileFromContainer(containerPath + "/" + fileName, destinationPath + "/" + fileName);
+            }
+        }
+    }
+
+    public static boolean waitForLogPatterns(GenericContainer<?> container, List<String> logPatterns, int maxWaitTimeInSeconds, int recheckFrequencyInMillis) throws InterruptedException {
+        int elapsedTime = 0;
+        while (elapsedTime < maxWaitTimeInSeconds * 1000) {
+            boolean allPatternsFound = logPatterns.stream().allMatch(pattern -> container.getLogs().contains(pattern));
+            if (allPatternsFound) {
+                return true;
+            }
+            Thread.sleep(recheckFrequencyInMillis);
+            elapsedTime += recheckFrequencyInMillis;
+        }
+        return false;
     }
 
 }

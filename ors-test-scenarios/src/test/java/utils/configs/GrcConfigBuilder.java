@@ -17,6 +17,18 @@ import java.util.HashMap;
 @Setter(AccessLevel.PUBLIC)
 @Builder(toBuilder = true, access = AccessLevel.PUBLIC)
 public class GrcConfigBuilder {
+    // Profile Default Configuration
+    private String ProfileDefaultBuildSourceFile;
+    private String ProfileDefaultGraphPath;
+    private boolean profileDefaultEnabled;
+    @Builder.Default
+    private boolean graphManagementEnabled = true;
+    @Builder.Default
+    private String graphManagementDownloadSchedule = "0/2 * * * * *";
+    @Builder.Default
+    private String graphManagementActivationSchedule = "0/5 * * * * *";
+
+    // GRC Configuration
     public String repositoryUri;
     public String repositoryName;
     public String repositoryProfileGroup;
@@ -26,17 +38,24 @@ public class GrcConfigBuilder {
     @Builder.Default
     private HashMap<String, Boolean> profiles = new HashMap<>();
     @Builder.Default
-    private boolean graphManagementEnabled = true;
-    @Builder.Default
     private boolean setRepoManagementPerProfile = false;
 
     public Path toYAML(Path tempDir, String fileName) {
         Path testConfig = tempDir.resolve(fileName);
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode rootNode = mapper.createObjectNode();
-        // Create the graph_management node
-        ObjectNode graphManagementNode = mapper.createObjectNode();
-        graphManagementNode.put("enabled", graphManagementEnabled);
+
+        // Create the profile_default node
+        // Create the profile_default node
+        ObjectNode profileDefaultNode = mapper.createObjectNode();
+        profileDefaultNode.put("enabled", profileDefaultEnabled);
+        if (profileDefaultGraphPath != null) {
+            profileDefaultNode.put("graph_path", profileDefaultGraphPath);
+        }
+        // Create profile_default build node
+        ObjectNode profileDefaultBuildNode = mapper.createObjectNode();
+        profileDefaultBuildNode.put("source_file", ProfileDefaultBuildSourceFile);
+        profileDefaultNode.set("build", profileDefaultBuildNode);
 
         // Create the repo node
         ObjectNode repoNode = mapper.createObjectNode();
@@ -47,21 +66,14 @@ public class GrcConfigBuilder {
 
         // Create the profiles node
         ObjectNode profilesNode = mapper.createObjectNode();
-        ObjectNode drivingCarNode = mapper.createObjectNode();
+        ObjectNode profileNode = mapper.createObjectNode();
         for (String profile : profiles.keySet()) {
             // Add each profile to the profiles node
-            drivingCarNode.put("enabled", profiles.get(profile));
+            profileNode.put("enabled", profiles.get(profile));
             if (setRepoManagementPerProfile) {
-                drivingCarNode.set("repo", repoNode);
+                profileNode.set("repo", repoNode);
             }
-            profilesNode.set(profile, drivingCarNode);
-        }
-
-        // Create the profile_default node
-        ObjectNode profileDefaultNode = mapper.createObjectNode();
-        profileDefaultNode.put("source_file", "");
-        if (profileDefaultGraphPath != null) {
-            profileDefaultNode.put("graph_path", profileDefaultGraphPath);
+            profilesNode.set(profile, profileNode);
         }
 
         // If setGraphManagementPerProfile is false, set the graph management in profile_default
@@ -69,6 +81,11 @@ public class GrcConfigBuilder {
             profileDefaultNode.set("repo", repoNode);
         }
 
+        // Create the graph_management node
+        ObjectNode graphManagementNode = mapper.createObjectNode();
+        graphManagementNode.put("enabled", graphManagementEnabled);
+        graphManagementNode.put("download_schedule", graphManagementDownloadSchedule);
+        graphManagementNode.put("activation_schedule", graphManagementActivationSchedule);
 
         // Create the engine object
         ObjectNode engineNode = mapper.createObjectNode();
