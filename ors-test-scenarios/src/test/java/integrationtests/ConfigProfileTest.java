@@ -10,11 +10,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import utils.ContainerInitializer;
 import utils.OrsApiHelper;
-import utils.configs.OrsConfigHelperBuilder;
+import utils.OrsConfig;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
@@ -40,15 +41,15 @@ public class ConfigProfileTest {
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
     void testActivateEachProfileWithConfig(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException {
-        Map<String, Boolean> allProfiles = Map.of("cycling-electric", true, "cycling-road", true, "cycling-mountain", true, "cycling-regular", true, "driving-car", true, "driving-hgv", true, "foot-hiking", true, "foot-walking", true);
-        // Create another file in anotherTempDir called ors-config2.yml
-        Path testConfig = OrsConfigHelperBuilder.builder()
+        HashMap<String, Boolean> allProfiles = new HashMap<>(Map.of("cycling-electric", true, "cycling-road", true, "cycling-mountain", true, "cycling-regular", true, "driving-car", true, "driving-hgv", true, "foot-hiking", true, "foot-walking", true));
+        // Setup the config file
+        Path testConfig = OrsConfig.builder()
                 .profileDefaultEnabled(false)
+                .graphManagementEnabled(false)
                 .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
-                .ProfileDefaultGraphPath("/home/ors/openrouteservice/graphs")
+                .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
                 .profiles(allProfiles)
-                .build()
-                .toYaml(tempDir, "ors-config.yml");
+                .build().toYAML(tempDir, "ors-config.yml");
         // Insert the same content as ors-config.yml
         GenericContainer<?> container = initContainer(targetImage, false);
 

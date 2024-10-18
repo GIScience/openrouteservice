@@ -1,4 +1,4 @@
-package utils.configs;
+package utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -16,11 +16,14 @@ import java.util.HashMap;
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
 @Builder(toBuilder = true, access = AccessLevel.PUBLIC)
-public class GrcConfigBuilder {
+public class OrsConfig {
     // Profile Default Configuration
-    private String ProfileDefaultBuildSourceFile;
-    private String ProfileDefaultGraphPath;
-    private boolean profileDefaultEnabled;
+    @Builder.Default
+    private String ProfileDefaultBuildSourceFile = "/home/ors/openrouteservice/files/heidelberg.test.pbf";
+    @Builder.Default
+    private String ProfileDefaultGraphPath = "/home/ors/openrouteservice/graphs";
+    @Builder.Default
+    private boolean profileDefaultEnabled = false;
     @Builder.Default
     private boolean graphManagementEnabled = false;
     @Builder.Default

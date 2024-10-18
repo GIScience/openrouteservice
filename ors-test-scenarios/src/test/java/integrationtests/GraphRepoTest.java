@@ -8,8 +8,8 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.MountableFile;
 import utils.ContainerInitializer;
 import utils.OrsApiHelper;
+import utils.OrsConfig;
 import utils.OrsContainerFileSystemCheck;
-import utils.configs.GrcConfigBuilder;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -26,7 +26,7 @@ import static utils.TestContainersHelper.*;
 public class GraphRepoTest {
 
     // @formatter:off
-    GrcConfigBuilder.GrcConfigBuilderBuilder GRC_CONFIG = GrcConfigBuilder.builder()
+    OrsConfig.OrsConfigBuilder GRC_CONFIG = OrsConfig.builder()
             .profileDefaultEnabled(false)
             .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
             .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")

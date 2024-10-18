@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import utils.ContainerInitializer;
 import utils.OrsApiHelper;
-import utils.configs.GrcConfigBuilder;
+import utils.OrsConfig;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -22,7 +22,6 @@ import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.noConfigFailWaitStrategy;
 import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
-import static utils.configs.OrsConfigHelper.configWithCustomProfilesActivated;
 
 @ExtendWith(TestcontainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -59,7 +58,10 @@ public class LookupTest {
         container.setCommand(command.toArray(new String[0]));
 
         String testProfile = "cycling-regular";
-        Path testConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", Map.of(testProfile, true));
+        Path testConfig = OrsConfig.builder()
+                .profiles(new HashMap<>(Map.of(testProfile, true)))
+                .build().toYAML(tempDir, "ors-config.yml");
+
         // Check that the etc. path is used as path that is used by default, if nothing else is specified.
         container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_ETC);
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_ETC));
@@ -80,7 +82,10 @@ public class LookupTest {
         ArrayList<String> command = targetImage.getCommand("200M");
         container.setCommand(command.toArray(new String[0]));
 
-        Path testConfigCyclingRegular = configWithCustomProfilesActivated(tempDir, "ors-config.yml", Map.of("cycling-regular", true));
+        Path testConfigCyclingRegular = OrsConfig.builder()
+                .profiles(new HashMap<>(Map.of("cycling-regular", true)))
+                .build().toYAML(tempDir, "ors-config.yml");
+
         // Check the hierarchy works.
         container.withCopyFileToContainer(forHostPath(testConfigCyclingRegular), CONFIG_FILE_PATH_ETC);
         // This should be the one that is loaded.
@@ -105,7 +110,9 @@ public class LookupTest {
         ArrayList<String> command = targetImage.getCommand("200M");
         container.setCommand(command.toArray(new String[0]));
 
-        Path testConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", Map.of("cycling-regular", true));
+        Path testConfig = OrsConfig.builder()
+                .profiles(new HashMap<>(Map.of("cycling-regular", true)))
+                .build().toYAML(tempDir, "ors-config.yml");
         // Check the hierarchy works.
         container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_ETC);
         container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_USERCONF);
@@ -132,7 +139,9 @@ public class LookupTest {
         ArrayList<String> command = targetImage.getCommand("200M");
         container.setCommand(command.toArray(new String[0]));
 
-        Path testConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", Map.of("cycling-regular", true));
+        Path testConfig = OrsConfig.builder()
+                .profiles(new HashMap<>(Map.of("cycling-regular", true)))
+                .build().toYAML(tempDir, "ors-config.yml");
         // Check the hierarchy works.
         container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_ETC);
         container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_USERCONF);
@@ -160,10 +169,14 @@ public class LookupTest {
         GenericContainer<?> container = initContainer(targetImage, false);
         ArrayList<String> command = targetImage.getCommand("200M");
 
-        Path wrongTestConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", Map.of("cycling-regular", true));
+        Path wrongTestConfig = OrsConfig.builder()
+                .profiles(new HashMap<>(Map.of("cycling-regular", true)))
+                .build().toYAML(tempDir, "ors-config.yml");
 
         container.withCommand(command.toArray(new String[0]));
-        Path correctTestConfig = configWithCustomProfilesActivated(tempDir, "ors-config2.yml", Map.of("cycling-road", true));
+        Path correctTestConfig = OrsConfig.builder()
+                .profiles(new HashMap<>(Map.of("cycling-road", true)))
+                .build().toYAML(tempDir, "ors-config2.yml");
         // Check the hierarchy works.
         container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_ETC);
         container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_USERCONF);
@@ -198,7 +211,7 @@ public class LookupTest {
         ArrayList<String> command = targetImage.getCommand("200M");
         container.setCommand(command.toArray(new String[0]));
 
-        Path wrongTestConfig = GrcConfigBuilder.builder()
+        Path wrongTestConfig = OrsConfig.builder()
                 .profileDefaultEnabled(false)
                 .graphManagementEnabled(false)
                 .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
@@ -211,7 +224,7 @@ public class LookupTest {
             command.add("-Dspring-boot.run.arguments=" + CONFIG_FILE_PATH_ARG);
         }
         container.withCommand(command.toArray(new String[0]));
-        Path correctTestConfig = GrcConfigBuilder.builder()
+        Path correctTestConfig = OrsConfig.builder()
                 .profileDefaultEnabled(false)
                 .graphManagementEnabled(false)
                 .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
