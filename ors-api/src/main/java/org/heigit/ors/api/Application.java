@@ -8,7 +8,6 @@ import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.StringUtility;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,8 +18,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import java.util.Optional;
 
 @ServletComponentScan("org.heigit.ors.api.servlet.listeners")
 @SpringBootApplication
@@ -33,30 +30,25 @@ public class Application extends SpringBootServletInitializer {
         System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
     }
 
-    @Autowired
-    ConfigurableApplicationContext context;
+    private static ConfigurableApplicationContext context;
 
     public static void main(String[] args) {
         if (args.length > 0 && !StringUtility.isNullOrEmpty(args[0]) && !args[0].startsWith("-")) {
             System.setProperty(ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY, args[0]);
         }
-        SpringApplication.run(Application.class, args);
+        context = SpringApplication.run(Application.class, args);
         LOG.info("openrouteservice %s".formatted(AppInfo.getEngineInfo()));
         if (RoutingProfileManagerStatus.isShutdown()) {
             System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
         }
     }
 
-    public void restart() {
-        String[] args = Optional.ofNullable(context)
-                .map(ctx -> ctx.getBean(ApplicationArguments.class))
-                .map(ApplicationArguments::getSourceArgs)
-                .orElse(new String[0]);
+    public static void restart() {
+        ApplicationArguments args = context.getBean(ApplicationArguments.class);
 
         Thread thread = new Thread(() -> {
             context.close();
-            LOG.debug("Restart with args [%s]".formatted(String.join(", ", args)));
-            context = SpringApplication.run(Application.class, args);
+            context = SpringApplication.run(Application.class, args.getSourceArgs());
         });
 
         thread.setDaemon(false);

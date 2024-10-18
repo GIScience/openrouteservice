@@ -3,7 +3,6 @@ package org.heigit.ors.api.services;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.Application;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,9 +19,6 @@ public class GraphService {
     // get this value from ors.engine.graph_management.enabled
     @Value("${ors.engine.graph_management.enabled:false}")
     Boolean enabled = false;
-
-    @Autowired
-    Application application;
 
     private static final Logger LOGGER = Logger.getLogger(GraphService.class.getName());
 
@@ -148,6 +144,6 @@ public class GraphService {
     }
 
     private void restartApplication() {
-        application.restart();
+        Application.restart();
     }
 }
