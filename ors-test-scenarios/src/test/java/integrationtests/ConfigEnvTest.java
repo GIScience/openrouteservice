@@ -31,7 +31,7 @@ public class ConfigEnvTest {
     @ParameterizedTest(name = "{0}")
     void testMissingConfigButRequiredParamsAsEnvUpperAndLower(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage, false);
-        container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
+        container.waitingFor(noConfigHealthyWaitStrategy("Config file './ors-config.yml' not found."));
         container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
         container.addEnv("ors.engine.profiles.driving-car.enabled", "true");
         container.addEnv("ORS_ENGINE_PROFILES_DRIVING_HGV_ENABLED", "true");
@@ -51,12 +51,13 @@ public class ConfigEnvTest {
     @ParameterizedTest(name = "{0}")
     void testMissingConfigButRequiredParamsAsArg(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage, false);
-        container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
+        container.waitingFor(noConfigHealthyWaitStrategy("Config file './ors-config.yml' not found."));
         ArrayList<String> command = targetImage.getCommand("250M");
         if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
             command.add("--ors.engine.profiles.driving-hgv.enabled=true");
+            command.add("--ors.engine.profile_default.build.source_file=/home/ors/openrouteservice/files/heidelberg.test.pbf");
         } else {
-            command.add("-Dspring-boot.run.arguments=--ors.engine.profiles.driving-hgv.enabled=true");
+            command.add("-Dspring-boot.run.arguments=--ors.engine.profile_default.build.source_file=/home/ors/openrouteservice/files/heidelberg.test.pbf --ors.engine.profiles.driving-hgv.enabled=true");
         }
         container.setCommand(command.toArray(new String[0]));
         container.start();
@@ -77,9 +78,10 @@ public class ConfigEnvTest {
     @ParameterizedTest(name = "{0}")
     void testMissingConfigButProfileEnabledAsEnvDot(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage, false);
-        container.waitingFor(noConfigHealthyWaitStrategy("Log file './ors-config.yml' not found."));
+        container.waitingFor(noConfigHealthyWaitStrategy("Config file './ors-config.yml' not found."));
         container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
         container.addEnv("ors.engine.profiles.driving-hgv.enabled", "true");
+        container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
         container.start();
 
         // Assert ors-config.yml not present for a sane test.

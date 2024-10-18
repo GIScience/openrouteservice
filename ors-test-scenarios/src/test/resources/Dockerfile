@@ -54,7 +54,7 @@ RUN yq -i '\
     .ors.engine.elevation.cache_path = "/home/ors/openrouteservice/elevation_cache" | \
     .ors.engine.profile_default.graph_path = "/home/ors/openrouteservice/graphs" | \
     .ors.engine.profiles.public-transport.gtfs_file = "/home/ors/openrouteservice/files/vrn_gtfs_cut.zip" | \
-    .ors.engine.profile_default.source_file = "/home/ors/openrouteservice/files/heidelberg.test.pbf"\
+    .ors.engine.profile_default.build.source_file = "/home/ors/openrouteservice/files/heidelberg.test.pbf"\
     ' $CONTAINER_BUILD_DIR/ors-config.yml
 
 FROM builder AS ors-test-scenarios-maven-bare

@@ -22,7 +22,7 @@ public class GrcConfigBuilder {
     private String ProfileDefaultGraphPath;
     private boolean profileDefaultEnabled;
     @Builder.Default
-    private boolean graphManagementEnabled = true;
+    private boolean graphManagementEnabled = false;
     @Builder.Default
     private String graphManagementDownloadSchedule = "0/2 * * * * *";
     @Builder.Default

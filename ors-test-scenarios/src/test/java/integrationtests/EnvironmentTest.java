@@ -1,9 +1,6 @@
 package integrationtests;
 
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,23 +20,50 @@ import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.restartContainer;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @Testcontainers(disabledWithoutDocker = true)
 public class EnvironmentTest {
 
     /**
      * build-all-graphs.sh
-     * profile-default-enabled-true.sh
      */
-    @Order(1)
-    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
-    void testBuildAllImagesAndGraphsWithEnv(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
+    void testBuildAllBareGraphsWithEnv(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
         container.addEnv("ors.engine.profile_default.enabled", "true");
-        container.addEnv("JAVA_OPTS", "-Xmx400m");
+        container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
+        container.setCommand(targetImage.getCommand("500M").toArray(new String[0]));
+        // sharedOrsTestContainer.addEnv("gtfs_file", "/home/ors/openrouteservice/ors-api/src/test/files/vrn_gtfs_cut.zip");
+
+        container.start();
+
+        List<String> expectedProfiles = List.of("foot-walking", "wheelchair", "foot-hiking", "cycling-electric", "cycling-mountain", "driving-car", "driving-hgv", "cycling-regular", "cycling-road"
+                // "public-transport"
+        );
+        OrsApiHelper.assertProfilesLoaded(container, expectedProfiles.stream().collect(HashMap::new, (m, v) -> m.put(v, true), HashMap::putAll));
+
+        List<String> files = List.of("/home/ors/openrouteservice/logs/ors.log", "/home/ors/openrouteservice/files/heidelberg.test.pbf", "/home/ors/openrouteservice/elevation_cache/srtm_38_03.gh");
+        OrsContainerFileSystemCheck.assertFilesExist(container, files.toArray(new String[0]));
+
+        for (String profile : expectedProfiles) {
+            OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/" + profile, true);
+        }
+        container.stop();
+    }
+
+    /**
+     * build-all-graphs.sh
+     * profile-default-enabled-true.sh
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testBuildAllDefaultGraphsWithEnv(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
+        GenericContainer<?> container = initContainer(targetImage, false);
+        container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
+        container.addEnv("ors.engine.profile_default.enabled", "true");
+        container.addEnv("JAVA_OPTS", "-Xmx500m");
         // sharedOrsTestContainer.addEnv("gtfs_file", "/home/ors/openrouteservice/ors-api/src/test/files/vrn_gtfs_cut.zip");
 
         container.start();
@@ -60,7 +84,7 @@ public class EnvironmentTest {
 
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
-    void testDefaultProfileActivated(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
+    void testDefaultProfileActivated(ContainerInitializer.ContainerTestImageDefaults targetImage) {
         // Get a fresh container
         GenericContainer<?> container = initContainer(targetImage, true);
 
@@ -72,8 +96,8 @@ public class EnvironmentTest {
      * arg-overrides-default-prop.sh
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
-    @ParameterizedTest(name = "{0} overwrite default config with env")
-    void testActivateEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException {
+    @ParameterizedTest(name = "{0}")
+    void testActivateEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) {
         GenericContainer<?> container = initContainer(targetImage, false);
 
         List<String> allProfiles = List.of("cycling-electric", "cycling-road", "cycling-mountain", "cycling-regular", "driving-car", "driving-hgv", "foot-hiking", "foot-walking", "wheelchair");
