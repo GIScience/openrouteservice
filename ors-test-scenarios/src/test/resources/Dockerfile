@@ -103,7 +103,9 @@ EXPOSE 8080
 
 FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war-bare
 
-RUN apt update && apt install -y zip unzip
+RUN apt update && apt install -y zip unzip software-properties-common && \
+    add-apt-repository ppa:rmescandon/yq && \
+    apt update && apt install -y yq
 
 ARG CONTAINER_WORK_DIR
 ARG CONTAINER_BUILD_DIR

@@ -47,7 +47,7 @@ public class GraphRepoTest {
 
 
     /**
-     * grc-startup-with-downloaded-graph.sh
+     * grc-startup-with-downloaded-graph_repo-defined-in-profile-default.sh
      * This test sets up ors with a proper Graph Repository Configuration (GRC) file and a downloadable graph.
      * The first container will be used to create the graph repository and the graph.
      * The second container start will omit a pre-build graph.
@@ -57,7 +57,7 @@ public class GraphRepoTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
-    void testGrcStartupBareAndDownloadNewGraphs(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+    void testGrcStartupWithDownloadedGraphRepoDefinedInProfileDefault(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
         GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false);
         container.start();
         Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
@@ -193,6 +193,64 @@ public class GraphRepoTest {
         // @formatter:on
         Assertions.assertFalse(container.isHealthy(), "The container should not be healthy.");
         // Assert that the graph_info.yml was updated
+        container.stop();
+    }
+
+    /**
+     * grc-startup-with-downloaded-graph.sh
+     * Test the GRC functionality with Graph Management settings in profile default.
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testGrcStartupWithDownloadedGraphRepoDefinedInProfile(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+        GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false);
+        container.start();
+        Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
+        copyFolderContentFromContainer(container, "/tmp/test-filesystem-repo", tempDir.resolve("test-filesystem-repo").toString());
+        container.stop();
+        // Clear all other binds
+        container.setBinds(List.of());
+        Path grcConfig = GRC_CONFIG
+                .ProfileDefaultBuildSourceFile("")
+                .setRepoManagementPerProfile(true)
+                .build().toYAML(tempDir, "grc-config.yml");
+
+        String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
+        container.withCopyFileToContainer(forHostPath(grcConfig), containerConfigPath);
+        container.withCopyFileToContainer(MountableFile.forHostPath(tempDir.resolve("test-filesystem-repo") + "/"), "/tmp/test-filesystem-repo/");
+        if (ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER.equals(targetImage)) {
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy(containerConfigPath));
+        } else {
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
+        }
+
+        container.start();
+
+        // @formatter:off
+        Assertions.assertTrue(
+                waitForLogPatterns(container,List.of(
+                                "1 profile configurations submitted as tasks",
+                                "[driving-car] Creating graph directory driving-car",
+                                "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
+                                "[driving-car] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
+                                "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
+                                "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car",
+                                "[driving-car] Downloaded graph was extracted and will be activated at next restart check or application start",
+                                "[driving-car] Activating extracted downloaded graph",
+                                "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'",
+                                "[driving-car] Checking for possible graph update from remote repository",
+                                "Restart check done: No downloaded graphs found, no restart required"),
+                        12, 1000),
+                "The expected log patterns were not found in the logs.");
+        // @formatter:on
+
+        OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
+        OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
+        OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.yml", true);
+
+        // Check that the graph was loaded
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
+
         container.stop();
     }
 }
