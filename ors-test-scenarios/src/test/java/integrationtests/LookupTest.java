@@ -10,10 +10,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import utils.ContainerInitializer;
 import utils.OrsApiHelper;
+import utils.configs.GrcConfigBuilder;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
@@ -23,7 +25,7 @@ import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
 import static utils.configs.OrsConfigHelper.configWithCustomProfilesActivated;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @Testcontainers(disabledWithoutDocker = true)
 public class LookupTest {
 
@@ -158,16 +160,16 @@ public class LookupTest {
         GenericContainer<?> container = initContainer(targetImage, false);
         ArrayList<String> command = targetImage.getCommand("200M");
 
-        Path testConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", Map.of("cycling-regular", true));
+        Path wrongTestConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", Map.of("cycling-regular", true));
 
         container.withCommand(command.toArray(new String[0]));
-        Path testConfig2 = configWithCustomProfilesActivated(tempDir, "ors-config2.yml", Map.of("cycling-road", true));
+        Path correctTestConfig = configWithCustomProfilesActivated(tempDir, "ors-config2.yml", Map.of("cycling-road", true));
         // Check the hierarchy works.
-        container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_ETC);
-        container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_USERCONF);
-        container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR);
+        container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_ETC);
+        container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_USERCONF);
+        container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_WORKDIR);
         // This should be the one that is loaded.
-        container.withCopyFileToContainer(forHostPath(testConfig2), CONFIG_FILE_PATH_ARG);
+        container.withCopyFileToContainer(forHostPath(correctTestConfig), CONFIG_FILE_PATH_ARG);
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_ARG));
         if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
             command.add(CONFIG_FILE_PATH_ARG);
@@ -177,7 +179,7 @@ public class LookupTest {
 
         container.setCommand(command.toArray(new String[0]));
         container.start();
-        OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-road", true));
         container.stop();
     }
 
@@ -196,25 +198,37 @@ public class LookupTest {
         ArrayList<String> command = targetImage.getCommand("200M");
         container.setCommand(command.toArray(new String[0]));
 
-        Path testConfig = configWithCustomProfilesActivated(tempDir, "ors-config.yml", Map.of("cycling-regular", true));
+        Path wrongTestConfig = GrcConfigBuilder.builder()
+                .profileDefaultEnabled(false)
+                .graphManagementEnabled(false)
+                .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
+                .profiles(new HashMap<>(Map.of("cycling-regular", true)))
+                .build().toYAML(tempDir, "ors-config.yml");
         if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
-            command.add(CONFIG_FILE_PATH_TMP);
+            command.add(CONFIG_FILE_PATH_ARG);
         } else {
-            command.add("-Dspring-boot.run.arguments=" + CONFIG_FILE_PATH_TMP);
+            command.add("-Dspring-boot.run.arguments=" + CONFIG_FILE_PATH_ARG);
         }
         container.withCommand(command.toArray(new String[0]));
-        Path testConfig2 = configWithCustomProfilesActivated(tempDir, "ors-config2.yml", Map.of("cycling-road", true));
+        Path correctTestConfig = GrcConfigBuilder.builder()
+                .profileDefaultEnabled(false)
+                .graphManagementEnabled(false)
+                .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
+                .profiles(new HashMap<>(Map.of("cycling-road", true)))
+                .build().toYAML(tempDir, "ors-config2.yml");
         // Check the hierarchy works.
-        container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_ETC);
-        container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_USERCONF);
-        container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR);
-        container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_TMP);
+        container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_ETC);
+        container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_USERCONF);
+        container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_WORKDIR);
+        container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_TMP);
         container.withEnv(Map.of("ORS_CONFIG_LOCATION", CONFIG_FILE_PATH_TMP));
         // This should be the one that is loaded.
-        container.withCopyFileToContainer(forHostPath(testConfig2), "/tmp/ors-config-arg.yml");
+        container.withCopyFileToContainer(forHostPath(correctTestConfig), "/tmp/ors-config-arg.yml");
         container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/tmp/ors-config-arg.yml"));
         container.start();
-        OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-road", true));
         container.stop();
     }
 }
