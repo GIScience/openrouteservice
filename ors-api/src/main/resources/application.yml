@@ -128,7 +128,7 @@ ors:
       enabled: false
       graph_path: graphs
       build:
-        source_file: ors-api/src/test/files/heidelberg.test.pbf
+        source_file:
         elevation: true
         elevation_smoothing: false
         encoder_flags_size: 8
