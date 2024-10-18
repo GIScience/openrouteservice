@@ -62,7 +62,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
                     break;
                 }
             } catch (IllegalStateException | IOException ignored) {
-                log.debug("Log file '%s' not found.".formatted(path));
+                log.debug("Config file '%s' not found.".formatted(path));
             }
         }
         var relevantPrefixes = List.of(
