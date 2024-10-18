@@ -144,4 +144,55 @@ public class GraphRepoTest {
         // Assert that the graph_info.yml was updated
         container.stop();
     }
+
+    /**
+     * grc-startup-fails-when-graph-missing-in-repo.sh
+     * This test starts a Graph Repo Lookup but fails to find a proper graph.
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testGrcStartupFailsWhenGraphMissingInRepo(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+        GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false);
+        if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
+            container.waitingFor(simpleLogMessageWaitStrategy("Restart check done: No downloaded graphs found, no restart required"));
+        } else {
+            container.waitingFor(simpleLogMessageWaitStrategy("Shutting down openrouteservice"));
+        }
+        // @formatter:off
+        Path grcConfig = GRC_CONFIG
+                .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
+                .ProfileDefaultBuildSourceFile("")
+                .graphManagementEnabled(true)
+                .repositoryUri("/tmp/wrong-filesystem-repo")
+                .repositoryName("vendor-xyz")
+                .repositoryProfileGroup("fastisochrones")
+                .graphExtent("heidelberg")
+                .profiles(new HashMap<>() {{
+                    put("driving-hgv", true);
+                }})
+                .build().toYAML(tempDir, "grc-config.yml");
+        // @formatter:on
+        container.withCopyFileToContainer(forHostPath(grcConfig), "/home/ors/openrouteservice/ors-config.yml");
+
+        container.setBinds(List.of());
+        container.start();
+        // @formatter:off
+        Assertions.assertTrue(
+                waitForLogPatterns(container,List.of(
+                    "1 profile configurations submitted as tasks",
+                    "[driving-hgv] Creating graph directory driving-hgv",
+                    "Using FileSystemRepoManager for repoUri /tmp/wrong-filesystem-repo",
+                    "[driving-hgv] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
+                    "[driving-hgv] Checking for possible graph update from remote repository",
+                    "[driving-hgv] Checking latest graphInfo in remote repository",
+                    "[driving-hgv] No graphInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml",
+                    "[driving-hgv] No newer graph found in repository",
+                    "[driving-hgv] No downloaded graph to extract"),
+                        12, 1000),
+                "The expected log patterns were not found in the logs.");
+        // @formatter:on
+        Assertions.assertFalse(container.isHealthy(), "The container should not be healthy.");
+        // Assert that the graph_info.yml was updated
+        container.stop();
+    }
 }
