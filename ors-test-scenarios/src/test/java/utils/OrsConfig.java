@@ -31,6 +31,10 @@ public class OrsConfig {
     @Builder.Default
     private String graphManagementActivationSchedule = "0/5 * * * * *";
 
+    // Elevation Configuration
+    @Builder.Default
+    private String elevationCachePath = "/home/ors/openrouteservice/elevation_cache";
+
     // GRC Configuration
     public String repositoryUri;
     public String repositoryName;
@@ -48,7 +52,6 @@ public class OrsConfig {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode rootNode = mapper.createObjectNode();
 
-        // Create the profile_default node
         // Create the profile_default node
         ObjectNode profileDefaultNode = mapper.createObjectNode();
         profileDefaultNode.put("enabled", profileDefaultEnabled);
@@ -90,11 +93,17 @@ public class OrsConfig {
         graphManagementNode.put("download_schedule", graphManagementDownloadSchedule);
         graphManagementNode.put("activation_schedule", graphManagementActivationSchedule);
 
+        // Create the elevation node
+        ObjectNode elevationNode = mapper.createObjectNode();
+        elevationNode.put("cache_path", elevationCachePath);
+
         // Create the engine object
         ObjectNode engineNode = mapper.createObjectNode();
         engineNode.set("profile_default", profileDefaultNode);
         engineNode.set("graph_management", graphManagementNode);
         engineNode.set("profiles", profilesNode);
+        engineNode.set("elevation", elevationNode);
+
 
         // Add the engine object to the root node
         rootNode.set("ors", mapper.createObjectNode().set("engine", engineNode));
