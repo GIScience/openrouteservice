@@ -149,7 +149,7 @@ class HttpRepoManagerTest {
         assertTrue(activeGraphInfoFile.exists());
         printFileContent("activeGraphInfoFile", activeGraphInfoFile);
         String content = readFileToString(activeGraphInfoFile, "UTF-8");
-        assertTrue(content.contains("importDate: 2023-08-18T15:38:31+0000"));
+        assertTrue(content.contains("import_date: 2023-08-18T15:38:31+0000"));
     }
 
     @Test
