@@ -107,6 +107,14 @@ public class TestContainersHelper {
             Thread.sleep(recheckFrequencyInMillis);
             elapsedTime += recheckFrequencyInMillis;
         }
+
+        // If we reach here, not all patterns were found
+        List<String> foundPatterns = logPatterns.stream().filter(pattern -> container.getLogs().contains(pattern)).toList();
+        List<String> notFoundPatterns = logPatterns.stream().filter(pattern -> !container.getLogs().contains(pattern)).toList();
+
+        System.out.println("Found patterns: " + foundPatterns);
+        System.out.println("Not found patterns: " + notFoundPatterns);
+
         return false;
     }
 

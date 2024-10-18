@@ -20,6 +20,7 @@ import java.util.Map;
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.GrcSetupHelper.getCurrentDateInFormat;
 import static utils.GrcSetupHelper.setupGraphRepo;
+import static utils.OrsApiHelper.checkAvoidAreaRequest;
 import static utils.TestContainersHelper.*;
 
 
@@ -117,6 +118,7 @@ public class GraphRepoTest {
      * The new graph is then placed in the graph repository in the proper way with a .ghz and a .yml file.
      * The graph will then be downloaded and activated by the ors instance after the download and activation schedule.
      * TODO find out what happened to max_backups and the related log output
+     * TODO the container shows exception when restarting.
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
@@ -135,12 +137,28 @@ public class GraphRepoTest {
         OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
 
         Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
-
-        Assertions.assertTrue(waitForLogPatterns(container, List.of("[driving-car] Downloaded graph was extracted and will be activated at next restart check or application start", "[driving-car] Activating extracted downloaded graph", "[2] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'", "[driving-car] Checking for possible graph update from remote repository", "Restart check done: No downloaded graphs found, no restart required"), 12, 1000), "The expected log patterns were not found in the logs.");
-
+        // @formatter:off
+        Assertions.assertTrue(waitForLogPatterns(container, List.of(
+                "[driving-car] Checking for possible graph update from remote repository",
+                "[driving-car] Checking latest graphInfo in remote repository",
+                "[driving-car] Download finished after",
+                "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
+                "[driving-car] Extraction of downloaded graph file finished after",
+                "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
+                "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car_new",
+                "[driving-car] Downloaded graph was extracted and will be activated at next restart check or application start.",
+                "Restart check done: Restarting openrouteservice"
+                ),
+                12, 1000), "The expected log patterns were not found in the logs.");
+        // @formatter:on
         // Check that the graph was loaded
         OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
         OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
+        checkAvoidAreaRequest("http://" + container.getHost() + ":" + container.getFirstMappedPort() + "/ors/v2/directions/driving-car/geojson", 200);
+        // We don't want the exception to appear.
+        // TODO fix this
+        Assertions.assertFalse(
+                waitForLogPatterns(container, List.of(" Unexpected exception occurred invoking async method: public void org.heigit.ors.api.services.GraphService.checkForDownloadedGraphsToActivate()"), 12, 1000));
         // Assert that the graph_info.yml was updated
         container.stop();
     }
