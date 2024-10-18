@@ -20,6 +20,10 @@ public class TestContainersHelper {
         return new LogMessageWaitStrategy().withRegEx(".*No profiles configured. Exiting.*");
     }
 
+    public static WaitStrategy simpleLogMessageWaitStrategy(String logLookupMessage) {
+        return new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*");
+    }
+
     public static WaitStrategy noConfigHealthyWaitStrategy(String logLookupMessage) {
         return new WaitAllStrategy().withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*")).withStrategy(healthyOrsWaitStrategy());
     }
