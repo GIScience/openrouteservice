@@ -27,8 +27,11 @@ ors-test-scenarios
 ors-api/graphs-apitests
 ors-api/logs
 
+**/target/**
 ors-api/target/
 ors-engine/target/
+ors-report-aggregation/target/
+ors-test-scenarios/target/
 ors-docker/**
 
 cgiar_provider/
