@@ -47,9 +47,9 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     public void initialize() {
         File activeGraphDirectory = getActiveGraphDirectory();
         if (!activeGraphDirectory.exists()) {
-            LOGGER.debug("[%s] Creating graph directory %s".formatted(getProfileDescriptiveName(), getActiveGraphDirName()));
+            LOGGER.debug("[%s] Creating graph directory %s".formatted(getProfileDescriptiveName(), activeGraphDirectory.getAbsolutePath()));
             if (!activeGraphDirectory.mkdirs()) {
-                LOGGER.error("[%s] Could not create graph directory %s".formatted(getProfileDescriptiveName(), getActiveGraphDirName()));
+                LOGGER.error("[%s] Could not create graph directory %s".formatted(getProfileDescriptiveName(), activeGraphDirectory.getAbsolutePath()));
             }
         }
     }
