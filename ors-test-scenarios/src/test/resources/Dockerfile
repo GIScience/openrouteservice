@@ -39,11 +39,10 @@ RUN mvn dependency:go-offline -B -q
 COPY ors-api $CONTAINER_BUILD_DIR/ors-api
 COPY ors-engine $CONTAINER_BUILD_DIR/ors-engine
 COPY ors-report-aggregation $CONTAINER_BUILD_DIR/ors-report-aggregation
-COPY ors-test-scenarios $CONTAINER_BUILD_DIR/ors-test-scenarios
 
 # Build the projects war and jar files
-RUN mvn clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -T 1C
-RUN mvn package -q -DskipTests -Dmaven.test.skip=true -PbuildFatJar -T 1C
+RUN mvn clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -T 1C -pl '!:ors-test-scenarios'
+RUN mvn package -q -DskipTests -Dmaven.test.skip=true -PbuildFatJar -T 1C -pl '!:ors-test-scenarios'
 
 # Prepare the config file
 COPY ors-config.yml $CONTAINER_BUILD_DIR/ors-config.yml
@@ -75,7 +74,7 @@ COPY ors-api/src/test/files "$CONTAINER_WORK_DIR"/files
 COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
 RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated && \
     # Cache the dependencies to speed up the runtime process
-    mvn install -q -o -DskipTests -Dmaven.test.skip=true -T 1C
+    mvn install -q -o -DskipTests -Dmaven.test.skip=true -T 1C -pl '!:ors-test-scenarios'
 
 EXPOSE 8080
 

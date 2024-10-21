@@ -97,23 +97,21 @@ public class TestContainersHelper {
         }
     }
 
-    public static boolean waitForLogPatterns(GenericContainer<?> container, List<String> logPatterns, int maxWaitTimeInSeconds, int recheckFrequencyInMillis) throws InterruptedException {
+    public static boolean waitForLogPatterns(GenericContainer<?> container, List<String> logPatterns, int maxWaitTimeInSeconds, int recheckFrequencyInMillis, boolean expected) throws InterruptedException {
         int elapsedTime = 0;
         while (elapsedTime < maxWaitTimeInSeconds * 1000) {
-            boolean allPatternsFound = logPatterns.stream().allMatch(pattern -> container.getLogs().contains(pattern));
-            if (allPatternsFound) {
+            boolean allPatternsMatch = logPatterns.stream().allMatch(pattern -> container.getLogs().contains(pattern) == expected);
+            if (allPatternsMatch) {
                 return true;
             }
             Thread.sleep(recheckFrequencyInMillis);
             elapsedTime += recheckFrequencyInMillis;
         }
 
-        // If we reach here, not all patterns were found
-        List<String> foundPatterns = logPatterns.stream().filter(pattern -> container.getLogs().contains(pattern)).toList();
-        List<String> notFoundPatterns = logPatterns.stream().filter(pattern -> !container.getLogs().contains(pattern)).toList();
+        // If we reach here, not all patterns matched the expected presence
+        List<String> mismatchedPatterns = logPatterns.stream().filter(pattern -> container.getLogs().contains(pattern) != expected).toList();
 
-        System.out.println("Found patterns: " + foundPatterns);
-        System.out.println("Not found patterns: " + notFoundPatterns);
+        System.out.println("Mismatched patterns: " + mismatchedPatterns);
 
         return false;
     }
