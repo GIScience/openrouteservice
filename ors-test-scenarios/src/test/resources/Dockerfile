@@ -60,7 +60,7 @@ RUN yq -i '\
     ' $CONTAINER_BUILD_DIR/ors-config.yml
 
 FROM builder AS ors-test-scenarios-maven-bare
-
+# Build: docker build --target ors-test-scenarios-maven-bare --tag ors-test-scenarios-maven-bare:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
 
 ARG CONTAINER_WORK_DIR
 ARG CONTAINER_BUILD_DIR
@@ -81,7 +81,7 @@ EXPOSE 8080
 
 
 FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar-bare
-
+# Build: docker build --target ors-test-scenarios-jar-bare --tag ors-test-scenarios-jar-bare:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
 RUN apk add --no-cache bash yq zip
 
 ARG CONTAINER_WORK_DIR
@@ -104,6 +104,7 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 EXPOSE 8080
 
 FROM docker.io/tomcat:10.1.30-jdk21-temurin-jammy AS ors-test-scenarios-war-bare
+# Build: docker build --target ors-test-scenarios-war-bare --tag ors-test-scenarios-war-bare:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
 
 RUN apt update && apt install -y zip unzip software-properties-common && \
     add-apt-repository ppa:rmescandon/yq && \
@@ -136,6 +137,8 @@ EXPOSE 8080
 # ---------------------------
 
 FROM ors-test-scenarios-maven-bare AS ors-test-scenarios-maven
+# Build: docker build --target ors-test-scenarios-maven --tag ors-test-scenarios-maven:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
+# Usage: docker run -d -it -e 'logging.level.org.heigit=DEBUG' --name ors-test-scenarios-maven -p 8082:8080 ors-test-scenarios-maven:latest
 
 ARG CONTAINER_WORK_DIR
 
@@ -152,6 +155,8 @@ HEALTHCHECK --interval=3s --timeout=2s --retries=4 CMD wget --quiet --tries=1 --
 CMD ["sh", "maven-entrypoint.sh"]
 
 FROM ors-test-scenarios-jar-bare AS ors-test-scenarios-jar
+# Build: docker build --target ors-test-scenarios-jar --tag ors-test-scenarios-jar:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
+# Usage: docker run -d -it -e 'logging.level.org.heigit=DEBUG' --name ors-test-scenarios-jar -p 8082:8080 ors-test-scenarios-jar:latest
 
 ARG CONTAINER_WORK_DIR
 
@@ -166,6 +171,8 @@ HEALTHCHECK --interval=3s --timeout=2s --retries=4 CMD wget --quiet --tries=1 --
 CMD ["java", "-jar", "ors.jar"]
 
 FROM ors-test-scenarios-war-bare AS ors-test-scenarios-war
+# Build: docker build --target ors-test-scenarios-war --tag ors-test-scenarios-war:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
+# Usage: docker run -d -it -e 'logging.level.org.heigit=DEBUG' --name ors-test-scenarios-war -p 8082:8080 ors-test-scenarios-war:latest
 
 ARG CONTAINER_WORK_DIR
 
