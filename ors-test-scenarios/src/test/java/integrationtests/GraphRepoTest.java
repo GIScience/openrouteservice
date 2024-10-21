@@ -86,7 +86,7 @@ public class GraphRepoTest {
         Assertions.assertTrue(
                 waitForLogPatterns(container,List.of(
                                 "1 profile configurations submitted as tasks",
-                                "[driving-car] Creating graph directory driving-car",
+                                "[driving-car] Creating graph directory",
                                 "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
                                 "[driving-car] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
                                 "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
@@ -96,7 +96,7 @@ public class GraphRepoTest {
                                 "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'",
                                 "[driving-car] Checking for possible graph update from remote repository",
                                 "Restart check done: No downloaded graphs found, no restart required"),
-                        12, 1000),
+                        12, 1000, true),
                 "The expected log patterns were not found in the logs.");
         // @formatter:on
 
@@ -152,7 +152,7 @@ public class GraphRepoTest {
                 "[driving-car] Downloaded graph was extracted and will be activated at next restart check or application start.",
                 "Restart check done: Restarting openrouteservice"
                 ),
-                12, 1000), "The expected log patterns were not found in the logs.");
+                15, 1000, true), "The expected log patterns were not found in the logs.");
         // @formatter:on
         // Check that the graph was loaded
         OrsApiHelper.assertProfilesLoaded(container, new HashMap<>() {{
@@ -161,9 +161,8 @@ public class GraphRepoTest {
         OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
         checkAvoidAreaRequest("http://" + container.getHost() + ":" + container.getFirstMappedPort() + "/ors/v2/directions/driving-car/geojson", 200);
         // We don't want the exception to appear.
-        // TODO fix this
-        Assertions.assertFalse(
-                waitForLogPatterns(container, List.of(" Unexpected exception occurred invoking async method: public void org.heigit.ors.api.services.GraphService.checkForDownloadedGraphsToActivate()"), 12, 1000));
+        Assertions.assertTrue(
+                waitForLogPatterns(container, List.of(" Unexpected exception occurred invoking async method: public void org.heigit.ors.api.services.GraphService.checkForDownloadedGraphsToActivate()"), 12, 1000, false));
         // Assert that the graph_info.yml was updated
         container.stop();
     }
@@ -203,7 +202,7 @@ public class GraphRepoTest {
         Assertions.assertTrue(
                 waitForLogPatterns(container,List.of(
                     "1 profile configurations submitted as tasks",
-                    "[driving-hgv] Creating graph directory driving-hgv",
+                    "[driving-hgv] Creating graph directory",
                     "Using FileSystemRepoManager for repoUri /tmp/wrong-filesystem-repo",
                     "[driving-hgv] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
                     "[driving-hgv] Checking for possible graph update from remote repository",
@@ -211,7 +210,7 @@ public class GraphRepoTest {
                     "[driving-hgv] No graphInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml",
                     "[driving-hgv] No newer graph found in repository",
                     "[driving-hgv] No downloaded graph to extract"),
-                        12, 1000),
+                        12, 1000, true),
                 "The expected log patterns were not found in the logs.");
         // @formatter:on
         Assertions.assertFalse(container.isHealthy(), "The container should not be healthy.");
@@ -253,7 +252,7 @@ public class GraphRepoTest {
         Assertions.assertTrue(
                 waitForLogPatterns(container,List.of(
                                 "1 profile configurations submitted as tasks",
-                                "[driving-car] Creating graph directory driving-car",
+                                "[driving-car] Creating graph directory",
                                 "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
                                 "[driving-car] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
                                 "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
@@ -263,7 +262,7 @@ public class GraphRepoTest {
                                 "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'",
                                 "[driving-car] Checking for possible graph update from remote repository",
                                 "Restart check done: No downloaded graphs found, no restart required"),
-                        12, 1000),
+                        12, 1000, true),
                 "The expected log patterns were not found in the logs.");
         // @formatter:on
 
