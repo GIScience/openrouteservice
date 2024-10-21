@@ -156,6 +156,7 @@ ors:
 #            active_landmarks: 8
     profiles:
       driving-car:
+        encoder_name: driving-car
         enabled: true
 #        repo:
 #          # nginx HttpRepoManager
