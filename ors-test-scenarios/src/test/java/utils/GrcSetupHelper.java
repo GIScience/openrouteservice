@@ -11,7 +11,7 @@ import java.util.List;
 public class GrcSetupHelper {
 
 
-    public static String getCurrentDateInFormat(Integer increaseDaysBy) {
+    public static String getCurrentDateInFormat(int increaseDaysBy) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
         return ZonedDateTime.now().plusDays(increaseDaysBy).format(formatter);
     }

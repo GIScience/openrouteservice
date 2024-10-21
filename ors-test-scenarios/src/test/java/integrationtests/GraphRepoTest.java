@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.GrcSetupHelper.getCurrentDateInFormat;
@@ -106,7 +105,9 @@ public class GraphRepoTest {
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.yml", true);
 
         // Check that the graph was loaded
-        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
+        OrsApiHelper.assertProfilesLoaded(container, new HashMap<>() {{
+            put("driving-car", true);
+        }});
 
         container.stop();
     }
@@ -133,7 +134,9 @@ public class GraphRepoTest {
         container.start();
 
         // Check that the graph was loaded
-        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
+        OrsApiHelper.assertProfilesLoaded(container, new HashMap<>() {{
+            put("driving-car", true);
+        }});
         OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
 
         Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
@@ -152,7 +155,9 @@ public class GraphRepoTest {
                 12, 1000), "The expected log patterns were not found in the logs.");
         // @formatter:on
         // Check that the graph was loaded
-        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
+        OrsApiHelper.assertProfilesLoaded(container, new HashMap<>() {{
+            put("driving-car", true);
+        }});
         OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
         checkAvoidAreaRequest("http://" + container.getHost() + ":" + container.getFirstMappedPort() + "/ors/v2/directions/driving-car/geojson", 200);
         // We don't want the exception to appear.
@@ -267,7 +272,10 @@ public class GraphRepoTest {
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.yml", true);
 
         // Check that the graph was loaded
-        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
+        OrsApiHelper.assertProfilesLoaded(container, new HashMap<>(
+                new HashMap<>() {{
+                    put("driving-car", true);
+                }}));
 
         container.stop();
     }
