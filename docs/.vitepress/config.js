@@ -119,7 +119,7 @@ export default withMermaid({
                                 items: [
                                     {text: 'server', link: '/run-instance/configuration/server.md'},
                                     {text: 'logging', link: '/run-instance/configuration/logging.md'},
-                                    {text: 'endpoints', link: '/run-instance/configuration/endpoints/', collapsed: true,
+                                    {text: 'ors.endpoints', link: '/run-instance/configuration/endpoints/', collapsed: true,
                                         items: [
                                             {text: 'defaults', link: '/run-instance/configuration/endpoints/defaults.md'},
                                             {text: 'routing', link: '/run-instance/configuration/endpoints/routing.md'},
@@ -128,7 +128,7 @@ export default withMermaid({
                                             {text: 'snap', link: '/run-instance/configuration/endpoints/snap.md'},
                                         ]
                                     },
-                                    {text: 'engine', link: '/run-instance/configuration/engine/', collapsed: true,
+                                    {text: 'ors.engine', link: '/run-instance/configuration/engine/', collapsed: true,
                                         items: [
                                             {text: 'graph_management', link: '/run-instance/configuration/engine/graph-management.md'},
                                             {text: 'elevation', link: '/run-instance/configuration/engine/elevation.md'},
@@ -141,8 +141,8 @@ export default withMermaid({
                                             },
                                         ]
                                     },
-                                    {text: 'cors', link: '/run-instance/configuration/cors/'},
-                                    {text: 'messages', link: '/run-instance/configuration/messages/'},
+                                    {text: 'ors.cors', link: '/run-instance/configuration/cors/'},
+                                    {text: 'ors.messages', link: '/run-instance/configuration/messages/'},
                                     {text: 'JSON config (deprecated)', link:'/run-instance/configuration/json.md'}
                                 ]
                             },

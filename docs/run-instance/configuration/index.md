@@ -76,17 +76,19 @@ Other openrouteservice specific properties are organized in the `ors` object:
 * [ors.cors](cors/index.md): Cross-origin resource sharing settings.
 * [ors.messages](messages/index.md): System messages that can be sent with API responses following simple rules.
 
-At the very least, openrouteservice needs the configuration to contain an enabled [profile](engine/profiles/profiles.md) and the
+At the very least, openrouteservice needs the configuration to contain at least one enabled [profile](engine/profiles/profiles.md) and the
 reference to an [OSM data file](../data.md#osm-data) to run properly. Therefore, the minimal valid content of such a file
 would be, e.g.:
 
 ```yaml
 ors:
   engine:
-    source_file: ./osm_file.pbf
+    profile_default:
+      build:
+        source_file: ./osm_file.pbf
     profiles:
-        driving-car: 
-          enabled: true
+      driving-car: 
+        enabled: true
 ```
 
 ## Alternative configuration
@@ -116,12 +118,71 @@ Every property also corresponds to an environment variable name in *uppercase le
 - `ORS_ENGINE_SOURCE_FILE` replaces `ors.engine.source_file`
 - `ORS_ENGINE_PROFILES_CAR_ENABLED` replaces `ors.engine.profiles.car.enabled`
 
-Consequently,the following commands are equivalent to the last example above:
+Consequently, the following commands are equivalent to the last example above:
 ```shell
   export ORS_ENGINE_SOURCE_FILE=./osm_file.pbf
   export ORS_ENGINE_PROFILES_CAR_ENABLED=true
   java -jar ors.jar
 ```
+
+
+## Default Overriding
+
+::: warning This sub chapter is WIP 
+:::
+
+[//]: # (TODO: write intro the the default overriding topic )
+[//]: # (TODO: finalize this sub chapter or improve the structure of the whole chapter configuration )
+### User configs override internal defaults
+user configs from files, run arguments, environment variables
+
+### Values from `profile_default` override values in `profiles`
+
+
+The following diagrams shows, how the property
+`preparation.methods.lm.landmarks` defined in different places overwrites other places.
+The numbers in the squares are the values defined at this place:
+
+```mermaid
+flowchart LR
+    subgraph Runtime [Runtime Result]
+        subgraph ResultCustom [profiles.scooter]
+            RC[50]
+        end
+        subgraph ResultHgv [profiles.driving-hgv]
+            RP[40]
+        end
+    end
+
+    subgraph OrsConfigYml [ors-config.yml]
+        subgraph OrsProfilesCustom [profiles.scooter]
+            OC[50]
+        end
+        subgraph OrsProfilesHgv [profiles.driving-hgv]
+            OP[40]
+        end
+        subgraph OrsDefault [ors.engine.profile_default]
+            OD[30]
+        end
+        OrsProfilesHgv --> OrsDefault
+        OrsProfilesCustom --> OrsDefault
+    end
+    subgraph ApplicationYml [application.yml]
+        subgraph AppProfilesHgv [profiles.driving-hgv]
+            AP[20] 
+        end
+        subgraph AppDefault [ors.engine.profile_default]
+            AD[10]
+        end
+        AppProfilesHgv --> AppDefault
+    end
+    OrsConfigYml --> ApplicationYml
+```
+
+![](config-overwrite/config-overwrite.exported.merge-files.svg)
+
+![](config-overwrite/config-overwrite.exported.merge-defaults.svg)
+
 
 ## Configuration defaults output
 
