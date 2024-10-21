@@ -30,6 +30,7 @@ COPY pom.xml $CONTAINER_BUILD_DIR/pom.xml
 COPY ors-api/pom.xml $CONTAINER_BUILD_DIR/ors-api/pom.xml
 COPY ors-engine/pom.xml $CONTAINER_BUILD_DIR/ors-engine/pom.xml
 COPY ors-report-aggregation/pom.xml $CONTAINER_BUILD_DIR/ors-report-aggregation/pom.xml
+COPY ors-test-scenarios/pom.xml $CONTAINER_BUILD_DIR/ors-test-scenarios/pom.xml
 
 # Cache the dependencies to speed up the build process
 RUN mvn dependency:go-offline -B -q
@@ -38,6 +39,7 @@ RUN mvn dependency:go-offline -B -q
 COPY ors-api $CONTAINER_BUILD_DIR/ors-api
 COPY ors-engine $CONTAINER_BUILD_DIR/ors-engine
 COPY ors-report-aggregation $CONTAINER_BUILD_DIR/ors-report-aggregation
+COPY ors-test-scenarios $CONTAINER_BUILD_DIR/ors-test-scenarios
 
 # Build the projects war and jar files
 RUN mvn clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -T 1C

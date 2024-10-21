@@ -30,6 +30,7 @@
         <module>ors-engine</module>
         <module>ors-api</module>
         <module>ors-report-aggregation</module>
+        <module>ors-test-scenarios</module>
     </modules>
 
     <properties>

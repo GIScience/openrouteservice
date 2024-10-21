@@ -102,6 +102,7 @@ public abstract class ContainerInitializer {
                         .withFileFromPath("ors-api", Path.of("../ors-api"))
                         .withFileFromPath("ors-engine", Path.of("../ors-engine"))
                         .withFileFromPath("ors-report-aggregation", Path.of("../ors-report-aggregation"))
+                        .withFileFromPath("ors-test-scenarios", Path.of("../ors-test-scenarios"))
                         .withFileFromPath("pom.xml", Path.of("../pom.xml"))
                         .withFileFromPath("ors-config.yml", Path.of("../ors-config.yml"))
                         .withFileFromPath("Dockerfile", Path.of("../ors-test-scenarios/src/test/resources/Dockerfile"))
