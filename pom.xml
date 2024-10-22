@@ -516,6 +516,7 @@
                     <!--don't run API tests by default only through profile "apitests" -->
                     <excludes>
                         <exclude>**/apitests/**</exclude>
+                        <exclude>**/integrationtests/**</exclude>
                     </excludes>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
