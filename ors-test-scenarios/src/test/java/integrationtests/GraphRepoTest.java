@@ -278,4 +278,68 @@ public class GraphRepoTest {
 
         container.stop();
     }
+
+    /**
+     * grc-individual-profile-name.sh
+     * Test the GRC functionality with Graph Management settings and a custom profile name.
+     */
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testGrcIndividualProfileName(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+        GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false);
+        String customProfile = "bobby-car";
+        String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
+
+        // @formatter:off
+        Path grcConfig = GRC_CONFIG
+                .ProfileDefaultBuildSourceFile("")
+                .setRepoManagementPerProfile(true)
+                .profiles(new HashMap<>() {{
+                    put(customProfile, true);
+                }})
+                .profileConfigs(new HashMap<>() {{
+                    put(customProfile, new HashMap<>() {{
+                        put("encoder_name", "driving-car");
+                    }});
+                }})
+                .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                .build().toYAML(tempDir, "grc-config.yml");
+        // @formatter:on
+        container.withCopyFileToContainer(forHostPath(grcConfig), containerConfigPath);
+        container.setBinds(List.of());
+        container.start();
+
+
+        Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2), customProfile), "Failed to prepare the graph repo.");
+        copyFolderContentFromContainer(container, "/tmp/test-filesystem-repo", tempDir.resolve("test-filesystem-repo").toString());
+        container.stop();
+        // Clear all other binds
+
+        container.withCopyFileToContainer(MountableFile.forHostPath(tempDir.resolve("test-filesystem-repo") + "/"), "/tmp/test-filesystem-repo/");
+        if (ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER.equals(targetImage)) {
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy(containerConfigPath));
+        } else {
+            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
+        }
+
+        container.start();
+        // TOdp add checks
+        // @formatter:off
+        Assertions.assertTrue(
+                waitForLogPatterns(container,List.of(
+                                "1 profile configurations submitted as tasks",
+                                "["+ customProfile + "] Creating graph directory",
+                                "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
+                                "[" + customProfile + "] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
+                                "[" + customProfile + "] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/" + customProfile + "_new_incomplete",
+                                "[" + customProfile + "] Renaming extraction directory to /home/ors/openrouteservice/graphs/" + customProfile,
+                                "[" + customProfile + "] Downloaded graph was extracted and will be activated at next restart check or application start",
+                                "[" + customProfile + "] Activating extracted downloaded graph",
+                                "[1] Profile: '" + customProfile + "', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/" + customProfile + "'",
+                                "[" + customProfile + "] Checking for possible graph update from remote repository",
+                                "Restart check done: No downloaded graphs found, no restart required"),
+                        12, 1000, true),
+                "The expected log patterns were not found in the logs.");
+        // @formatter:on
+    }
 }

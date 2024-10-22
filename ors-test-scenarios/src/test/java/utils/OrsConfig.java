@@ -44,6 +44,7 @@ public class OrsConfig {
 
     @Builder.Default
     private HashMap<String, Boolean> profiles = new HashMap<>();
+    private HashMap<String, HashMap<String, Object>> profileConfigs = new HashMap<>();
     @Builder.Default
     private boolean setRepoManagementPerProfile = false;
 
@@ -76,6 +77,13 @@ public class OrsConfig {
         for (String profile : profiles.keySet()) {
             // Add each profile to the profiles node
             profileNode.put("enabled", profiles.get(profile));
+            // Search for the profile configuration
+            HashMap<String, Object> profileConfig = profileConfigs.get(profile);
+            if (profileConfig != null) {
+                for (String key : profileConfig.keySet()) {
+                    profileNode.put(key, profileConfig.get(key).toString());
+                }
+            }
             if (setRepoManagementPerProfile) {
                 profileNode.set("repo", repoNode);
             }
