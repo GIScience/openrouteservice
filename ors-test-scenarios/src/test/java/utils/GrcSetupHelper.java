@@ -17,12 +17,16 @@ public class GrcSetupHelper {
     }
 
     public static boolean setupGraphRepo(GenericContainer<?> container, String importDate) {
-        String carGraphPath = "/home/ors/openrouteservice/graphs/driving-car";
+        return setupGraphRepo(container, importDate, "driving-car");
+    }
+
+    public static boolean setupGraphRepo(GenericContainer<?> container, String importDate, String profile) {
+        String graphPath = "/home/ors/openrouteservice/graphs/" + profile;
         String repoPath = "/tmp/test-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1";
         String scratchGraphPath = "/tmp/scratch";
-        String scratchGraphPathDrivingCar = scratchGraphPath + "/driving-car";
+        String scratchGraphPathProfile = scratchGraphPath + "/" + profile;
 
-        return executeCommands(container, List.of(new String[]{"mkdir", "-p", repoPath, scratchGraphPath}, new String[]{"cp", "-r", carGraphPath, scratchGraphPath}, new String[]{"sh", "-c", "yq -i e '.import_date = \"" + importDate + "\"' " + scratchGraphPathDrivingCar + "/graph_info.yml"}, new String[]{"zip", "-j", "-r", repoPath + "/fastisochrones_heidelberg_1_driving-car.ghz", scratchGraphPathDrivingCar}, new String[]{"cp", scratchGraphPathDrivingCar + "/graph_info.yml", repoPath + "/fastisochrones_heidelberg_1_driving-car.yml"}));
+        return executeCommands(container, List.of(new String[]{"mkdir", "-p", repoPath, scratchGraphPath}, new String[]{"cp", "-r", graphPath, scratchGraphPath}, new String[]{"sh", "-c", "yq -i e '.import_date = \"" + importDate + "\"' " + scratchGraphPathProfile + "/graph_info.yml"}, new String[]{"zip", "-j", "-r", repoPath + "/fastisochrones_heidelberg_1_driving-car.ghz", scratchGraphPathProfile}, new String[]{"cp", scratchGraphPathProfile + "/graph_info.yml", repoPath + "/fastisochrones_heidelberg_1_driving-car.yml"}));
     }
 
     private static boolean executeCommands(GenericContainer<?> container, List<String[]> commands) {
