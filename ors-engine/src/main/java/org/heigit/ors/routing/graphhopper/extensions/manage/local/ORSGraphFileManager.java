@@ -95,19 +95,19 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     public void cleanupIncompleteFiles() {
         File incompleteDownloadFile = asIncompleteFile(getDownloadedCompressedGraphFile());
         if (incompleteDownloadFile.exists()) {
-            LOGGER.info("[%s] Deleted incomplete graph download file from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteDownloadFile.getAbsolutePath()));
+            LOGGER.debug("[%s] Deleted incomplete graph download file from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteDownloadFile.getAbsolutePath()));
             incompleteDownloadFile.delete();
         }
 
         File graphInfoDownloadFile = getDownloadedGraphInfoFile();
         if (graphInfoDownloadFile.exists()) {
-            LOGGER.info("[%s] Deleted graph-info download file from previous application run: %s".formatted(getProfileDescriptiveName(), graphInfoDownloadFile.getAbsolutePath()));
+            LOGGER.debug("[%s] Deleted graph-info download file from previous application run: %s".formatted(getProfileDescriptiveName(), graphInfoDownloadFile.getAbsolutePath()));
             graphInfoDownloadFile.delete();
         }
 
         File incompleteGraphInfoDownloadFile = asIncompleteFile(getDownloadedGraphInfoFile());
         if (incompleteGraphInfoDownloadFile.exists()) {
-            LOGGER.info("[%s] Deleted incomplete graph download file from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteGraphInfoDownloadFile.getAbsolutePath()));
+            LOGGER.debug("[%s] Deleted incomplete graph download file from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteGraphInfoDownloadFile.getAbsolutePath()));
             incompleteGraphInfoDownloadFile.delete();
         }
 
@@ -115,7 +115,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         if (incompleteExtractionFolder.exists() && incompleteExtractionFolder.isDirectory()) {
             try {
                 FileUtils.deleteDirectory(incompleteExtractionFolder);
-                LOGGER.info("[%s] Deleted incomplete graph graph extraction folder from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteExtractionFolder.getAbsolutePath()));
+                LOGGER.debug("[%s] Deleted incomplete graph graph extraction folder from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteExtractionFolder.getAbsolutePath()));
             } catch (IOException e) {
                 LOGGER.error("[%s] Could not delete incomplete graph extraction folder from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteExtractionFolder.getAbsolutePath()));
             }

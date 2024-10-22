@@ -62,9 +62,10 @@ public class RoutingProfileManager {
         return instance;
     }
 
-    void initialize(EngineProperties config, String graphVersion) {
+    public void initialize(EngineProperties config, String graphVersion) {
         RuntimeUtility.printRAMInfo("", LOGGER);
         long startTime = System.currentTimeMillis();
+        routingProfiles = new LinkedHashMap<>();
         try {
             Map<String, ProfileProperties> profiles = config.getInitializedActiveProfiles();
             if (profiles.isEmpty()) {

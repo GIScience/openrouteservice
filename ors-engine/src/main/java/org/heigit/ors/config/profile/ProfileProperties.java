@@ -20,6 +20,8 @@ public class ProfileProperties {
     private Boolean enabled;
     @JsonIgnore
     private Path graphPath;
+    @JsonIgnore
+    private String gHGraphLocation;
     @JsonProperty("encoder_name")
     private EncoderNameEnum encoderName;
     @JsonProperty("build")

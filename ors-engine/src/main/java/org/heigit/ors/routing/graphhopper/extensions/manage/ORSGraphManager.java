@@ -11,15 +11,14 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolder
 import org.heigit.ors.routing.graphhopper.extensions.manage.remote.*;
 
 import java.io.File;
-import java.nio.file.Path;
 
 import static java.util.Optional.ofNullable;
 
 public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
-    private static final String UPDATE_LOCKFILE_NAME = "update.lock";
-    private static final String RESTART_LOCKFILE_NAME = "restart.lock";
+    public static final String UPDATE_LOCKFILE_NAME = "update.lock";
+    public static final String ACTIVATION_LOCKFILE_NAME = "activation.lock";
 
     private GraphManagementRuntimeProperties managementRuntimeProperties;
     private ORSGraphFileManager orsGraphFileManager;
@@ -34,11 +33,10 @@ public class ORSGraphManager {
         this.orsGraphRepoManager = orsGraphRepoManager;
     }
 
-
     public static ORSGraphManager initializeGraphManagement(String graphVersion, EngineProperties engineProperties, ProfileProperties profileProperties) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, graphVersion).build();
         ORSGraphManager orsGraphManager = initializeGraphManagement(managementProps);
-        profileProperties.setGraphPath(Path.of(orsGraphManager.getActiveGraphDirAbsPath()));
+        profileProperties.setGHGraphLocation(orsGraphManager.getActiveGraphDirAbsPath());
         return orsGraphManager;
     }
 
@@ -152,8 +150,8 @@ public class ORSGraphManager {
         return restartLockFile.exists();
     }
 
-    public boolean hasRestartLock() {
-        File restartLockFile = new File(orsGraphFileManager.getGraphsRootDirAbsPath() + File.separator + RESTART_LOCKFILE_NAME);
+    public boolean hasActivationLock() {
+        File restartLockFile = new File(orsGraphFileManager.getGraphsRootDirAbsPath() + File.separator + ACTIVATION_LOCKFILE_NAME);
         return restartLockFile.exists();
     }
 

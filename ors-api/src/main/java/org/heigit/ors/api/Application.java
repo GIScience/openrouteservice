@@ -30,29 +30,15 @@ public class Application extends SpringBootServletInitializer {
         System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
     }
 
-    private static ConfigurableApplicationContext context;
-
     public static void main(String[] args) {
         if (args.length > 0 && !StringUtility.isNullOrEmpty(args[0]) && !args[0].startsWith("-")) {
             System.setProperty(ORSEnvironmentPostProcessor.ORS_CONFIG_LOCATION_PROPERTY, args[0]);
         }
-        context = SpringApplication.run(Application.class, args);
+        SpringApplication.run(Application.class, args);
         LOG.info("openrouteservice %s".formatted(AppInfo.getEngineInfo()));
         if (RoutingProfileManagerStatus.isShutdown()) {
             System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
         }
-    }
-
-    public static void restart() {
-        ApplicationArguments args = context.getBean(ApplicationArguments.class);
-
-        Thread thread = new Thread(() -> {
-            context.close();
-            context = SpringApplication.run(Application.class, args.getSourceArgs());
-        });
-
-        thread.setDaemon(false);
-        thread.start();
     }
 
     @Bean("orsInitContextListenerBean")

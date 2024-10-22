@@ -93,7 +93,7 @@ public class RoutingProfile {
         mRoutePrefs = profile.getProfilesTypes();
         mGraphHopper = initGraphHopper(loadCntx);
         ExecutionProperties execution = profile.getService().getExecution();
-        ;
+
         if (execution.getMethods().getAstar().getApproximation() != null)
             astarApproximation = execution.getMethods().getAstar().getApproximation();
         if (execution.getMethods().getAstar().getEpsilon() != null)
@@ -173,7 +173,7 @@ public class RoutingProfile {
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
         ghConfig.putObject("datareader.file", Optional.ofNullable(profile).map(ProfileProperties::getBuild).map(BuildProperties::getSourceFile).map(Path::toString).orElse(null));
         ghConfig.putObject("graph.bytes_for_flags", profile.getBuild().getEncoderFlagsSize());
-        ghConfig.putObject("graph.location", profile.getGraphPath().toString());
+        ghConfig.putObject("graph.location", profile.getGHGraphLocation());
 
         if (Boolean.FALSE.equals(profile.getBuild().getInstructions())) {
             ghConfig.putObject("instructions", false);

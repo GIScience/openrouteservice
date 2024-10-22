@@ -107,6 +107,11 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
     }
 
     public void downloadFile(Path repoPath, File localPath) {
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath(), localPath.getAbsolutePath()));
+        } else {
+            LOGGER.debug("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getName()));
+        }
         if (repoPath != null) {
             try {
                 Files.copy(repoPath, localPath.toPath(), StandardCopyOption.REPLACE_EXISTING);

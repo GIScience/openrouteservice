@@ -39,9 +39,6 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
-import static org.heigit.ors.api.ORSEnvironmentPostProcessor.*;
 
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
@@ -64,6 +61,7 @@ public class ORSInitContextListener implements ServletContextListener {
         new Thread(() -> {
             try {
                 LOGGER.info("Initializing ORS...");
+                graphService.setIsActivatingGraphs(true);
                 RoutingProfileManager routingProfileManager = new RoutingProfileManager(engineProperties, AppInfo.GRAPH_VERSION);
                 for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
                     ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
@@ -78,6 +76,9 @@ public class ORSInitContextListener implements ServletContextListener {
                 }
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
+            }
+            finally {
+                graphService.setIsActivatingGraphs(false);
             }
         }, "ORS-Init").start();
     }
