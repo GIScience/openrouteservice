@@ -35,6 +35,7 @@ RELEASING:
 ## [unreleased]
 ### Fixed
 - do not enforce a time-dependent routing algorithm unless the weighting requires it ([#1865](https://github.com/GIScience/openrouteservice/pull/1865))
+- failing queries that combined departure/arrival parameters with avoid areas ([#1870](https://github.com/GIScience/openrouteservice/pull/1870))
 
 ## [8.2.0] - 2024-10-09
 ### Added
