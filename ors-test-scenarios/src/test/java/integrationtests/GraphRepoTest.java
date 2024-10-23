@@ -95,7 +95,7 @@ public class GraphRepoTest {
                                 "[driving-car] Activating extracted downloaded graph",
                                 "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'",
                                 "[driving-car] Checking for possible graph update from remote repository",
-                                "Restart check done: No downloaded graphs found, no restart required"),
+                                "Scheduled graph activation check done: No downloaded graphs found, no restart required."),
                         12, 1000, true),
                 "The expected log patterns were not found in the logs.");
         // @formatter:on
