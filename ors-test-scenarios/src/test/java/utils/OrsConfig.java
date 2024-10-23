@@ -44,6 +44,7 @@ public class OrsConfig {
 
     @Builder.Default
     private HashMap<String, Boolean> profiles = new HashMap<>();
+    @Builder.Default
     private HashMap<String, HashMap<String, Object>> profileConfigs = new HashMap<>();
     @Builder.Default
     private boolean setRepoManagementPerProfile = false;
