@@ -149,8 +149,8 @@ public class GraphRepoTest {
                 "[driving-car] Extraction of downloaded graph file finished after",
                 "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
                 "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car_new",
-                "[driving-car] Downloaded graph was extracted and will be activated at next restart check or application start.",
-                "Restart check done: Restarting openrouteservice"
+                "[driving-car] Downloaded graph was extracted and will be activated at next restart check or application start",
+                "Scheduled graph activation check done: Performing graph activation"
                 ),
                 15, 1000, true), "The expected log patterns were not found in the logs.");
         // @formatter:on
@@ -176,7 +176,7 @@ public class GraphRepoTest {
     void testGrcStartupFailsWhenGraphMissingInRepo(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
         GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false);
         if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
-            container.waitingFor(simpleLogMessageWaitStrategy("Restart check done: No downloaded graphs found, no restart required"));
+            container.waitingFor(simpleLogMessageWaitStrategy("Scheduled graph activation check done: No downloaded graphs found, no restart required"));
         } else {
             container.waitingFor(simpleLogMessageWaitStrategy("Shutting down openrouteservice"));
         }
@@ -261,7 +261,7 @@ public class GraphRepoTest {
                                 "[driving-car] Activating extracted downloaded graph",
                                 "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'",
                                 "[driving-car] Checking for possible graph update from remote repository",
-                                "Restart check done: No downloaded graphs found, no restart required"),
+                                "Scheduled graph activation check done: No downloaded graphs found, no restart required"),
                         12, 1000, true),
                 "The expected log patterns were not found in the logs.");
         // @formatter:on
@@ -337,7 +337,7 @@ public class GraphRepoTest {
                                 "[" + customProfile + "] Activating extracted downloaded graph",
                                 "[1] Profile: '" + customProfile + "', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/" + customProfile + "'",
                                 "[" + customProfile + "] Checking for possible graph update from remote repository",
-                                "Restart check done: No downloaded graphs found, no restart required"),
+                                "Scheduled graph activation check done: No downloaded graphs found, no restart required"),
                         12, 1000, true),
                 "The expected log patterns were not found in the logs.");
         // @formatter:on
