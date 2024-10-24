@@ -112,6 +112,7 @@ class ParamsTest extends ServiceTest {
         addParameter("preference", "recommended");
         addParameter("profile", "cycling-regular");
         addParameter("carProfile", "driving-car");
+        addParameter("hgvProfile", "driving-hgv");
         addParameter("footProfile", "foot-walking");
     }
 
@@ -1723,6 +1724,42 @@ class ParamsTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(false))
                 .body("error.code", is(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS))
                 .statusCode(400);
+    }
+
+    @Test
+    void testCompatibilityOfAvoidAreasWithTimeDependentRouting() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesShort"));
+        body.put("preference", getParameter("preference"));
+        body.put("departure", "2021-01-31T12:00");
+
+        JSONObject avoidGeom = new JSONObject("{\"type\":\"Polygon\",\"coordinates\":[[[8.680,49.421],[8.687,49.421],[8.687,49.418],[8.680,49.418],[8.680,49.421]]]}}");
+        JSONObject options = new JSONObject();
+        options.put("avoid_polygons", avoidGeom);
+        body.put("options", options);
+
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .statusCode(200);
+
+        body.put("preference", "shortest");
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("hgvProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .statusCode(200);
     }
 
     @Test
