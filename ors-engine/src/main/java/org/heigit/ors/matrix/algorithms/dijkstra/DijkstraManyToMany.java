@@ -33,10 +33,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.MultiTreeSPEntryIt
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
 import org.heigit.ors.routing.graphhopper.extensions.util.MultiSourceStoppingCriterion;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 import static org.heigit.ors.matrix.util.GraphUtils.isCoreNode;
 
@@ -138,6 +135,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
             return;
 
         while (!(isMaxVisitedNodesExceeded())) {
+            visitedNodes++;
             int currNode = currEdge.getAdjNode();
             boolean isCoreNode = isCoreNode(chGraph, currNode, nodeCount, coreNodeLevel);
             if (isCoreNode) {
@@ -279,7 +277,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
      */
     private boolean iterateMultiTree(RoutingCHEdgeIterator iter, AveragedMultiTreeSPEntry entry) {
         boolean addToQueue = false;
-        visitedNodes++;
 
         for (int source = 0; source < treeEntrySize; ++source) {
             MultiTreeSPEntryItem currEdgeItem = this.currEdge.getItem(source);
@@ -300,6 +297,7 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
                 continue;
 
             double tmpWeight = edgeWeight + entryWeight;
+
             if (stoppingCriterion.isEntryLargerThanAllTargets(source, tmpWeight))
                 continue;
 
@@ -367,7 +365,6 @@ public class DijkstraManyToMany extends AbstractManyToManyRoutingAlgorithm {
      */
     private boolean iterateMultiTreeDownwards(AveragedMultiTreeSPEntry currEdge, RoutingCHEdgeIterator iter, AveragedMultiTreeSPEntry adjEntry) {
         boolean addToQueue = false;
-        visitedNodes++;
 
         for (int source = 0; source < treeEntrySize; ++source) {
             MultiTreeSPEntryItem currEdgeItem = currEdge.getItem(source);
