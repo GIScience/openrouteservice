@@ -643,14 +643,19 @@ public class RoutingProfile {
         }
     }
 
-    boolean requiresTimeDependentWeighting(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
+    boolean requiresTimeDependentAlgorithm(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
         if (!searchParams.isTimeDependent())
             return false;
 
         FlagEncoder flagEncoder = searchCntx.getEncoder();
 
-        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS))
-                || flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
+        if (flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)))
+            return true;
+
+        if (WeightingMethod.SHORTEST==searchParams.getWeightingMethod())
+            return false;
+
+        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
                 || mGraphHopper.isTrafficEnabled();
     }
 

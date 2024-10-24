@@ -390,10 +390,8 @@ public class RoutingRequest extends ServiceRequest {
 
             if (TemporaryUtilShelter.supportWeightingMethod(profileType)) {
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, TemporaryUtilShelter.hasTimeDependentSpeed(searchParams, searchCntx));
-                if (routingProfile.requiresTimeDependentWeighting(searchParams, searchCntx)) {
-                    req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
+                if (routingProfile.requiresTimeDependentAlgorithm(searchParams, searchCntx))
                     flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
-                }
                 flexibleMode = TemporaryUtilShelter.getFlexibilityMode(flexibleMode, searchParams, profileType);
             } else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
@@ -413,16 +411,22 @@ public class RoutingRequest extends ServiceRequest {
 
             if (searchParams.isTimeDependent()) {
                 String key;
-                LocalDateTime time;
+                LocalDateTime dateTime;
                 if (searchParams.hasDeparture()) {
                     key = RouteRequestParameterNames.PARAM_DEPARTURE;
-                    time = searchParams.getDeparture();
+                    dateTime = searchParams.getDeparture();
                 } else {
                     key = RouteRequestParameterNames.PARAM_ARRIVAL;
-                    time = searchParams.getArrival();
+                    dateTime = searchParams.getArrival();
                 }
 
-                req.getHints().putObject(key, time.atZone(ZoneId.of("Europe/Berlin")).toInstant());
+                Instant time = dateTime.atZone(ZoneId.of("Europe/Berlin")).toInstant();
+                req.getHints().putObject(key, time);
+
+                if (routingProfile.requiresTimeDependentAlgorithm(searchParams, searchCntx)) {
+                    req.getHints().putObject("time", time.toEpochMilli());
+                    req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
+                }
             }
 
             if (routingProfile.getAstarEpsilon() != null)
