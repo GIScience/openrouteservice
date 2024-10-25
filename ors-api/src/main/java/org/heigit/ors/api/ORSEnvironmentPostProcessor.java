@@ -58,7 +58,7 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
                 if (!sources.isEmpty()) {
                     environment.getPropertySources().addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, sources.get(0));
                     System.setProperty(ORS_CONFIG_LOCATION_PROPERTY, path);
-                    log.info("Loaded file '%s'".formatted(path));
+                    log.info("Loaded file '%s'.".formatted(path));
                     break;
                 }
             } catch (IllegalStateException | IOException ignored) {
