@@ -11,7 +11,6 @@ import utils.ContainerInitializer;
 import utils.OrsApiHelper;
 import utils.OrsContainerFileSystemCheck;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public class ConfigEnvTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
-    void testMissingConfigButRequiredParamsAsEnvUpperAndLower(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
+    void testMissingConfigButRequiredParamsAsEnvUpperAndLower(ContainerInitializer.ContainerTestImageBare targetImage) {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.waitingFor(noConfigHealthyWaitStrategy("Config file './ors-config.yml' not found."));
         container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
@@ -49,7 +48,7 @@ public class ConfigEnvTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
-    void testMissingConfigButRequiredParamsAsArg(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
+    void testMissingConfigButRequiredParamsAsArg(ContainerInitializer.ContainerTestImageBare targetImage) {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.waitingFor(noConfigHealthyWaitStrategy("Config file './ors-config.yml' not found."));
         ArrayList<String> command = targetImage.getCommand("250M");
@@ -76,7 +75,7 @@ public class ConfigEnvTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
-    void testMissingConfigButProfileEnabledAsEnvDot(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
+    void testMissingConfigButProfileEnabledAsEnvDot(ContainerInitializer.ContainerTestImageBare targetImage) {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.waitingFor(noConfigHealthyWaitStrategy("Config file './ors-config.yml' not found."));
         container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
@@ -91,7 +90,6 @@ public class ConfigEnvTest {
         container.stop();
     }
 
-
     /**
      * config-yml-plus-env-pbf-file-path.sh
      * <p>
@@ -104,7 +102,7 @@ public class ConfigEnvTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
-    void testConfigYmlPlusEnvPbfFilePath(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
+    void testConfigYmlPlusEnvPbfFilePath(ContainerInitializer.ContainerTestImageDefaults targetImage) {
         GenericContainer<?> container = initContainer(targetImage, false);
         container.waitingFor(healthyOrsWaitStrategy());
         // Start with fresh graphs
@@ -116,6 +114,19 @@ public class ConfigEnvTest {
         OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/i-do-not-exist.osm.pbf", false);
         // Assert default profile is loaded
         OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
+        container.stop();
+    }
+
+    @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+    @ParameterizedTest(name = "{0}")
+    void testPropertyOverridesDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) {
+        GenericContainer<?> container = initContainer(targetImage, false);
+
+        container.addEnv("ors.engine.profiles.driving-hgv.enabled", "true");
+
+        container.start();
+
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-hgv", true, "driving-car", true));
         container.stop();
     }
 }

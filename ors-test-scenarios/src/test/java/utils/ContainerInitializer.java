@@ -84,46 +84,55 @@ public abstract class ContainerInitializer {
         return selectedBareContainers.stream().map(container -> new ContainerTestImage[]{container});
     }
 
-    /**
-     * Initializes a container with the given test image, with options to recreate and auto-start.
-     *
-     * @param containerTestImage The container test image.
-     * @param autoStart          Whether to auto-start the container.
-     * @return The initialized container.
-     */
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart) {
+        return initContainer(containerTestImage, autoStart, "");
+    }
+
+        /**
+         * Initializes a container with the given test image, with options to recreate and auto-start.
+         *
+         * @param containerTestImage The container test image.
+         * @param autoStart          Whether to auto-start the container.
+         * @param graphMountSubpath  The subpath to mount the graph. This differentiates the graph mount path for each container.
+         * @return The initialized container.
+         */
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubpath) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");
         }
 
+        Path graphMountPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubpath).resolve(containerTestImage.getName());
+        // Create the folder if it does not exist
+        if (!graphMountPath.toFile().exists()) {
+            graphMountPath.toFile().mkdirs();
+        }
         // @formatter:off
+        Path rootPath = Path.of("../");
         GenericContainer<?> container = new GenericContainer<>(
                 new ImageFromDockerfile(containerTestImage.getName(), false)
-                        .withFileFromPath("ors-api", Path.of("../ors-api"))
-                        .withFileFromPath("ors-engine", Path.of("../ors-engine"))
-                        .withFileFromPath("ors-report-aggregation", Path.of("../ors-report-aggregation"))
-                        .withFileFromPath("ors-test-scenarios", Path.of("../ors-test-scenarios"))
-                        .withFileFromPath("pom.xml", Path.of("../pom.xml"))
-                        .withFileFromPath("ors-config.yml", Path.of("../ors-config.yml"))
-                        .withFileFromPath("Dockerfile", Path.of("../ors-test-scenarios/src/test/resources/Dockerfile"))
-                        .withFileFromPath(".dockerignore", Path.of("../.dockerignore"))
+                        // Specify the copies explicitly to avoid copying the whole project
+                        .withFileFromPath("Dockerfile", rootPath.resolve("ors-test-scenarios/src/test/resources/Dockerfile"))
+                        .withFileFromPath("pom.xml", rootPath.resolve("pom.xml"))
+                        .withFileFromPath("ors-api/pom.xml", rootPath.resolve("ors-api/pom.xml"))
+                        .withFileFromPath("ors-engine/pom.xml", rootPath.resolve("ors-engine/pom.xml"))
+                        .withFileFromPath("ors-report-aggregation/pom.xml", rootPath.resolve("ors-report-aggregation/pom.xml"))
+                        .withFileFromPath("ors-test-scenarios/pom.xml", rootPath.resolve("ors-test-scenarios/pom.xml"))
+                        .withFileFromPath("ors-engine/src/main", rootPath.resolve("ors-engine/src/main"))
+                        .withFileFromPath("ors-api/src/main", rootPath.resolve("ors-api/src/main"))
+                        .withFileFromPath("ors-api/src/test/files/heidelberg.test.pbf", rootPath.resolve("ors-api/src/test/files/heidelberg.test.pbf"))
+                        .withFileFromPath("ors-api/src/test/files/vrn_gtfs_cut.zip", rootPath.resolve("ors-api/src/test/files/vrn_gtfs_cut.zip"))
+                        .withFileFromPath("ors-config.yml", rootPath.resolve("ors-config.yml"))
+                        .withFileFromPath(".dockerignore", rootPath.resolve(".dockerignore"))
                         // Special case for maven container entrypoint. This is not needed for the other containers.
                         .withFileFromPath("./ors-test-scenarios/src/test/resources/maven-entrypoint.sh", Path.of("./src/test/resources/maven-entrypoint.sh"))
                         .withTarget(containerTestImage.getName())
         )
                 .withEnv(defaultEnv)
-                .withFileSystemBind("./graphs-integrationtests/" + containerTestImage.getName(),
-                        "/home/ors/openrouteservice/graphs", BindMode.READ_WRITE)
+                .withFileSystemBind(graphMountPath.toAbsolutePath().toString(),"/home/ors/openrouteservice/graphs", BindMode.READ_WRITE)
                 .withExposedPorts(8080)
-                .withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()))
+                .withStartupTimeout(Duration.ofSeconds(80))
+//                .withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()))
                 .waitingFor(healthyOrsWaitStrategy());
-
-        if (containerTestImage == ContainerTestImageDefaults.MAVEN_CONTAINER || containerTestImage == ContainerTestImageBare.MAVEN_CONTAINER_BARE) {
-            container.withStartupTimeout(Duration.ofSeconds(120));
-        } else {
-            container.withStartupTimeout(Duration.ofSeconds(80));
-        }
-
         if (autoStart) {
             container.start();
         }
@@ -184,7 +193,6 @@ public abstract class ContainerInitializer {
                     command.add("-Dspring-boot.run.jvmArguments=-Xmx" + xmx);
                     command.add("-DskipTests");
                     command.add("-Dmaven.test.skip=true");
-                    command.add("-T 1C");
                     break;
             }
             return command;

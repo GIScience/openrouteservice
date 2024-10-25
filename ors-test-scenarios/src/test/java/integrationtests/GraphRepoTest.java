@@ -123,7 +123,7 @@ public class GraphRepoTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
-    void testGrcUpdateExistingGraph(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+    void testGrcUpdateExistingGraph(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws InterruptedException {
         GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false);
 
         Path grcConfig = GRC_CONFIG.build().toYAML(tempDir, "grc-config.yml");
@@ -173,7 +173,7 @@ public class GraphRepoTest {
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
-    void testGrcStartupFailsWhenGraphMissingInRepo(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+    void testGrcStartupFailsWhenGraphMissingInRepo(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws InterruptedException {
         GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false);
         if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
             container.waitingFor(simpleLogMessageWaitStrategy("Scheduled graph activation check done: No downloaded graphs found, no restart required"));
