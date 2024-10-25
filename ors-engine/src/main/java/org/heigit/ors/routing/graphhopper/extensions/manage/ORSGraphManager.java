@@ -36,7 +36,6 @@ public class ORSGraphManager {
     public static ORSGraphManager initializeGraphManagement(String graphVersion, EngineProperties engineProperties, ProfileProperties profileProperties) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, graphVersion).build();
         ORSGraphManager orsGraphManager = initializeGraphManagement(managementProps);
-        profileProperties.setGHGraphLocation(orsGraphManager.getActiveGraphDirAbsPath());
         return orsGraphManager;
     }
 

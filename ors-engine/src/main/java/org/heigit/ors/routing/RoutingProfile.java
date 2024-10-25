@@ -105,7 +105,7 @@ public class RoutingProfile {
         ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(graphVersion, engineProperties, profileProperties);
         profileProperties = orsGraphManager.loadProfilePropertiesFromActiveGraph(orsGraphManager, profileProperties);
 
-        ORSGraphHopperConfig args = createGHSettings(profileProperties, engineProperties);
+        ORSGraphHopperConfig args = createGHSettings(profileProperties, engineProperties, orsGraphManager.getActiveGraphDirAbsPath());
 
         int profileId;
         synchronized (lockObj) {
@@ -168,12 +168,12 @@ public class RoutingProfile {
         return gh;
     }
 
-    private static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig) {
+    private static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig, String graphLocation) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
         ghConfig.putObject("datareader.file", Optional.ofNullable(profile).map(ProfileProperties::getBuild).map(BuildProperties::getSourceFile).map(Path::toString).orElse(null));
         ghConfig.putObject("graph.bytes_for_flags", profile.getBuild().getEncoderFlagsSize());
-        ghConfig.putObject("graph.location", profile.getGHGraphLocation());
+        ghConfig.putObject("graph.location", graphLocation);
 
         if (Boolean.FALSE.equals(profile.getBuild().getInstructions())) {
             ghConfig.putObject("instructions", false);
