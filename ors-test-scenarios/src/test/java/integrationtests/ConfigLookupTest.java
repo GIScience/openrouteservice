@@ -162,7 +162,7 @@ public class ConfigLookupTest {
             container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_ARG));
             if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
                 command.add(CONFIG_FILE_PATH_ARG);
-            } else {
+            } else if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.MAVEN_CONTAINER_BARE)) {
                 command.add("-Dspring-boot.run.arguments=" + CONFIG_FILE_PATH_ARG);
             }
 
@@ -189,7 +189,7 @@ public class ConfigLookupTest {
                     .build().toYAML(tempDir, "ors-config.yml");
             if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
                 command.add(CONFIG_FILE_PATH_ARG);
-            } else {
+            } else if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.MAVEN_CONTAINER_BARE)) {
                 command.add("-Dspring-boot.run.arguments=" + CONFIG_FILE_PATH_ARG);
             }
             container.withCommand(command.toArray(new String[0]));
@@ -209,6 +209,26 @@ public class ConfigLookupTest {
             container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/tmp/ors-config-arg.yml"));
             container.start();
             OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-road", true));
+            container.stop();
+        }
+
+        /**
+         * ors-config-location-to-nonexisting-file.sh
+         * The profile configured as run argument should be preferred over environment variable.
+         * The default yml file should not be used when ORS_CONFIG_LOCATION is set,
+         * even if the file does not exist. Fallback to default ors-config.yml is not desired!
+         */
+        @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+        @ParameterizedTest(name = "{0}")
+        @Execution(ExecutionMode.CONCURRENT)
+        void testOrsConfigLocationToNonExistingFile(ContainerInitializer.ContainerTestImageDefaults targetImage) {
+            if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
+                return;
+            }
+            GenericContainer<?> container = initContainer(targetImage, false, "testOrsConfigLocationToNonExistingFile");
+            container.waitingFor(noConfigFailWaitStrategy());
+            container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-that-does-not-exist.yml");
+            container.start();
             container.stop();
         }
     }

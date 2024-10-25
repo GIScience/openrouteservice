@@ -41,8 +41,9 @@ COPY ors-engine $CONTAINER_BUILD_DIR/ors-engine
 COPY ors-report-aggregation $CONTAINER_BUILD_DIR/ors-report-aggregation
 
 # Build the projects war and jar files
-RUN mvn clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -T 1C -pl '!:ors-test-scenarios'
-RUN mvn package -q -DskipTests -Dmaven.test.skip=true -PbuildFatJar -T 1C -pl '!:ors-test-scenarios'
+RUN mvn clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -T 1C -pl '!:ors-test-scenarios,!:ors-report-aggregation' && \
+    mvn package -q -DskipTests -Dmaven.test.skip=true -PbuildJar -T 1C -pl '!:ors-test-scenarios,!:ors-report-aggregation' && \
+    mvn install -q -DskipTests -Dmaven.test.skip=true -PbuildJar -T 1C -pl '!:ors-test-scenarios,!:ors-report-aggregation'
 
 # Prepare the config file
 COPY ors-config.yml $CONTAINER_BUILD_DIR/ors-config.yml
@@ -74,8 +75,7 @@ COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heid
 COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
 
 RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated && \
-    # Cache the dependencies to speed up the runtime process
-    mvn install -q -o -DskipTests -Dmaven.test.skip=true -T 1C -pl '!:ors-test-scenarios'
+    mvn install -q -o -DskipTests -Dmaven.test.skip=true -PbuildFatJar -T 1C -pl '!:ors-test-scenarios,!:ors-report-aggregation,!:ors-engine'
 
 EXPOSE 8080
 

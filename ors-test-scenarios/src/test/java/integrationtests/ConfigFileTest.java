@@ -15,6 +15,7 @@ import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import utils.ContainerInitializer;
 import utils.OrsApiHelper;
 import utils.OrsConfig;
+import utils.OrsContainerFileSystemCheck;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
+import static utils.TestContainersHelper.healthyOrsWaitStrategy;
 import static utils.TestContainersHelper.noConfigFailWaitStrategy;
 
 @ExtendWith(TestcontainersExtension.class)
@@ -109,22 +111,27 @@ public class ConfigFileTest {
         }
 
         /**
-         * ors-config-location-to-nonexisting-file.sh
-         * The profile configured as run argument should be preferred over environment variable.
-         * The default yml file should not be used when ORS_CONFIG_LOCATION is set,
-         * even if the file does not exist. Fallback to default ors-config.yml is not desired!
+         * config-yml-plus-env-pbf-file-path.sh
+         * <p>
+         * This test asserts that the environment variable PBF_FILE_PATH
+         * IS NOT EVALUATED when a YAML config is used.
+         * Here, the yml config contains a valid path to an existing OSM file
+         * and PBF_FILE_PATH contains a wrong path.
+         * The expectation is, that the correct path from the yml survives
+         * and openrouteservice starts up with the expected routing profile.
          */
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testOrsConfigLocationToNonExistingFile(ContainerInitializer.ContainerTestImageDefaults targetImage) {
-            if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
-                return;
-            }
-            GenericContainer<?> container = initContainer(targetImage, false, "testOrsConfigLocationToNonExistingFile");
-            container.waitingFor(noConfigFailWaitStrategy());
-            container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-that-does-not-exist.yml");
+        void testConfigYmlPlusEnvPbfFilePath(ContainerInitializer.ContainerTestImageDefaults targetImage) {
+            GenericContainer<?> container = initContainer(targetImage, false);
+            container.waitingFor(healthyOrsWaitStrategy());
+            container.addEnv("PBF_FILE_PATH", "/home/ors/openrouteservice/i-do-not-exist.osm.pbf");
             container.start();
+            // Assert pbf file does not exist
+            OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/i-do-not-exist.osm.pbf", false);
+            // Assert default profile is loaded
+            OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
             container.stop();
         }
     }
