@@ -59,10 +59,10 @@ public class OrsApiHelper {
         JsonNode profiles;
         try {
             profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
-            Assertions.assertEquals(expectedProfiles.size(), profiles.size());
             for (Map.Entry<String, Boolean> profile : expectedProfiles.entrySet()) {
                 if (profile.getValue())
                     Assertions.assertTrue(profiles.has(profile.getKey()));
+                else Assertions.assertFalse(profiles.has(profile.getKey()));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

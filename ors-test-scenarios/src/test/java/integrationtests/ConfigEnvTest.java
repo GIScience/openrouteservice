@@ -19,19 +19,24 @@ import static utils.TestContainersHelper.healthyOrsWaitStrategy;
 import static utils.TestContainersHelper.noConfigHealthyWaitStrategy;
 
 @ExtendWith(TestcontainersExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @Testcontainers(disabledWithoutDocker = true)
 public class ConfigEnvTest {
 
     /**
      * missing-config-but-required-params-as-env-upper.sh
+     * missing-config-but-profile-enabled-as-env-dot-jar-only.sh
+     * Even if no yml config file is present, the ors is runnable
+     * if at least one routing profile is enabled with an environment variable.
+     *
      */
     @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
     void testMissingConfigButRequiredParamsAsEnvUpperAndLower(ContainerInitializer.ContainerTestImageBare targetImage) {
-        GenericContainer<?> container = initContainer(targetImage, false);
+        GenericContainer<?> container = initContainer(targetImage, false, "testMissingConfigButRequiredParamsAsEnvUpperAndLower");
         container.waitingFor(noConfigHealthyWaitStrategy("Config file './ors-config.yml' not found."));
         container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
+        container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
         container.addEnv("ors.engine.profiles.driving-car.enabled", "true");
         container.addEnv("ORS_ENGINE_PROFILES_DRIVING_HGV_ENABLED", "true");
         container.start();
@@ -49,7 +54,7 @@ public class ConfigEnvTest {
     @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
     @ParameterizedTest(name = "{0}")
     void testMissingConfigButRequiredParamsAsArg(ContainerInitializer.ContainerTestImageBare targetImage) {
-        GenericContainer<?> container = initContainer(targetImage, false);
+        GenericContainer<?> container = initContainer(targetImage, false, "testMissingConfigButRequiredParamsAsArg");
         container.waitingFor(noConfigHealthyWaitStrategy("Config file './ors-config.yml' not found."));
         ArrayList<String> command = targetImage.getCommand("250M");
         if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
@@ -59,28 +64,6 @@ public class ConfigEnvTest {
             command.add("-Dspring-boot.run.arguments=--ors.engine.profile_default.build.source_file=/home/ors/openrouteservice/files/heidelberg.test.pbf --ors.engine.profiles.driving-hgv.enabled=true");
         }
         container.setCommand(command.toArray(new String[0]));
-        container.start();
-
-        // Assert ors-config.yml not present for a sane test.
-        OrsContainerFileSystemCheck.assertFileExists(container, "/home/ors/openrouteservice/ors-config.yml", false);
-        // Get active profiles
-        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-hgv", true));
-        container.stop();
-    }
-
-    /**
-     * missing-config-but-profile-enabled-as-env-dot-jar-only.sh
-     * Even if no yml config file is present, the ors is runnable
-     * if at least one routing profile is enabled with a environment variable.
-     */
-    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
-    @ParameterizedTest(name = "{0}")
-    void testMissingConfigButProfileEnabledAsEnvDot(ContainerInitializer.ContainerTestImageBare targetImage) {
-        GenericContainer<?> container = initContainer(targetImage, false);
-        container.waitingFor(noConfigHealthyWaitStrategy("Config file './ors-config.yml' not found."));
-        container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
-        container.addEnv("ors.engine.profiles.driving-hgv.enabled", "true");
-        container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
         container.start();
 
         // Assert ors-config.yml not present for a sane test.
@@ -103,7 +86,7 @@ public class ConfigEnvTest {
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
     void testConfigYmlPlusEnvPbfFilePath(ContainerInitializer.ContainerTestImageDefaults targetImage) {
-        GenericContainer<?> container = initContainer(targetImage, false);
+        GenericContainer<?> container = initContainer(targetImage, false, "testConfigYmlPlusEnvPbfFilePath");
         container.waitingFor(healthyOrsWaitStrategy());
         // Start with fresh graphs
         container.addEnv("ors.engine.profile_default.graph_path", "/tmp/graphs");
@@ -120,13 +103,14 @@ public class ConfigEnvTest {
     @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
     @ParameterizedTest(name = "{0}")
     void testPropertyOverridesDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) {
-        GenericContainer<?> container = initContainer(targetImage, false);
+        GenericContainer<?> container = initContainer(targetImage, false, "testPropertyOverridesDefaultConfig");
 
+        container.addEnv("ors.engine.profiles.driving-car.enabled", "false");
         container.addEnv("ors.engine.profiles.driving-hgv.enabled", "true");
 
         container.start();
 
-        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-hgv", true, "driving-car", true));
+        OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-hgv", true, "driving-car", false));
         container.stop();
     }
 }
