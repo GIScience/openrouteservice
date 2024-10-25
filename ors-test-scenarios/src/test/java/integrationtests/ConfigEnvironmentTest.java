@@ -26,7 +26,7 @@ import static utils.TestContainersHelper.restartContainer;
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class EnvironmentTest {
+public class ConfigEnvironmentTest {
     @BeforeAll
     void cacheLayers() {
         ContainerInitializer.buildLayers();
