@@ -312,7 +312,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                     targetDirectoryAbsPath));
             throw new RuntimeException("Caught ", ioException);
         }
-        LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next restart check or application start.".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
+        LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next graph activation check or application start.".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
     }
 
     public void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {

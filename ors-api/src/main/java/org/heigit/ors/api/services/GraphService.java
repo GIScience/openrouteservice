@@ -52,14 +52,14 @@ public class GraphService {
             return;
         }
         if (isActivatingGraphs.get()) {
-            LOGGER.debug("GraphService is currently restarting, skipping scheduled repository check...");
+            LOGGER.debug("GraphService is currently activating new graphs, skipping scheduled repository check...");
             return;
         }
 
         LOGGER.debug("Scheduled repository check...");
 
         if (graphActivationAttemptWasBlocked.get()) {
-            LOGGER.warn("Skipping scheduled repository check, waiting for restart...");
+            LOGGER.warn("Skipping scheduled repository check, waiting for graph activation...");
             return;
         }
         if (isUpdateLocked()) {
@@ -96,10 +96,10 @@ public class GraphService {
 
         LOGGER.debug("%s graph activation check...".formatted(trigger));
 
-        // Even if restart is locked: Do the checks to start repeatedRestartAttempts.
+        // Even if graph activation is locked: Do the checks to start repeatedActivationAttempts.
 
-        boolean restartNeeded = false;
-        boolean restartAllowed = true;
+        boolean graphActivationNeeded = false;
+        boolean graphActivationAllowed = true;
 
         for (ORSGraphManager orsGraphManager : graphManagers) {
             if (orsGraphManager.isBusy() || orsGraphManager.hasGraphDownloadFile()) {
@@ -108,7 +108,7 @@ public class GraphService {
                             trigger,
                             orsGraphManager.getQualifiedProfileName()));
                 }
-                restartAllowed = false;
+                graphActivationAllowed = false;
             }
             if (orsGraphManager.hasDownloadedExtractedGraph()) {
                 if (!graphActivationAttemptWasBlocked.get()) {
@@ -116,15 +116,15 @@ public class GraphService {
                             trigger,
                             orsGraphManager.getQualifiedProfileName()));
                 }
-                restartNeeded = true;
+                graphActivationNeeded = true;
             }
         }
 
-        if (!restartNeeded) {
-            LOGGER.info("%s graph activation check done: No downloaded graphs found, no restart required.".formatted(trigger));
+        if (!graphActivationNeeded) {
+            LOGGER.info("%s graph activation check done: No downloaded graphs found, no graph activation required.".formatted(trigger));
             return;
         }
-        if (!restartAllowed) {
+        if (!graphActivationAllowed) {
             LOGGER.info("%s graph activation check done: Activation currently not allowed, retrying every minute...".formatted(trigger));
             graphActivationAttemptWasBlocked.set(true);
             return;
