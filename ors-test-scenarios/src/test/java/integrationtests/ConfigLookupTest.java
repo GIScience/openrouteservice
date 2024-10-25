@@ -1,6 +1,7 @@
 package integrationtests;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
@@ -27,38 +28,36 @@ import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Order(1)
 public class ConfigLookupTest {
 
-    private static final String CONFIG_FILE_PATH_ETC = "/etc/openrouteservice/ors-config.yml";
-    private static final String CONFIG_FILE_PATH_USERCONF = "/root/.config/openrouteservice/ors-config.yml";
-    private static final String CONFIG_FILE_PATH_WORKDIR = "/home/ors/openrouteservice/ors-config.yml";
-    private static final String CONFIG_FILE_PATH_TMP = "/tmp/ors-config-env.yml";
-    private static final String CONFIG_FILE_PATH_ARG = "/tmp/ors-config-arg.yml";
-
-    /**
-     * These tests run first if all are executed in parallel.
-     * They test for the correct behavior of the container when no config file is present.
-     * They also build the container images if they are not already built for the other tests in this file as well.
-     * If all executed in parallel, the intermediate images would be build multiple times.
-     */
-    @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
-    @ParameterizedTest(name = "{0}")
-    void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageBare targetImage) {
-        GenericContainer<?> container = initContainer(targetImage, false);
-        container.waitingFor(noConfigFailWaitStrategy());
-        container.setCommand(targetImage.getCommand("100M").toArray(new String[0]));
-        container.start();
-        container.stop();
-    }
-
-
     @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    @Order(2)
-    class LookupYmlTests {
+    @TestInstance(TestInstance.Lifecycle.PER_METHOD)
+    class configLookupTests {
+
+        private static final String CONFIG_FILE_PATH_ETC = "/etc/openrouteservice/ors-config.yml";
+        private static final String CONFIG_FILE_PATH_USERCONF = "/root/.config/openrouteservice/ors-config.yml";
+        private static final String CONFIG_FILE_PATH_WORKDIR = "/home/ors/openrouteservice/ors-config.yml";
+        private static final String CONFIG_FILE_PATH_TMP = "/tmp/ors-config-env.yml";
+        private static final String CONFIG_FILE_PATH_ARG = "/tmp/ors-config-arg.yml";
+
+        /**
+         * These tests run first if all are executed in parallel.
+         * They test for the correct behavior of the container when no config file is present.
+         * They also build the container images if they are not already built for the other tests in this file as well.
+         * If all executed in parallel, the intermediate images would be build multiple times.
+         */
+        @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
+        @ParameterizedTest(name = "{0}")
+        @Execution(ExecutionMode.CONCURRENT)
+        void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageBare targetImage) {
+            GenericContainer<?> container = initContainer(targetImage, false, "testFailStartupWithMissingConfigFile");
+            container.waitingFor(noConfigFailWaitStrategy());
+            container.setCommand(targetImage.getCommand("100M").toArray(new String[0]));
+            container.start();
+            container.stop();
+        }
+
         @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
@@ -82,7 +81,7 @@ public class ConfigLookupTest {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void lookupYmlInUserconfAndOverwriteUserConf(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
+        void lookupYmlInUserConfAndOverwriteUserConf(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
             GenericContainer<?> container = initContainer(targetImage, false, "lookupYmlInUserconfAndOverwriteUserConf");
             ArrayList<String> command = targetImage.getCommand("200M");
             container.setCommand(command.toArray(new String[0]));

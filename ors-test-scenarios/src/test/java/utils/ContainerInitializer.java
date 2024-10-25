@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static utils.TestContainersHelper.healthyOrsWaitStrategy;
+import static utils.TestContainersHelper.noConfigFailWaitStrategy;
 
 /**
  * Abstract class for initializing and managing TestContainers.
@@ -21,7 +22,8 @@ public abstract class ContainerInitializer {
     private static final Map<String, String> defaultEnv = Map.of(
             "logging.level.org.heigit", "DEBUG",
             "ors.engine.graphs_data_access", "MMAP",
-            "server.port", "8080"
+            "server.port", "8080",
+            "ors.engine.elevation.profile_default.build.elevation", "false"
     );
 
     private static List<ContainerTestImageDefaults> selectedDefaultContainers = List.of();
@@ -84,27 +86,17 @@ public abstract class ContainerInitializer {
         return selectedBareContainers.stream().map(container -> new ContainerTestImage[]{container});
     }
 
-    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart) {
-        return initContainer(containerTestImage, autoStart, "");
-    }
-
         /**
          * Initializes a container with the given test image, with options to recreate and auto-start.
          *
          * @param containerTestImage The container test image.
          * @param autoStart          Whether to auto-start the container.
-         * @param graphMountSubpath  The subpath to mount the graph. This differentiates the graph mount path for each container.
+         * @param graphMountSubpath  The subpath to mount the graph. This differentiates the graph mount path for each container. If null, no graph is mounted.
          * @return The initialized container.
          */
     public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubpath) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");
-        }
-
-        Path graphMountPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubpath).resolve(containerTestImage.getName());
-        // Create the folder if it does not exist
-        if (!graphMountPath.toFile().exists()) {
-            graphMountPath.toFile().mkdirs();
         }
         // @formatter:off
         Path rootPath = Path.of("../");
@@ -128,16 +120,37 @@ public abstract class ContainerInitializer {
                         .withTarget(containerTestImage.getName())
         )
                 .withEnv(defaultEnv)
-                .withFileSystemBind(graphMountPath.toAbsolutePath().toString(),"/home/ors/openrouteservice/graphs", BindMode.READ_WRITE)
                 .withExposedPorts(8080)
-                .withStartupTimeout(Duration.ofSeconds(80))
 //                .withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()))
                 .waitingFor(healthyOrsWaitStrategy());
+        if (containerTestImage == ContainerTestImageBare.MAVEN_CONTAINER_BARE || containerTestImage == ContainerTestImageDefaults.MAVEN_CONTAINER) {
+                container.withStartupTimeout(Duration.ofSeconds(200));
+        } else {
+            container.withStartupTimeout(Duration.ofSeconds(50));
+        }
+        // Set the graph mount path
+        if (graphMountSubpath != null) {
+            Path graphMountPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubpath).resolve(containerTestImage.getName());
+            // Create the folder if it does not exist
+            if (!graphMountPath.toFile().exists()) {
+                graphMountPath.toFile().mkdirs();
+            }
+            container.withFileSystemBind(graphMountPath.toAbsolutePath().toString(),"/home/ors/openrouteservice/graphs", BindMode.READ_WRITE);
+        }
         if (autoStart) {
             container.start();
         }
 
         return container;
+    }
+
+    public static void buildLayers() {
+        GenericContainer<?> container = initContainer(ContainerTestImageBare.JAR_CONTAINER_BARE, false, null);
+        container.setCommand(ContainerTestImageBare.JAR_CONTAINER_BARE.getCommand().toArray(new String[0]));
+        container.waitingFor(noConfigFailWaitStrategy());
+        container.withStartupTimeout(Duration.ofSeconds(15));
+        container.start();
+        container.stop();
     }
 
     /**
@@ -178,7 +191,11 @@ public abstract class ContainerInitializer {
             return name;
         }
 
-        public ArrayList<String> getCommand(String xmx) {
+        public ArrayList<String> getCommand() {
+            return getCommand("250M");
+        }
+
+            public ArrayList<String> getCommand(String xmx) {
             ArrayList<String> command = new ArrayList<>();
             switch (this) {
                 case JAR_CONTAINER_BARE:
