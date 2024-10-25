@@ -1,7 +1,9 @@
 package utils;
 
+import lombok.Getter;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.startupcheck.IndefiniteWaitOneShotStartupCheckStrategy;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
 import java.nio.file.Path;
@@ -12,7 +14,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static utils.TestContainersHelper.healthyOrsWaitStrategy;
-import static utils.TestContainersHelper.noConfigFailWaitStrategy;
 
 /**
  * Abstract class for initializing and managing TestContainers.
@@ -25,6 +26,7 @@ public abstract class ContainerInitializer {
             "server.port", "8080",
             "ors.engine.elevation.profile_default.build.elevation", "false"
     );
+    // @formatter:on
 
     private static List<ContainerTestImageDefaults> selectedDefaultContainers = List.of();
     private static List<ContainerTestImageBare> selectedBareContainers = List.of();
@@ -42,6 +44,7 @@ public abstract class ContainerInitializer {
         switch (containerValue) {
             case "war":
                 selectedDefaultContainers = List.of(ContainerTestImageDefaults.WAR_CONTAINER);
+                selectedBareContainers = List.of(ContainerTestImageBare.WAR_CONTAINER_BARE);
                 break;
             case "jar":
                 selectedDefaultContainers = List.of(ContainerTestImageDefaults.JAR_CONTAINER);
@@ -60,8 +63,10 @@ public abstract class ContainerInitializer {
                 );
                 selectedBareContainers = List.of(
                         ContainerTestImageBare.JAR_CONTAINER_BARE,
-                        ContainerTestImageBare.MAVEN_CONTAINER_BARE
+                        ContainerTestImageBare.MAVEN_CONTAINER_BARE,
+                        ContainerTestImageBare.WAR_CONTAINER_BARE
                 );
+                // @formatter:on
                 break;
         }
     }
@@ -86,15 +91,27 @@ public abstract class ContainerInitializer {
         return selectedBareContainers.stream().map(container -> new ContainerTestImage[]{container});
     }
 
-        /**
-         * Initializes a container with the given test image, with options to recreate and auto-start.
-         *
-         * @param containerTestImage The container test image.
-         * @param autoStart          Whether to auto-start the container.
-         * @param graphMountSubpath  The subpath to mount the graph. This differentiates the graph mount path for each container. If null, no graph is mounted.
-         * @return The initialized container.
-         */
-    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubpath) {
+    /**
+     * Initializes a container with the given test image, with options to recreate and auto-start.
+     * The graph mount path is set to null and will not be mounted.
+     *
+     * @param containerTestImage The container test image.
+     * @param autoStart          Whether to auto-start the container.
+     * @return The initialized container.
+     */
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart) {
+        return initContainer(containerTestImage, autoStart, null);
+    }
+
+    /**
+     * Initializes a container with the given test image, with options to recreate and auto-start.
+     *
+     * @param containerTestImage The container test image.
+     * @param autoStart          Whether to auto-start the container.
+     * @param graphMountSubPath  The subpath to mount the graph. This differentiates the graph mount path for each container. If null, no graph is mounted.
+     * @return The initialized container.
+     */
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubPath) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");
         }
@@ -121,21 +138,18 @@ public abstract class ContainerInitializer {
         )
                 .withEnv(defaultEnv)
                 .withExposedPorts(8080)
-//                .withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()))
+                .withStartupTimeout(Duration.ofSeconds(200))
                 .waitingFor(healthyOrsWaitStrategy());
-        if (containerTestImage == ContainerTestImageBare.MAVEN_CONTAINER_BARE || containerTestImage == ContainerTestImageDefaults.MAVEN_CONTAINER) {
-                container.withStartupTimeout(Duration.ofSeconds(200));
-        } else {
-            container.withStartupTimeout(Duration.ofSeconds(50));
-        }
+        // @formatter:on
+
         // Set the graph mount path
-        if (graphMountSubpath != null) {
-            Path graphMountPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubpath).resolve(containerTestImage.getName());
+        if (graphMountSubPath != null) {
+            Path graphMountPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubPath).resolve(containerTestImage.getName());
             // Create the folder if it does not exist
             if (!graphMountPath.toFile().exists()) {
                 graphMountPath.toFile().mkdirs();
             }
-            container.withFileSystemBind(graphMountPath.toAbsolutePath().toString(),"/home/ors/openrouteservice/graphs", BindMode.READ_WRITE);
+            container.withFileSystemBind(graphMountPath.toAbsolutePath().toString(), "/home/ors/openrouteservice/graphs", BindMode.READ_WRITE);
         }
         if (autoStart) {
             container.start();
@@ -146,9 +160,12 @@ public abstract class ContainerInitializer {
 
     public static void buildLayers() {
         GenericContainer<?> container = initContainer(ContainerTestImageBare.JAR_CONTAINER_BARE, false, null);
-        container.setCommand(ContainerTestImageBare.JAR_CONTAINER_BARE.getCommand().toArray(new String[0]));
-        container.waitingFor(noConfigFailWaitStrategy());
-        container.withStartupTimeout(Duration.ofSeconds(15));
+        // This is the only command I could identify that lets the container exit with code 0 reliably.
+        container.setCommand("java --version > /dev/null");
+        container.withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy().withTimeout(Duration.ofSeconds(60)));
+        container.withStartupTimeout(Duration.ofSeconds(100));
+        container.setWaitStrategy(null);
+        container.withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()));
         container.start();
         container.stop();
     }
@@ -156,6 +173,7 @@ public abstract class ContainerInitializer {
     /**
      * Enum representing default container test images.
      */
+    @Getter
     public enum ContainerTestImageDefaults implements ContainerTestImage {
         WAR_CONTAINER("ors-test-scenarios-war"),
         JAR_CONTAINER("ors-test-scenarios-jar"),
@@ -166,18 +184,15 @@ public abstract class ContainerInitializer {
         ContainerTestImageDefaults(String name) {
             this.name = name;
         }
-
-        public String getName() {
-            return name;
-        }
     }
 
     /**
      * Enum representing bare container test images.
      * These can be adjusted to fit specific CMD requirements.
      */
+    @Getter
     public enum ContainerTestImageBare implements ContainerTestImage {
-        // WAR_CONTAINER_BARE("ors-test-scenarios-war-bare"), // War works different. The default CMD is hardcoded to catalina.sh run.
+        WAR_CONTAINER_BARE("ors-test-scenarios-war-bare"), // War works different. The default CMD is hardcoded to catalina.sh run.
         JAR_CONTAINER_BARE("ors-test-scenarios-jar-bare"),
         MAVEN_CONTAINER_BARE("ors-test-scenarios-maven-bare");
 
@@ -187,15 +202,7 @@ public abstract class ContainerInitializer {
             this.name = name;
         }
 
-        public String getName() {
-            return name;
-        }
-
-        public ArrayList<String> getCommand() {
-            return getCommand("250M");
-        }
-
-            public ArrayList<String> getCommand(String xmx) {
+        public ArrayList<String> getCommand(String xmx) {
             ArrayList<String> command = new ArrayList<>();
             switch (this) {
                 case JAR_CONTAINER_BARE:
@@ -207,10 +214,14 @@ public abstract class ContainerInitializer {
                 case MAVEN_CONTAINER_BARE:
                     command.add("mvn");
                     command.add("spring-boot:run");
+                    command.add("-o");
+                    command.add("-pl");
+                    command.add("!:ors-test-scenarios,!:ors-report-aggregation,!:ors-engine");
                     command.add("-Dspring-boot.run.jvmArguments=-Xmx" + xmx);
                     command.add("-DskipTests");
                     command.add("-Dmaven.test.skip=true");
                     break;
+                default:
             }
             return command;
         }

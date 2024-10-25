@@ -42,7 +42,8 @@ public class TestContainersHelper {
                 .forPort(8080)
                 .forStatusCode(200)
                 .forPath("/ors/v2/health")
-                .withStartupTimeout(Duration.ofSeconds(80));
+                .withReadTimeout(Duration.ofSeconds(5))
+                .withStartupTimeout(Duration.ofSeconds(100));
     }
 
     // Wait strategy that looks for "Loaded file 'ors-config-car.yml'" in the logs and waits for the container to be healthy
