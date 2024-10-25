@@ -52,7 +52,7 @@ RUN yq -i '\
     .logging.file.name = "/home/ors/openrouteservice/logs/ors.log" | \
     .logging.level.org.heigit = "INFO" | \
     .ors.engine.graphs_data_access = "MMAP" | \
-    .ors.engine.elevation.cache_path = "/home/ors/openrouteservice/elevation_cache" | \
+    .ors.engine.elevation.profile_default.build.elevation = false | \
     .ors.engine.profile_default.graph_path = "/home/ors/openrouteservice/graphs" | \
     .ors.engine.profiles.public-transport.gtfs_file = "/home/ors/openrouteservice/files/vrn_gtfs_cut.zip" | \
     .ors.engine.profile_default.build.source_file = "/home/ors/openrouteservice/files/heidelberg.test.pbf"\
@@ -70,8 +70,9 @@ RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_
     $CONTAINER_WORK_DIR/graph_repo
 
 COPY --from=builder $CONTAINER_BUILD_DIR/ "$CONTAINER_WORK_DIR"/
-COPY ors-api/src/test/files "$CONTAINER_WORK_DIR"/files
-COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
+COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
+COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
+
 RUN mv $CONTAINER_WORK_DIR/ors-config.yml $CONTAINER_WORK_DIR/ors-config.yml.deactivated && \
     # Cache the dependencies to speed up the runtime process
     mvn install -q -o -DskipTests -Dmaven.test.skip=true -T 1C -pl '!:ors-test-scenarios'
@@ -90,8 +91,8 @@ WORKDIR $CONTAINER_WORK_DIR
 
 COPY --from=builder $CONTAINER_BUILD_DIR/ors-api/target/ors.jar "$CONTAINER_WORK_DIR"/ors.jar
 COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml.deactivated
-COPY ors-api/src/test/files "$CONTAINER_WORK_DIR"/files
-COPY ors-api/src/test/files/elevation "$CONTAINER_WORK_DIR"/elevation_cache
+COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
+COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
 
 
 RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_DIR/graphs $CONTAINER_WORK_DIR/elevation_cache \
@@ -119,8 +120,8 @@ RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_
 # Copy the test files
 COPY --from=builder $CONTAINER_BUILD_DIR/ors-api/target/ors.war /usr/local/tomcat/webapps/ors.war
 COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservice/ors-config.yml.deactivated
-COPY ors-api/src/test/files /home/ors/openrouteservice/files
-COPY ors-api/src/test/files/elevation /home/ors/openrouteservice/elevation_cache
+COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
+COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
 
 RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh && \
     echo 'export JAVA_OPTS="$JAVA_OPTS \

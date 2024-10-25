@@ -4,5 +4,5 @@ JVM_ARGS=${JAVA_OPTS:-"-Xmx400m"}
 
 echo "Running in entrypoint.sh with JVM_ARGS: ${JVM_ARGS}"
 
-exec mvn spring-boot:run -T 1C -DskipTests -Dmaven.test.skip=true -Dspring-boot.run.jvmArguments="${JVM_ARGS}" "$@"
+exec mvn spring-boot:run -DskipTests -Dmaven.test.skip=true -Dspring-boot.run.jvmArguments="${JVM_ARGS}" "$@"
 
