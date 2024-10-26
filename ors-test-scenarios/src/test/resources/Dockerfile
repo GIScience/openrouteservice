@@ -123,9 +123,7 @@ COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservi
 COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
 COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
 
-RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh && \
-    echo 'export JAVA_OPTS="$JAVA_OPTS \
-    -Dors.config.location=/home/ors/openrouteservice/ors-config.yml"' >> /usr/local/tomcat/bin/setenv.sh
+RUN echo 'export CATALINA_OPTS="$CATALINA_OPTS -server -XX:+UseParallelGC"' > /usr/local/tomcat/bin/setenv.sh
 
 # Set the working directory to Tomcat
 WORKDIR /usr/local/tomcat
@@ -176,7 +174,8 @@ FROM ors-test-scenarios-war-bare AS ors-test-scenarios-war
 
 ARG CONTAINER_WORK_DIR
 
-RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-config.yml
+RUN mv $CONTAINER_WORK_DIR/ors-config.yml.deactivated $CONTAINER_WORK_DIR/ors-config.yml && \
+    echo 'export JAVA_OPTS="$JAVA_OPTS -Dors.config.location=/home/ors/openrouteservice/ors-config.yml"' >> /usr/local/tomcat/bin/setenv.sh
 
 ENV JAVA_OPTS="-Xmx350M"
 

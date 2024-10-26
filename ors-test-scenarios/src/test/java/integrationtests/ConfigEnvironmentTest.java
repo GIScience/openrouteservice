@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import static utils.ContainerInitializer.initContainer;
-import static utils.TestContainersHelper.noConfigHealthyWaitStrategy;
-import static utils.TestContainersHelper.restartContainer;
+import static utils.TestContainersHelper.healthyWaitStrategyWithLogMessage;
+import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
@@ -54,10 +54,14 @@ public class ConfigEnvironmentTest {
         @Execution(ExecutionMode.CONCURRENT)
         void testMissingConfigButRequiredParamsAsEnvUpperAndLower(ContainerInitializer.ContainerTestImageBare targetImage) {
             GenericContainer<?> container = initContainer(targetImage, false, "testMissingConfigButRequiredParamsAsEnvUpperAndLower");
-            container.waitingFor(noConfigHealthyWaitStrategy("Config file '.*/ors-config.yml' not found."));
+            container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
+                    "Configuration file lookup by default locations.",
+                    "Config file './ors-config.yml' not found.",
+                    "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
+                    "Config file '/etc/openrouteservice/ors-config.yml' not found.",
+                    "Configuration lookup finished."
+            ).toArray(new String[0])));
             container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
-            container.addEnv("ors.engine.profile_default.graph_path", "/home/ors/openrouteservice/graphs");
-            container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
             container.addEnv("ors.engine.profiles.driving-car.enabled", "true");
             container.addEnv("ORS_ENGINE_PROFILES_DRIVING_HGV_ENABLED", "true");
             container.start();
@@ -81,7 +85,12 @@ public class ConfigEnvironmentTest {
                 return;
             }
             GenericContainer<?> container = initContainer(targetImage, false, "testMissingConfigButRequiredParamsAsArg");
-            container.waitingFor(noConfigHealthyWaitStrategy("Config file '.*/ors-config.yml' not found."));
+            container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
+                    "Config file './ors-config.yml' not found.",
+                    "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
+                    "Config file '/etc/openrouteservice/ors-config.yml' not found.",
+                    "Configuration lookup finished."
+            ).toArray(new String[0])));
             ArrayList<String> command = targetImage.getCommand("250M");
             if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
                 command.add("--ors.engine.profiles.driving-hgv.enabled=true");
@@ -117,19 +126,23 @@ public class ConfigEnvironmentTest {
 
         /**
          * build-all-graphs.sh
+         * profile-default-enabled-true.sh
          */
         @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testBuildAllBareGraphsWithEnv(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
             GenericContainer<?> container = initContainer(targetImage, false, "testBuildAllBareGraphsWithEnv");
-            container.addEnv("logging.file.name", "/home/ors/openrouteservice/logs/ors.log");
-            container.addEnv("ors.engine.profile_default.graph_path", "/home/ors/openrouteservice/graphs");
             container.addEnv("ors.engine.profile_default.enabled", "true");
             container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
             container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
             container.setCommand(targetImage.getCommand("500M").toArray(new String[0]));
-            // sharedOrsTestContainer.addEnv("gtfs_file", "/home/ors/openrouteservice/ors-api/src/test/files/vrn_gtfs_cut.zip");
+            container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
+                    "Config file './ors-config.yml' not found.",
+                    "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
+                    "Config file '/etc/openrouteservice/ors-config.yml' not found.",
+                    "Configuration lookup finished."
+            ).toArray(new String[0])));
 
             container.start();
 
@@ -147,43 +160,18 @@ public class ConfigEnvironmentTest {
             container.stop();
         }
 
-        /**
-         * build-all-graphs.sh
-         * profile-default-enabled-true.sh
-         */
-        @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
-        @ParameterizedTest(name = "{0}")
-        @Execution(ExecutionMode.CONCURRENT)
-        void testBuildAllDefaultGraphsWithEnv(ContainerInitializer.ContainerTestImageDefaults targetImage) throws IOException, InterruptedException {
-            GenericContainer<?> container = initContainer(targetImage, false, "testBuildAllDefaultGraphsWithEnv");
-            container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
-            container.addEnv("ors.engine.profile_default.enabled", "true");
-            container.addEnv("JAVA_OPTS", "-Xmx500m");
-            // sharedOrsTestContainer.addEnv("gtfs_file", "/home/ors/openrouteservice/ors-api/src/test/files/vrn_gtfs_cut.zip");
-
-            container.start();
-
-            OrsApiHelper.assertProfilesLoaded(container, allProfiles.stream().collect(HashMap::new, (m, v) -> m.put(v, true), HashMap::putAll));
-
-            // @formatter:off
-            List<String> files = List.of("/home/ors/openrouteservice/ors-config.yml",
-                    "/home/ors/openrouteservice/logs/ors.log",
-                    "/home/ors/openrouteservice/files/heidelberg.test.pbf");
-            // @formatter:on
-            OrsContainerFileSystemCheck.assertFilesExist(container, files.toArray(new String[0]));
-
-            for (String profile : allProfiles) {
-                OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/" + profile, true);
-            }
-            container.stop();
-        }
-
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testDefaultProfileActivated(ContainerInitializer.ContainerTestImageDefaults targetImage) {
             // Get a fresh container
-            GenericContainer<?> container = initContainer(targetImage, true, "testDefaultProfileActivated");
+            GenericContainer<?> container = initContainer(targetImage, false, "testDefaultProfileActivated");
+            if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
+                container.setWaitStrategy(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config.yml"));
+            } else {
+                container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
+            }
+            container.start();
 
             OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
             container.stop();
@@ -203,7 +191,7 @@ public class ConfigEnvironmentTest {
             container.addEnv("JAVA_OPTS", "-Xmx500m");
             allProfiles.forEach(profile -> container.addEnv("ors.engine.profiles." + profile + ".enabled", "true"));
 
-            restartContainer(container);
+            container.start();
 
             OrsApiHelper.assertProfilesLoaded(container, allProfiles.stream().collect(HashMap::new, (m, v) -> m.put(v, true), HashMap::putAll));
             container.stop();

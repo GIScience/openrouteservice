@@ -1,5 +1,6 @@
 package integrationtests;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,21 +16,25 @@ import utils.ContainerInitializer;
 import utils.OrsApiHelper;
 import utils.OrsConfig;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
-import static utils.TestContainersHelper.noConfigFailWaitStrategy;
-import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
+import static utils.TestContainersHelper.*;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ConfigLookupTest {
+
+    @BeforeAll
+    void cacheLayers() {
+        ContainerInitializer.buildLayers();
+    }
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -38,6 +43,7 @@ public class ConfigLookupTest {
         private static final String CONFIG_FILE_PATH_ETC = "/etc/openrouteservice/ors-config.yml";
         private static final String CONFIG_FILE_PATH_USERCONF = "/root/.config/openrouteservice/ors-config.yml";
         private static final String CONFIG_FILE_PATH_WORKDIR = "/home/ors/openrouteservice/ors-config.yml";
+        private static final String CONFIG_FILE_PATH_WORKDIR_WAR = "/usr/local/tomcat/ors-config.yml";
         private static final String CONFIG_FILE_PATH_TMP = "/tmp/ors-config-env.yml";
         private static final String CONFIG_FILE_PATH_ARG = "/tmp/ors-config-arg.yml";
 
@@ -52,7 +58,14 @@ public class ConfigLookupTest {
         @Execution(ExecutionMode.CONCURRENT)
         void testFailStartupWithMissingConfigFile(ContainerInitializer.ContainerTestImageBare targetImage) {
             GenericContainer<?> container = initContainer(targetImage, false, "testFailStartupWithMissingConfigFile");
-            container.waitingFor(noConfigFailWaitStrategy());
+            container.waitingFor(waitStrategyWithLogMessage(List.of(
+                    "Configuration file lookup by default locations.",
+                    "Config file './ors-config.yml' not found.",
+                    "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
+                    "Config file '/etc/openrouteservice/ors-config.yml' not found.",
+                    "Configuration lookup finished.",
+                    "No profiles configured. Exiting."
+            ).toArray(new String[0])));
             container.setCommand(targetImage.getCommand("100M").toArray(new String[0]));
             container.start();
             container.stop();
@@ -72,8 +85,15 @@ public class ConfigLookupTest {
                     .build().toYAML(tempDir, "ors-config.yml");
 
             container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_ETC);
-            container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_ETC));
+            container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
+                    "Configuration file lookup by default locations.",
+                    "Config file './ors-config.yml' not found.",
+                    "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
+                    "Loaded file '" + CONFIG_FILE_PATH_ETC + "'.",
+                    "Configuration lookup finished."
+            ).toArray(new String[0])));
             container.start();
+
             OrsApiHelper.assertProfilesLoaded(container, Map.of(testProfile, true));
             container.stop();
         }
@@ -81,8 +101,8 @@ public class ConfigLookupTest {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void lookupYmlInUserConfAndOverwriteUserConf(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
-            GenericContainer<?> container = initContainer(targetImage, false, "lookupYmlInUserconfAndOverwriteUserConf");
+        void lookupYmlInUserConfAndOverwriteEtc(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) {
+            GenericContainer<?> container = initContainer(targetImage, false, "lookupYmlInUserConfAndOverwriteUserConf");
             ArrayList<String> command = targetImage.getCommand("200M");
             container.setCommand(command.toArray(new String[0]));
 
@@ -93,6 +113,13 @@ public class ConfigLookupTest {
             container.withCopyFileToContainer(forHostPath(testConfigCyclingRegular), CONFIG_FILE_PATH_ETC);
             container.withCopyFileToContainer(forHostPath(testConfigCyclingRegular), CONFIG_FILE_PATH_USERCONF);
             container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_USERCONF));
+            container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
+                    "Configuration file lookup by default locations.",
+                    "Config file './ors-config.yml' not found.",
+                    "Loaded file '" + CONFIG_FILE_PATH_USERCONF + "'.",
+                    "Configuration lookup finished."
+            ).toArray(new String[0])));
+
             container.start();
             OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
             container.stop();
@@ -101,7 +128,7 @@ public class ConfigLookupTest {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void lookupYmlInWorkdirOverUserConfAndEtc(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
+        void lookupYmlInWorkdirOverUserConfAndEtc(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) {
             GenericContainer<?> container = initContainer(targetImage, false, "lookupYmlInWorkdirOverUserConfAndEtc");
             ArrayList<String> command = targetImage.getCommand("200M");
             container.setCommand(command.toArray(new String[0]));
@@ -111,8 +138,17 @@ public class ConfigLookupTest {
                     .build().toYAML(tempDir, "ors-config.yml");
             container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_ETC);
             container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_USERCONF);
-            container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR);
-            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
+            if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE)) {
+                // Tomcat has another workdir in /usr/local/tomcat
+                container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR_WAR);
+            } else {
+                container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR);
+            }
+            container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
+                    "Configuration file lookup by default locations.",
+                    "Loaded file './ors-config.yml'.",
+                    "Configuration lookup finished."
+            ).toArray(new String[0])));
             container.start();
             OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
             container.stop();
@@ -134,7 +170,11 @@ public class ConfigLookupTest {
             container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_WORKDIR);
             container.withCopyFileToContainer(forHostPath(testConfig), CONFIG_FILE_PATH_TMP);
             container.withEnv(Map.of("ORS_CONFIG_LOCATION", CONFIG_FILE_PATH_TMP));
-            container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_TMP));
+            container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
+                    "Configuration lookup started.",
+                    "Loaded file '" + CONFIG_FILE_PATH_TMP + "'.",
+                    "Configuration lookup finished."
+            ).toArray(new String[0])));
             container.start();
             OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
             container.stop();
@@ -143,7 +183,11 @@ public class ConfigLookupTest {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void specifyYmlPreferArgOverLookup(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) throws IOException {
+        void specifyYmlPreferArgOverLookup(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) {
+            if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE)) {
+                // This test is not applicable to the WAR container as it does not support command line arguments.
+                return;
+            }
             GenericContainer<?> container = initContainer(targetImage, false, "specifyYmlPreferArgOverLookup");
             ArrayList<String> command = targetImage.getCommand("200M");
 
@@ -159,7 +203,12 @@ public class ConfigLookupTest {
             container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_USERCONF);
             container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_WORKDIR);
             container.withCopyFileToContainer(forHostPath(correctTestConfig), CONFIG_FILE_PATH_ARG);
-            container.waitingFor(orsCorrectConfigLoadedWaitStrategy(CONFIG_FILE_PATH_ARG));
+            container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
+                    "Configuration lookup started.",
+                    "Configuration file set by program argument.",
+                    "Loaded file '" + CONFIG_FILE_PATH_ARG + "'.",
+                    "Configuration lookup finished."
+            ).toArray(new String[0])));
             if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
                 command.add(CONFIG_FILE_PATH_ARG);
             } else if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.MAVEN_CONTAINER_BARE)) {
@@ -176,6 +225,10 @@ public class ConfigLookupTest {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void specifyYmlPreferArgOverEnv(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) {
+            if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE)) {
+                // This test is not applicable to the WAR container as it does not support command line arguments.
+                return;
+            }
             GenericContainer<?> container = initContainer(targetImage, false, "specifyYmlPreferArgOverEnv");
             ArrayList<String> command = targetImage.getCommand("200M");
             container.setCommand(command.toArray(new String[0]));
@@ -206,7 +259,12 @@ public class ConfigLookupTest {
             container.withCopyFileToContainer(forHostPath(wrongTestConfig), CONFIG_FILE_PATH_TMP);
             container.withEnv(Map.of("ORS_CONFIG_LOCATION", CONFIG_FILE_PATH_TMP));
             container.withCopyFileToContainer(forHostPath(correctTestConfig), "/tmp/ors-config-arg.yml");
-            container.waitingFor(orsCorrectConfigLoadedWaitStrategy("/tmp/ors-config-arg.yml"));
+            container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
+                    "Configuration lookup started.",
+                    "Configuration file set by program argument.",
+                    "Loaded file '" + CONFIG_FILE_PATH_ARG + "'.",
+                    "Configuration lookup finished."
+            ).toArray(new String[0])));
             container.start();
             OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-road", true));
             container.stop();
@@ -218,16 +276,20 @@ public class ConfigLookupTest {
          * The default yml file should not be used when ORS_CONFIG_LOCATION is set,
          * even if the file does not exist. Fallback to default ors-config.yml is not desired!
          */
-        @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+        @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testOrsConfigLocationToNonExistingFile(ContainerInitializer.ContainerTestImageDefaults targetImage) {
-            if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
-                return;
-            }
+        void testOrsConfigLocationToNonExistingFile(ContainerInitializer.ContainerTestImageBare targetImage) {
             GenericContainer<?> container = initContainer(targetImage, false, "testOrsConfigLocationToNonExistingFile");
-            container.waitingFor(noConfigFailWaitStrategy());
+            container.setCommand(targetImage.getCommand("200M").toArray(new String[0]));
             container.addEnv("ORS_CONFIG_LOCATION", "/home/ors/openrouteservice/ors-config-that-does-not-exist.yml");
+            container.waitingFor(waitStrategyWithLogMessage(List.of(
+                    "Configuration lookup started.",
+                    "Configuration file set by environment variable.",
+                    "Config file '/home/ors/openrouteservice/ors-config-that-does-not-exist.yml' not found.",
+                    "Configuration lookup finished.",
+                    "No profiles configured. Exiting."
+            ).toArray(new String[0])));
             container.start();
             container.stop();
         }

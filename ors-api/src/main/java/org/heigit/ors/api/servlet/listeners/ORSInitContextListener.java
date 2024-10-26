@@ -66,7 +66,7 @@ public class ORSInitContextListener implements ServletContextListener {
                 for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
                     ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
                     if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
-                        LOGGER.debug("Adding orsGraphManager for profile %s to GraphService".formatted(profile.getProfileConfiguration().getEncoderName()));
+                        LOGGER.debug("Adding orsGraphManager for profile %s with encoder %s to GraphService".formatted(profile.getProfileConfiguration().getProfileName(), profile.getProfileConfiguration().getEncoderName()));
                         graphService.addGraphManagerInstance(orsGraphManager);
                     }
                 }
@@ -76,8 +76,7 @@ public class ORSInitContextListener implements ServletContextListener {
                 }
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
-            }
-            finally {
+            } finally {
                 graphService.setIsActivatingGraphs(false);
             }
         }, "ORS-Init").start();

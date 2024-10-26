@@ -20,12 +20,13 @@ import utils.OrsContainerFileSystemCheck;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
 import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.healthyOrsWaitStrategy;
-import static utils.TestContainersHelper.noConfigFailWaitStrategy;
+import static utils.TestContainersHelper.waitStrategyWithLogMessage;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
@@ -84,14 +85,11 @@ public class ConfigFileTest {
         /**
          * profile-default-enabled-false.sh
          */
-        @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+        @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testFailStartupWithProfileDefaultEnabledFalse(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) {
+        void testFailStartupWithProfileDefaultEnabledFalse(ContainerInitializer.ContainerTestImageBare targetImage, @TempDir Path tempDir) {
             GenericContainer<?> container = initContainer(targetImage, false, "testFailStartupWithProfileDefaultEnabledFalse");
-            // Wait for the log message when running container.start()
-            container.waitingFor(noConfigFailWaitStrategy());
-
             // Setup the config file
             Path testConfig = OrsConfig.builder()
                     .profileDefaultEnabled(false)
@@ -102,7 +100,16 @@ public class ConfigFileTest {
 
             // Add the config file to te container and overwrite the default config
             container.withCopyFileToContainer(forHostPath(testConfig), "/home/ors/openrouteservice/ors-config.yml");
-
+            container.withCopyFileToContainer(forHostPath(testConfig), "/usr/local/tomcat/ors-config.yml");
+            container.waitingFor(waitStrategyWithLogMessage(
+                    List.of(
+                            "Configuration lookup started.",
+                            "Configuration file lookup by default locations.",
+                            "Loaded file './ors-config.yml'.",
+                            "Configuration lookup finished.",
+                            "No profiles configured. Exiting."
+                    ).toArray(new String[0])));
+            container.setCommand(targetImage.getCommand("200M").toArray(String[]::new));
             // Start the container. Succeeds if the expected log message is found.
             container.start();
 
@@ -124,7 +131,7 @@ public class ConfigFileTest {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testConfigYmlPlusEnvPbfFilePath(ContainerInitializer.ContainerTestImageDefaults targetImage) {
-            GenericContainer<?> container = initContainer(targetImage, false);
+            GenericContainer<?> container = initContainer(targetImage, false, "testConfigYmlPlusEnvPbfFilePath");
             container.waitingFor(healthyOrsWaitStrategy());
             container.addEnv("PBF_FILE_PATH", "/home/ors/openrouteservice/i-do-not-exist.osm.pbf");
             container.start();

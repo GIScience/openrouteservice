@@ -26,6 +26,11 @@ public abstract class ContainerInitializer {
             "server.port", "8080",
             "ors.engine.elevation.profile_default.build.elevation", "false"
     );
+    private static final Map<String, String> defaultEnvWarBare = Map.of(
+            "ors.engine.profile_default.graph_path", "/home/ors/openrouteservice/graphs",
+            "ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf",
+            "logging.file.name", "/home/ors/openrouteservice/logs/ors.log"
+    );
     // @formatter:on
 
     private static List<ContainerTestImageDefaults> selectedDefaultContainers = List.of();
@@ -93,18 +98,6 @@ public abstract class ContainerInitializer {
 
     /**
      * Initializes a container with the given test image, with options to recreate and auto-start.
-     * The graph mount path is set to null and will not be mounted.
-     *
-     * @param containerTestImage The container test image.
-     * @param autoStart          Whether to auto-start the container.
-     * @return The initialized container.
-     */
-    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart) {
-        return initContainer(containerTestImage, autoStart, null);
-    }
-
-    /**
-     * Initializes a container with the given test image, with options to recreate and auto-start.
      *
      * @param containerTestImage The container test image.
      * @param autoStart          Whether to auto-start the container.
@@ -142,6 +135,10 @@ public abstract class ContainerInitializer {
                 .waitingFor(healthyOrsWaitStrategy());
         // @formatter:on
 
+        if (containerTestImage == ContainerTestImageBare.WAR_CONTAINER_BARE) {
+            container.withEnv(defaultEnvWarBare);
+        }
+
         // Set the graph mount path
         if (graphMountSubPath != null) {
             Path graphMountPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubPath).resolve(containerTestImage.getName());
@@ -161,7 +158,7 @@ public abstract class ContainerInitializer {
     public static void buildLayers() {
         GenericContainer<?> container = initContainer(ContainerTestImageBare.JAR_CONTAINER_BARE, false, null);
         // This is the only command I could identify that lets the container exit with code 0 reliably.
-        container.setCommand("java --version > /dev/null");
+        container.setCommand("sh", "-c", "sleep 0.1 && exit 0");
         container.withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy().withTimeout(Duration.ofSeconds(60)));
         container.withStartupTimeout(Duration.ofSeconds(100));
         container.setWaitStrategy(null);

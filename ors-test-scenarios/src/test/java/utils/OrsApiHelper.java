@@ -56,12 +56,19 @@ public class OrsApiHelper {
     }
 
     public static void assertProfilesLoaded(GenericContainer<?> container, Map<String, Boolean> expectedProfiles) {
+        // Get all keys where expectedProfiles is true
+        ArrayList<String> expectedProfilesKeys = new ArrayList<>();
+        expectedProfiles.forEach((key, value) -> {
+            if (value) {
+                expectedProfilesKeys.add(key);
+            }
+        });
         JsonNode profiles;
         try {
             profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
+            Assertions.assertEquals(expectedProfilesKeys.size(), profiles.size());
             for (Map.Entry<String, Boolean> profile : expectedProfiles.entrySet()) {
-                if (profile.getValue())
-                    Assertions.assertTrue(profiles.has(profile.getKey()));
+                if (profile.getValue()) Assertions.assertTrue(profiles.has(profile.getKey()));
                 else Assertions.assertFalse(profiles.has(profile.getKey()));
             }
         } catch (IOException e) {
