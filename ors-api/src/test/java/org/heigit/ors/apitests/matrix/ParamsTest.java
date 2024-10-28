@@ -321,6 +321,26 @@ class ParamsTest extends ServiceTest {
     }
 
     @Test
+    void expect4006004AllAll() {
+
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("maximumLocations"));
+        body.put("sources", getParameter("sourcesAll"));
+        body.put("destinations", getParameter("destinationsAll"));
+
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("error.code", Matchers.is(MatrixErrorCodes.PARAMETER_VALUE_EXCEEDS_MAXIMUM))
+                .statusCode(400);
+    }
+
+    @Test
     void expectResolveLocations() {
         JSONObject body = new JSONObject();
         body.put("locations", getParameter("locations"));
