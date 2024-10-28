@@ -77,8 +77,9 @@ public class GraphRepoTest extends ContainerInitializer {
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
             copyFolderContentFromContainer(container, "/tmp/test-filesystem-repo", tempDir.resolve("test-filesystem-repo").toString());
             container.stop();
-            // Clear all other binds
-            container.setBinds(List.of());
+
+            // Get a fresh container without graphs
+            container = ContainerInitializer.initContainer(targetImage, false, null, false);
             Path grcConfig = GRC_CONFIG.ProfileDefaultBuildSourceFile("").build().toYAML(tempDir, "grc-config.yml");
 
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
@@ -99,17 +100,33 @@ public class GraphRepoTest extends ContainerInitializer {
             // @formatter:off
         Assertions.assertTrue(
                 waitForLogPatterns(container,List.of(
-                                "1 profile configurations submitted as tasks",
-                                "[driving-car] Creating graph directory",
-                                "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
-                                "[driving-car] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
-                                "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
-                                "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car_new",
-                                "[driving-car] Downloaded graph was extracted and will be activated at next restart check or application start",
-                                "[driving-car] Activating extracted downloaded graph",
-                                "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'",
-                                "[driving-car] Checking for possible graph update from remote repository",
-                                "Scheduled graph activation check done: No downloaded graphs found, no restart required."),
+                        "1 profile configurations submitted as tasks.",
+                        "[driving-car] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
+                        "[driving-car] Checking for possible graph update from remote repository...",
+                        "[driving-car] Checking latest graphInfo in remote repository...",
+                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
+                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.ghz...",
+                        "[driving-car] Download finished after",
+                        "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
+                        "[driving-car] Extraction of downloaded graph file finished after",
+                        "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
+                        "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car_new",
+                        "[driving-car] Downloaded graph was extracted and will be activated at next graph activation check or application start.",
+                        "[driving-car] Activating extracted downloaded graph.",
+                        "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'",
+                        "Adding orsGraphManager for profile driving-car with encoder driving-car to GraphService",
+                        "Started Application in",
+                        "Scheduled repository check...",
+                        "Scheduled graph activation check...",
+                        "[driving-car] Scheduled repository check: Checking for update.",
+                        "[driving-car] Checking for possible graph update from remote repository...",
+                        "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
+                        "[driving-car] Checking latest graphInfo in remote repository...",
+                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
+                        "[driving-car] No newer graph found in repository.",
+                        "[driving-car] No downloaded graph to extract.",
+                        "Scheduled repository check done"
+                        ),
                         12, 1000, true),
                 "The expected log patterns were not found in the logs.");
         // @formatter:on
@@ -140,12 +157,8 @@ public class GraphRepoTest extends ContainerInitializer {
         @Execution(ExecutionMode.CONCURRENT)
         void testGrcUpdateExistingDefaultGraph(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws InterruptedException {
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcUpdateExistingGraph");
-
             Path grcConfig = GRC_CONFIG.build().toYAML(tempDir, "grc-config.yml");
-
             container.withCopyFileToContainer(forHostPath(grcConfig), "/home/ors/openrouteservice/ors-config.yml");
-
-            container.setBinds(List.of());
             container.start();
 
             // Check that the graph was loaded
@@ -156,19 +169,46 @@ public class GraphRepoTest extends ContainerInitializer {
 
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
             // @formatter:off
-        Assertions.assertTrue(waitForLogPatterns(container, List.of(
-                "[driving-car] Checking for possible graph update from remote repository",
-                "[driving-car] Checking latest graphInfo in remote repository",
-                "[driving-car] Download finished after",
-                "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
-                "[driving-car] Extraction of downloaded graph file finished after",
-                "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
-                "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car_new",
-                "[driving-car] Downloaded graph was extracted and will be activated at next restart check or application start",
-                "Scheduled graph activation check done: Performing graph activation"
-                ),
-                15, 1000, true), "The expected log patterns were not found in the logs.");
-        // @formatter:on
+            Assertions.assertTrue(waitForLogPatterns(container, List.of(
+                        "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
+                        "[driving-car] Found local graph only",
+                        "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'.",
+                        "Adding orsGraphManager for profile driving-car with encoder driving-car to GraphService",
+                        "Started Application in",
+                        "[driving-car] Scheduled repository check: Checking for update.",
+                        "[driving-car] Checking for possible graph update from remote repository...",
+                        "[driving-car] Checking latest graphInfo in remote repository...",
+                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
+                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.ghz...",
+                        "[driving-car] Download finished after",
+                        "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
+                        "[driving-car] Extraction of downloaded graph file finished after",
+                        "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
+                        "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car_new",
+                        "[driving-car] Downloaded graph was extracted and will be activated at next graph activation check or application start.",
+                        "Scheduled repository check done",
+                        "Scheduled graph activation check...",
+                        "[Scheduled] driving-car graph activation check: Downloaded extracted graph available",
+                        "Scheduled graph activation check done: Performing graph activation...",
+                        "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
+                        "[driving-car] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.yml",
+                        "[driving-car] Found local graph and extracted downloaded graph",
+                        "[driving-car] Renamed old local graph directory /home/ors/openrouteservice/graphs/driving-car to /home/ors/openrouteservice/graphs/driving-car_",
+                        "[driving-car] Activating extracted downloaded graph.",
+                        "[2] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'.",
+                        "[driving-car] Adding orsGraphManager for profile driving-car with encoder driving-car to GraphService",
+                        "Scheduled repository check...",
+                        "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
+                        "[driving-car] Scheduled repository check: Checking for update.",
+                        "[driving-car] Checking for possible graph update from remote repository...",
+                        "[driving-car] Checking latest graphInfo in remote repository...",
+                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
+                        "[driving-car] No newer graph found in repository.",
+                        "[driving-car] No downloaded graph to extract.",
+                        "Scheduled repository check done"
+                    ),
+                    15, 1000, true), "The expected log patterns were not found in the logs.");
+            // @formatter:on
             // Check that the graph was loaded
             OrsApiHelper.assertProfilesLoaded(container, new HashMap<>() {{
                 put("driving-car", true);
@@ -189,14 +229,10 @@ public class GraphRepoTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testGrcStartupFailsWhenGraphMissingInRepo(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws InterruptedException {
-            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcStartupFailsWhenGraphMissingInRepo");
-            if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
-                container.waitingFor(simpleLogMessageWaitStrategy("Scheduled graph activation check done: No downloaded graphs found, no restart required"));
-            } else {
-                container.waitingFor(simpleLogMessageWaitStrategy("Shutting down openrouteservice"));
-            }
+            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, null, false);
+            container.waitingFor(simpleLogMessageWaitStrategy("ExecutionException while initializing RoutingProfileManager: java.lang.IllegalStateException: Couldn't load from existing folder"));
             // @formatter:off
-        Path grcConfig = GRC_CONFIG
+            Path grcConfig = GRC_CONFIG
                 .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
                 .ProfileDefaultBuildSourceFile("")
                 .graphManagementEnabled(true)
@@ -208,26 +244,26 @@ public class GraphRepoTest extends ContainerInitializer {
                     put("driving-hgv", true);
                 }})
                 .build().toYAML(tempDir, "grc-config.yml");
-        // @formatter:on
+            // @formatter:on
             container.withCopyFileToContainer(forHostPath(grcConfig), "/home/ors/openrouteservice/ors-config.yml");
-
-            container.setBinds(List.of());
             container.start();
             // @formatter:off
-        Assertions.assertTrue(
+            Assertions.assertTrue(
                 waitForLogPatterns(container,List.of(
-                    "1 profile configurations submitted as tasks",
-                    "[driving-hgv] Creating graph directory",
-                    "Using FileSystemRepoManager for repoUri /tmp/wrong-filesystem-repo",
-                    "[driving-hgv] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
-                    "[driving-hgv] Checking for possible graph update from remote repository",
-                    "[driving-hgv] Checking latest graphInfo in remote repository",
-                    "[driving-hgv] No graphInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml",
-                    "[driving-hgv] No newer graph found in repository",
-                    "[driving-hgv] No downloaded graph to extract"),
+                            "[driving-hgv] Creating graph directory /home/ors/openrouteservice/graphs/driving-hgv",
+                            "Using FileSystemRepoManager for repoUri /tmp/wrong-filesystem-repo",
+                            "[driving-hgv] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
+                            "[driving-hgv] Checking for possible graph update from remote repository...",
+                            "[driving-hgv] Checking latest graphInfo in remote repository...",
+                            "[driving-hgv] No graphInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml",
+                            "[driving-hgv] No newer graph found in repository.",
+                            "[driving-hgv] No downloaded graph to extract.",
+                            "java.util.concurrent.ExecutionException: java.lang.IllegalStateException: Couldn't load from existing folder: /home/ors/openrouteservice/graphs/driving-hgv but also cannot use file for DataReader as it wasn't specified!",
+                            "ExecutionException while initializing RoutingProfileManager: java.lang.IllegalStateException: Couldn't load from existing folder: /home/ors/openrouteservice/graphs/driving-hgv but also cannot use file for DataReader as it wasn't specified!"
+                            ),
                         12, 1000, true),
                 "The expected log patterns were not found in the logs.");
-        // @formatter:on
+            // @formatter:on
             Assertions.assertFalse(container.isHealthy(), "The container should not be healthy.");
             // Assert that the graph_info.yml was updated
             container.stop();
@@ -246,8 +282,8 @@ public class GraphRepoTest extends ContainerInitializer {
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
             copyFolderContentFromContainer(container, "/tmp/test-filesystem-repo", tempDir.resolve("test-filesystem-repo").toString());
             container.stop();
-            // Clear all other binds
-            container.setBinds(List.of());
+            // Start with a fresh container
+            container = ContainerInitializer.initContainer(targetImage, false, null, false);
             Path grcConfig = GRC_CONFIG.ProfileDefaultBuildSourceFile("").setRepoManagementPerProfile(true).build().toYAML(tempDir, "grc-config.yml");
 
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
@@ -262,22 +298,37 @@ public class GraphRepoTest extends ContainerInitializer {
             container.start();
 
             // @formatter:off
-        Assertions.assertTrue(
+            Assertions.assertTrue(
                 waitForLogPatterns(container,List.of(
-                                "1 profile configurations submitted as tasks",
-                                "[driving-car] Creating graph directory",
-                                "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
-                                "[driving-car] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
-                                "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
-                                "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car",
-                                "[driving-car] Downloaded graph was extracted and will be activated at next restart check or application start",
-                                "[driving-car] Activating extracted downloaded graph",
-                                "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'",
-                                "[driving-car] Checking for possible graph update from remote repository",
-                                "Scheduled graph activation check done: No downloaded graphs found, no restart required"),
+                 "[driving-car] Creating graph directory /home/ors/openrouteservice/graphs/driving-car",
+                            "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
+                            "[driving-car] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
+                            "[driving-car] Checking for possible graph update from remote repository...",
+                            "[driving-car] Checking latest graphInfo in remote repository...",
+                            "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
+                            "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.ghz...",
+                            "[driving-car] Download finished after",
+                            "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
+                            "[driving-car] Extraction of downloaded graph file finished after",
+                            "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
+                            "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car_new",
+                            "[driving-car] Downloaded graph was extracted and will be activated at next graph activation check or application start.",
+                            "[driving-car] Activating extracted downloaded graph.",
+                            "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'.",
+                            "Adding orsGraphManager for profile driving-car with encoder driving-car to GraphService",
+                            "Scheduled repository check...",
+                            "Scheduled graph activation check...",
+                            "[driving-car] Scheduled repository check: Checking for update.",
+                            "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
+                            "[driving-car] Checking for possible graph update from remote repository...",
+                            "[driving-car] Checking latest graphInfo in remote repository...",
+                            "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
+                            "[driving-car] No newer graph found in repository.",
+                            "[driving-car] No downloaded graph to extract."
+                        ),
                         12, 1000, true),
                 "The expected log patterns were not found in the logs.");
-        // @formatter:on
+            // @formatter:on
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
@@ -299,7 +350,7 @@ public class GraphRepoTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testGrcIndividualProfileName(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
-            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcIndividualProfileName");
+            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcIndividualProfileName", false);
             String customProfile = "bobby-car";
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
 
@@ -320,12 +371,13 @@ public class GraphRepoTest extends ContainerInitializer {
         // @formatter:on
             container.withCopyFileToContainer(forHostPath(grcConfig), containerConfigPath);
             container.start();
-
-
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2), customProfile), "Failed to prepare the graph repo.");
             copyFolderContentFromContainer(container, "/tmp/test-filesystem-repo", tempDir.resolve("test-filesystem-repo").toString());
             container.stop();
 
+            // Start with a fresh container
+            container = ContainerInitializer.initContainer(targetImage, false, null, false);
+            container.withCopyFileToContainer(forHostPath(grcConfig), containerConfigPath);
             container.withCopyFileToContainer(MountableFile.forHostPath(tempDir.resolve("test-filesystem-repo") + "/"), "/tmp/test-filesystem-repo/");
             if (ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER.equals(targetImage)) {
                 container.waitingFor(orsCorrectConfigLoadedWaitStrategy(containerConfigPath));
@@ -334,32 +386,34 @@ public class GraphRepoTest extends ContainerInitializer {
             }
             container.start();
             // @formatter:off
-        Assertions.assertTrue(
+            Assertions.assertTrue(
                 waitForLogPatterns(container,List.of(
-                                "Adding orsGraphManager for profile " + customProfile +" with encoder driving-car to GraphService",
-                                "Scheduled repository check...",
-                                "Scheduled graph activation check...",
-                                "[" + customProfile + "] Scheduled repository check: Checking for update.",
-                                "[" + customProfile + "] Checking for possible graph update from remote repository...",
-                                "[" + customProfile + "] Checking latest graphInfo in remote repository...",
-                                "[" + customProfile + "] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
-                                "[" + customProfile + "] Downloading fastisochrones_heidelberg_1_driving-car.ghz...",
-                                "[" + customProfile + "] Download finished after",
-                                "[" + customProfile + "] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/" + customProfile + "_new_incomplete",
-                                "[" + customProfile + "] Extraction of downloaded graph file finished after",
-                                "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
-                                "[" + customProfile + "] Renaming extraction directory to /home/ors/openrouteservice/graphs/" + customProfile + "_new",
-                                "[" + customProfile + "] Downloaded graph was extracted and will be activated at next restart check or application start",
-                                "[Scheduled] " + customProfile + " graph activation check: Downloaded extracted graph available",
-                                "Scheduled graph activation check done: Performing graph activation...",
-                                "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
-                                "[" + customProfile + "] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.yml",
-                                "[" + customProfile + "] Found local graph and extracted downloaded graph",
-                                "[" + customProfile + "] Renamed old local graph directory /home/ors/openrouteservice/graphs/" + customProfile + " to /home/ors/openrouteservice/graphs/" + customProfile,
-                                "[" + customProfile + "] Deleting old backup directory /home/ors/openrouteservice/graphs/" + customProfile,
-                                "[" + customProfile + "] Activating extracted downloaded graph.",
-                                "Profile: '" + customProfile + "', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/" + customProfile + "'",
-                                "[" + customProfile + "] No newer graph found in repository."),
+                                        "1 profile configurations submitted as tasks.",
+                                        "[" + customProfile + "] Creating graph directory /home/ors/openrouteservice/graphs/" + customProfile,
+                                        "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
+                                        "[" + customProfile + "] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
+                                        "[" + customProfile + "] Checking for possible graph update from remote repository...",
+                                        "[" + customProfile + "] Checking latest graphInfo in remote repository...",
+                                        "[" + customProfile + "] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
+                                        "[" + customProfile + "] Downloading fastisochrones_heidelberg_1_driving-car.ghz...",
+                                        "[" + customProfile + "] Download finished after",
+                                        "[" + customProfile + "] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/" + customProfile + "_new_incomplete",
+                                        "[" + customProfile + "] Extraction of downloaded graph file finished after",
+                                        "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
+                                        "[" + customProfile + "] Renaming extraction directory to /home/ors/openrouteservice/graphs/" + customProfile + "_new",
+                                        "[" + customProfile + "] Downloaded graph was extracted and will be activated at next graph activation check or application start.",
+                                        "[" + customProfile + "] Activating extracted downloaded graph.",
+                                        "[1] Profile: '" + customProfile + "', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/" + customProfile + "'.",
+                                        "Adding orsGraphManager for profile " + customProfile +" with encoder driving-car to GraphService",
+                                        "Scheduled repository check...",
+                                        "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
+                                        "[" + customProfile + "] Scheduled repository check: Checking for update.",
+                                        "[" + customProfile + "] Checking for possible graph update from remote repository...",
+                                        "[" + customProfile + "] Checking latest graphInfo in remote repository...",
+                                        "[" + customProfile + "] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
+                                        "[" + customProfile + "] No newer graph found in repository.",
+                                        "[" + customProfile + "] No downloaded graph to extract.",
+                                        "Scheduled repository check done"),
                         12, 1000, true),
                 "The expected log patterns were not found in the logs.");
         // @formatter:on

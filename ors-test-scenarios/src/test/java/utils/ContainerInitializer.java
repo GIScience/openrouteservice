@@ -160,10 +160,8 @@ public abstract class ContainerInitializer {
         Path hostGraphPath = null;
         if (usePreBuildGraph) {
             container.withCopyFileToContainer(MountableFile.forHostPath(Path.of("./graphs-integrationtests/").resolve(hostSharedGraphPath)), "/home/ors/openrouteservice/graphs");
-        } else if ((graphMountSubPath != null && !graphMountSubPath.isEmpty()) && graphMountSubPath.equals(hostSharedGraphPath)) {
-            hostGraphPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubPath);
         } else if (graphMountSubPath != null && !graphMountSubPath.isEmpty()) {
-            hostGraphPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubPath).resolve(containerTestImage.getName());
+            hostGraphPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubPath.equals(hostSharedGraphPath) ? graphMountSubPath : graphMountSubPath + "/" + containerTestImage.getName());
         }
 
         if (hostGraphPath != null) {
