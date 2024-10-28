@@ -28,7 +28,7 @@ import static utils.TestContainersHelper.waitStrategyWithLogMessage;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class ConfigFileTest extends ContainerInitializer {
 
 

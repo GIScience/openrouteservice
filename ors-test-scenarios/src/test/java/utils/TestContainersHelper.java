@@ -28,6 +28,14 @@ public class TestContainersHelper {
         return waitAllStrategy.withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
     }
 
+    public static WaitStrategy healthyWaitStrategyWithLogMessage(String[] logLookupMessages, Duration startupTimeout) {
+        if (startupTimeout != null) {
+            DEFAULT_STARTUP_TIMEOUT = startupTimeout;
+        }
+        return healthyWaitStrategyWithLogMessage(logLookupMessages);
+
+    }
+
     public static WaitStrategy healthyWaitStrategyWithLogMessage(String[] logLookupMessages) {
         WaitAllStrategy waitAllStrategy = new WaitAllStrategy();
         for (String logLookupMessage : logLookupMessages) {

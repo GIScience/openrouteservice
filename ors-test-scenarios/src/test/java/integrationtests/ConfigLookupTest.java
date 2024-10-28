@@ -27,7 +27,7 @@ import static utils.TestContainersHelper.*;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class ConfigLookupTest extends ContainerInitializer {
 
     @Nested

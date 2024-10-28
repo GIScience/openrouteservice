@@ -26,12 +26,12 @@ import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class ConfigEnvironmentTest extends ContainerInitializer {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_METHOD)
-    class ConfigEnvTests {
+    class ConfigEnvironmentTests {
         // @formatter:off
         List<String> allProfiles = List.of("cycling-electric", "cycling-road", "cycling-mountain",
                 "cycling-regular", "driving-car", "driving-hgv", "foot-hiking", "foot-walking", "wheelchair");
@@ -127,18 +127,18 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testBuildAllBareGraphsWithEnv(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
-            GenericContainer<?> container = initContainer(targetImage, false, "testBuildAllBareGraphsWithEnv", false);
-            container.withStartupTimeout(Duration.ofSeconds(300));
+            GenericContainer<?> container = initContainer(targetImage, false, "testBuildAllBareGraphsWithEnv", false, Duration.ofSeconds(300));
             container.addEnv("ors.engine.profile_default.enabled", "true");
             container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
             container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
             container.setCommand(targetImage.getCommand("500M").toArray(new String[0]));
             container.waitingFor(healthyWaitStrategyWithLogMessage(List.of(
-                    "Config file './ors-config.yml' not found.",
-                    "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
-                    "Config file '/etc/openrouteservice/ors-config.yml' not found.",
-                    "Configuration lookup finished."
-            ).toArray(new String[0])));
+                            "Config file './ors-config.yml' not found.",
+                            "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
+                            "Config file '/etc/openrouteservice/ors-config.yml' not found.",
+                            "Configuration lookup finished."
+                    ).toArray(new String[0]), Duration.ofSeconds(300))
+            );
 
             container.start();
 
@@ -179,8 +179,7 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testBuildEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) {
-            GenericContainer<?> container = initContainer(targetImage, false, "testActivateEachProfileWithEnvAndOverwriteDefaultConfig", false);
-            container.withStartupTimeout(Duration.ofSeconds(300));
+            GenericContainer<?> container = initContainer(targetImage, false, "testActivateEachProfileWithEnvAndOverwriteDefaultConfig", false, Duration.ofSeconds(300));
 
             // Prepare the environment
             container.addEnv("ors.engine.profile_default.enabled", "false");

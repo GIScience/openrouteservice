@@ -111,6 +111,10 @@ public abstract class ContainerInitializer {
         return initContainer(containerTestImage, autoStart, graphMountSubPath, shareGraphsWithContainer);
     }
 
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubPath, Boolean usePreBuildGraph) {
+        return initContainer(containerTestImage, autoStart, graphMountSubPath, usePreBuildGraph, DEFAULT_STARTUP_TIMEOUT);
+    }
+
 
     /**
      * Initializes a container with the given test image, with options to recreate and auto-start.
@@ -121,9 +125,13 @@ public abstract class ContainerInitializer {
      * @param usePreBuildGraph   Whether to use a pre-built graph. If true graphMountSubPath is ignored and set to the hostSharedGraphPath.
      * @return The initialized container.
      */
-    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubPath, Boolean usePreBuildGraph) {
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubPath, Boolean usePreBuildGraph, Duration startupTimeout) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");
+        }
+
+        if (startupTimeout == null) {
+            startupTimeout = DEFAULT_STARTUP_TIMEOUT;
         }
         // @formatter:off
         Path rootPath = Path.of("../");
@@ -148,7 +156,7 @@ public abstract class ContainerInitializer {
         )
                 .withEnv(defaultEnv)
                 .withExposedPorts(8080)
-                .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
+                .withStartupTimeout(startupTimeout)
                 .waitingFor(healthyOrsWaitStrategy());
         // @formatter:on
 
@@ -183,8 +191,7 @@ public abstract class ContainerInitializer {
         // Build the shared layers
         // The jar and maven container do not contain any major layers. The heavy one is in war.
         // The build graphs are shared between all containers that are configured to use them.
-        GenericContainer<?> containerWar = initContainer(ContainerTestImageBare.WAR_CONTAINER_BARE, false, hostSharedGraphPath, false);
-        containerWar.withStartupTimeout(Duration.ofSeconds(300));
+        GenericContainer<?> containerWar = initContainer(ContainerTestImageBare.WAR_CONTAINER_BARE, false, hostSharedGraphPath, false, Duration.ofSeconds(300));
         containerWar.addEnv("ors.engine.profile_default.enabled", "true");
         containerWar.addEnv("ors.engine.profiles.public-transport.enabled", "false");
         containerWar.addEnv("ors.engine.graphs_data_access", "MMAP");
