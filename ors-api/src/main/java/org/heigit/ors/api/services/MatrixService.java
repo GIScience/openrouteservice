@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.heigit.ors.api.requests.matrix.MatrixRequest.isFlexibleMode;
 
@@ -55,8 +56,10 @@ public class MatrixService extends ApiService {
                 endpointsProperties.getMatrix().getMaximumVisitedNodes(),
                 endpointsProperties.getMatrix().getUTurnCost());
 
-        int numberOfSources = matrixRequest.getSources() == null ? matrixRequest.getLocations().size() : matrixRequest.getSources().length;
-        int numberODestinations = matrixRequest.getDestinations() == null ? matrixRequest.getLocations().size() : matrixRequest.getDestinations().length;
+        String[] sources = matrixRequest.getSources();
+        int numberOfSources = sources == null || Objects.equals(sources[0], "all") ? matrixRequest.getLocations().size() : sources.length;
+        String[] destinations = matrixRequest.getDestinations();
+        int numberODestinations = destinations == null || Objects.equals(destinations[0], "all") ? matrixRequest.getLocations().size() : destinations.length;
         Coordinate[] locations = convertLocations(matrixRequest.getLocations(), numberOfSources * numberODestinations, endpointsProperties);
 
         coreRequest.setProfileType(convertToMatrixProfileType(matrixRequest.getProfile()));
