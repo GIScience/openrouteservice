@@ -85,7 +85,7 @@ export default defineConfig({
                                     {text: 'Isochrones', link: '/api-reference/endpoints/isochrones/'},
                                     {text: 'Matrix', link: '/api-reference/endpoints/matrix/'},
                                     {text: 'Snapping', link: '/api-reference/endpoints/snapping/'},
-                                    {text: 'Export (not live)', link: '/api-reference/endpoints/export/'},
+                                    {text: 'Export', link: '/api-reference/endpoints/export/'},
                                     {text: 'Health (not live)', link: '/api-reference/endpoints/health/'},
                                     {text: 'Status (not live)', link: '/api-reference/endpoints/status/'},
                                     {text: 'POI', link: '/api-reference/endpoints/poi/'},

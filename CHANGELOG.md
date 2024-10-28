@@ -33,6 +33,10 @@ RELEASING:
 7. Adding the corresponding tag is done when releasing via GitHub.
 -->
 ## [unreleased]
+### Changed
+- update docs dependency: VitePress ([#1872](https://github.com/GIScience/openrouteservice/pull/1872))
+- adjust documentation for export endpoint ([#1872](https://github.com/GIScience/openrouteservice/pull/1872))
+
 ### Fixed
 - do not enforce a time-dependent routing algorithm unless the weighting requires it ([#1865](https://github.com/GIScience/openrouteservice/pull/1865))
 - failing queries that combined departure/arrival parameters with avoid polygons ([#1871](https://github.com/GIScience/openrouteservice/pull/1871))
