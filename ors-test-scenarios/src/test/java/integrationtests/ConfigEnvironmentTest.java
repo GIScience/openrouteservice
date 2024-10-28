@@ -160,7 +160,6 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testDefaultProfileActivated(ContainerInitializer.ContainerTestImageDefaults targetImage) {
-            // Get a fresh container
             GenericContainer<?> container = initContainer(targetImage, false, "testDefaultProfileActivated");
             if (targetImage.equals(ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER)) {
                 container.setWaitStrategy(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config.yml"));
