@@ -170,7 +170,7 @@ public class RoutingProfile {
 
     private static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig, String graphLocation) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
-        ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess());
+        ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess().toString());
         ghConfig.putObject("datareader.file", Optional.ofNullable(profile).map(ProfileProperties::getBuild).map(BuildProperties::getSourceFile).map(Path::toString).orElse(null));
         ghConfig.putObject("graph.bytes_for_flags", profile.getBuild().getEncoderFlagsSize());
         ghConfig.putObject("graph.location", graphLocation);
