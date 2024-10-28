@@ -16,7 +16,7 @@
 ARG CONTAINER_BUILD_DIR=/build
 ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
-FROM docker.io/maven:3.9.9-amazoncorretto-21-alpine AS builder
+FROM docker.io/maven:3.9.9-amazoncorretto-21-alpine AS ors-test-scenario-builder
 
 RUN apk add --no-cache bash yq zip
 
@@ -59,7 +59,7 @@ RUN yq -i '\
     .ors.engine.profile_default.build.source_file = "/home/ors/openrouteservice/files/heidelberg.test.pbf"\
     ' $CONTAINER_BUILD_DIR/ors-config.yml
 
-FROM builder AS ors-test-scenarios-maven-bare
+FROM ors-test-scenario-builder AS ors-test-scenarios-maven-bare
 # Build: docker build --target ors-test-scenarios-maven-bare --tag ors-test-scenarios-maven-bare:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
 
 ARG CONTAINER_WORK_DIR
@@ -70,7 +70,7 @@ WORKDIR $CONTAINER_WORK_DIR
 RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_DIR/graphs $CONTAINER_WORK_DIR/elevation_cache \
     $CONTAINER_WORK_DIR/graph_repo
 
-COPY --from=builder $CONTAINER_BUILD_DIR/ "$CONTAINER_WORK_DIR"/
+COPY --from=ors-test-scenario-builder $CONTAINER_BUILD_DIR/ "$CONTAINER_WORK_DIR"/
 COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
 COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
 
@@ -89,8 +89,8 @@ ARG CONTAINER_BUILD_DIR
 
 WORKDIR $CONTAINER_WORK_DIR
 
-COPY --from=builder $CONTAINER_BUILD_DIR/ors-api/target/ors.jar "$CONTAINER_WORK_DIR"/ors.jar
-COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml.deactivated
+COPY --from=ors-test-scenario-builder $CONTAINER_BUILD_DIR/ors-api/target/ors.jar "$CONTAINER_WORK_DIR"/ors.jar
+COPY --from=ors-test-scenario-builder $CONTAINER_BUILD_DIR/ors-config.yml "$CONTAINER_WORK_DIR"/ors-config.yml.deactivated
 COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
 COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
 
@@ -118,8 +118,8 @@ RUN mkdir -p $CONTAINER_WORK_DIR/logs $CONTAINER_WORK_DIR/files $CONTAINER_WORK_
     $CONTAINER_WORK_DIR/graph_repo
 
 # Copy the test files
-COPY --from=builder $CONTAINER_BUILD_DIR/ors-api/target/ors.war /usr/local/tomcat/webapps/ors.war
-COPY --from=builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservice/ors-config.yml.deactivated
+COPY --from=ors-test-scenario-builder $CONTAINER_BUILD_DIR/ors-api/target/ors.war /usr/local/tomcat/webapps/ors.war
+COPY --from=ors-test-scenario-builder $CONTAINER_BUILD_DIR/ors-config.yml /home/ors/openrouteservice/ors-config.yml.deactivated
 COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
 COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
 

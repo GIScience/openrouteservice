@@ -12,26 +12,28 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
+import static utils.ContainerInitializer.DEFAULT_STARTUP_TIMEOUT;
+
 public class TestContainersHelper {
 
     public static WaitStrategy simpleLogMessageWaitStrategy(String logLookupMessage) {
-        return waitStrategyWithLogMessage(new String[]{logLookupMessage});
+        return waitStrategyWithLogMessage(new String[]{logLookupMessage}).withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
     }
 
     public static WaitStrategy waitStrategyWithLogMessage(String[] logLookupMessages) {
         WaitAllStrategy waitAllStrategy = new WaitAllStrategy();
         for (String logLookupMessage : logLookupMessages) {
-            waitAllStrategy.withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*"));
+            waitAllStrategy.withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*")).withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
         }
-        return waitAllStrategy;
+        return waitAllStrategy.withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
     }
 
     public static WaitStrategy healthyWaitStrategyWithLogMessage(String[] logLookupMessages) {
         WaitAllStrategy waitAllStrategy = new WaitAllStrategy();
         for (String logLookupMessage : logLookupMessages) {
-            waitAllStrategy.withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*"));
+            waitAllStrategy.withStrategy(new LogMessageWaitStrategy().withRegEx(".*" + logLookupMessage + ".*")).withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
         }
-        return waitAllStrategy.withStrategy(healthyOrsWaitStrategy());
+        return waitAllStrategy.withStrategy(healthyOrsWaitStrategy()).withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
     }
 
     public static WaitStrategy healthyOrsWaitStrategy() {
@@ -41,15 +43,15 @@ public class TestContainersHelper {
                 .forStatusCode(200)
                 .forPath("/ors/v2/health")
                 .withReadTimeout(Duration.ofSeconds(5))
-                .withStartupTimeout(Duration.ofSeconds(100));
+                .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
     }
 
     // Wait strategy that looks for "Loaded file 'ors-config-car.yml'" in the logs and waits for the container to be healthy
     public static WaitStrategy orsCorrectConfigLoadedWaitStrategy(String configName) {
         //@formatter:off
         return new WaitAllStrategy()
-                .withStrategy(new LogMessageWaitStrategy().withRegEx(".*Loaded file '" + configName + "'.*"))
-                .withStrategy(healthyOrsWaitStrategy());
+                .withStrategy(new LogMessageWaitStrategy().withRegEx(".*Loaded file '" + configName + "'.*")).withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
+                .withStrategy(healthyOrsWaitStrategy()).withStartupTimeout(DEFAULT_STARTUP_TIMEOUT);
     }
 
     public static void copyFolderContentFromContainer(GenericContainer<?> container, String containerPath, String destinationPath) throws IOException, InterruptedException {

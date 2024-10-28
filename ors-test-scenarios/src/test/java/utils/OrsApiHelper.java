@@ -66,12 +66,13 @@ public class OrsApiHelper {
         JsonNode profiles;
         try {
             profiles = OrsApiHelper.getProfiles(container.getHost(), container.getFirstMappedPort());
+            Assertions.assertNotNull(profiles, "API returned no valid profiles.");
             Assertions.assertEquals(expectedProfilesKeys.size(), profiles.size());
             for (Map.Entry<String, Boolean> profile : expectedProfiles.entrySet()) {
                 if (profile.getValue()) Assertions.assertTrue(profiles.has(profile.getKey()));
                 else Assertions.assertFalse(profiles.has(profile.getKey()));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

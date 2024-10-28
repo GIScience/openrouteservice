@@ -1,6 +1,5 @@
 package integrationtests;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,17 +13,12 @@ import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import utils.ContainerInitializer;
 import utils.OrsContainerFileSystemCheck;
 
-import static utils.ContainerInitializer.initContainer;
 import static utils.OrsApiHelper.checkAvoidAreaRequest;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class GeoToolsTest {
-    @BeforeAll
-    void cacheLayers() {
-        ContainerInitializer.buildLayers();
-    }
+public class GeoToolsTest extends ContainerInitializer {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_METHOD)

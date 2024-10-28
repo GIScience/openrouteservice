@@ -1,6 +1,5 @@
 package integrationtests;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,19 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
-import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.healthyOrsWaitStrategy;
 import static utils.TestContainersHelper.waitStrategyWithLogMessage;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ConfigFileTest {
-
-    @BeforeAll
-    void cacheLayers() {
-        ContainerInitializer.buildLayers();
-    }
+public class ConfigFileTest extends ContainerInitializer {
 
 
     @Nested

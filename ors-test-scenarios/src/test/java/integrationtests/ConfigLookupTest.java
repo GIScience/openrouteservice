@@ -1,6 +1,5 @@
 package integrationtests;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,24 +16,19 @@ import utils.OrsApiHelper;
 import utils.OrsConfig;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.testcontainers.utility.MountableFile.forHostPath;
-import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.*;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ConfigLookupTest {
-
-    @BeforeAll
-    void cacheLayers() {
-        ContainerInitializer.buildLayers();
-    }
+public class ConfigLookupTest extends ContainerInitializer {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -175,6 +169,7 @@ public class ConfigLookupTest {
                     "Loaded file '" + CONFIG_FILE_PATH_TMP + "'.",
                     "Configuration lookup finished."
             ).toArray(new String[0])));
+            container.withStartupTimeout(Duration.ofSeconds(200)); // mö
             container.start();
             OrsApiHelper.assertProfilesLoaded(container, Map.of("cycling-regular", true));
             container.stop();

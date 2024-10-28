@@ -1,7 +1,6 @@
 package integrationtests;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,11 +32,7 @@ import static utils.TestContainersHelper.*;
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class GraphRepoTest {
-    @BeforeAll
-    void cacheLayers() {
-        ContainerInitializer.buildLayers();
-    }
+public class GraphRepoTest extends ContainerInitializer {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_METHOD)

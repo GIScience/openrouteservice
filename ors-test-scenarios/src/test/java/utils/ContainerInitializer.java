@@ -1,11 +1,13 @@
 package utils;
 
 import lombok.Getter;
+import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.startupcheck.IndefiniteWaitOneShotStartupCheckStrategy;
 import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.utility.MountableFile;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -33,16 +35,21 @@ public abstract class ContainerInitializer {
     );
     // @formatter:on
 
+    private static final String hostSharedGraphPath = "sharedGraphMount";
+    public static Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofSeconds(150);
+    private static boolean shareGraphsWithContainer = true;
     private static List<ContainerTestImageDefaults> selectedDefaultContainers = List.of();
     private static List<ContainerTestImageBare> selectedBareContainers = List.of();
 
     /**
      * Initializes the containers based on the environment variable `CONTAINER_SCENARIO`.
-     *
-     * @param startDefaultContainers Whether to start the default containers.
      */
-    public static void initializeContainers(Boolean startDefaultContainers) {
+    public static void initializeContainers() {
         String containerValue = System.getenv("CONTAINER_SCENARIO");
+        if (System.getenv("CONTAINER_SHARE_GRAPHS") != null)
+            shareGraphsWithContainer = Boolean.parseBoolean(System.getenv("CONTAINER_SHARE_GRAPHS"));
+        if (shareGraphsWithContainer)
+            DEFAULT_STARTUP_TIMEOUT = Duration.ofSeconds(50);
         if (containerValue == null) {
             containerValue = "all";
         }
@@ -82,7 +89,7 @@ public abstract class ContainerInitializer {
      * @return A stream of default container test images.
      */
     public static Stream<ContainerTestImage[]> ContainerTestImageDefaultsImageStream() {
-        initializeContainers(false);
+        initializeContainers();
         return selectedDefaultContainers.stream().map(container -> new ContainerTestImage[]{container});
     }
 
@@ -92,9 +99,18 @@ public abstract class ContainerInitializer {
      * @return A stream of bare container test images.
      */
     public static Stream<ContainerTestImage[]> ContainerTestImageBareImageStream() {
-        initializeContainers(false);
+        initializeContainers();
         return selectedBareContainers.stream().map(container -> new ContainerTestImage[]{container});
     }
+
+    public static GenericContainer<?> initContainerWithSharedGraphs(ContainerTestImage containerTestImage, Boolean autoStart) {
+        return initContainer(containerTestImage, autoStart, hostSharedGraphPath, shareGraphsWithContainer);
+    }
+
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubPath) {
+        return initContainer(containerTestImage, autoStart, graphMountSubPath, shareGraphsWithContainer);
+    }
+
 
     /**
      * Initializes a container with the given test image, with options to recreate and auto-start.
@@ -102,9 +118,10 @@ public abstract class ContainerInitializer {
      * @param containerTestImage The container test image.
      * @param autoStart          Whether to auto-start the container.
      * @param graphMountSubPath  The subpath to mount the graph. This differentiates the graph mount path for each container. If null, no graph is mounted.
+     * @param usePreBuildGraph   Whether to use a pre-built graph. If true graphMountSubPath is ignored and set to the hostSharedGraphPath.
      * @return The initialized container.
      */
-    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubPath) {
+    public static GenericContainer<?> initContainer(ContainerTestImage containerTestImage, Boolean autoStart, String graphMountSubPath, Boolean usePreBuildGraph) {
         if (containerTestImage == null) {
             throw new IllegalArgumentException("containerTestImage must not be null");
         }
@@ -131,7 +148,7 @@ public abstract class ContainerInitializer {
         )
                 .withEnv(defaultEnv)
                 .withExposedPorts(8080)
-                .withStartupTimeout(Duration.ofSeconds(200))
+                .withStartupTimeout(DEFAULT_STARTUP_TIMEOUT)
                 .waitingFor(healthyOrsWaitStrategy());
         // @formatter:on
 
@@ -140,31 +157,47 @@ public abstract class ContainerInitializer {
         }
 
         // Set the graph mount path
-        if (graphMountSubPath != null) {
-            Path graphMountPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubPath).resolve(containerTestImage.getName());
-            // Create the folder if it does not exist
-            if (!graphMountPath.toFile().exists()) {
-                graphMountPath.toFile().mkdirs();
-            }
-            container.withFileSystemBind(graphMountPath.toAbsolutePath().toString(), "/home/ors/openrouteservice/graphs", BindMode.READ_WRITE);
+        Path hostGraphPath = null;
+        if (usePreBuildGraph) {
+            container.withCopyFileToContainer(MountableFile.forHostPath(Path.of("./graphs-integrationtests/").resolve(hostSharedGraphPath)), "/home/ors/openrouteservice/graphs");
+        } else if ((graphMountSubPath != null && !graphMountSubPath.isEmpty()) && graphMountSubPath.equals(hostSharedGraphPath)) {
+            hostGraphPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubPath);
+        } else if (graphMountSubPath != null && !graphMountSubPath.isEmpty()) {
+            hostGraphPath = Path.of("./graphs-integrationtests/").resolve(graphMountSubPath).resolve(containerTestImage.getName());
         }
+
+        if (hostGraphPath != null) {
+            container.withFileSystemBind(hostGraphPath.toAbsolutePath().toString(), "/home/ors/openrouteservice/graphs", BindMode.READ_WRITE);
+            // Create folder if it does not exist
+            if (!hostGraphPath.toFile().exists()) {
+                hostGraphPath.toFile().mkdirs();
+            }
+        }
+
         if (autoStart) {
             container.start();
         }
-
         return container;
     }
 
-    public static void buildLayers() {
-        GenericContainer<?> container = initContainer(ContainerTestImageBare.JAR_CONTAINER_BARE, false, null);
-        // This is the only command I could identify that lets the container exit with code 0 reliably.
-        container.setCommand("sh", "-c", "sleep 0.1 && exit 0");
-        container.withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy().withTimeout(Duration.ofSeconds(60)));
-        container.withStartupTimeout(Duration.ofSeconds(100));
-        container.setWaitStrategy(null);
-        container.withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()));
-        container.start();
-        container.stop();
+    @BeforeAll
+    public static void buildSharedLayersAndGraphs() throws IOException, InterruptedException {
+        // Build the shared layers
+        // The jar and maven container do not contain any major layers. The heavy one is in war.
+        // The build graphs are shared between all containers that are configured to use them.
+        GenericContainer<?> containerWar = initContainer(ContainerTestImageBare.WAR_CONTAINER_BARE, false, hostSharedGraphPath, false);
+        containerWar.withStartupTimeout(Duration.ofSeconds(300));
+        containerWar.addEnv("ors.engine.profile_default.enabled", "true");
+        containerWar.addEnv("ors.engine.profiles.public-transport.enabled", "false");
+        containerWar.addEnv("ors.engine.graphs_data_access", "MMAP");
+        containerWar.addEnv("ors.engine.profile_default.graph_path", "/home/ors/openrouteservice/graphs");
+        containerWar.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
+        containerWar.setCommand(ContainerTestImageBare.WAR_CONTAINER_BARE.getCommand("500M").toArray(new String[0]));
+
+        containerWar.start();
+        // set read write execute permissions for all
+        containerWar.execInContainer("chmod", "-R", "777", "/home/ors/openrouteservice/graphs");
+        containerWar.stop();
     }
 
     /**

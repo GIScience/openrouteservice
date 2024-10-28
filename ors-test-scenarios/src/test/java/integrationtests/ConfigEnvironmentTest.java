@@ -1,6 +1,5 @@
 package integrationtests;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,24 +15,19 @@ import utils.OrsApiHelper;
 import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static utils.ContainerInitializer.initContainer;
 import static utils.TestContainersHelper.healthyWaitStrategyWithLogMessage;
 import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ConfigEnvironmentTest {
-
-    @BeforeAll
-    void cacheLayers() {
-        ContainerInitializer.buildLayers();
-    }
+public class ConfigEnvironmentTest extends ContainerInitializer {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_METHOD)
@@ -62,6 +56,7 @@ public class ConfigEnvironmentTest {
                     "Configuration lookup finished."
             ).toArray(new String[0])));
             container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
+            container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
             container.addEnv("ors.engine.profiles.driving-car.enabled", "true");
             container.addEnv("ORS_ENGINE_PROFILES_DRIVING_HGV_ENABLED", "true");
             container.start();
@@ -132,7 +127,8 @@ public class ConfigEnvironmentTest {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testBuildAllBareGraphsWithEnv(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
-            GenericContainer<?> container = initContainer(targetImage, false, "testBuildAllBareGraphsWithEnv");
+            GenericContainer<?> container = initContainer(targetImage, false, "testBuildAllBareGraphsWithEnv", false);
+            container.withStartupTimeout(Duration.ofSeconds(300));
             container.addEnv("ors.engine.profile_default.enabled", "true");
             container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
             container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
@@ -183,8 +179,9 @@ public class ConfigEnvironmentTest {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testActivateEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) {
-            GenericContainer<?> container = initContainer(targetImage, false, "testActivateEachProfileWithEnvAndOverwriteDefaultConfig");
+        void testBuildEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) {
+            GenericContainer<?> container = initContainer(targetImage, false, "testActivateEachProfileWithEnvAndOverwriteDefaultConfig", false);
+            container.withStartupTimeout(Duration.ofSeconds(300));
 
             // Prepare the environment
             container.addEnv("ors.engine.profile_default.enabled", "false");
