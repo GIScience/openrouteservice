@@ -129,6 +129,7 @@ public class TestContainersHelper {
                 "[" + profile + "] Scheduled repository check: Checking for update.",
                 "[" + profile + "] Checking for possible graph update from remote repository...",
                 "[" + profile + "] Checking latest graphInfo in remote repository...",
+                "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
                 "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoder_name + ".yml...",
                 "[" + profile + "] No newer graph found in repository.",
                 "[" + profile + "] No downloaded graph to extract.",
@@ -137,7 +138,7 @@ public class TestContainersHelper {
         return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, recheckFrequencyInMillis, expected);
     }
 
-    public static boolean waitForSuccessfulGrcRepoCheckAndActivation(GenericContainer<?> container, String profile, String encoder_name, int maxWaitTimeInSeconds, int recheckFrequencyInMillis, boolean expected) throws InterruptedException {
+    public static boolean waitForSuccessfulGrcRepoCheckAndActivationOnFreshGraph(GenericContainer<?> container, String profile, String encoder_name, int maxWaitTimeInSeconds, int recheckFrequencyInMillis, boolean expected) throws InterruptedException {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Checking for possible graph update from remote repository...",
                 "[" + profile + "] Checking latest graphInfo in remote repository...",
@@ -157,11 +158,48 @@ public class TestContainersHelper {
         return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, recheckFrequencyInMillis, expected);
     }
 
+    public static boolean waitForSuccessfulGrcRepoCheckAndActivationOnExistingGraph(GenericContainer<?> container, String profile, String encoder_name, int maxWaitTimeInSeconds, int recheckFrequencyInMillis, boolean expected) throws InterruptedException {
+        List<String> logPatterns = List.of(
+                "[" + profile + "] Checking for possible graph update from remote repository...",
+                "[" + profile + "] Checking latest graphInfo in remote repository...",
+                "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoder_name + ".yml...",
+                "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoder_name + ".ghz...",
+                "[" + profile + "] Download finished after",
+                "[" + profile + "] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/" + profile + "_new_incomplete",
+                "[" + profile + "] Extraction of downloaded graph file finished after",
+                "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_" + encoder_name + ".ghz",
+                "[" + profile + "] Renaming extraction directory to /home/ors/openrouteservice/graphs/" + profile + "_new",
+                "[" + profile + "] Downloaded graph was extracted and will be activated at next graph activation check or application start.",
+                "[Scheduled] driving-car graph activation check: Downloaded extracted graph available",
+                "Scheduled graph activation check done: Performing graph activation...",
+                "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
+
+                "[" + profile + "] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_" + encoder_name + ".yml",
+                "[" + profile + "] Found local graph and extracted downloaded graph",
+                "[" + profile + "] Renamed old local graph directory /home/ors/openrouteservice/graphs/driving-car to /home/ors/openrouteservice/graphs/" + profile + "_",
+                "[" + profile + "] Activating extracted downloaded graph.",
+                "[2] Profile: '" + profile + "', encoder: '" + encoder_name + "', location: '/home/ors/openrouteservice/graphs/" + profile + "'.",
+                "[" + profile + "] Adding orsGraphManager for profile " + profile + " with encoder " + encoder_name + " to GraphService"
+        );
+        return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, recheckFrequencyInMillis, expected);
+    }
+
     public static boolean waitForSuccessfulGrcRepoInitWithoutExistingGraph(GenericContainer<?> container, String profile, String fileRepoName, int maxWaitTimeInSeconds, int recheckFrequencyInMillis, boolean expected) throws InterruptedException {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Creating graph directory /home/ors/openrouteservice/graphs/" + profile,
                 "Using FileSystemRepoManager for repoUri " + fileRepoName,
                 "[" + profile + "] No local graph or extracted downloaded graph found - trying to download and extract graph from repository"
+        );
+        return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, recheckFrequencyInMillis, expected);
+    }
+
+    public static boolean waitForSuccessfulGrcRepoInitWithExistingGraph(GenericContainer<?> container, String profile, String encoderName, String fileRepoName, int maxWaitTimeInSeconds, int recheckFrequencyInMillis, boolean expected) throws InterruptedException {
+        List<String> logPatterns = List.of(
+                "Using FileSystemRepoManager for repoUri " + fileRepoName,
+                "[" + profile + "] Found local graph only",
+                "[1] Profile: '" + profile + "', encoder: '" + encoderName + "', location: '/home/ors/openrouteservice/graphs/" + profile + "'",
+                "Adding orsGraphManager for profile " + profile + " with encoder " + encoderName + " to GraphService",
+                "Started Application in"
         );
         return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, recheckFrequencyInMillis, expected);
     }

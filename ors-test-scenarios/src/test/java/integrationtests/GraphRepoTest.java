@@ -58,6 +58,35 @@ public class GraphRepoTest extends ContainerInitializer {
             .graphExtent("heidelberg");
     // @formatter:on
 
+        // TODO write tests for GRC with manual restarts, no automatic restart. no automatic download.
+
+        /**
+         * grc-no-automatic-activation.sh
+         * Test that the updated graph is not activated when the activation schedule is turned off.
+         * It should be loaded on a manual restart instead.
+         */
+        @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+        @ParameterizedTest(name = "{0}")
+        @Execution(ExecutionMode.CONCURRENT)
+        void testGrcNoAutomaticActivation(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+            Assertions.assertTrue(false, "Not implemented yet.");
+            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNoAutomaticActivation");
+            Path grcConfig = GRC_CONFIG.build().toYAML(tempDir, "grc-config.yml");
+        }
+
+        /**
+         * gtc-no-automatic-download.sh
+         * Test that the updated graph is not downloaded when the download schedule is turned off.
+         */
+        @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+        @ParameterizedTest(name = "{0}")
+        @Execution(ExecutionMode.CONCURRENT)
+        void testGrcNoAutomaticDownload(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+            Assertions.assertTrue(false, "Not implemented yet.");
+            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNoAutomaticDownload");
+            Path grcConfig = GRC_CONFIG.build().toYAML(tempDir, "grc-config.yml");
+        }
+
 
         /**
          * grc-startup-with-downloaded-graph_repo-defined-in-profile-default.sh
@@ -96,39 +125,9 @@ public class GraphRepoTest extends ContainerInitializer {
             }
 
             container.start();
-
-            // @formatter:off
-        Assertions.assertTrue(
-                waitForLogPatterns(container,List.of(
-                        "[driving-car] No local graph or extracted downloaded graph found - trying to download and extract graph from repository",
-                        "[driving-car] Checking for possible graph update from remote repository...",
-                        "[driving-car] Checking latest graphInfo in remote repository...",
-                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
-                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.ghz...",
-                        "[driving-car] Download finished after",
-                        "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
-                        "[driving-car] Extraction of downloaded graph file finished after",
-                        "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
-                        "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car_new",
-                        "[driving-car] Downloaded graph was extracted and will be activated at next graph activation check or application start.",
-                        "[driving-car] Activating extracted downloaded graph.",
-                        "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'",
-                        "Adding orsGraphManager for profile driving-car with encoder driving-car to GraphService",
-                        "Started Application in",
-                        "Scheduled repository check...",
-                        "Scheduled graph activation check...",
-                        "[driving-car] Scheduled repository check: Checking for update.",
-                        "[driving-car] Checking for possible graph update from remote repository...",
-                        "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
-                        "[driving-car] Checking latest graphInfo in remote repository...",
-                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
-                        "[driving-car] No newer graph found in repository.",
-                        "[driving-car] No downloaded graph to extract.",
-                        "Scheduled repository check done"
-                        ),
-                        12, 1000, true),
-                "The expected log patterns were not found in the logs.");
-        // @formatter:on
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivationOnFreshGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
@@ -167,47 +166,9 @@ public class GraphRepoTest extends ContainerInitializer {
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
 
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
-            // @formatter:off
-            Assertions.assertTrue(waitForLogPatterns(container, List.of(
-                        "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
-                        "[driving-car] Found local graph only",
-                        "[1] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'.",
-                        "Adding orsGraphManager for profile driving-car with encoder driving-car to GraphService",
-                        "Started Application in",
-                        "[driving-car] Scheduled repository check: Checking for update.",
-                        "[driving-car] Checking for possible graph update from remote repository...",
-                        "[driving-car] Checking latest graphInfo in remote repository...",
-                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
-                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.ghz...",
-                        "[driving-car] Download finished after",
-                        "[driving-car] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/driving-car_new_incomplete",
-                        "[driving-car] Extraction of downloaded graph file finished after",
-                        "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.ghz",
-                        "[driving-car] Renaming extraction directory to /home/ors/openrouteservice/graphs/driving-car_new",
-                        "[driving-car] Downloaded graph was extracted and will be activated at next graph activation check or application start.",
-                        "Scheduled repository check done",
-                        "Scheduled graph activation check...",
-                        "[Scheduled] driving-car graph activation check: Downloaded extracted graph available",
-                        "Scheduled graph activation check done: Performing graph activation...",
-                        "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
-                        "[driving-car] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_driving-car.yml",
-                        "[driving-car] Found local graph and extracted downloaded graph",
-                        "[driving-car] Renamed old local graph directory /home/ors/openrouteservice/graphs/driving-car to /home/ors/openrouteservice/graphs/driving-car_",
-                        "[driving-car] Activating extracted downloaded graph.",
-                        "[2] Profile: 'driving-car', encoder: 'driving-car', location: '/home/ors/openrouteservice/graphs/driving-car'.",
-                        "[driving-car] Adding orsGraphManager for profile driving-car with encoder driving-car to GraphService",
-                        "Scheduled repository check...",
-                        "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
-                        "[driving-car] Scheduled repository check: Checking for update.",
-                        "[driving-car] Checking for possible graph update from remote repository...",
-                        "[driving-car] Checking latest graphInfo in remote repository...",
-                        "[driving-car] Downloading fastisochrones_heidelberg_1_driving-car.yml...",
-                        "[driving-car] No newer graph found in repository.",
-                        "[driving-car] No downloaded graph to extract.",
-                        "Scheduled repository check done"
-                    ),
-                    15, 1000, true), "The expected log patterns were not found in the logs.");
-            // @formatter:on
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivationOnExistingGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             // Check that the graph was loaded
             OrsApiHelper.assertProfilesLoaded(container, new HashMap<>() {{
                 put("driving-car", true);
@@ -279,7 +240,7 @@ public class GraphRepoTest extends ContainerInitializer {
 
             container.start();
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivation(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivationOnFreshGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
@@ -338,7 +299,7 @@ public class GraphRepoTest extends ContainerInitializer {
             }
             container.start();
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivation(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivationOnFreshGraph(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
         }
     }
