@@ -112,8 +112,6 @@ public class GraphRepoTest extends ContainerInitializer {
         @Execution(ExecutionMode.CONCURRENT)
         void testGrcAutomaticActivationTurnedOff(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
 
-            // TODO fix the repeated download. The graph should not be downloaded again.
-            Assertions.assertTrue(false, "This check continuously downloads the graph. It should be stopped after the first download.");
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNoAutomaticActivation");
             // Set the activation schedule to never
             Path grcConfig = GRC_CONFIG.graphManagementActivationSchedule("0 0 0 31 2 *").build().toYAML(tempDir, "grc-config.yml");
@@ -122,6 +120,11 @@ public class GraphRepoTest extends ContainerInitializer {
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(
+                    waitForLogPatterns(container, List.of(
+                            "[driving-car] No newer graph found in repository."
+                    ), 12, 1000, true)
+            );
             container.stop();
         }
 
