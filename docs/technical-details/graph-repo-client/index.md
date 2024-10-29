@@ -12,7 +12,7 @@ it is now possible to run openrouteservice on pretty small machines even with pl
 A openrouteservice routing graph is a complex data structure represented by a bunch of binary files.
 The exact content of these files depends on many factors: 
 
-* The software version of openrouteservice, that built the graph. Since not every new openrouteservice version brings changes that affect graph building (build logic or graph structure), we use an internal parameter graphVersion to indicate whether graphs from older openrouteservice versions can be used.
+* The software version of openrouteservice which built the graph. Since not every new openrouteservice version brings changes affecting graph building (build logic or graph structure), we use an internal parameter graphVersion to indicate whether graphs from older openrouteservice versions can be used.
 * The geographic extent and version of the OSM data 
 * The usage of additional data like traffic, elevation, country borders etc. 
 * The exact configuration of the routing profile, e.g. all configuration parameters that are relevant for graph building
@@ -25,12 +25,12 @@ The update schedule for the graphs is individual.
 
 The graphs are stored in a tree structure based on these basic parameters: 
 
-* `REPOSITORY_URI`: The base URL (for a http repository) or path (for a file system repository)
-* `REPOSITORY_NAME`: An editorial name representing the target group or vendor for the graphs. This is necessary to allow restricted access to graphs containing licensed or other non-public input data such as traffic data 
-* `REPOSITORY_PROFILE_GROUP`: A group of profiles with specific characteristics lke the usage of traffic data or the pre-calculation of advanced data structures e.g. for fastisochrones
-* `GRAPH_EXTENT`: The geographic region covered by the graph
-* `GRAPH_VERSION`: The version defining the exact structure of the graph files as well as the logic used to compute the contents 
-* `ENCODER_NAME`: Definition of the means of transportation, which determines specific steps/algorithms etc. during graph building. The `ENCODER_NAME` is no directory name in the repository, but part of the file names. 
+* **_Repository URI_:** The base URL (for a http repository) or path (for a file system repository)
+* **_Repository Name_:** An editorial name representing the target group or vendor for the graphs. This is necessary to allow restricted access to graphs containing licensed or other non-public input data such as traffic data 
+* **_Repository Profile-Group_:** A group of profiles with specific characteristics lke the usage of traffic data or the pre-calculation of advanced data structures e.g. for fastisochrones
+* **_Repository Extent_:** The geographic region covered by the graph
+* **_Graph Version_:** The version defining the exact structure of the graph files as well as the logic used to compute the contents 
+* **_Encoder Name_:** Definition of the means of transportation, which determines specific steps/algorithms etc. during graph building. The _Encoder Name_ is no directory name in the repository, but part of the file names. 
 
 A _timestamp_ or _data_version_ property is not used. 
 When a graph is re-calculated with updated input data (OSM, traffic, ...), 
@@ -40,13 +40,13 @@ when a new graph is downloaded.
 
 ::: warning Attention
 To avoid confusion: 
-`GRAPH_VERSION` has nothing to do with the version of the underlying data that were used to calculate a graph (e.g. osm date)! 
+_Graph Version_ has nothing to do with the version of the underlying data that were used to calculate a graph (e.g. osm date)! 
 
 It defines the version of the software that created a graph. 
 There can be differences in the graph structure and in the build-logic, 
 which means that a generated graph based on the identical input data is not the same for different graph versions. 
 
-This also means, that an instance of openrouteservice can only load graphs created for the same `GRAPH_VERSION`. 
+This also means, that an instance of openrouteservice can only load graphs created for the same _Graph Version_. 
 Loading a graph of a different version could fail completely or at least would lead to unexpected or incorrect results. 
 
 On the other hand, it is of course possible to generate new up-to-date graphs for older graph versions as well
@@ -55,13 +55,13 @@ and to host them in the repository for old versions of openrouteservice that are
 
 The exact URL for a graph based on these parameters could look like this:
 ``` 
-REPOSITORY_URI/REPOSITORY_NAME/REPOSITORY_PROFILE_GROUP/GRAPH_EXTENT/GRAPH_VERSION/ENCODER_NAME               
+<Repository URI>/<Repository Name>/<Repository Profile-Group>/<Repository Extent>/<Graph Version>/<Encoder Name>               
 ```
 
 
 ### Repository Files
 
-In the graph repository, each provided graph is available as a file containing the `ENCODER_NAME` and the extension `ghz`. This is a compressed archive file (zip for version 1) containing all files generated by openrouteservice graph building. 
+In the graph repository, each provided graph is available as a file containing the _Encoder Name_ and the extension `ghz`. This is a compressed archive file (zip for version 1) containing all files generated by openrouteservice graph building. 
 
 Besides each `ghz` file there is one file with the same name and extension `yml` containing meta information about the graph. The most important value in this file is the `import_date` which is used by openrouteservice to check, if a graph in the repository is newer than the local graph. It can also be used by humans to get insights about the exact configuration parameters that were used to build a graph. 
 
@@ -224,23 +224,25 @@ If no updated graph is available, no more actions are performed until the next l
 If a new graph is available, the large `ghz` file is downloaded and extracted to a folder `<profile>_new_incomplete`,
 which is renamed to `<profile>_new` after successful extraction. 
 
-The new graph(s) will be activated on the next application start.
-This can happen manually when openrouteservice is stopped and started again.
-It can also be triggered by the activation check. 
-This is a scheduled process that is configured with the property `ors.engine.graph_management.activation_schedule`:
-If a directory with the name `<profile>_new` exists, the application restarts itself. 
-The restart causes a short period where the service is not available. 
+The new extracted graphs are not directly activated. 
+Activation of new graphs is an independently scheduled process that is configured with the property `ors.engine.graph_management.activation_schedule`:
+If a directory with the name `<profile>_new` exists, the application activates the new graphs. 
+Graph activation causes a short period where the routing profile is not available. 
 In production scenarios without redundancy it is therefore advisable 
 to set a time that is outside times of high traffic.
 
 If openrouteservice is still busy with downloading or extracting graphs from the repository during activation checks,
-the application restart is blocked. 
-The check will be repeated every minute until all graph update activities are finished.
+graph activation is blocked and the check will be repeated every minute until all graph update activities are finished.
 
 Both, update checks and activation checks can be suppressed by placing lock files in the directory `graph_path`:
 
 * `update.lock`
-* `restart.lock`
+* `activation.lock`
+
+If new graphs were not activated at runtime because no activation schedule is configured, activation was suppressed, 
+or just because openrouteservice was stopped before the next scheduled graph activation time has come,
+the new graph(s) will be activated on the next application start.
+Even if graph management is not enabled ([ors.engine.graph_management.enabled](/run-instance/configuration/engine/graph-management.md))!
 
 #### Logging
 
@@ -256,8 +258,8 @@ With the ORS graph management enabled, there are more situations possible.
 The absence of a local graph for a routing profile does not necessarily mean, that the graphs have to be built locally. 
 And also when ORS is started, there can be more than one graph for each routing profile: 
 The one that was active at the last run and also new downloaded and extracted graphs, 
-partially downloaded or estracted graphs (after a network failure, system crash, out of memory…), 
-and also backuped old graphs.
+partially downloaded or extracted graphs (after a network failure, system crash, out of memory…), 
+and also backed up old graphs.
 
 The following diagram shows the startup logic that es executed for each enabled routing profile.
 For simplification we use only the routing profile `wheelchair` as an example:
@@ -288,72 +290,37 @@ I.e. the backup directories have the backup date,
 not the osm date or graph build date as their timestamp.
 Before doing so, 
 the number of existing backups (existing directories `<profile>_<timestamp>`) is checked. 
-If there are more than `max_backups - 1` backups, 
+If there is already the allowed maximum number of backups, 
 the oldest backup directory is removed. 
 This avoids that at any point in time more than `max_backups` graphs are stored, 
 because graph directories can be very large.
 
-In addition to backup and activate graphs,
+In addition to backing up and activating graphs,
 the startup process also wipes out incomplete files or directories (they could reside after a system crash).
 
-[//]: # (TODO: The configuration details below should be moved to the configuration section)
 ## Configuration
 
 ### General Graph Management Setup
 
-The following configuration properties are used to configure graph management in general:
-```yaml
-ors:
-  engine:
-    graph_management:
-      enabled: true
-      download_schedule:   '0 0 * * * *'
-      activation_schedule: '0 0 1 * * *'
-      max_backups: 2
-```
-
-The properties have the following meanings and defaults:
-
-| Property              | Meaning                                                                      | Default                 |
-|-----------------------|------------------------------------------------------------------------------|-------------------------|
-| `enabled`             | globally enable or disable graph management for all profiles                 | `false`                 | 
-| `download_schedule`   | cron pattern defining the schedule when to check for and download new graphs | a pattern meaning never |
-| `activation_schedule` | cron pattern defining the schedule when to activate downloaded new graphs    | a pattern meaning never |
-| `max_backups`         | how many old graph version to keep as backup when activating a new one       | `0`                     |
-
-#### Cron Patterns
-
-The values for the `*_schedule` properties are cron patterns with 6 positions. 
-The positions are interpreted as follows (from left to right):
-
-* second
-* minute
-* hour
-* day of month
-* month
-* day of week
-
-For more information see [org.springframework.scheduling.annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/scheduling/annotation/Scheduled.html#cron())
-
-
-
+The general graph management is configured in the config properties beneatch [`ors.engine.graph_management`](/run-instance/configuration/engine/graph-management.md).
 
 ### Graph Management Setup for Profiles
 
-In the openrouteservice config, each profile can have its own individual repository settings.
-
-To define a graph in the openrouteservice config, configuration parameters similar to the elements of the [repository structure](#repository-structure) are used:
+To define a graph in the openrouteservice config, configuration parameters similar to the elements of the [repository structure](#repository-structure) are used
+(see also [`ors.engine.profiles.<profile>.repo`](/run-instance/configuration/engine/profiles/repo.md)):
 
 | Repo Path Parameter        | Configuration Parameter                                                               |
 |----------------------------|---------------------------------------------------------------------------------------|
-| `REPOSITORY_URI`           | `ors.engine.profiles.<profileName>.repo.repository_uri`                               |
-| `REPOSITORY_NAME`          | `ors.engine.profiles.<profileName>.repo.repository_name`                              |
-| `REPOSITORY_PROFILE_GROUP` | `ors.engine.profiles.<profileName>.repo.repository_profile_group`                     |
-| `GRAPH_EXTENT`             | `ors.engine.profiles.<profileName>.repo.graph_extent`                                 |
-| `GRAPH_VERSION`            | _The graph version is determined by openrouteservice in use and cannot be configured_ |
-| `ENCODER_NAME`             | `ors.engine.profiles.<profileName>.encoder_name`                                      |
+| _Repository URI_           | `ors.engine.profiles.<profileName>.repo.repository_uri`                               |
+| _Repository Name_          | `ors.engine.profiles.<profileName>.repo.repository_name`                              |
+| _Repository Profile-Group_ | `ors.engine.profiles.<profileName>.repo.repository_profile_group`                     |
+| _Repository Extent_             | `ors.engine.profiles.<profileName>.repo.graph_extent`                                 |
+| _Graph Version_            | _The graph version is determined by openrouteservice in use and cannot be configured_ |
+| _Encoder Name_             | `ors.engine.profiles.<profileName>.encoder_name`                                      |
 
-Repository settings that are common for multiple or all routing profiles can also be defined in `ors.engine.profile_default:` 
+Only the _Graph Version_ cannot be configured, it depends on the version of openrouteservice. 
+
+Repository settings that are common for multiple or all routing profiles can also be defined in `ors.engine.profile_default:`
 
 ::: details Configuration Example
 In this configuration example, graph management is enabled and all three profiles use graph management,
@@ -387,7 +354,7 @@ ors:
         encoder_name: foot-walking
         enabled: true
 ```
-Note that profiles `car` and `heavy` overwrite the default for `repository_profile_group`.
+Note that profiles `car` and `heavy` overwrite the default for _Repository Profile-Group_.
 An openrouteservice version which supports graph version `1` will assemble the following graph repo addresses for the three profiles:
 
 | Profile      | Graph in Repository                                                                  |
