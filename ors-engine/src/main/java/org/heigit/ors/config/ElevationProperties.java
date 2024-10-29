@@ -22,6 +22,6 @@ public class ElevationProperties {
     }
 
     public Path getCachePath() {
-        return cachePath.toAbsolutePath();
+        return cachePath != null ? cachePath.toAbsolutePath() : null;
     }
 }
