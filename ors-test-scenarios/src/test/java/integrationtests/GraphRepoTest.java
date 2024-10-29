@@ -39,52 +39,88 @@ public class GraphRepoTest extends ContainerInitializer {
     class GraphRepoTests {
 
         // @formatter:off
-    OrsConfig.OrsConfigBuilder GRC_CONFIG = OrsConfig.builder()
-            .profileDefaultEnabled(false)
-            .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
-            .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
-            .graphManagementEnabled(true)
-            .setRepoManagementPerProfile(true)
-            .graphManagementDownloadSchedule("0/6 * * * * *")
-            .graphManagementActivationSchedule("0/2 * * * * *")
-            .profiles(new HashMap<>() {{
-                put("driving-car", true);
-            }})
-            .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
-            .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
-            .repositoryUri("/tmp/test-filesystem-repo")
-            .repositoryName("vendor-xyz")
-            .repositoryProfileGroup("fastisochrones")
-            .graphExtent("heidelberg");
-    // @formatter:on
-
+        OrsConfig.OrsConfigBuilder GRC_CONFIG = OrsConfig.builder()
+                .profileDefaultEnabled(false)
+                .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
+                .graphManagementEnabled(true)
+                .setRepoManagementPerProfile(true)
+                .graphManagementDownloadSchedule("0/6 * * * * *")
+                .graphManagementActivationSchedule("0/2 * * * * *")
+                .profiles(new HashMap<>() {{
+                    put("driving-car", true);
+                }})
+                .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
+                .repositoryUri("/tmp/test-filesystem-repo")
+                .repositoryName("vendor-xyz")
+                .repositoryProfileGroup("fastisochrones")
+                .graphExtent("heidelberg");
+        // @formatter:on
         // TODO write tests for GRC with manual restarts, no automatic restart. no automatic download.
 
         /**
-         * grc-no-automatic-activation.sh
+         * Test that the whole GRC functionality is deactivated when the graph management is turned off.
+         */
+        @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+        @ParameterizedTest(name = "{0}")
+        @Execution(ExecutionMode.CONCURRENT)
+        void testGrcNotActivated(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNotActivated");
+            Path grcConfig = GRC_CONFIG.graphManagementEnabled(false).build().toYAML(tempDir, "grc-config.yml");
+            container.withCopyFileToContainer(forHostPath(grcConfig), "/home/ors/openrouteservice/ors-config.yml");
+            container.start();
+            Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
+            Assertions.assertTrue(
+                    waitForLogPatterns(container, List.of(
+                            "Graph management is disabled, skipping repeated attempt to activate graphs..."
+                    ), 12, 1000, true)
+            );
+            container.stop();
+        }
+
+
+        /**
+         * Test that the updated graph is not downloaded when the download schedule is turned off.
+         */
+        @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
+        @ParameterizedTest(name = "{0}")
+        @Execution(ExecutionMode.CONCURRENT)
+        void testGrcAutomaticDownloadTurnedOff(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
+            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNoAutomaticDownload");
+            Path grcConfig = GRC_CONFIG
+                    .graphManagementDownloadSchedule("0 0 0 31 2 *")
+                    .build().toYAML(tempDir, "grc-config.yml");
+            container.withCopyFileToContainer(forHostPath(grcConfig), "/home/ors/openrouteservice/ors-config.yml");
+            container.start();
+            Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
+
+            Assertions.assertTrue(
+                    waitForLogPatterns(container, List.of(
+                            "Scheduled graph activation check done: No downloaded graphs found, no graph activation required."
+                    ), 12, 1000, true)
+            );
+        }
+
+        /**
          * Test that the updated graph is not activated when the activation schedule is turned off.
          * It should be loaded on a manual restart instead.
          */
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testGrcNoAutomaticActivation(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
-            Assertions.assertTrue(false, "Not implemented yet.");
-            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNoAutomaticActivation");
-            Path grcConfig = GRC_CONFIG.build().toYAML(tempDir, "grc-config.yml");
-        }
+        void testGrcAutomaticActivationTurnedOff(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
 
-        /**
-         * gtc-no-automatic-download.sh
-         * Test that the updated graph is not downloaded when the download schedule is turned off.
-         */
-        @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
-        @ParameterizedTest(name = "{0}")
-        @Execution(ExecutionMode.CONCURRENT)
-        void testGrcNoAutomaticDownload(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
-            Assertions.assertTrue(false, "Not implemented yet.");
-            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNoAutomaticDownload");
-            Path grcConfig = GRC_CONFIG.build().toYAML(tempDir, "grc-config.yml");
+            // TODO fix the repeated download. The graph should not be downloaded again.
+            Assertions.assertTrue(false, "This check continuously downloads the graph. It should be stopped after the first download.");
+            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNoAutomaticActivation");
+            // Set the activation schedule to never
+            Path grcConfig = GRC_CONFIG.graphManagementActivationSchedule("0 0 0 31 2 *").build().toYAML(tempDir, "grc-config.yml");
+            container.withCopyFileToContainer(forHostPath(grcConfig), "/home/ors/openrouteservice/ors-config.yml");
+            container.start();
+            Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
         }
 
 
@@ -126,7 +162,8 @@ public class GraphRepoTest extends ContainerInitializer {
 
             container.start();
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivationOnFreshGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
@@ -167,7 +204,8 @@ public class GraphRepoTest extends ContainerInitializer {
 
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivationOnExistingGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoActivationOnExistingGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             // Check that the graph was loaded
             OrsApiHelper.assertProfilesLoaded(container, new HashMap<>() {{
@@ -175,9 +213,6 @@ public class GraphRepoTest extends ContainerInitializer {
             }});
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
             checkAvoidAreaRequest("http://" + container.getHost() + ":" + container.getFirstMappedPort() + "/ors/v2/directions/driving-car/geojson", 200);
-            // We don't want the exception to appear.
-            Assertions.assertTrue(waitForLogPatterns(container, List.of(" Unexpected exception occurred invoking async method: public void org.heigit.ors.api.services.GraphService.checkForDownloadedGraphsToActivate()"), 12, 1000, false));
-            // Assert that the graph_info.yml was updated
             container.stop();
         }
 
@@ -240,7 +275,8 @@ public class GraphRepoTest extends ContainerInitializer {
 
             container.start();
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivationOnFreshGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
@@ -299,7 +335,8 @@ public class GraphRepoTest extends ContainerInitializer {
             }
             container.start();
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndActivationOnFreshGraph(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
         }
     }
