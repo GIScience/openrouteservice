@@ -100,6 +100,7 @@ public class GraphRepoTest extends ContainerInitializer {
                             "Scheduled graph activation check done: No downloaded graphs found, no graph activation required."
                     ), 12, 1000, true)
             );
+            container.stop();
         }
 
         /**
@@ -121,6 +122,7 @@ public class GraphRepoTest extends ContainerInitializer {
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            container.stop();
         }
 
 
@@ -338,6 +340,7 @@ public class GraphRepoTest extends ContainerInitializer {
             Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
             Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            container.stop();
         }
     }
 }
