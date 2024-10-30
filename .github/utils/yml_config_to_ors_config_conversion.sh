@@ -11,10 +11,10 @@ output_file=$2
 echo "Generate minimal sample configuration..."
 
 echo "\
-################################################################################
-### Configuration file for openrouteservice. For a description please visit: ###
-### https://giscience.github.io/openrouteservice/run-instance/configuration/ ###
-################################################################################" > ${output_file}
+################################################################################################
+### Minimal configuration example file for openrouteservice. For a description please visit: ###
+### https://giscience.github.io/openrouteservice/run-instance/configuration/                 ###
+################################################################################################" > ${output_file}
 
 yq --null-input '
 (.ors.engine.profile_default.build.source_file = "ors-api/src/test/files/heidelberg.test.pbf" )|
