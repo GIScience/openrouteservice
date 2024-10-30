@@ -1,7 +1,7 @@
-##### openrouteservice settings file #####
-# This file contains parameters for openrouteservice.
-# For a full list of possible parameters see https://giscience.github.io/openrouteservice/run-instance/configuration/
-
+################################################################################
+### Configuration file for openrouteservice. For a description please visit: ###
+### https://giscience.github.io/openrouteservice/run-instance/configuration/ ###
+################################################################################
 ##### General server settings #####
 server:
   port: 8082
@@ -54,7 +54,6 @@ ors:
     allowed_origins: "*"
     allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
     preflight_max_age: 600
-
   messages:
 
   ##### ORS endpoints settings #####
@@ -117,7 +116,7 @@ ors:
       # HINT default is NEVER (there is no Feb 31)
       download_schedule:   '0 0 0 31 2 *'
       activation_schedule: '0 0 0 31 2 *'
-      max_backups: 1
+      max_backups: 0
     elevation:
       preprocessed: false
       data_access: MMAP
@@ -147,6 +146,11 @@ ors:
               threads: 1
               weightings: recommended,shortest
               landmarks: 16
+      repo:
+        repository_uri: /tmp/graph-repo
+        repository_name: public
+        repository_profile_group: heigit
+        graph_extent: planet
       service:
         maximum_distance: 100000
         maximum_distance_dynamic_weights: 100000
@@ -161,6 +165,12 @@ ors:
           methods:
             lm:
               active_landmarks: 8
+
+    ##### Profile specific settings,                               #####
+    ##### overriding the properties in ors.engine.profile_default. #####
+    ##### Profile defaults defined here are not overridden by      #####
+    ##### a custom YAML file's ors.engine.profile_default, but by  #####
+    ##### a custom YAML file's ors.engine.profiles.<profile>       #####
     profiles:
       driving-car:
         encoder_name: driving-car
