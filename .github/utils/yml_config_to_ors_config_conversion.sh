@@ -8,40 +8,31 @@ fi
 input_file=$1
 output_file=$2
 
-echo ""
-echo "Copy $input_file to $output_file"
-cp $input_file $output_file
+echo "Generate minimal sample configuration..."
 
-###########################
-### Replace parameters ####
-###########################
-echo ""
-echo "Replace parameters:"
+echo "\
+################################################################################
+### Configuration file for openrouteservice. For a description please visit: ###
+### https://giscience.github.io/openrouteservice/run-instance/configuration/ ###
+################################################################################" > ${output_file}
 
-echo "- enable ors.engine.profiles.car"
-yq -i '.ors.engine.profiles.car.enabled = true' "$output_file" || exit 1
+yq --null-input '
+(.ors.engine.profile_default.build.source_file = "ors-api/src/test/files/heidelberg.test.pbf" )|
+(.ors.engine.profiles.driving-car.enabled = true )
+' >> ${output_file}
 
-echo "- set ors.engine.source_file to ors-api/src/test/files/heidelberg.osm.gz"
-yq -i '.ors.engine.source_file = "ors-api/src/test/files/heidelberg.osm.gz"' "$output_file" || exit 1
 
-echo "- remove .ors.engine.graph_management"
-yq -i 'del(.ors.engine.graph_management)' "$output_file" || exit 1
+echo "Prepare all properties to be added as commented text..."
+tmpYml=$(mktemp "prepare.XXXXXXXXX.yml")
+cp ${input_file} ${tmpYml}
+echo "Copied ${input_file} to ${tmpYml}"
+echo "Remove config properties that should not be added.."
+yq -i 'del(.ors.engine.graph_management)' ${tmpYml} || exit 1
+yq -i 'del(.ors.engine.profile_default.repo)' ${tmpYml} || exit 1
 
-###########################
-### Convert input file ####
-###########################
-echo ""
-echo "Converting input file:"
-## Add # to the beginning of each line that is not empty or a comment
-echo "- Comment everything"
-sed -i '/^\s*[^#]/ s/^/#/' "$output_file" || exit 1
+echo "Append commented application.yml..."
+echo "" >> ${output_file}
+sed '/^\s*[^#]/ s/^/#/' ${tmpYml} >> ${output_file}
 
-echo "- Uncomment ors, engine and source_file"
-sed -i -e '/^#ors:/s/^#//' -e '/^#.*engine:/s/^#//' -e '/^#.*source_file:/s/^#//' "$output_file"
-
-echo "- Uncomment subsequent lines for profiles.car.enabled in ors.engine"
-sed -i -e '/^#    profiles:/s/^#//' "$output_file"
-sed -i -e '/^#      car:.*/s/^#//' "$output_file"
-sed -i -e '/^#        enabled: true/s/^#//' "$output_file"
-
-echo "Parsing complete. Result saved to $output_file"
+echo "Remove temporary file ${tmpYml}..."
+rm ${tmpYml}

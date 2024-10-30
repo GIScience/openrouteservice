@@ -18,14 +18,17 @@ cp $input_file $output_file
 echo ""
 echo "Replace parameters:"
 
-echo "- enable ors.engine.profiles.car"
-yq -i '.ors.engine.profiles.car.enabled = true' "$output_file" || exit 1
+echo "- enable ors.engine.profiles.driving-car"
+yq -i '.ors.engine.profiles.driving-car.enabled = true' "$output_file" || exit 1
 
-echo "- set ors.engine.source_file to ors-api/src/test/files/heidelberg.osm.gz"
-yq -i '.ors.engine.source_file = "ors-api/src/test/files/heidelberg.osm.gz"' "$output_file" || exit 1
+echo "- set ors.engine.profile_default.build.source_file to ors-api/src/test/files/heidelberg.test.pbf"
+yq -i '.ors.engine.profile_default.build.source_file = "ors-api/src/test/files/heidelberg.test.pbf"' "$output_file" || exit 1
 
 echo "- remove .ors.engine.graph_management"
 yq -i 'del(.ors.engine.graph_management)' "$output_file" || exit 1
+
+echo "- remove .ors.engine.profile_default.repo"
+yq -i 'del(.ors.engine.profile_default.repo)' "$output_file" || exit 1
 
 ###########################
 ### Convert input file ####
@@ -39,24 +42,24 @@ yq -i -o=props --unwrapScalar=false '..  | select(tag != "!!map" and tag != "!!s
 echo "- Comment everything"
 sed -i '/^\s*[^#]/ s/^/#/' "$output_file" || exit 1
 
-echo "- Uncomment ors.engine.source_file and ors.engine.profiles.car.enabled"
-sed -i -e '/^#ors.engine.source_file/s/^#//' -e '/^#ors.engine.profiles.car.enabled/s/^#//' "$output_file" || exit 1
+echo "- Uncomment ors.engine.profile_default.build.source_file and ors.engine.profiles.driving-car.enabled"
+sed -i -e '/^#ors.engine.profile_default.build.source_file/s/^#//' -e '/^#ors.engine.profiles.driving-car.enabled/s/^#//' "$output_file" || exit 1
 
 ############################
 ### Validate output file ###
 ############################
 echo ""
 echo "Validate output file:"
-echo "- checking for ors.engine.source_file=ors-api/src/test/files/heidelberg.osm.gz"
-return_value=$(sed -n '/^ors.engine.source_file=ors-api\/src\/test\/files\/heidelberg.osm.gz/p' $output_file)|| exit 1
+echo "- checking for ors.engine.profile_default.source_file=ors-api/src/test/files/heidelberg.test.pbf"
+return_value=$(sed -n '/^ors.engine.profile_default.build.source_file=ors-api\/src\/test\/files\/heidelberg.test.pbf/p' $output_file)|| exit 1
 if [ -z "$return_value" ]; then
-  echo "ors.engine.source_file=ors-api/src/test/files/heidelberg.osm.gz not found"
+  echo "ors.engine.source_file=ors-api/src/test/files/heidelberg.test.pbf not found"
   exit 1
 fi
-echo "- checking for ors.engine.profiles.car.enabled=true"
-return_value=$(sed -n '/^ors.engine.profiles.car.enabled=true/p' $output_file) || exit 1
+echo "- checking for ors.engine.profiles.driving-car.enabled=true"
+return_value=$(sed -n '/^ors.engine.profiles.driving-car.enabled=true/p' $output_file) || exit 1
 if [ -z "$return_value" ]; then
-  echo "ors.engine.profiles.car.enabled=true not found"
+  echo "ors.engine.profiles.driving-car.enabled=true not found"
   exit 1
 fi
 
