@@ -63,7 +63,7 @@ public class GraphService {
             return;
         }
         if (isUpdateLocked()) {
-            LOGGER.warn("Scheduled repository check skipped: File %s found - remove lock file manually!".formatted(ORSGraphManager.UPDATE_LOCKFILE_NAME));
+            LOGGER.warn("Skipping scheduled repository check: File %s found - remove lock file manually!".formatted(ORSGraphManager.UPDATE_LOCKFILE_NAME));
             return;
         }
 
@@ -105,16 +105,17 @@ public class GraphService {
             if (orsGraphManager.isBusy() || orsGraphManager.hasGraphDownloadFile()) {
                 if (!graphActivationAttemptWasBlocked.get()) {
                     LOGGER.info("[%s] %s graph activation check: Download or extraction in progress".formatted(
-                            trigger,
-                            orsGraphManager.getQualifiedProfileName()));
+                            orsGraphManager.getQualifiedProfileName(),
+                            trigger
+                    ));
                 }
                 graphActivationAllowed = false;
             }
             if (orsGraphManager.hasDownloadedExtractedGraph()) {
                 if (!graphActivationAttemptWasBlocked.get()) {
                     LOGGER.info("[%s] %s graph activation check: Downloaded extracted graph available".formatted(
-                            trigger,
-                            orsGraphManager.getQualifiedProfileName()));
+                            orsGraphManager.getQualifiedProfileName(),
+                            trigger));
                 }
                 graphActivationNeeded = true;
             }

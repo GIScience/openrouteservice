@@ -58,6 +58,15 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
             GraphInfo activeGraphInfo = orsGraphFileManager.getActiveGraphInfo();
             GraphInfo downloadedExtractedGraphInfo = orsGraphFileManager.getDownloadedExtractedGraphInfo();
             GraphInfo newlyDownloadedGraphInfo = downloadLatestGraphInfoFromRepository();
+            LOGGER.trace(("[%s] Comparing dates, downloading if first is after the others:%n" +
+                    "                         repo=%s%n" +
+                    "              activeGraphInfo=%s%n" +
+                    " downloadedExtractedGraphInfo=%s%n" +
+                    "previouslyDownloadedGraphInfo=%s").formatted(getProfileDescriptiveName(),
+                    getDateOrEpocStart(newlyDownloadedGraphInfo),
+                    getDateOrEpocStart(activeGraphInfo),
+                    getDateOrEpocStart(downloadedExtractedGraphInfo),
+                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphInfo)));
 
             if (!shouldDownloadGraph(
                     getDateOrEpocStart(newlyDownloadedGraphInfo),

@@ -103,9 +103,4 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
     public String getDownloadedExtractedGraphDirAbsPath() {
         return managementProperties.getLocalGraphsRootAbsPath() + File.separator + getDownloadedExtractedGraphDirName();
     }
-
-    @Override
-    public String getDownloadedExtractedGraphInfoFileName() {
-        return getGraphInfoFileNameInRepository();
-    }
 }

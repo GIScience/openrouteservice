@@ -432,8 +432,4 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return orsGraphFolderStrategy.getDownloadedExtractedGraphDirAbsPath();
     }
 
-    @Override
-    public String getDownloadedExtractedGraphInfoFileName() {
-        return orsGraphFolderStrategy.getDownloadedExtractedGraphInfoFileName();
-    }
 }

@@ -72,7 +72,9 @@ public interface ORSGraphFolderStrategy {
     default File getDownloadedExtractedGraphDirectory(){
         return new File(getDownloadedExtractedGraphDirAbsPath());
     }
-    String getDownloadedExtractedGraphInfoFileName();
+    default String getDownloadedExtractedGraphInfoFileName() {
+        return getActiveGraphInfoFileName();
+    }
     default File getDownloadedExtractedGraphInfoFile() {
         return new File(getDownloadedExtractedGraphDirectory(), getDownloadedExtractedGraphInfoFileName());
     }
