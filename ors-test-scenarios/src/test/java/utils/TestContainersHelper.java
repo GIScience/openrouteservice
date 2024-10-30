@@ -168,7 +168,7 @@ public class TestContainersHelper {
 
     public static boolean waitForSuccessfulGrcRepoActivationOnExistingGraph(GenericContainer<?> container, String profile, String encoder_name, int maxWaitTimeInSeconds, int recheckFrequencyInMillis, boolean expected) throws InterruptedException {
         List<String> logPatterns = List.of(
-                "[Scheduled] driving-car graph activation check: Downloaded extracted graph available",
+                "[" + profile + "] Scheduled graph activation check: Downloaded extracted graph available",
                 "Scheduled graph activation check done: Performing graph activation...",
                 "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
                 "[" + profile + "] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_" + encoder_name + ".yml",
