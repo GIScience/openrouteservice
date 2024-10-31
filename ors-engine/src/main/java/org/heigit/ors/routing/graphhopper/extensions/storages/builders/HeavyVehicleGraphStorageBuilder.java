@@ -40,6 +40,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
     private final Set<String> noValues = new HashSet<>(5);
     private final Set<String> yesValues = new HashSet<>(5);
     private final Pattern patternDimension;
+    private final Pattern patternHazmat;
 
     public HeavyVehicleGraphStorageBuilder() {
         motorVehicleRestrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
@@ -55,6 +56,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
         yesValues.addAll(Arrays.asList("yes", "designated"));
 
         patternDimension = Pattern.compile("(?:\\s*(\\d+)\\s*(?:feet|ft\\.|ft|'))?(?:(\\d+)\\s*(?:inches|in\\.|in|''|\"))?");
+        patternHazmat = Pattern.compile("^hazmat(:[B-E])?$");
     }
 
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
@@ -183,7 +185,7 @@ public class HeavyVehicleGraphStorageBuilder extends AbstractGraphStorageBuilder
                     setAccessFlags(vehicleType, accessValue);
                     if (vehicleType.equals(value))// e.g. hgv=delivery implies that hgv other than delivery vehicles are blocked
                         setAccessFlags(key, "no");
-                } else if (key.equals("hazmat") && "no".equals(value)) {
+                } else if (patternHazmat.matcher(key).matches() && "no".equals(value)) {
                     hgvType |= HeavyVehicleAttributes.HAZMAT;
                 }
             }
