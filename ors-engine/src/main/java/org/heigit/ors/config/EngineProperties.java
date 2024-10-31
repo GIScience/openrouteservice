@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
+import org.heigit.ors.config.profile.ProfileDefaultProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 
 import java.util.LinkedHashMap;
@@ -14,12 +15,13 @@ import java.util.Map;
 public class EngineProperties {
     private Integer initThreads;
     private Boolean preparationMode;
+    @JsonIgnore
     private String configOutput;
     private DataAccessEnum graphsDataAccess;
 
     private ElevationProperties elevation = new ElevationProperties();
     private GraphManagementProperties graphManagement = new GraphManagementProperties();
-    private ProfileProperties profileDefault = new ProfileProperties();
+    private ProfileDefaultProperties profileDefault = new ProfileDefaultProperties();
     private Map<String, ProfileProperties> profiles = new LinkedHashMap<>();
 
     @JsonIgnore

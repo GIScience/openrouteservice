@@ -15,7 +15,7 @@ import static java.util.Optional.ofNullable;
 @Getter
 @Setter
 public class BuildProperties {
-    @JsonIgnore
+    @JsonProperty("source_file")
     private Path sourceFile;
     @JsonProperty("elevation")
     private Boolean elevation;
@@ -35,7 +35,7 @@ public class BuildProperties {
     private Integer locationIndexResolution;
     @JsonProperty("location_index_search_iterations")
     private Integer locationIndexSearchIterations;
-    @JsonIgnore
+    @JsonProperty("gtfs_file")
     private Path gtfsFile;
     @JsonProperty("encoder_options")
     private EncoderOptionsProperties encoderOptions = new EncoderOptionsProperties();

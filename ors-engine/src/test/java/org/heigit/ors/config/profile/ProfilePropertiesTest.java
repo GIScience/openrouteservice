@@ -82,7 +82,7 @@ class ProfilePropertiesTest {
         profile.getBuild().getPreparation().getMethods().getCore().setEnabled(true);
         profile.getBuild().getExtStorages().put("WayCategory", new ExtendedStorageProperties());
 
-        ProfileProperties defaultProfile = new ProfileProperties();
+        ProfileDefaultProperties defaultProfile = new ProfileDefaultProperties();
         defaultProfile.setGraphPath(Path.of("/path/to/graphs/cannot/be/null"));
         defaultProfile.getBuild().setSourceFile(Path.of("/path/to/source/cannot/be/null"));
         defaultProfile.getBuild().setElevation(false);
@@ -154,5 +154,18 @@ class ProfilePropertiesTest {
         assertEquals(false, profile.getBuild().getPreparation().getMethods().getLm().getEnabled(), "LM should be overwritten");
         assertNull(profile.getBuild().getPreparation().getMethods().getCore().getEnabled(), "Core should be null");
         assertTrue(profile.getBuild().getExtStorages().size() == 1 && profile.getBuild().getExtStorages().containsKey("HeavyVehicle"), "extStrorages should be replaced");
+    }
+
+    @Test
+    void testProfilePropertiesDoesNotSerializeEnabled() throws JsonProcessingException {
+        ProfileProperties profile = new ProfileProperties();
+        profile.setEnabled(true);
+
+        // Write to yaml
+        String yaml = mapper.writeValueAsString(profile);
+
+        // Read from yaml
+        ProfileProperties profileDeserialized = mapper.readValue(yaml, ProfileProperties.class);
+        assertNull(profileDeserialized.getEnabled());
     }
 }
