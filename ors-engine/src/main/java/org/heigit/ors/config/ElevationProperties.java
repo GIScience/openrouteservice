@@ -1,5 +1,6 @@
 package org.heigit.ors.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
@@ -21,6 +22,7 @@ public class ElevationProperties {
     public ElevationProperties(String ignored) {
     }
 
+    @JsonIgnore
     public Path getCachePath() {
         return cachePath != null ? cachePath.toAbsolutePath() : null;
     }

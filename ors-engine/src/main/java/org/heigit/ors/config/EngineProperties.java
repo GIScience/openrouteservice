@@ -14,6 +14,7 @@ import java.util.Map;
 public class EngineProperties {
     private Integer initThreads;
     private Boolean preparationMode;
+    @JsonIgnore
     private String configOutput;
     private DataAccessEnum graphsDataAccess;
 

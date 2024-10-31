@@ -16,9 +16,9 @@ import static java.util.Optional.ofNullable;
 public class ProfileProperties {
     @JsonIgnore
     private String profileName;
-    @JsonIgnore
+    @JsonProperty("enabled")
     private Boolean enabled;
-    @JsonIgnore
+    @JsonProperty("graph_path")
     private Path graphPath;
     @JsonProperty("encoder_name")
     private EncoderNameEnum encoderName;
