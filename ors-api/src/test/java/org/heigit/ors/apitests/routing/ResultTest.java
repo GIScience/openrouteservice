@@ -1754,6 +1754,52 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testHGVHazmatRestriction() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.684872,49.40527|8.719071,49.414851"));
+        body.put("preference", "shortest");
+        body.put("instructions", false);
+        body.put("units", "m");
+
+        JSONObject restrictions = new JSONObject();
+        restrictions.put("hazmat", false);
+        JSONObject params = new JSONObject();
+        params.put("restrictions", restrictions);
+        JSONObject options = new JSONObject();
+        options.put("profile_params", params);
+        options.put("vehicle_type", "hgv");
+        body.put("options", options);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(2808, 1)))
+                .statusCode(200);
+
+        restrictions.put("hazmat", true);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(11359, 1)))
+                .statusCode(200);
+    }
+
+    @Test
     void testCarDistanceAndDuration() {
         JSONObject body = new JSONObject();
         body.put("coordinates", HelperFunctions.constructCoords("8.690915,49.430117|8.68834,49.427758"));
