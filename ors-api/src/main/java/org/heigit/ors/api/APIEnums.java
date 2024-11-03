@@ -437,6 +437,8 @@ public class APIEnums {
         RU_RU("ru-ru"),
         TR("tr"),
         TR_TR("tr-tr"),
+        UA("ua"),
+        UA_UA("ua-ua"),
         VI("vi"),
         VI_VN("vi-vn"),
         ZH("zh"),
