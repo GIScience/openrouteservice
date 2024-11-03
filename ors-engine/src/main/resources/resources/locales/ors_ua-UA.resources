@@ -1,0 +1,107 @@
+{
+    "instructions": {
+        "numerals": {
+            "1": "1.",
+            "2": "2.",
+            "3": "3.",
+            "4": "4.",
+            "5": "5.",
+            "6": "6.",
+            "7": "7.",
+            "8": "8.",
+            "9": "9.",
+            "10": "10."
+        },
+        "directions": {
+            "north": "північ",
+            "northeast": "північний схід",
+            "east": "схід",
+            "southeast": "південний схід",
+            "south": "південь",
+            "southwest": "південний захід",
+            "west": "захід",
+            "northwest": "північний захід"
+        },
+        "turn_maneuvers": {
+            "left": "ліворуч",
+            "right": "праворуч",
+            "sharp_left": "різко ліворуч",
+            "sharp_right": "різко праворуч",
+            "slight_left": "плавно ліворуч",
+            "slight_right": "плавно right",
+            "straight": "прямо",
+            "uturn": "розворот"
+        },
+        "actions": {
+            "arrive": {
+                "default": {
+                    "default": "Прибуття до місця призначення",
+                    "name": "Ви прибуваєте до {way_name}"
+                },
+                "left": {
+                    "default": "Прибуття до місця призначення (ліворуч)",
+                    "name": "Ви прибуваєте до {way_name} (ліворуч)"
+                },
+                "right": {
+                    "default": "Прибуття до місця призначення (праворуч)",
+                    "name": "Ви прибуваєте до {way_name} (праворуч)"
+                },
+                "straight": {
+                    "default": "Прибуття до місця призначення (прямо)",
+                    "name": "Ви прибуваєте до {way_name} (прямо)"
+                }
+            },
+            "depart": {
+                "default": {
+                    "default": "Прямуйте на {direction}",
+                    "name": "Прямуйте на {direction} по {way_name}"
+                }
+            },
+            "roundabout": {
+                "default": {
+                    "exit": {
+                        "default": "Вʼїдьте на перехрестя з кільцевим рухом та оберіть {exit_number} зʼїзд",
+                        "name": "Вʼїдьте на перехрестя з кільцевим рухом та оберіть {exit_number} зʼїзд на {way_name}"
+                    },
+                    "default": {
+                        "default": "Вʼїдьте на перехрестя з кільцевим рухом",
+                        "name": "Вʼїдьте на перехрестя з кільцевим рухом та виїдьте на {way_name}"
+                    }
+                }
+            },
+            "turn": {
+                "default": {
+                    "default": "Поверніть {turn_maneuver}",
+                    "name": "Поверніть {turn_maneuver} на {way_name}"
+                }
+            },
+            "continue": {
+                "default": {
+                    "default": "Продовжуйте рух {turn_maneuver}",
+                    "name": "Продовжуйте рух {turn_maneuver} на {way_name}"
+                },
+                "uturn": {
+                    "default": "Здійсніть розворот",
+                    "name": "Здійсніть розворот на {way_name}"
+                }
+            },
+            "keep": {
+                "default": {
+                    "default": "Тримайтеся {turn_maneuver}",
+                    "name": "Тримайтеся {turn_maneuver} на {way_name}"
+                }
+            },
+            "pt": {
+                "start": {
+                    "default": "Посадка на {name}",
+                    "headsign": "Сядьте на {name}, що прямує до {headsign}"
+                },
+                "transfer": {
+                    "default": "Пересадка на {name}",
+                    "headsign": "Пересядьте на {name}, що прямує до {headsign}"
+                },
+                "end": "Вихід з {name}"
+            }
+        }
+    }
+}
