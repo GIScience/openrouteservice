@@ -18,12 +18,15 @@ package org.heigit.ors.api.controllers;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.api.util.AppInfo;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,6 +45,7 @@ import java.util.List;
 @Tag(name = "Status service", description = "Get information on the status of the api")
 @RequestMapping("/v2/status")
 public class StatusAPI {
+
     private final EndpointsProperties endpointsProperties;
 
     public StatusAPI(EndpointsProperties endpointsProperties) {
@@ -49,7 +53,7 @@ public class StatusAPI {
     }
 
     @GetMapping
-    public ResponseEntity fetchHealth(HttpServletRequest request) throws Exception {
+    public ResponseEntity getStatus(HttpServletRequest request) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -80,7 +84,8 @@ public class StatusAPI {
                     org.json.JSONObject jProfileProps = new org.json.JSONObject(true);
 
                     jProfileProps.put("encoder_name", profile.getEncoderName().getName());
-                    jProfileProps.put("creation_date", rp.getGraphProperties().get("datareader.import.date"));
+                    jProfileProps.put("import_date", rp.getGraphProperties().get("datareader.import.date"));
+                    jProfileProps.put("osm_date", rp.getGraphProperties().get("datareader.data.date"));
 
                     org.json.JSONObject jProfileLimits = new org.json.JSONObject();
                     if (profile.getService().getMaximumDistance() != null)

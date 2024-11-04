@@ -39,7 +39,6 @@ public class ORSGraphManager {
         return orsGraphManager;
     }
 
-
     public static ORSGraphManager initializeGraphManagement(GraphManagementRuntimeProperties managementProps) {
         ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
         ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
@@ -77,6 +76,10 @@ public class ORSGraphManager {
     public ProfileProperties loadProfilePropertiesFromActiveGraph(ORSGraphManager orsGraphManager, ProfileProperties profileProperties) {
         profileProperties.mergeLoaded(orsGraphManager.getActiveGraphProfileProperties());
         return profileProperties;
+    }
+
+    public String getProfileName() {
+        return managementRuntimeProperties.getLocalProfileName();
     }
 
     public String getQualifiedProfileName() {

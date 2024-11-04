@@ -22,17 +22,17 @@ public class GraphService {
 
     // get this value from ors.engine.graph_management.enabled
     @Value("${ors.engine.graph_management.enabled:false}")
-    Boolean enabled = false;
+    private Boolean enabled = false;
 
     @Autowired
-    EngineProperties engineProperties;
+    private EngineProperties engineProperties;
 
     private static final Logger LOGGER = Logger.getLogger(GraphService.class.getName());
 
-    public List<ORSGraphManager> graphManagers = new ArrayList<>();
+    private List<ORSGraphManager> graphManagers = new ArrayList<>();
 
-    AtomicBoolean graphActivationAttemptWasBlocked = new AtomicBoolean(false);
-    AtomicBoolean isActivatingGraphs = new AtomicBoolean(true);
+    private AtomicBoolean graphActivationAttemptWasBlocked = new AtomicBoolean(false);
+    private AtomicBoolean isActivatingGraphs = new AtomicBoolean(true);
 
     public void addGraphManagerInstance(ORSGraphManager orsGraphManager) {
         if (orsGraphManager.useGraphRepository()) {
