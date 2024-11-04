@@ -35,7 +35,7 @@ RELEASING:
 ## [unreleased]
 ### Added
 - take into account tunnel categories B, C, D, and E when restricting roads for the transport of dangerous goods via the `hazmat` flag in vehicle parameters ([#1879](https://github.com/GIScience/openrouteservice/pull/1879))
-- ukrainian instructions language ([#1883](https://github.com/GIScience/openrouteservice/pull/1883))
+- Ukrainian translation ([#1883](https://github.com/GIScience/openrouteservice/pull/1883))
 ### Changed
 - update docs dependency: VitePress ([#1872](https://github.com/GIScience/openrouteservice/pull/1872))
 - adjust documentation for export endpoint ([#1872](https://github.com/GIScience/openrouteservice/pull/1872))
