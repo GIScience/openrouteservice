@@ -14,7 +14,7 @@ ors:
       maximum_locations: 3
 
   engine:
-    source_file: ./src/test/files/heidelberg.osm.gz
+    source_file: ./src/test/files/heidelberg.ors.pbf
     graphs_root_path: graphs-apitests
     elevation:
       cache_path: ./src/test/files/elevation
@@ -70,7 +70,7 @@ ors:
           WaySurfaceType:
           Tollways:
           Borders:
-            boundaries: ./src/test/files/borders/borders.geojson
+            preprocessed: true
             ids: ./src/test/files/borders/ids.csv
             openborders: ./src/test/files/borders/openborders.csv
           RoadAccessRestrictions:
