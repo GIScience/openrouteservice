@@ -66,6 +66,8 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder 
                         wayType |= AvoidFeatureFlags.HIGHWAYS;
                     } else if (value.equals("steps")) {
                         wayType |= AvoidFeatureFlags.STEPS;
+                    } else if (value.equals("junction")) {
+                        wayType |= AvoidFeatureFlags.JUNCTION;
                     }
                 } else if (value.equals("yes") && key.startsWith("toll")) {
                     wayType |= AvoidFeatureFlags.TOLLWAYS;
@@ -73,6 +75,8 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder 
                     wayType |= AvoidFeatureFlags.FERRIES;
                 } else if (("ford".equals(key) && value.equals("yes"))) {
                     wayType |= AvoidFeatureFlags.FORDS;
+                 } else if (("junction".equals(key) && value.equals("yes"))) {
+                    wayType |= AvoidFeatureFlags.JUNCTION;    
                 }
             }
         }
