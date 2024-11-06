@@ -1,73 +1,48 @@
 osm_date: 2024-06-26T10:23:31+0000
-import_date: 2024-06-26T10:23:31+0000
+graph_build_date: 2024-06-26T10:23:31+0000
 profile_properties:
-  enabled: true
   encoder_name: driving-car
-  elevation: true
-  elevation_smoothing: true
-  encoder_flags_size: 8
-  instructions: true
-  optimize: false
-  traffic: false
-  interpolate_bridges_and_tunnels: true
-  force_turn_costs: false
-  location_index_resolution: 500
-  location_index_search_iterations: 4
-  maximum_distance: 100000.0
-  maximum_distance_dynamic_weights: 100000.0
-  maximum_distance_avoid_areas: 100000.0
-  maximum_distance_alternative_routes: 100000.0
-  maximum_distance_round_trip_routes: 100000.0
-  maximum_speed_lower_bound: 80.0
-  maximum_way_points: 50
-  maximum_snapping_radius: 400
-  maximum_visited_nodes: 1000000
-  encoder_options:
-    block_fords: false
-    consider_elevation: false
-    turn_costs: true
-    use_acceleration: true
-    conditional_access: false
-    conditional_speed: false
-  preparation:
-    min_network_size: 200
-    min_one_way_network_size: 200
-    methods:
-      ch:
-        threads: 2
-        weightings: fastest
+  build:
+    elevation: true
+    elevation_smoothing: false
+    encoder_flags_size: 8
+    instructions: true
+    optimize: false
+    traffic: false
+    interpolate_bridges_and_tunnels: true
+    location_index_resolution: 500
+    location_index_search_iterations: 4
+    encoder_options:
+      block_fords: false
+      turn_costs: true
+      use_acceleration: true
+    preparation:
+      min_network_size: 200
+      methods:
+        ch:
+          enabled: true
+          threads: 1
+          weightings: fastest
+        lm:
+          enabled: false
+          threads: 1
+          weightings: "recommended,shortest"
+          landmarks: 16
+        core:
+          enabled: true
+          threads: 1
+          weightings: "fastest,shortest"
+          landmarks: 64
+          lmsets: highways;allow_all
+    ext_storages:
+      WayCategory:
         enabled: true
-      lm:
-        threads: 2
-        weightings: "fastest,shortest"
-        landmarks: 16
-        enabled: false
-      core:
-        threads: 2
-        weightings: "fastest,shortest"
-        landmarks: 64
-        lmsets: highways;allow_all
+      HeavyVehicle:
         enabled: true
-      fastisochrones:
-        threads: 2
-        weightings: "recommended,shortest"
-        enabled: false
-  execution:
-    methods:
-      lm:
-        active_landmarks: 6
-      core:
-        active_landmarks: 6
-  ext_storages:
-    Tollways:
-      enabled: true
-    WayCategory:
-      enabled: true
-    WaySurfaceType:
-      enabled: true
-    HeavyVehicle:
-      enabled: true
-      restrictions: true
-    RoadAccessRestrictions:
-      enabled: true
-      use_for_warnings: true
+        restrictions: true
+      WaySurfaceType:
+        enabled: true
+      RoadAccessRestrictions:
+        enabled: true
+        use_for_warnings: true
+    maximum_speed_lower_bound: 80.0
