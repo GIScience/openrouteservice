@@ -145,7 +145,7 @@ public class TestContainersHelper {
                 "[" + profile + "] Checking latest graphInfo in remote repository...",
                 "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoder_name + ".yml...",
                 "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoder_name + ".ghz...",
-                "[" + profile + "] Download finished after",
+                "[" + profile + "] Download of compressed graph file finished after",
                 "[" + profile + "] Extracting downloaded graph file to /home/ors/openrouteservice/graphs/" + profile + "_new_incomplete",
                 "[" + profile + "] Extraction of downloaded graph file finished after",
                 "deleting downloaded graph file /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_" + encoder_name + ".ghz",

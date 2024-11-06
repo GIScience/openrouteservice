@@ -1,7 +1,20 @@
-##### openrouteservice settings file #####
-# This file contains parameters for openrouteservice.
-# For a full list of possible parameters see https://giscience.github.io/openrouteservice/run-instance/configuration/
+################################################################################################
+### Minimal configuration example file for openrouteservice. For a description please visit: ###
+### https://giscience.github.io/openrouteservice/run-instance/configuration/                 ###
+################################################################################################
+ors:
+  engine:
+    profile_default:
+      build:
+        source_file: ors-api/src/test/files/heidelberg.test.pbf
+    profiles:
+      driving-car:
+        enabled: true
 
+################################################################################
+### Configuration file for openrouteservice. For a description please visit: ###
+### https://giscience.github.io/openrouteservice/run-instance/configuration/ ###
+################################################################################
 ##### General server settings #####
 #server:
 #  port: 8082
@@ -35,19 +48,19 @@
 #  packages-to-scan: org.heigit.ors
 #  pathsToMatch: /v2/**
 ##### Logging settings #####
-logging:
+#logging:
 #  file:
 #    name: ./logs/ors.log
 #  pattern:
 #    console: "%d{yyyy-MM-dd HH:mm:ss} %highlight{%-7p} %style{%50t}{Cyan} %style{[ %-40.40c{1.} ]}{Bright Cyan}   %m%n"
 #    file: "%d{yyyy-MM-dd HH:mm:ss} %p [%-40.40c{1.}] - %m%n"
-  level:
+#  level:
 #    root: WARN
-    org.heigit: DEBUG
+#    org.heigit: INFO
 ##### openrouteservice specific settings #####
-ors:
-  #  cors:
-  #    allowed_origins: "*"
+#ors:
+#  cors:
+#    allowed_origins: "*"
 #    allowed_headers: Content-Type, X-Requested-With, accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization
 #    preflight_max_age: 600
 #  messages:
@@ -72,7 +85,7 @@ ors:
 #      maximum_routes_flexible: 25
 #      maximum_visited_nodes: 100000
 #      maximum_search_radius: 2000
-#      u_turn_costs: -1
+#      u_turn_cost: -1
 #    isochrones:
 #      enabled: true
 #      attribution: openrouteservice.org, OpenStreetMap contributors
@@ -101,218 +114,213 @@ ors:
 #      attribution: openrouteservice.org, OpenStreetMap contributors
 #      maximum_locations: 5000
 #  ##### ORS engine settings #####
-  engine:
-#    config_output: ors-config-example.yml
+#  engine:
+#    init_threads: 1
 #    preparation_mode: false
-#    graphs_root_path: ./graphs
 #    graphs_data_access: RAM_STORE
-#    graph_management:
-#      enabled: false
-#      max_backups: 1
-#      # HINT default is NEVER (there is no Feb 31)
-#      download_schedule:   '0 0 0 31 2 *'
-#      activation_schedule: '0 0 0 31 2 *'
-#      download_schedule:   '0/20 * * * * *'
-#      activation_schedule: '5/20 * * * * *'
 #    elevation:
 #      preprocessed: false
 #      data_access: MMAP
 #      cache_clear: false
 #      provider: multi
-#      cache_path: ./elevation_cache
-    profile_default:
-      build:
-        source_file: ors-api/src/test/files/heidelberg.test.pbf
-      repo:
-        repository_uri: 'ors-engine/src/test/resources/test-filesystem-repos'
-        repository_name: vendor-xyz
-        repository_profile_group: fastisochrones
-        graph_extent: heidelberg
+#      cache_path: elevation_cache
+#    profile_default:
 #      enabled: false
-#      elevation: true
-#      elevation_smoothing: false
-#      encoder_flags_size: 8
-#      instructions: true
-#      optimize: false
-#      traffic: false
-#      maximum_distance: 100000
-#      maximum_distance_dynamic_weights: 100000
-#      maximum_distance_avoid_areas: 100000
-#      maximum_distance_alternative_routes: 100000
-#      maximum_distance_round_trip_routes: 100000
-#      maximum_waypoints: 50
-#      maximum_snapping_radius: 400
-#      maximum_speed_lower_bound: 80
-#      maximum_visited_nodes: 1000000
-#      location_index_resolution: 500
-#      location_index_search_iterations: 4
-#      force_turn_costs: false
-#      interpolate_bridges_and_tunnels: true
-#      preparation:
-#        min_network_size: 200
-#        methods:
-#          lm:
-#            enabled: true
-#            threads: 1
-#            weightings: recommended,shortest
-#            landmarks: 16
-#      execution:
-#        methods:
-#          lm:
-#            active_landmarks: 8
-    profiles:
-      driving-car:
-        encoder_name: driving-car
-        enabled: true
-        repo:
-#          # nginx HttpRepoManager
-#          repository_uri: 'http://localhost:8080'
-#          repository_name: vendor-xyz
-#          # FilesystemRepoManager
-#          repository_uri: 'ors-engine/src/test/resources/test-filesystem-repos'
-#          repository_name: vendor-xyz
-#          repository_profile_group: fastisochrones
-#          graph_extent: heidelberg
-#        encoder_options:
-#          turn_costs: true
-#          block_fords: false
-#          use_acceleration: true
+#      graph_path: graphs
+#      build:
+#        source_file:
+#        elevation: true
+#        elevation_smoothing: false
+#        encoder_flags_size: 8
+#        instructions: true
+#        optimize: false
+#        traffic: false
+#        maximum_speed_lower_bound: 80
+#        location_index_resolution: 500
+#        location_index_search_iterations: 4
+#        interpolate_bridges_and_tunnels: true
 #        preparation:
 #          min_network_size: 200
 #          methods:
-#            ch:
-#              enabled: true
-#              threads: 1
-#              weightings: fastest
 #            lm:
-#              enabled: false
-#              threads: 1
-#              weightings: fastest,shortest
-#              landmarks: 16
-#            core:
-#              enabled: true
-#              threads: 1
-#              weightings: fastest,shortest
-#              landmarks: 64
-#              lmsets: highways;allow_all
-#        execution:
-#          methods:
-#            lm:
-#              active_landmarks: 6
-#            core:
-#              active_landmarks: 6
-#        ext_storages:
-#          WayCategory:
-#          HeavyVehicle:
-#          WaySurfaceType:
-#          RoadAccessRestrictions:
-#            use_for_warnings: true
-      driving-hgv:
-        enabled: true
-#        encoder_name: driving-hgv
-#        encoder_options:
-#          turn_costs: true
-#          block_fords: false
-#          use_acceleration: true
-#        preparation:
-#          min_network_size: 200
-#          methods:
-#            ch:
-#              enabled: true
-#              threads: 1
-#              weightings: recommended
-#            core:
 #              enabled: true
 #              threads: 1
 #              weightings: recommended,shortest
-#              landmarks: 64
-#              lmsets: highways;allow_all
+#              landmarks: 16
+#      service:
+#        maximum_distance: 100000
+#        maximum_distance_dynamic_weights: 100000
+#        maximum_distance_avoid_areas: 100000
+#        maximum_waypoints: 50
+#        maximum_snapping_radius: 400
+#        maximum_distance_alternative_routes: 100000
+#        maximum_distance_round_trip_routes: 100000
+#        maximum_visited_nodes: 1000000
+#        force_turn_costs: false
 #        execution:
 #          methods:
-#            core:
-#              active_landmarks: 6
-#        ext_storages:
-#          WayCategory:
-#          HeavyVehicle:
-#            restrictions: true
-#          WaySurfaceType:
-#      bike-regular:
-#        profile: cycling-regular
-#        encoder_options:
-#          consider_elevation: true
-#          turn_costs: true
-#          block_fords: false
-#        ext_storages:
-#          WayCategory:
-#          WaySurfaceType:
-#          HillIndex:
-#          TrailDifficulty:
-#      bike-mountain:
-#        profile: cycling-mountain
-#        encoder_options:
-#          consider_elevation: true
-#          turn_costs: true
-#          block_fords: false
-#        ext_storages:
-#          WayCategory:
-#          WaySurfaceType:
-#          HillIndex:
-#          TrailDifficulty:
-#      bike-road:
-#        profile: cycling-road
-#        encoder_options:
-#          consider_elevation: true
-#          turn_costs: true
-#          block_fords: false
-#        ext_storages:
-#          WayCategory:
-#          WaySurfaceType:
-#          HillIndex:
-#          TrailDifficulty:
-#      bike-electric:
-#        profile: cycling-electric
-#        encoder_options:
-#          consider_elevation: true
-#          turn_costs: true
-#          block_fords: false
-#        ext_storages:
-#          WayCategory:
-#          WaySurfaceType:
-#          HillIndex:
-#          TrailDifficulty:
-#      walking:
-#        profile: foot-walking
-#        encoder_options:
-#          block_fords: false
-#        ext_storages:
-#          WayCategory:
-#          WaySurfaceType:
-#          HillIndex:
-#          TrailDifficulty:
-#      hiking:
-#        profile: foot-hiking
-#        encoder_options:
-#          block_fords: false
-#        ext_storages:
-#          WayCategory:
-#          WaySurfaceType:
-#          HillIndex:
-#          TrailDifficulty:
+#            lm:
+#              active_landmarks: 8
+#    ##### Profile specific settings,                               #####
+#    ##### overriding the properties in ors.engine.profile_default. #####
+#    ##### Profile defaults defined here are not overridden by      #####
+#    ##### a custom YAML file's ors.engine.profile_default, but by  #####
+#    ##### a custom YAML file's ors.engine.profiles.<profile>       #####
+#    profiles:
+#      driving-car:
+#        encoder_name: driving-car
+#        build:
+#          encoder_options:
+#            turn_costs: true
+#            block_fords: false
+#            use_acceleration: true
+#          preparation:
+#            min_network_size: 200
+#            methods:
+#              ch:
+#                enabled: true
+#                threads: 1
+#                weightings: fastest
+#              lm:
+#                enabled: false
+#              core:
+#                enabled: true
+#                threads: 1
+#                weightings: fastest,shortest
+#                landmarks: 64
+#                lmsets: highways;allow_all
+#          ext_storages:
+#            WayCategory:
+#            HeavyVehicle:
+#            WaySurfaceType:
+#            RoadAccessRestrictions:
+#              use_for_warnings: true
+#        service:
+#          execution:
+#            methods:
+#              lm:
+#                active_landmarks: 6
+#              core:
+#                active_landmarks: 6
+#      driving-hgv:
+#        encoder_name: driving-hgv
+#        build:
+#          encoder_options:
+#            turn_costs: true
+#            block_fords: false
+#            use_acceleration: true
+#          preparation:
+#            min_network_size: 200
+#            methods:
+#              ch:
+#                enabled: true
+#                threads: 1
+#                weightings: recommended
+#              lm:
+#                enabled: false
+#              core:
+#                enabled: true
+#                threads: 1
+#                weightings: recommended,shortest
+#                landmarks: 64
+#                lmsets: highways;allow_all
+#          ext_storages:
+#            WayCategory:
+#            HeavyVehicle:
+#              restrictions: true
+#            WaySurfaceType:
+#        service:
+#          execution:
+#            methods:
+#              core:
+#                active_landmarks: 6
+#      cycling-regular:
+#        encoder_name: cycling-regular
+#        build:
+#          encoder_options:
+#            consider_elevation: true
+#            turn_costs: true
+#            block_fords: false
+#          ext_storages:
+#            WayCategory:
+#            WaySurfaceType:
+#            HillIndex:
+#            TrailDifficulty:
+#      cycling-mountain:
+#        encoder_name: cycling-mountain
+#        build:
+#          encoder_options:
+#            consider_elevation: true
+#            turn_costs: true
+#            block_fords: false
+#          ext_storages:
+#            WayCategory:
+#            WaySurfaceType:
+#            HillIndex:
+#            TrailDifficulty:
+#      cycling-road:
+#        encoder_name: cycling-road
+#        build:
+#          encoder_options:
+#            consider_elevation: true
+#            turn_costs: true
+#            block_fords: false
+#          ext_storages:
+#            WayCategory:
+#            WaySurfaceType:
+#            HillIndex:
+#            TrailDifficulty:
+#      cycling-electric:
+#        encoder_name: cycling-electric
+#        build:
+#          encoder_options:
+#            consider_elevation: true
+#            turn_costs: true
+#            block_fords: false
+#          ext_storages:
+#            WayCategory:
+#            WaySurfaceType:
+#            HillIndex:
+#            TrailDifficulty:
+#      foot-walking:
+#        encoder_name: foot-walking
+#        build:
+#          encoder_options:
+#            block_fords: false
+#          ext_storages:
+#            WayCategory:
+#            WaySurfaceType:
+#            HillIndex:
+#            TrailDifficulty:
+#      foot-hiking:
+#        encoder_name: foot-hiking
+#        build:
+#          encoder_options:
+#            block_fords: false
+#          ext_storages:
+#            WayCategory:
+#            WaySurfaceType:
+#            HillIndex:
+#            TrailDifficulty:
 #      wheelchair:
-#        profile: wheelchair
-#        encoder_options:
-#          block_fords: true
-#        maximum_snapping_radius: 50
-#        ext_storages:
-#          WayCategory:
-#          WaySurfaceType:
-#          Wheelchair:
-#            KerbsOnCrossings: true
-#          OsmId:
+#        encoder_name: wheelchair
+#        build:
+#          encoder_options:
+#            block_fords: true
+#          ext_storages:
+#            WayCategory:
+#            WaySurfaceType:
+#            Wheelchair:
+#              kerbs_on_crossings: true
+#            OsmId:
+#        service:
+#          maximum_snapping_radius: 50
 #      public-transport:
-#        profile: public-transport
-#        encoder_options:
-#          block_fords: false
-#        elevation: true
-#        maximum_visited_nodes: 1000000
-#        gtfs_file: ./src/test/files/vrn_gtfs_cut.zip
+#        encoder_name: public-transport
+#        build:
+#          encoder_options:
+#            block_fords: false
+#          elevation: true
+#          gtfs_file: ./src/test/files/vrn_gtfs_cut.zip
+#        service:
+#          maximum_visited_nodes: 1000000
