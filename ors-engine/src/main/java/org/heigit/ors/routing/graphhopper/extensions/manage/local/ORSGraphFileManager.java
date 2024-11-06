@@ -259,7 +259,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     public void activateExtractedDownloadedGraph() {
         if (hasDownloadedExtractedGraph()) {
-            LOGGER.debug("[%s] Activating extracted downloaded graph.".formatted(getProfileDescriptiveName()));
+            LOGGER.info("[%s] Activating extracted downloaded graph.".formatted(getProfileDescriptiveName()));
             getDownloadedExtractedGraphDirectory().renameTo(getActiveGraphDirectory());
         }
     }
@@ -283,7 +283,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
 
         try {
-            LOGGER.debug("[%s] Extracting downloaded graph file to %s".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
+            LOGGER.info("[%s] Extracting downloaded graph file to %s".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
             long start = System.currentTimeMillis();
             (new Unzipper()).unzip(graphDownloadFileAbsPath, extractionDirectoryAbsPath, true);
             long end = System.currentTimeMillis();

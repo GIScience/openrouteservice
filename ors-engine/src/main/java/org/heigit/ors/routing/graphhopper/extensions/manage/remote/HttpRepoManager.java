@@ -150,6 +150,11 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
 
     public void downloadFile(URL downloadUrl, File outputFile) {
         File tempDownloadFile = orsGraphFileManager.asIncompleteFile(outputFile);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), downloadUrl, outputFile.getAbsolutePath()));
+        } else {
+            LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), downloadUrl));
+        }
         try {
             FileUtils.copyURLToFile(
                     downloadUrl,
@@ -158,7 +163,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
                     readTimeoutMillis);
             tempDownloadFile.renameTo(outputFile);
         } catch (IOException e) {
-            LOGGER.debug("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e.getClass().getName(), downloadUrl));
+            LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e.getClass().getName(), downloadUrl));
         } finally {
             tempDownloadFile.delete();
         }

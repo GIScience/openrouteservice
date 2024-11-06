@@ -82,7 +82,7 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
             downloadFile(latestCompressedGraphInRepoPath, downloadedCompressedGraphFile);
 
             long end = System.currentTimeMillis();
-            LOGGER.info("[%s] Download finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
+            LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
         } catch (Exception e) {
             LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), e);
         }
@@ -119,12 +119,13 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath(), localPath.getAbsolutePath()));
         } else {
-            LOGGER.debug("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getName()));
+            LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getName()));
         }
         if (repoPath != null) {
             try {
                 Files.copy(repoPath, localPath.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
+                LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath()));
                 throw new IllegalArgumentException(e);
             }
         }
