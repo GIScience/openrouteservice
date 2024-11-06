@@ -120,8 +120,14 @@ ors:
 #      cache_clear: false
 #      provider: multi
 #      cache_path: ./elevation_cache
-#    profile_default:
-#      source_file: ors-api/src/test/files/heidelberg.test.pbf
+    profile_default:
+      build:
+        source_file: ors-api/src/test/files/heidelberg.test.pbf
+      repo:
+        repository_uri: 'ors-engine/src/test/resources/test-filesystem-repos'
+        repository_name: vendor-xyz
+        repository_profile_group: fastisochrones
+        graph_extent: heidelberg
 #      enabled: false
 #      elevation: true
 #      elevation_smoothing: false
@@ -158,7 +164,7 @@ ors:
       driving-car:
         encoder_name: driving-car
         enabled: true
-#        repo:
+        repo:
 #          # nginx HttpRepoManager
 #          repository_uri: 'http://localhost:8080'
 #          repository_name: vendor-xyz
@@ -201,8 +207,8 @@ ors:
 #          WaySurfaceType:
 #          RoadAccessRestrictions:
 #            use_for_warnings: true
-#      hgv:
-#        enabled: true
+      driving-hgv:
+        enabled: true
 #        encoder_name: driving-hgv
 #        encoder_options:
 #          turn_costs: true

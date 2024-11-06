@@ -14,9 +14,9 @@ import java.util.Date;
 @NoArgsConstructor
 public class PersistedGraphInfo {
 
-    @JsonProperty("import_date")
+    @JsonProperty("graph_build_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
-    private Date importDate;
+    private Date graphBuildDate;
 
     @JsonProperty("osm_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
@@ -31,9 +31,9 @@ public class PersistedGraphInfo {
         return graphInfo;
     }
 
-    public static PersistedGraphInfo withImportDate(Date importDate) {
+    public static PersistedGraphInfo withGraphBuildDate(Date importDate) {
         PersistedGraphInfo graphInfo = new PersistedGraphInfo();
-        graphInfo.setImportDate(importDate);
+        graphInfo.setGraphBuildDate(importDate);
         return graphInfo;
     }
 

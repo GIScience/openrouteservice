@@ -74,7 +74,7 @@ class ORSGraphFileManagerTest {
     private static PersistedGraphInfo createOrsGraphInfoV1() {
         PersistedGraphInfo persistedGraphInfo = new PersistedGraphInfo();
         persistedGraphInfo.setOsmDate(new Date(EARLIER_DATE));
-        persistedGraphInfo.setImportDate(new Date(LATER_DATE));
+        persistedGraphInfo.setGraphBuildDate(new Date(LATER_DATE));
         ProfileProperties profileProperties = new ProfileProperties();
         persistedGraphInfo.setProfileProperties(profileProperties);
         return persistedGraphInfo;

@@ -149,7 +149,7 @@ class HttpRepoManagerTest {
         assertTrue(activeGraphInfoFile.exists());
         printFileContent("activeGraphInfoFile", activeGraphInfoFile);
         String content = readFileToString(activeGraphInfoFile, "UTF-8");
-        assertTrue(content.contains("import_date: 2023-08-18T15:38:31+0000"));
+        assertTrue(content.contains("graph_build_date: 2023-08-18T15:38:31+0000"));
     }
 
     @Test
@@ -193,7 +193,7 @@ class HttpRepoManagerTest {
     @Test
     void downloadGraphIfNecessary_noDownloadWhen_localDate_equals_remoteDate() throws IOException {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        setupActiveGraphDirectory(REPO_CAR_IMPORT_DATE);
+        setupActiveGraphDirectory(REPO_CAR_GRAPH_BUILD_DATE);
 
         orsGraphRepoManager.downloadGraphIfNecessary();
 
@@ -206,7 +206,7 @@ class HttpRepoManagerTest {
     @Test
     void downloadGraphIfNecessary_noDownloadWhen_localDate_after_remoteDate() throws IOException {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        setupActiveGraphDirectory(REPO_CAR_IMPORT_DATE + 1000000);
+        setupActiveGraphDirectory(REPO_CAR_GRAPH_BUILD_DATE + 1000000);
 
         orsGraphRepoManager.downloadGraphIfNecessary();
 

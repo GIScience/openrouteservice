@@ -104,7 +104,7 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
         if (downloadedGraphInfoFile.exists()) {
             Path latestCompressedGraphInRepoPath = Path.of(graphsRepoPath, graphsRepoName, graphsProfileGroup, graphsRepoCoverage, graphsRepoGraphVersion, orsGraphRepoStrategy.getRepoCompressedGraphFileName());
             URI uri = latestCompressedGraphInRepoPath.toUri();
-            latestGraphInfoInRepo.setRemoteUri(uri);
+            latestGraphInfoInRepo.withRemoteUri(uri);
 
             PersistedGraphInfo persistedGraphInfo = orsGraphFileManager.readOrsGraphInfo(downloadedGraphInfoFile);
             latestGraphInfoInRepo.withPersistedInfo(persistedGraphInfo);

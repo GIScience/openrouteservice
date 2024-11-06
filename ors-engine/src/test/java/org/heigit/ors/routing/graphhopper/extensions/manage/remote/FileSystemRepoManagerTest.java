@@ -86,7 +86,7 @@ class FileSystemRepoManagerTest {
     @Test
     void downloadGraphIfNecessary_localDate_before_remoteDate() throws IOException {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_OSM_DATE - 1000000, REPO_HGV_IMPORT_DATE - 1000000);
+        saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_OSM_DATE - 1000000, REPO_HGV_GRAPH_BUILD_DATE - 1000000);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();
@@ -97,7 +97,7 @@ class FileSystemRepoManagerTest {
     @Test
     void downloadGraphIfNecessary_localDate_equals_remoteDate() throws IOException {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_IMPORT_DATE, REPO_HGV_OSM_DATE);
+        saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_GRAPH_BUILD_DATE, REPO_HGV_OSM_DATE);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();
@@ -108,7 +108,7 @@ class FileSystemRepoManagerTest {
     @Test
     void downloadGraphIfNecessary_localDate_after_remoteDate() throws IOException {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_IMPORT_DATE + 1000000, REPO_HGV_OSM_DATE + 1000000);
+        saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_GRAPH_BUILD_DATE + 1000000, REPO_HGV_OSM_DATE + 1000000);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
         fileSystemRepoManager.downloadGraphIfNecessary();

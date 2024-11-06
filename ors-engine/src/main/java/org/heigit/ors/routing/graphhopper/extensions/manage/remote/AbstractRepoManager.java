@@ -18,7 +18,7 @@ abstract class AbstractRepoManager {
     public Date getDateOrEpocStart(GraphInfo graphInfo) {
         return Optional.ofNullable(graphInfo)
                 .map(GraphInfo::getPersistedGraphInfo)
-                .map(PersistedGraphInfo::getImportDate)
+                .map(PersistedGraphInfo::getGraphBuildDate)
                 .orElse(new Date(0L));
     }
 
@@ -29,7 +29,7 @@ abstract class AbstractRepoManager {
 
         if (persistedDownloadFile.exists()) {
             return Optional.ofNullable(persistedRemoteGraphInfo)
-                    .map(PersistedGraphInfo::getImportDate)
+                    .map(PersistedGraphInfo::getGraphBuildDate)
                     .orElse(new Date(0L));
         }
 

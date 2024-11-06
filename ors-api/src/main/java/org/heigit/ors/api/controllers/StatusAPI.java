@@ -84,7 +84,7 @@ public class StatusAPI {
                     org.json.JSONObject jProfileProps = new org.json.JSONObject(true);
 
                     jProfileProps.put("encoder_name", profile.getEncoderName().getName());
-                    jProfileProps.put("import_date", rp.getGraphProperties().get("datareader.import.date"));
+                    jProfileProps.put("graph_build_date", rp.getGraphProperties().get("datareader.import.date"));
                     jProfileProps.put("osm_date", rp.getGraphProperties().get("datareader.data.date"));
 
                     org.json.JSONObject jProfileLimits = new org.json.JSONObject();

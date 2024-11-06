@@ -121,7 +121,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
             return graphInfoInRepo;
         }
 
-        graphInfoInRepo.setRemoteUrl(downloadUrl);
+        graphInfoInRepo.withRemoteUrl(downloadUrl);
         PersistedGraphInfo persistedGraphInfo = orsGraphFileManager.readOrsGraphInfo(downloadedGraphInfoFile);
         graphInfoInRepo.withPersistedInfo(persistedGraphInfo);
         return graphInfoInRepo;

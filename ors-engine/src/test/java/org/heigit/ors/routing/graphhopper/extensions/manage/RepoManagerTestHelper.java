@@ -32,15 +32,15 @@ public class RepoManagerTestHelper {
 
     public static long REPO_CAR_OSM_DATE;
     public static long REPO_HGV_OSM_DATE;
-    public static long REPO_CAR_IMPORT_DATE;
-    public static long REPO_HGV_IMPORT_DATE;
+    public static long REPO_CAR_GRAPH_BUILD_DATE;
+    public static long REPO_HGV_GRAPH_BUILD_DATE;
 
     static {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
         REPO_CAR_OSM_DATE = ZonedDateTime.parse("2024-06-26T10:23:31+0000", formatter).toInstant().toEpochMilli();
         REPO_HGV_OSM_DATE = ZonedDateTime.parse("2024-01-26T10:23:31+0000", formatter).toInstant().toEpochMilli();
-        REPO_CAR_IMPORT_DATE = ZonedDateTime.parse("2024-06-26T10:23:31+0000", formatter).toInstant().toEpochMilli();
-        REPO_HGV_IMPORT_DATE = ZonedDateTime.parse("2024-06-26T10:23:39+0000", formatter).toInstant().toEpochMilli();
+        REPO_CAR_GRAPH_BUILD_DATE = ZonedDateTime.parse("2024-06-26T10:23:31+0000", formatter).toInstant().toEpochMilli();
+        REPO_HGV_GRAPH_BUILD_DATE = ZonedDateTime.parse("2024-06-26T10:23:39+0000", formatter).toInstant().toEpochMilli();
     }
 
     public static Path createLocalGraphsRootDirectory(Path tempDir) throws IOException {
@@ -64,9 +64,9 @@ public class RepoManagerTestHelper {
         return localGraphDir;
     }
 
-    public static void saveActiveGraphInfoFile(File activeGraphInfoFile, Long importDate, Long osmDate) throws IOException {
+    public static void saveActiveGraphInfoFile(File activeGraphInfoFile, Long graphBuildDate, Long osmDate) throws IOException {
         PersistedGraphInfo activeGraphInfoObject = new PersistedGraphInfo();
-        if (importDate != null) activeGraphInfoObject.setImportDate(new Date(importDate));
+        if (graphBuildDate != null) activeGraphInfoObject.setGraphBuildDate(new Date(graphBuildDate));
         if (osmDate != null) activeGraphInfoObject.setOsmDate(new Date(osmDate));
         activeGraphInfoObject.setProfileProperties(new ProfileProperties());
         ORSGraphFileManager.writeOrsGraphInfo(activeGraphInfoObject, activeGraphInfoFile);

@@ -1,77 +1,27 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import lombok.Getter;
+
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
 
+@Getter
 public class GraphInfo {
+
     public GraphInfo() {
     }
 
     private URI remoteUri = null;
     private File localDirectory = null;
-    private Integer compressedGraphBytes;
-    private String compressedGraphMd5Sum;
 
     private PersistedGraphInfo persistedGraphInfo;
 
-    public URI getRemoteUri() {
-        return remoteUri;
-    }
-
-    public void setRemoteUri(URI remoteUri) {
+    public GraphInfo withRemoteUri(URI remoteUri) {
         this.remoteUri = remoteUri;
-    }
-
-    public URL getRemoteUrl() {//TODO remove usages and method
-        try {
-            return remoteUri.toURL();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setRemoteUrl(URL remoteUrl) {//TODO remove usages and method
-        try {
-            this.remoteUri = remoteUrl.toURI();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public File getLocalDirectory() {
-        return localDirectory;
-    }
-
-    public void setLocalDirectory(File localDirectory) {
-        this.localDirectory = localDirectory;
-    }
-
-    public PersistedGraphInfo getPersistedGraphInfo() {
-        return persistedGraphInfo;
-    }
-
-    public void setPersistedGraphInfo(PersistedGraphInfo persistedGraphInfo) {
-        this.persistedGraphInfo = persistedGraphInfo;
-    }
-
-    public Integer getCompressedGraphBytes() {
-        return compressedGraphBytes;
-    }
-
-    public void setCompressedGraphBytes(Integer compressedGraphBytes) {
-        this.compressedGraphBytes = compressedGraphBytes;
-    }
-
-    public String getCompressedGraphMd5Sum() {
-        return compressedGraphMd5Sum;
-    }
-
-    public void setCompressedGraphMd5Sum(String compressedGraphMd5Sum) {
-        this.compressedGraphMd5Sum = compressedGraphMd5Sum;
+        return this;
     }
 
     public boolean exists() {
@@ -82,7 +32,7 @@ public class GraphInfo {
         return remoteUri != null;
     }
 
-    public GraphInfo withRemoteUrl(URL url) {//TODO remove usages and method
+    public GraphInfo withRemoteUrl(URL url) {
         try {
             this.remoteUri = url.toURI();
         } catch (URISyntaxException e) {

@@ -29,7 +29,7 @@ public class GrcSetupHelper {
         return executeCommands(container, List.of(
                 new String[]{"mkdir", "-p", repoPath, scratchGraphPath},
                 new String[]{"cp", "-r", graphPath, scratchGraphPath},
-                new String[]{"sh", "-c", "yq -i e '.import_date = \"" + importDate + "\"' " + scratchGraphPathProfile + "/graph_info.yml"},
+                new String[]{"sh", "-c", "yq -i e '.graph_build_date = \"" + importDate + "\"' " + scratchGraphPathProfile + "/graph_info.yml"},
                 new String[]{"zip", "-j", "-r", repoPath + "/fastisochrones_heidelberg_1_driving-car.ghz", scratchGraphPathProfile},
                 new String[]{"cp", scratchGraphPathProfile + "/graph_info.yml", repoPath + "/fastisochrones_heidelberg_1_driving-car.yml"}
         ));

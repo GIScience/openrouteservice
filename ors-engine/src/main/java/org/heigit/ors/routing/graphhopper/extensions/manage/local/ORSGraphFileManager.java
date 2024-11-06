@@ -210,7 +210,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
 
         PersistedGraphInfo graphInfo = readOrsGraphInfo(graphInfoFile);
-        LOGGER.trace("[%s] Found local graph info with importDate=%s".formatted(getProfileDescriptiveName(), graphInfo.getImportDate()));
+        LOGGER.trace("[%s] Found local graph info with importDate=%s".formatted(getProfileDescriptiveName(), graphInfo.getGraphBuildDate()));
         return new GraphInfo().withLocalDirectory(graphDirectory).withPersistedInfo(graphInfo);
     }
 
@@ -337,7 +337,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             return;
         }
         PersistedGraphInfo persistedGraphInfo = PersistedGraphInfo.withOsmDate(getDateFromGhProperty(gh, "datareader.data.date"));
-        persistedGraphInfo.setImportDate(getDateFromGhProperty(gh, "datareader.import.date"));
+        persistedGraphInfo.setGraphBuildDate(getDateFromGhProperty(gh, "datareader.import.date"));
         persistedGraphInfo.setProfileProperties(profileProperties);
 
         ORSGraphFileManager.writeOrsGraphInfo(persistedGraphInfo, activeGraphInfoFile);

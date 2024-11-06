@@ -69,7 +69,7 @@ public class TestAbstractRepoManagerTest {
                 Arguments.of(epocStart, new GraphInfo().withPersistedInfo(null)),
                 Arguments.of(epocStart, new GraphInfo().withPersistedInfo(new PersistedGraphInfo())),
                 Arguments.of(epocStart, new GraphInfo().withPersistedInfo(PersistedGraphInfo.withOsmDate(now))),
-                Arguments.of(now, new GraphInfo().withPersistedInfo(PersistedGraphInfo.withImportDate(now)))
+                Arguments.of(now, new GraphInfo().withPersistedInfo(PersistedGraphInfo.withGraphBuildDate(now)))
         );
     }
 
@@ -90,17 +90,17 @@ public class TestAbstractRepoManagerTest {
                 Arguments.of(epocStart, null, null),
                 Arguments.of(epocStart, null, new PersistedGraphInfo()),
                 Arguments.of(epocStart, null, PersistedGraphInfo.withOsmDate(now)),
-                Arguments.of(epocStart, null, PersistedGraphInfo.withImportDate(now)),
+                Arguments.of(epocStart, null, PersistedGraphInfo.withGraphBuildDate(now)),
 
                 Arguments.of(epocStart, nonexistingFile, null),
                 Arguments.of(epocStart, nonexistingFile, new PersistedGraphInfo()),
                 Arguments.of(epocStart, nonexistingFile, PersistedGraphInfo.withOsmDate(now)),
-                Arguments.of(epocStart, nonexistingFile, PersistedGraphInfo.withImportDate(now)),
+                Arguments.of(epocStart, nonexistingFile, PersistedGraphInfo.withGraphBuildDate(now)),
 
                 Arguments.of(epocStart, existingFile, null),
                 Arguments.of(epocStart, existingFile, new PersistedGraphInfo()),
                 Arguments.of(epocStart, existingFile, PersistedGraphInfo.withOsmDate(now)),
-                Arguments.of(now, existingFile, PersistedGraphInfo.withImportDate(now))
+                Arguments.of(now, existingFile, PersistedGraphInfo.withGraphBuildDate(now))
         );
     }
 
