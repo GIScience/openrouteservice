@@ -37,7 +37,7 @@ For details on how to make openrouteservice apply the settings in the configurat
 ## Troubleshooting
 
 The place where the log files are written is defined by the configuration property `logging.file.name`.
-In the [logging documentation](configuration/spring/logging.md) you find more logging options like setting log level etc.
+In the [logging documentation](configuration/logging.md) you find more logging options like setting log level etc.
 
 The openrouteservice startup log looks similar to this:
 ```shell

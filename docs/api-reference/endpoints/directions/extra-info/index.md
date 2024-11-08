@@ -47,7 +47,6 @@ Some values are not available in all routing profiles:
 | cycling-regular  |     x     |      x      |    x    |      x      |    x    |          |        x        |       |                        |             |       |       |        |
 | cycling-mountain |     x     |      x      |    x    |      x      |    x    |          |        x        |       |                        |             |       |       |        |
 | cycling-road     |     x     |      x      |    x    |      x      |    x    |          |        x        |       |                        |             |       |       |        |
-| cycling-electric |     x     |      x      |    x    |      x      |    x    |          |        x        |       |                        |             |       |       |        |
 | foot-walking     |     x     |      x      |    x    |      x      |    x    |          |        x        |       |                        |             |   x   |   x   |   x    |
 | foot-hiking      |     x     |      x      |    x    |      x      |    x    |          |        x        |       |                        |             |   x   |   x   |   x    |
 | wheelchair       |     x     |      x      |    x    |      x      |    x    |          |        x        |   x   |                        |             |       |       |        |

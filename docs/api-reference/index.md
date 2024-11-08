@@ -8,7 +8,8 @@ The following chapter [Endpoints](endpoints/index.md) contains explanation and e
 be explained sufficiently in the API Playground.
 Here, the single endpoints are not completely covered with all their request parameters etc.
 But on the other hand, there is also information about endpoints that are not available in our live API,
-but e.g. on instances you run or host yourself like [Health](endpoints/health/index.md) and [Status](endpoints/status/index.md).
+but e.g. on instances you run or host yourself
+like [Export](endpoints/export/index.md), [Health](endpoints/health/index.md) and [Status](endpoints/status/index.md).
 
 If you are developing ORS or running your own instance, you might benefit from the included [Swagger-UI](#swagger-ui).
 
