@@ -40,6 +40,8 @@ import com.graphhopper.util.details.PathDetailsBuilderFactory;
 import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
@@ -54,6 +56,7 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSeque
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
@@ -84,6 +87,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     public static final String KEY_ARRIVAL = "arrival";
 
     private GraphProcessContext processContext;
+    private EngineProperties engineProperties;
+    private ProfileProperties profileProperties;
     private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
     private HashMap<Integer, Long> tmcEdges;
     private Eccentricity eccentricity;
@@ -94,18 +99,36 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
     private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
+    private String profileName;
+    private ORSGraphManager orsGraphManager;
+
+    public ORSGraphManager getOrsGraphManager() {
+        return this.orsGraphManager;
+    }
+
+    public void setOrsGraphManager(ORSGraphManager orsGraphManager) {
+        this.orsGraphManager = orsGraphManager;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
+    }
 
     public GraphHopperConfig getConfig() {
         return config;
     }
 
-    private GraphHopperConfig config;
-
-    public ORSGraphHopper(GraphProcessContext procCntx) {
-        processContext = procCntx;
-        processContext.init(this);
+    public ProfileProperties getProfileProperties() {
+        return profileProperties;
     }
 
+    private GraphHopperConfig config;
+
+    public ORSGraphHopper(GraphProcessContext processContext, EngineProperties engineProperties, ProfileProperties profileProperties) {
+        this.processContext = processContext;
+        this.engineProperties = engineProperties;
+        this.profileProperties = profileProperties;
+    }
 
     public ORSGraphHopper() {
         // used to initialize tests more easily without the need to create GraphProcessContext etc. when they're anyway not used in the tested functions.
@@ -124,6 +147,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
         config = ghConfig;
+
         return ret;
     }
 
@@ -155,7 +179,13 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     @Override
     public GraphHopper importOrLoad() {
-        GraphHopper gh = super.importOrLoad();
+        if (isFullyLoaded()) {
+            throw new IllegalStateException("graph is already successfully loaded");
+        }
+
+        ORSGraphHopper gh = (ORSGraphHopper) super.importOrLoad();
+
+        writeOrsGraphInfoFileIfNotExists(gh);
 
         if ((tmcEdges != null) && (osmId2EdgeIds != null)) {
             java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
@@ -191,6 +221,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
 
         return gh;
+    }
+
+    private void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {
+        orsGraphManager.writeOrsGraphInfoFileIfNotExists(gh);
     }
 
     @Override
@@ -654,5 +688,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             mem += fastIsochroneFactory.getCapacity();
         }
         return mem + getGraphHopperStorage().getCapacity();
+    }
+
+    public EngineProperties getEngineProperties() {
+        return engineProperties;
     }
 }

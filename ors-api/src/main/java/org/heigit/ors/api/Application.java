@@ -2,6 +2,8 @@ package org.heigit.ors.api;
 
 import jakarta.servlet.ServletContextListener;
 import org.apache.log4j.Logger;
+import org.heigit.ors.api.config.EngineProperties;
+import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
 import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
@@ -12,9 +14,13 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @ServletComponentScan("org.heigit.ors.api.servlet.listeners")
 @SpringBootApplication
+@EnableScheduling
+@EnableAsync
 public class Application extends SpringBootServletInitializer {
     private static final Logger LOG = Logger.getLogger(Application.class.getName());
 
@@ -28,15 +34,15 @@ public class Application extends SpringBootServletInitializer {
         }
         SpringApplication.run(Application.class, args);
         LOG.info("openrouteservice %s".formatted(AppInfo.getEngineInfo()));
-        if (RoutingProfileManagerStatus.hasFailed()) {
-            System.exit(1);
+        if (RoutingProfileManagerStatus.isShutdown()) {
+            System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
         }
     }
 
-    @Bean("ORSInitContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties) {
+    @Bean("orsInitContextListenerBean")
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(EngineProperties engineProperties, GraphService graphService) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener(engineProperties));
+        bean.setListener(new ORSInitContextListener(engineProperties, graphService));
         return bean;
     }
 }
