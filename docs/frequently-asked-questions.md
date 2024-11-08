@@ -23,7 +23,7 @@ There are three main reasons for this problem, listed in order of most to least 
    road. The maximum distance for snapping to road segments in our API is 350m.
  This can be customized for local installations via the
   `maximum_snapping_radius` and `location_index_resolution` config-parameter. See
-  [configuration](run-instance/configuration/ors/engine/profiles.md) for details.
+   [configuration](run-instance/configuration/engine/profiles/profiles.md) for details.
 
 3. The start and endpoint are passed with correct lon,lat-order and are within
    350m of a routable road. This should only happen with a local installation.

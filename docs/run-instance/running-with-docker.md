@@ -26,7 +26,7 @@ Starting with openrouteservice v8.0.0, you can (and should) download the compose
 on the [releases page](https://github.com/GIScience/openrouteservice/releases), in the browser or e.g. with 
 
 ```shell
-wget https://github.com/GIScience/openrouteservice/releases/latest/download/docker-compose.yml
+wget https://github.com/GIScience/openrouteservice/releases/download/v8.0.0/docker-compose.yml
 ```
 
 Now start openrouteservice in the background:
@@ -440,7 +440,7 @@ ors-app  | 2024-03-12T08:13:19.200130392Z ✓ 🙭 Ready to start the ORS applic
 
 As explained in the log, by setting `CONTAINER_LOG_LEVEL=DEBUG` in the `docker-compose.yml` you get more information.
 This setting is only relevant for the entrypoint logging, it does not change the log level of openrouteservice.
-How you can achieve this is documented in the [logging documentation](configuration/spring/logging.md).
+How you can achieve this is documented in the [logging documentation](configuration/logging.md).
 
 ::: warning Hint
 Remember that the container has to be newly created for the changes in `docker-compose.yml` to take effect!

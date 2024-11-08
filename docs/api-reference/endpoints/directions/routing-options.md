@@ -5,9 +5,6 @@ With the request body parameter `options`, advanced routing options can be speci
 The `options` parameter is a JSON object, multiple of the here mentioned parameters can be set. 
 For structure refer to the [examples](#examples).
 
-::: warning
-Some of the options below rely on auxiliary data included in the graph, see [External storages](../../../run-instance/configuration/ors/engine/profiles.md#ext_storages)
-:::
 
 ## Available parameters
 
