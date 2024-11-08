@@ -18,6 +18,7 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
@@ -26,6 +27,8 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -68,35 +71,47 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        if (this.cbReader == null) {
+        ExtendedStorageProperties parameters;
+        try {
+            parameters = this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
+
+        File expectedStorageFileLocation1 = Path.of(graphhopper.getGraphHopperLocation() + "/ext_borders").toFile();
+        File expectedStorageFileLocation2 = Path.of(graphhopper.getGraphHopperLocation() + "/ext_borders_cbr").toFile();
+        if (this.cbReader == null && (!expectedStorageFileLocation1.exists() || !expectedStorageFileLocation2.exists())) {
             // Read the border shapes from the file
             // First check if parameters are present
             String bordersFile = "";
             String countryIdsFile = "";
             String openBordersFile = "";
 
-            if (parameters.containsKey(PARAM_KEY_BOUNDARIES))
-                bordersFile = parameters.get(PARAM_KEY_BOUNDARIES);
+            if (parameters.getBoundaries() != null)
+                bordersFile = parameters.getBoundaries().toString();
             else {
                 ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
                 // We cannot continue without the information
                 throw new MissingResourceException("A boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
             }
 
-            if (parameters.containsKey("ids"))
-                countryIdsFile = parameters.get("ids");
+            if (parameters.getIds() != null)
+                countryIdsFile = parameters.getIds().toString();
             else
                 ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, "ids");
 
-            if (parameters.containsKey(PARAM_KEY_OPEN_BORDERS))
-                openBordersFile = parameters.get(PARAM_KEY_OPEN_BORDERS);
+            if (parameters.getOpenborders() != null)
+                openBordersFile = parameters.getOpenborders().toString();
             else
                 ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_OPEN_BORDERS);
 
             // Read the file containing all of the country border polygons
-            this.cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
+            cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
+            cbReader.serialize(expectedStorageFileLocation2);
         }
-
+        if (cbReader == null && expectedStorageFileLocation2.exists()) {
+            cbReader = CountryBordersReader.deserialize(expectedStorageFileLocation2);
+        }
         storage = new BordersGraphStorage();
         return storage;
 
@@ -108,7 +123,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * @param cbr The CountryBordersReader object to be used
      */
     public void setBordersBuilder(CountryBordersReader cbr) {
-        this.cbReader = cbr;
+        cbReader = cbr;
     }
 
     @Override

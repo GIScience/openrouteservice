@@ -21,6 +21,8 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.PMap;
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.exceptions.InternalServerException;
@@ -40,6 +42,9 @@ import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 
 public class MatrixRequest extends ServiceRequest {
+    @Getter
+    @Setter
+    private String profileName;
     private int profileType = -1;
     private Coordinate[] sources;
     private Coordinate[] destinations;

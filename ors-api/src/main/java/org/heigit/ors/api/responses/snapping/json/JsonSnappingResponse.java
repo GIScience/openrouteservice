@@ -2,8 +2,8 @@ package org.heigit.ors.api.responses.snapping.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.SystemMessageProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.api.responses.matrix.json.JSON2DSources;
 import org.heigit.ors.api.responses.matrix.json.JSONLocation;

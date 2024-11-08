@@ -19,6 +19,7 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PointList;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 import org.heigit.ors.routing.util.HillIndexCalculator;
 
@@ -29,6 +30,14 @@ public class HillIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
+
+        ExtendedStorageProperties parameters;
+        try {
+            parameters = this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
+
         if (graphhopper.hasElevation()) {
             storage = new HillIndexGraphStorage(parameters);
             hillIndexCalc = new HillIndexCalculator();

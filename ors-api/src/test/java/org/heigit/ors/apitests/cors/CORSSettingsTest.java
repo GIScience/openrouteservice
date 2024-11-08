@@ -14,7 +14,7 @@
 package org.heigit.ors.apitests.cors;
 
 import io.restassured.response.Response;
-import org.heigit.ors.api.CorsProperties;
+import org.heigit.ors.api.config.CorsProperties;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;

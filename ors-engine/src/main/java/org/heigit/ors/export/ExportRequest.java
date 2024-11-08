@@ -12,6 +12,8 @@ import com.graphhopper.util.EdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.shapes.BBox;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.common.ServiceRequest;
@@ -33,6 +35,9 @@ public class ExportRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(ExportRequest.class);
     private BBox boundingBox;
 
+    @Getter
+    @Setter
+    private String profileName;
     private int profileType = -1;
 
     private boolean debug;

@@ -2,7 +2,8 @@ package org.heigit.ors.api.services;
 
 import com.google.common.primitives.Doubles;
 import com.graphhopper.util.shapes.BBox;
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.EngineProperties;
 import org.heigit.ors.api.requests.export.ExportApiRequest;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.exceptions.InternalServerException;
@@ -21,15 +22,16 @@ import java.util.List;
 public class ExportService extends ApiService {
 
     @Autowired
-    public ExportService(EndpointsProperties endpointsProperties) {
+    public ExportService(EndpointsProperties endpointsProperties, EngineProperties engineProperties) {
         this.endpointsProperties = endpointsProperties;
+        this.engineProperties = engineProperties;
     }
 
     public ExportResult generateExportFromRequest(ExportApiRequest exportApiRequest) throws StatusCodeException {
         org.heigit.ors.export.ExportRequest exportRequest = this.convertExportRequest(exportApiRequest);
 
         try {
-            RoutingProfile rp = RoutingProfileManager.getInstance().getProfileFromType(exportRequest.getProfileType());
+            RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(exportRequest.getProfileName());
             if (rp == null)
                 throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             return exportRequest.computeExport(rp);
@@ -42,7 +44,7 @@ public class ExportService extends ApiService {
 
     private org.heigit.ors.export.ExportRequest convertExportRequest(ExportApiRequest exportApiRequest) throws StatusCodeException {
         org.heigit.ors.export.ExportRequest exportRequest = new org.heigit.ors.export.ExportRequest();
-
+        exportRequest.setProfileName(exportApiRequest.getProfileName());
         if (exportApiRequest.hasId())
             exportRequest.setId(exportApiRequest.getId());
 

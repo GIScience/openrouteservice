@@ -17,8 +17,9 @@ import org.apache.log4j.Logger;
 import org.locationtech.jts.geom.*;
 
 import java.io.InvalidObjectException;
+import java.io.Serializable;
 
-public class CountryBordersPolygon {
+public class CountryBordersPolygon implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(CountryBordersPolygon.class);
     private final String name;
     private final MultiPolygon boundary;

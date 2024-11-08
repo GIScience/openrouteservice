@@ -26,16 +26,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
-import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.SystemMessageProperties;
+import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.api.responses.snapping.geojson.GeoJSONSnappingResponse;
 import org.heigit.ors.api.responses.snapping.json.JsonSnappingResponse;
 import org.heigit.ors.api.services.SnappingService;
-import org.heigit.ors.api.util.AppConfigMigration;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.exceptions.*;
-import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.snapping.SnappingErrorCodes;
 import org.heigit.ors.snapping.SnappingResult;
 import org.springframework.core.convert.ConversionFailedException;
@@ -63,7 +63,7 @@ public class SnappingAPI {
     private final SnappingService snappingService;
 
     public SnappingAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, SnappingService snappingService) {
-        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+        this.endpointsProperties = endpointsProperties;
         this.systemMessageProperties = systemMessageProperties;
         this.snappingService = snappingService;
     }
@@ -105,7 +105,7 @@ public class SnappingAPI {
                     schema = @Schema(implementation = JsonSnappingResponse.class)
             )
             })
-    public JsonSnappingResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+    public JsonSnappingResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
                                            @Parameter(description = "The request payload", required = true) @RequestBody SnappingApiRequest request) throws StatusCodeException {
         return getJsonSnapping(profile, request);
     }
@@ -127,9 +127,10 @@ public class SnappingAPI {
             )
             })
     public JsonSnappingResponse getJsonSnapping(
-            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody SnappingApiRequest request) throws StatusCodeException {
-        request.setProfile(profile);
+        request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.SnappingResponseType.JSON);
 
         SnappingResult result = snappingService.generateSnappingFromRequest(request);
@@ -156,9 +157,10 @@ public class SnappingAPI {
             )
             })
     public GeoJSONSnappingResponse getGeoJSONSnapping(
-            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody SnappingApiRequest request) throws StatusCodeException {
-        request.setProfile(profile);
+        request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.SnappingResponseType.GEOJSON);
 
         SnappingResult result = snappingService.generateSnappingFromRequest(request);
@@ -196,5 +198,10 @@ public class SnappingAPI {
     @ExceptionHandler(StatusCodeException.class)
     public ResponseEntity<Object> handleException(final StatusCodeException e) {
         return errorHandler.handleStatusCodeException(e);
+    }
+
+    private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
+        EncoderNameEnum encoderForProfile = snappingService.getEncoderForProfile(profile);
+        return APIEnums.Profile.forValue(encoderForProfile.getName());
     }
 }

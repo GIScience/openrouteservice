@@ -3,6 +3,8 @@ package org.heigit.ors.api.requests.common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ors.api.APIEnums;
 
 public class APIRequest {
@@ -18,6 +20,10 @@ public class APIRequest {
 
     @Schema(name = PARAM_PROFILE, hidden = true)
     protected APIEnums.Profile profile;
+
+    @Getter
+    @Setter
+    protected String profileName;
 
     public boolean hasId() {
         return hasId;
