@@ -13,33 +13,44 @@
  */
 package org.heigit.ors.routing;
 
-import com.google.common.base.Strings;
 import com.graphhopper.GHRequest;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.*;
-import com.graphhopper.util.*;
+import com.graphhopper.storage.ConditionalEdges;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.util.Helper;
+import com.graphhopper.util.PMap;
+import com.graphhopper.util.Parameters;
 import com.graphhopper.util.shapes.BBox;
-import com.typesafe.config.Config;
+import lombok.Getter;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.ElevationProperties;
+import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.profile.BuildProperties;
+import org.heigit.ors.config.profile.ExecutionProperties;
+import org.heigit.ors.config.profile.PreparationProperties;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.isochrones.*;
 import org.heigit.ors.isochrones.statistics.StatisticsProvider;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
 import org.heigit.ors.routing.graphhopper.extensions.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
-import org.heigit.ors.util.*;
+import org.heigit.ors.util.DebugUtility;
+import org.heigit.ors.util.ProfileTools;
+import org.heigit.ors.util.StringUtility;
+import org.heigit.ors.util.TimeUtility;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -61,31 +72,41 @@ public class RoutingProfile {
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
     private final Integer[] mRoutePrefs;
-    private final RouteProfileConfiguration config;
+
+    @Getter
+    private String profileName;
+    @Getter
+    private ProfileProperties profileProperties;
+    private EngineProperties engineProperties;
+    private String graphVersion;
+
     private final ORSGraphHopper mGraphHopper;
     private String astarApproximation;
     private Double astarEpsilon;
 
-    public RoutingProfile(EngineConfig engineConfig, RouteProfileConfiguration rpc, RoutingProfileLoadContext loadCntx) throws Exception {
-        mRoutePrefs = rpc.getProfilesTypes();
+    public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
 
-        mGraphHopper = initGraphHopper(engineConfig, rpc, loadCntx);
+        this.profileName = profileName;
+        this.profileProperties = profile;
+        this.engineProperties = engine;
+        this.graphVersion = graphVersion;
 
-        config = rpc;
+        mRoutePrefs = profile.getProfilesTypes();
+        mGraphHopper = initGraphHopper(loadCntx);
+        ExecutionProperties execution = profile.getService().getExecution();
 
-        Config optsExecute = config.getExecutionOpts();
-        if (optsExecute != null) {
-            if (optsExecute.hasPath("methods.astar.approximation"))
-                astarApproximation = optsExecute.getString("methods.astar.approximation");
-            if (optsExecute.hasPath("methods.astar.epsilon"))
-                astarEpsilon = Double.parseDouble(optsExecute.getString("methods.astar.epsilon"));
-        }
+        if (execution.getMethods().getAstar().getApproximation() != null)
+            astarApproximation = execution.getMethods().getAstar().getApproximation();
+        if (execution.getMethods().getAstar().getEpsilon() != null)
+            astarEpsilon = execution.getMethods().getAstar().getEpsilon();
     }
 
-    public static ORSGraphHopper initGraphHopper(EngineConfig engineConfig, RouteProfileConfiguration config, RoutingProfileLoadContext loadCntx) throws Exception {
-        String osmFile = engineConfig.getSourceFile();
-        String dataAccessType = Strings.isNullOrEmpty(config.getGraphDataAccess()) ? engineConfig.getGraphsDataAccess() : config.getGraphDataAccess();
-        ORSGraphHopperConfig args = createGHSettings(osmFile, dataAccessType, config);
+
+    public ORSGraphHopper initGraphHopper(RoutingProfileLoadContext loadCntx) throws Exception {
+        ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(graphVersion, engineProperties, profileProperties);
+        profileProperties = orsGraphManager.loadProfilePropertiesFromActiveGraph(orsGraphManager, profileProperties);
+
+        ORSGraphHopperConfig args = createGHSettings(profileProperties, engineProperties, orsGraphManager.getActiveGraphDirAbsPath());
 
         int profileId;
         synchronized (lockObj) {
@@ -95,15 +116,12 @@ public class RoutingProfile {
 
         long startTime = System.currentTimeMillis();
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("[%d] Profiles: '%s', location: '%s'.".formatted(profileId, config.getProfiles(), config.getGraphPath()));
-        }
+        GraphProcessContext gpc = new GraphProcessContext(profileProperties);
+        gpc.setGetElevationFromPreprocessedData(engineProperties.getElevation().getPreprocessed());
 
-        GraphProcessContext gpc = new GraphProcessContext(config);
-        gpc.setGetElevationFromPreprocessedData(engineConfig.isElevationPreprocessed());
-
-        ORSGraphHopper gh = new ORSGraphHopper(gpc);
-
+        ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profileProperties);
+        gh.setProfileName(profileName);
+        gh.setOrsGraphManager(orsGraphManager);
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
 
@@ -133,39 +151,45 @@ public class RoutingProfile {
         }
 
         if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("[%d] Profile: '%s', encoder: '%s', location: '%s'.".formatted(profileId, profileProperties.getProfileName(), profileProperties.getEncoderName().toString(), gh.getOrsGraphManager().getActiveGraphDirAbsPath()));
             GraphHopperStorage ghStorage = gh.getGraphHopperStorage();
             LOGGER.info("[%d] Edges: %s - Nodes: %s.".formatted(profileId, ghStorage.getEdges(), ghStorage.getNodes()));
             LOGGER.info("[%d] Total time: %s.".formatted(profileId, TimeUtility.getElapsedTime(startTime, true)));
             LOGGER.info("[%d] Finished at: %s.".formatted(profileId, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
         }
 
-        // Make a stamp which help tracking any changes in the size of OSM file.
-        File file = new File(osmFile);
-        Path pathTimestamp = Paths.get(config.getGraphPath(), "stamp.txt");
-        File file2 = pathTimestamp.toFile();
-        if (!file2.exists())
-            Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
-
+        // Make a stamp which help tracking any changes in the size of OSM file. TODO check if this is still in use
+        if (profileProperties.getBuild().getSourceFile() != null) {
+            File file = new File(profileProperties.getBuild().getSourceFile().toAbsolutePath().toString());
+            Path pathTimestamp = Paths.get(gh.getOrsGraphManager().getActiveGraphDirAbsPath(), "stamp.txt");
+            File file2 = pathTimestamp.toFile();
+            if (!file2.exists())
+                Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
+        }
         return gh;
     }
 
-    private static ORSGraphHopperConfig createGHSettings(String sourceFile, String dataAccessType, RouteProfileConfiguration config) {
+    private static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig, String graphLocation) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
-        ghConfig.putObject("graph.dataaccess", dataAccessType);
-        ghConfig.putObject("datareader.file", sourceFile);
-        ghConfig.putObject("graph.location", config.getGraphPath());
-        ghConfig.putObject("graph.bytes_for_flags", config.getEncoderFlagsSize());
+        ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess().toString());
+        ghConfig.putObject("datareader.file", Optional.ofNullable(profile).map(ProfileProperties::getBuild).map(BuildProperties::getSourceFile).map(Path::toString).orElse(null));
+        ghConfig.putObject("graph.bytes_for_flags", profile.getBuild().getEncoderFlagsSize());
+        ghConfig.putObject("graph.location", graphLocation);
 
-        if (!config.getInstructions())
+        if (Boolean.FALSE.equals(profile.getBuild().getInstructions())) {
             ghConfig.putObject("instructions", false);
-        if (config.getElevationProvider() != null && config.getElevationCachePath() != null) {
-            ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(config.getElevationProvider()));
-            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(config.getElevationCachePath()));
-            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(config.getElevationDataAccess()));
-            ghConfig.putObject("graph.elevation.clear", config.getElevationCacheClear());
-            if (config.getInterpolateBridgesAndTunnels())
+        }
+
+        ElevationProperties elevationProps = engineConfig.getElevation();
+        if (elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
+            ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
+            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
+            // TODO check
+            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
+            ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
+            if (Boolean.TRUE.equals(profile.getBuild().getInterpolateBridgesAndTunnels()))
                 ghConfig.putObject("graph.encoded_values", "road_environment");
-            if (config.getElevationSmoothing())
+            if (Boolean.TRUE.equals(profile.getBuild().getElevationSmoothing()))
                 ghConfig.putObject("graph.elevation.smoothing", true);
         }
 
@@ -174,7 +198,7 @@ public class RoutingProfile {
         boolean prepareCore = false;
         boolean prepareFI = false;
 
-        Integer[] profilesTypes = config.getProfilesTypes();
+        Integer[] profilesTypes = profile.getProfilesTypes();
         Map<String, Profile> profiles = new LinkedHashMap<>();
 
         // TODO Future improvement : Multiple profiles were used to share the graph  for several
@@ -186,7 +210,7 @@ public class RoutingProfile {
 
         String vehicle = RoutingProfileType.getEncoderName(profilesTypes[0]);
 
-        boolean hasTurnCosts = config.isTurnCostEnabled();
+        boolean hasTurnCosts = Boolean.TRUE.equals(profile.getBuild().getEncoderOptions().getTurnCosts());
 
         // TODO Future improvement : make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {ProfileTools.VAL_FASTEST, ProfileTools.VAL_SHORTEST, ProfileTools.VAL_RECOMMENDED};
@@ -200,67 +224,23 @@ public class RoutingProfile {
         }
 
         ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
+        if (profile.getBuild().getPreparation() != null) {
+            PreparationProperties preparations = profile.getBuild().getPreparation();
 
-        if (config.getIsochronePreparationOpts() != null) {
-            Config fastisochroneOpts = config.getIsochronePreparationOpts();
-            prepareFI = true;
-            if (fastisochroneOpts.hasPath(ProfileTools.KEY_ENABLED) || fastisochroneOpts.getBoolean(ProfileTools.KEY_ENABLED)) {
-                prepareFI = fastisochroneOpts.getBoolean(ProfileTools.KEY_ENABLED);
-                if (!prepareFI)
-                    ghConfig.putObject(ProfileTools.KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
-                else
-                    ghConfig.putObject(ORSParameters.FastIsochrone.PROFILE, config.getProfiles());
-            }
 
-            if (prepareFI) {
-                //Copied from core
-                if (fastisochroneOpts.hasPath(ProfileTools.KEY_THREADS))
-                    ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getInt(ProfileTools.KEY_THREADS));
-                if (fastisochroneOpts.hasPath(ProfileTools.KEY_MAXCELLNODES))
-                    ghConfig.putObject("prepare.fastisochrone.maxcellnodes", StringUtility.trimQuotes(fastisochroneOpts.getString(ProfileTools.KEY_MAXCELLNODES)));
-                if (fastisochroneOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
-                    List<Profile> fastisochronesProfiles = new ArrayList<>();
-                    String fastisochronesWeightingsString = StringUtility.trimQuotes(fastisochroneOpts.getString(ProfileTools.KEY_WEIGHTINGS));
-                    for (String weighting : fastisochronesWeightingsString.split(",")) {
-                        String configStr = "";
-                        weighting = weighting.trim();
-                        if (weighting.contains("|")) {
-                            configStr = weighting;
-                            weighting = weighting.split("\\|")[0];
-                        }
-                        PMap configMap = new PMap(configStr);
-                        boolean considerTurnRestrictions = configMap.getBool("edge_based", hasTurnCosts);
+            if (preparations.getMinNetworkSize() != null)
+                ghConfig.putObject("prepare.min_network_size", preparations.getMinNetworkSize());
 
-                        String profileName = ProfileTools.makeProfileName(vehicle, weighting, considerTurnRestrictions);
-                        Profile profile = new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(considerTurnRestrictions);
-                        profiles.put(profileName, profile);
-                        fastisochronesProfiles.add(profile);
-                    }
-                    ghConfig.setFastisochroneProfiles(fastisochronesProfiles);
-                }
-            }
-        }
-
-        if (config.getPreparationOpts() != null) {
-            Config opts = config.getPreparationOpts();
-            if (opts.hasPath("min_network_size"))
-                ghConfig.putObject("prepare.min_network_size", opts.getInt("min_network_size"));
-
-            if (opts.hasPath("methods")) {
-                if (opts.hasPath(ProfileTools.KEY_METHODS_CH)) {
-                    prepareCH = true;
-                    Config chOpts = opts.getConfig(ProfileTools.KEY_METHODS_CH);
-
-                    if (chOpts.hasPath(ProfileTools.KEY_ENABLED) || chOpts.getBoolean(ProfileTools.KEY_ENABLED)) {
-                        prepareCH = chOpts.getBoolean(ProfileTools.KEY_ENABLED);
-                    }
-
+            if (!preparations.getMethods().isEmpty()) {
+                if (!preparations.getMethods().getCh().isEmpty()) {
+                    PreparationProperties.MethodsProperties.CHProperties chOpts = preparations.getMethods().getCh();
+                    prepareCH = Boolean.TRUE.equals(chOpts.getEnabled());
                     if (prepareCH) {
-                        if (chOpts.hasPath(ProfileTools.KEY_THREADS))
-                            ghConfig.putObject("prepare.ch.threads", chOpts.getInt(ProfileTools.KEY_THREADS));
-                        if (chOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
+                        if (chOpts.getThreadsSave() != null)
+                            ghConfig.putObject("prepare.ch.threads", chOpts.getThreadsSave());
+                        if (chOpts.getWeightings() != null) {
                             List<CHProfile> chProfiles = new ArrayList<>();
-                            String chWeightingsString = StringUtility.trimQuotes(chOpts.getString(ProfileTools.KEY_WEIGHTINGS));
+                            String chWeightingsString = StringUtility.trimQuotes(chOpts.getWeightings());
                             for (String weighting : chWeightingsString.split(","))
                                 chProfiles.add(new CHProfile(ProfileTools.makeProfileName(vehicle, weighting, false)));
                             ghConfig.setCHProfiles(chProfiles);
@@ -268,51 +248,38 @@ public class RoutingProfile {
                     }
                 }
 
-                if (opts.hasPath(ProfileTools.KEY_METHODS_LM)) {
-                    prepareLM = true;
-                    Config lmOpts = opts.getConfig(ProfileTools.KEY_METHODS_LM);
-
-                    if (lmOpts.hasPath(ProfileTools.KEY_ENABLED) || lmOpts.getBoolean(ProfileTools.KEY_ENABLED)) {
-                        prepareLM = lmOpts.getBoolean(ProfileTools.KEY_ENABLED);
-                    }
-
+                if (!preparations.getMethods().getLm().isEmpty()) {
+                    PreparationProperties.MethodsProperties.LMProperties lmOpts = preparations.getMethods().getLm();
+                    prepareLM = Boolean.TRUE.equals(lmOpts.getEnabled());
                     if (prepareLM) {
-                        if (lmOpts.hasPath(ProfileTools.KEY_THREADS))
-                            ghConfig.putObject("prepare.lm.threads", lmOpts.getInt(ProfileTools.KEY_THREADS));
-                        if (lmOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
+                        if (lmOpts.getThreadsSave() != null)
+                            ghConfig.putObject("prepare.lm.threads", lmOpts.getThreadsSave());
+                        if (lmOpts.getWeightings() != null) {
                             List<LMProfile> lmProfiles = new ArrayList<>();
-                            String lmWeightingsString = StringUtility.trimQuotes(lmOpts.getString(ProfileTools.KEY_WEIGHTINGS));
+                            String lmWeightingsString = StringUtility.trimQuotes(lmOpts.getWeightings());
                             for (String weighting : lmWeightingsString.split(","))
                                 lmProfiles.add(new LMProfile(ProfileTools.makeProfileName(vehicle, weighting, hasTurnCosts)));
                             ghConfig.setLMProfiles(lmProfiles);
                         }
-                        if (lmOpts.hasPath(ProfileTools.KEY_LANDMARKS))
-                            ghConfig.putObject("prepare.lm.landmarks", lmOpts.getInt(ProfileTools.KEY_LANDMARKS));
+                        if (lmOpts.getLandmarks() != null)
+                            ghConfig.putObject("prepare.lm.landmarks", lmOpts.getLandmarks());
                     }
                 }
 
-                if (opts.hasPath(ProfileTools.KEY_METHODS_CORE)) {
-                    prepareCore = true;
-                    Config coreOpts = opts.getConfig(ProfileTools.KEY_METHODS_CORE);
-
-                    if (coreOpts.hasPath(ProfileTools.KEY_ENABLED) || coreOpts.getBoolean(ProfileTools.KEY_ENABLED)) {
-                        prepareCore = coreOpts.getBoolean(ProfileTools.KEY_ENABLED);
-                        if (!prepareCore)
-                            ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
-                    }
-
+                if (!preparations.getMethods().getCore().isEmpty()) {
+                    PreparationProperties.MethodsProperties.CoreProperties coreOpts = preparations.getMethods().getCore();
+                    prepareCore = Boolean.TRUE.equals(coreOpts.getEnabled());
                     if (prepareCore) {
-                        if (coreOpts.hasPath(ProfileTools.KEY_THREADS)) {
-                            String[] threads = coreOpts.getString(ProfileTools.KEY_THREADS).split(",");
-                            int threadsCH = Integer.parseInt(threads[0]);
-                            int threadsLM = threads.length > 1 ? Integer.parseInt(threads[1]) : threadsCH;
-                            ghConfig.putObject("prepare.core.threads", threadsCH);
-                            ghConfig.putObject("prepare.corelm.threads", threadsLM);
+                        if (coreOpts.getThreadsSave() != null) {
+                            // TODO check with taki
+                            Integer threadsCore = coreOpts.getThreadsSave();
+                            ghConfig.putObject("prepare.core.threads", threadsCore);
+                            ghConfig.putObject("prepare.corelm.threads", threadsCore);
                         }
-                        if (coreOpts.hasPath(ProfileTools.KEY_WEIGHTINGS)) {
+                        if (coreOpts.getWeightings() != null) {
                             List<CHProfile> coreProfiles = new ArrayList<>();
                             List<LMProfile> coreLMProfiles = new ArrayList<>();
-                            String coreWeightingsString = StringUtility.trimQuotes(coreOpts.getString(ProfileTools.KEY_WEIGHTINGS));
+                            String coreWeightingsString = StringUtility.trimQuotes(coreOpts.getWeightings());
                             for (String weighting : coreWeightingsString.split(",")) {
                                 String configStr = "";
                                 if (weighting.contains("|")) {
@@ -330,42 +297,79 @@ public class RoutingProfile {
                             ghConfig.setCoreProfiles(coreProfiles);
                             ghConfig.setCoreLMProfiles(coreLMProfiles);
                         }
-                        if (coreOpts.hasPath(ProfileTools.KEY_LMSETS))
-                            ghConfig.putObject("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getString(ProfileTools.KEY_LMSETS)));
-                        if (coreOpts.hasPath(ProfileTools.KEY_LANDMARKS))
-                            ghConfig.putObject("prepare.corelm.landmarks", coreOpts.getInt(ProfileTools.KEY_LANDMARKS));
+                        if (coreOpts.getLmsets() != null)
+                            ghConfig.putObject("prepare.corelm.lmsets", StringUtility.trimQuotes(coreOpts.getLmsets()));
+                        if (coreOpts.getLandmarks() != null)
+                            ghConfig.putObject("prepare.corelm.landmarks", coreOpts.getLandmarks());
+                    } else {
+                        ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
+                    }
+                }
+
+                if (!preparations.getMethods().getFastisochrones().isEmpty()) {
+                    PreparationProperties.MethodsProperties.FastIsochroneProperties fastisochroneOpts = preparations.getMethods().getFastisochrones();
+                    prepareFI = Boolean.TRUE.equals(fastisochroneOpts.getEnabled());
+                    if (prepareFI) {
+                        ghConfig.putObject(ORSParameters.FastIsochrone.PROFILE, profile.getEncoderName().toString());
+                        //Copied from core
+                        if (fastisochroneOpts.getThreadsSave() != null)
+                            ghConfig.putObject("prepare.fastisochrone.threads", fastisochroneOpts.getThreadsSave());
+                        if (fastisochroneOpts.getMaxcellnodes() != null)
+                            ghConfig.putObject("prepare.fastisochrone.maxcellnodes", fastisochroneOpts.getMaxcellnodes());
+                        if (fastisochroneOpts.getWeightings() != null) {
+                            List<Profile> fastisochronesProfiles = new ArrayList<>();
+                            String fastisochronesWeightingsString = StringUtility.trimQuotes(fastisochroneOpts.getWeightings());
+                            for (String weighting : fastisochronesWeightingsString.split(",")) {
+                                String configStr = "";
+                                weighting = weighting.trim();
+                                if (weighting.contains("|")) {
+                                    configStr = weighting;
+                                    weighting = weighting.split("\\|")[0];
+                                }
+                                PMap configMap = new PMap(configStr);
+                                boolean considerTurnRestrictions = configMap.getBool("edge_based", hasTurnCosts);
+
+                                String profileName = ProfileTools.makeProfileName(vehicle, weighting, considerTurnRestrictions);
+                                Profile ghProfile = new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(considerTurnRestrictions);
+                                profiles.put(profileName, ghProfile);
+                                fastisochronesProfiles.add(ghProfile);
+                            }
+                            ghConfig.setFastisochroneProfiles(fastisochronesProfiles);
+                        }
+                    } else {
+                        ghConfig.putObject(ProfileTools.KEY_PREPARE_FASTISOCHRONE_WEIGHTINGS, "no");
                     }
                 }
             }
         }
 
-        if (config.getExecutionOpts() != null) {
-            Config opts = config.getExecutionOpts();
-            if (opts.hasPath(ProfileTools.KEY_METHODS_CORE)) {
-                Config coreOpts = opts.getConfig(ProfileTools.KEY_METHODS_CORE);
-                if (coreOpts.hasPath(ProfileTools.KEY_ACTIVE_LANDMARKS))
-                    ghConfig.putObject("routing.corelm.active_landmarks", coreOpts.getInt(ProfileTools.KEY_ACTIVE_LANDMARKS));
+        if (profile.getService().getExecution() != null) {
+            ExecutionProperties execution = profile.getService().getExecution();
+            if (!execution.getMethods().getCore().isEmpty()) {
+                if (execution.getMethods().getCore().getActiveLandmarks() != null)
+                    ghConfig.putObject("routing.corelm.active_landmarks", execution.getMethods().getCore().getActiveLandmarks());
             }
-            if (opts.hasPath(ProfileTools.KEY_METHODS_LM)) {
-                Config lmOpts = opts.getConfig(ProfileTools.KEY_METHODS_LM);
-                if (lmOpts.hasPath(ProfileTools.KEY_ACTIVE_LANDMARKS))
-                    ghConfig.putObject("routing.lm.active_landmarks", lmOpts.getInt(ProfileTools.KEY_ACTIVE_LANDMARKS));
+            if (!execution.getMethods().getLm().isEmpty()) {
+                if (execution.getMethods().getLm().getActiveLandmarks() != null)
+                    ghConfig.putObject("routing.lm.active_landmarks", execution.getMethods().getLm().getActiveLandmarks());
             }
         }
 
-        if (config.getOptimize() && !prepareCH)
+        if (profile.getBuild().getOptimize() && !prepareCH)
             ghConfig.putObject("graph.do_sort", true);
 
-        if (!config.getGtfsFile().isEmpty())
-            ghConfig.putObject("gtfs.file", config.getGtfsFile());
+        // Check if getGTFSFile exists
+        if (profile.getBuild().getGtfsFile() != null && !profile.getBuild().getGtfsFile().toString().isEmpty())
+            ghConfig.putObject("gtfs.file", profile.getBuild().getGtfsFile().toAbsolutePath().toString());
 
         String flagEncoder = vehicle;
-        if (!Helper.isEmpty(config.getEncoderOptions()))
-            flagEncoder += "|" + config.getEncoderOptions();
+        if (!Helper.isEmpty(profile.getBuild().getEncoderOptionsString()))
+            flagEncoder += "|" + profile.getBuild().getEncoderOptionsString();
 
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
-        ghConfig.putObject("index.high_resolution", config.getLocationIndexResolution());
-        ghConfig.putObject("index.max_region_search", config.getLocationIndexSearchIterations());
+        ghConfig.putObject("index.high_resolution", profile.getBuild().getLocationIndexResolution());
+        ghConfig.putObject("index.max_region_search", profile.getBuild().getLocationIndexSearchIterations());
+//        ghConfig.putObject("ext_storages", profile.getExtStorages());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
@@ -405,20 +409,12 @@ public class RoutingProfile {
         return mGraphHopper.getGraphHopperStorage().getProperties();
     }
 
-    public RouteProfileConfiguration getConfiguration() {
-        return config;
+    public ProfileProperties getProfileConfiguration() {
+        return profileProperties;
     }
 
     public Integer[] getPreferences() {
         return mRoutePrefs;
-    }
-
-    public boolean hasCarPreferences() {
-        for (Integer mRoutePref : mRoutePrefs) {
-            if (RoutingProfileType.isDriving(mRoutePref))
-                return true;
-        }
-        return false;
     }
 
     public boolean isCHEnabled() {
@@ -600,8 +596,7 @@ public class RoutingProfile {
             }
         }
 
-        boolean useTurnCostProfile = config.isTurnCostEnabled();
-        String profileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), useTurnCostProfile);
+        String profileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), Boolean.TRUE.equals(profileProperties.getBuild().getEncoderOptions().getTurnCosts()));
         String profileNameCH = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
         RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName, profileNameCH);
         searchCntx.setProperties(props);

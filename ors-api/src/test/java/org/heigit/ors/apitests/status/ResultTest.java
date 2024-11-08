@@ -26,8 +26,7 @@ import static org.hamcrest.Matchers.is;
 class ResultTest extends ServiceTest {
 
     @Test
-    void testGetStatus() throws InterruptedException {
-
+    void testGetStatus() {
         given()
                 .get(getEndPointPath())
                 .then().log().ifValidationFails()

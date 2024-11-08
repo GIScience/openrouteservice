@@ -16,11 +16,10 @@
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.reader.ReaderWay;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.AccessRestrictionType;
 import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -89,9 +88,20 @@ class RoadAccessRestrictionsGraphStorageBuilderTest {
     }
 
     private void initBuilder(int profileType) throws Exception {
+        class HelperClass extends ExtendedStorageProperties {
+
+            HelperClass() {
+                super();
+            }
+
+            public void setUse_for_warnings(boolean useForWarnings) {
+                super.setUseForWarnings(useForWarnings);
+            }
+        }
         builder = new RoadAccessRestrictionsGraphStorageBuilder();
-        builder.parameters = new HashMap<>();
-        builder.parameters.put("use_for_warnings", "true");
+        HelperClass params = new HelperClass();
+        params.setUse_for_warnings(true);
+        builder.setParameters(params);
         builder.init(null, profileType);
     }
 }

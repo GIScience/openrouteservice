@@ -17,6 +17,7 @@ import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairTypesEncoder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
@@ -77,16 +78,23 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
      * Initiate the wheelchair storage builder
      *
      * @param graphhopper The graphhopper instance to run against
-     * @throws Exception Thrown when the storage has already been initialized
      * @return The storage that is created from the builder
+     * @throws Exception Thrown when the storage has already been initialized
      */
     @Override
     public GraphExtension init(GraphHopper graphhopper) throws Exception {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        if (parameters.containsKey("KerbsOnCrossings")) {
-            kerbHeightOnlyOnCrossing = Boolean.parseBoolean(parameters.get("KerbsOnCrossings"));
+        ExtendedStorageProperties parameters;
+        try {
+            parameters = this.parameters;
+        } catch (ClassCastException e) {
+            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
+        }
+
+        if (parameters.getKerbsOnCrossings() != null) {
+            kerbHeightOnlyOnCrossing = parameters.getKerbsOnCrossings();
         }
         storage = new WheelchairAttributesGraphStorage();
         return storage;

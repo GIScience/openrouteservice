@@ -26,17 +26,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
-import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.SystemMessageProperties;
+import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.routing.geojson.GeoJSONRouteResponse;
 import org.heigit.ors.api.responses.routing.gpx.GPXRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONRouteResponse;
 import org.heigit.ors.api.services.RoutingService;
-import org.heigit.ors.api.util.AppConfigMigration;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.exceptions.*;
-import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.locationtech.jts.geom.Coordinate;
@@ -65,7 +65,7 @@ public class RoutingAPI {
     private final RoutingService routingService;
 
     public RoutingAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, RoutingService routingService) {
-        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+        this.endpointsProperties = endpointsProperties;
         this.systemMessageProperties = systemMessageProperties;
         this.routingService = routingService;
     }
@@ -107,11 +107,12 @@ public class RoutingAPI {
                     schema = @Schema(implementation = GeoJSONRouteResponse.class)
             )
             })
-    public GeoJSONRouteResponse getSimpleGeoJsonRoute(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+    public GeoJSONRouteResponse getSimpleGeoJsonRoute(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
                                                       @Parameter(description = "Start coordinate of the route in `longitude,latitude` format.", required = true, example = "8.681495,49.41461") @RequestParam Coordinate start,
                                                       @Parameter(description = "Destination coordinate of the route in `longitude,latitude` format.", required = true, example = "8.687872,49.420318") @RequestParam Coordinate end) throws StatusCodeException {
         RouteRequest request = new RouteRequest(start, end);
-        request.setProfile(profile);
+        request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
 
         RouteResult[] result = routingService.generateRouteFromRequest(request);
 
@@ -131,7 +132,7 @@ public class RoutingAPI {
                     schema = @Schema(implementation = JSONRouteResponse.class)
             )
             })
-    public JSONRouteResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+    public JSONRouteResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
                                         @Parameter(description = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
         return getJsonRoute(profile, request);
     }
@@ -149,9 +150,10 @@ public class RoutingAPI {
             )
             })
     public JSONRouteResponse getJsonRoute(
-            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
-        request.setProfile(profile);
+        request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.RouteResponseType.JSON);
 
         RouteResult[] result = routingService.generateRouteFromRequest(request);
@@ -173,9 +175,10 @@ public class RoutingAPI {
             )
             })
     public GPXRouteResponse getGPXRoute(
-            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
-        request.setProfile(profile);
+        request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.RouteResponseType.GPX);
 
         RouteResult[] result = routingService.generateRouteFromRequest(request);
@@ -198,9 +201,10 @@ public class RoutingAPI {
             )
             })
     public GeoJSONRouteResponse getGeoJsonRoute(
-            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody RouteRequest request) throws StatusCodeException {
-        request.setProfile(profile);
+        request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.RouteResponseType.GEOJSON);
 
         RouteResult[] result = routingService.generateRouteFromRequest(request);
@@ -238,5 +242,10 @@ public class RoutingAPI {
     @ExceptionHandler(StatusCodeException.class)
     public ResponseEntity<Object> handleException(final StatusCodeException e) {
         return errorHandler.handleStatusCodeException(e);
+    }
+
+    private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
+        EncoderNameEnum encoderForProfile = routingService.getEncoderForProfile(profile);
+        return APIEnums.Profile.forValue(encoderForProfile.getName());
     }
 }

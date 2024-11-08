@@ -30,7 +30,7 @@
         <relativePath>../pom.xml</relativePath>
         <artifactId>openrouteservice</artifactId>
         <groupId>org.heigit.ors</groupId>
-        <version>8.2.0</version>
+        <version>9.0.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -54,6 +54,53 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-web-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-reader-gtfs</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.GIScience.graphhopper</groupId>
+            <artifactId>graphhopper-map-matching</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.carrotsearch</groupId>
             <artifactId>hppc</artifactId>
@@ -137,26 +184,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>me.tongfei</groupId>
             <artifactId>progressbar</artifactId>
         </dependency>
@@ -165,39 +192,6 @@
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-web-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-reader-gtfs</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.GIScience.graphhopper</groupId>
-            <artifactId>graphhopper-map-matching</artifactId>
         </dependency>
 
         <dependency>
@@ -210,7 +204,6 @@
             <artifactId>HikariCP</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -226,5 +219,68 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>nginx</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>

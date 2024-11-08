@@ -1,7 +1,8 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.config.EngineProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestRoundTripOptions;
 import org.heigit.ors.common.StatusCode;
@@ -22,8 +23,9 @@ import java.util.stream.Stream;
 public class RoutingService extends ApiService {
 
     @Autowired
-    public RoutingService(EndpointsProperties endpointsProperties) {
+    public RoutingService(EndpointsProperties endpointsProperties, EngineProperties engineProperties) {
         this.endpointsProperties = endpointsProperties;
+        this.engineProperties = engineProperties;
     }
 
     @Override
@@ -115,6 +117,8 @@ public class RoutingService extends ApiService {
         int coordinatesLength = request.getCoordinates().size();
 
         RouteSearchParameters params = new RouteSearchParameters();
+
+        params.setProfileName(request.getProfileName());
 
         if (request.hasExtraInfo()) {
             routingRequest.setExtraInfo(convertExtraInfo(request));//todo remove duplicate?
