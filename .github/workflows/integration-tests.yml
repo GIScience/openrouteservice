@@ -87,19 +87,6 @@ jobs:
           file: ors-test-scenarios/src/test/resources/Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Export to build artifacts
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ors-test-scenarios/src/test/resources/Dockerfile
-          tags: ${{ matrix.docker_image }}:latest
-          outputs: type=oci,dest=/tmp/${{ matrix.docker_image }}.tar
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.docker_image }}
-          path: /tmp/${{ matrix.docker_image }}.tar
-          overwrite: true
   ors-test-scenarios:
     name: Run the ors-test-scenarios integration tests
     runs-on: ubuntu-latest
@@ -125,23 +112,17 @@ jobs:
         id: buildx
         with:
           install: true
-      - name: Download all artifact
-        uses: actions/download-artifact@v4
+      - name: Load the Docker image
+        uses: docker/build-push-action@v4
         with:
-          # glob pattern to match all files in the artifact
-          pattern: 'ors-test-scenarios-*.tar'
-          path: /tmp/
-          merge-multiple: true
-      - name: Load the Docker images
-        run: |
-          # Iterate over all files in the directory /tmp with the pattern ors-test-scenarios-*.tar
-          for file in /tmp/ors-test-scenarios-*.tar; do
-              echo "Loading image from $file"
-              docker load -i $file
-          done
-          # List all images
-          docker image ls -a
+          context: .
+          load: true
+          tags: ors-test-scenarios-maven:latest
+          file: ors-test-scenarios/src/test/resources/Dockerfile
+          cache-from: type=gha
       - name: Run integration tests
         run: |
+          echo "List all docker images"
+            docker image ls -a
           echo "Running integration tests ${{ matrix.test_class }}"
           mvn -pl ors-test-scenarios test -Dtest=${{ matrix.test_class }}
