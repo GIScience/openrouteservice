@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
@@ -64,30 +65,41 @@ public class GraphManagementRuntimeProperties {
         public static Builder from(EngineProperties engineProperties, ProfileProperties profileProperties, String graphVersion) {
             Builder builder = new Builder();
             builder.enabled = ofNullable(engineProperties).map(EngineProperties::getGraphManagement).map(GraphManagementProperties::getEnabled).orElse(false);
-            builder.repoBaseUri = getFirstPresentString(
+            builder.repoBaseUri = getFirstPresentString(List.of(
                     ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUri),
-                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUri));
-            builder.repoName = getFirstPresentString(
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUri))
+            );
+            builder.repoName = getFirstPresentString(List.of(
                     ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryName),
-                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryName));
-            builder.repoCoverage = getFirstPresentString(
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryName))
+            );
+            builder.repoCoverage = getFirstPresentString(List.of(
                     ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getGraphExtent),
-                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getGraphExtent));
-            builder.repoProfileGroup = getFirstPresentString(
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getGraphExtent))
+            );
+            builder.repoProfileGroup = getFirstPresentString(List.of(
                     ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryProfileGroup),
-                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryProfileGroup));
-            builder.maxNumberOfGraphBackups = engineProperties.getGraphManagement().getMaxBackups();
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryProfileGroup))
+            );
+
+            builder.maxNumberOfGraphBackups = ofNullable(engineProperties).map(EngineProperties::getGraphManagement).map(GraphManagementProperties::getMaxBackups).orElse(0);
             builder.graphVersion = graphVersion;
             builder.localProfileName = ofNullable(profileProperties).map(ProfileProperties::getProfileName).map(String::valueOf).orElse(null);
-            builder.localGraphsRootAbsPath = getFirstPresentString(
+            builder.localGraphsRootAbsPath = getFirstPresentString(List.of(
                     ofNullable(profileProperties).map(ProfileProperties::getGraphPath).map(Path::toString),
-                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getGraphPath).map(Path::toString));
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getGraphPath).map(Path::toString))
+            );
+
             builder.encoderName = ofNullable(profileProperties).map(ProfileProperties::getEncoderName).map(String::valueOf).orElse(null);
             return builder;
         }
 
-        private static String getFirstPresentString(Optional... objects) {
-            return Arrays.stream(objects).filter(Optional::isPresent).findFirst().map(Optional::get).map(String::valueOf).orElse(null);
+        private static <T> String getFirstPresentString(List<Optional<T>> objects) {
+            return objects.stream()
+                    .flatMap(Optional::stream)
+                    .map(String::valueOf)
+                    .findFirst()
+                    .orElse(null);
         }
 
         public Builder withEnabled(boolean enabled) {
@@ -191,8 +203,7 @@ public class GraphManagementRuntimeProperties {
     }
 
     private boolean isSupportedFileScheme(URI uri) {
-        if (uri == null) return false;
-        return Arrays.asList("file").contains(uri.getScheme());
+        return uri != null && "file".equals(uri.getScheme());
     }
 
     private URI toUri(String string) {

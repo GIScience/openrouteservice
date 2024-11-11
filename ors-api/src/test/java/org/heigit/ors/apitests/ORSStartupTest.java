@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ORSStartupTest extends ServiceTest {
+class ORSStartupTest extends ServiceTest {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     @Test

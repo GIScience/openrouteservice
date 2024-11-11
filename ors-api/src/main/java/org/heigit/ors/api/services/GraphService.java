@@ -29,10 +29,15 @@ public class GraphService {
 
     private static final Logger LOGGER = Logger.getLogger(GraphService.class.getName());
 
-    private List<ORSGraphManager> graphManagers = new ArrayList<>();
+    private final List<ORSGraphManager> graphManagers = new ArrayList<>();
 
-    private AtomicBoolean graphActivationAttemptWasBlocked = new AtomicBoolean(false);
-    private AtomicBoolean isActivatingGraphs = new AtomicBoolean(true);
+    private final AtomicBoolean graphActivationAttemptWasBlocked = new AtomicBoolean(false);
+    private final AtomicBoolean isActivatingGraphs = new AtomicBoolean(true);
+
+    @Autowired
+    public GraphService(EngineProperties engineProperties) {
+        this.engineProperties = engineProperties;
+    }
 
     public void addGraphManagerInstance(ORSGraphManager orsGraphManager) {
         if (orsGraphManager.useGraphRepository()) {
@@ -48,7 +53,7 @@ public class GraphService {
     @Scheduled(cron = "${ors.engine.graph_management.download_schedule:0 0 0 31 2 *}")//Default is "never"
     public void checkForUpdatesInRepo() {
 
-        if (!enabled) {
+        if (Boolean.FALSE.equals(enabled)) {
             LOGGER.debug("Graph management is disabled, skipping scheduled repository check...");
             return;
         }
@@ -87,7 +92,7 @@ public class GraphService {
     }
 
     public void checkForDownloadedGraphsToActivate(String trigger) {
-        if (!enabled) {
+        if (Boolean.FALSE.equals(enabled)) {
             LOGGER.debug("Graph management is disabled, skipping %s activation check...".formatted(trigger.toLowerCase()));
             return;
         }
@@ -147,7 +152,7 @@ public class GraphService {
     @Async
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     public void repeatedGraphActivationAttempt() {
-        if (!enabled) {
+        if (Boolean.FALSE.equals(enabled)) {
             LOGGER.debug("Graph management is disabled, skipping repeated attempt to activate graphs...");
             return;
         }
