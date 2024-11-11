@@ -109,21 +109,11 @@ public class GraphService {
         boolean graphActivationAllowed = true;
 
         for (ORSGraphManager orsGraphManager : graphManagers) {
-            if (orsGraphManager.isBusy() || orsGraphManager.hasGraphDownloadFile()) {
-                if (!graphActivationAttemptWasBlocked.get()) {
-                    LOGGER.info("[%s] %s graph activation check: Download or extraction in progress".formatted(
-                            orsGraphManager.getQualifiedProfileName(),
-                            trigger
-                    ));
-                }
+            if (isGraphManagerBusyOrHasDownloadFile(orsGraphManager, trigger)) {
                 graphActivationAllowed = false;
             }
             if (orsGraphManager.hasDownloadedExtractedGraph()) {
-                if (!graphActivationAttemptWasBlocked.get()) {
-                    LOGGER.info("[%s] %s graph activation check: Downloaded extracted graph available".formatted(
-                            orsGraphManager.getQualifiedProfileName(),
-                            trigger));
-                }
+                logDownloadedExtractedGraphAvailable(orsGraphManager, trigger);
                 graphActivationNeeded = true;
             }
         }
@@ -147,6 +137,27 @@ public class GraphService {
 
         LOGGER.info("%s graph activation check done: Performing graph activation...".formatted(trigger));
         activateGraphs();
+    }
+
+    private boolean isGraphManagerBusyOrHasDownloadFile(ORSGraphManager orsGraphManager, String trigger) {
+        if (orsGraphManager.isBusy() || orsGraphManager.hasGraphDownloadFile()) {
+            if (!graphActivationAttemptWasBlocked.get()) {
+                LOGGER.info("[%s] %s graph activation check: Download or extraction in progress".formatted(
+                        orsGraphManager.getQualifiedProfileName(),
+                        trigger
+                ));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void logDownloadedExtractedGraphAvailable(ORSGraphManager orsGraphManager, String trigger) {
+        if (!graphActivationAttemptWasBlocked.get()) {
+            LOGGER.info("[%s] %s graph activation check: Downloaded extracted graph available".formatted(
+                    orsGraphManager.getQualifiedProfileName(),
+                    trigger));
+        }
     }
 
     @Async
