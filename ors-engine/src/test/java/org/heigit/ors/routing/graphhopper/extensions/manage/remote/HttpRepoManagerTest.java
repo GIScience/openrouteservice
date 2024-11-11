@@ -81,7 +81,7 @@ class HttpRepoManagerTest {
                 .withRepoBaseUri(nginxUrl);
     }
 
-    private void setupActiveGraphDirectory(Long osmDateLocal) throws IOException {
+    private void setupActiveGraphDirectory(Long osmDateLocal) {
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), osmDateLocal, null);
     }
 
@@ -115,7 +115,7 @@ class HttpRepoManagerTest {
                 .build();
 
         FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
-        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
+        orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
         HttpRepoManager httpRepoManager = new HttpRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
         URL downloadUrl = httpRepoManager.createDownloadUrl("graph.ghz");
@@ -153,7 +153,7 @@ class HttpRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_noDownloadWhen_localDataExists_noRemoteData() throws IOException {
+    void downloadGraphIfNecessary_noDownloadWhen_localDataExists_noRemoteData() {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_NONEXISTING_GRAPHS_VERSION).build());
         setupActiveGraphDirectory(EARLIER_DATE);
 
@@ -178,7 +178,7 @@ class HttpRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_downloadWhen_localDate_before_remoteDate() throws IOException {
+    void downloadGraphIfNecessary_downloadWhen_localDate_before_remoteDate() {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
         setupActiveGraphDirectory(EARLIER_DATE);
 
@@ -191,9 +191,9 @@ class HttpRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_noDownloadWhen_localDate_equals_remoteDate() throws IOException {
+    void downloadGraphIfNecessary_noDownloadWhen_localDate_equals_remoteDate() {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        setupActiveGraphDirectory(REPO_CAR_GRAPH_BUILD_DATE);
+        setupActiveGraphDirectory(repoCarGraphBuildDate);
 
         orsGraphRepoManager.downloadGraphIfNecessary();
 
@@ -204,9 +204,9 @@ class HttpRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_noDownloadWhen_localDate_after_remoteDate() throws IOException {
+    void downloadGraphIfNecessary_noDownloadWhen_localDate_after_remoteDate() {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        setupActiveGraphDirectory(REPO_CAR_GRAPH_BUILD_DATE + 1000000);
+        setupActiveGraphDirectory(repoCarGraphBuildDate + 1000000);
 
         orsGraphRepoManager.downloadGraphIfNecessary();
 

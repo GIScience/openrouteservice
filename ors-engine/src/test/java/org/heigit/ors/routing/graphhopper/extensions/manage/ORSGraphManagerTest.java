@@ -21,7 +21,7 @@ class ORSGraphManagerTest {
             "false, true,          , http://my.domain.com",
             "false, false, repoName, http://my.domain.com",
     })
-    public void useGraphRepository(boolean expectUseRepo, boolean enable, String repoName, String baseUri) {
+    void useGraphRepository(boolean expectUseRepo, boolean enable, String repoName, String baseUri) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withEnabled(enable)
                 .withRepoName(repoName)
@@ -48,7 +48,7 @@ class ORSGraphManagerTest {
             "FileSystemRepoManager, ~/absolute/path",
             "FileSystemRepoManager, ~/absolute/path.txt"
     })
-    public void getOrsGraphRepoManager(String className, String repoUri) {
+    void getOrsGraphRepoManager(String className, String repoUri) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath("graphs")
                 .withRepoBaseUri(repoUri)

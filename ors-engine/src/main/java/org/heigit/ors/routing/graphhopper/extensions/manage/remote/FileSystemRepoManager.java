@@ -18,13 +18,13 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public class FileSystemRepoManager extends AbstractRepoManager implements ORSGraphRepoManager {
 
     private static final Logger LOGGER = Logger.getLogger(FileSystemRepoManager.class.getName());
-    private String graphsRepoPath;
-    private String graphsRepoName;
-    private String graphsProfileGroup;
-    private String graphsRepoCoverage;
-    private String graphsRepoGraphVersion;
-    private ORSGraphFileManager orsGraphFileManager;
-    private ORSGraphRepoStrategy orsGraphRepoStrategy;
+    private final String graphsRepoPath;
+    private final String graphsRepoName;
+    private final String graphsProfileGroup;
+    private final String graphsRepoCoverage;
+    private final String graphsRepoGraphVersion;
+    private final ORSGraphFileManager orsGraphFileManager;
+    private final ORSGraphRepoStrategy orsGraphRepoStrategy;
 
     public FileSystemRepoManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.graphsRepoPath = graphManagementRuntimeProperties.getDerivedRepoPath().toAbsolutePath().toString();
@@ -104,10 +104,10 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
         if (downloadedGraphInfoFile.exists()) {
             Path latestCompressedGraphInRepoPath = Path.of(graphsRepoPath, graphsRepoName, graphsProfileGroup, graphsRepoCoverage, graphsRepoGraphVersion, orsGraphRepoStrategy.getRepoCompressedGraphFileName());
             URI uri = latestCompressedGraphInRepoPath.toUri();
-            latestGraphInfoInRepo.withRemoteUri(uri);
+            latestGraphInfoInRepo.setRemoteUri(uri);
 
             PersistedGraphInfo persistedGraphInfo = orsGraphFileManager.readOrsGraphInfo(downloadedGraphInfoFile);
-            latestGraphInfoInRepo.withPersistedInfo(persistedGraphInfo);
+            latestGraphInfoInRepo.setPersistedGraphInfo(persistedGraphInfo);
         } else {
             LOGGER.error("[%s] Invalid download path for graphInfo file: %s".formatted(getProfileDescriptiveName(), latestGraphInfoInRepoPath));
         }
@@ -121,13 +121,11 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
         } else {
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getName()));
         }
-        if (repoPath != null) {
-            try {
-                Files.copy(repoPath, localPath.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath()));
-                throw new IllegalArgumentException(e);
-            }
+        try {
+            Files.copy(repoPath, localPath.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e, repoPath.toFile().getAbsolutePath()));
+            throw new IllegalArgumentException(e);
         }
     }
 }

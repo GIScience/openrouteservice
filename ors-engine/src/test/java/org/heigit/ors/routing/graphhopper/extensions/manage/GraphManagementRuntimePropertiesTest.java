@@ -22,7 +22,7 @@ class GraphManagementRuntimePropertiesTest {
             "~/absolute/path, FILESYSTEM",
             "~/absolute/path.txt, FILESYSTEM"
     })
-    public void deriveRepoBaseUrl(String repoBaseUri, GraphManagementRuntimeProperties.GraphRepoType expectedType) {
+    void deriveRepoBaseUrl(String repoBaseUri, GraphManagementRuntimeProperties.GraphRepoType expectedType) {
         GraphManagementRuntimeProperties managementRuntimeProperties = GraphManagementRuntimeProperties.Builder.empty().withRepoBaseUri(repoBaseUri).build();
         assertEquals(expectedType, managementRuntimeProperties.getDerivedRepoType());
         switch (expectedType) {

@@ -22,6 +22,7 @@ package org.heigit.ors.api.servlet.listeners;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
+import lombok.AllArgsConstructor;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.services.GraphService;
@@ -40,16 +41,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+@AllArgsConstructor
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
     private final EngineProperties engineProperties;
     private final GraphService graphService;
-
-    public ORSInitContextListener(EngineProperties engineProperties, GraphService graphService) {
-        // Initialize properties object loaded by spring
-        this.engineProperties = engineProperties;
-        this.graphService = graphService;
-    }
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {

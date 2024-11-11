@@ -1,15 +1,13 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
+import lombok.AllArgsConstructor;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolderStrategy;
 
+@AllArgsConstructor
 public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
 
     private final GraphManagementRuntimeProperties managementProperties;
-
-    public NamedGraphsRepoStrategy(GraphManagementRuntimeProperties managementProperties) {
-        this.managementProperties = managementProperties;
-    }
 
     private String getConcatenatedRepoFileName() {
         return String.join("_",

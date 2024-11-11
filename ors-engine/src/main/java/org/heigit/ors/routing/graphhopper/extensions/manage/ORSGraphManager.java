@@ -1,5 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
@@ -14,6 +16,8 @@ import java.io.File;
 
 import static java.util.Optional.ofNullable;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
@@ -24,19 +28,9 @@ public class ORSGraphManager {
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphRepoManager orsGraphRepoManager;
 
-    public ORSGraphManager() {
-    }
-
-    public ORSGraphManager(GraphManagementRuntimeProperties managementRuntimeProperties, ORSGraphFileManager orsGraphFileManager, ORSGraphRepoManager orsGraphRepoManager) {
-        this.managementRuntimeProperties = managementRuntimeProperties;
-        this.orsGraphFileManager = orsGraphFileManager;
-        this.orsGraphRepoManager = orsGraphRepoManager;
-    }
-
     public static ORSGraphManager initializeGraphManagement(String graphVersion, EngineProperties engineProperties, ProfileProperties profileProperties) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, graphVersion).build();
-        ORSGraphManager orsGraphManager = initializeGraphManagement(managementProps);
-        return orsGraphManager;
+        return initializeGraphManagement(managementProps);
     }
 
     public static ORSGraphManager initializeGraphManagement(GraphManagementRuntimeProperties managementProps) {
