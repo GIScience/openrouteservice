@@ -45,9 +45,9 @@ jobs:
         with:
           image: "ors-test-scenarios-war-bare:latest"
           retention_days: '7'
-#      - name: Run integration tests
-#        run: |
-#          echo "List all docker images"
-#          docker image ls -a
-#          echo "Running integration tests"
-#          mvn -pl ors-test-scenarios test
+      - name: Run integration tests
+        run: |
+          echo "List all docker images"
+          docker image ls -a
+          echo "Running integration tests"
+          mvn -pl ors-test-scenarios test
