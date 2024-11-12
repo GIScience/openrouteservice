@@ -8,17 +8,21 @@ import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.junit.jupiter.api.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ORSStartupTest extends ServiceTest {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
     @Test
-    void testGraphInfoFilesWrittenCorrectly() {
+    void testGraphInfoFilesWrittenCorrectly() throws ParseException {
         RoutingProfileManager rpm = RoutingProfileManager.getInstance();
         RoutingProfile profile = rpm.getRoutingProfile(EncoderNameEnum.DRIVING_CAR.getName());
         GraphInfo graphInfo = profile.getGraphhopper().getOrsGraphManager().getActiveGraphInfo();
         ProfileProperties profileProperties = graphInfo.getPersistedGraphInfo().getProfileProperties();
-
-        assertEquals("Sun Sep 08 22:21:00 CEST 2024", graphInfo.getPersistedGraphInfo().getOsmDate().toString(), "graph_info should contain OSM data timestamp");
+        assertEquals(dateFormat.parse("2024-09-08T20:21:00+0000"), graphInfo.getPersistedGraphInfo().getOsmDate(), "graph_info should contain OSM data timestamp");
         assertEquals(EncoderNameEnum.DRIVING_CAR, profileProperties.getEncoderName(), "Encoder name should be set in the graph_info");
         assertTrue(profileProperties.getBuild().getElevation(), "Elevation should be set in the graph_info");
         assertNull(profileProperties.getService().getMaximumDistance(), "Maximum distance should not be set in the graph_info");
