@@ -115,15 +115,15 @@ All configuration parameters can be overridden by runtime parameters or by setti
 The options in order of precedence (higher options win over lower) are: 
 - Spring runtime parameter
   ```shell 
-  java -jar ors.jar --ors.engine.source_file=./osm_file.pbf --ors.engine.profiles.driving-car.enabled=true
+  java -jar ors.jar --ors.engine.profile_default.build.source_file=./osm_file.pbf --ors.engine.profiles.driving-car.enabled=true
   ```
 - Java VM runtime parameter
   ```shell 
-  java -jar -Dors.engine.source_file=./osm_file.pbf -Dors.engine.profiles.driving-car.enabled=true ors.jar 
+  java -jar -Dors.engine.profile_default.build.source_file=./osm_file.pbf -Dors.engine.profiles.driving-car.enabled=true ors.jar 
   ```
 - Environment variables
   ```shell 
-  export ors.engine.source_file=./osm_file.pbf 
+  export ors.engine.profile_default.build.source_file=./osm_file.pbf 
   export ors.engine.profiles.driving-car.enabled=true
   java -jar ors.jar 
   ```
@@ -132,12 +132,12 @@ The option to configure using environment variables is especially useful in cont
 openrouteservice in containers such as with [docker](../running-with-docker.md). 
 
 Every property also corresponds to an environment variable name in *uppercase letters* and with *underscores* replacing *dots*, so e.g.
-- `ORS_ENGINE_SOURCE_FILE` replaces `ors.engine.source_file`
+- `ORS_ENGINE_PROFILE_DEFAULT_BUILD_SOURCE_FILE` replaces `ors.engine.profile_default.build.source_file`
 - `ORS_ENGINE_PROFILES_CAR_ENABLED` replaces `ors.engine.profiles.car.enabled`
 
 Consequently, the following commands are equivalent to the last example above:
 ```shell
-  export ORS_ENGINE_SOURCE_FILE=./osm_file.pbf
+  export ORS_ENGINE_PROFILE_DEFAULT_BUILD_SOURCE_FILE=./osm_file.pbf
   export ORS_ENGINE_PROFILES_CAR_ENABLED=true
   java -jar ors.jar
 ```

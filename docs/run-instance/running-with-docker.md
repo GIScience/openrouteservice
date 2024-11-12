@@ -77,7 +77,7 @@ docker run -dt --name ors-app \
   -e "XMX=2g" \
   local/openrouteservice:latest 
 ```
-Add `-e "ors.engine.source_file=files/your.osm.pbf" \` to point to your own OSM file that lies in the mounted $PWD/ors-docker/files folder.
+Add `-e "ors.engine.profile_default.build.source_file=files/your.osm.pbf" \` to point to your own OSM file that lies in the mounted $PWD/ors-docker/files folder.
 Add `-e "BUILD_GRAPHS=True" \` to trigger a graph rebuild.
 
 :::
@@ -333,7 +333,7 @@ The following example snippet of the modified `docker-compose.yml` shows a setup
       # See the ors-config.env file for more options.
       # To have a configuration file-less container, uncomment at least the following properties.
       # The values are examples and provide the default configuration.
-      ors.engine.source_file: /home/ors/files/andorra-latest.osm.pbf
+      ors.engine.profile_default.build.source_file: /home/ors/files/andorra-latest.osm.pbf
       ors.engine.profiles.car.enabled: false
       ors.engine.profiles.wheelchair.enabled: true
       # Here you can also set more advanced spring and tomcat properties, such as proxy settings.
@@ -363,7 +363,7 @@ The properties that were set in in the `docker-compose.yml` snippet in the previ
 The only difference is, that equal signs are used instead of colons:
 
 ```
-ors.engine.source_file=/home/ors/files/andorra-latest.osm.pbf
+ors.engine.profile_default.build.source_file=/home/ors/files/andorra-latest.osm.pbf
 ors.engine.profiles.car.enabled=false
 ors.engine.profiles.wheelchair.enabled=true
 ```

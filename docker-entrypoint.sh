@@ -183,7 +183,7 @@ fi
 ors_engine_graphs_root_path=$(env | grep "^ors\.engine\.graphs_root_path=" | awk -F '=' '{print $2}')
 # get ors.engine.elevation.cache_path
 ors_engine_elevation_cache_path=$(env | grep "^ors\.engine\.elevation\.cache_path=" | awk -F '=' '{print $2}')
-# get ors.engine.source_file
+# get ors.engine.profile_default.build.source_file
 ors_engine_source_file=$(env | grep "^ors\.engine\.source_file=" | awk -F '=' '{print $2}')
 
 # Check that ors_engine_graphs_root_path is not empty and not set to /
@@ -231,19 +231,11 @@ fi
 
 # Get relevant configuration information from the .yml or .json file
 if [[ -z "${ors_engine_graphs_root_path}" ]]; then
-  if [[ "${config_location}" = *.yml ]]; then
-    ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.engine.graphs_root_path')
-  elif [[ "${config_location}" = *.json ]]; then
-    ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.services.routing.profiles.default_params.graphs_root_path')
-  fi
+  ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.engine.profile_default.build.source_file')
 fi
 
 if [[ -z "${ors_engine_source_file}" ]]; then
-  if [[ "${ors_config_location}" = *.yml ]]; then
-    ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.source_file')
-  elif [[ "${ors_config_location}" = *.json ]]; then
-    ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.services.routing.sources[0]')
-  fi
+  ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.profile_default.build.source_file')
 fi
 
 if [ -n "${ors_engine_graphs_root_path}" ]; then
@@ -275,11 +267,11 @@ update_file "${ORS_HOME}/files/example-heidelberg.osm.gz" "/heidelberg.osm.gz"
 
 # Remove existing graphs if BUILD_GRAPHS is set to true
 if [ "${ors_rebuild_graphs}" = "true" ]; then
-  # Warn if ors.engine.graphs_root_path is not set or empty
+  # Warn if ors.engine.profile_default.graph_path is not set
   if [ -z "${ors_engine_graphs_root_path}" ]; then
     warning "graphs_root_path is not set or could not be found. Skipping cleanup."
   elif [ -d "${ors_engine_graphs_root_path}" ]; then
-    # Check the ors.engine.graphs_root_path folder exists
+    # Check the ors.engine.profile_default.graph_path folder exists
     rm -rf "${ors_engine_graphs_root_path:?}"/* || warning "Could not remove ${ors_engine_graphs_root_path}"
     success "Removed graphs at ${ors_engine_graphs_root_path}/*."
   else
