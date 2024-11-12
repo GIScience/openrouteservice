@@ -1,9 +1,9 @@
 package utils;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.ShellStrategy;
@@ -19,10 +19,10 @@ import static utils.ContainerInitializer.initContainerWithSharedGraphs;
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
+@EnabledIfEnvironmentVariable(named = "ONE_SHOT_IMAGE_BUILDER", matches = "true")
 class OneShotImageBuilderTest {
 
     @Test
-    @Disabled("This test is supposed to be used in CI to cache the images")
     void oneShotImageBuilder() {
         GenericContainer<?> containerWar = initContainerWithSharedGraphs(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE, false);
         containerWar.setWaitStrategy(new ShellStrategy());

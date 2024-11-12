@@ -43,7 +43,9 @@ jobs:
       - name: Build the docker image with the one shot builder
         run: |
           echo "Building the docker image with the one shot builder"
-          mvn -pl ors-test-scenarios test -Dtest=utils.OneShotImageBuilderTest,oneShotImageBuilder
+          mvn -pl ors-test-scenarios test
+        env:
+          ONE_SHOT_IMAGE_BUILDER: true
       - name: Export the docker image
         run: |
           echo "Exporting the docker image"
