@@ -44,6 +44,7 @@ jobs:
         uses: ishworkh/container-image-artifact-upload@v2.0.0
         with:
           image: "ors-test-scenarios-war-bare:latest"
+          retention_days: '7'
   ors-test-scenarios:
     name: Integration test suite
     runs-on: ubuntu-latest

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.io.IOException;
@@ -159,7 +160,7 @@ public abstract class ContainerInitializer {
                 .withStartupTimeout(startupTimeout)
                 .waitingFor(healthyOrsWaitStrategy());
         // @formatter:on
-
+        container.setDockerImageName(containerTestImage.getName());
         if (containerTestImage == ContainerTestImageBare.WAR_CONTAINER_BARE) {
             container.withEnv(defaultEnvWarBare);
         }
