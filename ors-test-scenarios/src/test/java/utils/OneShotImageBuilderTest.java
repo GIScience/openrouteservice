@@ -24,9 +24,18 @@ class OneShotImageBuilderTest {
 
     @Test
     void oneShotImageBuilder() {
-        GenericContainer<?> containerWar = initContainerWithSharedGraphs(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE, false);
-        containerWar.setWaitStrategy(new ShellStrategy());
-        containerWar.start();
+        GenericContainer<?> containerWar;
+        try {
+            containerWar = initContainerWithSharedGraphs(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE, false);
+            containerWar.setWaitStrategy(new ShellStrategy());
+            containerWar.setDockerImageName(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE.getName());
+            containerWar.start();
+        } catch (Exception e) {
+            containerWar = initContainerWithSharedGraphs(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE, false);
+            containerWar.setWaitStrategy(new ShellStrategy());
+            containerWar.start();
+        }
+
         Assertions.assertTrue(containerWar.isRunning());
         containerWar.stop();
     }

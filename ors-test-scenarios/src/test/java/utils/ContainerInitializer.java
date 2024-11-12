@@ -160,7 +160,6 @@ public abstract class ContainerInitializer {
                 .withStartupTimeout(startupTimeout)
                 .waitingFor(healthyOrsWaitStrategy());
         // @formatter:on
-        container.setDockerImageName(containerTestImage.getName());
         if (containerTestImage == ContainerTestImageBare.WAR_CONTAINER_BARE) {
             container.withEnv(defaultEnvWarBare);
         }
