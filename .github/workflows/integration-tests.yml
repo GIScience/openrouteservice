@@ -10,8 +10,8 @@ on:
     branches: [ "main", "feat/**" ]
 
 jobs:
-  maven-build-cache:
-    name: Build with Maven and cache dependencies
+  build-caches:
+    name: Build with Maven and Docker caches
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,70 +29,35 @@ jobs:
         run: |
           echo "Caching the maven dependencies"
           mvn -pl ors-test-scenarios package -B dependency:go-offline -q
-  first-pass-image-cache:
-    name: Build the Docker image cache for the first time
-    runs-on: ubuntu-latest
-    needs:
-      - maven-build-cache
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Restore cached ors docker test image
+        id: restore-cached-image
+        uses: actions/cache/restore@v4
         with:
-          fetch-depth: 0
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        id: buildx
+          path: ors-test-scenarios-war-bare.tar
+          key: ${{ runner.os }}-ors-test-scenarios-war-bare
+      - name: Load the docker image
+        if: steps.restore-cached-image.outputs.cache-hit == 'true'
+        run: |
+          echo "Loading the docker image"
+          docker load -i ors-test-scenarios-war-bare.tar
+      - name: Build the docker image with the one shot builder
+        run: |
+          echo "Building the docker image with the one shot builder"
+          mvn -pl ors-test-scenarios test -Dtest=utils.OneShotImageBuilderTest
+      - name: Export the docker image
+        run: |
+          echo "Exporting the docker image"
+          docker save -o ors-test-scenarios-war-bare.tar ors-test-scenarios-war-bare:latest
+      - name: Save the docker image to the cache
+        uses: actions/cache/save@v4
         with:
-          install: true
-      - name: Cache image ors-test-scenarios-maven-bare
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: false
-          load: false
-          tags: ors-test-scenarios-maven-bare:latest
-          file: ors-test-scenarios/src/test/resources/Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-  second-pass-image-cache:
-    name: Build the Docker image cache for the second time
-    runs-on: ubuntu-latest
-    needs:
-      - maven-build-cache
-      - first-pass-image-cache
-    strategy:
-      matrix:
-        docker_image: [ 'ors-test-scenarios-maven-bare', 'ors-test-scenarios-war-bare','ors-test-scenarios-jar-bare','ors-test-scenarios-maven','ors-test-scenarios-war','ors-test-scenarios-jar' ]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        id: buildx
-        with:
-          install: true
-      - name: Cache images
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: false
-          load: false
-          tags: ${{ matrix.docker_image }}:latest
-          file: ors-test-scenarios/src/test/resources/Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          path: ors-test-scenarios-war-bare.tar
+          key: ${{ runner.os }}-ors-test-scenarios-war-bare-${{ hashFiles('ors-test-scenarios-war-bare.tar') }}
   ors-test-scenarios:
-    name: Run the ors-test-scenarios integration tests
+    name: Integration test suite
     runs-on: ubuntu-latest
     needs:
-      - maven-build-cache
-      - second-pass-image-cache
+      - build-caches
     strategy:
       matrix:
         test_class: [ 'ConfigEnvironmentTest','ConfigFileTest','ConfigLookupTest','GeoToolsTest','GraphRepoTest' ]
@@ -112,17 +77,20 @@ jobs:
         id: buildx
         with:
           install: true
-      - name: Load the Docker image
-        uses: docker/build-push-action@v4
+      - name: Restore cached ors test image
+        id: restore-cached-image
+        uses: actions/cache/restore@v4
         with:
-          context: .
-          load: true
-          tags: ors-test-scenarios-maven:latest
-          file: ors-test-scenarios/src/test/resources/Dockerfile
-          cache-from: type=gha
+          path: ors-test-scenarios-war-bare.tar
+          key: ${{ runner.os }}-ors-test-scenarios-war-bare
+      - name: Load the docker image
+        if: steps.restore-cached-image.outputs.cache-hit == 'true'
+        run: |
+          echo "Loading the docker image"
+          docker load -i ors-test-scenarios-war-bare.tar
       - name: Run integration tests
         run: |
           echo "List all docker images"
-            docker image ls -a
+          docker image ls -a
           echo "Running integration tests ${{ matrix.test_class }}"
           mvn -pl ors-test-scenarios test -Dtest=${{ matrix.test_class }}

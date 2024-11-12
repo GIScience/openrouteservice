@@ -15,7 +15,6 @@ class OneShotImageBuilderTest {
 
     @Test
     void oneShotImageBuilder() {
-        // Cache one
         GenericContainer<?> containerWar = initContainerWithSharedGraphs(ContainerInitializer.ContainerTestImageBare.WAR_CONTAINER_BARE, false);
         containerWar.setWaitStrategy(new ShellStrategy());
         containerWar.start();
