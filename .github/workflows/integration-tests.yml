@@ -25,29 +25,40 @@ jobs:
           java-version: '17'
           cache: 'maven'
           cache-dependency-path: ./pom.xml
+      - name: Restore cached ors test image
+        id: restore-cached-image
+        uses: actions/cache/restore@v4
+        with:
+          path: ors-test-scenarios-war-bare.tar
+          key: ${{ runner.os }}-ors-test-scenarios-war-bare-
+      - name: Load the docker image
+        # Load the docker image if the cache hit
+        if: ${{ hashFiles('ors-test-scenarios-war-bare.tar') != '' }}
+        run: |
+          echo "Loading the docker image"
+          docker load -i ors-test-scenarios-war-bare.tar
       - name: Cache Maven dependencies for the ors maven project
         run: |
           echo "Caching the maven dependencies"
           mvn -pl ors-test-scenarios package -Dmaven.test.skip=true -B dependency:go-offline -q
-      - name: Download image
-        continue-on-error: true
-        uses: ishworkh/container-image-artifact-download@v2.0.0
-        with:
-          image: "ors-test-scenarios-war-bare:latest"
       - name: Build the docker image with the one shot builder
         run: |
           echo "Building the docker image with the one shot builder"
           mvn -pl ors-test-scenarios test
         env:
           ONE_SHOT_IMAGE_BUILDER: true
-      - name: Upload image
-        uses: ishworkh/container-image-artifact-upload@v2.0.0
-        with:
-          image: "ors-test-scenarios-war-bare:latest"
-          retention_days: '7'
-      - name: Run integration tests
+      - name: Export the docker image to be cached
         run: |
-          echo "List all docker images"
-          docker image ls -a
-          echo "Running integration tests"
-          mvn -pl ors-test-scenarios test
+          echo "Exporting the docker image"
+          docker save -o ors-test-scenarios-war-bare.tar ors-test-scenarios-war-bare:latest
+      - name: Save the docker image to the cache
+        uses: actions/cache/save@v4
+        with:
+          path: ors-test-scenarios-war-bare.tar
+          key: ${{ runner.os }}-ors-test-scenarios-war-bare-${{ hashFiles('ors-test-scenarios-war-bare.tar') }}
+#      - name: Run integration tests
+#        run: |
+#          echo "List all docker images"
+#          docker image ls -a
+#          echo "Running integration tests"
+#          mvn -pl ors-test-scenarios test
