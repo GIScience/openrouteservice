@@ -35,7 +35,7 @@ jobs:
         with:
           path: ors-test-scenarios-war-bare.tar
           key: ${{ runner.os }}-ors-test-scenarios-war-bare
-      - name: Load the docker image
+      - name: Load the docker image if cache hit
         if: steps.restore-cached-image.outputs.cache-hit == 'true'
         run: |
           echo "Loading the docker image"
