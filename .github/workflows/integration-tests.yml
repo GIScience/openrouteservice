@@ -28,7 +28,7 @@ jobs:
       - name: Cache Maven dependencies for the ors maven project
         run: |
           echo "Caching the maven dependencies"
-          mvn -pl ors-test-scenarios package -B dependency:go-offline -q
+          mvn -pl ors-test-scenarios package -Dmaven.test.skip=true -B dependency:go-offline -q
       - name: Restore cached ors docker test image
         id: restore-cached-image
         uses: actions/cache/restore@v4
