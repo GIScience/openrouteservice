@@ -50,7 +50,7 @@ sed -i -e '/^#ors.engine.profile_default.build.source_file/s/^#//' -e '/^#ors.en
 ############################
 echo ""
 echo "Validate output file:"
-echo "- checking for ors.engine.profile_default.source_file=ors-api/src/test/files/heidelberg.test.pbf"
+echo "- checking for ors.engine.profile_default.build.source_file=ors-api/src/test/files/heidelberg.test.pbf"
 return_value=$(sed -n '/^ors.engine.profile_default.build.source_file=ors-api\/src\/test\/files\/heidelberg.test.pbf/p' $output_file)|| exit 1
 if [ -z "$return_value" ]; then
   echo "ors.engine.profile_default.build.source_file=ors-api/src/test/files/heidelberg.test.pbf not found"
