@@ -25,34 +25,25 @@ jobs:
           java-version: '17'
           cache: 'maven'
           cache-dependency-path: ./pom.xml
-      - name: Docker image cache
-        id: cached-image
-        uses: actions/cache@v4
-        with:
-          path: ors-test-scenarios-war-bare.tar
-          key: ${{ runner.os }}-ors-test-scenarios-war-bare
       - name: Cache Maven dependencies for the ors maven project
         run: |
           echo "Caching the maven dependencies"
           mvn -pl ors-test-scenarios package -Dmaven.test.skip=true -B dependency:go-offline -q
-      - name: Load the docker image if cache hit
-        # Load the docker image if the cache hit
-        if: ${{ hashFiles('ors-test-scenarios-war-bare.tar') != '' }}
-        run: |
-          echo "Loading the docker image"
-          docker load -i ors-test-scenarios-war-bare.tar
-          echo "List all docker images"
-          docker image ls -a
+      - name: Download image
+        continue-on-error: true
+        uses: ishworkh/container-image-artifact-download@v2.0.0
+        with:
+          image: "ors-test-scenarios-war-bare:latest"
       - name: Build the docker image with the one shot builder
         run: |
           echo "Building the docker image with the one shot builder"
           mvn -pl ors-test-scenarios test
         env:
           ONE_SHOT_IMAGE_BUILDER: true
-      - name: Export the docker image
-        run: |
-          echo "Exporting the docker image"
-          docker save -o ors-test-scenarios-war-bare.tar ors-test-scenarios-war-bare:latest
+      - name: Upload image
+        uses: ishworkh/container-image-artifact-upload@v2.0.0
+        with:
+          image: "ors-test-scenarios-war-bare:latest"
   ors-test-scenarios:
     name: Integration test suite
     runs-on: ubuntu-latest
@@ -77,18 +68,10 @@ jobs:
         id: buildx
         with:
           install: true
-      - name: Docker image cache
-        id: cached-image
-        uses: actions/cache@v4
+      - name: Download image
+        uses: ishworkh/container-image-artifact-download@v2.0.0
         with:
-          path: ors-test-scenarios-war-bare.tar
-          key: ${{ runner.os }}-ors-test-scenarios-war-bare
-      - name: Load the docker image
-        # Load the docker image if the cache hit
-        if: ${{ hashFiles('ors-test-scenarios-war-bare.tar') != '' }}
-        run: |
-          echo "Loading the docker image"
-          docker load -i ors-test-scenarios-war-bare.tar
+          image: "ors-test-scenarios-war-bare:latest"
       - name: Run integration tests
         run: |
           echo "List all docker images"
