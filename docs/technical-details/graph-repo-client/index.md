@@ -13,7 +13,7 @@ or write us an E-Mail to [support@smartmobility.heigit.org](mailto:support@smart
 Since v9 openrouteservice includes a client for graph repositories.
 This makes it possible to download and use graphs built elsewhere instead of building them locally.
 When using only graphs from a repository and
-configuring [ors.engine.graphs_data_acces](/run-instance/configuration/ors/engine/#ors-engine)=`MMAP`,
+configuring [ors.engine.graphs_data_acces](/run-instance/configuration/engine/index.md#orsengine)=`MMAP`,
 it is now possible to run openrouteservice on pretty small machines even with planet data.
 
 ## Graph Repository
@@ -293,17 +293,17 @@ For simplification we use only the routing profile `wheelchair` as an example:
 
 ```mermaid
 flowchart TD
-    AS[Application Start] --> QN{wheelchair_new?}
-        QN -->|Yes| QW{wheelchair?} 
+    AS[Application Start] --> QN{wheelchair_new exists?}
+        QN -->|Yes| QW{wheelchair exists?} 
             QW -->|Yes| QB{do backup?} 
                 QB -->|Yes| B[backup wheelchair] 
                     B --> RW
                 QB -->|No | D[delete wheelchair]
                     D --> RW 
             QW -->|No | RW[wheelchair_new] -->|rename| W
-        QN -->|No | QA{wheelchair?} 
+        QN -->|No | QA{wheelchair exists?} 
             QA -->|Yes| L
-            QA -->|No | S{source_file?}
+            QA -->|No | S{source_file is set?}
                 S -->|Yes| Build[build wheelchair]
                     Build --> AR
                 S -->|No | A@{ shape: cross-circ, label: "Error" }

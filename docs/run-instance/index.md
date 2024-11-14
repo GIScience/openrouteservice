@@ -34,7 +34,7 @@ We recommend to use the docker option for simplicity, or plain JAR if you do not
 
 ## Checking
 
-By default, the service status can be queried via the [health endpoint](../api-reference/endpoints/health/index.md).
+By default, the service status can be queried via the [health endpoint](/api-reference/endpoints/health/index.md).
 
 ```shell 
 curl 'http://localhost:8080/ors/v2/health'
@@ -42,7 +42,7 @@ curl 'http://localhost:8080/ors/v2/health'
 # {"status":"ready"}
 ```
 
-When the service is ready, you will be able to request the [status endpoint](../api-reference/endpoints/status/index.md)
+When the service is ready, you will be able to request the [status endpoint](/api-reference/endpoints/status/index.md)
 for further information on the running services.
 
 ```shell 

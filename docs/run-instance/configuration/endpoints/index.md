@@ -3,8 +3,9 @@
 Settings beneath `ors.endpoints` are required at runtime to process API requests.
 See [endpoints reference](/api-reference/endpoints/) for usage details for the available endpoints.
 
-More parameters relevant at query time that are specific to the queried [profile](../engine/profiles/) can be found in
-the [ors.engine.profiles.\<profile\>.service](../engine/profiles/service.md) section.
+More parameters relevant at query time that are specific to the
+queried [profile](/run-instance/configuration/engine/profiles/index.md) can be found in
+the [ors.engine.profiles.\<profile\>.service](/run-instance/configuration/engine/profiles/service.md) section.
 
 | key        | type   | description                                                                                                                    | 
 |------------|--------|--------------------------------------------------------------------------------------------------------------------------------|

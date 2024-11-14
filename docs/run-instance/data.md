@@ -11,7 +11,8 @@ Openrouteservice makes use of public open-source data. To generate the best rout
 The base data used for the road network and related information (road type, access restrictions etc.) is [OpenStreetMap](https://openstreetmap.org) (OSM). This dataset is a free and open dataset that can be edited by anyone.  
 You can download the latest OSM dataset from https://planet.openstreetmap.org/ or regional extracts from http://download.geofabrik.de/.
 
-The OSM file to be used needs be configured with the property [`ors.engine.source_file`](configuration/engine/index.md).
+The OSM file to be used needs be configured with the property [
+`ors.engine.profile_default.build.source_file`](configuration/engine/index.md).
 
 ### Elevation
 The data used for elevation are [SRTM](http://srtm.csi.cgiar.org/) and [GMTED](https://www.usgs.gov/coastal-changes-and-impacts/gmted2010).  
@@ -36,7 +37,7 @@ Configuration parameters: [`ors.engine.profiles.*.gtfs_file`](configuration/engi
 The data used to identify green and quiet routes were derived from research projects in the GIScience research group at Heidelberg University. 
 More information about these can be found on the GIScience news blog [here](https://giscienceblog.uni-heidelberg.de/2017/07/03/healthy-routing-prefering-green-areas-added-to-openrouteserviceorg/) and [here](http://giscienceblog.uni-heidelberg.de/2017/07/10/reducing-stress-by-avoiding-noise-with-quiet-routing-in-openrouteservice/)
 
-Configuration parameters: [`ors.engine.profiles.*.ext_storages`](configuration/engine/profiles/profiles.md#ext-storages)
+Configuration parameters: [`ors.engine.profiles.*.ext_storages`](configuration/engine/profiles/build.md#ext_storages)
 
 
 ## Output Files
