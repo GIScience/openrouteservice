@@ -77,7 +77,9 @@ docker run -dt --name ors-app \
   -e "XMX=2g" \
   local/openrouteservice:latest 
 ```
-Add `-e "ors.engine.source_file=files/your.osm.pbf" \` to point to your own OSM file that lies in the mounted $PWD/ors-docker/files folder.
+
+Add `-e "ors.engine.profile_default.build.source_file=files/your.osm.pbf" \` to point to your own OSM file that lies in
+the mounted $PWD/ors-docker/files folder.
 Add `-e "BUILD_GRAPHS=True" \` to trigger a graph rebuild.
 
 :::
@@ -106,7 +108,7 @@ When you have started the container as described, a directory `ors-docker` with 
     ├── files
     │   └── example-heidelberg.osm.gz
     ├── graphs
-    │   └── car
+    │   └── driving-car
     │       ├── edges
     │       ├── ...
     │       ├── ...
@@ -122,7 +124,8 @@ When you have started the container as described, a directory `ors-docker` with 
 * `ors-config.yml`: The default config used by the openrouteservice inside the container. This file will not be overridden by docker. Initially, the file is identical to `example-ors-config.yml`. See [Use customized config file](#use-customized-config-file)   
 * `elevation_cache`: Directory, where openrouteservice stores downloaded elevation data to avoid repeated downloads.
 * `example-heidelberg.osm.gz`: The initial sample OSM data used to run the container in its initial setup. Normally, you will remove this file or add another OSM file to the same directory and adapt your config to use your file.
-* `graphs`: Directory for the generated graphs. Initially, there is only `car` because this is the only enabled routing profile in the default `ors-config.yml`
+* `graphs`: Directory for the generated graphs. Initially, there is only `driving-car` because this is the only enabled
+  routing profile in the default `ors-config.yml`
 * `logs`: Here, the openrouteservice logs are stored. :warning: Logs of several runs will be accumulated here. In contrast, the logs you get with `docker compose logs` are only logs of the current run, but on the other hand they contain very helpful logging from docker or the entrypoint script, which is not visible in the files in `logs`.    
 
 
@@ -310,8 +313,9 @@ which is using a slightly different approach:
 
 This means, that in any case, a config file is loaded! 
 Even if you set environment variables as described in the next two sections,
-you have to take care of the config file that is loaded, and in some cases you have to override single properties, 
-e.g. disable the routing profile `car` - which is enabled in the default `ors-config.yml` - if you don't want it to be enabled.  
+you have to take care of the config file that is loaded, and in some cases you have to override single properties,
+e.g. disable the routing profile `driving-car` - which is enabled in the default `ors-config.yml` - if you don't want it
+to be enabled.
 
 You can configure your openrouteservice by editing the generated `ors-config.yml`. 
 This file will never been overridden by openrouteservice, if it still exists.
@@ -322,7 +326,8 @@ But you should never edit `example-ors-config.yml` `example-ors-config.env` - th
 
 It is possible to pass openrouteservice configuration properties into a docker container as environment variables.
 The `docker-compose.yml` contains many available configuration options as comments, with a short description.
-The following example snippet of the modified `docker-compose.yml` shows a setup where the car profile is disabled and wheelchair is enabled:
+The following example snippet of the modified `docker-compose.yml` shows a setup where the driving-car profile is
+disabled and wheelchair is enabled:
 
 ```yaml
     environment:
@@ -333,8 +338,8 @@ The following example snippet of the modified `docker-compose.yml` shows a setup
       # See the ors-config.env file for more options.
       # To have a configuration file-less container, uncomment at least the following properties.
       # The values are examples and provide the default configuration.
-      ors.engine.source_file: /home/ors/files/andorra-latest.osm.pbf
-      ors.engine.profiles.car.enabled: false
+      ors.engine.profile_default.build.source_file: /home/ors/files/andorra-latest.osm.pbf
+      ors.engine.profiles.driving-car.enabled: false
       ors.engine.profiles.wheelchair.enabled: true
       # Here you can also set more advanced spring and tomcat properties, such as proxy settings.
       # See the spring documentation for a complete list of options: https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html
@@ -363,8 +368,8 @@ The properties that were set in in the `docker-compose.yml` snippet in the previ
 The only difference is, that equal signs are used instead of colons:
 
 ```
-ors.engine.source_file=/home/ors/files/andorra-latest.osm.pbf
-ors.engine.profiles.car.enabled=false
+ors.engine.profile_default.build.source_file=/home/ors/files/andorra-latest.osm.pbf
+ors.engine.profiles.driving-car.enabled=false
 ors.engine.profiles.wheelchair.enabled=true
 ```
 

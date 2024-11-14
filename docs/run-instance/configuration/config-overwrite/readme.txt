@@ -5,7 +5,7 @@ This folder is the working directory for the draw.io based diagrams. It contains
     config-overwrite.drawio.xml
 * YAML files that were formatted in IntelliJ and copied to draw.io in the browser (with syntax highlighting):
     config-overwrite.in.format.*.yml
-* SVG files exported from draw.io:
-    config-overwrite.exported.*.svg
+* PNG files exported from draw.io:
+    config-overwrite-*.png
 
-The exported SVG files are linked from the documentation markdown file run-engine/configuration/index.md.
+The exported PNG files are linked from the documentation markdown file run-engine/configuration/index.md.
