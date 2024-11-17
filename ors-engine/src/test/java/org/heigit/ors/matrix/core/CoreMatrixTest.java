@@ -1180,7 +1180,7 @@ class CoreMatrixTest {
         matrixRequest.setMetrics(MatrixMetricsType.DISTANCE);
 
         algorithm.init(matrixRequest, g.getRoutingCHGraph(), carEncoder, weighting, new CoreTestEdgeFilter());
-        algorithm.setMaxVisitedNodes(13);
+        algorithm.setMaxVisitedNodes(2);
         assertThrows(MaxVisitedNodesExceededException.class, () -> algorithm.compute(sources, destinations, MatrixMetricsType.DISTANCE));
     }
 
