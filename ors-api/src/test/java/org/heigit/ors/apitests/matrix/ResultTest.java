@@ -119,6 +119,14 @@ class ResultTest extends ServiceTest {
         coord4c.put(8.708810806274414);
         coord4c.put(49.45122015291216);
         locationsCore.put(coord4c);
+        JSONArray coord5c = new JSONArray();
+        coord5c.put(8.625383);
+        coord5c.put(49.373655);
+        locationsCore.put(coord5c);
+        JSONArray coord6c = new JSONArray();
+        coord6c.put(8.652678);
+        coord6c.put(49.469686);
+        locationsCore.put(coord6c);
         addParameter("locationsCore", locationsCore);
 
         // Fake array to test maximum exceedings
@@ -200,6 +208,19 @@ class ResultTest extends ServiceTest {
         // Profiles
         addParameter("cyclingProfile", "cycling-regular");
         addParameter("carProfile", "driving-car");
+
+        // Restrictions for testing core matrix
+        JSONArray restrictions = new JSONArray();
+        restrictions.put("highways");
+        JSONObject avoidFeatures = new JSONObject();
+        avoidFeatures.put("avoid_features", restrictions);
+        addParameter("options_highway_restriction", avoidFeatures);
+
+        // Setting dynamic speeds
+        JSONObject dynamicSpeeds = new JSONObject();
+        dynamicSpeeds.put("dynamic_speeds", true);
+        addParameter("options_dynamic_speeds", dynamicSpeeds);
+
     }
 
     @Test
@@ -1016,6 +1037,53 @@ class ResultTest extends ServiceTest {
                 .body("durations[0][0]", is(closeTo(0.0f, 0f)))
                 .body("durations[0][1]", is(closeTo(607.28f, 0.5f)))
                 .body("metadata.containsKey('system_message')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    void testHighwayRestriction() {
+
+        // Check without highway restriction
+        JSONObject body = new JSONObject();
+        body.put("locations", getParameter("locationsCore"));
+        body.put("sources", new JSONArray(new int[]{4}));
+        body.put("destinations", new JSONArray(new int[]{5}));
+        body.put("metrics", getParameter("metricsDuration"));
+        body.put("options", getParameter("options_dynamic_speeds"));
+
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'durations' }", is(true))
+                .body("durations[0][0]", is(closeTo(1635.9, 2)))
+                .statusCode(200);
+
+        JSONObject body2 = new JSONObject();
+        body2.put("locations", getParameter("locationsCore"));
+        body2.put("sources", new JSONArray(new int[]{4}));
+        body2.put("destinations", new JSONArray(new int[]{5}));
+        body2.put("metrics", getParameter("metricsDuration"));
+        body2.put("options", getParameter("options_highway_restriction"));
+
+        // Check with highway restriction, has a higher duration
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body2.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'durations' }", is(true))
+                .body("durations[0][0]", is(closeTo(1694.3, 2)))
                 .statusCode(200);
     }
 }
