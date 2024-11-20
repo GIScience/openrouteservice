@@ -18,27 +18,27 @@ class TopoJsonTest {
     // setup function
     @BeforeEach
     void setUp() {
-        topoJson = new TopoJson();
-        topoJson.withType("Topology");
-        Objects objects = new Objects();
-        Layer layer = new Layer();
-        Geometry geometry1 = new Geometry();
-        geometry1.withType("LineString");
-        geometry1.withArcs(List.of(0, 1));
         Map<String, Object> properties1 = new LinkedHashMap<>();
         properties1.put("OBJECTID", 41106);
-        geometry1.withProperties(properties1);
-        Geometry geometry2 = new Geometry();
-        geometry2.withType("LineString");
-        geometry2.withArcs(List.of(2));
         Map<String, Object> properties2 = new LinkedHashMap<>();
         properties2.put("OBJECTID", 41107);
-        geometry2.withProperties(properties2);
-        layer.withType("GeometryCollection");
-        layer.withGeometries(List.of(geometry1, geometry2));
-        objects.withLayer(layer);
-        topoJson.withObjects(objects);
-        topoJson.withBbox(List.of(-72.822573, 19.947123, -72.81259, 19.952703));
+        Geometry geometry1 = Geometry.builder()
+                .type("LineString")
+                .arcs(List.of(0, 1))
+                .properties(properties1)
+                .build();
+        Geometry geometry2 = Geometry.builder()
+                .type("LineString")
+                .arcs(List.of(2))
+                .properties(properties2)
+                .build();
+        Layer layer = Layer.builder()
+                .type("GeometryCollection")
+                .geometries(List.of(geometry1, geometry2))
+                .build();
+        Objects objects = Objects.builder()
+                .layer(layer)
+                .build();
         List<List<List<Double>>> arcs = List.of(
                 List.of(
                         List.of(-72.816497, 19.948588),
@@ -61,7 +61,12 @@ class TopoJsonTest {
                         List.of(-72.815574, 19.948146)
                 )
         );
-        topoJson.withArcs(arcs);
+        topoJson = TopoJson.builder()
+                .type("Topology")
+                .objects(objects)
+                .bbox(List.of(-72.822573, 19.947123, -72.81259, 19.952703))
+                .arcs(arcs)
+                .build();
 
     }
 
@@ -85,14 +90,14 @@ class TopoJsonTest {
                 }
             }
         }
-        Assertions.assertEquals(jsonNode.get("objects").get("layer").get("type").asText(), topoJson.getObjects().layer.type);
-        for (int i = 0; i < topoJson.getObjects().layer.getGeometries().size(); i++) {
-            Assertions.assertEquals(jsonNode.get("objects").get("layer").get("geometries").get(i).get("type").asText(), topoJson.getObjects().layer.getGeometries().get(i).getType());
-            for (int j = 0; j < topoJson.getObjects().layer.getGeometries().get(i).getArcs().size(); j++) {
-                Assertions.assertEquals(jsonNode.get("objects").get("layer").get("geometries").get(i).get("arcs").get(j).asInt(), (int) topoJson.getObjects().layer.getGeometries().get(i).getArcs().get(j));
+        Assertions.assertEquals(jsonNode.get("objects").get("layer").get("type").asText(), topoJson.getObjects().getLayer().getType());
+        for (int i = 0; i < topoJson.getObjects().getLayer().getGeometries().size(); i++) {
+            Assertions.assertEquals(jsonNode.get("objects").get("layer").get("geometries").get(i).get("type").asText(), topoJson.getObjects().getLayer().getGeometries().get(i).getType());
+            for (int j = 0; j < topoJson.getObjects().getLayer().getGeometries().get(i).getArcs().size(); j++) {
+                Assertions.assertEquals(jsonNode.get("objects").get("layer").get("geometries").get(i).get("arcs").get(j).asInt(), (int) topoJson.getObjects().getLayer().getGeometries().get(i).getArcs().get(j));
             }
-            for (String key : topoJson.getObjects().layer.getGeometries().get(i).getProperties().keySet()) {
-                Assertions.assertEquals(jsonNode.get("objects").get("layer").get("geometries").get(i).get("properties").get(key).asInt(), (int) topoJson.getObjects().layer.getGeometries().get(i).getProperties().get(key));
+            for (String key : topoJson.getObjects().getLayer().getGeometries().get(i).getProperties().keySet()) {
+                Assertions.assertEquals(jsonNode.get("objects").get("layer").get("geometries").get(i).get("properties").get(key).asInt(), (int) topoJson.getObjects().getLayer().getGeometries().get(i).getProperties().get(key));
             }
         }
     }
