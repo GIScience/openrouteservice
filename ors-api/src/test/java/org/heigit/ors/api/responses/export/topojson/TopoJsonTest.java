@@ -39,8 +39,8 @@ class TopoJsonTest {
         Objects objects = Objects.builder()
                 .layer(layer)
                 .build();
-        List<List<List<Double>>> arcs = List.of(
-                List.of(
+        Arc arc1 = Arc.builder()
+                .coordinates(List.of(
                         List.of(-72.816497, 19.948588),
                         List.of(-72.816354, 19.948234),
                         List.of(-72.816335, 19.948205),
@@ -48,24 +48,28 @@ class TopoJsonTest {
                         List.of(-72.816213, 19.948215),
                         List.of(-72.816098, 19.948245),
                         List.of(-72.816021, 19.948248)
-                ),
-                List.of(
+                ))
+                .build();
+        Arc arc2 = Arc.builder()
+                .coordinates(List.of(
                         List.of(-72.816021, 19.948248),
                         List.of(-72.815938, 19.948247),
                         List.of(-72.815861, 19.948224),
                         List.of(-72.815746, 19.948186),
                         List.of(-72.815574, 19.948146)
-                ),
-                List.of(
+                ))
+                .build();
+        Arc arc3 = Arc.builder()
+                .coordinates(List.of(
                         List.of(-72.816021, 19.948248),
                         List.of(-72.815574, 19.948146)
-                )
-        );
+                ))
+                .build();
         topoJson = TopoJson.builder()
                 .type("Topology")
                 .objects(objects)
                 .bbox(List.of(-72.822573, 19.947123, -72.81259, 19.952703))
-                .arcs(arcs)
+                .arcs(List.of(arc1, arc2, arc3))
                 .build();
 
     }
@@ -84,9 +88,9 @@ class TopoJsonTest {
             Assertions.assertEquals(jsonNode.get("bbox").get(i).asDouble(), topoJson.getBbox().get(i));
         }
         for (int i = 0; i < topoJson.getArcs().size(); i++) {
-            for (int j = 0; j < topoJson.getArcs().get(i).size(); j++) {
-                for (int k = 0; k < topoJson.getArcs().get(i).get(j).size(); k++) {
-                    Assertions.assertEquals(jsonNode.get("arcs").get(i).get(j).get(k).asDouble(), topoJson.getArcs().get(i).get(j).get(k));
+            for (int j = 0; j < topoJson.getArcs().get(i).getCoordinates().size(); j++) {
+                for (int k = 0; k < topoJson.getArcs().get(i).getCoordinates().get(j).size(); k++) {
+                    Assertions.assertEquals(jsonNode.get("arcs").get(i).get("coordinates").get(j).get(k).asDouble(), topoJson.getArcs().get(i).getCoordinates().get(j).get(k));
                 }
             }
         }

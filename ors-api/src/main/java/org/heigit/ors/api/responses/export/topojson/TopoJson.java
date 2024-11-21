@@ -20,7 +20,7 @@ public class TopoJson implements Serializable {
     @JsonProperty("objects")
     private Objects objects;
     @JsonProperty("arcs")
-    private List<List<List<Double>>> arcs;
+    private List<Arc> arcs;
     @JsonProperty("bbox")
     private List<Double> bbox;
 }
