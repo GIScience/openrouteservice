@@ -58,7 +58,7 @@ public class ConfigFileTest extends ContainerInitializer {
             Path testConfig = OrsConfig.builder()
                     .profileDefaultEnabled(false)
                     .graphManagementEnabled(false)
-                    .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                    .profileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
                     .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
                     .profiles(allProfiles)
                     .build().toYAML(tempDir, "ors-config.yml");
@@ -87,7 +87,7 @@ public class ConfigFileTest extends ContainerInitializer {
             Path testConfig = OrsConfig.builder()
                     .profileDefaultEnabled(false)
                     .graphManagementEnabled(false)
-                    .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                    .profileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
                     .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
                     .build().toYAML(tempDir, "ors-config.yml");
 

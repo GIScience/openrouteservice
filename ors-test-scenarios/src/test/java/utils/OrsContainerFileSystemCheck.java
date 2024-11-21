@@ -7,12 +7,6 @@ import java.io.IOException;
 
 public class OrsContainerFileSystemCheck {
 
-    public static void assertDirectoriesExist(GenericContainer<?> container, String... directoryPaths) throws IOException, InterruptedException {
-        for (String directoryPath : directoryPaths) {
-            assertDirectoryExists(container, directoryPath, true);
-        }
-    }
-
     public static void assertDirectoryExists(GenericContainer<?> container, String directoryPath, Boolean shouldExist) {
         int exitCode;
         try {
@@ -22,14 +16,12 @@ public class OrsContainerFileSystemCheck {
             } else {
                 Assertions.assertNotEquals(0, exitCode, "Directory exists: " + directoryPath);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void assertFilesExist(GenericContainer<?> container, String... filePaths) throws IOException, InterruptedException {
+    public static void assertFilesExist(GenericContainer<?> container, String... filePaths) {
         for (String filePath : filePaths) {
             assertFileExists(container, filePath, true);
         }
@@ -44,9 +36,7 @@ public class OrsContainerFileSystemCheck {
             } else {
                 Assertions.assertNotEquals(0, exitCode, "File exists: " + filePath);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 

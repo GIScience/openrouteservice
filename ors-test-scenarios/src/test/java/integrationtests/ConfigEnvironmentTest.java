@@ -14,7 +14,6 @@ import utils.ContainerInitializer;
 import utils.OrsApiHelper;
 import utils.OrsContainerFileSystemCheck;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +53,7 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
                     "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
                     "Config file '/etc/openrouteservice/ors-config.yml' not found.",
                     "Configuration lookup finished."
-            ).toArray(new String[0])));
+            ).toArray(new String[0]), Duration.ofSeconds(60)));
             container.setCommand(targetImage.getCommand("250M").toArray(new String[0]));
             container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
             container.addEnv("ors.engine.profiles.driving-car.enabled", "true");
@@ -85,7 +84,7 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
                     "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
                     "Config file '/etc/openrouteservice/ors-config.yml' not found.",
                     "Configuration lookup finished."
-            ).toArray(new String[0])));
+            ).toArray(new String[0]), Duration.ofSeconds(60)));
             ArrayList<String> command = targetImage.getCommand("250M");
             if (targetImage.equals(ContainerInitializer.ContainerTestImageBare.JAR_CONTAINER_BARE)) {
                 command.add("--ors.engine.profiles.driving-hgv.enabled=true");
@@ -111,6 +110,7 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
 
             container.addEnv("ors.engine.profiles.driving-car.enabled", "false");
             container.addEnv("ors.engine.profiles.driving-hgv.enabled", "true");
+            container.withStartupTimeout(Duration.ofSeconds(60));
 
             container.start();
 
@@ -126,8 +126,8 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testBuildAllBareGraphsWithEnv(ContainerInitializer.ContainerTestImageBare targetImage) throws IOException, InterruptedException {
-            GenericContainer<?> container = initContainer(targetImage, false, "testBuildAllBareGraphsWithEnv", false, Duration.ofSeconds(300));
+        void testActivateAllBareGraphsWithEnv(ContainerInitializer.ContainerTestImageBare targetImage) {
+            GenericContainer<?> container = initContainer(targetImage, false, "testActivateAllBareGraphsWithEnv");
             container.addEnv("ors.engine.profile_default.enabled", "true");
             container.addEnv("ors.engine.profiles.public-transport.enabled", "false");
             container.addEnv("ors.engine.profile_default.build.source_file", "/home/ors/openrouteservice/files/heidelberg.test.pbf");
@@ -137,9 +137,8 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
                             "Config file '/root/.config/openrouteservice/ors-config.yml' not found.",
                             "Config file '/etc/openrouteservice/ors-config.yml' not found.",
                             "Configuration lookup finished."
-                    ).toArray(new String[0]), Duration.ofSeconds(300))
+                    ).toArray(new String[0]), Duration.ofSeconds(60))
             );
-
             container.start();
 
             OrsApiHelper.assertProfilesLoaded(container, allProfiles.stream().collect(HashMap::new, (m, v) -> m.put(v, true), HashMap::putAll));
@@ -166,6 +165,7 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
             } else {
                 container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             }
+            container.withStartupTimeout(Duration.ofSeconds(60));
             container.start();
 
             OrsApiHelper.assertProfilesLoaded(container, Map.of("driving-car", true));
@@ -178,13 +178,14 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testBuildEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) {
-            GenericContainer<?> container = initContainer(targetImage, false, "testActivateEachProfileWithEnvAndOverwriteDefaultConfig", false, Duration.ofSeconds(300));
+        void testActivateEachProfileWithEnvAndOverwriteDefaultConfig(ContainerInitializer.ContainerTestImageDefaults targetImage) {
+            GenericContainer<?> container = initContainer(targetImage, false, "testActivateEachProfileWithEnvAndOverwriteDefaultConfig");
 
             // Prepare the environment
             container.addEnv("ors.engine.profile_default.enabled", "false");
             container.addEnv("JAVA_OPTS", "-Xmx500m");
             allProfiles.forEach(profile -> container.addEnv("ors.engine.profiles." + profile + ".enabled", "true"));
+            container.withStartupTimeout(Duration.ofSeconds(60));
 
             container.start();
 

@@ -20,6 +20,7 @@ import utils.OrsContainerFileSystemCheck;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class GraphRepoTest extends ContainerInitializer {
         // @formatter:off
         OrsConfig.OrsConfigBuilder grcConfig = OrsConfig.builder()
                 .profileDefaultEnabled(false)
-                .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                .profileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
                 .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
                 .graphManagementEnabled(true)
                 .setRepoManagementPerProfile(true)
@@ -50,7 +51,7 @@ public class GraphRepoTest extends ContainerInitializer {
                 .profiles(new HashMap<>() {{
                     put("driving-car", true);
                 }})
-                .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                .profileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
                 .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
                 .repositoryUri("/tmp/test-filesystem-repo")
                 .repositoryName("vendor-xyz")
@@ -64,13 +65,14 @@ public class GraphRepoTest extends ContainerInitializer {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testGrcNotActivated(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws InterruptedException {
+        void testGrcNotActivated(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) {
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNotActivated");
             Path config = grcConfig.graphManagementEnabled(false).build().toYAML(tempDir, "grc-config.yml");
             container.withCopyFileToContainer(forHostPath(config), "/home/ors/openrouteservice/ors-config.yml");
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
-            Assertions.assertTrue(waitForLogPatterns(container, List.of("Graph management is disabled, skipping repeated attempt to activate graphs..."), 12, 1000, true));
+            Assertions.assertTrue(waitForLogPatterns(container, List.of("Graph management is disabled, skipping repeated attempt to activate graphs..."), 12, true));
             container.stop();
         }
 
@@ -81,14 +83,15 @@ public class GraphRepoTest extends ContainerInitializer {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testGrcAutomaticDownloadTurnedOff(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws InterruptedException {
+        void testGrcAutomaticDownloadTurnedOff(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) {
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNoAutomaticDownload");
             Path config = grcConfig.graphManagementDownloadSchedule("0 0 0 31 2 *").build().toYAML(tempDir, "grc-config.yml");
             container.withCopyFileToContainer(forHostPath(config), "/home/ors/openrouteservice/ors-config.yml");
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
 
-            Assertions.assertTrue(waitForLogPatterns(container, List.of("Scheduled graph activation check done: No downloaded graphs found, no graph activation required."), 12, 1000, true));
+            Assertions.assertTrue(waitForLogPatterns(container, List.of("Scheduled graph activation check done: No downloaded graphs found, no graph activation required."), 12, true));
             container.stop();
         }
 
@@ -99,17 +102,18 @@ public class GraphRepoTest extends ContainerInitializer {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testGrcAutomaticActivationTurnedOff(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws InterruptedException {
+        void testGrcAutomaticActivationTurnedOff(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) {
 
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcNoAutomaticActivation");
             // Set the activation schedule to never
             Path config = grcConfig.graphManagementActivationSchedule("0 0 0 31 2 *").build().toYAML(tempDir, "grc-config.yml");
             container.withCopyFileToContainer(forHostPath(config), "/home/ors/openrouteservice/ors-config.yml");
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForLogPatterns(container, List.of("[driving-car] No newer graph found in repository."), 12, 1000, true));
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForLogPatterns(container, List.of("[driving-car] No newer graph found in repository."), 12, true));
             container.stop();
         }
 
@@ -128,6 +132,7 @@ public class GraphRepoTest extends ContainerInitializer {
         @Execution(ExecutionMode.CONCURRENT)
         void testGrcStartupWithDownloadedGraphRepoDefinedInProfileDefault(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcStartupWithDownloadedGraphRepoDefinedInProfileDefault");
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
             copyFolderContentFromContainer(container, "/tmp/test-filesystem-repo", tempDir.resolve("test-filesystem-repo").toString());
@@ -135,7 +140,7 @@ public class GraphRepoTest extends ContainerInitializer {
 
             // Get a fresh container without graphs
             container = ContainerInitializer.initContainer(targetImage, false, null, false);
-            Path config = grcConfig.ProfileDefaultBuildSourceFile("").build().toYAML(tempDir, "grc-config.yml");
+            Path config = grcConfig.profileDefaultBuildSourceFile("").build().toYAML(tempDir, "grc-config.yml");
 
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
@@ -149,12 +154,12 @@ public class GraphRepoTest extends ContainerInitializer {
                 // Jar and Maven both have the working directory /home/ors/openrouteservice/. Therefore, the config location is printed as ./ors-config.yml.
                 container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             }
-
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 6, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, "driving-car", "driving-car", 6, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
@@ -178,10 +183,11 @@ public class GraphRepoTest extends ContainerInitializer {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testGrcUpdateExistingDefaultGraph(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws InterruptedException {
+        void testGrcUpdateExistingDefaultGraph(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) {
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcUpdateExistingGraph");
             Path config = grcConfig.build().toYAML(tempDir, "grc-config.yml");
             container.withCopyFileToContainer(forHostPath(config), "/home/ors/openrouteservice/ors-config.yml");
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
 
             // Check that the graph was loaded
@@ -191,10 +197,10 @@ public class GraphRepoTest extends ContainerInitializer {
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
 
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoActivationOnExistingGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithExistingGraph(container, "driving-car", "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoActivationOnExistingGraph(container, "driving-car", "driving-car", 6, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 6, true), "The expected log patterns were not found in the logs.");
             // Check that the graph was loaded
             OrsApiHelper.assertProfilesLoaded(container, new HashMap<>() {{
                 put("driving-car", true);
@@ -211,13 +217,13 @@ public class GraphRepoTest extends ContainerInitializer {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
-        void testGrcStartupFailsWhenGraphMissingInRepo(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws InterruptedException {
+        void testGrcStartupFailsWhenGraphMissingInRepo(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) {
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, null, false);
             container.waitingFor(simpleLogMessageWaitStrategy("ExecutionException while initializing RoutingProfileManager: java.lang.IllegalStateException: Couldn't load from existing folder"));
             // @formatter:off
             Path config = grcConfig
                 .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
-                .ProfileDefaultBuildSourceFile("")
+                .profileDefaultBuildSourceFile("")
                 .graphManagementEnabled(true)
                 .repositoryUri("/tmp/wrong-filesystem-repo")
                 .profiles(new HashMap<>() {{
@@ -226,11 +232,12 @@ public class GraphRepoTest extends ContainerInitializer {
                 .build().toYAML(tempDir, "grc-config.yml");
             // @formatter:on
             container.withCopyFileToContainer(forHostPath(config), "/home/ors/openrouteservice/ors-config.yml");
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
 
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-hgv", "/tmp/wrong-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForEmptyGrcRepoCheck(container, "driving-hgv", "driving-hgv", "/tmp/wrong-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForFailedGraphActivationInOrsLogs(container, "/home/ors/openrouteservice/graphs/driving-hgv", 12, 1000));
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-hgv", "/tmp/wrong-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForEmptyGrcRepoCheck(container, "driving-hgv", "driving-hgv", "/tmp/wrong-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForFailedGraphActivationInOrsLogs(container, "/home/ors/openrouteservice/graphs/driving-hgv", 12));
             Assertions.assertFalse(container.isHealthy(), "The container should not be healthy.");
             container.stop();
         }
@@ -244,13 +251,14 @@ public class GraphRepoTest extends ContainerInitializer {
         @Execution(ExecutionMode.CONCURRENT)
         void testGrcStartupWithDownloadedGraphRepoDefinedInProfile(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
             GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcStartupWithDownloadedGraphRepoDefinedInProfile");
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
             copyFolderContentFromContainer(container, "/tmp/test-filesystem-repo", tempDir.resolve("test-filesystem-repo").toString());
             container.stop();
             // Start with a fresh container
             container = ContainerInitializer.initContainer(targetImage, false, null, false);
-            Path config = grcConfig.ProfileDefaultBuildSourceFile("").setRepoManagementPerProfile(true).build().toYAML(tempDir, "grc-config.yml");
+            Path config = grcConfig.profileDefaultBuildSourceFile("").setRepoManagementPerProfile(true).build().toYAML(tempDir, "grc-config.yml");
 
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
@@ -260,12 +268,12 @@ public class GraphRepoTest extends ContainerInitializer {
             } else {
                 container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             }
-
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, "driving-car", "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, "driving-car", "driving-car", 12, true), "The expected log patterns were not found in the logs.");
 
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/tmp/test-filesystem-repo", true);
             OrsContainerFileSystemCheck.assertDirectoryExists(container, "/home/ors/openrouteservice/graphs/driving-car", true);
@@ -287,12 +295,12 @@ public class GraphRepoTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testGrcStartWithIndividualProfileNameFromScratch(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
-            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcIndividualProfileName", false);
+            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcIndividualProfileName");
             String customProfile = "bobby-car";
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
             // @formatter:off
             Path config = grcConfig
-                    .ProfileDefaultBuildSourceFile("")
+                    .profileDefaultBuildSourceFile("")
                     .setRepoManagementPerProfile(true)
                     .profiles(new HashMap<>() {{
                         put(customProfile, true);
@@ -302,10 +310,11 @@ public class GraphRepoTest extends ContainerInitializer {
                             put("encoder_name", "driving-car");
                         }});
                     }})
-                    .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                    .profileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
                     .build().toYAML(tempDir, "grc-config.yml");
             // @formatter:on
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2), customProfile), "Failed to prepare the graph repo.");
             copyFolderContentFromContainer(container, "/tmp/test-filesystem-repo", tempDir.resolve("test-filesystem-repo").toString());
@@ -320,11 +329,12 @@ public class GraphRepoTest extends ContainerInitializer {
             } else {
                 container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             }
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 6, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, customProfile, "driving-car", 6, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, customProfile, "driving-car", 6, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, customProfile, "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             container.stop();
         }
 
@@ -342,7 +352,7 @@ public class GraphRepoTest extends ContainerInitializer {
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
             // @formatter:off
             Path config = grcConfig
-                    .ProfileDefaultBuildSourceFile("")
+                    .profileDefaultBuildSourceFile("")
                     .graphManagementEnabled(false)
                     .profiles(new HashMap<>() {{
                         put("driving-car", true);
@@ -352,6 +362,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
             container.addEnv("ORS_CONFIG_LOCATION", containerConfigPath);
             container.waitingFor(simpleLogMessageWaitStrategy("ExecutionException while initializing RoutingProfileManager: java.lang.IllegalStateException: Couldn't load from existing folder: /home/ors/openrouteservice/graphs/driving-car but also cannot use file for DataReader as it wasn't specified!"));
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(true);
             container.stop();
@@ -367,12 +378,12 @@ public class GraphRepoTest extends ContainerInitializer {
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         void testGrcIndividualProfileNameOverwriteProfileConfigs(ContainerInitializer.ContainerTestImageDefaults targetImage, @TempDir Path tempDir) throws IOException, InterruptedException {
-            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcIndividualProfileNameOverwriteProfileConfigs", false);
+            GenericContainer<?> container = ContainerInitializer.initContainer(targetImage, false, "testGrcIndividualProfileNameOverwriteProfileConfigs");
             String customProfile = "bobby-car";
             String containerConfigPath = "/home/ors/openrouteservice/ors-config.yml";
             // @formatter:off
             Path config = grcConfig
-                    .ProfileDefaultBuildSourceFile("")
+                    .profileDefaultBuildSourceFile("")
                     .setRepoManagementPerProfile(true)
                     .profiles(new HashMap<>() {{
                         put(customProfile, true);
@@ -388,10 +399,11 @@ public class GraphRepoTest extends ContainerInitializer {
                             }});
                         }});
                     }})
-                    .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                    .profileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
                     .build().toYAML(tempDir, "grc-config.yml");
             // @formatter:on
             container.withCopyFileToContainer(forHostPath(config), containerConfigPath);
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2), customProfile), "Failed to prepare the graph repo.");
             copyFolderContentFromContainer(container, "/tmp/test-filesystem-repo", tempDir.resolve("test-filesystem-repo").toString());
@@ -401,7 +413,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container = ContainerInitializer.initContainer(targetImage, false, null, false);
             // @formatter:off
             config = grcConfig
-                    .ProfileDefaultBuildSourceFile("")
+                    .profileDefaultBuildSourceFile("")
                     .setRepoManagementPerProfile(true)
                     .profiles(new HashMap<>() {{
                         put(customProfile, true);
@@ -427,11 +439,12 @@ public class GraphRepoTest extends ContainerInitializer {
             } else {
                 container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
             }
+            container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
-            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
-            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, customProfile, "driving-car", 12, 1000, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoInitWithoutExistingGraph(container, customProfile, "/tmp/test-filesystem-repo", 12, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcRepoCheckAndDownload(container, customProfile, "driving-car", 6, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForSuccessfulGrcActivationOnFreshGraph(container, customProfile, "driving-car", 6, true), "The expected log patterns were not found in the logs.");
+            Assertions.assertTrue(waitForNoNewGraphGrcRepoCheck(container, customProfile, "driving-car", 12, true), "The expected log patterns were not found in the logs.");
             container.stop();
         }
     }

@@ -1,5 +1,6 @@
 package integrationtests;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,6 +63,7 @@ public class ConfigLookupTest extends ContainerInitializer {
             ).toArray(new String[0])));
             container.setCommand(targetImage.getCommand("100M").toArray(new String[0]));
             container.start();
+            Assertions.assertTrue(container.isRunning());
             container.stop();
         }
 
@@ -231,7 +233,7 @@ public class ConfigLookupTest extends ContainerInitializer {
             Path wrongTestConfig = OrsConfig.builder()
                     .profileDefaultEnabled(false)
                     .graphManagementEnabled(false)
-                    .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                    .profileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
                     .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
                     .profiles(new HashMap<>(Map.of("cycling-regular", true)))
                     .build().toYAML(tempDir, "ors-config.yml");
@@ -244,7 +246,7 @@ public class ConfigLookupTest extends ContainerInitializer {
             Path correctTestConfig = OrsConfig.builder()
                     .profileDefaultEnabled(false)
                     .graphManagementEnabled(false)
-                    .ProfileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
+                    .profileDefaultBuildSourceFile("/home/ors/openrouteservice/files/heidelberg.test.pbf")
                     .profileDefaultGraphPath("/home/ors/openrouteservice/graphs")
                     .profiles(new HashMap<>(Map.of("cycling-road", true)))
                     .build().toYAML(tempDir, "ors-config2.yml");
@@ -286,6 +288,7 @@ public class ConfigLookupTest extends ContainerInitializer {
                     "No profiles configured. Exiting."
             ).toArray(new String[0])));
             container.start();
+            Assertions.assertTrue(container.isRunning());
             container.stop();
         }
     }
