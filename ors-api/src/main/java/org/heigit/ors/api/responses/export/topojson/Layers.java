@@ -15,7 +15,7 @@ import java.io.Serializable;
 })
 @Builder
 @Getter
-public class Objects implements Serializable {
+public class Layers implements Serializable {
 
     @JsonProperty("layer")
     private Layer layer;

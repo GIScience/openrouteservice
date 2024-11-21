@@ -18,7 +18,7 @@ public class TopoJson implements Serializable {
     @JsonProperty("type")
     private String type;
     @JsonProperty("objects")
-    private Objects objects;
+    private Layers objects;
     @JsonProperty("arcs")
     private List<Arc> arcs;
     @JsonProperty("bbox")

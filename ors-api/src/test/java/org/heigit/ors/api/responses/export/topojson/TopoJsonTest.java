@@ -36,7 +36,7 @@ class TopoJsonTest {
                 .type("GeometryCollection")
                 .geometries(List.of(geometry1, geometry2))
                 .build();
-        Objects objects = Objects.builder()
+        Layers objects = Layers.builder()
                 .layer(layer)
                 .build();
         Arc arc1 = Arc.builder()
