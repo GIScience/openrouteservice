@@ -5,9 +5,23 @@ name: Integration test suite
 
 on:
   push:
-    branches: [ "main", "feat/**" ]
+    branches: [ "main" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'ors-api/src/test/java/**'
+      - 'ors-api/src/test/resources/**'
+      - 'ors-engine/src/test/**'
+      - 'ors-report-aggregation/**'
+      - '.rpm-packaging/**'
   pull_request:
-    branches: [ "main", "feat/**" ]
+    branches: [ "main" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'ors-api/src/test/java/**'
+      - 'ors-api/src/test/resources/**'
+      - 'ors-engine/src/test/**'
+      - 'ors-report-aggregation/**'
+      - '.rpm-packaging/**'
 
 jobs:
   build-default-builder:
