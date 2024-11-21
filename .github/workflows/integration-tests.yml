@@ -5,9 +5,9 @@ name: Integration test suite
 
 on:
   push:
-    branches: [ "main", "feat/**" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "feat/**" ]
+    branches: [ "main" ]
 
 jobs:
   build-default-builder:
