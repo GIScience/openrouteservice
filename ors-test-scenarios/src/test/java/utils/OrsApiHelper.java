@@ -10,7 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class OrsApiHelper {
@@ -49,10 +48,8 @@ public class OrsApiHelper {
         JsonNode node = mapper.readTree(json);
 
         // Extract profiles from the JSON node
-        List<String> profiles = new ArrayList<>();
-        JsonNode profileNames = node.get("profiles");
 
-        return profileNames;
+        return node.get("profiles");
     }
 
     public static void assertProfilesLoaded(GenericContainer<?> container, Map<String, Boolean> expectedProfiles) {
