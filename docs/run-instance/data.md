@@ -11,7 +11,8 @@ Openrouteservice makes use of public open-source data. To generate the best rout
 The base data used for the road network and related information (road type, access restrictions etc.) is [OpenStreetMap](https://openstreetmap.org) (OSM). This dataset is a free and open dataset that can be edited by anyone.  
 You can download the latest OSM dataset from https://planet.openstreetmap.org/ or regional extracts from http://download.geofabrik.de/.
 
-The OSM file to be used needs be configured with the property [`ors.engine.source_file`](configuration/engine/index.md).
+The OSM file to be used needs be configured with the property [
+`ors.engine.profile_default.build.source_file`](configuration/engine/index.md).
 
 ### Elevation
 The data used for elevation are [SRTM](http://srtm.csi.cgiar.org/) and [GMTED](https://www.usgs.gov/coastal-changes-and-impacts/gmted2010).  

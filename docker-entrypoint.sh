@@ -178,8 +178,8 @@ fi
 ors_engine_profile_default_graph_path=$(env | grep "^ors\.engine\.profile_default\.graph_path=" | awk -F '=' '{print $2}')
 # get ors.engine.elevation.cache_path
 ors_engine_elevation_cache_path=$(env | grep "^ors\.engine\.elevation\.cache_path=" | awk -F '=' '{print $2}')
-# get ors.engine.source_file
-ors_engine_source_file=$(env | grep "^ors\.engine\.source_file=" | awk -F '=' '{print $2}')
+# get ors.engine.profile_default.build.source_file
+ors_engine_profile_default_build_source_file=$(env | grep "^ors\.engine\.profile_default\.build\.source_file=" | awk -F '=' '{print $2}')
 
 # Check that ors_engine_profile_default_graph_path is not empty and not set to /
 if [ -n "${ors_engine_profile_default_graph_path}" ] && [ "${ors_engine_profile_default_graph_path}" = "/" ]; then
@@ -226,8 +226,8 @@ if [[ -z "${ors_engine_profile_default_graph_path}" ]]; then
   ors_engine_profile_default_graph_path=$(extract_config_info "${ors_config_location}" '.ors.engine.profile_default.graph_path')
 fi
 
-if [[ -z "${ors_engine_source_file}" ]]; then
-  ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.source_file')
+if [[ -z "${ors_engine_profile_default_build_source_file}" ]]; then
+  ors_engine_profile_default_build_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.profile_default.build.source_file')
 fi
 
 if [ -n "${ors_engine_profile_default_graph_path}" ]; then
@@ -237,11 +237,11 @@ else
   ors_engine_profile_default_graph_path="${ORS_HOME}/graphs"
 fi
 
-if [ -n "${ors_engine_source_file}" ]; then
-  debug "OSM source file set to ${ors_engine_source_file}"
+if [ -n "${ors_engine_profile_default_build_source_file}" ]; then
+  debug "OSM source file set to ${ors_engine_profile_default_build_source_file}"
   # Check if it is the example file in root or the home folder
-  if [[ "${ors_engine_source_file}" = "${ORS_HOME}/files/example-heidelberg.test.pbf" ]]; then
-    info "Default to example osm source file: \"${ors_engine_source_file}\""
+  if [[ "${ors_engine_profile_default_build_source_file}" = "${ORS_HOME}/files/example-heidelberg.test.pbf" ]]; then
+    info "Default to example osm source file: \"${ors_engine_profile_default_build_source_file}\""
   fi
 fi
 
