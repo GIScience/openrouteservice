@@ -15,6 +15,11 @@ on:
       - '.rpm-packaging/**'
   pull_request:
     branches: [ "main" ]
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
     paths-ignore:
       - 'docs/**'
       - 'ors-api/src/test/java/**'
