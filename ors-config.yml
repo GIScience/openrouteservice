@@ -192,6 +192,7 @@ ors:
 #          ext_storages:
 #            WayCategory:
 #            HeavyVehicle:
+#            Tollways:
 #            WaySurfaceType:
 #            RoadAccessRestrictions:
 #              use_for_warnings: true
@@ -228,6 +229,7 @@ ors:
 #            WayCategory:
 #            HeavyVehicle:
 #              restrictions: true
+#            Tollways:
 #            WaySurfaceType:
 #        service:
 #          execution:
