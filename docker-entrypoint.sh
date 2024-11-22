@@ -174,18 +174,18 @@ if [ ! -f "${jar_file}" ]; then
   critical "Jar file not found. This shouldn't happen. Exiting."
 fi
 
-# get ors.engine.graphs_root_path=. Dot notations in bash are not allowed, so we need to use awk to parse it.
-ors_engine_graphs_root_path=$(env | grep "^ors\.engine\.graphs_root_path=" | awk -F '=' '{print $2}')
+# get ors.engine.profile_default.graph_path=. Dot notations in bash are not allowed, so we need to use awk to parse it.
+ors_engine_profile_default_graph_path=$(env | grep "^ors\.engine\.profile_default\.graph_path=" | awk -F '=' '{print $2}')
 # get ors.engine.elevation.cache_path
 ors_engine_elevation_cache_path=$(env | grep "^ors\.engine\.elevation\.cache_path=" | awk -F '=' '{print $2}')
 # get ors.engine.source_file
 ors_engine_source_file=$(env | grep "^ors\.engine\.source_file=" | awk -F '=' '{print $2}')
 
-# Check that ors_engine_graphs_root_path is not empty and not set to /
-if [ -n "${ors_engine_graphs_root_path}" ] && [ "${ors_engine_graphs_root_path}" = "/" ]; then
-  critical "ors.engine.graphs_root_path is set to /. This is not allowed. Exiting."
+# Check that ors_engine_profile_default_graph_path is not empty and not set to /
+if [ -n "${ors_engine_profile_default_graph_path}" ] && [ "${ors_engine_profile_default_graph_path}" = "/" ]; then
+  critical "ors.engine.profile_default.graph_path is set to /. This is not allowed. Exiting."
 else
-  debug "ors.engine.graphs_root_path=${ors_engine_graphs_root_path} is set and not empty and not set to /"
+  debug "ors.engine.profile_default.graph_path=${ors_engine_profile_default_graph_path} is set and not empty and not set to /"
 fi
 
 # Check that ors_engine_elevation_cache_path is not empty and not set to /
@@ -196,8 +196,8 @@ else
 fi
 
 # Update the example-ors-config.env and example-ors-config.yml files if they don't exist or have changed
-update_file "${ORS_HOME}/config/example-ors-config.env" "/example-ors-config.env" "true"
-update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml" "true"
+update_file "${ORS_HOME}/config/example-ors-config.env" "/example-ors-config.env"
+update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml"
 
 # The config situation is difficult due to the recent ors versions.
 # To ensure a smooth transition, we need to check if the user is using a .json file or a .yml file.
@@ -230,11 +230,11 @@ if [[ -z "${ors_engine_source_file}" ]]; then
   ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.source_file')
 fi
 
-if [ -n "${ors_engine_graphs_root_path}" ]; then
-  success "Using graphs folder ${ors_engine_graphs_root_path}"
+if [ -n "${ors_engine_profile_default_graph_path}" ]; then
+  success "Using graphs folder ${ors_engine_profile_default_graph_path}"
 else
   info "Default to graphs folder: ${ORS_HOME}/graphs"
-  ors_engine_graphs_root_path="${ORS_HOME}/graphs"
+  ors_engine_profile_default_graph_path="${ORS_HOME}/graphs"
 fi
 
 if [ -n "${ors_engine_source_file}" ]; then
@@ -259,18 +259,18 @@ update_file "${ORS_HOME}/files/example-heidelberg.test.pbf" "/heidelberg.test.pb
 
 # Remove existing graphs if BUILD_GRAPHS is set to true
 if [ "${ors_rebuild_graphs}" = "true" ]; then
-  # Warn if ors.engine.graphs_root_path is not set or empty
-  if [ -z "${ors_engine_graphs_root_path}" ]; then
-    warning "graphs_root_path is not set or could not be found. Skipping cleanup."
-  elif [ -d "${ors_engine_graphs_root_path}" ]; then
-    # Check the ors.engine.graphs_root_path folder exists
-    rm -rf "${ors_engine_graphs_root_path:?}"/* || warning "Could not remove ${ors_engine_graphs_root_path}"
-    success "Removed graphs at ${ors_engine_graphs_root_path}/*."
+  # Warn if ors.engine.profile_default.graph_path is not set or empty
+  if [ -z "${ors_engine_profile_default_graph_path}" ]; then
+    warning "ors.engine.profile_default.graph_path is not set or could not be found. Skipping cleanup."
+  elif [ -d "${ors_engine_profile_default_graph_path}" ]; then
+    # Check the ors.engine.profile_default.graph_path folder exists
+    rm -rf "${ors_engine_profile_default_graph_path:?}"/* || warning "Could not remove ${ors_engine_profile_default_graph_path}"
+    success "Removed graphs at ${ors_engine_profile_default_graph_path}/*."
   else
-    debug "${ors_engine_graphs_root_path} does not exist (yet). Skipping cleanup."
+    debug "${ors_engine_profile_default_graph_path} does not exist (yet). Skipping cleanup."
   fi
   # Create the graphs folder again
-  mkdir -p "${ors_engine_graphs_root_path}" || warning "Could not populate graph folder at ${ors_engine_graphs_root_path}"
+  mkdir -p "${ors_engine_profile_default_graph_path}" || warning "Could not populate graph folder at ${ors_engine_profile_default_graph_path}"
 fi
 
 success "Container file system preparation complete. For details set CONTAINER_LOG_LEVEL=DEBUG."

@@ -17,8 +17,7 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
 
     private static final Logger LOGGER = Logger.getLogger(InitializeGraphsOnce.class.getName());
 
-    // This folder's name must also be configured in resources/ors-config.json:
-    // "graphs_root_path": "graphs-apitests"
+    // "graph_path": "graphs-apitests"
     private static final String GRAPHS_FOLDER = "graphs-apitests";
     private static final String GRAPHS_FOLDER_DELETED = "graphs-folder-deleted";
 
@@ -36,13 +35,12 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
         }
     }
 
-    private synchronized static void deleteGraphsFolderOncePerTestRun(ExtensionContext.Store store) {
+    private static synchronized void deleteGraphsFolderOncePerTestRun(ExtensionContext.Store store) {
         boolean graphsFolderAlreadyDeleted = store.getOrDefault(GRAPHS_FOLDER_DELETED, Boolean.class, Boolean.FALSE);
         boolean ciPropertySet = System.getProperty("CI") != null && System.getProperty("CI").equalsIgnoreCase("true");
         boolean deleteGraphsFolder = !graphsFolderAlreadyDeleted && ciPropertySet;
 
         // Necessary to allow api tests, if already other spring boot tests have created profiles
-        // RoutingProfileManager.destroyInstance();
 
         if (deleteGraphsFolder) {
             try {
