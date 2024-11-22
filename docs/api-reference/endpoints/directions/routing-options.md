@@ -17,8 +17,8 @@ String value specifying which borders to avoid. Only for **`driving-*`** profile
 | `"controlled"` | cross open borders but avoid controlled ones | 
 
 ### `options.avoid_countries` 
-An integer array of country ids to exclude from routing with **`driving-*`** profiles. Can be used together with `"avoid_borders": "controlled"`. 
-The list of countries and application examples can be found in the [country list](../../../technical-details/country-list.md).
+An integer array of country ids to exclude from routing with **`driving-*`** profiles. Can be used together with `"avoid_borders": "controlled"`.
+The list of countries and application examples can be found in the [country list](/technical-details/country-list.md).
 
 `"[11,193]"` would exclude Austria and Switzerland. 
 
@@ -107,7 +107,8 @@ An object with specifications of a round-trip:
 
 ### `options.vehicle_type`
 For `profile=driving-hgv` only.
-It is needed for **vehicle restrictions** to work (see [tag filtering](../../../technical-details/tag-filtering.md#driving-hgv)).
+It is needed for **vehicle restrictions** to work (
+see [tag filtering](/technical-details/tag-filtering.md#driving-hgv)).
 Possible values:
 
 * `hgv`

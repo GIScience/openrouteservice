@@ -2,7 +2,7 @@
 
 Properties beneath `ors.engine.profiles.<profile>.service` represent parameters relevant when querying services that
 need to be set specifically for each profile. More parameters relevant at query time can be found in the [
-`ors.endpoints`](../../endpoints/) section.
+`ors.endpoints`](/api-reference/endpoints/index.md) section.
 
 | key                                 | type    | description                                                                                               | default value |
 |-------------------------------------|---------|-----------------------------------------------------------------------------------------------------------|---------------|

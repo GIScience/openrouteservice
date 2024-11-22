@@ -1,7 +1,7 @@
 # Country List
 
 This table lists country ids for the `avoid_country`-parameter. For details,
-see [routing options](../api-reference/endpoints/directions/routing-options.md#options-avoid-countries).
+see [routing options](/api-reference/endpoints/directions/routing-options.md#options-avoid-countries).
 
 | country_id |                        name                        |                    name:en                    |
 |:----------:|:--------------------------------------------------:|:---------------------------------------------:|
