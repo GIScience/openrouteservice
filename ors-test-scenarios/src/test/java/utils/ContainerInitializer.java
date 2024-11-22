@@ -221,7 +221,7 @@ public abstract class ContainerInitializer {
     }
 
     @BeforeAll
-    static void buildSharedLayersAndGraphs() throws IOException, InterruptedException {
+    public static void buildSharedLayersAndGraphs() throws IOException, InterruptedException {
         initializeContainers();
         if (!Boolean.parseBoolean(System.getProperty("container.builder.use_prebuild", "false"))) {
             parentLogger.info("container.builder.use_prebuild is set to false. Building builder images.");
