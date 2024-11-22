@@ -1,6 +1,5 @@
 # Docker Compose file for the openrouteservice (ORS) application
 # Documentation and examples can be found on https://giscience.github.io/openrouteservice/run-instance/running-with-docker
-version: '3.8'
 
 services:
   # ----------------- ORS application configuration ------------------- #

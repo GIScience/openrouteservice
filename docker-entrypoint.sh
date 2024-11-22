@@ -71,15 +71,10 @@ function set_log_level() {
 update_file() {
   local target_file_path="$1"
   local original_file_path="$2"
-  # Default to false
-  local print_migration_info_on_update="${3:-false}"
 
   if [ ! -f "${target_file_path}" ] || ! cmp -s "${original_file_path}" "${target_file_path}"; then
     success "Update the file ${target_file_path} with ${original_file_path}"
     cp -f "${original_file_path}" "${target_file_path}" || warning "Could not copy ${original_file_path} to ${target_file_path}"
-    if [ "${print_migration_info_on_update}" = "true" ]; then
-      print_migration_info="true"
-    fi
   else
     success "The file ${target_file_path} is up to date"
   fi
@@ -216,9 +211,6 @@ if [[ "${ors_config_location}" = *.yml ]] && [[ -f "${ors_config_location}" ]]; 
   success "Using yml config from ENV: ${ors_config_location}"
 elif [[ "${ors_config_location}" = *.json ]] && [[ -f "${ors_config_location}" ]]; then
   success "Using json config from ENV: ${ors_config_location}"
-  # Print the above warning message in individual warning calls
-  warning ".json configurations are deprecated and will be removed in the future."
-  print_migration_info="true"
 elif [[ -f ${ORS_HOME}/config/ors-config.yml ]]; then
     success "Using the existing ors-config.yml from: ${ORS_HOME}/config/ors-config.yml"
     ors_config_location="${ORS_HOME}/config/ors-config.yml"
@@ -230,20 +222,12 @@ else
 fi
 
 # Get relevant configuration information from the .yml or .json file
-if [[ -z "${ors_engine_graphs_root_path}" ]]; then
-  if [[ "${config_location}" = *.yml ]]; then
-    ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.engine.graphs_root_path')
-  elif [[ "${config_location}" = *.json ]]; then
-    ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.services.routing.profiles.default_params.graphs_root_path')
-  fi
+if [[ -z "${ors_engine_profile_default_graph_path}" ]]; then
+  ors_engine_profile_default_graph_path=$(extract_config_info "${ors_config_location}" '.ors.engine.profile_default.graph_path')
 fi
 
 if [[ -z "${ors_engine_source_file}" ]]; then
-  if [[ "${ors_config_location}" = *.yml ]]; then
-    ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.source_file')
-  elif [[ "${ors_config_location}" = *.json ]]; then
-    ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.services.routing.sources[0]')
-  fi
+  ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.source_file')
 fi
 
 if [ -n "${ors_engine_graphs_root_path}" ]; then
@@ -332,25 +316,6 @@ JAVA_OPTS="-Djava.awt.headless=true \
 ${additional_java_opts}"
 debug "JAVA_OPTS: ${JAVA_OPTS}"
 success "CATALINA_OPTS and JAVA_OPTS ready. For details set CONTAINER_LOG_LEVEL=DEBUG."
-
-# Print the migration info if print_migration_info is set to true but not if PRINT_MIGRATION_INFO is set to False
-if [ "${print_migration_info}" = "true" ]; then
-  info "##########################################"
-  info "# Config options and migration information #"
-  info "##########################################"
-  info ">>> Migration information <<<"
-  warning "Configuring ors with a .json config is deprecated and will be removed in the future."
-  info "You can use the ors-config-migration tool to migrate your .json config to .yml: https://github.com/GIScience/ors-config-migration#usage"
-  info ">>> Config options <<<"
-  info "You have the following options to configure ORS:"
-  info "Method 1 yml config:"
-  info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.yml ./ors-config.yml"
-  info "> docker run --name example-ors-instance-conf-file -e ORS_CONFIG_LOCATION=${ORS_HOME}/config/ors-config.yml -v \$(pwd)/ors-config.yml:${ORS_HOME}/config/ors-config.yml openrouteservice/openrouteservice:latest"
-  info "Method 2 environment variables:"
-  info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.env ./ors-config.env"
-  info "> docker run --name example-ors-instance-env-file --env-file ors-config.env openrouteservice/openrouteservice:latest"
-  info ">>> End of migration information <<<"
-fi
 
 echo "#####################"
 echo "# ORS startup phase #"

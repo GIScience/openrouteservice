@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  TEST_IMAGE_NAME: 'local/openrouteservice:test'
+  TEST_IMAGE_NAME: 'local/openrouteservice:latest'
   BUILD_PLATFORMS: 'linux/amd64,linux/arm64'
 
 
@@ -37,11 +37,33 @@ jobs:
           echo "UID=$(id -u)" >> $GITHUB_ENV
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+      - name: Set up JDK 17
+        id: setup-java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        id: buildx
+      - name: inject maven-build-cache into docker
+        uses: reproducible-containers/buildkit-cache-dance@v3.1.2
         with:
-          install: true
+          cache-map: |
+            {
+              "/home/runner/.m2": "/root/.m2"
+            }
+      - name: Prepare the maven cache dependencies
+        run: |
+          echo "Sync the maven dependencies"
+          mvn package -Dmaven.test.skip=true -B dependency:go-offline -q
+          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
+          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' Dockerfile
       - name: Build image for platforms ${{ needs.prepare_environment.outputs.build_platforms }}
         uses: docker/build-push-action@v4
         with:
@@ -96,9 +118,23 @@ jobs:
           platforms: ${{ matrix.platform }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        id: buildx
+      - name: Cache Maven packages
+        uses: actions/cache/restore@v4
         with:
-          install: true
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: inject maven-build-cache into docker
+        uses: reproducible-containers/buildkit-cache-dance@v3.1.2
+        with:
+          cache-map: |
+            {
+              "/home/runner/.m2": "/root/.m2"
+            }
+      - name: Prepare the maven cache dependencies
+        run: |
+          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
+          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' Dockerfile
       - name: Install jq
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
@@ -124,7 +160,7 @@ jobs:
           sed -i "s|image:.*|image: ${{ needs.prepare_environment.outputs.test_image_name }}|" docker-compose.yml
           sed -i "s|#logging.level.org.heigit: INFO|logging.level.org.heigit: DEBUG|" docker-compose.yml
           # Start the first build with the docker-compose setup
-          docker compose up --build -d
+          docker compose up -d
           # Wait for all logs to come in
           sleep 5
           docker compose logs ors-app
