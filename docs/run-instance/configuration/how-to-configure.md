@@ -196,7 +196,7 @@ Every property also corresponds to an environment variable name in *uppercase le
 Consequently, the following commands are equivalent to the last example above:
 
 ```shell
-  export ORS_ENGINE_SOURCE_FILE=./osm_file.pbf
+  export ORS_ENGINE_PROFILE_DEFAULT_BUILD_SOURCE_FILE=./osm_file.pbf
   export ORS_ENGINE_PROFILES_CAR_ENABLED=true
   java -jar ors.jar
 ```
