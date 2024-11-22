@@ -52,7 +52,7 @@ jobs:
       - name: Test with Tomcat
         run: |
           cp ors-api/src/test/files/elevation/srtm_38_03.gh .rpm-packaging/
-          cp ors-api/src/test/files/heidelberg.osm.gz .rpm-packaging/
+          cp ors-api/src/test/files/heidelberg.test.pbf .rpm-packaging/
           cd .rpm-packaging
           docker build . -t ors-rpm-tomcat --build-arg ors_version=${{ env.ORS_VERSION }}
           docker run -it -d -p 8080:8080 --name ors-tomcat ors-rpm-tomcat
