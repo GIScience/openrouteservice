@@ -23,10 +23,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Cache SonarCloud packages
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
+          key: ${{ runner.os }}-sonar-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-sonar
       - name: Cache Maven packages
         uses: actions/cache@v4
@@ -35,17 +35,16 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Download maven dependencies
-        run: mvn package -Dmaven.test.skip=true -B dependency:go-offline -q
-      - name: Test, build, run API tests
-        run: mvn -B verify -Papitests -DCI=true
-      - name: Run tests with pre-built graphs from previous run
-        run: mvn -B verify -Papitests jacoco:report
-      - name: run SonarLint checks
+        run: mvn package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+      - name: run unit tests with Jacoco
+        run: |
+          mvn -B verify -Papitests -T $(nproc) \
+          jacoco:report -DCI=true
+      - name: Scan results with Sonar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        if: env.SONAR_TOKEN != null
-        run: mvn -B package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        run: mvn -B -DCI=true org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar
       - name: Rocket.Chat Notification
         uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
         env:
