@@ -48,7 +48,7 @@ services:
       # See the ors-config.env file for more options.
       # To have a configuration file-less container, uncomment at least the following properties.
       # The values are examples and provide the default configuration.
-      #ors.engine.source_file: /home/ors/files/example-heidelberg.osm.gz
+      #ors.engine.source_file: /home/ors/files/example-heidelberg.test.pbf
       #ors.engine.graphs_root_path: /home/ors/graphs
       #ors.engine.elevation.cache_path: /home/ors/elevation_cache
       #ors.engine.profiles.car.enabled: true

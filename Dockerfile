@@ -19,8 +19,8 @@ RUN mvn -q clean package -DskipTests
 COPY ./ors-config.yml /tmp/ors/example-ors-config.yml
 COPY ./ors-config.env /tmp/ors/example-ors-config.env
 # Rewrite the example config to use the right files in the container
-RUN sed -i "/ors.engine.source_file=.*/s/.*/ors.engine.source_file=\/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.env" && \
-        sed -i "/    source_file:.*/s/.*/    source_file: \/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.yml"
+RUN sed -i "/ors.engine.source_file=.*/s/.*/ors.engine.source_file=\/home\/ors\/files\/example-heidelberg.test.pbf/" "/tmp/ors/example-ors-config.env" && \
+        sed -i "/    source_file:.*/s/.*/    source_file: \/home\/ors\/files\/example-heidelberg.test.pbf/" "/tmp/ors/example-ors-config.yml"
 
 # build final image, just copying stuff inside
 FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS publish
@@ -28,7 +28,7 @@ FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS publish
 # Build ARGS
 ARG UID=1000
 ARG GID=1000
-ARG OSM_FILE=./ors-api/src/test/files/heidelberg.osm.gz
+ARG OSM_FILE=./ors-api/src/test/files/heidelberg.test.pbf
 ARG ORS_HOME=/home/ors
 
 # Set the default language
@@ -47,7 +47,7 @@ RUN apk update && apk add --no-cache openssl bash yq jq  && \
 COPY --chown=ors:ors --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
 COPY --chown=ors:ors --from=build /tmp/ors/example-ors-config.yml /example-ors-config.yml
 COPY --chown=ors:ors --from=build /tmp/ors/example-ors-config.env /example-ors-config.env
-COPY --chown=ors:ors ./$OSM_FILE /heidelberg.osm.gz
+COPY --chown=ors:ors ./$OSM_FILE /heidelberg.test.pbf
 COPY --chown=ors:ors ./docker-entrypoint.sh /entrypoint.sh
 
 
