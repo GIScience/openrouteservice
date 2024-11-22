@@ -19,9 +19,9 @@ import java.util.HashMap;
 public class OrsConfig {
     // Profile Default Configuration
     @Builder.Default
-    private String ProfileDefaultBuildSourceFile = "/home/ors/openrouteservice/files/heidelberg.test.pbf";
+    private String profileDefaultBuildSourceFile = "/home/ors/openrouteservice/files/heidelberg.test.pbf";
     @Builder.Default
-    private String ProfileDefaultGraphPath = "/home/ors/openrouteservice/graphs";
+    private String profileDefaultGraphPath = "/home/ors/openrouteservice/graphs";
     @Builder.Default
     private boolean profileDefaultEnabled = false;
     @Builder.Default
@@ -40,7 +40,6 @@ public class OrsConfig {
     public String repositoryName;
     public String repositoryProfileGroup;
     public String graphExtent;
-    public String profileDefaultGraphPath;
 
     @Builder.Default
     private HashMap<String, Boolean> profiles = new HashMap<>();
@@ -62,7 +61,7 @@ public class OrsConfig {
         }
         // Create profile_default build node
         ObjectNode profileDefaultBuildNode = mapper.createObjectNode();
-        profileDefaultBuildNode.put("source_file", ProfileDefaultBuildSourceFile);
+        profileDefaultBuildNode.put("source_file", profileDefaultBuildSourceFile);
         profileDefaultNode.set("build", profileDefaultBuildNode);
 
         // Create the repo node
