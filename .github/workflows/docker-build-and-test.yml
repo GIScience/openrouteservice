@@ -51,6 +51,12 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Prepare the maven cache dependencies
+        run: |
+          echo "Sync the maven dependencies"
+          mvn package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
+          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' Dockerfile
       - name: inject maven-build-cache into docker
         uses: reproducible-containers/buildkit-cache-dance@v3.1.2
         with:
@@ -58,12 +64,6 @@ jobs:
             {
               "/home/runner/.m2": "/root/.m2"
             }
-      - name: Prepare the maven cache dependencies
-        run: |
-          echo "Sync the maven dependencies"
-          mvn package -Dmaven.test.skip=true -B dependency:go-offline -q
-          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
-          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' Dockerfile
       - name: Build image for platforms ${{ needs.prepare_environment.outputs.build_platforms }}
         uses: docker/build-push-action@v4
         with:
@@ -119,11 +119,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Cache Maven packages
-        uses: actions/cache/restore@v4
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+      - name: Prepare the maven cache dependencies
+        run: |
+          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
+          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' Dockerfile
       - name: inject maven-build-cache into docker
         uses: reproducible-containers/buildkit-cache-dance@v3.1.2
         with:
@@ -131,15 +135,6 @@ jobs:
             {
               "/home/runner/.m2": "/root/.m2"
             }
-      - name: Prepare the maven cache dependencies
-        run: |
-          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
-          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' Dockerfile
-      - name: Install jq
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: jq moreutils
-          version: 1.0
       - name: Build image
         uses: docker/build-push-action@v4
         with:
