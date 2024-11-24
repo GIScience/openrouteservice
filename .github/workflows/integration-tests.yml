@@ -53,6 +53,12 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Prepare the maven cache dependencies
+        run: |
+          echo "Sync the maven dependencies"
+          mvn package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
+          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
       - name: inject maven-build-cache into docker
         uses: reproducible-containers/buildkit-cache-dance@v3.1.2
         with:
@@ -60,12 +66,6 @@ jobs:
             {
               "/home/runner/.m2": "/root/.m2"
             }
-      - name: Prepare the maven cache dependencies
-        run: |
-          echo "Sync the maven dependencies"
-          mvn package -Dmaven.test.skip=true -B dependency:go-offline -q
-          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
-          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
       - name: Build ors-test-scenarios-builder
         id: docker_build
         uses: docker/build-push-action@v6
@@ -112,7 +112,7 @@ jobs:
         if: steps.cache_graph.outputs.cache-hit != 'true'
         run: |
           # Build the shared graph
-          mvn -pl ors-test-scenarios -q -Dtest=utils.OneShotGraphBuilderTest\#oneShotGraphBuilder test \
+          mvn -pl ors-test-scenarios -q -Dtest=integrationtests.OneShotGraphBuilderTest\#oneShotGraphBuilder test \
             -Dcontainer.builder.use_prebuild=true \
             -Dcontainer.run.scenario=jar
         env:
