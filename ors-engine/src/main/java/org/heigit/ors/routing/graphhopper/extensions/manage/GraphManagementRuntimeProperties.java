@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static java.util.Optional.ofNullable;
 
@@ -189,7 +190,8 @@ public class GraphManagementRuntimeProperties {
     }
 
     private boolean isSupportedFileScheme(URI uri) {
-        return uri != null && "file".equals(uri.getScheme());
+        if (uri == null) return false;
+        return Objects.equals("file", uri.getScheme());
     }
 
     private URI toUri(String string) {
