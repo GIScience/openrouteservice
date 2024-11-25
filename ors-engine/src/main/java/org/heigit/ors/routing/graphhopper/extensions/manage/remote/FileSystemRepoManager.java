@@ -83,7 +83,11 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
             downloadFile(latestCompressedGraphInRepoPath, downloadedCompressedGraphFile);
 
             long end = System.currentTimeMillis();
-            LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
+            if (downloadedCompressedGraphFile.exists()) {
+                LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
+            } else {
+                LOGGER.error("[%s] Invalid download path for compressed graph file: %s".formatted(getProfileDescriptiveName(), latestCompressedGraphInRepoPath));
+            }
         } catch (Exception e) {
             LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), e);
         }
@@ -117,6 +121,10 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
     }
 
     public void downloadFile(Path repoPath, File localPath) {
+        if (repoPath == null || localPath == null) {
+            LOGGER.warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, localPath));
+            return;
+        }
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath(), localPath.getAbsolutePath()));
         } else {
