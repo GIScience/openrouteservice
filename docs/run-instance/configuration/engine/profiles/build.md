@@ -3,16 +3,16 @@
 Properties beneath `ors.engine.profiles.<profile>.build` are used to define the parameters for building the routing
 graphs for the specified profile.
 
-| key                             | type    | description                                                                                                                            | default value                              |
-|---------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
-| source_file                     | string  | The OSM file to be used, supported formats are `.osm`, `.osm.gz`, `.osm.zip` and `.pbf`                                                | `ors-api/src/test/files/heidelberg.osm.gz` |
-| elevation                       | boolean | Specifies whether to use or not elevation data                                                                                         | `false`                                    |
-| elevation_smoothing             | boolean | Smooth out elevation data                                                                                                              | `false`                                    |
-| traffic                         | boolean | Use traffic data if available                                                                                                          | `false`                                    |
-| interpolate_bridges_and_tunnels | boolean | Toggle elevation interpolation of bridges and tunnels on and off                                                                       | `true`                                     |
-| instructions                    | boolean | Specifies whether way names will be stored during the import or not                                                                    | `true`                                     |
-| optimize                        | boolean | Optimize the sort order when contracting nodes for CH. This is rather expensive, but yields a better contraction hierarchy.            | `false`                                    |
-| maximum_speed_lower_bound       | number  | Specifies the threshold for the query parameter `maximum_speed`, required when calculating preparation data for the Core-ALT algorithm | `80`                                       |
+| key                             | type    | description                                                                                                                            | default value                                |
+|---------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| source_file                     | string  | The OSM file to be used, supported formats are `.osm`, `.osm.gz`, `.osm.zip` and `.pbf`                                                | `ors-api/src/test/files/heidelberg.test.pbf` |
+| elevation                       | boolean | Specifies whether to use or not elevation data                                                                                         | `false`                                      |
+| elevation_smoothing             | boolean | Smooth out elevation data                                                                                                              | `false`                                      |
+| traffic                         | boolean | Use traffic data if available                                                                                                          | `false`                                      |
+| interpolate_bridges_and_tunnels | boolean | Toggle elevation interpolation of bridges and tunnels on and off                                                                       | `true`                                       |
+| instructions                    | boolean | Specifies whether way names will be stored during the import or not                                                                    | `true`                                       |
+| optimize                        | boolean | Optimize the sort order when contracting nodes for CH. This is rather expensive, but yields a better contraction hierarchy.            | `false`                                      |
+| maximum_speed_lower_bound       | number  | Specifies the threshold for the query parameter `maximum_speed`, required when calculating preparation data for the Core-ALT algorithm | `80`                                         |
 
 [//]: # (TODO: verify above with @aoles)
 | encoder_flags_size | number | The number of bytes used for FlagEncoders | `8`                                        |

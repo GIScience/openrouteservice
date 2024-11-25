@@ -49,7 +49,7 @@ Openrouteservice produces output files of three types, for which the paths can b
 openrouteservice reads the input data and computes a graph for each enabled routing profile. 
 
 The root directory for the graphs can be configured with the configuration property [
-`ors.engine.graphs_root_path`](configuration/engine/index.md).
+`ors.engine.profile_default.graph_path`](configuration/engine/index.md).
 
 ### Elevation Cache
 

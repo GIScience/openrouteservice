@@ -71,15 +71,10 @@ function set_log_level() {
 update_file() {
   local target_file_path="$1"
   local original_file_path="$2"
-  # Default to false
-  local print_migration_info_on_update="${3:-false}"
 
   if [ ! -f "${target_file_path}" ] || ! cmp -s "${original_file_path}" "${target_file_path}"; then
     success "Update the file ${target_file_path} with ${original_file_path}"
     cp -f "${original_file_path}" "${target_file_path}" || warning "Could not copy ${original_file_path} to ${target_file_path}"
-    if [ "${print_migration_info_on_update}" = "true" ]; then
-      print_migration_info="true"
-    fi
   else
     success "The file ${target_file_path} is up to date"
   fi
@@ -179,18 +174,18 @@ if [ ! -f "${jar_file}" ]; then
   critical "Jar file not found. This shouldn't happen. Exiting."
 fi
 
-# get ors.engine.graphs_root_path=. Dot notations in bash are not allowed, so we need to use awk to parse it.
-ors_engine_graphs_root_path=$(env | grep "^ors\.engine\.graphs_root_path=" | awk -F '=' '{print $2}')
+# get ors.engine.profile_default.graph_path=. Dot notations in bash are not allowed, so we need to use awk to parse it.
+ors_engine_profile_default_graph_path=$(env | grep "^ors\.engine\.profile_default\.graph_path=" | awk -F '=' '{print $2}')
 # get ors.engine.elevation.cache_path
 ors_engine_elevation_cache_path=$(env | grep "^ors\.engine\.elevation\.cache_path=" | awk -F '=' '{print $2}')
-# get ors.engine.source_file
-ors_engine_source_file=$(env | grep "^ors\.engine\.source_file=" | awk -F '=' '{print $2}')
+# get ors.engine.profile_default.build.source_file
+ors_engine_profile_default_build_source_file=$(env | grep "^ors\.engine\.profile_default\.build\.source_file=" | awk -F '=' '{print $2}')
 
-# Check that ors_engine_graphs_root_path is not empty and not set to /
-if [ -n "${ors_engine_graphs_root_path}" ] && [ "${ors_engine_graphs_root_path}" = "/" ]; then
-  critical "ors.engine.graphs_root_path is set to /. This is not allowed. Exiting."
+# Check that ors_engine_profile_default_graph_path is not empty and not set to /
+if [ -n "${ors_engine_profile_default_graph_path}" ] && [ "${ors_engine_profile_default_graph_path}" = "/" ]; then
+  critical "ors.engine.profile_default.graph_path is set to /. This is not allowed. Exiting."
 else
-  debug "ors.engine.graphs_root_path=${ors_engine_graphs_root_path} is set and not empty and not set to /"
+  debug "ors.engine.profile_default.graph_path=${ors_engine_profile_default_graph_path} is set and not empty and not set to /"
 fi
 
 # Check that ors_engine_elevation_cache_path is not empty and not set to /
@@ -201,8 +196,8 @@ else
 fi
 
 # Update the example-ors-config.env and example-ors-config.yml files if they don't exist or have changed
-update_file "${ORS_HOME}/config/example-ors-config.env" "/example-ors-config.env" "true"
-update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml" "true"
+update_file "${ORS_HOME}/config/example-ors-config.env" "/example-ors-config.env"
+update_file "${ORS_HOME}/config/example-ors-config.yml" "/example-ors-config.yml"
 
 # The config situation is difficult due to the recent ors versions.
 # To ensure a smooth transition, we need to check if the user is using a .json file or a .yml file.
@@ -216,9 +211,6 @@ if [[ "${ors_config_location}" = *.yml ]] && [[ -f "${ors_config_location}" ]]; 
   success "Using yml config from ENV: ${ors_config_location}"
 elif [[ "${ors_config_location}" = *.json ]] && [[ -f "${ors_config_location}" ]]; then
   success "Using json config from ENV: ${ors_config_location}"
-  # Print the above warning message in individual warning calls
-  warning ".json configurations are deprecated and will be removed in the future."
-  print_migration_info="true"
 elif [[ -f ${ORS_HOME}/config/ors-config.yml ]]; then
     success "Using the existing ors-config.yml from: ${ORS_HOME}/config/ors-config.yml"
     ors_config_location="${ORS_HOME}/config/ors-config.yml"
@@ -230,34 +222,26 @@ else
 fi
 
 # Get relevant configuration information from the .yml or .json file
-if [[ -z "${ors_engine_graphs_root_path}" ]]; then
-  if [[ "${config_location}" = *.yml ]]; then
-    ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.engine.graphs_root_path')
-  elif [[ "${config_location}" = *.json ]]; then
-    ors_engine_graphs_root_path=$(extract_config_info "${ors_config_location}" '.ors.services.routing.profiles.default_params.graphs_root_path')
-  fi
+if [[ -z "${ors_engine_profile_default_graph_path}" ]]; then
+  ors_engine_profile_default_graph_path=$(extract_config_info "${ors_config_location}" '.ors.engine.profile_default.graph_path')
 fi
 
-if [[ -z "${ors_engine_source_file}" ]]; then
-  if [[ "${ors_config_location}" = *.yml ]]; then
-    ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.source_file')
-  elif [[ "${ors_config_location}" = *.json ]]; then
-    ors_engine_source_file=$(extract_config_info "${ors_config_location}" '.ors.services.routing.sources[0]')
-  fi
+if [[ -z "${ors_engine_profile_default_build_source_file}" ]]; then
+  ors_engine_profile_default_build_source_file=$(extract_config_info "${ors_config_location}" '.ors.engine.profile_default.build.source_file')
 fi
 
-if [ -n "${ors_engine_graphs_root_path}" ]; then
-  success "Using graphs folder ${ors_engine_graphs_root_path}"
+if [ -n "${ors_engine_profile_default_graph_path}" ]; then
+  success "Using graphs folder ${ors_engine_profile_default_graph_path}"
 else
   info "Default to graphs folder: ${ORS_HOME}/graphs"
-  ors_engine_graphs_root_path="${ORS_HOME}/graphs"
+  ors_engine_profile_default_graph_path="${ORS_HOME}/graphs"
 fi
 
-if [ -n "${ors_engine_source_file}" ]; then
-  debug "OSM source file set to ${ors_engine_source_file}"
+if [ -n "${ors_engine_profile_default_build_source_file}" ]; then
+  debug "OSM source file set to ${ors_engine_profile_default_build_source_file}"
   # Check if it is the example file in root or the home folder
-  if [[ "${ors_engine_source_file}" = "${ORS_HOME}/files/example-heidelberg.osm.gz" ]]; then
-    info "Default to example osm source file: \"${ors_engine_source_file}\""
+  if [[ "${ors_engine_profile_default_build_source_file}" = "${ORS_HOME}/files/example-heidelberg.test.pbf" ]]; then
+    info "Default to example osm source file: \"${ors_engine_profile_default_build_source_file}\""
   fi
 fi
 
@@ -271,22 +255,22 @@ echo "#####################################"
 chown -R "$(whoami)" "${ORS_HOME}"; debug "Changed ownership of ${ORS_HOME} to $(whoami)" || warning "Could not change ownership of ${ORS_HOME} to $(whoami)"
 
 
-update_file "${ORS_HOME}/files/example-heidelberg.osm.gz" "/heidelberg.osm.gz"
+update_file "${ORS_HOME}/files/example-heidelberg.test.pbf" "/heidelberg.test.pbf"
 
 # Remove existing graphs if BUILD_GRAPHS is set to true
 if [ "${ors_rebuild_graphs}" = "true" ]; then
-  # Warn if ors.engine.graphs_root_path is not set or empty
-  if [ -z "${ors_engine_graphs_root_path}" ]; then
-    warning "graphs_root_path is not set or could not be found. Skipping cleanup."
-  elif [ -d "${ors_engine_graphs_root_path}" ]; then
-    # Check the ors.engine.graphs_root_path folder exists
-    rm -rf "${ors_engine_graphs_root_path:?}"/* || warning "Could not remove ${ors_engine_graphs_root_path}"
-    success "Removed graphs at ${ors_engine_graphs_root_path}/*."
+  # Warn if ors.engine.profile_default.graph_path is not set or empty
+  if [ -z "${ors_engine_profile_default_graph_path}" ]; then
+    warning "ors.engine.profile_default.graph_path is not set or could not be found. Skipping cleanup."
+  elif [ -d "${ors_engine_profile_default_graph_path}" ]; then
+    # Check the ors.engine.profile_default.graph_path folder exists
+    rm -rf "${ors_engine_profile_default_graph_path:?}"/* || warning "Could not remove ${ors_engine_profile_default_graph_path}"
+    success "Removed graphs at ${ors_engine_profile_default_graph_path}/*."
   else
-    debug "${ors_engine_graphs_root_path} does not exist (yet). Skipping cleanup."
+    debug "${ors_engine_profile_default_graph_path} does not exist (yet). Skipping cleanup."
   fi
   # Create the graphs folder again
-  mkdir -p "${ors_engine_graphs_root_path}" || warning "Could not populate graph folder at ${ors_engine_graphs_root_path}"
+  mkdir -p "${ors_engine_profile_default_graph_path}" || warning "Could not populate graph folder at ${ors_engine_profile_default_graph_path}"
 fi
 
 success "Container file system preparation complete. For details set CONTAINER_LOG_LEVEL=DEBUG."
@@ -332,25 +316,6 @@ JAVA_OPTS="-Djava.awt.headless=true \
 ${additional_java_opts}"
 debug "JAVA_OPTS: ${JAVA_OPTS}"
 success "CATALINA_OPTS and JAVA_OPTS ready. For details set CONTAINER_LOG_LEVEL=DEBUG."
-
-# Print the migration info if print_migration_info is set to true but not if PRINT_MIGRATION_INFO is set to False
-if [ "${print_migration_info}" = "true" ]; then
-  info "##########################################"
-  info "# Config options and migration information #"
-  info "##########################################"
-  info ">>> Migration information <<<"
-  warning "Configuring ors with a .json config is deprecated and will be removed in the future."
-  info "You can use the ors-config-migration tool to migrate your .json config to .yml: https://github.com/GIScience/ors-config-migration#usage"
-  info ">>> Config options <<<"
-  info "You have the following options to configure ORS:"
-  info "Method 1 yml config:"
-  info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.yml ./ors-config.yml"
-  info "> docker run --name example-ors-instance-conf-file -e ORS_CONFIG_LOCATION=${ORS_HOME}/config/ors-config.yml -v \$(pwd)/ors-config.yml:${ORS_HOME}/config/ors-config.yml openrouteservice/openrouteservice:latest"
-  info "Method 2 environment variables:"
-  info "> docker cp ors-container-name:${ORS_HOME}/config/example-ors-config.env ./ors-config.env"
-  info "> docker run --name example-ors-instance-env-file --env-file ors-config.env openrouteservice/openrouteservice:latest"
-  info ">>> End of migration information <<<"
-fi
 
 echo "#####################"
 echo "# ORS startup phase #"

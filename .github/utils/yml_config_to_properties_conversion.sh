@@ -53,7 +53,7 @@ echo "Validate output file:"
 echo "- checking for ors.engine.profile_default.source_file=ors-api/src/test/files/heidelberg.test.pbf"
 return_value=$(sed -n '/^ors.engine.profile_default.build.source_file=ors-api\/src\/test\/files\/heidelberg.test.pbf/p' $output_file)|| exit 1
 if [ -z "$return_value" ]; then
-  echo "ors.engine.source_file=ors-api/src/test/files/heidelberg.test.pbf not found"
+  echo "ors.engine.profile_default.build.source_file=ors-api/src/test/files/heidelberg.test.pbf not found"
   exit 1
 fi
 echo "- checking for ors.engine.profiles.driving-car.enabled=true"

@@ -8,7 +8,7 @@ RUN apt-get install -y alien unzip
 
 COPY srtm_38_03.gh /tmp/elevation-cache/srtm_38_03.gh
 COPY ors-config.json /tmp/ors-config.json
-COPY heidelberg.osm.gz /tmp/heidelberg.osm.gz
+COPY heidelberg.test.pbf /tmp/heidelberg.test.pbf
 COPY openrouteservice-${ORS_VERSION}-1.noarch.rpm /tmp/openrouteservice-${ORS_VERSION}-1.noarch.rpm
 RUN alien --scripts /tmp/openrouteservice-${ORS_VERSION}-1.noarch.rpm
 RUN dpkg -i /tmp/openrouteservice_${ORS_VERSION}-2_all.deb
