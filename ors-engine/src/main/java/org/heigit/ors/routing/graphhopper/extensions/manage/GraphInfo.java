@@ -1,31 +1,38 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.apache.log4j.Logger;
+import org.heigit.ors.exceptions.ORSGraphFileManagerExceptionException;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-@Accessors(chain = true)
-@Getter
-@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Accessors(chain = true)
 public class GraphInfo {
 
-    private URI remoteUri = null;
+    private URI remoteUri;
+    @Getter
     private File localDirectory = null;
+    Logger logger = Logger.getLogger(GraphInfo.class.getName());
 
+    @Getter
     private PersistedGraphInfo persistedGraphInfo;
 
     public GraphInfo withRemoteUrl(URL url) {
         try {
             this.remoteUri = url.toURI();
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            logger.error("Error while parsing remote URL %s with message %s".formatted(url, e.getMessage()));
+            throw new ORSGraphFileManagerExceptionException("Error while parsing remote URL %s.".formatted(url), e);
         }
         return this;
     }
