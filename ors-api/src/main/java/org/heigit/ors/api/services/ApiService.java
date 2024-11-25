@@ -1,8 +1,8 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.config.ApiEngineProperties;
 import org.heigit.ors.api.config.EndpointsProperties;
-import org.heigit.ors.api.config.EngineProperties;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.common.RequestOptions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
@@ -39,7 +39,7 @@ import static java.util.Optional.ofNullable;
 public class ApiService {
 
     protected EndpointsProperties endpointsProperties;
-    protected EngineProperties engineProperties;
+    protected ApiEngineProperties apiEngineProperties;
 
     double getMaximumAvoidPolygonArea() {
         return 0d;

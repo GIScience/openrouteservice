@@ -1,8 +1,8 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.config.ApiEngineProperties;
 import org.heigit.ors.api.config.EndpointsProperties;
-import org.heigit.ors.api.config.EngineProperties;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequestEnums;
@@ -41,9 +41,9 @@ import static org.heigit.ors.common.TravelRangeType.DISTANCE;
 public class IsochronesService extends ApiService {
 
     @Autowired
-    public IsochronesService(EndpointsProperties endpointsProperties, EngineProperties engineProperties) {
+    public IsochronesService(EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
         this.endpointsProperties = endpointsProperties;
-        this.engineProperties = engineProperties;
+        this.apiEngineProperties = apiEngineProperties;
     }
 
     public void generateIsochronesFromRequest(IsochronesRequest isochronesRequest) throws Exception {
