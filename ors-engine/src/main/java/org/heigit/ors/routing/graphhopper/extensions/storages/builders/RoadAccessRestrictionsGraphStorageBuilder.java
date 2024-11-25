@@ -81,11 +81,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
         ExtendedStorageProperties parameters;
-        try {
-            parameters = this.parameters;
-        } catch (ClassCastException e) {
-            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
-        }
+        parameters = this.parameters;
 
         this.profileType = profileType;
 
@@ -109,11 +105,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
         ExtendedStorageProperties parameters;
-        try {
-            parameters = this.parameters;
-        } catch (ClassCastException e) {
-            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
-        }
+        parameters = this.parameters;
 
         // extract profiles from GraphHopper instance
         EncodingManager encMgr = graphhopper.getEncodingManager();
