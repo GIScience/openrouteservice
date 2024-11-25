@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
@@ -111,7 +112,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
         }
     }
 
-    GraphInfo downloadGraphInfoFromRepository() {
+    GraphInfo downloadGraphInfoFromRepository() throws ORSGraphFileManagerException {
         GraphInfo graphInfoInRepo = new GraphInfo();
         LOGGER.debug("[%s] Checking latest graphInfo in remote repository...".formatted(getProfileDescriptiveName()));
 

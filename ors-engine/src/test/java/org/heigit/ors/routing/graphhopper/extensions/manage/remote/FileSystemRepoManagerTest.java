@@ -1,5 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
@@ -53,7 +54,7 @@ class FileSystemRepoManagerTest {
     }
 
     @Test
-    void downloadLatestGraphInfoFromRepository() {
+    void downloadLatestGraphInfoFromRepository() throws ORSGraphFileManagerException {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
         fileSystemRepoManager.downloadLatestGraphInfoFromRepository();
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());

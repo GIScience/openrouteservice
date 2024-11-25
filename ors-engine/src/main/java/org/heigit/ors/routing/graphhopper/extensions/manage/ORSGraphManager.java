@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
@@ -67,7 +68,7 @@ public class ORSGraphManager {
         return orsGraphRepoManager;
     }
 
-    public ProfileProperties loadProfilePropertiesFromActiveGraph(ORSGraphManager orsGraphManager, ProfileProperties profileProperties) {
+    public ProfileProperties loadProfilePropertiesFromActiveGraph(ORSGraphManager orsGraphManager, ProfileProperties profileProperties) throws ORSGraphFileManagerException {
         profileProperties.mergeLoaded(orsGraphManager.getActiveGraphProfileProperties());
         return profileProperties;
     }
@@ -155,11 +156,11 @@ public class ORSGraphManager {
         orsGraphFileManager.writeOrsGraphInfoFileIfNotExists(gh);
     }
 
-    public GraphInfo getActiveGraphInfo() {
+    public GraphInfo getActiveGraphInfo() throws ORSGraphFileManagerException {
         return orsGraphFileManager.getActiveGraphInfo();
     }
 
-    public ProfileProperties getActiveGraphProfileProperties() {
+    public ProfileProperties getActiveGraphProfileProperties() throws ORSGraphFileManagerException {
         return ofNullable(getActiveGraphInfo())
                 .map(GraphInfo::getPersistedGraphInfo)
                 .map(PersistedGraphInfo::getProfileProperties)

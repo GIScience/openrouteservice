@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
@@ -97,7 +98,7 @@ class ORSGraphFileManagerTest {
     }
 
     @Test
-    void readOrsGraphInfo() throws IOException {
+    void readOrsGraphInfo() throws IOException, ORSGraphFileManagerException {
         setupORSGraphManager(managementPropsBuilder().build());
         File writtenTestFile = new File(localGraphPath.toFile(), "readOrsGraphInfoV1.yml");
         PersistedGraphInfo writtenPersistedGraphInfo = createOrsGraphInfoV1();
