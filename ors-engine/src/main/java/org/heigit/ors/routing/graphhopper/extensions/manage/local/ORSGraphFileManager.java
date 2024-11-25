@@ -13,6 +13,7 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
@@ -184,7 +185,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return Arrays.asList(Objects.requireNonNull(obj)).stream().sorted(Comparator.comparing(File::getName)).toList();
     }
 
-    public GraphInfo getActiveGraphInfo() {
+    public GraphInfo getActiveGraphInfo() throws ORSGraphFileManagerException {
         LOGGER.trace("[%s] Checking active graph info...".formatted(getProfileDescriptiveName()));
         File activeGraphDirectory = getActiveGraphDirectory();
 
@@ -196,7 +197,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return getGraphInfo(getActiveGraphInfoFile());
     }
 
-    public GraphInfo getDownloadedExtractedGraphInfo() {
+    public GraphInfo getDownloadedExtractedGraphInfo() throws ORSGraphFileManagerException {
         LOGGER.trace("[%s] Checking downloaded graph info...".formatted(getProfileDescriptiveName()));
         File downloadedExtractedGraphDirectory = getDownloadedExtractedGraphDirectory();
 
@@ -208,7 +209,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return getGraphInfo(getDownloadedExtractedGraphInfoFile());
     }
 
-    private GraphInfo getGraphInfo(File graphInfoFile) {
+    private GraphInfo getGraphInfo(File graphInfoFile) throws ORSGraphFileManagerException {
         File graphDirectory = graphInfoFile.getParentFile();
         if (!graphInfoFile.exists() || !graphInfoFile.isFile()) {
             LOGGER.trace("[%s] No graph info file %s found in %s".formatted(getProfileDescriptiveName(), graphInfoFile.getName(), graphInfoFile.getParentFile().getName()));
@@ -235,12 +236,13 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return mapper;
     }
 
-    public PersistedGraphInfo readOrsGraphInfo(File graphInfoFile) {
+    public PersistedGraphInfo readOrsGraphInfo(File graphInfoFile) throws ORSGraphFileManagerException {
         try {
             return getYamlMapper()
                     .readValue(graphInfoFile, PersistedGraphInfo.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Error reading ORS graph info: %s".formatted(e.getMessage()));
+            throw new ORSGraphFileManagerException("Error reading ORS graph info: ", e);
         }
     }
 
@@ -250,11 +252,11 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                     .writeValue(outputFile, persistedGraphInfo);
         } catch (IOException e) {
             LOGGER.error("Could not write file %s".formatted(outputFile.getAbsolutePath()));
-            throw new RuntimeException(e);
+            throw new ORSGraphFileManagerException("Could not write file: ", e);
         }
     }
 
-    public PersistedGraphInfo getDownloadedGraphInfo() {
+    public PersistedGraphInfo getDownloadedGraphInfo() throws ORSGraphFileManagerException {
         LOGGER.trace("[%s] Checking graph info of previous check...".formatted(getProfileDescriptiveName()));
         File downloadedGraphInfoFile = getDownloadedGraphInfoFile();
         if (downloadedGraphInfoFile.exists()) {
@@ -323,7 +325,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                     graphDownloadFileAbsPath,
                     extractionDirectoryAbsPath,
                     targetDirectoryAbsPath));
-            throw new RuntimeException("Caught ", ioException);
+            throw new ORSGraphFileManagerException("Error during extraction of downloaded graph file: ", ioException);
         }
         LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next graph activation check or application start.".formatted(getProfileDescriptiveName()));
     }

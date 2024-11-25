@@ -3,6 +3,7 @@ package org.heigit.ors.apitests;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
@@ -17,7 +18,7 @@ class ORSStartupTest extends ServiceTest {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     @Test
-    void testGraphInfoFilesWrittenCorrectly() throws ParseException {
+    void testGraphInfoFilesWrittenCorrectly() throws ParseException, ORSGraphFileManagerException {
         RoutingProfileManager rpm = RoutingProfileManager.getInstance();
         RoutingProfile profile = rpm.getRoutingProfile(EncoderNameEnum.DRIVING_CAR.getName());
         GraphInfo graphInfo = profile.getGraphhopper().getOrsGraphManager().getActiveGraphInfo();

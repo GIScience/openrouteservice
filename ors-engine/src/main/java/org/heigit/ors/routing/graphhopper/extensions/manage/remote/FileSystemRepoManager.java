@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import org.apache.log4j.Logger;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
@@ -88,7 +89,7 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
         }
     }
 
-    GraphInfo downloadLatestGraphInfoFromRepository() {
+    GraphInfo downloadLatestGraphInfoFromRepository() throws ORSGraphFileManagerException {
         GraphInfo latestGraphInfoInRepo = new GraphInfo();
         LOGGER.debug("[%s] Checking latest graphInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
