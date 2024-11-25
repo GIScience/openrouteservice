@@ -15,8 +15,6 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
-import lombok.Getter;
-import lombok.Setter;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.plugins.PluginManager;
@@ -32,14 +30,12 @@ import java.util.logging.Logger;
 
 public class GraphProcessContext {
     private static final Logger LOGGER = Logger.getLogger(GraphProcessContext.class.getName());
-    @Getter
     private List<GraphStorageBuilder> storageBuilders;
     private GraphStorageBuilder[] arrStorageBuilders;
     private int trafficArrStorageBuilderLocation = -1;
-    @Getter
+
     private final double maximumSpeedLowerBound;
 
-    @Setter
     private boolean getElevationFromPreprocessedData;
 
     public GraphProcessContext(ProfileProperties profile) throws Exception {
@@ -128,6 +124,18 @@ public class GraphProcessContext {
                 builder.finish();
             }
         }
+    }
+
+    public List<GraphStorageBuilder> getStorageBuilders() {
+        return storageBuilders;
+    }
+
+    public double getMaximumSpeedLowerBound() {
+        return maximumSpeedLowerBound;
+    }
+
+    public void setGetElevationFromPreprocessedData(boolean getElevationFromPreprocessedData) {
+        this.getElevationFromPreprocessedData = getElevationFromPreprocessedData;
     }
 
     public boolean getElevationFromPreprocessedData() {
