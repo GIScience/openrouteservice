@@ -50,12 +50,12 @@ public enum EncoderNameEnum {
     GH_FOOT("gh-foot", 46),
     GH_HIKE("gh-hike", 47);
 
-    public final String name;
+    public final String encoderName;
 
     private final int value;
 
-    EncoderNameEnum(String name, int value) {
-        this.name = name;
+    EncoderNameEnum(String encoderName, int value) {
+        this.encoderName = encoderName;
         this.value = value;
     }
 
@@ -115,15 +115,15 @@ public enum EncoderNameEnum {
     public static String getName(int profileType) {
         for (EncoderNameEnum type : values()) {
             if (type.getValue() == profileType) {
-                return type.getName();
+                return type.getEncoderName();
             }
         }
-        return DEFAULT.getName();
+        return DEFAULT.getEncoderName();
     }
 
     public static int getFromString(String profileType) {
         for (EncoderNameEnum type : values()) {
-            if (type.getName().equalsIgnoreCase(profileType)) {
+            if (type.getEncoderName().equalsIgnoreCase(profileType)) {
                 return type.getValue();
             }
         }
@@ -184,11 +184,11 @@ public enum EncoderNameEnum {
 
     @Override
     public String toString() {
-        return name;
+        return encoderName;
     }
 
     @JsonValue
-    public String getName() {
-        return name;
+    public String getEncoderName() {
+        return encoderName;
     }
 }

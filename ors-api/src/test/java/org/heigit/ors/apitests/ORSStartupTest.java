@@ -20,7 +20,7 @@ class ORSStartupTest extends ServiceTest {
     @Test
     void testGraphInfoFilesWrittenCorrectly() throws ParseException, ORSGraphFileManagerException {
         RoutingProfileManager rpm = RoutingProfileManager.getInstance();
-        RoutingProfile profile = rpm.getRoutingProfile(EncoderNameEnum.DRIVING_CAR.getName());
+        RoutingProfile profile = rpm.getRoutingProfile(EncoderNameEnum.DRIVING_CAR.getEncoderName());
         GraphInfo graphInfo = profile.getGraphhopper().getOrsGraphManager().getActiveGraphInfo();
         ProfileProperties profileProperties = graphInfo.getPersistedGraphInfo().getProfileProperties();
         assertEquals(dateFormat.parse("2024-09-08T20:21:00+0000"), graphInfo.getPersistedGraphInfo().getOsmDate(), "graph_info should contain OSM data timestamp");

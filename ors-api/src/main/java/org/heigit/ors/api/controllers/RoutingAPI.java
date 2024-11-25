@@ -246,6 +246,6 @@ public class RoutingAPI {
 
     private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
         EncoderNameEnum encoderForProfile = routingService.getEncoderForProfile(profile);
-        return APIEnums.Profile.forValue(encoderForProfile.getName());
+        return APIEnums.Profile.forValue(encoderForProfile.getEncoderName());
     }
 }

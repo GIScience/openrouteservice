@@ -202,6 +202,6 @@ public class SnappingAPI {
 
     private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
         EncoderNameEnum encoderForProfile = snappingService.getEncoderForProfile(profile);
-        return APIEnums.Profile.forValue(encoderForProfile.getName());
+        return APIEnums.Profile.forValue(encoderForProfile.getEncoderName());
     }
 }

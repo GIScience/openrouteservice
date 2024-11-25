@@ -168,6 +168,6 @@ public class MatrixAPI {
 
     private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
         EncoderNameEnum encoderForProfile = matrixService.getEncoderForProfile(profile);
-        return APIEnums.Profile.forValue(encoderForProfile.getName());
+        return APIEnums.Profile.forValue(encoderForProfile.getEncoderName());
     }
 }
