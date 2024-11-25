@@ -3,14 +3,20 @@ package org.heigit.ors.api.servlet.listeners;
 import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.config.EngineProperties;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@SpringBootTest
 class ORSInitContextListenerTest {
+    @Autowired
+    private GraphService graphService;
+
     @Test
     void testConfigurationOutputTarget() {
-        ORSInitContextListener orsInitContextListener = new ORSInitContextListener(new EngineProperties(), new GraphService());
+        ORSInitContextListener orsInitContextListener = new ORSInitContextListener(new EngineProperties(), graphService);
         EngineProperties engineProperties = new EngineProperties();
 
         assertNull(orsInitContextListener.configurationOutputTarget(engineProperties), "default should return null");
