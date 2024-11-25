@@ -1,5 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Files;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
@@ -9,6 +11,7 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFolder
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
@@ -24,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper.*;
@@ -31,33 +35,29 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 @ExtendWith(TestcontainersExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class HttpRepoManagerTest {
 
     private static final String LOCAL_PROFILE_NAME = "driving-car";
     private static final String ENCODER_NAME = "driving-car";
 
-    @TempDir(cleanup = CleanupMode.ALWAYS)
-    private static Path tempDir;
     @Container
-    private static NginxContainer nginx;
-    private static String nginxUrl;
+    private static final NginxContainer<?> NGINX;
+    private static final String NGINX_URL;
     private static Path localGraphsRootPath;
-
-    private HttpRepoManager orsGraphRepoManager;
-    private ORSGraphFileManager orsGraphFileManager;
 
     static {
         DockerImageName dockerImageName = DockerImageName.parse("nginx:1.23.4-alpine");
         MountableFile mountableFile = MountableFile.forHostPath("src/test/resources/test-filesystem-repos/");
-        nginx = new NginxContainer<>(dockerImageName)
+        NGINX = new NginxContainer<>(dockerImageName)
                 .withCopyFileToContainer(mountableFile, "/usr/share/nginx/html")
                 .waitingFor(new HttpWaitStrategy());
-        nginx.start();
-        nginxUrl = "http://" + nginx.getHost() + ":" + nginx.getFirstMappedPort() + "/";
+        NGINX.start();
+        NGINX_URL = "http://" + NGINX.getHost() + ":" + NGINX.getFirstMappedPort() + "/";
     }
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp(@TempDir(cleanup = CleanupMode.ALWAYS) Path tempDir) throws IOException {
         localGraphsRootPath = createLocalGraphsRootDirectory(tempDir);
         createLocalGraphDirectory(localGraphsRootPath, LOCAL_PROFILE_NAME);
     }
@@ -68,20 +68,41 @@ class HttpRepoManagerTest {
         cleanupLocalGraphsRootDirectory(localGraphsRootPath);
     }
 
-    private void setupORSGraphManager(GraphManagementRuntimeProperties managementProps) {
+
+    @AllArgsConstructor
+    @Getter
+    static class OrsGraphHelper {
+        ORSGraphFileManager orsGraphFileManager;
+        ORSGraphRepoManager orsGraphRepoManager;
+
+    }
+
+    private OrsGraphHelper setupOrsGraphHelper(GraphManagementRuntimeProperties graphManagementRuntimeProperties, Long timeVariable) {
+        ORSGraphFileManager orsGraphFileManager = setupORSGraphFileManager(graphManagementRuntimeProperties);
+        if (timeVariable != null)
+            setupActiveGraphDirectory(timeVariable, orsGraphFileManager);
+        ORSGraphRepoManager orsGraphRepoManager = setupOrsGraphRepoManager(graphManagementRuntimeProperties, orsGraphFileManager);
+        return new OrsGraphHelper(orsGraphFileManager, orsGraphRepoManager);
+    }
+
+    private ORSGraphFileManager setupORSGraphFileManager(GraphManagementRuntimeProperties managementProps) {
         ORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
-        orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
+        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
+        return orsGraphFileManager;
+    }
+
+    private ORSGraphRepoManager setupOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphFileManager orsGraphFileManager) {
         ORSGraphRepoStrategy repoStrategy = new NamedGraphsRepoStrategy(managementProps);
-        orsGraphRepoManager = new HttpRepoManager(managementProps, repoStrategy, orsGraphFileManager);
+        return new HttpRepoManager(managementProps, repoStrategy, orsGraphFileManager);
     }
 
     private static GraphManagementRuntimeProperties.Builder managementPropsBuilder() {
         return createGraphManagementRuntimePropertiesBuilder(localGraphsRootPath, LOCAL_PROFILE_NAME, ENCODER_NAME)
-                .withRepoBaseUri(nginxUrl);
+                .withRepoBaseUri(NGINX_URL);
     }
 
-    private void setupActiveGraphDirectory(Long osmDateLocal) {
+    private void setupActiveGraphDirectory(Long osmDateLocal, ORSGraphFileManager orsGraphFileManager) {
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), osmDateLocal, null);
     }
 
@@ -115,7 +136,7 @@ class HttpRepoManagerTest {
                 .build();
 
         FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
-        orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
+        ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
         HttpRepoManager httpRepoManager = new HttpRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
         URL downloadUrl = httpRepoManager.createDownloadUrl("graph.ghz");
@@ -126,8 +147,8 @@ class HttpRepoManagerTest {
     void checkNginx() throws IOException {
         Path path = Path.of("src/test/resources/test-filesystem-repos");
         printValue("path to test-filesystem-repos", path.toAbsolutePath());
-        assertNotNull(this.nginxUrl);
-        URL url = new URL(this.nginxUrl + "vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-car.yml");
+        assertNotNull(NGINX_URL);
+        URL url = new URL(NGINX_URL + "vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-car.yml");
         printValue("fileUrl", url);
         File file = Files.newTemporaryFile();
         assertEquals(0, file.length());
@@ -138,14 +159,13 @@ class HttpRepoManagerTest {
 
     @Test
     void checkSetupActiveGraphDirectory() throws IOException {
-        setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        setupActiveGraphDirectory(EARLIER_DATE);
-        File activeGraphDirectory = orsGraphFileManager.getActiveGraphDirectory();
+        OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), EARLIER_DATE);
+        File activeGraphDirectory = orsGraphHelper.getOrsGraphFileManager().getActiveGraphDirectory();
         printValue("content of activeGraphDirectory:");
-        for (File file : activeGraphDirectory.listFiles()) {
+        for (File file : Objects.requireNonNull(activeGraphDirectory.listFiles())) {
             printValue(file.getAbsolutePath());
         }
-        File activeGraphInfoFile = orsGraphFileManager.getActiveGraphInfoFile();
+        File activeGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getActiveGraphInfoFile();
         assertTrue(activeGraphInfoFile.exists());
         printFileContent("activeGraphInfoFile", activeGraphInfoFile);
         String content = readFileToString(activeGraphInfoFile, "UTF-8");
@@ -154,64 +174,60 @@ class HttpRepoManagerTest {
 
     @Test
     void downloadGraphIfNecessary_noDownloadWhen_localDataExists_noRemoteData() {
-        setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_NONEXISTING_GRAPHS_VERSION).build());
-        setupActiveGraphDirectory(EARLIER_DATE);
+        OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_NONEXISTING_GRAPHS_VERSION).build(), EARLIER_DATE);
 
-        orsGraphRepoManager.downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphFileManager.getDownloadedGraphInfoFile();
-        File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
+        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
         assertFalse(downloadedGraphInfoFile.exists());
         assertFalse(downloadedCompressedGraphFile.exists());
     }
 
     @Test
     void downloadGraphIfNecessary_downloadWhen_noLocalData_remoteDataExists() {
-        setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
+        OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), null);
 
-        orsGraphRepoManager.downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphFileManager.getDownloadedGraphInfoFile();
-        File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
+        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
         assertTrue(downloadedGraphInfoFile.exists());
         assertTrue(downloadedCompressedGraphFile.exists());
     }
 
     @Test
     void downloadGraphIfNecessary_downloadWhen_localDate_before_remoteDate() {
-        setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        setupActiveGraphDirectory(EARLIER_DATE);
+        OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), EARLIER_DATE);
 
-        orsGraphRepoManager.downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphFileManager.getDownloadedGraphInfoFile();
-        File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
+        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
         assertTrue(downloadedGraphInfoFile.exists());
         assertTrue(downloadedCompressedGraphFile.exists());
     }
 
     @Test
     void downloadGraphIfNecessary_noDownloadWhen_localDate_equals_remoteDate() {
-        setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        setupActiveGraphDirectory(repoCarGraphBuildDate);
+        OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), REPO_CAR_GRAPH_BUILD_DATE);
 
-        orsGraphRepoManager.downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphFileManager.getDownloadedGraphInfoFile();
-        File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
+        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
         assertTrue(downloadedGraphInfoFile.exists());
         assertFalse(downloadedCompressedGraphFile.exists());
     }
 
     @Test
     void downloadGraphIfNecessary_noDownloadWhen_localDate_after_remoteDate() {
-        setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        setupActiveGraphDirectory(repoCarGraphBuildDate + 1000000);
+        OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), REPO_CAR_GRAPH_BUILD_DATE + 1000000);
 
-        orsGraphRepoManager.downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphFileManager.getDownloadedGraphInfoFile();
-        File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
+        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
         assertTrue(downloadedGraphInfoFile.exists());
         assertFalse(downloadedCompressedGraphFile.exists());
     }
