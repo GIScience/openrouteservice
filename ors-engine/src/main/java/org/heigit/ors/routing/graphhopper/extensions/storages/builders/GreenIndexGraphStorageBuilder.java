@@ -49,11 +49,7 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
         ExtendedStorageProperties parameters;
-        try {
-            parameters = this.parameters;
-        } catch (ClassCastException e) {
-            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
-        }
+        parameters = this.parameters;
         File expectedStorageFileLocation = Path.of(graphhopper.getGraphHopperLocation() + "/ext_greenindex").toFile();
         if (!expectedStorageFileLocation.exists()) {
             String csvFile = parameters.getFilepath().toString();

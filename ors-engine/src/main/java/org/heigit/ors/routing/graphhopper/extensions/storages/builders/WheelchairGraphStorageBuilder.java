@@ -87,11 +87,7 @@ public class WheelchairGraphStorageBuilder extends AbstractGraphStorageBuilder {
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
         ExtendedStorageProperties parameters;
-        try {
-            parameters = this.parameters;
-        } catch (ClassCastException e) {
-            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
-        }
+        parameters = this.parameters;
 
         if (parameters.getKerbsOnCrossings() != null) {
             kerbHeightOnlyOnCrossing = parameters.getKerbsOnCrossings();
