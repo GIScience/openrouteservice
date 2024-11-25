@@ -1,7 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -21,13 +20,10 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-@Setter
 @NoArgsConstructor
 public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepoManager {
 
     private static final Logger LOGGER = Logger.getLogger(HttpRepoManager.class.getName());
-    private int connectionTimeoutMillis = 2000;
-    private int readTimeoutMillis = 200000;
     private GraphManagementRuntimeProperties managementProps;
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphRepoStrategy orsGraphRepoStrategy;
@@ -161,6 +157,8 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), downloadUrl));
         }
         try {
+            int connectionTimeoutMillis = 2000;
+            int readTimeoutMillis = 200000;
             FileUtils.copyURLToFile(
                     downloadUrl,
                     tempDownloadFile,
