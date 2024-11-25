@@ -127,6 +127,33 @@ public class ExportAPI {
         return new JsonExportResponse(result);
     }
 
+    @PostMapping(value = "/{profile}/topojson", produces = {"application/json;charset=UTF-8"})
+    @Operation(
+            description = "Returns a list of points, edges and weights within a given bounding box for a selected profile JSON.",
+            summary = "Export Service JSON"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "JSON Response.",
+            content = {@Content(
+                    mediaType = "application/geo+json",
+                    schema = @Schema(implementation = JsonExportResponse.class)
+            )
+            })
+    public JsonExportResponse getTopoJsonExport(
+            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable String profile,
+            @Parameter(description = "The request payload", required = true) @RequestBody ExportApiRequest request) throws StatusCodeException {
+        request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
+        request.setResponseType(APIEnums.ExportResponseType.TOPOJSON);
+
+        ExportResult result = exportService.generateExportFromRequest(request);
+
+        return new JsonExportResponse(result);
+    }
+
+
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Object> handleMissingParams(final MissingServletRequestParameterException e) {
         return errorHandler.handleStatusCodeException(new MissingParameterException(ExportErrorCodes.MISSING_PARAMETER, e.getParameterName()));
