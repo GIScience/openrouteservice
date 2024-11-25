@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
 import org.hamcrest.Matchers;
 
@@ -19,16 +20,27 @@ public class ParamsTest extends ServiceTest {
         JSONArray coord1 = new JSONArray();
         coord1.put(0.001);
         coord1.put(0.001);
-        
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.681495);
+        coord2.put(49.41461);
+        JSONArray coord3 = new JSONArray();
+        coord3.put(8.686507);
+        coord3.put(49.41943);
+
         JSONArray bboxMock = new JSONArray();
         bboxMock.put(coord1);
         bboxMock.put(coord1);
 
         JSONArray bboxFaulty = new JSONArray();
         bboxFaulty.put(coord1);
+
+        JSONArray bboxProper = new JSONArray();
+        bboxProper.put(coord2)
+            .put(coord3);
         
         addParameter("bboxFake", bboxMock);
         addParameter("bboxFaulty", bboxFaulty);
+        addParameter("bboxProper", bboxProper);
     }
 
     @Test
@@ -108,6 +120,25 @@ public class ParamsTest extends ServiceTest {
                 .assertThat()
                 .body("error.code", Matchers.is(ExportErrorCodes.INVALID_PARAMETER_VALUE))
                 .statusCode(400);
+    }
+
+    @Test
+    void expectNodesAndEdges() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("bboxProper"));
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("containsKey('nodes')", is(true))
+                .body("containsKey('edges')", is(true))
+                .body("containsKey('nodes_count')", is(true))
+                .body("containsKey('edges_count')", is(true))
+                .statusCode(200);
     }
 
 }
