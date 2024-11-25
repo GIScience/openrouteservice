@@ -66,8 +66,8 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
 
     private void deleteFileWithLogging(File file, String successMessage, String errorMessage) {
         try {
-            Files.deleteIfExists(file.toPath());
-            LOGGER.debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
+            if (Files.deleteIfExists(file.toPath()))
+                LOGGER.debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
         } catch (IOException e) {
             LOGGER.error(errorMessage.formatted(e.getMessage()));
         }
