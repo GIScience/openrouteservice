@@ -24,8 +24,7 @@ public class GraphService {
     @Value("${ors.engine.graph_management.enabled:false}")
     private Boolean enabled = false;
 
-    @Autowired
-    private EngineProperties engineProperties;
+    private final EngineProperties engineProperties;
 
     private static final Logger LOGGER = Logger.getLogger(GraphService.class.getName());
 
