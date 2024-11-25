@@ -176,6 +176,6 @@ public class IsochronesAPI {
 
     private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
         EncoderNameEnum encoderForProfile = isochronesService.getEncoderForProfile(profile);
-        return APIEnums.Profile.forValue(encoderForProfile.getName());
+        return APIEnums.Profile.forValue(encoderForProfile.getEncoderName());
     }
 }
