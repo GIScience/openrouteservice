@@ -54,8 +54,6 @@ public class EndpointsProperties {
         private int maximumRoutesFlexible;
         private int maximumVisitedNodes;
         private double maximumSearchRadius;
-        // TODO: this parameter is only used in a binary check for infinity (==-1);
-        //       Can't we reduce it to a boolean "forbid_u_turns"?
         private double uTurnCost;
 
         public int getMaximumRoutes(boolean flexible) {
