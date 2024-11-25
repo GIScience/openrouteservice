@@ -18,13 +18,14 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 
+@Getter
 public class SnappingRequest extends ServiceRequest {
-    @Getter
     @Setter
     private String profileName;
     private final int profileType;
     private final Coordinate[] locations;
     private final double maximumSearchRadius;
+    @Setter
     private int maximumLocations;
 
     public SnappingRequest(int profileType, Coordinate[] locations, double maximumSearchRadius) {
