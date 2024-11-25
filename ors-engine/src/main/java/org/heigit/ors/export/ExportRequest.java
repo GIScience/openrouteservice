@@ -76,8 +76,8 @@ public class ExportRequest extends ServiceRequest {
         PMap hintsMap = new PMap();
         int weightingMethod = WeightingMethod.FASTEST;
         ProfileTools.setWeightingMethod(hintsMap, weightingMethod, getProfileType(), false);
-        String profileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
-        Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
+        String localProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
+        Weighting weighting = gh.createWeighting(gh.getProfile(localProfileName), hintsMap);
 
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
