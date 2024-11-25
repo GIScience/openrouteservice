@@ -13,8 +13,6 @@
  */
 package org.heigit.ors.isochrones;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
@@ -26,8 +24,6 @@ import org.locationtech.jts.geom.Coordinate;
 import java.util.*;
 
 public class IsochroneRequest extends ServiceRequest {
-    @Getter
-    @Setter
     private String profileName;
     private final List<TravellerInfo> travellers;
     private String calcMethod;
@@ -51,6 +47,14 @@ public class IsochroneRequest extends ServiceRequest {
 
     public IsochroneRequest() {
         travellers = new ArrayList<>();
+    }
+
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
     }
 
     public String getCalcMethod() {

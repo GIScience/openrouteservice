@@ -2,7 +2,6 @@ package org.heigit.ors.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 
 public enum EncoderNameEnum {
@@ -52,12 +51,16 @@ public enum EncoderNameEnum {
     GH_HIKE("gh-hike", 47);
 
     public final String name;
-    @Getter
+
     private final int value;
 
     EncoderNameEnum(String name, int value) {
         this.name = name;
         this.value = value;
+    }
+
+    public int getValue() {
+        return value;
     }
 
     public static boolean isDriving(int routePref) {
