@@ -151,7 +151,8 @@ public class APIEnums {
 
     @Schema(name = "Export response type", description = "Format of the export response.")
     public enum ExportResponseType {
-        JSON("json");
+        JSON("json"),
+        TOPOJSON("topojson");
 
         private final String value;
 
