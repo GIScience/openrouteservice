@@ -30,10 +30,10 @@ public class RepoManagerTestHelper {
     public static final long MIDDLE_DATE = 1692373222000L;  // Fr 18. Aug 17:40:22 CEST 2023
     public static final long LATER_DATE = 1692373333000L;   // Fr 18. Aug 17:42:13 CEST 2023
 
-    public static long REPO_CAR_OSM_DATE;
-    public static long REPO_HGV_OSM_DATE;
-    public static long REPO_CAR_GRAPH_BUILD_DATE;
-    public static long REPO_HGV_GRAPH_BUILD_DATE;
+    public static final long REPO_CAR_OSM_DATE;
+    public static final long REPO_HGV_OSM_DATE;
+    public static final long REPO_CAR_GRAPH_BUILD_DATE;
+    public static final long REPO_HGV_GRAPH_BUILD_DATE;
 
     static {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -64,7 +64,7 @@ public class RepoManagerTestHelper {
         return localGraphDir;
     }
 
-    public static void saveActiveGraphInfoFile(File activeGraphInfoFile, Long graphBuildDate, Long osmDate) throws IOException {
+    public static void saveActiveGraphInfoFile(File activeGraphInfoFile, Long graphBuildDate, Long osmDate) {
         PersistedGraphInfo activeGraphInfoObject = new PersistedGraphInfo();
         if (graphBuildDate != null) activeGraphInfoObject.setGraphBuildDate(new Date(graphBuildDate));
         if (osmDate != null) activeGraphInfoObject.setOsmDate(new Date(osmDate));

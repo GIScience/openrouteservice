@@ -1,5 +1,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
@@ -26,14 +27,12 @@ class FileSystemRepoManagerTest {
     private Path tempDir;
 
     private Path localGraphsRootPath;
-    private Path localGraphPath;
     private FileSystemRepoManager fileSystemRepoManager;
     private ORSGraphFileManager orsGraphFileManager;
 
     @BeforeEach
     public void setUp() throws IOException {
         localGraphsRootPath = createLocalGraphsRootDirectory(tempDir);
-        localGraphPath = createLocalGraphDirectory(localGraphsRootPath, PROFILE_NAME);
     }
 
     @AfterEach
@@ -55,7 +54,7 @@ class FileSystemRepoManagerTest {
     }
 
     @Test
-    void downloadLatestGraphInfoFromRepository() {
+    void downloadLatestGraphInfoFromRepository() throws ORSGraphFileManagerException {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
         fileSystemRepoManager.downloadLatestGraphInfoFromRepository();
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
@@ -73,7 +72,7 @@ class FileSystemRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_localDataExists_noRemoteData() throws IOException {
+    void downloadGraphIfNecessary_localDataExists_noRemoteData() {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_NONEXISTING_GRAPHS_VERSION).build());
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), LATER_DATE, EARLIER_DATE);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_driving-hgv.yml").toFile().exists());
@@ -84,7 +83,7 @@ class FileSystemRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_localDate_before_remoteDate() throws IOException {
+    void downloadGraphIfNecessary_localDate_before_remoteDate() {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_OSM_DATE - 1000000, REPO_HGV_GRAPH_BUILD_DATE - 1000000);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
@@ -95,7 +94,7 @@ class FileSystemRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_localDate_equals_remoteDate() throws IOException {
+    void downloadGraphIfNecessary_localDate_equals_remoteDate() {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_GRAPH_BUILD_DATE, REPO_HGV_OSM_DATE);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
@@ -106,7 +105,7 @@ class FileSystemRepoManagerTest {
     }
 
     @Test
-    void downloadGraphIfNecessary_localDate_after_remoteDate() throws IOException {
+    void downloadGraphIfNecessary_localDate_after_remoteDate() {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_GRAPH_BUILD_DATE + 1000000, REPO_HGV_OSM_DATE + 1000000);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());

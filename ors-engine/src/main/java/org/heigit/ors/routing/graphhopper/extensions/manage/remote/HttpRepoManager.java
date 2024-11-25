@@ -1,9 +1,10 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
@@ -13,23 +14,19 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-@Setter
+@NoArgsConstructor
 public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepoManager {
 
     private static final Logger LOGGER = Logger.getLogger(HttpRepoManager.class.getName());
-    private int connectionTimeoutMillis = 2000;
-    private int readTimeoutMillis = 200000;
     private GraphManagementRuntimeProperties managementProps;
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphRepoStrategy orsGraphRepoStrategy;
-
-    public HttpRepoManager() {
-    }
 
     public HttpRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.managementProps = managementProps;
@@ -39,6 +36,16 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
 
     String getProfileDescriptiveName() {
         return orsGraphFileManager.getProfileDescriptiveName();
+    }
+
+    public static String concatenateToUrlPath(String... values) {
+        return Stream.of(values)
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .map(s -> s.replaceAll("^/", ""))
+                .map(s -> s.replaceAll("/$", ""))
+                .filter(s -> !s.equals("."))
+                .collect(Collectors.joining("/"));
     }
 
     public URL createDownloadUrl(String fileName) {
@@ -57,15 +64,13 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
         }
     }
 
-    public static String concatenateToUrlPath(String... values) {
-        String urlString = Stream.of(values)
-                .filter(StringUtils::isNotBlank)
-                .map(String::trim)
-                .map(s -> s.replaceAll("^/", ""))
-                .map(s -> s.replaceAll("/$", ""))
-                .filter(s -> !s.equals("."))
-                .collect(Collectors.joining("/"));
-        return urlString;
+    private void deleteFileWithLogging(File file, String successMessage, String errorMessage) {
+        try {
+            if (Files.deleteIfExists(file.toPath()))
+                LOGGER.debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
+        } catch (IOException e) {
+            LOGGER.error(errorMessage.formatted(e.getMessage()));
+        }
     }
 
     @Override
@@ -103,7 +108,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
         }
     }
 
-    GraphInfo downloadGraphInfoFromRepository() {
+    GraphInfo downloadGraphInfoFromRepository() throws ORSGraphFileManagerException {
         GraphInfo graphInfoInRepo = new GraphInfo();
         LOGGER.debug("[%s] Checking latest graphInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
@@ -112,9 +117,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
             return graphInfoInRepo;
         }
         File downloadedGraphInfoFile = orsGraphFileManager.getDownloadedGraphInfoFile();
-        if (downloadedGraphInfoFile.exists()) {
-            downloadedGraphInfoFile.delete();
-        }
+        deleteFileWithLogging(downloadedGraphInfoFile, "[%s] Deleted old downloaded graphInfo file: %s", "[%s] Could not delete old downloaded graphInfo file: %s");
         downloadFile(downloadUrl, downloadedGraphInfoFile);
         if (!downloadedGraphInfoFile.exists()) {
             LOGGER.info("[%s] No graphInfo found in remote repository.".formatted(getProfileDescriptiveName()));
@@ -123,7 +126,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
 
         graphInfoInRepo.withRemoteUrl(downloadUrl);
         PersistedGraphInfo persistedGraphInfo = orsGraphFileManager.readOrsGraphInfo(downloadedGraphInfoFile);
-        graphInfoInRepo.withPersistedInfo(persistedGraphInfo);
+        graphInfoInRepo.setPersistedGraphInfo(persistedGraphInfo);
         return graphInfoInRepo;
     }
 
@@ -133,9 +136,7 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
             return;
         }
         File downloadedFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
-        if (downloadedFile.exists()) {
-            downloadedFile.delete();
-        }
+        deleteFileWithLogging(downloadedFile, "[%s] Deleted old downloaded compressed graph file: %s", "[%s] Could not delete old downloaded compressed graph file: %s");
 
         long start = System.currentTimeMillis();
         downloadFile(downloadUrl, downloadedFile);//mocked!!!
@@ -156,16 +157,22 @@ public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepo
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), downloadUrl));
         }
         try {
+            int connectionTimeoutMillis = 2000;
+            int readTimeoutMillis = 200000;
             FileUtils.copyURLToFile(
                     downloadUrl,
                     tempDownloadFile,
                     connectionTimeoutMillis,
                     readTimeoutMillis);
-            tempDownloadFile.renameTo(outputFile);
+            if (tempDownloadFile.renameTo(outputFile)) {
+                LOGGER.debug("[%s] Renamed temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+            } else {
+                LOGGER.error("[%s] Could not rename temp file to %s".formatted(getProfileDescriptiveName(), outputFile.getAbsolutePath()));
+            }
         } catch (IOException e) {
             LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e.getClass().getName(), downloadUrl));
         } finally {
-            tempDownloadFile.delete();
+            deleteFileWithLogging(tempDownloadFile, "[%s] Deleted temp download file: %s", "[%s] Could not delete temp download file: %s");
         }
     }
 }

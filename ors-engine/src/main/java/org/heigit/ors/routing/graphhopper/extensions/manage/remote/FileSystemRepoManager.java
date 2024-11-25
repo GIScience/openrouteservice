@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import org.apache.log4j.Logger;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
@@ -18,13 +19,13 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public class FileSystemRepoManager extends AbstractRepoManager implements ORSGraphRepoManager {
 
     private static final Logger LOGGER = Logger.getLogger(FileSystemRepoManager.class.getName());
-    private String graphsRepoPath;
-    private String graphsRepoName;
-    private String graphsProfileGroup;
-    private String graphsRepoCoverage;
-    private String graphsRepoGraphVersion;
-    private ORSGraphFileManager orsGraphFileManager;
-    private ORSGraphRepoStrategy orsGraphRepoStrategy;
+    private final String graphsRepoPath;
+    private final String graphsRepoName;
+    private final String graphsProfileGroup;
+    private final String graphsRepoCoverage;
+    private final String graphsRepoGraphVersion;
+    private final ORSGraphFileManager orsGraphFileManager;
+    private final ORSGraphRepoStrategy orsGraphRepoStrategy;
 
     public FileSystemRepoManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.graphsRepoPath = graphManagementRuntimeProperties.getDerivedRepoPath().toAbsolutePath().toString();
@@ -82,13 +83,17 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
             downloadFile(latestCompressedGraphInRepoPath, downloadedCompressedGraphFile);
 
             long end = System.currentTimeMillis();
-            LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
+            if (downloadedCompressedGraphFile.exists()) {
+                LOGGER.info("[%s] Download of compressed graph file finished after %d ms".formatted(getProfileDescriptiveName(), end - start));
+            } else {
+                LOGGER.error("[%s] Invalid download path for compressed graph file: %s".formatted(getProfileDescriptiveName(), latestCompressedGraphInRepoPath));
+            }
         } catch (Exception e) {
             LOGGER.error("[%s] Caught an exception during graph download check or graph download:".formatted(getProfileDescriptiveName()), e);
         }
     }
 
-    GraphInfo downloadLatestGraphInfoFromRepository() {
+    GraphInfo downloadLatestGraphInfoFromRepository() throws ORSGraphFileManagerException {
         GraphInfo latestGraphInfoInRepo = new GraphInfo();
         LOGGER.debug("[%s] Checking latest graphInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
@@ -104,10 +109,10 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
         if (downloadedGraphInfoFile.exists()) {
             Path latestCompressedGraphInRepoPath = Path.of(graphsRepoPath, graphsRepoName, graphsProfileGroup, graphsRepoCoverage, graphsRepoGraphVersion, orsGraphRepoStrategy.getRepoCompressedGraphFileName());
             URI uri = latestCompressedGraphInRepoPath.toUri();
-            latestGraphInfoInRepo.withRemoteUri(uri);
+            latestGraphInfoInRepo.setRemoteUri(uri);
 
             PersistedGraphInfo persistedGraphInfo = orsGraphFileManager.readOrsGraphInfo(downloadedGraphInfoFile);
-            latestGraphInfoInRepo.withPersistedInfo(persistedGraphInfo);
+            latestGraphInfoInRepo.setPersistedGraphInfo(persistedGraphInfo);
         } else {
             LOGGER.error("[%s] Invalid download path for graphInfo file: %s".formatted(getProfileDescriptiveName(), latestGraphInfoInRepoPath));
         }
@@ -116,18 +121,20 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
     }
 
     public void downloadFile(Path repoPath, File localPath) {
+        if (repoPath == null || localPath == null) {
+            LOGGER.warn("[%s] Invalid download or local path: %s or %s".formatted(getProfileDescriptiveName(), repoPath, localPath));
+            return;
+        }
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("[%s] Downloading %s to local file %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath(), localPath.getAbsolutePath()));
         } else {
             LOGGER.info("[%s] Downloading %s...".formatted(getProfileDescriptiveName(), repoPath.toFile().getName()));
         }
-        if (repoPath != null) {
-            try {
-                Files.copy(repoPath, localPath.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), repoPath.toFile().getAbsolutePath()));
-                throw new IllegalArgumentException(e);
-            }
+        try {
+            Files.copy(repoPath, localPath.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            LOGGER.warn("[%s] Caught %s when trying to download %s".formatted(getProfileDescriptiveName(), e, repoPath.toFile().getAbsolutePath()));
+            throw new IllegalArgumentException(e);
         }
     }
 }

@@ -52,30 +52,30 @@ public class TestAbstractRepoManagerTest {
         );
     }
 
-    @ParameterizedTest
-    @MethodSource("comparisonDates")
-    public void getDateOrEpocStart(Date expectedDate, GraphInfo graphInfo) {
-        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(graphInfo));
-    }
-
     public static Stream<Arguments> comparisonDates() throws MalformedURLException {
         Date now = new Date();
         Date epocStart = new Date(0);
         return Stream.of(
                 Arguments.of(new Date(0), null),
                 Arguments.of(epocStart, new GraphInfo()),
-                Arguments.of(epocStart, new GraphInfo().withLocalDirectory(tempDir.toFile())),
+                Arguments.of(epocStart, new GraphInfo().setLocalDirectory(tempDir.toFile())),
                 Arguments.of(epocStart, new GraphInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
-                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(null)),
-                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(new PersistedGraphInfo())),
-                Arguments.of(epocStart, new GraphInfo().withPersistedInfo(PersistedGraphInfo.withOsmDate(now))),
-                Arguments.of(now, new GraphInfo().withPersistedInfo(PersistedGraphInfo.withGraphBuildDate(now)))
+                Arguments.of(epocStart, new GraphInfo().setPersistedGraphInfo(null)),
+                Arguments.of(epocStart, new GraphInfo().setPersistedGraphInfo(new PersistedGraphInfo())),
+                Arguments.of(epocStart, new GraphInfo().setPersistedGraphInfo(PersistedGraphInfo.withOsmDate(now))),
+                Arguments.of(now, new GraphInfo().setPersistedGraphInfo(PersistedGraphInfo.withGraphBuildDate(now)))
         );
     }
 
     @ParameterizedTest
+    @MethodSource("comparisonDates")
+    void getDateOrEpocStart(Date expectedDate, GraphInfo graphInfo) {
+        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(graphInfo));
+    }
+
+    @ParameterizedTest
     @MethodSource("comparisonDatesForDownloadFiles")
-    public void getDateOrEpocStart(Date expectedDate, File downloadFile, PersistedGraphInfo persistedGraphInfo) throws IOException {
+    void getDateOrEpocStart(Date expectedDate, File downloadFile, PersistedGraphInfo persistedGraphInfo) {
         assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(downloadFile, persistedGraphInfo));
     }
 
@@ -105,7 +105,7 @@ public class TestAbstractRepoManagerTest {
     }
 
     @Test
-    public void newestDate() {
+    void newestDate() {
         assertEquals(new Date(LATER_DATE),
                 orsGraphRepoManager.newestDate(
                         new Date(MIDDLE_DATE),

@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.local;
 
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper;
@@ -91,13 +92,13 @@ class ORSGraphFileManagerTest {
         PersistedGraphInfo persistedGraphInfo = createOrsGraphInfoV1();
         assertFalse(testFile.exists());
 
-        orsGraphFileManager.writeOrsGraphInfo(persistedGraphInfo, testFile);
+        ORSGraphFileManager.writeOrsGraphInfo(persistedGraphInfo, testFile);
 
         assertTrue(testFile.exists());
     }
 
     @Test
-    void readOrsGraphInfo() throws IOException {
+    void readOrsGraphInfo() throws IOException, ORSGraphFileManagerException {
         setupORSGraphManager(managementPropsBuilder().build());
         File writtenTestFile = new File(localGraphPath.toFile(), "readOrsGraphInfoV1.yml");
         PersistedGraphInfo writtenPersistedGraphInfo = createOrsGraphInfoV1();
@@ -120,7 +121,7 @@ class ORSGraphFileManagerTest {
         localGraphDir = localGraphPath.toFile();
         assertFalse(localGraphDir.exists());
         assertEquals(1, orsGraphFileManager.findGraphBackupsSortedByName().size());
-        orsGraphFileManager.findGraphBackupsSortedByName().forEach(dir -> assertCorrectBackupDir(dir));
+        orsGraphFileManager.findGraphBackupsSortedByName().forEach(this::assertCorrectBackupDir);
     }
 
     @Test
@@ -134,7 +135,7 @@ class ORSGraphFileManagerTest {
 
         assertFalse(localGraphPath.toFile().exists());
         assertEquals(2, orsGraphFileManager.findGraphBackupsSortedByName().size());
-        orsGraphFileManager.findGraphBackupsSortedByName().forEach(dir -> assertCorrectBackupDir(dir));
+        orsGraphFileManager.findGraphBackupsSortedByName().forEach(this::assertCorrectBackupDir);
     }
 
     @Test
@@ -150,13 +151,13 @@ class ORSGraphFileManagerTest {
         assertFalse(localGraphPath.toFile().exists());
         List<File> backups = orsGraphFileManager.findGraphBackupsSortedByName();
         assertEquals(2, backups.size());
-        backups.forEach(dir -> assertCorrectBackupDir(dir));
+        backups.forEach(this::assertCorrectBackupDir);
         assertEquals("truck_2023-01-01_060000", backups.get(0).getName());
         assertNotEquals("truck_2022-12-31_235959", backups.get(1).getName());
     }
 
     @Test
-    public void deleteOldestBackups() throws IOException {
+    void deleteOldestBackups() throws IOException {
         setupORSGraphManager(managementPropsBuilder().withMaxNumberOfGraphBackups(3).build());
         createBackupDirectory("2023-01-01_060000");
         createBackupDirectory("2023-01-02_060000");
@@ -169,12 +170,12 @@ class ORSGraphFileManagerTest {
 
         List<File> backups = orsGraphFileManager.findGraphBackupsSortedByName();
         assertEquals(3, backups.size());
-        backups.forEach(dir -> assertCorrectBackupDir(dir));
+        backups.forEach(this::assertCorrectBackupDir);
         assertEquals(Arrays.asList("truck_2023-01-03_060000", "truck_2023-01-04_060000", "truck_2023-01-05_060000"), backups.stream().map(File::getName).toList());
     }
 
     @Test
-    public void deleteOldestBackups_maxNumberOfGraphBackupsIsZero() throws IOException {
+    void deleteOldestBackups_maxNumberOfGraphBackupsIsZero() throws IOException {
         setupORSGraphManager(managementPropsBuilder().withMaxNumberOfGraphBackups(0).build());
         createBackupDirectory("2023-01-01_060000");
         createBackupDirectory("2023-01-02_060000");
@@ -190,7 +191,7 @@ class ORSGraphFileManagerTest {
     }
 
     @Test
-    public void deleteOldestBackups_maxNumberOfGraphBackupsIsNegative() throws IOException {
+    void deleteOldestBackups_maxNumberOfGraphBackupsIsNegative() throws IOException {
         setupORSGraphManager(managementPropsBuilder().withMaxNumberOfGraphBackups(-5).build());
         createBackupDirectory("2023-01-01_060000");
         createBackupDirectory("2023-01-02_060000");

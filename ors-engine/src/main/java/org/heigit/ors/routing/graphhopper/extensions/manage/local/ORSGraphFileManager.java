@@ -7,11 +7,13 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.Unzipper;
+import lombok.NoArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
@@ -20,6 +22,7 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -29,15 +32,13 @@ import java.util.*;
 import static com.fasterxml.jackson.core.JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN;
 import static com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature.*;
 
+@NoArgsConstructor
 public class ORSGraphFileManager implements ORSGraphFolderStrategy {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphFileManager.class.getName());
 
     GraphManagementRuntimeProperties graphManagementRuntimeProperties;
     private ORSGraphFolderStrategy orsGraphFolderStrategy;
-
-    public ORSGraphFileManager() {
-    }
 
     public ORSGraphFileManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphFolderStrategy orsGraphFolderStrategy) {
         this.graphManagementRuntimeProperties = graphManagementRuntimeProperties;
@@ -92,24 +93,30 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                 asIncompleteFile(getDownloadedExtractedGraphDirectory()).exists();
     }
 
+    private void deleteFileWithLogging(File file, String successMessage, String errorMessage) {
+        try {
+            if (Files.deleteIfExists(file.toPath()))
+                LOGGER.debug(successMessage.formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
+        } catch (IOException e) {
+            LOGGER.error(errorMessage.formatted(e.getMessage()));
+        }
+    }
+
     public void cleanupIncompleteFiles() {
         File incompleteDownloadFile = asIncompleteFile(getDownloadedCompressedGraphFile());
-        if (incompleteDownloadFile.exists()) {
-            LOGGER.debug("[%s] Deleted incomplete graph download file from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteDownloadFile.getAbsolutePath()));
-            incompleteDownloadFile.delete();
-        }
+        deleteFileWithLogging(incompleteDownloadFile,
+                "[%s] Deleted incomplete graph download file from previous application run: %s",
+                "Error deleting incomplete download file: %s");
 
         File graphInfoDownloadFile = getDownloadedGraphInfoFile();
-        if (graphInfoDownloadFile.exists()) {
-            LOGGER.debug("[%s] Deleted graph-info download file from previous application run: %s".formatted(getProfileDescriptiveName(), graphInfoDownloadFile.getAbsolutePath()));
-            graphInfoDownloadFile.delete();
-        }
+        deleteFileWithLogging(graphInfoDownloadFile,
+                "[%s] Deleted graph-info download file from previous application run: %s",
+                "Error deleting graph-info download file: %s");
 
         File incompleteGraphInfoDownloadFile = asIncompleteFile(getDownloadedGraphInfoFile());
-        if (incompleteGraphInfoDownloadFile.exists()) {
-            LOGGER.debug("[%s] Deleted incomplete graph download file from previous application run: %s".formatted(getProfileDescriptiveName(), incompleteGraphInfoDownloadFile.getAbsolutePath()));
-            incompleteGraphInfoDownloadFile.delete();
-        }
+        deleteFileWithLogging(incompleteGraphInfoDownloadFile,
+                "[%s] Deleted incomplete graph download file from previous application run: %s",
+                "Error deleting incomplete graph download file: %s");
 
         File incompleteExtractionFolder = asIncompleteDirectory(getDownloadedExtractedGraphDirectory());
         if (incompleteExtractionFolder.exists() && incompleteExtractionFolder.isDirectory()) {
@@ -178,40 +185,40 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return Arrays.asList(Objects.requireNonNull(obj)).stream().sorted(Comparator.comparing(File::getName)).toList();
     }
 
-    public GraphInfo getActiveGraphInfo() {
+    public GraphInfo getActiveGraphInfo() throws ORSGraphFileManagerException {
         LOGGER.trace("[%s] Checking active graph info...".formatted(getProfileDescriptiveName()));
         File activeGraphDirectory = getActiveGraphDirectory();
 
         if (!hasActiveGraph()) {
             LOGGER.trace("[%s] No active graph directory found.".formatted(getProfileDescriptiveName()));
-            return new GraphInfo().withLocalDirectory(activeGraphDirectory);
+            return new GraphInfo().setLocalDirectory(activeGraphDirectory);
         }
 
         return getGraphInfo(getActiveGraphInfoFile());
     }
 
-    public GraphInfo getDownloadedExtractedGraphInfo() {
+    public GraphInfo getDownloadedExtractedGraphInfo() throws ORSGraphFileManagerException {
         LOGGER.trace("[%s] Checking downloaded graph info...".formatted(getProfileDescriptiveName()));
         File downloadedExtractedGraphDirectory = getDownloadedExtractedGraphDirectory();
 
         if (!hasDownloadedExtractedGraph()) {
             LOGGER.trace("[%s] No downloaded graph directory found.".formatted(getProfileDescriptiveName()));
-            return new GraphInfo().withLocalDirectory(downloadedExtractedGraphDirectory);
+            return new GraphInfo().setLocalDirectory(downloadedExtractedGraphDirectory);
         }
 
         return getGraphInfo(getDownloadedExtractedGraphInfoFile());
     }
 
-    private GraphInfo getGraphInfo(File graphInfoFile) {
+    private GraphInfo getGraphInfo(File graphInfoFile) throws ORSGraphFileManagerException {
         File graphDirectory = graphInfoFile.getParentFile();
         if (!graphInfoFile.exists() || !graphInfoFile.isFile()) {
             LOGGER.trace("[%s] No graph info file %s found in %s".formatted(getProfileDescriptiveName(), graphInfoFile.getName(), graphInfoFile.getParentFile().getName()));
-            return new GraphInfo().withLocalDirectory(graphDirectory);
+            return new GraphInfo().setLocalDirectory(graphDirectory);
         }
 
         PersistedGraphInfo graphInfo = readOrsGraphInfo(graphInfoFile);
         LOGGER.trace("[%s] Found local graph info with importDate=%s".formatted(getProfileDescriptiveName(), graphInfo.getGraphBuildDate()));
-        return new GraphInfo().withLocalDirectory(graphDirectory).withPersistedInfo(graphInfo);
+        return new GraphInfo().setLocalDirectory(graphDirectory).setPersistedGraphInfo(graphInfo);
     }
 
     static ObjectMapper getYamlMapper() {
@@ -229,12 +236,13 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         return mapper;
     }
 
-    public PersistedGraphInfo readOrsGraphInfo(File graphInfoFile) {
+    public PersistedGraphInfo readOrsGraphInfo(File graphInfoFile) throws ORSGraphFileManagerException {
         try {
             return getYamlMapper()
                     .readValue(graphInfoFile, PersistedGraphInfo.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Error reading ORS graph info: %s".formatted(e.getMessage()));
+            throw new ORSGraphFileManagerException("Error reading ORS graph info: ", e);
         }
     }
 
@@ -244,11 +252,11 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                     .writeValue(outputFile, persistedGraphInfo);
         } catch (IOException e) {
             LOGGER.error("Could not write file %s".formatted(outputFile.getAbsolutePath()));
-            throw new RuntimeException(e);
+            throw new ORSGraphFileManagerException("Could not write file: ", e);
         }
     }
 
-    public PersistedGraphInfo getDownloadedGraphInfo() {
+    public PersistedGraphInfo getDownloadedGraphInfo() throws ORSGraphFileManagerException {
         LOGGER.trace("[%s] Checking graph info of previous check...".formatted(getProfileDescriptiveName()));
         File downloadedGraphInfoFile = getDownloadedGraphInfoFile();
         if (downloadedGraphInfoFile.exists()) {
@@ -260,7 +268,12 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
     public void activateExtractedDownloadedGraph() {
         if (hasDownloadedExtractedGraph()) {
             LOGGER.info("[%s] Activating extracted downloaded graph.".formatted(getProfileDescriptiveName()));
-            getDownloadedExtractedGraphDirectory().renameTo(getActiveGraphDirectory());
+            File downloadedExtractedGraphDirectory = getDownloadedExtractedGraphDirectory();
+            if (downloadedExtractedGraphDirectory.renameTo(getActiveGraphDirectory())) {
+                LOGGER.debug("[%s] Successfully activated extracted downloaded graph.".formatted(getProfileDescriptiveName()));
+            } else {
+                LOGGER.error("[%s] Failed to activate extracted downloaded graph.".formatted(getProfileDescriptiveName()));
+            }
         }
     }
 
@@ -292,7 +305,9 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                     getProfileDescriptiveName(),
                     end - start,
                     graphDownloadFileAbsPath));
-            graphDownloadFile.delete();
+            deleteFileWithLogging(graphDownloadFile,
+                    "[%s] Deleted downloaded graph file %s".formatted(getProfileDescriptiveName(), graphDownloadFileAbsPath),
+                    "Error deleting downloaded graph file: %s");
 
             LOGGER.debug("[%s] Renaming extraction directory to %s".formatted(
                     getProfileDescriptiveName(),
@@ -310,9 +325,9 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
                     graphDownloadFileAbsPath,
                     extractionDirectoryAbsPath,
                     targetDirectoryAbsPath));
-            throw new RuntimeException("Caught ", ioException);
+            throw new ORSGraphFileManagerException("Error during extraction of downloaded graph file: ", ioException);
         }
-        LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next graph activation check or application start.".formatted(getProfileDescriptiveName(), extractionDirectoryAbsPath));
+        LOGGER.info("[%s] Downloaded graph was extracted and will be activated at next graph activation check or application start.".formatted(getProfileDescriptiveName()));
     }
 
     public void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {
@@ -352,8 +367,9 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
             DateFormat f = Helper.createFormatter();
             return f.parse(importDateString);
         } catch (ParseException e) {
+            LOGGER.error("Could not parse date from GraphHopper property %s".formatted(ghProperty));
+            return null;
         }
-        return null;
     }
 
 

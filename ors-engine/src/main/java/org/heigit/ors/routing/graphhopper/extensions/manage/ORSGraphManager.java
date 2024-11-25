@@ -1,9 +1,12 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.exceptions.ORSGraphFileManagerException;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.FlatORSGraphFolderStrategy;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
@@ -14,6 +17,8 @@ import java.io.File;
 
 import static java.util.Optional.ofNullable;
 
+@NoArgsConstructor
+@AllArgsConstructor
 public class ORSGraphManager {
 
     private static final Logger LOGGER = Logger.getLogger(ORSGraphManager.class.getName());
@@ -24,19 +29,9 @@ public class ORSGraphManager {
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphRepoManager orsGraphRepoManager;
 
-    public ORSGraphManager() {
-    }
-
-    public ORSGraphManager(GraphManagementRuntimeProperties managementRuntimeProperties, ORSGraphFileManager orsGraphFileManager, ORSGraphRepoManager orsGraphRepoManager) {
-        this.managementRuntimeProperties = managementRuntimeProperties;
-        this.orsGraphFileManager = orsGraphFileManager;
-        this.orsGraphRepoManager = orsGraphRepoManager;
-    }
-
     public static ORSGraphManager initializeGraphManagement(String graphVersion, EngineProperties engineProperties, ProfileProperties profileProperties) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, graphVersion).build();
-        ORSGraphManager orsGraphManager = initializeGraphManagement(managementProps);
-        return orsGraphManager;
+        return initializeGraphManagement(managementProps);
     }
 
     public static ORSGraphManager initializeGraphManagement(GraphManagementRuntimeProperties managementProps) {
@@ -73,7 +68,7 @@ public class ORSGraphManager {
         return orsGraphRepoManager;
     }
 
-    public ProfileProperties loadProfilePropertiesFromActiveGraph(ORSGraphManager orsGraphManager, ProfileProperties profileProperties) {
+    public ProfileProperties loadProfilePropertiesFromActiveGraph(ORSGraphManager orsGraphManager, ProfileProperties profileProperties) throws ORSGraphFileManagerException {
         profileProperties.mergeLoaded(orsGraphManager.getActiveGraphProfileProperties());
         return profileProperties;
     }
@@ -161,11 +156,11 @@ public class ORSGraphManager {
         orsGraphFileManager.writeOrsGraphInfoFileIfNotExists(gh);
     }
 
-    public GraphInfo getActiveGraphInfo() {
+    public GraphInfo getActiveGraphInfo() throws ORSGraphFileManagerException {
         return orsGraphFileManager.getActiveGraphInfo();
     }
 
-    public ProfileProperties getActiveGraphProfileProperties() {
+    public ProfileProperties getActiveGraphProfileProperties() throws ORSGraphFileManagerException {
         return ofNullable(getActiveGraphInfo())
                 .map(GraphInfo::getPersistedGraphInfo)
                 .map(PersistedGraphInfo::getProfileProperties)
