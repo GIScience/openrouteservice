@@ -36,15 +36,17 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Download maven dependencies
         run: mvn package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
-      - name: run unit tests with Jacoco
+      - name: run unit tests
+        run: mvn -B verify -Papitests -T $(nproc) -DCI=true
+      - name: Run the unit tests a second time with jacoco
         run: |
-          mvn -B verify -Papitests -T $(nproc) \
-          jacoco:report -DCI=true
+          # Ensure test stability across graph reloads.
+          mvn -B verify -Papitests -T $(nproc) jacoco:report
       - name: Scan results with Sonar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B -DCI=true org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar
+        run: mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar
       - name: Rocket.Chat Notification
         uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
         env:
