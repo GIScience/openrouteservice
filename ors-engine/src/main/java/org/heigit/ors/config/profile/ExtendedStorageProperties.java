@@ -189,7 +189,7 @@ public class ExtendedStorageProperties {
 
         if (storageName == ExtendedStorageName.NOISE_INDEX || storageName == ExtendedStorageName.GREEN_INDEX || storageName == ExtendedStorageName.SHADOW_INDEX || storageName == ExtendedStorageName.CSV) {
             if (filepath == null || filepath.equals(emptyPath)) {
-                LOGGER.warn("Storage " + storageName + " is missing filepath. Disabling storage.");
+                LOGGER.warn("Storage %s is missing filepath. Disabling storage.".formatted(storageName));
                 enabled = false;
                 filepath = Path.of("");
             } else {
@@ -198,21 +198,21 @@ public class ExtendedStorageProperties {
             nonNullableProperties.add("filepath");
         } else if (storageName == ExtendedStorageName.BORDERS) {
             if (boundaries == null || boundaries.equals(emptyPath)) {
-                LOGGER.warn("Storage " + storageName + " is missing boundaries. Disabling storage.");
+                LOGGER.warn("Storage %s is missing boundaries. Disabling storage.".formatted(storageName));
                 enabled = false;
                 boundaries = Path.of("");
             } else {
                 boundaries = boundaries.toAbsolutePath();
             }
             if (ids == null || ids.equals(emptyPath)) {
-                LOGGER.warn("Storage " + storageName + " is missing ids. Disabling storage.");
+                LOGGER.warn("Storage %s is missing ids. Disabling storage.".formatted(storageName));
                 enabled = false;
                 ids = Path.of("");
             } else {
                 ids = ids.toAbsolutePath();
             }
             if (openborders == null || openborders.equals(emptyPath)) {
-                LOGGER.warn("Storage " + storageName + " is missing openborders. Disabling storage.");
+                LOGGER.warn("Storage %s is missing openborders. Disabling storage.".formatted(storageName));
                 enabled = false;
                 openborders = Path.of("");
             } else {
@@ -236,21 +236,21 @@ public class ExtendedStorageProperties {
             }
 
             if (streets == null || streets.equals(emptyPath)) {
-                LOGGER.warn("Storage " + storageName + " is missing streets. Disabling storage.");
+                LOGGER.warn("Storage %s is missing streets. Disabling storage.".formatted(storageName));
                 enabled = false;
                 streets = Path.of("");
             } else {
                 streets = streets.toAbsolutePath();
             }
             if (refPattern == null || refPattern.equals(emptyPath)) {
-                LOGGER.warn("Storage " + storageName + " is missing ref_pattern. Disabling storage.");
+                LOGGER.warn("Storage %s is missing ref_pattern. Disabling storage.".formatted(storageName));
                 enabled = false;
                 refPattern = Path.of("");
             } else {
                 refPattern = refPattern.toAbsolutePath();
             }
             if (pattern15Min == null || pattern15Min.equals(emptyPath)) {
-                LOGGER.warn("Storage " + storageName + " is missing pattern_15min. Disabling storage.");
+                LOGGER.warn("Storage %s is missing pattern_15min. Disabling storage.".formatted(storageName));
                 enabled = false;
                 pattern15Min = Path.of("");
             } else {
