@@ -18,7 +18,7 @@ import static org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTe
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class FileSystemRepoManagerTest {
+class FileSystemGraphRepoClientTest {
 
     private static final String PROFILE_NAME = "truck";
     private static final String ENCODER_NAME = "driving-hgv";
@@ -27,7 +27,7 @@ class FileSystemRepoManagerTest {
     private Path tempDir;
 
     private Path localGraphsRootPath;
-    private FileSystemRepoManager fileSystemRepoManager;
+    private FileSystemGraphRepoClient fileSystemGraphRepoClient;
     private ORSGraphFileManager orsGraphFileManager;
 
     @BeforeEach
@@ -46,7 +46,7 @@ class FileSystemRepoManagerTest {
         orsGraphFileManager.initialize();
 
         ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
-        fileSystemRepoManager = new FileSystemRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+        fileSystemGraphRepoClient = new FileSystemGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
     }
 
     private GraphManagementRuntimeProperties.Builder managementPropsBuilder() {
@@ -56,7 +56,7 @@ class FileSystemRepoManagerTest {
     @Test
     void downloadLatestGraphInfoFromRepository() throws ORSGraphFileManagerException {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
-        fileSystemRepoManager.downloadLatestGraphInfoFromRepository();
+        fileSystemGraphRepoClient.downloadLatestGraphInfoFromRepository();
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
     }
@@ -66,7 +66,7 @@ class FileSystemRepoManagerTest {
         setupORSGraphManager(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
-        fileSystemRepoManager.downloadGraphIfNecessary();
+        fileSystemGraphRepoClient.downloadGraphIfNecessary();
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
     }
@@ -77,7 +77,7 @@ class FileSystemRepoManagerTest {
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), LATER_DATE, EARLIER_DATE);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_driving-hgv.ghz").toFile().exists());
-        fileSystemRepoManager.downloadGraphIfNecessary();
+        fileSystemGraphRepoClient.downloadGraphIfNecessary();
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_0_driving-hgv.ghz").toFile().exists());
     }
@@ -88,7 +88,7 @@ class FileSystemRepoManagerTest {
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_OSM_DATE - 1000000, REPO_HGV_GRAPH_BUILD_DATE - 1000000);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
-        fileSystemRepoManager.downloadGraphIfNecessary();
+        fileSystemGraphRepoClient.downloadGraphIfNecessary();
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
     }
@@ -99,7 +99,7 @@ class FileSystemRepoManagerTest {
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_GRAPH_BUILD_DATE, REPO_HGV_OSM_DATE);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
-        fileSystemRepoManager.downloadGraphIfNecessary();
+        fileSystemGraphRepoClient.downloadGraphIfNecessary();
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
     }
@@ -110,7 +110,7 @@ class FileSystemRepoManagerTest {
         saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), REPO_HGV_GRAPH_BUILD_DATE + 1000000, REPO_HGV_OSM_DATE + 1000000);
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
-        fileSystemRepoManager.downloadGraphIfNecessary();
+        fileSystemGraphRepoClient.downloadGraphIfNecessary();
         assertTrue(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.yml").toFile().exists());
         assertFalse(localGraphsRootPath.resolve("vendor-xyz_fastisochrones_heidelberg_1_driving-hgv.ghz").toFile().exists());
     }

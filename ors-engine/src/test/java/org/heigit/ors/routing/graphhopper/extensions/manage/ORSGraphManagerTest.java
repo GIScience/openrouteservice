@@ -34,21 +34,21 @@ class ORSGraphManagerTest {
 
     @ParameterizedTest
     @CsvSource({
-            "HttpRepoManager, http://my.domain.com",
-            "HttpRepoManager, https://my.domain.com/",
-            "NullRepoManager, file:relative/path",
-            "NullRepoManager, file://relative/path",
-            "NullRepoManager, file://relative/path.txt",
-            "FileSystemRepoManager, file:///absolute/path",
-            "FileSystemRepoManager, file:///absolute/path.txt",
-            "FileSystemRepoManager, relative/path",
-            "FileSystemRepoManager, relative/path.txt",
-            "FileSystemRepoManager, /absolute/path",
-            "FileSystemRepoManager, /absolute/path.txt",
-            "FileSystemRepoManager, ~/absolute/path",
-            "FileSystemRepoManager, ~/absolute/path.txt"
+            "HttpGraphRepoClient, http://my.domain.com",
+            "HttpGraphRepoClient, https://my.domain.com/",
+            "NullGraphRepoClient, file:relative/path",
+            "NullGraphRepoClient, file://relative/path",
+            "NullGraphRepoClient, file://relative/path.txt",
+            "FileSystemGraphRepoClient, file:///absolute/path",
+            "FileSystemGraphRepoClient, file:///absolute/path.txt",
+            "FileSystemGraphRepoClient, relative/path",
+            "FileSystemGraphRepoClient, relative/path.txt",
+            "FileSystemGraphRepoClient, /absolute/path",
+            "FileSystemGraphRepoClient, /absolute/path.txt",
+            "FileSystemGraphRepoClient, ~/absolute/path",
+            "FileSystemGraphRepoClient, ~/absolute/path.txt"
     })
-    void getOrsGraphRepoManager(String className, String repoUri) {
+    void getOrsGraphRepoClient(String className, String repoUri) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withLocalGraphsRootAbsPath("graphs")
                 .withRepoBaseUri(repoUri)
@@ -58,6 +58,6 @@ class ORSGraphManagerTest {
         FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
         ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         NamedGraphsRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
-        assertEquals(className, ORSGraphManager.getOrsGraphRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager).getClass().getSimpleName());
+        assertEquals(className, ORSGraphManager.getOrsGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager).getClass().getSimpleName());
     }
 }

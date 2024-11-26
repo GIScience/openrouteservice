@@ -21,8 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GraphService {
 
     // get this value from ors.engine.graph_management.enabled
-    @Value("${ors.engine.graph_management.enabled:false}")
-    private Boolean enabled = false;
+    private final Boolean enabled;
 
     private final EngineProperties engineProperties;
 
@@ -34,8 +33,9 @@ public class GraphService {
     private final AtomicBoolean isActivatingGraphs = new AtomicBoolean(true);
 
     @Autowired
-    public GraphService(EngineProperties engineProperties) {
+    public GraphService(EngineProperties engineProperties, @Value("${ors.engine.graph_management.enabled:false}") Boolean enabled) {
         this.engineProperties = engineProperties;
+        this.enabled = enabled;
     }
 
     public void addGraphManagerInstance(ORSGraphManager orsGraphManager) {
