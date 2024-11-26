@@ -160,110 +160,138 @@ public class ExtendedStorageProperties {
             enabled = true;
         }
 
-        // Avoid initializing this multiple times
-        final Path emptyPath = Path.of("");
-
         ArrayList<String> nonNullableProperties = new ArrayList<>();
 
-        if (storageName == ExtendedStorageName.HEAVY_VEHICLE) {
-            if (restrictions == null) {
-                restrictions = true;
-            }
-            nonNullableProperties.add("restrictions");
-        } else if (storageName == ExtendedStorageName.HILL_INDEX) {
-            if (maximumSlope == null) {
-                this.maximumSlope = null;
-            }
-            nonNullableProperties.add("maximum_slope");
-        } else if (storageName == ExtendedStorageName.ROAD_ACCESS_RESTRICTIONS) {
-            if (useForWarnings == null) {
-                this.useForWarnings = true;
-            }
-            nonNullableProperties.add("use_for_warnings");
-        } else if (storageName == ExtendedStorageName.WHEELCHAIR) {
-            if (kerbsOnCrossings == null) {
-                this.kerbsOnCrossings = true;
-            }
-            nonNullableProperties.add("kerbs_on_crossings");
-        }
-
-        if (storageName == ExtendedStorageName.NOISE_INDEX || storageName == ExtendedStorageName.GREEN_INDEX || storageName == ExtendedStorageName.SHADOW_INDEX || storageName == ExtendedStorageName.CSV) {
-            if (filepath == null || filepath.equals(emptyPath)) {
-                LOGGER.warn("Storage %s is missing filepath. Disabling storage.".formatted(storageName));
-                enabled = false;
-                filepath = Path.of("");
-            } else {
-                filepath = filepath.toAbsolutePath();
-            }
-            nonNullableProperties.add("filepath");
-        } else if (storageName == ExtendedStorageName.BORDERS) {
-            if (boundaries == null || boundaries.equals(emptyPath)) {
-                LOGGER.warn("Storage %s is missing boundaries. Disabling storage.".formatted(storageName));
-                enabled = false;
-                boundaries = Path.of("");
-            } else {
-                boundaries = boundaries.toAbsolutePath();
-            }
-            if (ids == null || ids.equals(emptyPath)) {
-                LOGGER.warn("Storage %s is missing ids. Disabling storage.".formatted(storageName));
-                enabled = false;
-                ids = Path.of("");
-            } else {
-                ids = ids.toAbsolutePath();
-            }
-            if (openborders == null || openborders.equals(emptyPath)) {
-                LOGGER.warn("Storage %s is missing openborders. Disabling storage.".formatted(storageName));
-                enabled = false;
-                openborders = Path.of("");
-            } else {
-                openborders = openborders.toAbsolutePath();
-            }
-            nonNullableProperties.add("boundaries");
-            nonNullableProperties.add("ids");
-            nonNullableProperties.add("openborders");
-        } else if (storageName == ExtendedStorageName.HERE_TRAFFIC) {
-            // Here traffic if streets, ref_pattern or pattern_15min is not set, disable storage
-            if (radius == null) {
-                this.radius = 150;
-            }
-
-            if (outputLog == null) {
-                this.outputLog = false;
-            }
-
-            if (logLocation == null || logLocation.equals(emptyPath)) {
-                this.logLocation = Path.of("./here_matching.log");
-            }
-
-            if (streets == null || streets.equals(emptyPath)) {
-                LOGGER.warn("Storage %s is missing streets. Disabling storage.".formatted(storageName));
-                enabled = false;
-                streets = Path.of("");
-            } else {
-                streets = streets.toAbsolutePath();
-            }
-            if (refPattern == null || refPattern.equals(emptyPath)) {
-                LOGGER.warn("Storage %s is missing ref_pattern. Disabling storage.".formatted(storageName));
-                enabled = false;
-                refPattern = Path.of("");
-            } else {
-                refPattern = refPattern.toAbsolutePath();
-            }
-            if (pattern15Min == null || pattern15Min.equals(emptyPath)) {
-                LOGGER.warn("Storage %s is missing pattern_15min. Disabling storage.".formatted(storageName));
-                enabled = false;
-                pattern15Min = Path.of("");
-            } else {
-                pattern15Min = pattern15Min.toAbsolutePath();
-            }
-            nonNullableProperties.add("radius");
-            nonNullableProperties.add("output_log");
-            nonNullableProperties.add("log_location");
-            nonNullableProperties.add("streets");
-            nonNullableProperties.add("ref_pattern");
-            nonNullableProperties.add("pattern_15min");
+        switch (storageName) {
+            case HEAVY_VEHICLE:
+                initializeHeavyVehicle(nonNullableProperties);
+                break;
+            case HILL_INDEX:
+                initializeHillIndex(nonNullableProperties);
+                break;
+            case ROAD_ACCESS_RESTRICTIONS:
+                initializeRoadAccessRestrictions(nonNullableProperties);
+                break;
+            case WHEELCHAIR:
+                initializeWheelchair(nonNullableProperties);
+                break;
+            case NOISE_INDEX, GREEN_INDEX, SHADOW_INDEX, CSV:
+                initializeFilepath(nonNullableProperties, storageName);
+                break;
+            case BORDERS:
+                initializeBorders(nonNullableProperties, storageName);
+                break;
+            case HERE_TRAFFIC:
+                initializeHereTraffic(nonNullableProperties, storageName);
+                break;
+            default:
         }
         setAllPropertiesToNull(nonNullableProperties);
+    }
+
+    private void initializeHeavyVehicle(ArrayList<String> nonNullableProperties) {
+        if (restrictions == null) {
+            restrictions = true;
+        }
+        nonNullableProperties.add("restrictions");
+    }
+
+    private void initializeHillIndex(ArrayList<String> nonNullableProperties) {
+        nonNullableProperties.add("maximum_slope");
+    }
+
+    private void initializeRoadAccessRestrictions(ArrayList<String> nonNullableProperties) {
+        if (useForWarnings == null) {
+            this.useForWarnings = true;
+        }
+        nonNullableProperties.add("use_for_warnings");
+    }
+
+    private void initializeWheelchair(ArrayList<String> nonNullableProperties) {
+        if (kerbsOnCrossings == null) {
+            this.kerbsOnCrossings = true;
+        }
+        nonNullableProperties.add("kerbs_on_crossings");
+    }
+
+    private void initializeFilepath(ArrayList<String> nonNullableProperties, ExtendedStorageName storageName) {
+        final Path emptyPath = Path.of("");
+        if (filepath == null || filepath.equals(emptyPath)) {
+            LOGGER.warn("Storage %s is missing filepath. Disabling storage.".formatted(storageName));
+            enabled = false;
+            filepath = Path.of("");
+        } else {
+            filepath = filepath.toAbsolutePath();
+        }
+        nonNullableProperties.add("filepath");
+    }
+
+    private void initializeBorders(ArrayList<String> nonNullableProperties, ExtendedStorageName storageName) {
+        final Path emptyPath = Path.of("");
+        if (boundaries == null || boundaries.equals(emptyPath)) {
+            LOGGER.warn("Storage %s is missing boundaries. Disabling storage.".formatted(storageName));
+            enabled = false;
+            boundaries = Path.of("");
+        } else {
+            boundaries = boundaries.toAbsolutePath();
+        }
+        if (ids == null || ids.equals(emptyPath)) {
+            LOGGER.warn("Storage %s is missing ids. Disabling storage.".formatted(storageName));
+            enabled = false;
+            ids = Path.of("");
+        } else {
+            ids = ids.toAbsolutePath();
+        }
+        if (openborders == null || openborders.equals(emptyPath)) {
+            LOGGER.warn("Storage %s is missing openborders. Disabling storage.".formatted(storageName));
+            enabled = false;
+            openborders = Path.of("");
+        } else {
+            openborders = openborders.toAbsolutePath();
+        }
+        nonNullableProperties.add("boundaries");
+        nonNullableProperties.add("ids");
+        nonNullableProperties.add("openborders");
+    }
+
+    private void initializeHereTraffic(ArrayList<String> nonNullableProperties, ExtendedStorageName storageName) {
+        final Path emptyPath = Path.of("");
+        if (radius == null) {
+            this.radius = 150;
+        }
+        if (outputLog == null) {
+            this.outputLog = false;
+        }
+        if (logLocation == null || logLocation.equals(emptyPath)) {
+            this.logLocation = Path.of("./here_matching.log");
+        }
+        if (streets == null || streets.equals(emptyPath)) {
+            LOGGER.warn("Storage %s is missing streets. Disabling storage.".formatted(storageName));
+            enabled = false;
+            streets = Path.of("");
+        } else {
+            streets = streets.toAbsolutePath();
+        }
+        if (refPattern == null || refPattern.equals(emptyPath)) {
+            LOGGER.warn("Storage %s is missing ref_pattern. Disabling storage.".formatted(storageName));
+            enabled = false;
+            refPattern = Path.of("");
+        } else {
+            refPattern = refPattern.toAbsolutePath();
+        }
+        if (pattern15Min == null || pattern15Min.equals(emptyPath)) {
+            LOGGER.warn("Storage %s is missing pattern_15min. Disabling storage.".formatted(storageName));
+            enabled = false;
+            pattern15Min = Path.of("");
+        } else {
+            pattern15Min = pattern15Min.toAbsolutePath();
+        }
+        nonNullableProperties.add("radius");
+        nonNullableProperties.add("output_log");
+        nonNullableProperties.add("log_location");
+        nonNullableProperties.add("streets");
+        nonNullableProperties.add("ref_pattern");
+        nonNullableProperties.add("pattern_15min");
     }
 }
 

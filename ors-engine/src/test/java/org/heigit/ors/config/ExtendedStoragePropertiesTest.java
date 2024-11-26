@@ -90,6 +90,11 @@ class ExtendedStoragePropertiesTest {
         } else {
             assertNotNull(storage.getUseForWarnings(), "use_for_warnings should not be null");
         }
+        if (!nonNullFields.contains("kerbs_on_crossings")) {
+            assertNull(storage.getKerbsOnCrossings(), "kerbs_on_crossings should be null");
+        } else {
+            assertNotNull(storage.getKerbsOnCrossings(), "kerbs_on_crossings should not be null");
+        }
         return true;
     }
 
@@ -473,7 +478,7 @@ class ExtendedStoragePropertiesTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"NoiseIndex", "GreenIndex", "ShadowIndex"})
+    @ValueSource(strings = {"NoiseIndex", "GreenIndex", "ShadowIndex", "Csv"})
     void initializeDisablesStorageIfFilepathIsNull(String storageName) {
         ExtendedStorageProperties storage = new ExtendedStorageProperties();
         assertNull(storage.getFilepath(), "filepath should be null before initialize");
@@ -501,6 +506,37 @@ class ExtendedStoragePropertiesTest {
             add("enabled");
             add("filepath");
         }});
+    }
+
+    @Test
+    void testInitializeWheelchair() {
+        ExtendedStorageProperties storage = new ExtendedStorageProperties();
+        storage.initialize(ExtendedStorageName.WHEELCHAIR);
+        assertTrue(storage.getEnabled());
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("kerbs_on_crossings");
+        }});
+
+        storage.setKerbsOnCrossings(false);
+        storage.initialize(ExtendedStorageName.WHEELCHAIR);
+        assertFalse(storage.getKerbsOnCrossings());
+        testStorageObjectIsEmpty(storage, new ArrayList<>() {{
+            add("enabled");
+            add("kerbs_on_crossings");
+        }});
+    }
+
+    @Test
+    void testInitializeEmptyHereLogLocation() {
+        ExtendedStorageProperties storage = new ExtendedStorageProperties();
+        storage.setLogLocation(Path.of(""));
+        storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
+        assertEquals(Path.of("./here_matching.log"), storage.getLogLocation(), "initialize should set log_location to default for HERE_TRAFFIC if it is null");
+
+        storage.setLogLocation(null);
+        storage.initialize(ExtendedStorageName.HERE_TRAFFIC);
+        assertEquals(Path.of("./here_matching.log"), storage.getLogLocation(), "initialize should set log_location to default for HERE_TRAFFIC if it is null");
     }
 
     static class HelperClass extends ExtendedStorageProperties {
