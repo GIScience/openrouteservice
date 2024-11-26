@@ -2,6 +2,7 @@ package org.heigit.ors.config.utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 public class NonEmptyMapFilter {
 
@@ -17,5 +18,10 @@ public class NonEmptyMapFilter {
             // Ignore
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getClass());
     }
 }
