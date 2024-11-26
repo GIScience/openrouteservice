@@ -352,7 +352,7 @@ public class RoutingProfile {
             }
         }
 
-        if (profile.getBuild().getOptimize() && !prepareCH)
+        if (Boolean.TRUE.equals(profile.getBuild().getOptimize()) && !prepareCH)
             ghConfig.putObject("graph.do_sort", true);
 
         // Check if getGTFSFile exists
