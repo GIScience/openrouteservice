@@ -491,9 +491,9 @@ public class RoutingProfile {
             }
         }
 
-        String profileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), Boolean.TRUE.equals(profileProperties.getBuild().getEncoderOptions().getTurnCosts()));
+        String localProfileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), Boolean.TRUE.equals(profileProperties.getBuild().getEncoderOptions().getTurnCosts()));
         String profileNameCH = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
-        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, profileName, profileNameCH);
+        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, localProfileName, profileNameCH);
         searchCntx.setProperties(props);
 
         return searchCntx;
@@ -509,14 +509,14 @@ public class RoutingProfile {
      * @param useALT  Should ALT be enabled
      */
     public void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH) {
-        String profileName = req.getProfile();
+        String requestProfileName = req.getProfile();
 
         //Priority: CH->Core->ALT
-        String profileNameNoTC = profileName.replace("_with_turn_costs", "");
+        String profileNameNoTC = requestProfileName.replace("_with_turn_costs", "");
 
         useCH = useCH && mGraphHopper.isCHAvailable(profileNameCH);
-        useCore = useCore && !useCH && (mGraphHopper.isCoreAvailable(profileName) || mGraphHopper.isCoreAvailable(profileNameNoTC));
-        useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(profileName);
+        useCore = useCore && !useCH && (mGraphHopper.isCoreAvailable(requestProfileName) || mGraphHopper.isCoreAvailable(profileNameNoTC));
+        useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(requestProfileName);
 
         req.getHints().putObject(ProfileTools.KEY_CH_DISABLE, !useCH);
         req.getHints().putObject(ProfileTools.KEY_CORE_DISABLE, !useCore);
