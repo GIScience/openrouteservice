@@ -56,7 +56,7 @@ public class MatrixService extends ApiService {
         org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest(
                 endpointsProperties.getMatrix().getMaximumSearchRadius(),
                 endpointsProperties.getMatrix().getMaximumVisitedNodes(),
-                endpointsProperties.getMatrix().getUTurnCost());
+                endpointsProperties.getMatrix().getUTurnCosts());
 
         coreRequest.setProfileName(matrixRequest.getProfileName());
         String[] sources = matrixRequest.getSources();
