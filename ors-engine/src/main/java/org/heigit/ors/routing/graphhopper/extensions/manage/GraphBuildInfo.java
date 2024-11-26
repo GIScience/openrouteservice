@@ -17,17 +17,17 @@ import java.net.URL;
 @AllArgsConstructor
 @Setter
 @Accessors(chain = true)
-public class GraphInfo {
+public class GraphBuildInfo {
 
     private URI remoteUri;
     @Getter
     private File localDirectory = null;
-    Logger logger = Logger.getLogger(GraphInfo.class.getName());
+    Logger logger = Logger.getLogger(GraphBuildInfo.class.getName());
 
     @Getter
-    private PersistedGraphInfo persistedGraphInfo;
+    private PersistedGraphBuildInfo persistedGraphBuildInfo;
 
-    public GraphInfo withRemoteUrl(URL url) {
+    public GraphBuildInfo withRemoteUrl(URL url) {
         try {
             this.remoteUri = url.toURI();
         } catch (URISyntaxException e) {

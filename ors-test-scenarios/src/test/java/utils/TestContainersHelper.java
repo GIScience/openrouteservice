@@ -112,9 +112,9 @@ public class TestContainersHelper {
     public static boolean waitForEmptyGrcRepoCheck(GenericContainer<?> container, String profile, String encoderName, String graphRepoName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Checking for possible graph update from remote repository...",
-                "[" + profile + "] Checking latest graphInfo in remote repository...",
-                "[driving-hgv] No graphInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml",
-                "[" + profile + "] No graphInfo found in remote repository: " + graphRepoName + "/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_" + encoderName + ".yml",
+                "[" + profile + "] Checking latest graphBuildInfo in remote repository...",
+                "[driving-hgv] No graphBuildInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml",
+                "[" + profile + "] No graphBuildInfo found in remote repository: " + graphRepoName + "/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_" + encoderName + ".yml",
                 "[" + profile + "] No newer graph found in repository.",
                 "[" + profile + "] No downloaded graph to extract."
         );
@@ -127,7 +127,7 @@ public class TestContainersHelper {
                 "Scheduled graph activation check...",
                 "[" + profile + "] Scheduled repository check: Checking for update.",
                 "[" + profile + "] Checking for possible graph update from remote repository...",
-                "[" + profile + "] Checking latest graphInfo in remote repository...",
+                "[" + profile + "] Checking latest graphBuildInfo in remote repository...",
                 "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
                 "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoderName + ".yml...",
                 "[" + profile + "] No newer graph found in repository.",
@@ -141,7 +141,7 @@ public class TestContainersHelper {
     public static boolean waitForSuccessfulGrcRepoCheckAndDownload(GenericContainer<?> container, String profile, String encoderName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Checking for possible graph update from remote repository...",
-                "[" + profile + "] Checking latest graphInfo in remote repository...",
+                "[" + profile + "] Checking latest graphBuildInfo in remote repository...",
                 "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoderName + ".yml...",
                 "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoderName + ".ghz...",
                 "[" + profile + "] Download of compressed graph file finished after",
@@ -169,7 +169,7 @@ public class TestContainersHelper {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Scheduled graph activation check: Downloaded extracted graph available",
                 "Scheduled graph activation check done: Performing graph activation...",
-                "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
+                "Using FileSystemGraphRepoClient for repoUri /tmp/test-filesystem-repo",
                 "[" + profile + "] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_" + encoderName + ".yml",
                 "[" + profile + "] Found local graph and extracted downloaded graph",
                 "[" + profile + "] Renamed old local graph directory /home/ors/openrouteservice/graphs/driving-car to /home/ors/openrouteservice/graphs/" + profile + "_",
@@ -183,7 +183,7 @@ public class TestContainersHelper {
     public static boolean waitForSuccessfulGrcRepoInitWithoutExistingGraph(GenericContainer<?> container, String profile, String fileRepoName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Creating graph directory /home/ors/openrouteservice/graphs/" + profile,
-                "Using FileSystemRepoManager for repoUri " + fileRepoName,
+                "Using FileSystemGraphRepoClient for repoUri " + fileRepoName,
                 "[" + profile + "] No local graph or extracted downloaded graph found - trying to download and extract graph from repository"
         );
         return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, expected);
@@ -191,7 +191,7 @@ public class TestContainersHelper {
 
     public static boolean waitForSuccessfulGrcRepoInitWithExistingGraph(GenericContainer<?> container, String profile, String encoderName, String fileRepoName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
-                "Using FileSystemRepoManager for repoUri " + fileRepoName,
+                "Using FileSystemGraphRepoClient for repoUri " + fileRepoName,
                 "[" + profile + "] Found local graph only",
                 "[1] Profile: '" + profile + "', encoder: '" + encoderName + "', location: '/home/ors/openrouteservice/graphs/" + profile + "'",
                 "Adding orsGraphManager for profile " + profile + " with encoder " + encoderName + " to GraphService",

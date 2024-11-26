@@ -4,5 +4,5 @@ public interface ORSGraphRepoStrategy {
 
     String getRepoCompressedGraphFileName();
 
-    String getRepoGraphInfoFileName();
+    String getRepoGraphBuildInfoFileName();
 }

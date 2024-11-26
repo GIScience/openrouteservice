@@ -27,7 +27,7 @@ public class ORSGraphManager {
 
     private GraphManagementRuntimeProperties managementRuntimeProperties;
     private ORSGraphFileManager orsGraphFileManager;
-    private ORSGraphRepoManager orsGraphRepoManager;
+    private ORSGraphRepoClient orsGraphRepoClient;
 
     public static ORSGraphManager initializeGraphManagement(String graphVersion, EngineProperties engineProperties, ProfileProperties profileProperties) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.from(engineProperties, profileProperties, graphVersion).build();
@@ -40,32 +40,32 @@ public class ORSGraphManager {
         ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         orsGraphFileManager.initialize();
 
-        ORSGraphRepoManager orsGraphRepoManager = getOrsGraphRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+        ORSGraphRepoClient orsGraphRepoClient = getOrsGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
 
-        ORSGraphManager orsGraphManager = new ORSGraphManager(managementProps, orsGraphFileManager, orsGraphRepoManager);
+        ORSGraphManager orsGraphManager = new ORSGraphManager(managementProps, orsGraphFileManager, orsGraphRepoClient);
         orsGraphManager.manageStartup();
         return orsGraphManager;
     }
 
-    public static ORSGraphRepoManager getOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
-        ORSGraphRepoManager orsGraphRepoManager = new NullRepoManager();
+    public static ORSGraphRepoClient getOrsGraphRepoClient(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+        ORSGraphRepoClient orsGraphRepoClient = new NullGraphRepoClient();
 
         switch (managementProps.getDerivedRepoType()) {
             case HTTP -> {
-                LOGGER.debug("Using HttpRepoManager for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
-                orsGraphRepoManager = new HttpRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+                LOGGER.debug("Using HttpGraphRepoClient for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
+                orsGraphRepoClient = new HttpGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
             }
             case FILESYSTEM -> {
-                LOGGER.debug("Using FileSystemRepoManager for repoUri %s".formatted(managementProps.getDerivedRepoPath()));
-                orsGraphRepoManager = new FileSystemRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+                LOGGER.debug("Using FileSystemGraphRepoClient for repoUri %s".formatted(managementProps.getDerivedRepoPath()));
+                orsGraphRepoClient = new FileSystemGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
             }
             case NULL -> {
-                LOGGER.debug("No valid repositoryUri configured, using NullRepoManager.");
-                orsGraphRepoManager = new NullRepoManager();
+                LOGGER.debug("No valid repositoryUri configured, using NullGraphRepoClient.");
+                orsGraphRepoClient = new NullGraphRepoClient();
             }
         }
 
-        return orsGraphRepoManager;
+        return orsGraphRepoClient;
     }
 
     public ProfileProperties loadProfilePropertiesFromActiveGraph(ORSGraphManager orsGraphManager, ProfileProperties profileProperties) throws ORSGraphFileManagerException {
@@ -138,7 +138,7 @@ public class ORSGraphManager {
             LOGGER.debug("[%s] ORSGraphManager is busy - skipping download".formatted(getQualifiedProfileName()));
             return;
         }
-        orsGraphRepoManager.downloadGraphIfNecessary();
+        orsGraphRepoClient.downloadGraphIfNecessary();
         orsGraphFileManager.extractDownloadedGraph();
     }
 
@@ -152,18 +152,18 @@ public class ORSGraphManager {
         return restartLockFile.exists();
     }
 
-    public void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {
-        orsGraphFileManager.writeOrsGraphInfoFileIfNotExists(gh);
+    public void writeOrsGraphBuildInfoFileIfNotExists(ORSGraphHopper gh) {
+        orsGraphFileManager.writeOrsGraphBuildInfoFileIfNotExists(gh);
     }
 
-    public GraphInfo getActiveGraphInfo() throws ORSGraphFileManagerException {
-        return orsGraphFileManager.getActiveGraphInfo();
+    public GraphBuildInfo getActiveGraphBuildInfo() throws ORSGraphFileManagerException {
+        return orsGraphFileManager.getActiveGraphBuildInfo();
     }
 
     public ProfileProperties getActiveGraphProfileProperties() throws ORSGraphFileManagerException {
-        return ofNullable(getActiveGraphInfo())
-                .map(GraphInfo::getPersistedGraphInfo)
-                .map(PersistedGraphInfo::getProfileProperties)
+        return ofNullable(getActiveGraphBuildInfo())
+                .map(GraphBuildInfo::getPersistedGraphBuildInfo)
+                .map(PersistedGraphBuildInfo::getProfileProperties)
                 .orElse(null);
     }
 }

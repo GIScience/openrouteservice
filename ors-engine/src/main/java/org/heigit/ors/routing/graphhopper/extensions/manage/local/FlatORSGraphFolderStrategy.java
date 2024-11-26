@@ -33,8 +33,8 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
     }
 
     @Override
-    public String getGraphInfoFileNameInRepository() {
-        return managementProperties.getLocalProfileName() + "." + GRAPH_INFO_FILE_EXTENSION;
+    public String getGraphBuildInfoFileNameInRepository() {
+        return managementProperties.getLocalProfileName() + "." + GRAPH_BUILD_INFO_FILE_EXTENSION;
     }
 
     @Override
@@ -68,18 +68,18 @@ public class FlatORSGraphFolderStrategy implements ORSGraphFolderStrategy {
     }
 
     @Override
-    public String getActiveGraphInfoFileName() {
-        return "graph_info." + GRAPH_INFO_FILE_EXTENSION;
+    public String getActiveGraphBuildInfoFileName() {
+        return "graph_build_info." + GRAPH_BUILD_INFO_FILE_EXTENSION;
     }
 
     @Override
-    public String getDownloadedGraphInfoFileName() {
-        return getConcatenatedLocalFileName(GRAPH_INFO_FILE_EXTENSION);
+    public String getDownloadedGraphBuildInfoFileName() {
+        return getConcatenatedLocalFileName(GRAPH_BUILD_INFO_FILE_EXTENSION);
     }
 
     @Override
-    public String getDownloadedGraphInfoFileAbsPath() {
-        return managementProperties.getLocalGraphsRootAbsPath() + File.separator + getDownloadedGraphInfoFileName();
+    public String getDownloadedGraphBuildInfoFileAbsPath() {
+        return managementProperties.getLocalGraphsRootAbsPath() + File.separator + getDownloadedGraphBuildInfoFileName();
     }
 
     @Override

@@ -31,8 +31,8 @@ class FlatORSGraphFolderStrategyTest {
     }
 
     @Test
-    void getGraphInfoFileNameInRepository() {
-        assertEquals("bobbycar.yml", strategy.getGraphInfoFileNameInRepository());
+    void getGraphBuildInfoFileNameInRepository() {
+        assertEquals("bobbycar.yml", strategy.getGraphBuildInfoFileNameInRepository());
     }
 
     @Test
@@ -66,18 +66,18 @@ class FlatORSGraphFolderStrategyTest {
     }
 
     @Test
-    void getActiveGraphInfoFileName() {
-        assertEquals("graph_info.yml", strategy.getActiveGraphInfoFileName());
+    void getActiveGraphBuildInfoFileName() {
+        assertEquals("graph_build_info.yml", strategy.getActiveGraphBuildInfoFileName());
     }
 
     @Test
-    void getDownloadedGraphInfoFileName() {
-        assertEquals("vendor_fun_disneyland_0_driving-car.yml", strategy.getDownloadedGraphInfoFileName());
+    void getDownloadedGraphBuildInfoFileName() {
+        assertEquals("vendor_fun_disneyland_0_driving-car.yml", strategy.getDownloadedGraphBuildInfoFileName());
     }
 
     @Test
-    void getDownloadedGraphInfoFileAbsPath() {
-        assertEquals("/data/graphs/vendor_fun_disneyland_0_driving-car.yml", strategy.getDownloadedGraphInfoFileAbsPath());
+    void getDownloadedGraphBuildInfoFileAbsPath() {
+        assertEquals("/data/graphs/vendor_fun_disneyland_0_driving-car.yml", strategy.getDownloadedGraphBuildInfoFileAbsPath());
     }
 
     @Test

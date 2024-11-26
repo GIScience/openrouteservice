@@ -1,8 +1,8 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-public class NullRepoManager implements ORSGraphRepoManager {
+public class NullGraphRepoClient implements ORSGraphRepoClient {
     @Override
     public void downloadGraphIfNecessary() {
-        // The NullRepoManager does nothing at this point.
+        // The NullGraphRepoClient does nothing at this point.
     }
 }

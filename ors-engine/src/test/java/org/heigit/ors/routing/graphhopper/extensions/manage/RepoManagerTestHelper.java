@@ -55,21 +55,21 @@ public class RepoManagerTestHelper {
         return localGraphDir;
     }
 
-    public static Path createLocalGraphDirectoryWithGraphInfoFile(Path localGraphsRootPath, String name, String infoFileName, Long importDate, Long osmDate) throws IOException {
+    public static Path createLocalGraphDirectoryWithGraphBuildInfoFile(Path localGraphsRootPath, String name, String infoFileName, Long importDate, Long osmDate) throws IOException {
         Path localGraphDir = createLocalGraphDirectory(localGraphsRootPath, name);
-        saveActiveGraphInfoFile(
+        saveActiveGraphBuildInfoFile(
                 localGraphDir.resolve(infoFileName).toFile(),
                 Optional.ofNullable(importDate).orElse(LATER_DATE),
                 Optional.ofNullable(osmDate).orElse(EARLIER_DATE));
         return localGraphDir;
     }
 
-    public static void saveActiveGraphInfoFile(File activeGraphInfoFile, Long graphBuildDate, Long osmDate) {
-        PersistedGraphInfo activeGraphInfoObject = new PersistedGraphInfo();
-        if (graphBuildDate != null) activeGraphInfoObject.setGraphBuildDate(new Date(graphBuildDate));
-        if (osmDate != null) activeGraphInfoObject.setOsmDate(new Date(osmDate));
-        activeGraphInfoObject.setProfileProperties(new ProfileProperties());
-        ORSGraphFileManager.writeOrsGraphInfo(activeGraphInfoObject, activeGraphInfoFile);
+    public static void saveActiveGraphBuildInfoFile(File activeGraphBuildInfoFile, Long graphBuildDate, Long osmDate) {
+        PersistedGraphBuildInfo activeGraphBuildInfoObject = new PersistedGraphBuildInfo();
+        if (graphBuildDate != null) activeGraphBuildInfoObject.setGraphBuildDate(new Date(graphBuildDate));
+        if (osmDate != null) activeGraphBuildInfoObject.setOsmDate(new Date(osmDate));
+        activeGraphBuildInfoObject.setProfileProperties(new ProfileProperties());
+        ORSGraphFileManager.writeOrsGraphBuildInfo(activeGraphBuildInfoObject, activeGraphBuildInfoFile);
     }
 
     public static void cleanupLocalGraphsRootDirectory(Path localGraphsRootPath) throws IOException {

@@ -73,7 +73,7 @@ class HttpRepoManagerTest {
     @Getter
     static class OrsGraphHelper {
         ORSGraphFileManager orsGraphFileManager;
-        ORSGraphRepoManager orsGraphRepoManager;
+        ORSGraphRepoClient orsGraphRepoClient;
 
     }
 
@@ -81,8 +81,8 @@ class HttpRepoManagerTest {
         ORSGraphFileManager orsGraphFileManager = setupORSGraphFileManager(graphManagementRuntimeProperties);
         if (timeVariable != null)
             setupActiveGraphDirectory(timeVariable, orsGraphFileManager);
-        ORSGraphRepoManager orsGraphRepoManager = setupOrsGraphRepoManager(graphManagementRuntimeProperties, orsGraphFileManager);
-        return new OrsGraphHelper(orsGraphFileManager, orsGraphRepoManager);
+        ORSGraphRepoClient orsGraphRepoClient = setupOrsGraphRepoManager(graphManagementRuntimeProperties, orsGraphFileManager);
+        return new OrsGraphHelper(orsGraphFileManager, orsGraphRepoClient);
     }
 
     private ORSGraphFileManager setupORSGraphFileManager(GraphManagementRuntimeProperties managementProps) {
@@ -92,9 +92,9 @@ class HttpRepoManagerTest {
         return orsGraphFileManager;
     }
 
-    private ORSGraphRepoManager setupOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphFileManager orsGraphFileManager) {
+    private ORSGraphRepoClient setupOrsGraphRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphFileManager orsGraphFileManager) {
         ORSGraphRepoStrategy repoStrategy = new NamedGraphsRepoStrategy(managementProps);
-        return new HttpRepoManager(managementProps, repoStrategy, orsGraphFileManager);
+        return new HttpGraphRepoClient(managementProps, repoStrategy, orsGraphFileManager);
     }
 
     private static GraphManagementRuntimeProperties.Builder managementPropsBuilder() {
@@ -103,7 +103,7 @@ class HttpRepoManagerTest {
     }
 
     private void setupActiveGraphDirectory(Long osmDateLocal, ORSGraphFileManager orsGraphFileManager) {
-        saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), osmDateLocal, null);
+        saveActiveGraphBuildInfoFile(orsGraphFileManager.getActiveGraphBuildInfoFile(), osmDateLocal, null);
     }
 
     private static void printFileContent(String label, File file) throws IOException {
@@ -122,7 +122,7 @@ class HttpRepoManagerTest {
     @Test
     void concatenateToUrl() {
         assertEquals("https://my.domain.com/repo/group1/germany/0/graph.ghz",
-                HttpRepoManager.concatenateToUrlPath("https://my.domain.com", "repo", "/group1", "/germany/", "0", "./", "graph.ghz/"));
+                HttpGraphRepoClient.concatenateToUrlPath("https://my.domain.com", "repo", "/group1", "/germany/", "0", "./", "graph.ghz/"));
     }
 
     @Test
@@ -138,8 +138,8 @@ class HttpRepoManagerTest {
         FlatORSGraphFolderStrategy orsGraphFolderStrategy = new FlatORSGraphFolderStrategy(managementProps);
         ORSGraphFileManager orsGraphFileManager = new ORSGraphFileManager(managementProps, orsGraphFolderStrategy);
         ORSGraphRepoStrategy orsGraphRepoStrategy = new NamedGraphsRepoStrategy(managementProps);
-        HttpRepoManager httpRepoManager = new HttpRepoManager(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
-        URL downloadUrl = httpRepoManager.createDownloadUrl("graph.ghz");
+        HttpGraphRepoClient httpGraphRepoClient = new HttpGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+        URL downloadUrl = httpGraphRepoClient.createDownloadUrl("graph.ghz");
         assertEquals("http://localhost:8080/repo/group1/germany/0/graph.ghz", downloadUrl.toString());
     }
 
@@ -165,10 +165,10 @@ class HttpRepoManagerTest {
         for (File file : Objects.requireNonNull(activeGraphDirectory.listFiles())) {
             printValue(file.getAbsolutePath());
         }
-        File activeGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getActiveGraphInfoFile();
-        assertTrue(activeGraphInfoFile.exists());
-        printFileContent("activeGraphInfoFile", activeGraphInfoFile);
-        String content = readFileToString(activeGraphInfoFile, "UTF-8");
+        File activeGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getActiveGraphBuildInfoFile();
+        assertTrue(activeGraphBuildInfoFile.exists());
+        printFileContent("activeGraphBuildInfoFile", activeGraphBuildInfoFile);
+        String content = readFileToString(activeGraphBuildInfoFile, "UTF-8");
         assertTrue(content.contains("graph_build_date: 2023-08-18T15:38:31+0000"));
     }
 
@@ -176,11 +176,11 @@ class HttpRepoManagerTest {
     void downloadGraphIfNecessary_noDownloadWhen_localDataExists_noRemoteData() {
         OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_NONEXISTING_GRAPHS_VERSION).build(), EARLIER_DATE);
 
-        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertFalse(downloadedGraphInfoFile.exists());
+        assertFalse(downloadedGraphBuildInfoFile.exists());
         assertFalse(downloadedCompressedGraphFile.exists());
     }
 
@@ -188,11 +188,11 @@ class HttpRepoManagerTest {
     void downloadGraphIfNecessary_downloadWhen_noLocalData_remoteDataExists() {
         OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), null);
 
-        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertTrue(downloadedGraphInfoFile.exists());
+        assertTrue(downloadedGraphBuildInfoFile.exists());
         assertTrue(downloadedCompressedGraphFile.exists());
     }
 
@@ -200,11 +200,11 @@ class HttpRepoManagerTest {
     void downloadGraphIfNecessary_downloadWhen_localDate_before_remoteDate() {
         OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), EARLIER_DATE);
 
-        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertTrue(downloadedGraphInfoFile.exists());
+        assertTrue(downloadedGraphBuildInfoFile.exists());
         assertTrue(downloadedCompressedGraphFile.exists());
     }
 
@@ -212,11 +212,11 @@ class HttpRepoManagerTest {
     void downloadGraphIfNecessary_noDownloadWhen_localDate_equals_remoteDate() {
         OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), REPO_CAR_GRAPH_BUILD_DATE);
 
-        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertTrue(downloadedGraphInfoFile.exists());
+        assertTrue(downloadedGraphBuildInfoFile.exists());
         assertFalse(downloadedCompressedGraphFile.exists());
     }
 
@@ -224,11 +224,11 @@ class HttpRepoManagerTest {
     void downloadGraphIfNecessary_noDownloadWhen_localDate_after_remoteDate() {
         OrsGraphHelper orsGraphHelper = setupOrsGraphHelper(managementPropsBuilder().withGraphVersion(REPO_GRAPHS_VERSION).build(), REPO_CAR_GRAPH_BUILD_DATE + 1000000);
 
-        orsGraphHelper.getOrsGraphRepoManager().downloadGraphIfNecessary();
+        orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertTrue(downloadedGraphInfoFile.exists());
+        assertTrue(downloadedGraphBuildInfoFile.exists());
         assertFalse(downloadedCompressedGraphFile.exists());
     }
 
