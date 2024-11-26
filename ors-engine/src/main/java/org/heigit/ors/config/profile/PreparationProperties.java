@@ -92,6 +92,7 @@ public class PreparationProperties {
             private Integer landmarks;
 
             @JsonIgnore
+            @Override
             public boolean isEmpty() {
                 return super.isEmpty() && landmarks == null;
             }
@@ -109,6 +110,7 @@ public class PreparationProperties {
             private String lmsets;
 
             @JsonIgnore
+            @Override
             public boolean isEmpty() {
                 return super.isEmpty() && lmsets == null;
             }
@@ -126,6 +128,7 @@ public class PreparationProperties {
             private Integer maxcellnodes;
 
             @JsonIgnore
+            @Override
             public boolean isEmpty() {
                 return super.isEmpty() && maxcellnodes == null;
             }

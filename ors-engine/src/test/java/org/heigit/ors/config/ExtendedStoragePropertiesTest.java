@@ -514,18 +514,22 @@ class ExtendedStoragePropertiesTest {
             super.setRestrictions(Boolean.parseBoolean(restrictions));
         }
 
+        @Override
         public void setBoundaries(Path boundaries) {
             super.setBoundaries(boundaries);
         }
 
+        @Override
         public void setIds(Path ids) {
             super.setIds(ids);
         }
 
+        @Override
         public void setOpenborders(Path openborders) {
             super.setOpenborders(openborders);
         }
 
+        @Override
         public void setFilepath(Path filepath) {
             super.setFilepath(filepath);
         }
