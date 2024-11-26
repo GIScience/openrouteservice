@@ -1,7 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
-import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
 
 import java.io.File;
 import java.util.Arrays;
@@ -15,21 +15,21 @@ abstract class AbstractGraphRepoClient {
         return remoteDate.after(newestLocalDate);
     }
 
-    public Date getDateOrEpocStart(GraphInfo graphInfo) {
-        return Optional.ofNullable(graphInfo)
-                .map(GraphInfo::getPersistedGraphInfo)
-                .map(PersistedGraphInfo::getGraphBuildDate)
+    public Date getDateOrEpocStart(GraphBuildInfo graphBuildInfo) {
+        return Optional.ofNullable(graphBuildInfo)
+                .map(GraphBuildInfo::getPersistedGraphBuildInfo)
+                .map(PersistedGraphBuildInfo::getGraphBuildDate)
                 .orElse(new Date(0L));
     }
 
-    public Date getDateOrEpocStart(File persistedDownloadFile, PersistedGraphInfo persistedRemoteGraphInfo) {
+    public Date getDateOrEpocStart(File persistedDownloadFile, PersistedGraphBuildInfo persistedRemoteGraphBuildInfo) {
         if (persistedDownloadFile == null) {
             return new Date(0L);
         }
 
         if (persistedDownloadFile.exists()) {
-            return Optional.ofNullable(persistedRemoteGraphInfo)
-                    .map(PersistedGraphInfo::getGraphBuildDate)
+            return Optional.ofNullable(persistedRemoteGraphBuildInfo)
+                    .map(PersistedGraphBuildInfo::getGraphBuildDate)
                     .orElse(new Date(0L));
         }
 

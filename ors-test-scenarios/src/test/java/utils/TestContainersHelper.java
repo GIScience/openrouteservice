@@ -112,9 +112,9 @@ public class TestContainersHelper {
     public static boolean waitForEmptyGrcRepoCheck(GenericContainer<?> container, String profile, String encoderName, String graphRepoName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Checking for possible graph update from remote repository...",
-                "[" + profile + "] Checking latest graphInfo in remote repository...",
-                "[driving-hgv] No graphInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml",
-                "[" + profile + "] No graphInfo found in remote repository: " + graphRepoName + "/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_" + encoderName + ".yml",
+                "[" + profile + "] Checking latest graphBuildInfo in remote repository...",
+                "[driving-hgv] No graphBuildInfo found in remote repository: /tmp/wrong-filesystem-repo/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_driving-hgv.yml",
+                "[" + profile + "] No graphBuildInfo found in remote repository: " + graphRepoName + "/vendor-xyz/fastisochrones/heidelberg/1/fastisochrones_heidelberg_1_" + encoderName + ".yml",
                 "[" + profile + "] No newer graph found in repository.",
                 "[" + profile + "] No downloaded graph to extract."
         );
@@ -127,7 +127,7 @@ public class TestContainersHelper {
                 "Scheduled graph activation check...",
                 "[" + profile + "] Scheduled repository check: Checking for update.",
                 "[" + profile + "] Checking for possible graph update from remote repository...",
-                "[" + profile + "] Checking latest graphInfo in remote repository...",
+                "[" + profile + "] Checking latest graphBuildInfo in remote repository...",
                 "Scheduled graph activation check done: No downloaded graphs found, no graph activation required.",
                 "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoderName + ".yml...",
                 "[" + profile + "] No newer graph found in repository.",
@@ -141,7 +141,7 @@ public class TestContainersHelper {
     public static boolean waitForSuccessfulGrcRepoCheckAndDownload(GenericContainer<?> container, String profile, String encoderName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Checking for possible graph update from remote repository...",
-                "[" + profile + "] Checking latest graphInfo in remote repository...",
+                "[" + profile + "] Checking latest graphBuildInfo in remote repository...",
                 "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoderName + ".yml...",
                 "[" + profile + "] Downloading fastisochrones_heidelberg_1_" + encoderName + ".ghz...",
                 "[" + profile + "] Download of compressed graph file finished after",

@@ -5,13 +5,13 @@ import java.io.File;
 public interface ORSGraphFolderStrategy {
 
     String GRAPH_DOWNLOAD_FILE_EXTENSION = "ghz";
-    String GRAPH_INFO_FILE_EXTENSION = "yml";
+    String GRAPH_BUILD_INFO_FILE_EXTENSION = "yml";
     String GRAPH_EXTRACTION_DIRECTORY_EXTENSION = "new";
     String INCOMPLETE_EXTENSION = "incomplete";
 
     String getProfileDescriptiveName();
 
-    String getGraphInfoFileNameInRepository();
+    String getGraphBuildInfoFileNameInRepository();
 
     /**
      * GraphsRootDir is the root directory for all routing profiles.
@@ -38,7 +38,7 @@ public interface ORSGraphFolderStrategy {
 
     /**
      * ActiveGraphDir is the directory with the active graph
-     * including its ActiveGraphInfoFile.
+     * including its ActiveGraphBuildInfoFile.
      */
     String getActiveGraphDirName();
 
@@ -48,21 +48,21 @@ public interface ORSGraphFolderStrategy {
         return new File(getActiveGraphDirAbsPath());
     }
 
-    String getActiveGraphInfoFileName();
+    String getActiveGraphBuildInfoFileName();
 
-    default File getActiveGraphInfoFile() {
-        return new File(getActiveGraphDirectory(), getActiveGraphInfoFileName());
+    default File getActiveGraphBuildInfoFile() {
+        return new File(getActiveGraphDirectory(), getActiveGraphBuildInfoFileName());
     }
 
     /**
-     * DownloadedGraphInfoFile is the file with info about the latest graph at the repository.
+     * DownloadedGraphBuildInfoFile is the file with info about the latest graph at the repository.
      */
-    String getDownloadedGraphInfoFileName();
+    String getDownloadedGraphBuildInfoFileName();
 
-    String getDownloadedGraphInfoFileAbsPath();
+    String getDownloadedGraphBuildInfoFileAbsPath();
 
-    default File getDownloadedGraphInfoFile() {
-        return new File(getDownloadedGraphInfoFileAbsPath());
+    default File getDownloadedGraphBuildInfoFile() {
+        return new File(getDownloadedGraphBuildInfoFileAbsPath());
     }
 
     /**
@@ -90,11 +90,11 @@ public interface ORSGraphFolderStrategy {
         return new File(getDownloadedExtractedGraphDirAbsPath());
     }
 
-    default String getDownloadedExtractedGraphInfoFileName() {
-        return getActiveGraphInfoFileName();
+    default String getDownloadedExtractedGraphBuildInfoFileName() {
+        return getActiveGraphBuildInfoFileName();
     }
 
-    default File getDownloadedExtractedGraphInfoFile() {
-        return new File(getDownloadedExtractedGraphDirectory(), getDownloadedExtractedGraphInfoFileName());
+    default File getDownloadedExtractedGraphBuildInfoFile() {
+        return new File(getDownloadedExtractedGraphDirectory(), getDownloadedExtractedGraphBuildInfoFileName());
     }
 }

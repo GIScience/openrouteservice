@@ -103,7 +103,7 @@ class HttpRepoManagerTest {
     }
 
     private void setupActiveGraphDirectory(Long osmDateLocal, ORSGraphFileManager orsGraphFileManager) {
-        saveActiveGraphInfoFile(orsGraphFileManager.getActiveGraphInfoFile(), osmDateLocal, null);
+        saveActiveGraphBuildInfoFile(orsGraphFileManager.getActiveGraphBuildInfoFile(), osmDateLocal, null);
     }
 
     private static void printFileContent(String label, File file) throws IOException {
@@ -165,10 +165,10 @@ class HttpRepoManagerTest {
         for (File file : Objects.requireNonNull(activeGraphDirectory.listFiles())) {
             printValue(file.getAbsolutePath());
         }
-        File activeGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getActiveGraphInfoFile();
-        assertTrue(activeGraphInfoFile.exists());
-        printFileContent("activeGraphInfoFile", activeGraphInfoFile);
-        String content = readFileToString(activeGraphInfoFile, "UTF-8");
+        File activeGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getActiveGraphBuildInfoFile();
+        assertTrue(activeGraphBuildInfoFile.exists());
+        printFileContent("activeGraphBuildInfoFile", activeGraphBuildInfoFile);
+        String content = readFileToString(activeGraphBuildInfoFile, "UTF-8");
         assertTrue(content.contains("graph_build_date: 2023-08-18T15:38:31+0000"));
     }
 
@@ -178,9 +178,9 @@ class HttpRepoManagerTest {
 
         orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertFalse(downloadedGraphInfoFile.exists());
+        assertFalse(downloadedGraphBuildInfoFile.exists());
         assertFalse(downloadedCompressedGraphFile.exists());
     }
 
@@ -190,9 +190,9 @@ class HttpRepoManagerTest {
 
         orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertTrue(downloadedGraphInfoFile.exists());
+        assertTrue(downloadedGraphBuildInfoFile.exists());
         assertTrue(downloadedCompressedGraphFile.exists());
     }
 
@@ -202,9 +202,9 @@ class HttpRepoManagerTest {
 
         orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertTrue(downloadedGraphInfoFile.exists());
+        assertTrue(downloadedGraphBuildInfoFile.exists());
         assertTrue(downloadedCompressedGraphFile.exists());
     }
 
@@ -214,9 +214,9 @@ class HttpRepoManagerTest {
 
         orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertTrue(downloadedGraphInfoFile.exists());
+        assertTrue(downloadedGraphBuildInfoFile.exists());
         assertFalse(downloadedCompressedGraphFile.exists());
     }
 
@@ -226,9 +226,9 @@ class HttpRepoManagerTest {
 
         orsGraphHelper.getOrsGraphRepoClient().downloadGraphIfNecessary();
 
-        File downloadedGraphInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphInfoFile();
+        File downloadedGraphBuildInfoFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedGraphBuildInfoFile();
         File downloadedCompressedGraphFile = orsGraphHelper.getOrsGraphFileManager().getDownloadedCompressedGraphFile();
-        assertTrue(downloadedGraphInfoFile.exists());
+        assertTrue(downloadedGraphBuildInfoFile.exists());
         assertFalse(downloadedCompressedGraphFile.exists());
     }
 
