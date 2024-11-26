@@ -508,7 +508,7 @@ public class RoutingProfileManager {
             return 0;
     }
 
-    public RoutingProfile getRouteProfileForRequest(RoutingRequest req, boolean oneToMany) throws Exception {
+    public RoutingProfile getRouteProfileForRequest(RoutingRequest req, boolean oneToMany) throws InternalServerException, ServerLimitExceededException, ParameterValueException {
         RouteSearchParameters searchParams = req.getSearchParameters();
         String profileName = searchParams.getProfileName();
 

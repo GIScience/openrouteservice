@@ -420,7 +420,7 @@ public class RoutingProfile {
         return astarEpsilon;
     }
 
-    public RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
+    public RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws InternalServerException {
         PMap props = new PMap();
 
         int profileType = searchParams.getProfileType();
