@@ -54,7 +54,7 @@ public class EndpointsProperties {
         private int maximumRoutesFlexible;
         private int maximumVisitedNodes;
         private double maximumSearchRadius;
-        private double uTurnCost;
+        private double uTurnCosts;
 
         public int getMaximumRoutes(boolean flexible) {
             return (flexible ? maximumRoutesFlexible : maximumRoutes);

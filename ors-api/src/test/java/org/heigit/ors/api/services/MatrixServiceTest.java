@@ -87,7 +87,7 @@ class MatrixServiceTest {
         matrixRequest = new MatrixRequest(
                 endpointsProperties.getMatrix().getMaximumSearchRadius(),
                 endpointsProperties.getMatrix().getMaximumVisitedNodes(),
-                endpointsProperties.getMatrix().getUTurnCost());
+                endpointsProperties.getMatrix().getUTurnCosts());
         matrixRequest.setResolveLocations(true);
         matrixRequest.setMetrics(MatrixMetricsType.DURATION);
         matrixRequest.setSources(coordinates);
@@ -98,7 +98,7 @@ class MatrixServiceTest {
         bareMatrixRequest = new MatrixRequest(
                 endpointsProperties.getMatrix().getMaximumSearchRadius(),
                 endpointsProperties.getMatrix().getMaximumVisitedNodes(),
-                endpointsProperties.getMatrix().getUTurnCost());
+                endpointsProperties.getMatrix().getUTurnCosts());
         bareMatrixRequest.setSources(coordinates);
         bareMatrixRequest.setDestinations(coordinates);
 
