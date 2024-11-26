@@ -173,7 +173,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         ORSGraphHopper gh = (ORSGraphHopper) super.importOrLoad();
 
-        writeOrsGraphInfoFileIfNotExists(gh);
+        writeOrsGraphBuildInfoFileIfNotExists(gh);
 
         if ((tmcEdges != null) && (osmId2EdgeIds != null)) {
             java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
@@ -211,8 +211,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return gh;
     }
 
-    private void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {
-        orsGraphManager.writeOrsGraphInfoFileIfNotExists(gh);
+    private void writeOrsGraphBuildInfoFileIfNotExists(ORSGraphHopper gh) {
+        orsGraphManager.writeOrsGraphBuildInfoFileIfNotExists(gh);
     }
 
     @Override

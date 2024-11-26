@@ -1,7 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
-import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
-import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
@@ -57,26 +57,26 @@ public class TestAbstractGraphRepoClientTest {
         Date epocStart = new Date(0);
         return Stream.of(
                 Arguments.of(new Date(0), null),
-                Arguments.of(epocStart, new GraphInfo()),
-                Arguments.of(epocStart, new GraphInfo().setLocalDirectory(tempDir.toFile())),
-                Arguments.of(epocStart, new GraphInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
-                Arguments.of(epocStart, new GraphInfo().setPersistedGraphInfo(null)),
-                Arguments.of(epocStart, new GraphInfo().setPersistedGraphInfo(new PersistedGraphInfo())),
-                Arguments.of(epocStart, new GraphInfo().setPersistedGraphInfo(PersistedGraphInfo.withOsmDate(now))),
-                Arguments.of(now, new GraphInfo().setPersistedGraphInfo(PersistedGraphInfo.withGraphBuildDate(now)))
+                Arguments.of(epocStart, new GraphBuildInfo()),
+                Arguments.of(epocStart, new GraphBuildInfo().setLocalDirectory(tempDir.toFile())),
+                Arguments.of(epocStart, new GraphBuildInfo().withRemoteUrl(new URL("http://some.url.ors/"))),
+                Arguments.of(epocStart, new GraphBuildInfo().setPersistedGraphBuildInfo(null)),
+                Arguments.of(epocStart, new GraphBuildInfo().setPersistedGraphBuildInfo(new PersistedGraphBuildInfo())),
+                Arguments.of(epocStart, new GraphBuildInfo().setPersistedGraphBuildInfo(PersistedGraphBuildInfo.withOsmDate(now))),
+                Arguments.of(now, new GraphBuildInfo().setPersistedGraphBuildInfo(PersistedGraphBuildInfo.withGraphBuildDate(now)))
         );
     }
 
     @ParameterizedTest
     @MethodSource("comparisonDates")
-    void getDateOrEpocStart(Date expectedDate, GraphInfo graphInfo) {
-        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(graphInfo));
+    void getDateOrEpocStart(Date expectedDate, GraphBuildInfo graphBuildInfo) {
+        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(graphBuildInfo));
     }
 
     @ParameterizedTest
     @MethodSource("comparisonDatesForDownloadFiles")
-    void getDateOrEpocStart(Date expectedDate, File downloadFile, PersistedGraphInfo persistedGraphInfo) {
-        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(downloadFile, persistedGraphInfo));
+    void getDateOrEpocStart(Date expectedDate, File downloadFile, PersistedGraphBuildInfo persistedGraphBuildInfo) {
+        assertEquals(expectedDate, orsGraphRepoManager.getDateOrEpocStart(downloadFile, persistedGraphBuildInfo));
     }
 
     public static Stream<Arguments> comparisonDatesForDownloadFiles() throws IOException {
@@ -88,19 +88,19 @@ public class TestAbstractGraphRepoClientTest {
         existingFile.createNewFile();
         return Stream.of(
                 Arguments.of(epocStart, null, null),
-                Arguments.of(epocStart, null, new PersistedGraphInfo()),
-                Arguments.of(epocStart, null, PersistedGraphInfo.withOsmDate(now)),
-                Arguments.of(epocStart, null, PersistedGraphInfo.withGraphBuildDate(now)),
+                Arguments.of(epocStart, null, new PersistedGraphBuildInfo()),
+                Arguments.of(epocStart, null, PersistedGraphBuildInfo.withOsmDate(now)),
+                Arguments.of(epocStart, null, PersistedGraphBuildInfo.withGraphBuildDate(now)),
 
                 Arguments.of(epocStart, nonexistingFile, null),
-                Arguments.of(epocStart, nonexistingFile, new PersistedGraphInfo()),
-                Arguments.of(epocStart, nonexistingFile, PersistedGraphInfo.withOsmDate(now)),
-                Arguments.of(epocStart, nonexistingFile, PersistedGraphInfo.withGraphBuildDate(now)),
+                Arguments.of(epocStart, nonexistingFile, new PersistedGraphBuildInfo()),
+                Arguments.of(epocStart, nonexistingFile, PersistedGraphBuildInfo.withOsmDate(now)),
+                Arguments.of(epocStart, nonexistingFile, PersistedGraphBuildInfo.withGraphBuildDate(now)),
 
                 Arguments.of(epocStart, existingFile, null),
-                Arguments.of(epocStart, existingFile, new PersistedGraphInfo()),
-                Arguments.of(epocStart, existingFile, PersistedGraphInfo.withOsmDate(now)),
-                Arguments.of(now, existingFile, PersistedGraphInfo.withGraphBuildDate(now))
+                Arguments.of(epocStart, existingFile, new PersistedGraphBuildInfo()),
+                Arguments.of(epocStart, existingFile, PersistedGraphBuildInfo.withOsmDate(now)),
+                Arguments.of(now, existingFile, PersistedGraphBuildInfo.withGraphBuildDate(now))
         );
     }
 

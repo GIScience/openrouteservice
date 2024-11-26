@@ -288,13 +288,14 @@ The internal value for the specific profile wins over the user's `profile_defaul
 
 The configured profile properties in `ors.engine.profiles.<profile>.build` (and `ors.engine.profile_default.build`)
 are used to _build_ a graph.
-openrouteservice stores these build properties in the file `graphs/<profile>/graph_info.yml` when a graph is computed.
+openrouteservice stores these build properties in the file `graphs/<profile>/graph_build_info.yml` when a graph is
+computed.
 
 When openrouteservice is _loading_ an existing graph instead of building it,
 the persisted build parameters are again loaded from this file,
 locally configured build parameters for the affected routing profile are overridden.
 
-Therefore, the file `graph_info.yml` must not be edited!
+Therefore, the file `graph_build_info.yml` must not be edited!
 The content of this file is also used for repository lookups by
 the ([Graph Repo Client](/technical-details/graph-repo-client/index.md)). 
 

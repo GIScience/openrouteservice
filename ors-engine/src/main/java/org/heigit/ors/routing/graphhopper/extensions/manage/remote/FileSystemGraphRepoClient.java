@@ -2,9 +2,9 @@ package org.heigit.ors.routing.graphhopper.extensions.manage.remote;
 
 import org.apache.log4j.Logger;
 import org.heigit.ors.exceptions.ORSGraphFileManagerException;
-import org.heigit.ors.routing.graphhopper.extensions.manage.GraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
-import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphInfo;
+import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.local.ORSGraphFileManager;
 
 import java.io.File;
@@ -54,26 +54,26 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
 
         LOGGER.debug("[%s] Checking for possible graph update from remote repository...".formatted(getProfileDescriptiveName()));
         try {
-            PersistedGraphInfo previouslyDownloadedGraphInfo = orsGraphFileManager.getDownloadedGraphInfo();
+            PersistedGraphBuildInfo previouslyDownloadedGraphBuildInfo = orsGraphFileManager.getDownloadedGraphBuildInfo();
             File downloadedCompressedGraphFile = orsGraphFileManager.getDownloadedCompressedGraphFile();
-            GraphInfo activeGraphInfo = orsGraphFileManager.getActiveGraphInfo();
-            GraphInfo downloadedExtractedGraphInfo = orsGraphFileManager.getDownloadedExtractedGraphInfo();
-            GraphInfo newlyDownloadedGraphInfo = downloadLatestGraphInfoFromRepository();
+            GraphBuildInfo activeGraphBuildInfo = orsGraphFileManager.getActiveGraphBuildInfo();
+            GraphBuildInfo downloadedExtractedGraphBuildInfo = orsGraphFileManager.getDownloadedExtractedGraphBuildInfo();
+            GraphBuildInfo newlyDownloadedGraphBuildInfo = downloadLatestGraphBuildInfoFromRepository();
             LOGGER.trace(("[%s] Comparing dates, downloading if first is after the others:%n" +
                     "                         repo=%s%n" +
-                    "              activeGraphInfo=%s%n" +
-                    " downloadedExtractedGraphInfo=%s%n" +
-                    "previouslyDownloadedGraphInfo=%s").formatted(getProfileDescriptiveName(),
-                    getDateOrEpocStart(newlyDownloadedGraphInfo),
-                    getDateOrEpocStart(activeGraphInfo),
-                    getDateOrEpocStart(downloadedExtractedGraphInfo),
-                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphInfo)));
+                    "              activeGraphBuildInfo=%s%n" +
+                    " downloadedExtractedGraphBuildInfo=%s%n" +
+                    "previouslyDownloadedGraphBuildInfo=%s").formatted(getProfileDescriptiveName(),
+                    getDateOrEpocStart(newlyDownloadedGraphBuildInfo),
+                    getDateOrEpocStart(activeGraphBuildInfo),
+                    getDateOrEpocStart(downloadedExtractedGraphBuildInfo),
+                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphBuildInfo)));
 
             if (!shouldDownloadGraph(
-                    getDateOrEpocStart(newlyDownloadedGraphInfo),
-                    getDateOrEpocStart(activeGraphInfo),
-                    getDateOrEpocStart(downloadedExtractedGraphInfo),
-                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphInfo))) {
+                    getDateOrEpocStart(newlyDownloadedGraphBuildInfo),
+                    getDateOrEpocStart(activeGraphBuildInfo),
+                    getDateOrEpocStart(downloadedExtractedGraphBuildInfo),
+                    getDateOrEpocStart(downloadedCompressedGraphFile, previouslyDownloadedGraphBuildInfo))) {
                 LOGGER.info("[%s] No newer graph found in repository.".formatted(getProfileDescriptiveName()));
                 return;
             }
@@ -93,31 +93,31 @@ public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implement
         }
     }
 
-    GraphInfo downloadLatestGraphInfoFromRepository() throws ORSGraphFileManagerException {
-        GraphInfo latestGraphInfoInRepo = new GraphInfo();
-        LOGGER.debug("[%s] Checking latest graphInfo in remote repository...".formatted(getProfileDescriptiveName()));
+    GraphBuildInfo downloadLatestGraphBuildInfoFromRepository() throws ORSGraphFileManagerException {
+        GraphBuildInfo latestGraphBuildInfoInRepo = new GraphBuildInfo();
+        LOGGER.debug("[%s] Checking latest graphBuildInfo in remote repository...".formatted(getProfileDescriptiveName()));
 
-        Path latestGraphInfoInRepoPath = Path.of(graphsRepoPath, graphsRepoName, graphsProfileGroup, graphsRepoCoverage, graphsRepoGraphVersion, orsGraphRepoStrategy.getRepoGraphInfoFileName());
-        if (!latestGraphInfoInRepoPath.toFile().exists()) {
-            LOGGER.info("[%s] No graphInfo found in remote repository: %s".formatted(getProfileDescriptiveName(), latestGraphInfoInRepoPath.toFile().getAbsolutePath()));
-            return latestGraphInfoInRepo;
+        Path latestGraphBuildInfoInRepoPath = Path.of(graphsRepoPath, graphsRepoName, graphsProfileGroup, graphsRepoCoverage, graphsRepoGraphVersion, orsGraphRepoStrategy.getRepoGraphBuildInfoFileName());
+        if (!latestGraphBuildInfoInRepoPath.toFile().exists()) {
+            LOGGER.info("[%s] No graphBuildInfo found in remote repository: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath.toFile().getAbsolutePath()));
+            return latestGraphBuildInfoInRepo;
         }
 
-        File downloadedGraphInfoFile = orsGraphFileManager.getDownloadedGraphInfoFile();
-        downloadFile(latestGraphInfoInRepoPath, downloadedGraphInfoFile);
+        File downloadedGraphBuildInfoFile = orsGraphFileManager.getDownloadedGraphBuildInfoFile();
+        downloadFile(latestGraphBuildInfoInRepoPath, downloadedGraphBuildInfoFile);
 
-        if (downloadedGraphInfoFile.exists()) {
+        if (downloadedGraphBuildInfoFile.exists()) {
             Path latestCompressedGraphInRepoPath = Path.of(graphsRepoPath, graphsRepoName, graphsProfileGroup, graphsRepoCoverage, graphsRepoGraphVersion, orsGraphRepoStrategy.getRepoCompressedGraphFileName());
             URI uri = latestCompressedGraphInRepoPath.toUri();
-            latestGraphInfoInRepo.setRemoteUri(uri);
+            latestGraphBuildInfoInRepo.setRemoteUri(uri);
 
-            PersistedGraphInfo persistedGraphInfo = orsGraphFileManager.readOrsGraphInfo(downloadedGraphInfoFile);
-            latestGraphInfoInRepo.setPersistedGraphInfo(persistedGraphInfo);
+            PersistedGraphBuildInfo persistedGraphBuildInfo = orsGraphFileManager.readOrsGraphBuildInfo(downloadedGraphBuildInfoFile);
+            latestGraphBuildInfoInRepo.setPersistedGraphBuildInfo(persistedGraphBuildInfo);
         } else {
-            LOGGER.error("[%s] Invalid download path for graphInfo file: %s".formatted(getProfileDescriptiveName(), latestGraphInfoInRepoPath));
+            LOGGER.error("[%s] Invalid download path for graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), latestGraphBuildInfoInRepoPath));
         }
 
-        return latestGraphInfoInRepo;
+        return latestGraphBuildInfoInRepo;
     }
 
     public void downloadFile(Path repoPath, File localPath) {

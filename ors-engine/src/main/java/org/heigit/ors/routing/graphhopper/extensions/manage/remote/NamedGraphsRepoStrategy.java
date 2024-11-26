@@ -28,7 +28,7 @@ public class NamedGraphsRepoStrategy implements ORSGraphRepoStrategy {
     }
 
     @Override
-    public String getRepoGraphInfoFileName() {
-        return getConcatenatedRepoFileName(ORSGraphFolderStrategy.GRAPH_INFO_FILE_EXTENSION);
+    public String getRepoGraphBuildInfoFileName() {
+        return getConcatenatedRepoFileName(ORSGraphFolderStrategy.GRAPH_BUILD_INFO_FILE_EXTENSION);
     }
 }

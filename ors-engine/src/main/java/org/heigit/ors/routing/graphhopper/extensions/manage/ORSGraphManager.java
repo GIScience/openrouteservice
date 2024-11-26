@@ -152,18 +152,18 @@ public class ORSGraphManager {
         return restartLockFile.exists();
     }
 
-    public void writeOrsGraphInfoFileIfNotExists(ORSGraphHopper gh) {
-        orsGraphFileManager.writeOrsGraphInfoFileIfNotExists(gh);
+    public void writeOrsGraphBuildInfoFileIfNotExists(ORSGraphHopper gh) {
+        orsGraphFileManager.writeOrsGraphBuildInfoFileIfNotExists(gh);
     }
 
-    public GraphInfo getActiveGraphInfo() throws ORSGraphFileManagerException {
-        return orsGraphFileManager.getActiveGraphInfo();
+    public GraphBuildInfo getActiveGraphBuildInfo() throws ORSGraphFileManagerException {
+        return orsGraphFileManager.getActiveGraphBuildInfo();
     }
 
     public ProfileProperties getActiveGraphProfileProperties() throws ORSGraphFileManagerException {
-        return ofNullable(getActiveGraphInfo())
-                .map(GraphInfo::getPersistedGraphInfo)
-                .map(PersistedGraphInfo::getProfileProperties)
+        return ofNullable(getActiveGraphBuildInfo())
+                .map(GraphBuildInfo::getPersistedGraphBuildInfo)
+                .map(PersistedGraphBuildInfo::getProfileProperties)
                 .orElse(null);
     }
 }
