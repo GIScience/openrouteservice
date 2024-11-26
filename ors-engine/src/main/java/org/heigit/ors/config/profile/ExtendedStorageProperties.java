@@ -231,7 +231,6 @@ public class ExtendedStorageProperties {
             }
 
             if (logLocation == null || logLocation.equals(emptyPath)) {
-                // TODO: check if we want to keep this functionality
                 this.logLocation = Path.of("./here_matching.log");
             }
 

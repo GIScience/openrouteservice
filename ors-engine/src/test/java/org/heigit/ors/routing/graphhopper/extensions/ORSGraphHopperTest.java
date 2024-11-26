@@ -190,7 +190,6 @@ class ORSGraphHopperTest {
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profileProperties);
         gh.init(ghConfig);
         gh.setGraphStorageFactory(new ORSGraphStorageFactory(gpc.getStorageBuilders()));
-        gh.setProfileName(ROUTE_PROFILE_NAME);
         return gh;
     }
 

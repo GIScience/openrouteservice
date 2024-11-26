@@ -120,7 +120,6 @@ public class RoutingProfile {
         gpc.setGetElevationFromPreprocessedData(engineProperties.getElevation().getPreprocessed());
 
         ORSGraphHopper gh = new ORSGraphHopper(gpc, engineProperties, profileProperties);
-        gh.setProfileName(profileName);
         gh.setOrsGraphManager(orsGraphManager);
         ORSDefaultFlagEncoderFactory flagEncoderFactory = new ORSDefaultFlagEncoderFactory();
         gh.setFlagEncoderFactory(flagEncoderFactory);
@@ -184,7 +183,6 @@ public class RoutingProfile {
         if (elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
             ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
             ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
-            // TODO check
             ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
             ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
             if (Boolean.TRUE.equals(profile.getBuild().getInterpolateBridgesAndTunnels()))
@@ -271,7 +269,6 @@ public class RoutingProfile {
                     prepareCore = Boolean.TRUE.equals(coreOpts.getEnabled());
                     if (prepareCore) {
                         if (coreOpts.getThreadsSave() != null) {
-                            // TODO check with taki
                             Integer threadsCore = coreOpts.getThreadsSave();
                             ghConfig.putObject("prepare.core.threads", threadsCore);
                             ghConfig.putObject("prepare.corelm.threads", threadsCore);
@@ -369,7 +366,6 @@ public class RoutingProfile {
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
         ghConfig.putObject("index.high_resolution", profile.getBuild().getLocationIndexResolution());
         ghConfig.putObject("index.max_region_search", profile.getBuild().getLocationIndexSearchIterations());
-//        ghConfig.putObject("ext_storages", profile.getExtStorages());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
@@ -382,15 +378,6 @@ public class RoutingProfile {
                 hasCHProfile = true;
         }
         return hasCHProfile;
-    }
-
-    private boolean hasCoreProfile(String profileName) {
-        boolean hasCoreProfile = false;
-        for (CHProfile chProfile : getGraphhopper().getCorePreparationHandler().getCHProfiles()) {
-            if (profileName.equals(chProfile.getProfile()))
-                hasCoreProfile = true;
-        }
-        return hasCoreProfile;
     }
 
     public long getMemoryUsage() {
@@ -431,98 +418,6 @@ public class RoutingProfile {
 
     public Double getAstarEpsilon() {
         return astarEpsilon;
-    }
-
-
-    /**
-     * This function creates the actual {@link IsochroneMap}.
-     * It is important, that whenever attributes contains pop_total it must also contain pop_area. If not the data won't be complete.
-     * So the first step in the function is a checkup on that.
-     *
-     * @param parameters The input are {@link IsochroneSearchParameters}
-     * @param attributes The input are a {@link String}[] holding the attributes if set
-     * @return The return will be an {@link IsochroneMap}
-     * @throws Exception
-     */
-    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters, String[] attributes) throws Exception {
-        // Checkup for pop_total. If the value is set, pop_area must always be set here, if not already done so by the user.
-        String[] tempAttributes;
-        if (Arrays.toString(attributes).contains(ProfileTools.KEY_TOTAL_POP.toLowerCase()) && !(Arrays.toString(attributes).contains(ProfileTools.KEY_TOTAL_AREA_KM.toLowerCase()))) {
-            tempAttributes = new String[attributes.length + 1];
-            int i = 0;
-            while (i < attributes.length) {
-                String attribute = attributes[i];
-                tempAttributes[i] = attribute;
-                i++;
-            }
-            tempAttributes[i] = ProfileTools.KEY_TOTAL_AREA_KM;
-        } else if ((Arrays.toString(attributes).contains(ProfileTools.KEY_TOTAL_AREA_KM.toLowerCase())) && (!Arrays.toString(attributes).contains(ProfileTools.KEY_TOTAL_POP.toLowerCase()))) {
-            tempAttributes = new String[attributes.length + 1];
-            int i = 0;
-            while (i < attributes.length) {
-                String attribute = attributes[i];
-                tempAttributes[i] = attribute;
-                i++;
-            }
-            tempAttributes[i] = ProfileTools.KEY_TOTAL_POP;
-        } else {
-            tempAttributes = attributes;
-        }
-
-
-        IsochroneMap result;
-
-        try {
-            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());
-
-            IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
-            result = isochroneMapBuilderFactory.buildMap(parameters);
-
-        } catch (Exception ex) {
-            if (DebugUtility.isDebug()) {
-                LOGGER.error(ex);
-            }
-            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
-        }
-
-        if (tempAttributes != null && result.getIsochronesCount() > 0) {
-            try {
-                Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<>();
-                for (String attr : tempAttributes) {
-                    StatisticsProviderConfiguration provConfig = parameters.getStatsProviders().get(attr);
-
-                    if (provConfig != null) {
-                        if (mapProviderToAttrs.containsKey(provConfig)) {
-                            List<String> attrList = mapProviderToAttrs.get(provConfig);
-                            attrList.add(attr);
-                        } else {
-                            List<String> attrList = new ArrayList<>();
-                            attrList.add(attr);
-                            mapProviderToAttrs.put(provConfig, attrList);
-                        }
-                    }
-                }
-
-                for (Map.Entry<StatisticsProviderConfiguration, List<String>> entry : mapProviderToAttrs.entrySet()) {
-                    StatisticsProviderConfiguration provConfig = entry.getKey();
-                    StatisticsProvider provider = StatisticsProviderFactory.getProvider(provConfig.getName(), provConfig.getParameters());
-                    String[] provAttrs = provConfig.getMappedProperties(entry.getValue());
-
-                    for (Isochrone isochrone : result.getIsochrones()) {
-                        double[] attrValues = provider.getStatistics(isochrone, provAttrs);
-                        isochrone.setAttributes(entry.getValue(), attrValues, provConfig.getAttribution());
-                    }
-                }
-
-            } catch (Exception ex) {
-                if (DebugUtility.isDebug()) {
-                    LOGGER.error(ex);
-                }
-                throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone attributes.");
-            }
-        }
-
-        return result;
     }
 
     public RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws Exception {
@@ -633,7 +528,7 @@ public class RoutingProfile {
         }
         if (useCore) {
             // fallback to a core profile without turn costs if one is available
-            if (!mGraphHopper.isCoreAvailable(profileName) && mGraphHopper.isCoreAvailable(profileNameNoTC))
+            if (!mGraphHopper.isCoreAvailable(requestProfileName) && mGraphHopper.isCoreAvailable(profileNameNoTC))
                 req.setProfile(profileNameNoTC);
         }
     }
@@ -647,7 +542,7 @@ public class RoutingProfile {
         if (flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)))
             return true;
 
-        if (WeightingMethod.SHORTEST==searchParams.getWeightingMethod())
+        if (WeightingMethod.SHORTEST == searchParams.getWeightingMethod())
             return false;
 
         return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
