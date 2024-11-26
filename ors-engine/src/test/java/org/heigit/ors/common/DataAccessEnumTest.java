@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DataAccessEnumTest {
+class DataAccessEnumTest {
 
     @Test
-    public void testEnum() {
+    void testEnum() {
         DataAccessEnum[] dataAccessEnums = DataAccessEnum.values();
         assertEquals(3, dataAccessEnums.length);
         assertEquals(DataAccessEnum.RAM_STORE, dataAccessEnums[0]);
@@ -23,14 +23,14 @@ public class DataAccessEnumTest {
     }
 
     @Test
-    public void testGetStore() {
+    void testGetStore() {
         assertEquals("RAM_STORE", DataAccessEnum.RAM_STORE.getStore());
         assertEquals("MMAP", DataAccessEnum.MMAP.getStore());
         assertEquals("MMAP_RO", DataAccessEnum.MMAP_RO.getStore());
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         assertEquals("RAM_STORE", DataAccessEnum.RAM_STORE.toString());
         assertEquals("MMAP", DataAccessEnum.MMAP.toString());
         assertEquals("MMAP_RO", DataAccessEnum.MMAP_RO.toString());

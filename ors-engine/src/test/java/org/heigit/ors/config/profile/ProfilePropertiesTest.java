@@ -21,11 +21,6 @@ class ProfilePropertiesTest {
 
     @Test
     void testWithEmptyExtendedStorages() throws JsonProcessingException {
-        // This will initialize custom storages to make sure only them are deserialized without adding any other default storages.
-        // Example JSON:
-        //       car:
-        //        encoder_name: driving-car
-        //        ext_storages: {}
         String json = "{\"encoder_name\":\"driving-car\",\"build\":{\"ext_storages\":{}}}";
         ProfileProperties foo = mapper.readValue(json, ProfileProperties.class);
         assertEquals(EncoderNameEnum.DRIVING_CAR, foo.getEncoderName());

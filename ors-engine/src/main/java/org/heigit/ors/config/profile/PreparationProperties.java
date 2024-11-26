@@ -24,6 +24,7 @@ public class PreparationProperties {
     }
 
     public PreparationProperties(String ignored) {
+        // This constructor is used to create an empty object for the purpose of ignoring it in the JSON serialization.
     }
 
     @JsonIgnore
@@ -91,6 +92,7 @@ public class PreparationProperties {
             private Integer landmarks;
 
             @JsonIgnore
+            @Override
             public boolean isEmpty() {
                 return super.isEmpty() && landmarks == null;
             }
@@ -108,6 +110,7 @@ public class PreparationProperties {
             private String lmsets;
 
             @JsonIgnore
+            @Override
             public boolean isEmpty() {
                 return super.isEmpty() && lmsets == null;
             }
@@ -125,6 +128,7 @@ public class PreparationProperties {
             private Integer maxcellnodes;
 
             @JsonIgnore
+            @Override
             public boolean isEmpty() {
                 return super.isEmpty() && maxcellnodes == null;
             }

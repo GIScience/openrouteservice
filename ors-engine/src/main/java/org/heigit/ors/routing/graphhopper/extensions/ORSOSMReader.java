@@ -36,7 +36,6 @@ public class ORSOSMReader extends OSMReader {
 
     private final GraphProcessContext procCntx;
     private boolean processNodeTags;
-    private final OSMDataReaderContext readerCntx;
 
     private final HashMap<Long, HashMap<String, String>> nodeTags = new HashMap<>();
 
@@ -58,7 +57,6 @@ public class ORSOSMReader extends OSMReader {
         enforce2D();
         this.procCntx = procCntx;
         this.procCntx.initArrays();
-        this.readerCntx = new OSMDataReaderContext(this);
         getElevationFromPreprocessedData = procCntx.getElevationFromPreprocessedData();
 
         initNodeTagsToStore(new HashSet<>(Arrays.asList("maxheight", "maxweight", "maxweight:hgv", "maxwidth", "maxlength", "maxlength:hgv", "maxaxleload")));

@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 
 public class RoutingProfileManager {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfileManager.class.getName());
-    private static final String SOURCE_PROPERTY_NAME = "source_file";
     public static final String KEY_SKIPPED_EXTRA_INFO = "skipped_extra_info";
     private LinkedHashMap<String, RoutingProfile> routingProfiles = new LinkedHashMap<>();
     private static RoutingProfileManager instance;
@@ -509,7 +508,7 @@ public class RoutingProfileManager {
             return 0;
     }
 
-    public RoutingProfile getRouteProfileForRequest(RoutingRequest req, boolean oneToMany) throws Exception {
+    public RoutingProfile getRouteProfileForRequest(RoutingRequest req, boolean oneToMany) throws InternalServerException, ServerLimitExceededException, ParameterValueException {
         RouteSearchParameters searchParams = req.getSearchParameters();
         String profileName = searchParams.getProfileName();
 
