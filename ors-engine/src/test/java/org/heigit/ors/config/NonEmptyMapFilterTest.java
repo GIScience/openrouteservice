@@ -20,10 +20,10 @@ class NonEmptyMapFilterTest {
         return Stream.of(
                 Arguments.of(null, true, "Null should return true"),
                 Arguments.of(0, false, "Non-map value should return false"),
-                Arguments.of(Integer.valueOf(0), false, "Non-map object should return false"),
+                Arguments.of(false, false, "Non-map object should return false"),
                 Arguments.of(new HashMap<>(), true, "Empty map should return true"),
                 Arguments.of(Map.of("key", "value"), false, "Non-empty map should return false"),
-                Arguments.of(Map.of(), false, "Empty immutable map created by Map.of() should return true but doesn't.")
+                Arguments.of(Map.of(), true, "Empty immutable map created by Map.of() should return true.")
         );
     }
 
