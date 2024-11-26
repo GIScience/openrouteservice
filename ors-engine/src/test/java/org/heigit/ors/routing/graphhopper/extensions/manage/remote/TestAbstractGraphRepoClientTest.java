@@ -20,17 +20,17 @@ import java.util.stream.Stream;
 import static org.heigit.ors.routing.graphhopper.extensions.manage.RepoManagerTestHelper.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestAbstractRepoManagerTest {
+public class TestAbstractGraphRepoClientTest {
 
     @TempDir(cleanup = CleanupMode.ALWAYS)
     private static Path tempDir;
 
-    TestAbstractRepoManager orsGraphRepoManager = new TestAbstractRepoManager();
+    TestAbstractGraphRepoClient orsGraphRepoManager = new TestAbstractGraphRepoClient();
 
     /**
      * This class is used to test the methods of AbstractRepoManager
      */
-    static class TestAbstractRepoManager extends AbstractRepoManager {
+    static class TestAbstractGraphRepoClient extends AbstractGraphRepoClient {
     }
 
     @ParameterizedTest

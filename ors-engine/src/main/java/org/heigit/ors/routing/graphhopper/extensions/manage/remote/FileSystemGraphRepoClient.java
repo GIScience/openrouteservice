@@ -16,9 +16,9 @@ import java.nio.file.StandardCopyOption;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-public class FileSystemRepoManager extends AbstractRepoManager implements ORSGraphRepoManager {
+public class FileSystemGraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
 
-    private static final Logger LOGGER = Logger.getLogger(FileSystemRepoManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(FileSystemGraphRepoClient.class.getName());
     private final String graphsRepoPath;
     private final String graphsRepoName;
     private final String graphsProfileGroup;
@@ -27,7 +27,7 @@ public class FileSystemRepoManager extends AbstractRepoManager implements ORSGra
     private final ORSGraphFileManager orsGraphFileManager;
     private final ORSGraphRepoStrategy orsGraphRepoStrategy;
 
-    public FileSystemRepoManager(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+    public FileSystemGraphRepoClient(GraphManagementRuntimeProperties graphManagementRuntimeProperties, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.graphsRepoPath = graphManagementRuntimeProperties.getDerivedRepoPath().toAbsolutePath().toString();
         this.graphsRepoName = graphManagementRuntimeProperties.getRepoName();
         this.graphsProfileGroup = graphManagementRuntimeProperties.getRepoProfileGroup();

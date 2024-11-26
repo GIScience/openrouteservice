@@ -169,7 +169,7 @@ public class TestContainersHelper {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Scheduled graph activation check: Downloaded extracted graph available",
                 "Scheduled graph activation check done: Performing graph activation...",
-                "Using FileSystemRepoManager for repoUri /tmp/test-filesystem-repo",
+                "Using FileSystemGraphRepoClient for repoUri /tmp/test-filesystem-repo",
                 "[" + profile + "] Deleted graph-info download file from previous application run: /home/ors/openrouteservice/graphs/vendor-xyz_fastisochrones_heidelberg_1_" + encoderName + ".yml",
                 "[" + profile + "] Found local graph and extracted downloaded graph",
                 "[" + profile + "] Renamed old local graph directory /home/ors/openrouteservice/graphs/driving-car to /home/ors/openrouteservice/graphs/" + profile + "_",
@@ -183,7 +183,7 @@ public class TestContainersHelper {
     public static boolean waitForSuccessfulGrcRepoInitWithoutExistingGraph(GenericContainer<?> container, String profile, String fileRepoName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
                 "[" + profile + "] Creating graph directory /home/ors/openrouteservice/graphs/" + profile,
-                "Using FileSystemRepoManager for repoUri " + fileRepoName,
+                "Using FileSystemGraphRepoClient for repoUri " + fileRepoName,
                 "[" + profile + "] No local graph or extracted downloaded graph found - trying to download and extract graph from repository"
         );
         return waitForLogPatterns(container, logPatterns, maxWaitTimeInSeconds, expected);
@@ -191,7 +191,7 @@ public class TestContainersHelper {
 
     public static boolean waitForSuccessfulGrcRepoInitWithExistingGraph(GenericContainer<?> container, String profile, String encoderName, String fileRepoName, int maxWaitTimeInSeconds, boolean expected) {
         List<String> logPatterns = List.of(
-                "Using FileSystemRepoManager for repoUri " + fileRepoName,
+                "Using FileSystemGraphRepoClient for repoUri " + fileRepoName,
                 "[" + profile + "] Found local graph only",
                 "[1] Profile: '" + profile + "', encoder: '" + encoderName + "', location: '/home/ors/openrouteservice/graphs/" + profile + "'",
                 "Adding orsGraphManager for profile " + profile + " with encoder " + encoderName + " to GraphService",

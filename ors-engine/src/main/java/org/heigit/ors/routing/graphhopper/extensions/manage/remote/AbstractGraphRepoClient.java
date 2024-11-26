@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
-abstract class AbstractRepoManager {
+abstract class AbstractGraphRepoClient {
 
     public boolean shouldDownloadGraph(Date remoteDate, Date activeDate, Date downloadedExtractedDate, Date downloadedCompressedDate) {
         Date newestLocalDate = newestDate(activeDate, downloadedExtractedDate, downloadedCompressedDate);

@@ -21,14 +21,14 @@ import java.util.stream.Stream;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 @NoArgsConstructor
-public class HttpRepoManager extends AbstractRepoManager implements ORSGraphRepoManager {
+public class HttpGraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
 
-    private static final Logger LOGGER = Logger.getLogger(HttpRepoManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(HttpGraphRepoClient.class.getName());
     private GraphManagementRuntimeProperties managementProps;
     private ORSGraphFileManager orsGraphFileManager;
     private ORSGraphRepoStrategy orsGraphRepoStrategy;
 
-    public HttpRepoManager(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
+    public HttpGraphRepoClient(GraphManagementRuntimeProperties managementProps, ORSGraphRepoStrategy orsGraphRepoStrategy, ORSGraphFileManager orsGraphFileManager) {
         this.managementProps = managementProps;
         this.orsGraphRepoStrategy = orsGraphRepoStrategy;
         this.orsGraphFileManager = orsGraphFileManager;
