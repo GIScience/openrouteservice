@@ -524,6 +524,7 @@ public class RoutingProfile {
             req.setProfile(profileNameCH);
         }
         if (useCore && !mGraphHopper.isCoreAvailable(requestProfileName) && mGraphHopper.isCoreAvailable(profileNameNoTC))
+            // fallback to a core profile without turn costs if one is available
             req.setProfile(profileNameNoTC);
 
     }
