@@ -342,14 +342,11 @@ public class RoutingProfile {
 
         if (profile.getService().getExecution() != null) {
             ExecutionProperties execution = profile.getService().getExecution();
-            if (!execution.getMethods().getCore().isEmpty()) {
-                if (execution.getMethods().getCore().getActiveLandmarks() != null)
-                    ghConfig.putObject("routing.corelm.active_landmarks", execution.getMethods().getCore().getActiveLandmarks());
-            }
-            if (!execution.getMethods().getLm().isEmpty()) {
-                if (execution.getMethods().getLm().getActiveLandmarks() != null)
-                    ghConfig.putObject("routing.lm.active_landmarks", execution.getMethods().getLm().getActiveLandmarks());
-            }
+            if (!execution.getMethods().getCore().isEmpty() && execution.getMethods().getCore().getActiveLandmarks() != null)
+                ghConfig.putObject("routing.corelm.active_landmarks", execution.getMethods().getCore().getActiveLandmarks());
+
+            if (!execution.getMethods().getLm().isEmpty() && execution.getMethods().getLm().getActiveLandmarks() != null)
+                ghConfig.putObject("routing.lm.active_landmarks", execution.getMethods().getLm().getActiveLandmarks());
         }
 
         if (Boolean.TRUE.equals(profile.getBuild().getOptimize()) && !prepareCH)
@@ -526,11 +523,9 @@ public class RoutingProfile {
             req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
             req.setProfile(profileNameCH);
         }
-        if (useCore) {
-            // fallback to a core profile without turn costs if one is available
-            if (!mGraphHopper.isCoreAvailable(requestProfileName) && mGraphHopper.isCoreAvailable(profileNameNoTC))
-                req.setProfile(profileNameNoTC);
-        }
+        if (useCore && !mGraphHopper.isCoreAvailable(requestProfileName) && mGraphHopper.isCoreAvailable(profileNameNoTC))
+            req.setProfile(profileNameNoTC);
+
     }
 
     boolean requiresTimeDependentAlgorithm(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
