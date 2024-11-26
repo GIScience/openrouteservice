@@ -11,4 +11,4 @@ Settings for the matrix endpoint.
 | maximum_routes_flexible | number  | Maximum amount of routes for profiles that do not have the CH routing algorithm enabled                                          | `25`                                               |
 | maximum_visited_nodes   | number  | Maximum allowed number of visited nodes in shortest path computation                                                             | `100000`                                           |
 | maximum_search_radius   | number  | Maximum allowed distance in meters between the requested coordinate and a point on the nearest road                              | `2000`                                             |
-| u_turn_cost             | number  | Penalty of performing a U-Turn; the value of `-1` prevents them entirely                                                         | `-1`                                               |
+| u_turn_costs            | number  | Penalty of performing a U-Turn; the value of `-1` prevents them entirely                                                         | `-1`                                               |
