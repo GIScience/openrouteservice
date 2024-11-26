@@ -81,7 +81,7 @@ public class StatusAPI {
                     ProfileProperties profile = rp.getProfileConfiguration();
                     JSONObject jProfileProps = new JSONObject(true);
 
-                    jProfileProps.put("encoder_name", profile.getEncoderName().getName());
+                    jProfileProps.put("encoder_name", profile.getEncoderName().getEncoderName());
                     jProfileProps.put("graph_build_date", rp.getGraphProperties().get("datareader.import.date"));
                     jProfileProps.put("osm_date", rp.getGraphProperties().get("datareader.data.date"));
 

@@ -5,5 +5,5 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = "ors.engine")
-public class EngineProperties extends org.heigit.ors.config.EngineProperties {
+public class ApiEngineProperties extends org.heigit.ors.config.EngineProperties {
 }

@@ -106,11 +106,7 @@ public class HereTrafficGraphStorageBuilder extends AbstractGraphStorageBuilder 
             throw new UnsupportedOperationException("GraphStorageBuilder has been already initialized.");
 
         ExtendedStorageProperties parameters;
-        try {
-            parameters = this.parameters;
-        } catch (ClassCastException e) {
-            throw new UnsupportedOperationException("GraphStorageBuilder configuration object is malformed.");
-        }
+        parameters = this.parameters;
 
         enabled = parameters.getEnabled() == null || parameters.getEnabled();
 
