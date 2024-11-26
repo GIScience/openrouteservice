@@ -82,6 +82,7 @@ public class ExtendedStorageProperties {
 
     @JsonCreator
     public ExtendedStorageProperties(String ignoredEmpty) {
+        // This constructor is used to create an empty object for the purpose of ignoring it in the JSON serialization.
     }
 
     public void merge(ExtendedStorageProperties other) {

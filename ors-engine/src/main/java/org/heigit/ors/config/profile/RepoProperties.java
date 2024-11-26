@@ -16,6 +16,7 @@ public class RepoProperties {
     }
 
     public RepoProperties(String ignored) {
+        // This constructor is used to create an empty object for the purpose of ignoring it in the JSON serialization.
     }
 
     public boolean isEmpty() {
