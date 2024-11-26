@@ -1,6 +1,7 @@
 package org.heigit.ors.config;
 
 import org.heigit.ors.config.utils.NonEmptyMapFilter;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -11,7 +12,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NonEmptyMapFilterTest {
+class NonEmptyMapFilterTest {
 
     NonEmptyMapFilter filter = new NonEmptyMapFilter();
 
@@ -28,7 +29,15 @@ public class NonEmptyMapFilterTest {
 
     @ParameterizedTest
     @MethodSource("params")
-    public void testEquals(Object testObject, boolean expectedResult, String message) {
+    void testEquals(Object testObject, boolean expectedResult, String message) {
         assertEquals(expectedResult, filter.equals(testObject), message);
+    }
+
+    @Test
+    void testHashCode() {
+        NonEmptyMapFilter filter1 = new NonEmptyMapFilter();
+        NonEmptyMapFilter filter2 = new NonEmptyMapFilter();
+
+        assertEquals(filter1.hashCode(), filter2.hashCode(), "Hash codes should be equal for instances of the same class");
     }
 }
