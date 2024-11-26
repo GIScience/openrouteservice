@@ -55,10 +55,10 @@ public class MatrixRequest extends ServiceRequest {
     private int maximumVisitedNodes;
     private boolean hasInfiniteUTurnCosts;
 
-    public MatrixRequest(double maximumSearchRadius, int maximumVisitedNodes, double uTurnCost) {
+    public MatrixRequest(double maximumSearchRadius, int maximumVisitedNodes, double uTurnCosts) {
         this.maximumSearchRadius = maximumSearchRadius;
         this.maximumVisitedNodes = maximumVisitedNodes;
-        this.hasInfiniteUTurnCosts = uTurnCost == Weighting.INFINITE_U_TURN_COSTS;
+        this.hasInfiniteUTurnCosts = uTurnCosts == Weighting.INFINITE_U_TURN_COSTS;
     }
 
     public String getProfileName() {
