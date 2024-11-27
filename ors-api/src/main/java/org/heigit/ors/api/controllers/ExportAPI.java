@@ -30,6 +30,7 @@ import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.export.ExportApiRequest;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
+import org.heigit.ors.api.responses.export.topojson.TopoJsonExportResponse;
 import org.heigit.ors.api.services.ExportService;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.exceptions.*;
@@ -129,18 +130,18 @@ public class ExportAPI {
 
     @PostMapping(value = "/{profile}/topojson", produces = {"application/json;charset=UTF-8"})
     @Operation(
-            description = "Returns a list of points, edges and weights within a given bounding box for a selected profile JSON.",
+            description = "Returns a list of edges, edge weights, and their topoloy within a given bounding box for a selected profile JSON.",
             summary = "Export Service JSON"
     )
     @ApiResponse(
             responseCode = "200",
-            description = "JSON Response.",
+            description = "TopoJSON Response.",
             content = {@Content(
                     mediaType = "application/geo+json",
-                    schema = @Schema(implementation = JsonExportResponse.class)
+                    schema = @Schema(implementation = TopoJsonExportResponse.class)
             )
             })
-    public JsonExportResponse getTopoJsonExport(
+    public TopoJsonExportResponse getTopoJsonExport(
             @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody ExportApiRequest request) throws StatusCodeException {
         request.setProfile(getProfileEnum(profile));
@@ -149,7 +150,7 @@ public class ExportAPI {
 
         ExportResult result = exportService.generateExportFromRequest(request);
 
-        return new JsonExportResponse(result);
+        return new TopoJsonExportResponse(result);
     }
 
 

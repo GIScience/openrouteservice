@@ -141,4 +141,20 @@ public class ParamsTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    void expectTopoJsonFormat() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("bboxProper"));
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", "driving-car")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/topojson")
+                .then()
+                .assertThat()
+                .body("type", is("Topology"))
+                .body("objects.layers.containsKey('layer')", is(true))
+                .statusCode(200);
+    }
 }
