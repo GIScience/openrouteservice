@@ -13,14 +13,14 @@
             "10": "10e"
         },
         "directions": {
-            "north": "noord",
-            "northeast": "noordoost",
-            "east": "oost",
-            "southeast": "zuidoost",
-            "south": "zuid",
-            "southwest": "zuidwest",
-            "west": "west",
-            "northwest": "noordwest"
+            "north": "noordelijke",
+            "northeast": "noordoostelijke",
+            "east": "oostelijke",
+            "southeast": "zuidoostelijke",
+            "south": "zuidelijke",
+            "southwest": "zuidwestelijke",
+            "west": "westelijke",
+            "northwest": "noordwestelijke"
         },
         "turn_maneuvers": {
             "left": "links",
@@ -36,71 +36,71 @@
             "arrive": {
                 "default": {
                     "default": "Aankomst op uw bestemming",
-                    "name": "Aankomen op {way_name}"
+                    "name": "Aankomst op {way_name}"
                 },
                 "left": {
-                    "default": "Aankomst op uw bestemming, links",
-                    "name": "Aankomen op {way_name}, links"
+                    "default": "Uw bestemming bevindt zich aan de linkerkant",
+                    "name": "Aankomst op {way_name}. Uw bestemming bevindt zich aan de linkerkant"
                 },
                 "right": {
-                    "default": "Aankomst op uw bestemming, aan de rechterkant",
-                    "name": "Aankomen op {way_name}, rechts"
+                    "default": "Uw bestemming bevindt zich aan de rechterkant",
+                    "name": "Aankomst op {way_name}. Uw bestemming bevindt zich aan de rechterkant"
                 },
                 "straight": {
-                    "default": "Aankomst op uw bestemming, rechtdoor",
-                    "name": "Aankomen op {way_name}, rechtdoor"
+                    "default": "Uw bestemming bevindt zich recht vooruit",
+                    "name": "Aankomst op {way_name}. Uw bestemming bevindt zich recht vooruit"
                 }
             },
             "depart": {
                 "default": {
-                    "default": "Richting {direction}",
-                    "name": "Richting {direction} op {way_name}"
+                    "default": "Vertrek in {direction} richting",
+                    "name": "Vertrek in {direction} richting op {way_name}"
                 }
             },
             "roundabout": {
                 "default": {
                     "exit": {
-                        "default": "Ga de rotonde op en neem de {exit_number} afslag",
-                        "name": "Ga de rotonde op en neem de {exit_number} afslag richting {way_name}"
+                        "default": "Neem op de rotonde de {exit_number} afslag",
+                        "name": "Neem op de rotonde de {exit_number} afslag naar {way_name}"
                     },
                     "default": {
                         "default": "Ga de rotonde op",
-                        "name": "Ga de rotonde op en neem de afslag richting {way_name}"
+                        "name": "Neem op de rotonde de afslag naar {way_name}"
                     }
                 }
             },
             "turn": {
                 "default": {
-                    "default": "Keer om {turn_maneuver}",
-                    "name": "Keer om {turn_maneuver} richting {way_name}"
+                    "default": "Sla {turn_maneuver}af",
+                    "name": "Sla {turn_maneuver}af naar {way_name}"
                 }
             },
             "continue": {
                 "default": {
-                    "default": "Doorgaan {turn_maneuver}",
-                    "name": "Doorgaan {turn_maneuver} richting {way_name}"
+                    "default": "Blijf {turn_maneuver} gaan",
+                    "name": "Blijf {turn_maneuver} gaan richting {way_name}"
                 },
                 "uturn": {
-                    "default": "Rechtsomkeerd",
-                    "name": "Rechtsomkeerd richting {way_name}"
+                    "default": "Maak een U-bocht",
+                    "name": "Maak een U-bocht naar {way_name}"
                 }
             },
             "keep": {
                 "default": {
-                    "default": "Keer om {turn_maneuver}",
-                    "name": "Keer om {turn_maneuver} richting {way_name}"
+                    "default": "Houd {turn_maneuver} aan",
+                    "name": "Houd {turn_maneuver} aan naar {way_name}"
                 }
             },
             "pt": {
                 "start": {
-                    "default": "Enter {name}",
-                    "headsign": "Enter {name} headed for {headsign}"
+                    "default": "Stap {name} in",
+                    "headsign": "Stap {name} in richting {headsign}"
                 },
                 "transfer": {
-                    "default": "Change to {name}",
-                    "headsign": "Change to {name} headed for {headsign}"
+                    "default": "Stap over naar {name}",
+                    "headsign": "Stap over naar {name} richting {headsign}"
                 },
-                "end": "Exit to {name}"
+                "end": "Stap uit bij {name}"
             }
         }
     }
