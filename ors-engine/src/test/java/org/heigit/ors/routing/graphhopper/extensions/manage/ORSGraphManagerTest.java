@@ -26,6 +26,8 @@ class ORSGraphManagerTest {
                 .withEnabled(enable)
                 .withRepoName(repoName)
                 .withRepoBaseUri(baseUri)
+                .withLocalGraphsRootAbsPath("target/test-output/graphs")
+                .withLocalProfileName("useGraphRepository")
                 .build();
         ORSGraphManager orsGraphManager = ORSGraphManager.initializeGraphManagement(managementProps);
         assertNotNull(orsGraphManager);
