@@ -83,6 +83,8 @@ class ORSGraphHopperTest {
         ORSGraphHopper gh = createORSGraphHoopperWithOsmFile("repoDir", "https://my.domain.com/");
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()
                 .withEnabled(true)
+                .withLocalProfileName("buildGraphWithPreprocessedData")
+                .withLocalGraphsRootAbsPath("target/test-output/graphs")
                 .withRepoName("repoName")
                 .withRepoBaseUri("http://my.domain.com")
                 .build();
