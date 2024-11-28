@@ -40,6 +40,7 @@ import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 
 public class MatrixRequest extends ServiceRequest {
+    private String profileName;
     private int profileType = -1;
     private Coordinate[] sources;
     private Coordinate[] destinations;
@@ -54,10 +55,18 @@ public class MatrixRequest extends ServiceRequest {
     private int maximumVisitedNodes;
     private boolean hasInfiniteUTurnCosts;
 
-    public MatrixRequest(double maximumSearchRadius, int maximumVisitedNodes, double uTurnCost) {
+    public MatrixRequest(double maximumSearchRadius, int maximumVisitedNodes, double uTurnCosts) {
         this.maximumSearchRadius = maximumSearchRadius;
         this.maximumVisitedNodes = maximumVisitedNodes;
-        this.hasInfiniteUTurnCosts = uTurnCost == Weighting.INFINITE_U_TURN_COSTS;
+        this.hasInfiniteUTurnCosts = uTurnCosts == Weighting.INFINITE_U_TURN_COSTS;
+    }
+
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
     }
 
     public Coordinate[] getSources() {

@@ -26,14 +26,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.export.ExportApiRequest;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
 import org.heigit.ors.api.services.ExportService;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.export.ExportErrorCodes;
 import org.heigit.ors.export.ExportResult;
-import org.heigit.ors.api.APIEnums;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -96,7 +97,7 @@ public class ExportAPI {
                     schema = @Schema(implementation = JsonExportResponse.class)
             )
             })
-    public JsonExportResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+    public JsonExportResponse getDefault(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
                                          @Parameter(description = "The request payload", required = true) @RequestBody ExportApiRequest request) throws StatusCodeException {
         return getJsonExport(profile, request);
     }
@@ -115,9 +116,10 @@ public class ExportAPI {
             )
             })
     public JsonExportResponse getJsonExport(
-            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable APIEnums.Profile profile,
+            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable String profile,
             @Parameter(description = "The request payload", required = true) @RequestBody ExportApiRequest request) throws StatusCodeException {
-        request.setProfile(profile);
+        request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
         request.setResponseType(APIEnums.ExportResponseType.JSON);
 
         ExportResult result = exportService.generateExportFromRequest(request);
@@ -153,5 +155,10 @@ public class ExportAPI {
     @ExceptionHandler(StatusCodeException.class)
     public ResponseEntity<Object> handleException(final StatusCodeException e) {
         return errorHandler.handleStatusCodeException(e);
+    }
+
+    private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
+        EncoderNameEnum encoderForProfile = exportService.getEncoderForProfile(profile);
+        return APIEnums.Profile.forValue(encoderForProfile.getEncoderName());
     }
 }

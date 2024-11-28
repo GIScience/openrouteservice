@@ -1,6 +1,8 @@
 package org.heigit.ors.api.services;
 
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.config.ApiEngineProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequestEnums;
 import org.heigit.ors.api.requests.routing.RouteRequest;
@@ -12,7 +14,6 @@ import org.heigit.ors.matrix.MatrixErrorCodes;
 import org.heigit.ors.matrix.MatrixMetricsType;
 import org.heigit.ors.matrix.MatrixResult;
 import org.heigit.ors.matrix.MatrixSearchParameters;
-import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
@@ -31,15 +32,16 @@ import static org.heigit.ors.api.requests.matrix.MatrixRequest.isFlexibleMode;
 public class MatrixService extends ApiService {
 
     @Autowired
-    public MatrixService(EndpointsProperties endpointsProperties) {
+    public MatrixService(EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
         this.endpointsProperties = endpointsProperties;
+        this.apiEngineProperties = apiEngineProperties;
     }
 
     public MatrixResult generateMatrixFromRequest(MatrixRequest matrixRequest) throws StatusCodeException {
         org.heigit.ors.matrix.MatrixRequest coreRequest = this.convertMatrixRequest(matrixRequest);
 
         try {
-            RoutingProfile rp = RoutingProfileManager.getInstance().getProfileFromType(coreRequest.getProfileType(), !coreRequest.getFlexibleMode());
+            RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(coreRequest.getProfileName());
             if (rp == null)
                 throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             return coreRequest.computeMatrix(rp);
@@ -54,8 +56,9 @@ public class MatrixService extends ApiService {
         org.heigit.ors.matrix.MatrixRequest coreRequest = new org.heigit.ors.matrix.MatrixRequest(
                 endpointsProperties.getMatrix().getMaximumSearchRadius(),
                 endpointsProperties.getMatrix().getMaximumVisitedNodes(),
-                endpointsProperties.getMatrix().getUTurnCost());
+                endpointsProperties.getMatrix().getUTurnCosts());
 
+        coreRequest.setProfileName(matrixRequest.getProfileName());
         String[] sources = matrixRequest.getSources();
         int numberOfSources = sources == null || Objects.equals(sources[0], "all") ? matrixRequest.getLocations().size() : sources.length;
         String[] destinations = matrixRequest.getDestinations();

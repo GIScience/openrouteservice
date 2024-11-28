@@ -33,9 +33,18 @@ public class ExportRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(ExportRequest.class);
     private BBox boundingBox;
 
+    private String profileName;
     private int profileType = -1;
 
     private boolean debug;
+
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
+    }
 
     public BBox getBoundingBox() {
         return this.boundingBox;
@@ -71,8 +80,8 @@ public class ExportRequest extends ServiceRequest {
         PMap hintsMap = new PMap();
         int weightingMethod = WeightingMethod.FASTEST;
         ProfileTools.setWeightingMethod(hintsMap, weightingMethod, getProfileType(), false);
-        String profileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
-        Weighting weighting = gh.createWeighting(gh.getProfile(profileName), hintsMap);
+        String localProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false);
+        Weighting weighting = gh.createWeighting(gh.getProfile(localProfileName), hintsMap);
 
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));

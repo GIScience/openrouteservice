@@ -19,11 +19,14 @@ import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import org.apache.log4j.Logger;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,10 +48,14 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        // TODO Refactoring Check if the _greenIndexFile exists
-        String csvFile = parameters.get("filepath");
-        readGreenIndicesFromCSV(csvFile);
-        prepareGreenIndexSlots();
+        ExtendedStorageProperties parameters;
+        parameters = this.parameters;
+        File expectedStorageFileLocation = Path.of(graphhopper.getGraphHopperLocation() + "/ext_greenindex").toFile();
+        if (!expectedStorageFileLocation.exists()) {
+            String csvFile = parameters.getFilepath().toString();
+            readGreenIndicesFromCSV(csvFile);
+            prepareGreenIndexSlots();
+        }
         storage = new GreenIndexGraphStorage();
 
         return storage;

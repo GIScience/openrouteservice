@@ -13,12 +13,12 @@ Openrouteservice offers a set of endpoints for different spatial purposes:
 * [Isochrones Service](isochrones/index.md): Obtain areas of reachability from given locations
 * [Matrix Service](matrix/index.md): Obtain one-to-many, many-to-one and many-to-many matrices for time and distance
 * [Snapping Service](snapping/index.md): Snap coordinates to the road network
-* [Export Service](export/index.md): Export the base graph for different modes of transport
 
 ## Technical Endpoints
 
 Furthermore, there are technical endpoints that are :warning: _not available_ in our live API:
 
+* [Export Service](export/index.md): Export the base graph for different modes of transport
 * [Health Service](health/index.md): Get information on the health of the running openrouteservice instance
 * [Status Service](status/index.md): Get information on the status of the openrouteservice instance
 

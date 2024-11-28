@@ -1,5 +1,5 @@
 # Image is reused in the workflow builds for master and the latest version
-FROM docker.io/maven:3.9.8-eclipse-temurin-21-alpine AS build
+FROM docker.io/maven:3.9.9-amazoncorretto-21-alpine AS build
 ARG DEBIAN_FRONTEND=noninteractive
 
 # hadolint ignore=DL3002
@@ -7,20 +7,21 @@ USER root
 
 WORKDIR /tmp/ors
 
-COPY ors-api /tmp/ors/ors-api
-COPY ors-engine /tmp/ors/ors-engine
+COPY ors-api/pom.xml /tmp/ors/ors-api/pom.xml
+COPY ors-engine/pom.xml /tmp/ors/ors-engine/pom.xml
 COPY pom.xml /tmp/ors/pom.xml
-COPY ors-report-aggregation /tmp/ors/ors-report-aggregation
+COPY ors-report-aggregation/pom.xml /tmp/ors/ors-report-aggregation/pom.xml
+COPY ors-test-scenarios/pom.xml /tmp/ors/ors-test-scenarios/pom.xml
 
 # Build the project
-RUN mvn -q clean package -DskipTests
+RUN mvn -pl '!ors-test-scenarios,!ors-report-aggregation' -q dependency:go-offline
 
-# Copy the example config files to the build folder
-COPY ./ors-config.yml /tmp/ors/example-ors-config.yml
-COPY ./ors-config.env /tmp/ors/example-ors-config.env
-# Rewrite the example config to use the right files in the container
-RUN sed -i "/ors.engine.source_file=.*/s/.*/ors.engine.source_file=\/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.env" && \
-        sed -i "/    source_file:.*/s/.*/    source_file: \/home\/ors\/files\/example-heidelberg.osm.gz/" "/tmp/ors/example-ors-config.yml"
+COPY ors-api /tmp/ors/ors-api
+COPY ors-engine /tmp/ors/ors-engine
+
+# Build the project
+RUN mvn -pl '!ors-test-scenarios,!ors-report-aggregation' \
+    -q clean package -DskipTests -Dmaven.test.skip=true
 
 # build final image, just copying stuff inside
 FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS publish
@@ -28,14 +29,14 @@ FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS publish
 # Build ARGS
 ARG UID=1000
 ARG GID=1000
-ARG OSM_FILE=./ors-api/src/test/files/heidelberg.osm.gz
+ARG OSM_FILE=./ors-api/src/test/files/heidelberg.test.pbf
 ARG ORS_HOME=/home/ors
 
 # Set the default language
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 
 # Setup the target system with the right user and folders.
-RUN apk update && apk add --no-cache openssl bash yq jq  && \
+RUN apk update && apk add --no-cache bash=~5 jq=~1 openssl=~3 yq=~4  && \
     addgroup ors -g ${GID} && \
     mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache  && \
     adduser -D -h ${ORS_HOME} -u ${UID} --system -G ors ors  && \
@@ -45,11 +46,19 @@ RUN apk update && apk add --no-cache openssl bash yq jq  && \
 
 # Copy over the needed bits and pieces from the other stages.
 COPY --chown=ors:ors --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
-COPY --chown=ors:ors --from=build /tmp/ors/example-ors-config.yml /example-ors-config.yml
-COPY --chown=ors:ors --from=build /tmp/ors/example-ors-config.env /example-ors-config.env
-COPY --chown=ors:ors ./$OSM_FILE /heidelberg.osm.gz
+COPY --chown=ors:ors ./$OSM_FILE /heidelberg.test.pbf
 COPY --chown=ors:ors ./docker-entrypoint.sh /entrypoint.sh
 
+# Copy the example config files to the build folder
+COPY --chown=ors:ors ./ors-config.yml /example-ors-config.yml
+COPY --chown=ors:ors ./ors-config.env /example-ors-config.env
+
+# Rewrite the example config to use the right files in the container
+RUN yq -i -p=props -o=props \
+    '.ors.engine.profile_default.build.source_file="/home/ors/files/example-heidelberg.test.pbf"' \
+    /example-ors-config.env && \
+    yq -i e '.ors.engine.profile_default.build.source_file = "/home/ors/files/example-heidelberg.test.pbf"' \
+    /example-ors-config.yml
 
 ENV BUILD_GRAPHS="False"
 ENV REBUILD_GRAPHS="False"
@@ -57,5 +66,9 @@ ENV REBUILD_GRAPHS="False"
 ENV ORS_HOME=${ORS_HOME}
 
 WORKDIR ${ORS_HOME}
+
+# Healthcheck
+HEALTHCHECK --interval=3s --timeout=2s CMD ["sh", "-c", "wget --quiet --tries=1 --spider http://localhost:8082/ors/v2/health || exit 1"]
+
 # Start the container
 ENTRYPOINT ["/entrypoint.sh"]

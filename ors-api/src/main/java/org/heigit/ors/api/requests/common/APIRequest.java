@@ -19,6 +19,9 @@ public class APIRequest {
     @Schema(name = PARAM_PROFILE, hidden = true)
     protected APIEnums.Profile profile;
 
+
+    protected String profileName;
+
     public boolean hasId() {
         return hasId;
     }
@@ -40,4 +43,11 @@ public class APIRequest {
         this.profile = profile;
     }
 
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
+    }
 }

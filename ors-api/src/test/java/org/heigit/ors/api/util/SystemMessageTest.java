@@ -1,11 +1,11 @@
 package org.heigit.ors.api.util;
 
-import org.heigit.ors.api.SystemMessageProperties;
+import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RoutingRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

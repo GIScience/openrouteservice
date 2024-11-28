@@ -15,13 +15,14 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.borders;
 
 import org.locationtech.jts.geom.Coordinate;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Object used for storing country boundary polygons in a hiearchical structure.
  */
-public class CountryBordersHierarchy {
+public class CountryBordersHierarchy implements Serializable {
     private double minLat = 180f;
     private double minLon = 180f;
     private double maxLat = -180f;

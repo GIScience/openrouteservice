@@ -5,6 +5,7 @@
 **/.m2/
 
 graphs/
+graph-repo/
 graphs-*/
 target/
 logs/

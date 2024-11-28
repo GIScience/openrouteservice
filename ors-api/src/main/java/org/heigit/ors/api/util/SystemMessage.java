@@ -1,7 +1,10 @@
 package org.heigit.ors.api.util;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.heigit.ors.api.SystemMessageProperties;
+import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.isochrones.IsochronesRequest;
 import org.heigit.ors.api.requests.matrix.MatrixRequest;
 import org.heigit.ors.api.requests.routing.RouteRequest;
@@ -111,7 +114,7 @@ public class SystemMessage {
     private static void loadMessages(SystemMessageProperties messageProperties) {
         messages = new ArrayList<>();
 
-        for (SystemMessageProperties.MessageObject message : messageProperties.getMessages()) {
+        for (SystemMessageProperties.MessageObject message : messageProperties) {
             try {
                 if (message.isActive()) {
                     List<SystemMessage.Condition> conditions = new ArrayList<>();
@@ -123,7 +126,6 @@ public class SystemMessage {
                 LOGGER.warn("Invalid SystemMessage object in ors config %s.".formatted(message.toString().substring(18)));
             }
         }
-        AppConfigMigration.loadSystemMessagesfromAppConfig(messages);
         if (!messages.isEmpty())
             LOGGER.info("SystemMessage loaded %s messages.".formatted(messages.size()));
     }
@@ -142,16 +144,13 @@ public class SystemMessage {
     }
 
     static class Message {
+        @Getter
         private final String text;
         private final List<Condition> conditions;
 
         public Message(String text, List<Condition> conditions) {
             this.text = text;
             this.conditions = conditions;
-        }
-
-        public String getText() {
-            return text;
         }
 
         public boolean applicableForRequest(RequestParams params) {
@@ -242,40 +241,16 @@ public class SystemMessage {
         }
     }
 
-    private static class RequestParams {
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    protected static class RequestParams {
         private String apiVersion = "";
         private String apiFormat = "";
         private String requestService = "";
+        @Setter(AccessLevel.NONE)
         private final Set<String> requestProfiles = new HashSet<>();
+        @Setter(AccessLevel.NONE)
         private final Set<String> requestPreferences = new HashSet<>();
-
-        public String getApiVersion() {
-            return apiVersion;
-        }
-
-        public void setApiVersion(String apiVersion) {
-            this.apiVersion = apiVersion;
-        }
-
-        public String getApiFormat() {
-            return apiFormat;
-        }
-
-        public void setApiFormat(String apiFormat) {
-            this.apiFormat = apiFormat;
-        }
-
-        public String getRequestService() {
-            return requestService;
-        }
-
-        public void setRequestService(String requestService) {
-            this.requestService = requestService;
-        }
-
-        public Set<String> getRequestProfiles() {
-            return requestProfiles;
-        }
 
         public void setRequestProfiles(String requestProfiles) {
             this.requestProfiles.add(requestProfiles);
@@ -283,10 +258,6 @@ public class SystemMessage {
 
         public void setRequestProfile(Set<String> requestProfile) {
             this.requestProfiles.addAll(requestProfile);
-        }
-
-        public Set<String> getRequestPreferences() {
-            return requestPreferences;
         }
 
         public void setRequestPreferences(String requestPreferences) {

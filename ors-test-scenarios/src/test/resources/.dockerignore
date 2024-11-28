@@ -1,0 +1,16 @@
+# Ignore all files
+**
+# Include the following files
+!pom.xml
+!ors-engine/pom.xml
+!ors-engine/src/main
+!ors-api/pom.xml
+!ors-api/src/main/
+!ors-report-aggregation/pom.xml
+!ors-test-scenarios/pom.xml
+# Special includes
+!ors-config.yml
+!ors-test-scenarios/src/test/resources/maven-entrypoint.sh
+!ors-api/src/test/files/heidelberg.test.pbf
+!ors-api/src/test/files/vrn_gtfs_cut.zip
+!ors-api/src/main/resources/ors-config-sample.json

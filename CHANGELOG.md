@@ -36,9 +36,25 @@ RELEASING:
 ### Added
 - take into account tunnel categories B, C, D, and E when restricting roads for the transport of dangerous goods via the `hazmat` flag in vehicle parameters ([#1879](https://github.com/GIScience/openrouteservice/pull/1879))
 - Ukrainian translation ([#1883](https://github.com/GIScience/openrouteservice/pull/1883))
+- add new functionality to download new routing graphs from a remote
+  repository ([#1889](https://github.com/GIScience/openrouteservice/pull/1889))
 ### Changed
 - update docs dependency: VitePress ([#1872](https://github.com/GIScience/openrouteservice/pull/1872))
 - adjust documentation for export endpoint ([#1872](https://github.com/GIScience/openrouteservice/pull/1872))
+- refactor the config classes into a separate structure into
+  ors-engine ([#1889](https://github.com/GIScience/openrouteservice/pull/1889)) which implies changes in the
+  configuration properties:
+    - the profile properties `ors.engine.profile.<profile>.*` were moved into the new nodes
+      `ors.engine.profile.<profile>.build` and `ors.engine.profile.<profile>.service` (respectively
+      `ors.engine.profile_default.build`...)
+    - move `ors.engine.source_file` to `ors.engine.profiles.<profile>.build.source_file` /
+      `ors.engine.profile_default.build.source_file`
+    - it is now possible to use any string as profile name. This name is used as profile name in the api requests and as
+      name for the profile's graph directory
+    - it is now possible to use several profiles with the same flag encoder
+    - it is now possible to specify individual source files (osm data) for each profile
+- replace the old bash based integration tests with tests based on junit and
+  TestContainers ([#1889](https://github.com/GIScience/openrouteservice/pull/1889))
 ### Fixed
 - do not enforce a time-dependent routing algorithm unless the weighting requires it ([#1865](https://github.com/GIScience/openrouteservice/pull/1865))
 - failing queries that combined departure/arrival parameters with avoid polygons ([#1871](https://github.com/GIScience/openrouteservice/pull/1871))

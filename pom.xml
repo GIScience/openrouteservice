@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.heigit.ors</groupId>
     <artifactId>openrouteservice</artifactId>
-    <version>8.2.0</version>
+    <version>9.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>openrouteservice</name>
     <url>https://openrouteservice.org</url>
@@ -30,6 +30,7 @@
         <module>ors-engine</module>
         <module>ors-api</module>
         <module>ors-report-aggregation</module>
+        <module>ors-test-scenarios</module>
     </modules>
 
     <properties>
@@ -49,17 +50,19 @@
 
         <!-- switch graphhopper versions to enable debugging -->
         <graphhopper.version>v4.9.4</graphhopper.version>
-        <!--graphhopper.version>4.9-SNAPSHOT</graphhopper.version-->
+        <!--graphhopper.version>v4.9-SNAPSHOT</graphhopper.version-->
+        <lombok.version>1.18.34</lombok.version>
+        <slf4j.version>2.0.13</slf4j.version>
+        <log4j.version>2.22.1</log4j.version>
         <springdoc-openapi-starter.version>2.6.0</springdoc-openapi-starter.version>
+        <swagger-core.version>2.2.22</swagger-core.version>
         <swagger-parser.version>2.1.22</swagger-parser.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <geotools.version>31.2</geotools.version>
-        <slf4j.version>2.0.13</slf4j.version>
-        <log4j.version>2.22.1</log4j.version>
         <fasterxml.jackson.version>2.17.2</fasterxml.jackson.version>
         <commons-io.version>2.16.1</commons-io.version>
-        <commons-logging.version>1.3.3</commons-logging.version>
-        <commons-compress.version>1.26.2</commons-compress.version>
+        <commons-logging.version>1.3.4</commons-logging.version>
+        <commons-compress.version>1.27.1</commons-compress.version>
         <commons-compiler.version>3.1.12</commons-compiler.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
         <jts.version>1.19.0</jts.version>
@@ -70,17 +73,37 @@
         <jline.version>3.26.3</jline.version>
         <jqwik.version>1.9.0</jqwik.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <jupiter.version>5.10.3</jupiter.version>
-        <swagger-core.version>2.2.22</swagger-core.version>
-        <rest-assured.version>5.5.0</rest-assured.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hppc.version>0.8.2</hppc.version>
+
+        <gson-fire-version>1.8.5</gson-fire-version>
+        <swagger-annotations-version>1.6.6</swagger-annotations-version>
+        <okhttp-version>4.10.0</okhttp-version>
+        <gson-version>2.9.1</gson-version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <jackson-databind-nullable-version>0.2.6</jackson-databind-nullable-version>
+        <javax-annotation-api.version>1.3.2</javax-annotation-api.version>
+        <jakarta-annotation-version>1.3.5</jakarta-annotation-version>
+
+        <junit-version>5.9.3</junit-version>
+        <junit-platform-runner.version>1.9.1</junit-platform-runner.version>
+        <jupiter.version>5.10.3</jupiter.version>
+        <mockito.version>5.12.0</mockito.version>
+        <rest-assured.version>5.5.0</rest-assured.version>
+        <testcontainers.version>1.20.1</testcontainers.version>
+        <mockito-core-version>3.12.4</mockito-core-version>
+        <javax.ws.rs-api-version>2.1.1</javax.ws.rs-api-version>
+        <jsr311-api-version>1.1.1</jsr311-api-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spotless.version>2.27.2</spotless.version>
+        <surefire.version>3.1.2</surefire.version>
 
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.organization>giscience</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.coverage.jacoco.xmlReportPaths>ors-report-aggregation/site/jacoco-aggregate/jacoco.xml
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${maven.multiModuleProjectDirectory}/ors-report-aggregation/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
@@ -100,6 +123,18 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
+        </repository>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
         </repository>
     </repositories>
 
@@ -123,6 +158,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.maven.surefire</groupId>
+                <artifactId>surefire-junit-platform</artifactId>
+                <version>${surefire.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>com.github.GIScience.graphhopper</groupId>
                 <artifactId>graphhopper-core</artifactId>
@@ -172,18 +213,12 @@
             </dependency>
 
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.googlecode.json-simple</groupId>
-                <artifactId>json-simple</artifactId>
-                <version>${json-simple.version}</version>
-            </dependency>
-
-            <!-- As long as swagger-parser uses snakeyaml <2 it cannot be used. Too much vulnerabilities. -->
+            <!-- As long as swagger-parser uses snakeyaml <2 it cannot be used. Too many vulnerabilities. -->
             <!-- The package is updated quite often. -->
             <dependency>
                 <groupId>io.swagger.parser.v3</groupId>
@@ -271,6 +306,18 @@
                 <groupId>org.codehaus.janino</groupId>
                 <artifactId>commons-compiler</artifactId>
                 <version>${commons-compiler.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.googlecode.json-simple</groupId>
+                <artifactId>json-simple</artifactId>
+                <version>${json-simple.version}</version>
             </dependency>
 
             <dependency>
@@ -401,12 +448,6 @@
             </dependency>
 
             <dependency>
-                <groupId>io.rest-assured</groupId>
-                <artifactId>rest-assured</artifactId>
-                <version>${rest-assured.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest</artifactId>
                 <version>${hamcrest.version}</version>
@@ -420,7 +461,7 @@
 
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
+                <artifactId>junit-jupiter-api</artifactId>
                 <version>${jupiter.version}</version>
             </dependency>
 
@@ -431,11 +472,44 @@
             </dependency>
 
             <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${jupiter.version}</version>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${rest-assured.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>nginx</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -462,6 +536,7 @@
                     <!--don't run API tests by default only through profile "apitests" -->
                     <excludes>
                         <exclude>**/apitests/**</exclude>
+                        <exclude>**/integrationtests/**</exclude>
                     </excludes>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
@@ -550,7 +625,7 @@
                 <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.0.2</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
                 <plugin>
@@ -559,7 +634,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>${surefire.version}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-war-plugin</artifactId>

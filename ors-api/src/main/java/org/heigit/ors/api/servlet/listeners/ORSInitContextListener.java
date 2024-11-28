@@ -22,55 +22,80 @@ package org.heigit.ors.api.servlet.listeners;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
+import lombok.AllArgsConstructor;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
-import org.heigit.ors.api.EngineProperties;
+import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.api.util.AppInfo;
-import org.heigit.ors.config.EngineConfig;
+import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
+import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.util.FormatUtility;
+import org.heigit.ors.util.StringUtility;
+import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+@AllArgsConstructor
 public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
     private final EngineProperties engineProperties;
-
-    public ORSInitContextListener(EngineProperties engineProperties) {
-        this.engineProperties = engineProperties;
-    }
+    private final GraphService graphService;
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
-        final EngineConfig config = EngineConfig.EngineConfigBuilder.init()
-                .setInitializationThreads(engineProperties.getInitThreads())
-                .setPreparationMode(engineProperties.isPreparationMode())
-                .setElevationPreprocessed(engineProperties.getElevation().isPreprocessed())
-                .setSourceFile(engineProperties.getSourceFile())
-                .setGraphsRootPath(engineProperties.getGraphsRootPath())
-                .setGraphsDataAccess(engineProperties.getGraphsDataAccess())
-                .setProfiles(engineProperties.getConvertedProfiles())
-                .buildWithAppConfigOverride();
-        Runnable runnable = () -> {
+        String outputTarget = configurationOutputTarget(engineProperties);
+        if (!StringUtility.isNullOrEmpty(outputTarget)) {
+            copyDefaultConfigurationToFile(outputTarget);
+            return;
+        }
+        new Thread(() -> {
             try {
                 LOGGER.info("Initializing ORS...");
-                new RoutingProfileManager(config);
-                // TODO if feasible, move the preparation mode check to Application.java after the
-                //  RoutingProfileManagerStatus.hasFailed() check.
-                if (engineProperties.isPreparationMode()) {
-                    if (RoutingProfileManagerStatus.hasFailed()) {
-                        System.exit(1);
+                graphService.setIsActivatingGraphs(true);
+                RoutingProfileManager routingProfileManager = new RoutingProfileManager(engineProperties, AppInfo.GRAPH_VERSION);
+                for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
+                    ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
+                    if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
+                        LOGGER.debug("Adding orsGraphManager for profile %s with encoder %s to GraphService".formatted(profile.getProfileConfiguration().getProfileName(), profile.getProfileConfiguration().getEncoderName()));
+                        graphService.addGraphManagerInstance(orsGraphManager);
                     }
+                }
+                if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
                     LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
-                    System.exit(0);
+                    RoutingProfileManagerStatus.setShutdown(true);
                 }
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
+            } finally {
+                graphService.setIsActivatingGraphs(false);
             }
-        };
-        Thread thread = new Thread(runnable);
-        thread.setName("ORS-Init");
-        thread.start();
+        }, "ORS-Init").start();
+    }
+
+    public String configurationOutputTarget(EngineProperties engineProperties) {
+        String output = engineProperties.getConfigOutput();
+        if (StringUtility.isNullOrEmpty(output))
+            return null;
+        if (!output.endsWith(".yml") && !output.endsWith(".yaml"))
+            output += ".yml";
+        return output;
+    }
+
+    private void copyDefaultConfigurationToFile(String output) {
+        try (FileOutputStream fos = new FileOutputStream(output)) {
+            LOGGER.info("Creating configuration file " + output);
+            fos.write(new ClassPathResource("application.yml").getContentAsString(StandardCharsets.UTF_8).getBytes());
+        } catch (IOException e) {
+            LOGGER.error("Failed to write output configuration file.", e);
+        }
+        LOGGER.info("Configuration output completed.");
+        RoutingProfileManagerStatus.setShutdown(true);
     }
 
     @Override

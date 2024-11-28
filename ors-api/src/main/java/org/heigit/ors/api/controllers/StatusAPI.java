@@ -15,17 +15,16 @@
 
 package org.heigit.ors.api.controllers;
 
-import com.graphhopper.storage.StorableProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import org.heigit.ors.api.EndpointsProperties;
-import org.heigit.ors.api.util.AppConfigMigration;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.util.AppInfo;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
-import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,25 +43,26 @@ import java.util.List;
 @Tag(name = "Status service", description = "Get information on the status of the api")
 @RequestMapping("/v2/status")
 public class StatusAPI {
+
     private final EndpointsProperties endpointsProperties;
 
     public StatusAPI(EndpointsProperties endpointsProperties) {
-        this.endpointsProperties = AppConfigMigration.overrideEndpointsProperties(endpointsProperties);
+        this.endpointsProperties = endpointsProperties;
     }
 
     @GetMapping
-    public ResponseEntity fetchHealth(HttpServletRequest request) throws Exception {
+    public ResponseEntity getStatus(HttpServletRequest request) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        org.json.JSONObject jInfo = new org.json.JSONObject(true);
+        JSONObject jInfo = new JSONObject(true);
 
         jInfo.put("engine", AppInfo.getEngineInfo());
 
         if (RoutingProfileManagerStatus.isReady()) {
             RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
 
-            if (!profileManager.getProfiles().getUniqueProfiles().isEmpty()) {
+            if (!profileManager.getUniqueProfiles().isEmpty()) {
 
                 List<String> list = new ArrayList<>(4);
                 if (endpointsProperties.getRouting().isEnabled())
@@ -76,39 +76,32 @@ public class StatusAPI {
                 jInfo.put("services", list);
                 jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
 
-                org.json.JSONObject jProfiles = new org.json.JSONObject(true);
-                int i = 1;
+                JSONObject jProfiles = new JSONObject(true);
+                for (RoutingProfile rp : profileManager.getUniqueProfiles()) {
+                    ProfileProperties profile = rp.getProfileConfiguration();
+                    JSONObject jProfileProps = new JSONObject(true);
 
-                for (RoutingProfile rp : profileManager.getProfiles().getUniqueProfiles()) {
-                    RouteProfileConfiguration rpc = rp.getConfiguration();
-                    org.json.JSONObject jProfileProps = new org.json.JSONObject(true);
+                    jProfileProps.put("encoder_name", profile.getEncoderName().getEncoderName());
+                    jProfileProps.put("graph_build_date", rp.getGraphProperties().get("datareader.import.date"));
+                    jProfileProps.put("osm_date", rp.getGraphProperties().get("datareader.data.date"));
 
-                    jProfileProps.put("profiles", rpc.getProfiles());
-                    StorableProperties storageProps = rp.getGraphProperties();
-                    jProfileProps.put("creation_date", storageProps.get("osmreader.import.date"));
+                    JSONObject jProfileLimits = new JSONObject();
+                    if (profile.getService().getMaximumDistance() != null)
+                        jProfileLimits.put("maximum_distance", profile.getService().getMaximumDistance());
+                    if (profile.getService().getMaximumDistanceDynamicWeights() != null)
+                        jProfileLimits.put("maximum_distance_dynamic_weights", profile.getService().getMaximumDistanceDynamicWeights());
+                    if (profile.getService().getMaximumDistanceAvoidAreas() != null)
+                        jProfileLimits.put("maximum_distance_avoid_areas", profile.getService().getMaximumDistanceAvoidAreas());
+                    if (profile.getService().getMaximumWayPoints() != null)
+                        jProfileLimits.put("maximum_waypoints", profile.getService().getMaximumWayPoints());
 
-                    if (rpc.getExtStorages() != null && rpc.getExtStorages().size() > 0)
-                        jProfileProps.put("storages", rpc.getExtStorages());
-
-                    org.json.JSONObject jProfileLimits = new org.json.JSONObject(true);
-                    if (rpc.getMaximumDistance() > 0)
-                        jProfileLimits.put("maximum_distance", rpc.getMaximumDistance());
-
-                    if (rpc.getMaximumDistanceDynamicWeights() > 0)
-                        jProfileLimits.put("maximum_distance_dynamic_weights", rpc.getMaximumDistanceDynamicWeights());
-
-                    if (rpc.getMaximumDistanceAvoidAreas() > 0)
-                        jProfileLimits.put("maximum_distance_avoid_areas", rpc.getMaximumDistanceAvoidAreas());
-
-                    if (rpc.getMaximumWayPoints() > 0)
-                        jProfileLimits.put("maximum_waypoints", rpc.getMaximumWayPoints());
-
-                    if (jProfileLimits.length() > 0)
+                    if (!jProfileLimits.isEmpty())
                         jProfileProps.put("limits", jProfileLimits);
 
-                    jProfiles.put("profile " + i, jProfileProps);
+                    if (profile.getBuild().getExtStorages() != null && !profile.getBuild().getExtStorages().isEmpty())
+                        jProfileProps.put("storages", profile.getBuild().getExtStorages());
 
-                    i++;
+                    jProfiles.put(profile.getProfileName(), jProfileProps);
                 }
 
                 jInfo.put("profiles", jProfiles);
@@ -120,7 +113,7 @@ public class StatusAPI {
         return new ResponseEntity<>(jsonResponse, headers, HttpStatus.OK);
     }
 
-    private String constructResponse(HttpServletRequest req, org.json.JSONObject json) {
+    private String constructResponse(HttpServletRequest req, JSONObject json) {
         String type = getParam(req, "type", "json");
         boolean debug = getBooleanParam(req, "debug", false) || getBooleanParam(req, "pretty", false);
         if ("jsonp".equals(type)) {

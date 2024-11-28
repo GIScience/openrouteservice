@@ -1,14 +1,17 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
-import org.heigit.ors.api.EndpointsProperties;
+import org.heigit.ors.api.config.ApiEngineProperties;
+import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.common.RequestOptions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.DistanceUnit;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.*;
@@ -31,9 +34,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static java.util.Optional.ofNullable;
+
 public class ApiService {
 
     protected EndpointsProperties endpointsProperties;
+    protected ApiEngineProperties apiEngineProperties;
 
     double getMaximumAvoidPolygonArea() {
         return 0d;
@@ -421,4 +427,11 @@ public class ApiService {
         return params;
     }
 
+    public EncoderNameEnum getEncoderForProfile(String profile) {
+        //TODO Change: use RoutingProfileManager
+        return ofNullable(RoutingProfileManager.getInstance().getRoutingProfile(profile))
+                .map(RoutingProfile::getProfileProperties)
+                .map(ProfileProperties::getEncoderName)
+                .orElse(EncoderNameEnum.UNKNOWN);
+    }
 }

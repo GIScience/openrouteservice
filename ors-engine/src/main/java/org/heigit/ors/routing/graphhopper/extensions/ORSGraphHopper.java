@@ -34,12 +34,12 @@ import com.graphhopper.storage.CHConfig;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.*;
 import com.graphhopper.util.details.PathDetailsBuilderFactory;
-import com.graphhopper.util.exceptions.ConnectionNotFoundException;
 import org.geotools.feature.SchemaException;
 import org.heigit.ors.common.TravelRangeType;
+import org.heigit.ors.config.EngineProperties;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.fastisochrones.Contour;
 import org.heigit.ors.fastisochrones.Eccentricity;
 import org.heigit.ors.fastisochrones.partitioning.FastIsochroneFactory;
@@ -47,14 +47,13 @@ import org.heigit.ors.fastisochrones.partitioning.storage.CellStorage;
 import org.heigit.ors.fastisochrones.partitioning.storage.IsochroneNodeStorage;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchContext;
-import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.graphhopper.extensions.core.*;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidFeaturesEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.HeavyVehicleEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
-import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
@@ -62,7 +61,6 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStor
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
-import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.CoordTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -80,10 +78,10 @@ import static java.util.Collections.emptyList;
 
 public class ORSGraphHopper extends GraphHopperGtfs {
     private static final Logger LOGGER = LoggerFactory.getLogger(ORSGraphHopper.class);
-    public static final String KEY_DEPARTURE = "departure";
-    public static final String KEY_ARRIVAL = "arrival";
 
     private GraphProcessContext processContext;
+    private EngineProperties engineProperties;
+    private ProfileProperties profileProperties;
     private HashMap<Long, ArrayList<Integer>> osmId2EdgeIds; // one osm id can correspond to multiple edges
     private HashMap<Integer, Long> tmcEdges;
     private Eccentricity eccentricity;
@@ -94,18 +92,31 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     private final CoreLMPreparationHandler coreLMPreparationHandler = new CoreLMPreparationHandler();
     private final FastIsochroneFactory fastIsochroneFactory = new FastIsochroneFactory();
 
+    private ORSGraphManager orsGraphManager;
+
+    public ORSGraphManager getOrsGraphManager() {
+        return this.orsGraphManager;
+    }
+
+    public void setOrsGraphManager(ORSGraphManager orsGraphManager) {
+        this.orsGraphManager = orsGraphManager;
+    }
 
     public GraphHopperConfig getConfig() {
         return config;
     }
 
-    private GraphHopperConfig config;
-
-    public ORSGraphHopper(GraphProcessContext procCntx) {
-        processContext = procCntx;
-        processContext.init(this);
+    public ProfileProperties getProfileProperties() {
+        return profileProperties;
     }
 
+    private GraphHopperConfig config;
+
+    public ORSGraphHopper(GraphProcessContext processContext, EngineProperties engineProperties, ProfileProperties profileProperties) {
+        this.processContext = processContext;
+        this.engineProperties = engineProperties;
+        this.profileProperties = profileProperties;
+    }
 
     public ORSGraphHopper() {
         // used to initialize tests more easily without the need to create GraphProcessContext etc. when they're anyway not used in the tested functions.
@@ -124,6 +135,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
         minNetworkSize = ghConfig.getInt("prepare.min_network_size", minNetworkSize);
         config = ghConfig;
+
         return ret;
     }
 
@@ -155,7 +167,13 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     @Override
     public GraphHopper importOrLoad() {
-        GraphHopper gh = super.importOrLoad();
+        if (isFullyLoaded()) {
+            throw new IllegalStateException("graph is already successfully loaded");
+        }
+
+        ORSGraphHopper gh = (ORSGraphHopper) super.importOrLoad();
+
+        writeOrsGraphBuildInfoFileIfNotExists(gh);
 
         if ((tmcEdges != null) && (osmId2EdgeIds != null)) {
             java.nio.file.Path path = Paths.get(gh.getGraphHopperLocation(), "edges_ors_traffic");
@@ -193,6 +211,10 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         return gh;
     }
 
+    private void writeOrsGraphBuildInfoFileIfNotExists(ORSGraphHopper gh) {
+        orsGraphManager.writeOrsGraphBuildInfoFileIfNotExists(gh);
+    }
+
     @Override
     protected Router doCreateRouter(GraphHopperStorage ghStorage, LocationIndex locationIndex, Map<String, Profile> profilesByName,
                                     PathDetailsBuilderFactory pathBuilderFactory, TranslationMap trMap, RouterConfig routerConfig,
@@ -223,64 +245,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     @Override
     protected WeightingFactory createWeightingFactory() {
         return new ORSWeightingFactory(getGraphHopperStorage(), getEncodingManager());
-    }
-
-    /**
-     * Check whether the route processing has to start. If avoid all borders is set and the routing points are in different countries,
-     * there is no need to even start routing.
-     *
-     * @param request     To get the avoid borders setting
-     * @param queryResult To get the edges of the queries and check which country they're in
-     */
-    private void checkAvoidBorders(GHRequest request, List<Snap> queryResult) {
-        /* Avoid borders */
-        PMap params = request.getAdditionalHints();
-        if (params == null) {
-            params = new PMap();
-        }
-        boolean isRouteable = true;
-
-        if (params.has("avoid_borders")) {
-            RouteSearchParameters routeSearchParameters = params.getObject("avoid_borders", new RouteSearchParameters());
-            //Avoiding All borders
-            if (routeSearchParameters.hasAvoidBorders() && routeSearchParameters.getAvoidBorders() == BordersExtractor.Avoid.ALL) {
-                List<Integer> edgeIds = new ArrayList<>();
-                for (int placeIndex = 0; placeIndex < queryResult.size(); placeIndex++) {
-                    edgeIds.add(queryResult.get(placeIndex).getClosestEdge().getEdge());
-                }
-                BordersExtractor bordersExtractor = new BordersExtractor(GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), BordersGraphStorage.class), null);
-                isRouteable = bordersExtractor.isSameCountry(edgeIds);
-            }
-            //TODO Refactoring : Avoiding CONTROLLED borders
-            //Currently this is extremely messy, as for some reason the READER stores data in addition to the BordersStorage.
-            //At the same time, it is not possible to get isOpen from the Reader via ids, because it only takes Strings. But there are no Strings in the Storage.
-            //So no controlled borders for now until this whole thing is refactored and the Reader is an actual reader and not a storage.
-
-//				if(routeSearchParameters.hasAvoidBorders() && routeSearchParameters.getAvoidBorders() == BordersExtractor.Avoid.CONTROLLED) {
-//					GraphStorageBuilder countryBordersReader;
-//					if(processContext.getStorageBuilders().size() > 0) {
-//						countryBordersReader = processContext.getStorageBuilders().get(0);
-//						int i = 1;
-//						while (i < processContext.getStorageBuilders().size() && !(countryBordersReader instanceof CountryBordersReader)) {
-//							countryBordersReader = processContext.getStorageBuilders().get(i);
-//							i++;
-//						}
-//
-//						List<Integer> edgeIds = new ArrayList<>();
-//						for (int placeIndex = 0; placeIndex < queryResult.size(); placeIndex++) {
-//							edgeIds.add(queryResult.get(placeIndex).getClosestEdge().getEdge());
-//						}
-//						BordersExtractor bordersExtractor = new BordersExtractor(GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), BordersGraphStorage.class), null);
-//						if (!bordersExtractor.isSameCountry(edgeIds)) {
-//							isRouteable == ((CountryBordersReader) countryBordersReader).isOpen(id0, id1)
-//							...
-//						}
-//					}
-//				}
-        }
-        if (!isRouteable)
-            throw new ConnectionNotFoundException("Route not found due to avoiding borders", Collections.emptyMap());
-
     }
 
     public GHResponse constructFreeHandRoute(GHRequest request) {
@@ -654,5 +618,9 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             mem += fastIsochroneFactory.getCapacity();
         }
         return mem + getGraphHopperStorage().getCapacity();
+    }
+
+    public EngineProperties getEngineProperties() {
+        return engineProperties;
     }
 }

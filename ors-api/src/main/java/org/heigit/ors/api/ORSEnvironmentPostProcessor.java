@@ -57,11 +57,12 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
                 List<PropertySource<?>> sources = this.loader.load("yml config", new FileSystemResource(path));
                 if (!sources.isEmpty()) {
                     environment.getPropertySources().addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, sources.get(0));
-                    log.info("Loaded file '%s'".formatted(path));
+                    System.setProperty(ORS_CONFIG_LOCATION_PROPERTY, path);
+                    log.info("Loaded file '%s'.".formatted(path));
                     break;
                 }
             } catch (IllegalStateException | IOException ignored) {
-                log.debug("Log file '%s' not found.".formatted(path));
+                log.debug("Config file '%s' not found.".formatted(path));
             }
         }
         var relevantPrefixes = List.of(

@@ -1,7 +1,15 @@
-import {defineConfig} from 'vitepress'
+import {withMermaid} from "vitepress-plugin-mermaid";
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default withMermaid({
+    mermaid: {
+        // refer https://mermaid.js.org/config/setup/modules/mermaidAPI.html#mermaidapi-configuration-defaults for options
+    },
+    // optionally set additional config for plugin itself with MermaidPluginConfig
+    mermaidPlugin: {
+        // class: "mermaid my-class", // set additional css classes for parent container
+    },
+
     title: "openrouteservice backend documentation",
     description: "openrouteservice backend documentation",
     base: "/openrouteservice/",
@@ -85,7 +93,7 @@ export default defineConfig({
                                     {text: 'Isochrones', link: '/api-reference/endpoints/isochrones/'},
                                     {text: 'Matrix', link: '/api-reference/endpoints/matrix/'},
                                     {text: 'Snapping', link: '/api-reference/endpoints/snapping/'},
-                                    {text: 'Export', link: '/api-reference/endpoints/export/'},
+                                    {text: 'Export (not live)', link: '/api-reference/endpoints/export/'},
                                     {text: 'Health (not live)', link: '/api-reference/endpoints/health/'},
                                     {text: 'Status (not live)', link: '/api-reference/endpoints/status/'},
                                     {text: 'POI', link: '/api-reference/endpoints/poi/'},
@@ -109,33 +117,70 @@ export default defineConfig({
                             {
                                 text: 'Configuration', collapsed: true, link: '/run-instance/configuration/',
                                 items: [
-                                    {text: 'Spring Properties', link: '/run-instance/configuration/spring/', collapsed:true,
+                                    {
+                                        text: 'How to configure',
+                                        link: '/run-instance/configuration/how-to-configure.md'
+                                    },
+                                    {
+                                        text: 'What to configure',
+                                        link: '/run-instance/configuration/what-to-configure.md'
+                                    },
+                                    {text: 'server', link: '/run-instance/configuration/server.md'},
+                                    {text: 'logging', link: '/run-instance/configuration/logging.md'},
+                                    {
+                                        text: 'ors.endpoints',
+                                        link: '/run-instance/configuration/endpoints/',
+                                        collapsed: true,
                                         items: [
-                                            {text: 'server', link: '/run-instance/configuration/spring/server.md'},
-                                            {text: 'logging', link: '/run-instance/configuration/spring/logging.md'},
+                                            {
+                                                text: 'defaults',
+                                                link: '/run-instance/configuration/endpoints/defaults.md'
+                                            },
+                                            {text: 'routing', link: '/run-instance/configuration/endpoints/routing.md'},
+                                            {text: 'matrix', link: '/run-instance/configuration/endpoints/matrix.md'},
+                                            {
+                                                text: 'isochrones',
+                                                link: '/run-instance/configuration/endpoints/isochrones.md'
+                                            },
+                                            {text: 'snap', link: '/run-instance/configuration/endpoints/snap.md'},
                                         ]
                                     },
-                                    {text: 'ORS Properties', collapsed:true,
+                                    {
+                                        text: 'ors.engine',
+                                        link: '/run-instance/configuration/engine/',
+                                        collapsed: true,
                                         items: [
-                                            {text: 'endpoints', link: '/run-instance/configuration/ors/endpoints/', collapsed: true,
+                                            {
+                                                text: 'graph_management',
+                                                link: '/run-instance/configuration/engine/graph-management.md'
+                                            },
+                                            {
+                                                text: 'elevation',
+                                                link: '/run-instance/configuration/engine/elevation.md'
+                                            },
+                                            {
+                                                text: 'profiles',
+                                                link: '/run-instance/configuration/engine/profiles/',
+                                                collapsed: true,
                                                 items: [
-                                                    {text: 'defaults', link: '/run-instance/configuration/ors/endpoints/defaults.md'},
-                                                    {text: 'routing', link: '/run-instance/configuration/ors/endpoints/routing.md'},
-                                                    {text: 'matrix', link: '/run-instance/configuration/ors/endpoints/matrix.md'},
-                                                    {text: 'isochrones', link: '/run-instance/configuration/ors/endpoints/isochrones.md'},
-                                                    {text: 'snap', link: '/run-instance/configuration/ors/endpoints/snap.md'},
+                                                    {
+                                                        text: 'build',
+                                                        link: '/run-instance/configuration/engine/profiles/build.md'
+                                                    },
+                                                    {
+                                                        text: 'repo',
+                                                        link: '/run-instance/configuration/engine/profiles/repo.md'
+                                                    },
+                                                    {
+                                                        text: 'service',
+                                                        link: '/run-instance/configuration/engine/profiles/service.md'
+                                                    },
                                                 ]
                                             },
-                                            {text: 'engine', link: '/run-instance/configuration/ors/engine/', collapsed: true,
-                                                items: [
-                                                    {text: 'profiles', link: '/run-instance/configuration/ors/engine/profiles.md'},
-                                                    {text: 'elevation', link: '/run-instance/configuration/ors/engine/elevation.md'},
-                                                ]
-                                            },
-                                            {text: 'cors', link: '/run-instance/configuration/ors/cors/'},
-                                            {text: 'messages', link: '/run-instance/configuration/ors/messages/'}
                                         ]
                                     },
+                                    {text: 'ors.cors', link: '/run-instance/configuration/cors/'},
+                                    {text: 'ors.messages', link: '/run-instance/configuration/messages/'},
                                     {text: 'JSON config (deprecated)', link:'/run-instance/configuration/json.md'}
                                 ]
                             },
@@ -161,7 +206,9 @@ export default defineConfig({
                                     {text: 'Surface Speeds', link: '/technical-details/travel-speeds/surface-speeds.md'},
                                 ]
                             },
-                            {text: 'Tag Filtering', link: '/technical-details/tag-filtering'}
+                            {text: 'Tag Filtering', link: '/technical-details/tag-filtering'},
+                            {text: 'Graph Management', link: '/technical-details/graph-repo-client/'},
+                            {text: 'Integration Tests', link: '/technical-details/integration-tests'},
                         ]
                     },
                     {text: 'FAQ', link: '/frequently-asked-questions'}

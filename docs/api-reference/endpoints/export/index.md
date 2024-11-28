@@ -1,5 +1,11 @@
 # Export Endpoint
 
+:::warning NOTE
+This endpoint is not available in the public API,
+but you can use it when running an own instance of openrouteservice.
+You can easily create requests with the [swagger-ui](/api-reference/index.md#swagger-ui).
+:::
+
 Export the base graph for different modes of transport.
 
 In the request, the desired routing profile is specified as the last path parameter, 

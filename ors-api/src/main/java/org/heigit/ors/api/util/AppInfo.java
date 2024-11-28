@@ -59,6 +59,7 @@ public class AppInfo {
     public static final String VERSION;
     public static final String BUILD_DATE;
     public static final boolean SNAPSHOT;
+    public static final String GRAPH_VERSION;
 
     static {
         String version = "0.0";
@@ -98,6 +99,16 @@ public class AppInfo {
         }
 
         BUILD_DATE = buildDate;
+
+        prop = new Properties();
+        String graphVersion = "undefined";
+        try (InputStream in = Thread.currentThread().getContextClassLoader().getResource("engine.properties").openStream()) {
+            prop.load(in);
+            graphVersion = prop.getProperty("graphVersion", "undefined");
+        } catch (Exception e) {
+            LOGGER.error("Initialization ERROR: cannot read engineVersion. {}");
+        }
+        GRAPH_VERSION = graphVersion;
     }
 
     private AppInfo() {
@@ -107,6 +118,7 @@ public class AppInfo {
         JSONObject json = new JSONObject(true);
         json.put("version", VERSION);
         json.put("build_date", BUILD_DATE);
+        json.put("graph_version", GRAPH_VERSION);
         return json;
     }
 }

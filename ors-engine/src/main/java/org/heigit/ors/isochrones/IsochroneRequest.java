@@ -24,6 +24,7 @@ import org.locationtech.jts.geom.Coordinate;
 import java.util.*;
 
 public class IsochroneRequest extends ServiceRequest {
+    private String profileName;
     private final List<TravellerInfo> travellers;
     private String calcMethod;
     private String units = null;
@@ -46,6 +47,14 @@ public class IsochroneRequest extends ServiceRequest {
 
     public IsochroneRequest() {
         travellers = new ArrayList<>();
+    }
+
+    public String getProfileName() {
+        return profileName;
+    }
+
+    public void setProfileName(String profileName) {
+        this.profileName = profileName;
     }
 
     public String getCalcMethod() {
