@@ -59,7 +59,8 @@ export default withMermaid(defineVersionedConfig({
 		linkText: 'Documentation Home',
 	},
         sidebar: {
-	    '/': [
+	    '/': {
+	    items: [
             {
                 text: 'Home', link: '/',
                 items: [
@@ -223,6 +224,7 @@ export default withMermaid(defineVersionedConfig({
         footer: {
             message: '<a href="https://openrouteservice.org/">openrouteservice</a> is part of <a href="https://heigit.org/">HeiGIT gGmbH</a> and Universität Heidelberg <a href="https://www.geog.uni-heidelberg.de/gis/index_en.html">GIScience</a> research group. | <a href="https://heigit.org/imprint/">Imprint</a>'
         }
+	}
     },
 
 
