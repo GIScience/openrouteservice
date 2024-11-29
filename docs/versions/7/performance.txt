@@ -1,0 +1,16 @@
+
+On a machine with an Intel i7-6600U CPU (2x2.6GHz), it will take around 40 to 50 seconds to compile ors and start building graphs.
+On a machine with an AMD Ryzen 7 PRO 4750U CPU (8x1.7GHz), it will take around 20 to 30 seconds to compile ors and start building graphs.
+
+This time is **not** included in the following table. Note, that graphs for all nine profiles were being built.
+TODO: infos about config
+
+| PBF-File                            | Size   | Build duration (min:sec) | Read Duration | Mem usage |
+|-------------------------------------+--------+--------------------------+---------------+-----------|
+| berlin-20221118.osm.pbf             | 67 MB  | 213 s                    | 3s            | 345 MB    |
+| baden-wuerttemberg-20221117.osm.pbf | 525 MB | 2517 s                   | 12s           | 2.5 GB    |
+| nepal-latest.osm.pbf                | 343 MB | 895 s                    | 9s            | 1.3 GB    |
+| ile-de-france-latest.osm.pbf        | 275 MB | 1076 s                   | 8s            | 992 MB    |
+| tennessee-latest.osm.pbf            | 120 Mb |
+| north-carolina-latest.osm.pbf       | 293 Mb |
+| spain-latest.osm.pbf                | 948 Mb |
