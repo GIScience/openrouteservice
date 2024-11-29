@@ -72,7 +72,7 @@ public class GraphRepoTest extends ContainerInitializer {
             container.withStartupTimeout(Duration.ofSeconds(150));
             container.start();
             Assertions.assertTrue(setupGraphRepo(container, getCurrentDateInFormat(2)), "Failed to prepare the graph repo.");
-            Assertions.assertTrue(waitForLogPatterns(container, List.of("Graph management is disabled, skipping repeated attempt to activate graphs..."), 12, true));
+            Assertions.assertTrue(waitForLogPatterns(container, List.of("Graph management is disabled"), 12, true));
             container.stop();
         }
 

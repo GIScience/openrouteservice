@@ -163,7 +163,7 @@ public class GraphService {
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     public void repeatedGraphActivationAttempt() {
         if (Boolean.FALSE.equals(enabled)) {
-            LOGGER.debug("Graph management is disabled, skipping repeated attempt to activate graphs...");
+            LOGGER.trace("Graph management is disabled, skipping repeated attempt to activate graphs...");
             return;
         }
         if (isActivatingGraphs.get()) {
