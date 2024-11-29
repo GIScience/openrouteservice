@@ -58,7 +58,13 @@ RELEASING:
 ### Fixed
 - do not enforce a time-dependent routing algorithm unless the weighting requires it ([#1865](https://github.com/GIScience/openrouteservice/pull/1865))
 - failing queries that combined departure/arrival parameters with avoid polygons ([#1871](https://github.com/GIScience/openrouteservice/pull/1871))
-- matrix limit ignored for explicit 'all' value in sources or destinations([#1875](https://github.com/GIScience/openrouteservice/pull/1875))
+- matrix limit ignored for explicit 'all' value in sources or
+  destinations ([#1875](https://github.com/GIScience/openrouteservice/pull/1875))
+
+### Security
+
+- updated graphhopper dependency with fix for
+  CVE-2024-7254 ([#1918](https://github.com/GIScience/openrouteservice/pull/1918))
 
 ## [8.2.0] - 2024-10-09
 ### Added
