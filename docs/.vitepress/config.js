@@ -1,7 +1,8 @@
 import {withMermaid} from "vitepress-plugin-mermaid";
+import defineVersionedConfig from 'vitepress-versioning-plugin'
 
 // https://vitepress.dev/reference/site-config
-export default withMermaid({
+export default withMermaid(defineVersionedConfig({
     mermaid: {
         // refer https://mermaid.js.org/config/setup/modules/mermaidAPI.html#mermaidapi-configuration-defaults for options
     },
@@ -57,7 +58,8 @@ export default withMermaid({
 		quote: 'We recently reworked most of our documentation. You probably ended up here by clicking an old link somewhere, e.g. in the forum. Let us know how you got here and we\'ll fix it. Click the link below and check "Getting Started" - this will help you figure out where to find what you came for.',
 		linkText: 'Documentation Home',
 	},
-        sidebar: [
+        sidebar: {
+	    '/': [
             {
                 text: 'Home', link: '/',
                 items: [
@@ -214,12 +216,18 @@ export default withMermaid({
                     {text: 'FAQ', link: '/frequently-asked-questions'}
                 ]
             }
-        ],
+        ]},
         socialLinks: [
             {icon: 'github', link: 'https://github.com/GIScience/openrouteservice'}
         ],
         footer: {
             message: '<a href="https://openrouteservice.org/">openrouteservice</a> is part of <a href="https://heigit.org/">HeiGIT gGmbH</a> and Universität Heidelberg <a href="https://www.geog.uni-heidelberg.de/gis/index_en.html">GIScience</a> research group. | <a href="https://heigit.org/imprint/">Imprint</a>'
         }
-    }
-})
+    },
+
+
+    versioning: {
+	    latestVersion: "9.0.0",
+    },
+
+}, __dirname ))

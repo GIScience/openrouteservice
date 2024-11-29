@@ -1,8 +1,8 @@
 {
   "type": "module",
   "devDependencies": {
-    "vitepress": "^1.0.0-rc.30",
     "mermaid": "^11.3.0",
+    "vitepress": "^1.5.0",
     "vitepress-plugin-mermaid": "^2.0.17"
   },
   "scripts": {
@@ -10,5 +10,8 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "build-preview": "vitepress build docs && vitepress preview docs"
+  },
+  "dependencies": {
+    "vitepress-versioning-plugin": "^1.2.1"
   }
 }
