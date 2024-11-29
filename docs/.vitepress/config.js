@@ -59,8 +59,8 @@ export default withMermaid(defineVersionedConfig({
 		linkText: 'Documentation Home',
 	},
         sidebar: {
-	    '/': {
-	    items: [
+	    process: true,
+	    '/': [
             {
                 text: 'Home', link: '/',
                 items: [
@@ -217,7 +217,7 @@ export default withMermaid(defineVersionedConfig({
                     {text: 'FAQ', link: '/frequently-asked-questions'}
                 ]
             }
-        ]},
+        ],
         socialLinks: [
             {icon: 'github', link: 'https://github.com/GIScience/openrouteservice'}
         ],
@@ -229,7 +229,12 @@ export default withMermaid(defineVersionedConfig({
 
 
     versioning: {
-	    latestVersion: "9.0.0",
+        latestVersion: "9.0.0",
+        sidebars: {
+            processSidebarURLs: true,
+            sidebarPathResolver: (version) => `.vitepress/sidebars/versioned/${version}.json`,
+            sidebarUrlProcessor: (url, version) => `/${version}${url}`
+        },
     },
 
 }, __dirname ))
