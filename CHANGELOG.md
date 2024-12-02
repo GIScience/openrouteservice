@@ -33,6 +33,20 @@ RELEASING:
 7. Adding the corresponding tag is done when releasing via GitHub.
 -->
 ## [unreleased]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [9.0.0] - 2024-12-02
 ### Added
 - take into account tunnel categories B, C, D, and E when restricting roads for the transport of dangerous goods via the `hazmat` flag in vehicle parameters ([#1879](https://github.com/GIScience/openrouteservice/pull/1879))
 - Ukrainian translation ([#1883](https://github.com/GIScience/openrouteservice/pull/1883))
@@ -60,9 +74,7 @@ RELEASING:
 - failing queries that combined departure/arrival parameters with avoid polygons ([#1871](https://github.com/GIScience/openrouteservice/pull/1871))
 - matrix limit ignored for explicit 'all' value in sources or
   destinations ([#1875](https://github.com/GIScience/openrouteservice/pull/1875))
-
 ### Security
-
 - updated graphhopper dependency with fix for
   CVE-2024-7254 ([#1918](https://github.com/GIScience/openrouteservice/pull/1918))
 
@@ -830,7 +842,9 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v8.2.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.0.0...HEAD
+
+[9.0.0]: https://github.com/GIScience/openrouteservice/compare/v8.2.0...v9.0.0
 [8.2.0]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...v8.2.0
 [8.1.3]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...v8.1.3
 [8.1.2]: https://github.com/GIScience/openrouteservice/compare/v8.1.1...v8.1.2
