@@ -13,11 +13,11 @@ If you are an advanced user, have a look at the existing setup instructions:
 
 ::: tip
 The examples are growing over time and only provide a small subset of possible setups. \
-If you are missing specific detailed     setup instruction, **you are welcome to contribute** by creating a pull request.
+If you are missing specific detailed setup instruction, **you are welcome to contribute** by creating a pull request.
 :::
 
 The following examples are (currently) available:
 
-| Setup                    | Description                                                        | Difficulty | Link                                                 |
-|--------------------------|--------------------------------------------------------------------|------------|------------------------------------------------------|
-| Tomcat 10 - Ubuntu 22.04 | Setup openrouteservice with Tomcat 10 and Java 17 on Ubuntu 22.04. | Medium     | [tomcat-10-war-java-17.md](tomcat-10-ubuntu_22_04) |
+| Setup                    | Description                                                        | Difficulty | Link                                                                           |
+|--------------------------|--------------------------------------------------------------------|------------|--------------------------------------------------------------------------------|
+| Tomcat 10 - Ubuntu 22.04 | Setup openrouteservice with Tomcat 10 and Java 17 on Ubuntu 22.04. | Medium     | [English](en_tomcat-10-ubuntu_22_04) <br/> [German](de_tomcat-10-ubuntu_22_04) |

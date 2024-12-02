@@ -1,7 +1,10 @@
 # Setup ORS v8 and v9 with Tomcat 10 on Ubuntu 22.04
 
-This guide will guide you how to set up openrouteservice with Java 17, Tomcat 10 and ORS v8.
-The guild will cover the following steps:
+This guide will guide you how to set up openrouteservice with Java 17, Tomcat 10 and ORS v8 and v9.
+
+::: info
+To the [german version](de_tomcat-10-ubuntu_22_04) of this tutorial.
+:::
 
 ## Prerequisites
 
@@ -158,7 +161,7 @@ WantedBy=multi-user.target
 > sudo systemctl status openrouteservice.service
 ```
 
-Now navigate to `http://localhost:8080` in your browser to see the Tomcat 10 welcome page.
+Now navigate to [http://localhost:8080](http://localhost:8080) in your browser to see the Tomcat 10 welcome page.
 
 ## Prepare the openrouteservice environment
 
@@ -215,7 +218,7 @@ Make sure to adjust the configuration accordingly as well as the permissions.
 ### Download a test osm file
 
 A good source for latest osm-files is the [Geofabrik download server](https://download.geofabrik.de/).
-We will download a test osm file for small part of Germany (Hessen).
+We will download a small test osm file for Andorra.
 
 ```shell
 # Download a test osm file to the /opt/openrouteservice/data directory
@@ -226,15 +229,15 @@ We will download a test osm file for small part of Germany (Hessen).
 
 Configure Tomcat and openrouteservice is best done by setting the configuration in the `setenv.sh` file in the `bin`
 directory of Tomcat.
-Create the `setenv.sh` file in the `bin` directory of Tomcat.
 
 ```shell
+# Create the `setenv.sh` file in the `bin` directory of Tomcat.
 > sudo nano /opt/tomcat/bin/setenv.sh
 ```
 
 Paste the following contents into the file and save it.
 Make sure to adjust the `-Xmx` value to a value that fits your system and graph.
-If you want to build another pbf-File, you can adjust the `source_file` value.
+If you want to build another OSM-File, you can adjust the `source_file` value.
 
 Between version 8 and 9, the configuration properties have changed.
 Make sure to reference the correct properties.
@@ -330,3 +333,62 @@ Please adapt the test according to your downloaded osm file.
   -H 'Accept: application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8' \
   -d '{"locations":[[1.5036892890930176, 42.4972256361276]],"range":[300]}'
 ```
+
+## Optional: Pre-Build Graph Update
+
+In case you want to only update the existing graphs with new pre-build ones, you can follow these steps:
+
+1. Download the new graphs from the respective source. They will most like come in a zip or tar.xz file.
+2. Unpack the new graphs and make sure they are in the correct format.
+
+```shell
+# In case of a tar.xz file
+> tar -xvf new_graphs.tar.xz
+# In case of a zip file you can use the unzip command
+> unzip new_graphs.zip
+```
+
+The unpacked graphs will have a folder structure similar to this:
+
+```shell
+new_graphs/
+├── driving-car
+└── cycling-regular
+```
+
+3. Empty the old graphs directory `/opt/openrouteservice/graphs/`:
+
+```shell
+> mv /opt/openrouteservice/graphs /opt/openrouteservice/graphs_old
+> mkdir /opt/openrouteservice/graphs
+```
+
+3. Move the new graphs to the `/opt/openrouteservice/graphs/` directory. The new graphs folder structure should look
+   similar to this:
+
+```shell
+/opt/openrouteservice/graphs/
+├── driving-car
+└── cycling-regular
+```
+
+4. [Apply the correct permissions](#run-openrouteservice) to the Tomcat directory
+   and restart the Tomcat service.
+5. Try the [example requests](#example-requests) to see if the new graphs are working correctly.
+
+## Optional: Update openrouteservice to a new version
+
+In case you want to update openrouteservice to a new version, you can follow these steps:
+
+1. Stop the Tomcat service.
+
+```shell
+> sudo systemctl stop openrouteservice.service
+```
+
+2. Empty the old webapps directory `/opt/tomcat/webapps/` and move the new war-File to the directory.
+3. Download the new [war-File](#download-the-openrouteservice-war-file) for the new version.
+4. Adapt the [openrouteservice configuration](#configure-openrouteservice) in the `setenv.sh` file.
+5. [Apply the correct permissions](#run-openrouteservice) to the Tomcat directory
+   and restart the Tomcat service.
+6. Try the [example requests](#example-requests) to see if the new version is working correctly.
