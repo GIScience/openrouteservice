@@ -232,7 +232,7 @@ public class RoutingAPI {
             return errorHandler.handleStatusCodeException(new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, exception.getPath().get(0).getFieldName()));
         } else {
             // Check if we are missing the body as a whole
-            if (e.getLocalizedMessage().startsWith("Required request body is missing")) {
+            if (e.getLocalizedMessage() != null && e.getLocalizedMessage().startsWith("Required request body is missing")) {
                 return errorHandler.handleStatusCodeException(new EmptyElementException(RoutingErrorCodes.MISSING_PARAMETER, "Request body could not be read"));
             }
             return errorHandler.handleGenericException(e);

@@ -145,7 +145,7 @@ public class ExportAPI {
             return errorHandler.handleStatusCodeException(new ParameterValueException(ExportErrorCodes.MISMATCHED_INPUT, exception.getPath().get(0).getFieldName()));
         } else {
             // Check if we are missing the body as a whole
-            if (e.getLocalizedMessage().startsWith("Required request body is missing")) {
+            if (e.getLocalizedMessage() != null && e.getLocalizedMessage().startsWith("Required request body is missing")) {
                 return errorHandler.handleStatusCodeException(new EmptyElementException(ExportErrorCodes.MISSING_PARAMETER, "Request body could not be read"));
             }
             return errorHandler.handleGenericException(e);

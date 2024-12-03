@@ -162,7 +162,7 @@ public class IsochronesAPI {
             return errorHandler.handleStatusCodeException(new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_FORMAT, exception.getPath().get(0).getFieldName()));
         } else {
             // Check if we are missing the body as a whole
-            if (e.getLocalizedMessage().startsWith("Required request body is missing")) {
+            if (e.getLocalizedMessage() != null && e.getLocalizedMessage().startsWith("Required request body is missing")) {
                 return errorHandler.handleStatusCodeException(new EmptyElementException(IsochronesErrorCodes.MISSING_PARAMETER, "Request body could not be read"));
             }
             return errorHandler.handleGenericException(e);
