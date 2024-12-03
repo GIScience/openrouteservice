@@ -154,7 +154,7 @@ public class MatrixAPI {
             return errorHandler.handleStatusCodeException(new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_FORMAT, exception.getPath().get(0).getFieldName()));
         } else {
             // Check if we are missing the body as a whole
-            if (e.getLocalizedMessage().startsWith("Required request body is missing")) {
+            if (e.getLocalizedMessage() != null && e.getLocalizedMessage().startsWith("Required request body is missing")) {
                 return errorHandler.handleStatusCodeException(new EmptyElementException(MatrixErrorCodes.MISSING_PARAMETER, "Request body could not be read"));
             }
             return errorHandler.handleGenericException(e);

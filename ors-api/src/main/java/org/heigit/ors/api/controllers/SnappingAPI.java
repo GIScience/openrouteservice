@@ -188,7 +188,7 @@ public class SnappingAPI {
             return errorHandler.handleStatusCodeException(new ParameterValueException(SnappingErrorCodes.INVALID_PARAMETER_VALUE, (String) exception.getValue()));
         } else {
             // Check if we are missing the body as a whole
-            if (e.getLocalizedMessage().startsWith("Required request body is missing")) {
+            if (e.getLocalizedMessage() != null && e.getLocalizedMessage().startsWith("Required request body is missing")) {
                 return errorHandler.handleStatusCodeException(new EmptyElementException(SnappingErrorCodes.MISSING_PARAMETER, "Request body could not be read"));
             }
             return errorHandler.handleGenericException(e);

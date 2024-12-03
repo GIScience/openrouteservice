@@ -43,6 +43,7 @@ RELEASING:
 ### Removed
 
 ### Fixed
+- NPE in error handling ([#1925](https://github.com/GIScience/openrouteservice/pull/1925))
 
 ### Security
 
