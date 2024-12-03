@@ -34,7 +34,7 @@ public class TopoJsonExportResponse extends ExportResponse {
         int arcCount = 0;
 
         Map<Integer, Coordinate> nodes = exportResult.getLocations(); 
-        for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight: exportResult.getEdgeWeigths().entrySet()) {
+        for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight: exportResult.getEdgeWeights().entrySet()) {
             
 
             Pair<Integer, Integer> fromTo = edgeWeight.getKey();

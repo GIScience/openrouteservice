@@ -147,11 +147,11 @@ public class ParamsTest extends ServiceTest {
         body.put("bbox", getParameter("bboxProper"));
         given()
                 .headers(jsonContent)
-                .pathParam("profile", "driving-car")
+                .pathParam("profile", "wheelchair")
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/topojson")
-                .then()
+                .then().log().all()
                 .assertThat()
                 .body("type", is("Topology"))
                 .body("objects.layers.containsKey('layer')", is(true))

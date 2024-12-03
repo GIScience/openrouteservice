@@ -86,4 +86,7 @@ public class ExportApiRequest extends APIRequest {
         this.responseType = responseType;
     }
 
+    public APIEnums.ExportResponseType getResponseType() {
+        return responseType;
+    }
 }

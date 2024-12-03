@@ -7,10 +7,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.EdgeExplorer;
-import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
+import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +38,10 @@ public class ExportRequest extends ServiceRequest {
     private int profileType = -1;
 
     private boolean debug;
+
+    @Getter
+    @Setter
+    private boolean topoJson;
 
     public BBox getBoundingBox() {
         return this.boundingBox;
@@ -141,6 +142,16 @@ public class ExportRequest extends ServiceRequest {
                         OsmIdGraphStorage storage2 = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
                         if (storage2 != null) {
                             extra.put("osm_id", storage2.getEdgeValue(iter.getEdge()));
+                        }
+                        res.addEdgeExtra(p, extra);
+                    }
+
+                    if (topoJson) {
+                        Map<String, Object> extra = new HashMap<>();
+                        extra.put("geometry", iter.fetchWayGeometry(FetchMode.ALL).toLineString(false));
+                        OsmIdGraphStorage osmIdGraphStorage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
+                        if (osmIdGraphStorage != null) {
+                            extra.put("osm_id", osmIdGraphStorage.getEdgeValue(iter.getEdge()));
                         }
                         res.addEdgeExtra(p, extra);
                     }
