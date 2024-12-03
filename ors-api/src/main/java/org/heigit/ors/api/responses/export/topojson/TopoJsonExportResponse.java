@@ -13,6 +13,7 @@ import org.locationtech.jts.geom.Coordinate;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.locationtech.jts.geom.LineString;
 
 @Schema(description= "The Export Response conatains edges with edge weights and topology information from the requested BBox")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -42,6 +43,9 @@ public class TopoJsonExportResponse extends ExportResponse {
             
             List<Double> from = getXY(nodes, fromTo.first);
             List<Double> to = getXY(nodes, fromTo.second);
+
+            LineString lineString = (LineString) exportResult.getEdgeExtras().get(fromTo).get("geometry");
+            long osmId = (long) exportResult.getEdgeExtras().get(fromTo).get("osm_id");
 
             List<List<Double>> coordinates = List.of(from, to);
             
