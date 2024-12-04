@@ -150,7 +150,7 @@ public class ExportAPI {
 
         ExportResult result = exportService.generateExportFromRequest(request);
 
-        return new TopoJsonExportResponse(result);
+        return TopoJsonExportResponse.fromExportResult(result);
     }
 
 

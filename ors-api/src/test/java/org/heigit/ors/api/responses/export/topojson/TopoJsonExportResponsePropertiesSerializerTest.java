@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TopoJsonPropertiesSerializerTest {
+class TopoJsonExportResponsePropertiesSerializerTest {
 
     private ObjectMapper objectMapper;
 
