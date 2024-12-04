@@ -15,6 +15,7 @@ import java.util.*;
 class TopoJsonExportResponseTest {
 
     TopoJsonExportResponse topoJsonExportResponse;
+    String topologyLayerName = "network";
 
     // setup function
     @BeforeEach
@@ -36,9 +37,6 @@ class TopoJsonExportResponseTest {
         Layer layer = Layer.builder()
                 .type("GeometryCollection")
                 .geometries(List.of(geometry1, geometry2))
-                .build();
-        Layers objects = Layers.builder()
-                .layer(layer)
                 .build();
         Arc arc1 = Arc.builder()
                 .coordinates(List.of(
@@ -68,7 +66,7 @@ class TopoJsonExportResponseTest {
                 .build();
         topoJsonExportResponse = TopoJsonExportResponse.builder()
                 .type("Topology")
-                .objects(objects)
+                .objects(new HashMap<>(Map.of(topologyLayerName, layer)))
                 .bbox(List.of(-72.822573, 19.947123, -72.81259, 19.952703))
                 .arcs(List.of(arc1, arc2, arc3))
                 .build();
@@ -95,14 +93,15 @@ class TopoJsonExportResponseTest {
                 }
             }
         }
-        Assertions.assertEquals(jsonNode.get("objects").get("layer").get("type").asText(), topoJsonExportResponse.getObjects().getLayer().getType());
-        for (int i = 0; i < topoJsonExportResponse.getObjects().getLayer().getGeometries().size(); i++) {
-            Assertions.assertEquals(jsonNode.get("objects").get("layer").get("geometries").get(i).get("type").asText(), topoJsonExportResponse.getObjects().getLayer().getGeometries().get(i).getType());
-            for (int j = 0; j < topoJsonExportResponse.getObjects().getLayer().getGeometries().get(i).getArcs().size(); j++) {
-                Assertions.assertEquals(jsonNode.get("objects").get("layer").get("geometries").get(i).get("arcs").get(j).asInt(), (int) topoJsonExportResponse.getObjects().getLayer().getGeometries().get(i).getArcs().get(j));
+        Assertions.assertEquals(1, jsonNode.get("objects").size());
+        Assertions.assertEquals(jsonNode.get("objects").get("network").get("type").asText(), topoJsonExportResponse.getObjects().get("network").getType());
+        for (int j = 0; j < topoJsonExportResponse.getObjects().get("network").getGeometries().size(); j++) {
+            Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("type").asText(), topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getType());
+            for (int k = 0; k < topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getArcs().size(); k++) {
+                Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("arcs").get(k).asInt(), topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getArcs().get(k));
             }
-            for (String key : topoJsonExportResponse.getObjects().getLayer().getGeometries().get(i).getProperties().keySet()) {
-                Assertions.assertEquals(jsonNode.get("objects").get("layer").get("geometries").get(i).get("properties").get(key).asInt(), (int) topoJsonExportResponse.getObjects().getLayer().getGeometries().get(i).getProperties().get(key));
+            for (String key : topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getProperties().keySet()) {
+                Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("properties").get(key).asText(), topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getProperties().get(key).toString());
             }
         }
     }
@@ -116,7 +115,7 @@ class TopoJsonExportResponseTest {
         Assertions.assertEquals("Topology", emptyTopoJsonExportResponse.getType());
         Assertions.assertEquals(0, jsonNode.get("bbox").size());
         Assertions.assertEquals(0, jsonNode.get("arcs").size());
-        Assertions.assertEquals(1, jsonNode.get("objects").size());
+        Assertions.assertEquals(0, jsonNode.get("objects").size());
     }
 
     @Test
@@ -131,16 +130,18 @@ class TopoJsonExportResponseTest {
         exportResult.addEdgeExtra(new Pair<>(0, 1), new HashMap<>(Map.of("osm_id", 1L, "foo", "baz")));
         exportResult.addEdgeExtra(new Pair<>(1, 2), new HashMap<>(Map.of("osm_id", 2L, "foo", "bar")));
 
-        TopoJsonExportResponse exportResultToTopoJson = TopoJsonExportResponse.fromExportResult(exportResult);
-        Layers layers = exportResultToTopoJson.getObjects();
-        Assertions.assertEquals("GeometryCollection", layers.getLayer().getType());
-        Assertions.assertEquals(2, layers.getLayer().getGeometries().size());
-        Geometry geometry1 = layers.getLayer().getGeometries().get(0);
+
+        TopoJsonExportResponse exportResultToTopoJson = TopoJsonExportResponse.fromExportResult(exportResult, topologyLayerName);
+        HashMap<String, Layer> layers = exportResultToTopoJson.getObjects();
+        Layer network = layers.get(topologyLayerName);
+        Assertions.assertEquals("GeometryCollection", network.getType());
+        Assertions.assertEquals(2, network.getGeometries().size());
+        Geometry geometry1 = network.getGeometries().get(0);
         Assertions.assertEquals("LineString", geometry1.getType());
         Assertions.assertEquals(List.of(0), geometry1.getArcs());
         Assertions.assertEquals(1.0, geometry1.getProperties().get("weight"));
         Assertions.assertEquals(1L, geometry1.getProperties().get("osm_id"));
-        Geometry geometry2 = layers.getLayer().getGeometries().get(1);
+        Geometry geometry2 = network.getGeometries().get(1);
         Assertions.assertEquals("LineString", geometry2.getType());
         Assertions.assertEquals(List.of(1), geometry2.getArcs());
         Assertions.assertEquals(2.0, geometry2.getProperties().get("weight"));
