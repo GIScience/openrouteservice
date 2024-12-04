@@ -24,7 +24,7 @@ public class TopoJsonExportResponse implements Serializable {
     private String type = "Topology";
     @JsonProperty("objects")
     @Builder.Default
-    private Layers objects = new Layers(new Layer("GeometryCollection", new ArrayList<>()));
+    private HashMap<String, Layer> objects = new HashMap<>();
     @JsonProperty("arcs")
     @Builder.Default
     private List<Arc> arcs = new LinkedList<>();
@@ -32,7 +32,7 @@ public class TopoJsonExportResponse implements Serializable {
     @Builder.Default
     private List<Double> bbox = new ArrayList<>();
 
-    public static TopoJsonExportResponse fromExportResult(ExportResult exportResult) {
+    public static TopoJsonExportResponse fromExportResult(ExportResult exportResult, String topologyLayerName) {
         List<Double> bbox = initializeBbox();
         LinkedList<Geometry> geometries = new LinkedList<>();
         LinkedList<Arc> arcsLocal = new LinkedList<>();
@@ -75,13 +75,9 @@ public class TopoJsonExportResponse implements Serializable {
                 .geometries(geometries)
                 .build();
 
-        Layers layers = Layers.builder()
-                .layer(layer)
-                .build();
-
         return TopoJsonExportResponse.builder()
                 .type("Topology")
-                .objects(layers)
+                .objects(new HashMap<>(Map.of(topologyLayerName, layer)))
                 .arcs(arcsLocal)
                 .bbox(bbox)
                 .build();

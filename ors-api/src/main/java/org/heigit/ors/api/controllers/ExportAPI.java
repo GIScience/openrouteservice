@@ -150,9 +150,8 @@ public class ExportAPI {
 
         ExportResult result = exportService.generateExportFromRequest(request);
 
-        return TopoJsonExportResponse.fromExportResult(result);
+        return TopoJsonExportResponse.fromExportResult(result, "network");
     }
-
 
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
