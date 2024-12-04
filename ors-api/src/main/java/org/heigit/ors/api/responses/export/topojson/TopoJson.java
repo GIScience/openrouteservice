@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.*;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({"type", "transform", "objects", "arcs", "bbox"})
@@ -16,7 +16,8 @@ import java.util.List;
 public class TopoJson implements Serializable {
 
     @JsonProperty("type")
-    private String type;
+    @Builder.Default
+    private String type = "Topology";
     @JsonProperty("objects")
     private Layers objects;
     @JsonProperty("arcs")
