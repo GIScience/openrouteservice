@@ -35,6 +35,8 @@ public class ExportRequest extends ServiceRequest {
 
     private boolean debug;
 
+    private boolean topoJson;
+
     public String getProfileName() {
         return profileName;
     }
@@ -61,6 +63,10 @@ public class ExportRequest extends ServiceRequest {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public void setTopoJson(boolean equals) {
+        this.topoJson = equals;
     }
 
     public boolean debug() {
