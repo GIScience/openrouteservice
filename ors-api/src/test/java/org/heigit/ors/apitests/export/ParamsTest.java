@@ -11,12 +11,13 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
+
 import org.hamcrest.Matchers;
 
 @EndPointAnnotation(name = "export")
 @VersionAnnotation(version = "v2")
-public class ParamsTest extends ServiceTest {
-    public ParamsTest(){
+class ParamsTest extends ServiceTest {
+    public ParamsTest() {
         JSONArray coord1 = new JSONArray();
         coord1.put(0.001);
         coord1.put(0.001);
@@ -36,8 +37,8 @@ public class ParamsTest extends ServiceTest {
 
         JSONArray bboxProper = new JSONArray();
         bboxProper.put(coord2)
-            .put(coord3);
-        
+                .put(coord3);
+
         addParameter("bboxFake", bboxMock);
         addParameter("bboxFaulty", bboxFaulty);
         addParameter("bboxProper", bboxProper);
@@ -151,10 +152,20 @@ public class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/topojson")
+                // TODO: remove me before merging to main
                 .then().log().all()
                 .assertThat()
                 .body("type", is("Topology"))
-                .body("objects.layers.containsKey('layer')", is(true))
+                .body("objects.size()", is(1))
+                .body("objects.network.type", is("GeometryCollection"))
+                .body("bbox.size()", is(4))
+                // approximations due to float comparison
+                .body("bbox[0]", is(8.681522F))
+                .body("bbox[1]", is(49.41491F))
+                .body("bbox[2]", is(8.686507F))
+                .body("bbox[3]", is(49.41943F))
+                .body("arcs.size()", is(128))
+                .body("objects.network.geometries.size()", is(128))
                 .statusCode(200);
     }
 }
