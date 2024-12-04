@@ -7,10 +7,7 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.index.LocationIndex;
-import com.graphhopper.util.EdgeExplorer;
-import com.graphhopper.util.EdgeIterator;
-import com.graphhopper.util.EdgeIteratorState;
-import com.graphhopper.util.PMap;
+import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.BBox;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.Pair;
@@ -38,6 +35,8 @@ public class ExportRequest extends ServiceRequest {
 
     private boolean debug;
 
+    private boolean topoJson;
+
     public String getProfileName() {
         return profileName;
     }
@@ -64,6 +63,10 @@ public class ExportRequest extends ServiceRequest {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public void setTopoJson(boolean equals) {
+        this.topoJson = equals;
     }
 
     public boolean debug() {
@@ -145,6 +148,16 @@ public class ExportRequest extends ServiceRequest {
                         OsmIdGraphStorage storage2 = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
                         if (storage2 != null) {
                             extra.put("osm_id", storage2.getEdgeValue(iter.getEdge()));
+                        }
+                        res.addEdgeExtra(p, extra);
+                    }
+
+                    if (topoJson) {
+                        Map<String, Object> extra = new HashMap<>();
+                        extra.put("geometry", iter.fetchWayGeometry(FetchMode.ALL).toLineString(false));
+                        OsmIdGraphStorage osmIdGraphStorage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
+                        if (osmIdGraphStorage != null) {
+                            extra.put("osm_id", osmIdGraphStorage.getEdgeValue(iter.getEdge()));
                         }
                         res.addEdgeExtra(p, extra);
                     }
