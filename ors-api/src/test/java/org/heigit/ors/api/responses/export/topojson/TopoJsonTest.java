@@ -90,7 +90,7 @@ class TopoJsonTest {
         for (int i = 0; i < topoJson.getArcs().size(); i++) {
             for (int j = 0; j < topoJson.getArcs().get(i).getCoordinates().size(); j++) {
                 for (int k = 0; k < topoJson.getArcs().get(i).getCoordinates().get(j).size(); k++) {
-                    Assertions.assertEquals(jsonNode.get("arcs").get(i).get("coordinates").get(j).get(k).asDouble(), topoJson.getArcs().get(i).getCoordinates().get(j).get(k));
+                    Assertions.assertEquals(jsonNode.get("arcs").get(i).get(j).get(k).asDouble(), topoJson.getArcs().get(i).getCoordinates().get(j).get(k));
                 }
             }
         }
