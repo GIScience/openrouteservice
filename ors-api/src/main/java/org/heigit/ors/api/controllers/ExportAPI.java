@@ -77,8 +77,8 @@ public class ExportAPI {
     // Matches any response type that has not been defined
     @PostMapping(value = "/{profile}/*")
     @Operation(hidden = true)
-    public void getInvalidResponseType() throws StatusCodeException {
-        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
+    public void getInvalidResponseType(@PathVariable String profile) throws StatusCodeException {
+        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "The response format %s is not supported".formatted(profile));
     }
 
     // Functional request methods
