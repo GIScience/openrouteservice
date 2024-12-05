@@ -11,6 +11,10 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
 import org.hamcrest.Matchers;
 
 @EndPointAnnotation(name = "export")
@@ -142,7 +146,7 @@ public class ParamsTest extends ServiceTest {
     }
 
     @Test
-    void expectTopoJsonFormat() {
+    void expectTopoJsonFormat() throws FileNotFoundException {
         JSONObject body = new JSONObject();
         body.put("bbox", getParameter("bboxProper"));
         given()
@@ -154,7 +158,11 @@ public class ParamsTest extends ServiceTest {
                 .then().log().all()
                 .assertThat()
                 .body("type", is("Topology"))
-                .body("objects.layers.containsKey('layer')", is(true))
+                .body("objects.layer.type", is("GeometryCollection"))
+                .body("objects.layer.containsKey('geometries')", is(true))
+                .body("objects.layer.geometries[0].type", is("LineString"))
+                .body("containsKey('arcs')", is(true))
+                .body("containsKey('bbox')", is(true))
                 .statusCode(200);
     }
 }
