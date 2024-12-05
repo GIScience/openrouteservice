@@ -1,11 +1,11 @@
 [
 	{
 		"process": true,
-		"text": "Home",
+		"text": "Home - v7",
 		"link": "/",
 		"items": [
 			{
-				"text": "Getting Started 7",
+				"text": "Getting Started",
 				"link": "./getting-started"
 			},
 			{
