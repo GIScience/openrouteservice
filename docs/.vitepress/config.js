@@ -59,7 +59,6 @@ export default withMermaid(defineVersionedConfig({
 		linkText: 'Documentation Home',
 	},
         sidebar: {
-	    process: true,
 	    '/': [
             {
                 text: 'Home', link: '/',
@@ -227,6 +226,12 @@ export default withMermaid(defineVersionedConfig({
 	}
     },
 
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en'
+    }
+  },
 
     versioning: {
         latestVersion: "9.0.0",

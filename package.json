@@ -12,6 +12,6 @@
     "build-preview": "vitepress build docs && vitepress preview docs"
   },
   "dependencies": {
-    "vitepress-versioning-plugin": "^1.2.1"
+    "GIScience/vitepress-versioning-plugin#fix-sidebar-rewrites": "^1.2.1"
   }
 }
