@@ -238,7 +238,7 @@ export default withMermaid(defineVersionedConfig({
         sidebars: {
             processSidebarURLs: true,
             sidebarPathResolver: (version) => `.vitepress/sidebars/versioned/${version}.json`,
-            sidebarUrlProcessor: (url, version) => `/${version}${url}`
+            sidebarUrlProcessor: (url, version) => url.includes("http") ? url : `/${version}${url}`
         },
     },
 
