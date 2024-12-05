@@ -1,5 +1,5 @@
 import {withMermaid} from "vitepress-plugin-mermaid";
-import defineVersionedConfig from 'vitepress-versioning-plugin'
+import defineVersionedConfig from 'vitepress-versioning-plugin';
 
 // https://vitepress.dev/reference/site-config
 export default withMermaid(defineVersionedConfig({
@@ -24,6 +24,7 @@ export default withMermaid(defineVersionedConfig({
     },
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
+	versionSwitcher: false,
         siteTitle: false,
         logo: {
             light: '/openrouteservice.png',
@@ -51,6 +52,7 @@ export default withMermaid(defineVersionedConfig({
             {text: 'Homepage', link: 'https://openrouteservice.org'},
             {text: 'API Playground', link: 'https://openrouteservice.org/dev/#/api-docs'},
             {text: 'Forum', link: 'https://ask.openrouteservice.org'},
+	    {component: 'VersionSwitcher'},
         ],
 	// undocumented options for NotFound-Page
 	notFound: {
@@ -243,3 +245,4 @@ export default withMermaid(defineVersionedConfig({
     },
 
 }, __dirname ))
+
