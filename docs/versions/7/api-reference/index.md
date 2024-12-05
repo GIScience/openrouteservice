@@ -33,7 +33,7 @@ However, some of the displayed endpoints or features won't be accessible with ou
 
 Local instances of openrouteservice also have an accessible swagger-ui.
 This is a way to get an interactive API doc for your current or an older version of openrouteservice:
-1. Checkout the source code for the desired version or tag and [run the service locally](/run-instance/installation/index.md).
+1. Checkout the source code for the desired version or tag and [run the service locally](../run-instance/installation/index.md).
 2. You can then navigate to the swagger-ui hosted by your local instance in your browser: [http://localhost:8082/ors/swagger-ui/index.html](http://localhost:8082/ors/swagger-ui/index.html)
 (the port may be different on your local environment).
 
