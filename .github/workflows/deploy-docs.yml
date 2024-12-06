@@ -5,7 +5,8 @@ name: Deploy Backend Documentation to Pages
 on:
   # Runs on pushes targeting the `main` branch.
   push:
-    branches: ["main"]
+    tags:
+      - latest
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
