@@ -4,7 +4,7 @@ If Docker is available on your system, the easiest way to run openrouteservice i
 You don't need to clone the openrouteservice repository, the source code is not needed to run a prebuilt image.
 Also, java and maven don't have to be installed.
 
-If you have special requirements, you can also [build your customized docker image](/run-instance/building-from-source.md#build-docker-image).
+If you have special requirements, you can also [build your customized docker image](building-from-source.md#build-docker-image).
 
 ::: warning
 The docker documentation is only valid for openrouteservice since v8.0.0!
@@ -73,11 +73,13 @@ docker run -dt --name ors-app \
   -v $PWD/ors-docker/graphs:/home/ors/graphs \
   -v $PWD/ors-docker/files:/home/ors/files \
   -v $PWD/ors-docker/logs:/home/ors/logs \
-  #-e "BUILD_GRAPHS=True" \
   -e "XMS=1g" \
-  -e "XMX=2g \
+  -e "XMX=2g" \
   local/openrouteservice:latest 
 ```
+Add `-e "ors.engine.source_file=files/your.osm.pbf" \` to point to your own OSM file that lies in the mounted $PWD/ors-docker/files folder.
+Add `-e "BUILD_GRAPHS=True" \` to trigger a graph rebuild.
+
 :::
 
 
@@ -163,7 +165,7 @@ Let's say, you have uid=1003 and gid=1003:
         #user: "1000:1000" // [!code --]
         user: "1003:1003" // [!code ++]
     ```
-2. Build your docker image locally as described in [build your customized docker image](/run-instance/building-from-source.md#build-docker-image)
+2. Build your docker image locally as described in [build your customized docker image](building-from-source.md#build-docker-image)
 3. Now you should be able to do steps 2. and 3. as described above.  
 
 
@@ -282,7 +284,7 @@ When using the openrouteservice docker image, you have several configuration opt
 
 The following sections explain these options in more detail.
 For detailed information on the configuration settings you can make, see the chapter
-on [configuration](/run-instance/configuration/index.md).
+on [configuration](configuration/index.md).
 
 ::: tip
 If you want to re-build the graphs, many people just delete the graphs folders and restart openrouteservice.
@@ -294,7 +296,7 @@ openrouteservice will then re-build all activated graphs on the next startup.
 
 ### Use (customized) config file
 
-As described in [Configuration > File location](/run-instance/configuration/index.md#file-location), 
+As described in [Configuration > File location](configuration/index.md#file-location), 
 when openrouteservice is started, it looks for a file named `ors-config.yml` in different directories and uses the file, if it exists.
 Alternatively, an individually named or located configuration file (YAML or the deprecated JSON config) can be used by setting the environment variable `ORS_CONFIG_LOCATION`.
 
@@ -349,7 +351,7 @@ docker compose down && docker compose up
 :::
 
 The syntax/name of the configuration properties is not yaml but instead the syntax from java properties files.
-But it is just a different syntax. The properties are the same as described in [Configuration > File Formats](/run-instance/configuration/index.md#file-formats).
+But it is just a different syntax. The properties are the same as described in [Configuration > File Formats](configuration/index.md#file-formats).
 
 ### Set openrouteservice properties in an Environment file
 
@@ -438,7 +440,7 @@ ors-app  | 2024-03-12T08:13:19.200130392Z ✓ 🙭 Ready to start the ORS applic
 
 As explained in the log, by setting `CONTAINER_LOG_LEVEL=DEBUG` in the `docker-compose.yml` you get more information.
 This setting is only relevant for the entrypoint logging, it does not change the log level of openrouteservice.
-How you can achieve this is documented in the [logging documentation](/run-instance/configuration/spring/logging.md).
+How you can achieve this is documented in the [logging documentation](configuration/spring/logging.md).
 
 ::: warning Hint
 Remember that the container has to be newly created for the changes in `docker-compose.yml` to take effect!

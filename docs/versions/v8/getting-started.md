@@ -7,7 +7,7 @@ The fastest way to get to the info you are looking for is **the search bar above
   * [Directions](api-reference/endpoints/directions/index.md) endpoint
   * [Isochrones](api-reference/endpoints/isochrones/index.md) endpoint
   * [Matrix](api-reference/endpoints/matrix/index.md) endpoint
-  * [Snapping](api-reference/endpoints/snapping/index.md) endpoint _(not available in our live API)_
+  * [Snapping](api-reference/endpoints/snapping/index.md) endpoint
   * [Export](api-reference/endpoints/export/index.md) endpoint _(not available in our live API)_
 * [Run ORS instance](run-instance/index.md) contains all info about setting up the ors locally. 
   * [System requirements](run-instance/system-requirements)

@@ -23,7 +23,7 @@ There are three main reasons for this problem, listed in order of most to least 
    road. The maximum distance for snapping to road segments in our API is 350m.
  This can be customized for local installations via the
   `maximum_snapping_radius` and `location_index_resolution` config-parameter. See
-  [configuration](/run-instance/configuration/ors/engine/profiles.md) for details.
+  [configuration](run-instance/configuration/ors/engine/profiles.md) for details.
 
 3. The start and endpoint are passed with correct lon,lat-order and are within
    350m of a routable road. This should only happen with a local installation.
@@ -48,7 +48,7 @@ be preprocessed before the openrouteservice can start building the graphs used
 for routing.
 
 The build process in itself is [rather
-resource-intensive](/run-instance/system-requirements.md). It takes roughly two
+resource-intensive](run-instance/system-requirements.md). It takes roughly two
 days for any one of the nine profiles. For the mentioned resource requirements,
 this means that it will take roughly a week for all profiles to be re-built.
 
@@ -69,7 +69,7 @@ concern, if changes are not reflected within a month.
 
 ## I get an Error `Native memory allocation (mmap) failed to map 16384 bytes for committing reserved memory`
 
-See memory mapping section in [system requirements](/run-instance/system-requirements.md#memory-mapping-in-large-builds-with-a-containerized-openrouteservice-instance).
+See memory mapping section in [system requirements](run-instance/system-requirements.md#memory-mapping-in-large-builds-with-a-containerized-openrouteservice-instance).
 
 ## Why does routing not work when there is clearly a road?
 

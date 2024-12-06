@@ -257,10 +257,11 @@ The top level element.
 ---
 #### ors.services.snap
 
-| key                     | type    | description                                                    | example value                                        |
-|-------------------------|---------|----------------------------------------------------------------|------------------------------------------------------| 
-| enabled                 | boolean | Enables or disables (true/false) the end-point (default: true) | `true`                                               |
-| attribution             | string  | Attribution added to the response metadata                     | `"openrouteservice.org, OpenStreetMap contributors"` |
+| key               | type    | description                                                    | example value                                        |
+|-------------------|---------|----------------------------------------------------------------|------------------------------------------------------| 
+| enabled           | boolean | Enables or disables (true/false) the end-point (default: true) | `true`                                               |
+| attribution       | string  | Attribution added to the response metadata                     | `"openrouteservice.org, OpenStreetMap contributors"` |
+| maximum_locations | number  | Maximum number of locations in one request                     | `5000`                                               |
 
 ---
 
