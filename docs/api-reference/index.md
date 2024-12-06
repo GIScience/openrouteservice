@@ -18,13 +18,11 @@ If you are developing ORS or running your own instance, you might benefit from t
 The [API Playground](https://openrouteservice.org/dev/#/api-docs/directions_service) is a complete, interactive and concise technical documentation of our live API.
 It can also be used to send sample requests to either our live API or an instance of openrouteservice running on your local machine.
 Use the form "API Server" on the top left to select and edit "Development Server" if you want to send requests to your local instance:
-![Development server usage](/public/playground-select-server.png "Development server usage"){ style="display: block;
-margin: 0 auto"}
+![Development server usage](/public/playground-select-server.png "Development server usage"){ style="display: block; margin: 0 auto"}
 
 The responses of your sample requests are visualized on a small map on the bottom right,
 but can also be shown as json, table or downloaded as file:
-![Example request visualization](/public/playground-map.png "Example request visualization"){ style="display: block;
-margin: 0 auto"}
+![Example request visualization](/public/playground-map.png "Example request visualization"){ style="display: block; margin: 0 auto"}
 
 ::: warning Hint
 If you prefer the swagger-ui you can also use the [swagger editor](https://editor-next.swagger.io/) and load
