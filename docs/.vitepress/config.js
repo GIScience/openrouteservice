@@ -61,7 +61,7 @@ export default withMermaid(defineVersionedConfig({
         sidebar: {
 	    '/': [
             {
-                text: 'Home', link: '/',
+                text: 'Home - v9', link: '/',
                 items: [
                     {text: 'Getting Started', link: '/getting-started'},
                     {
@@ -234,7 +234,7 @@ export default withMermaid(defineVersionedConfig({
   },
 
     versioning: {
-        latestVersion: "9.0.0",
+        latestVersion: "v9",
         sidebars: {
             processSidebarURLs: true,
             sidebarPathResolver: (version) => `.vitepress/sidebars/versioned/${version}.json`,
