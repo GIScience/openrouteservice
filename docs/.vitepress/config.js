@@ -23,6 +23,7 @@ export default withMermaid(defineVersionedConfig({
         }
     },
     themeConfig: {
+        versionSwitcher: false,
         // https://vitepress.dev/reference/default-theme-config
         siteTitle: false,
         logo: {
@@ -59,6 +60,7 @@ export default withMermaid(defineVersionedConfig({
             {text: 'Homepage', link: 'https://openrouteservice.org'},
             {text: 'API Playground', link: 'https://openrouteservice.org/dev/#/api-docs'},
             {text: 'Forum', link: 'https://ask.openrouteservice.org'},
+            {component: 'VersionSwitcher'}
         ],
 	// undocumented options for NotFound-Page
 	notFound: {
