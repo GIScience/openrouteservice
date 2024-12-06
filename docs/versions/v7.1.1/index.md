@@ -2,7 +2,7 @@
 title: Home
 layout: home
 hero:
-    name: Openrouteservice Backend Documentation - v8
+    name: Openrouteservice Backend Documentation - v7.2.0
     tagline: Smart mobility made easy
     actions:
         - theme: brand
@@ -13,22 +13,22 @@ hero:
           link: https://openrouteservice.org/dev/#/api-docs/v2/directions/{profile}/post
         - theme: alt
           text: Contributing
-          link: ./contributing/
+          link: ./contributing/Contributing
         - theme: alt
           text: Reference
-          link: ./api-reference/
+          link: ./documentation/Documentation
 
 features:
     - title: Installation
       details: Set up your own openrouteservice instance.
       linkText: Instructions
-      link: ./run-instance/
+      link: ./installation/Installation-and-Usage
     - title: Data Sources
       details: Find all information on the data used by the openrouteservice here.
       linkText: Data
-      link: ./run-instance/data
+      link: ./Data
     - title: Latest Changes
       details: Check out the latest changes to the openrouteservice.
       linkText: CHANGELOG.md
-      link: https://github.com/GIScience/openrouteservice/blob/main/CHANGELOG.md
+      link: https://github.com/GIScience/openrouteservice/blob/master/CHANGELOG.md
 ---
