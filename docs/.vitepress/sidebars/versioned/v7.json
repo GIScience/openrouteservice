@@ -1,313 +1,75 @@
 [
 	{
-		"process": true,
-		"text": "Home - v7",
-		"link": "/",
+		"text": 'Home', "link": '/',
 		"items": [
+			{"text": 'Getting Started', "link": '/getting-started'},
 			{
-				"text": "Getting Started",
-				"link": "./getting-started"
+				"text": 'Installation and Usage', "collapsed": true, "link": '/installation/Installation-and-Usage',
+				"items": [
+					{"text": 'Running with Docker', "link": '/installation/Running-with-Docker'},
+					{"text": 'Building from Source', "link": '/installation/Building-from-Source'},
+					{"text": 'System Requirements', "link": '/installation/System-Requirements'},
+					{"text": 'Configuration', "link": '/installation/Configuration'},
+					{"text": 'Advanced Docker Setup', "link": '/installation/Advanced-Docker-Setup'},
+					{"text": 'Backend Documentation', "link": '/installation/Backend-Documentation'}
+				]
+			},
+			{"text": 'Data', "link": '/Data'},
+			{
+				"text": 'Contributing', "collapsed": true, "link": '/contributing/Contributing',
+				"items": [
+					{"text": 'Contributing Translations', "link": '/contributing/Contributing-Translations'}
+				]
 			},
 			{
-				"text": "API Reference",
-				"collapsed": true,
-				"link": "/api-reference/",
+				"text": 'Documentation', "collapsed": true, "link": '/documentation/Documentation',
 				"items": [
+					{"text": 'Tag Filtering', "link": '/documentation/Tag-Filtering'},
 					{
-						"text": "Endpoints",
+						"text": 'Travel Speeds',
 						"collapsed": true,
-						"link": "/api-reference/endpoints/",
+						"link": '/documentation/travel-speeds/Travel-Speeds',
 						"items": [
-							{
-								"text": "Directions",
-								"collapsed": true,
-								"link": "/api-reference/endpoints/directions/",
-								"items": [
-									{
-										"text": "Requests and Return Types",
-										"link": "/api-reference/endpoints/directions/requests-and-return-types"
-									},
-									{
-										"text": "Routing Options",
-										"link": "/api-reference/endpoints/directions/routing-options"
-									},
-									{
-										"text": "Extra info",
-										"collapsed": true,
-										"link": "/api-reference/endpoints/directions/extra-info/",
-										"items": [
-											{
-												"text": "Steepness IDs",
-												"link": "/api-reference/endpoints/directions/extra-info/steepness"
-											},
-											{
-												"text": "Surface IDs",
-												"link": "/api-reference/endpoints/directions/extra-info/surface"
-											},
-											{
-												"text": "Category IDs",
-												"link": "/api-reference/endpoints/directions/extra-info/waycategory"
-											},
-											{
-												"text": "Type IDs",
-												"link": "/api-reference/endpoints/directions/extra-info/waytype"
-											},
-											{
-												"text": "Difficulty IDs",
-												"link": "/api-reference/endpoints/directions/extra-info/trail-difficulty"
-											},
-											{
-												"text": "Restriction IDs",
-												"link": "/api-reference/endpoints/directions/extra-info/road-access-restrictions"
-											},
-											{
-												"text": "Country IDs",
-												"link": "/technical-details/country-list"
-											}
-										]
-									},
-									{
-										"text": "Route Attributes",
-										"link": "/api-reference/endpoints/directions/route-attributes"
-									},
-									{
-										"text": "Geometry Decoding",
-										"link": "/api-reference/endpoints/directions/geometry-decoding"
-									},
-									{
-										"text": "Instruction Types",
-										"link": "/api-reference/endpoints/directions/instruction-types"
-									}
-								]
-							},
-							{
-								"text": "Isochrones",
-								"link": "/api-reference/endpoints/isochrones/"
-							},
-							{
-								"text": "Matrix",
-								"link": "/api-reference/endpoints/matrix/"
-							},
-							{
-								"text": "Snapping (not live)",
-								"link": "/api-reference/endpoints/snapping/"
-							},
-							{
-								"text": "Export (not live)",
-								"link": "/api-reference/endpoints/export/"
-							},
-							{
-								"text": "Health (not live)",
-								"link": "/api-reference/endpoints/health/"
-							},
-							{
-								"text": "Status (not live)",
-								"link": "/api-reference/endpoints/status/"
-							},
-							{
-								"text": "POI",
-								"link": "/api-reference/endpoints/poi/"
-							},
-							{
-								"text": "Elevation",
-								"link": "/api-reference/endpoints/elevation/"
-							},
-							{
-								"text": "Geocoder",
-								"link": "/api-reference/endpoints/geocoder/"
-							},
-							{
-								"text": "Optimization",
-								"link": "/api-reference/endpoints/optimization/"
-							}
+							{"text": 'Waytype Speeds', "link": '/documentation/travel-speeds/Waytype-Speeds'},
+							{"text": 'Surface Speeds', "link": '/documentation/travel-speeds/Surface-Speeds'},
+							{"text": 'Tracktype Speeds', "link": '/documentation/travel-speeds/Tracktype-Speeds'},
+							{"text": 'Country Speeds', "link": '/documentation/travel-speeds/Country-Speeds'}
 						]
 					},
+					{"text": 'Route Attributes', "link": '/documentation/Route-Attributes'},
 					{
-						"text": "Error Codes",
-						"link": "/api-reference/error-codes"
-					}
-				]
-			},
-			{
-				"text": "Run ORS instance",
-				"collapsed": true,
-				"link": "/run-instance/",
-				"items": [
-					{
-						"text": "System Requirements",
-						"link": "/run-instance/system-requirements"
-					},
-					{
-						"text": "Data",
-						"link": "/run-instance/data"
-					},
-					{
-						"text": "Installation",
+						"text": 'Routing Options',
 						"collapsed": true,
-						"link": "/run-instance/installation/",
+						"link": '/documentation/routing-options/Routing-Options',
 						"items": [
+							{"text": 'Examples', "link": '/documentation/routing-options/Examples'},
+							{"text": 'Country List', "link": '/documentation/routing-options/Country-List'},
+						]
+					},
+					{"text": 'Instruction Types', "link": '/documentation/Instruction-Types'},
+					{
+						"text": 'Extra Info', "collapsed": true, "link": '/documentation/extra-info/Extra-Info',
+						"items": [
+							{"text": 'Steepness', "link": '/documentation/extra-info/Steepness'},
+							{"text": 'Surface', "link": '/documentation/extra-info/Surface'},
+							{"text": 'Waycategory', "link": '/documentation/extra-info/Waycategory'},
+							{"text": 'Waytype', "link": '/documentation/extra-info/Waytype'},
+							{"text": 'Trail Difficulty', "link": '/documentation/extra-info/Trail-Difficulty'},
 							{
-								"text": "Running with Docker",
-								"link": "/run-instance/installation/running-with-docker"
-							},
-							{
-								"text": "Running JAR / WAR",
-								"link": "/run-instance/installation/running-jar-war"
-							},
-							{
-								"text": "Building from Source",
-								"link": "/run-instance/installation/building-from-source"
+								"text": 'Road Access Restrictions',
+								"link": '/documentation/extra-info/Road-Access-Restrictions'
 							}
 						]
 					},
-					{
-						"text": "Configuration",
-						"collapsed": true,
-						"link": "/run-instance/configuration/",
-						"items": [
-							{
-								"text": "Spring Properties",
-								"link": "/run-instance/configuration/spring/",
-								"collapsed": true,
-								"items": [
-									{
-										"text": "server",
-										"link": "/run-instance/configuration/spring/server.md"
-									},
-									{
-										"text": "logging",
-										"link": "/run-instance/configuration/spring/logging.md"
-									}
-								]
-							},
-							{
-								"text": "ORS Properties",
-								"collapsed": true,
-								"items": [
-									{
-										"text": "endpoints",
-										"link": "/run-instance/configuration/ors/endpoints/",
-										"collapsed": true,
-										"items": [
-											{
-												"text": "defaults",
-												"link": "/run-instance/configuration/ors/endpoints/defaults.md"
-											},
-											{
-												"text": "routing",
-												"link": "/run-instance/configuration/ors/endpoints/routing.md"
-											},
-											{
-												"text": "matrix",
-												"link": "/run-instance/configuration/ors/endpoints/matrix.md"
-											},
-											{
-												"text": "isochrones",
-												"link": "/run-instance/configuration/ors/endpoints/isochrones.md"
-											},
-											{
-												"text": "snap",
-												"link": "/run-instance/configuration/ors/endpoints/snap.md"
-											}
-										]
-									},
-									{
-										"text": "engine",
-										"link": "/run-instance/configuration/ors/engine/",
-										"collapsed": true,
-										"items": [
-											{
-												"text": "profiles",
-												"link": "/run-instance/configuration/ors/engine/profiles.md"
-											},
-											{
-												"text": "elevation",
-												"link": "/run-instance/configuration/ors/engine/elevation.md"
-											}
-										]
-									},
-									{
-										"text": "cors",
-										"link": "/run-instance/configuration/ors/cors/"
-									},
-									{
-										"text": "messages",
-										"link": "/run-instance/configuration/ors/messages/"
-									}
-								]
-							},
-							{
-								"text": "JSON config (deprecated)",
-								"link": "/run-instance/configuration/json.md"
-							}
-						]
-					}
+					{"text": 'Geometry Decoding', "link": '/documentation/Geometry-Decoding'},
+					{"text": 'Structured Geocoding Query', "link": '/documentation/Structured-Geocoding-Query'},
+					{"text": 'Matrix Response', "link": '/documentation/Matrix-Response'},
+					{"text": 'Places Request and Response', "link": '/documentation/Places-Request-and-Response'},
+					{"text": 'Geocoding Response', "link": '/documentation/Geocoding-Response'},
+					{"text": 'Error Codes', "link": '/documentation/Error-Codes'},
 				]
 			},
-			{
-				"text": "Contributing",
-				"collapsed": true,
-				"link": "/contributing/",
-				"items": [
-					{
-						"text": "Opening project in IntelliJ",
-						"link": "/contributing/opening-project-in-intellij"
-					},
-					{
-						"text": "Backend documentation",
-						"link": "/contributing/backend-documentation"
-					},
-					{
-						"text": "Contribution guidelines",
-						"link": "https://github.com/GIScience/openrouteservice/blob/main/CONTRIBUTE.md"
-					},
-					{
-						"text": "Contributing translations",
-						"link": "/contributing/contributing-translations"
-					}
-				]
-			},
-			{
-				"text": "Technical details",
-				"collapsed": true,
-				"link": "/technical-details/",
-				"items": [
-					{
-						"text": "Country List",
-						"link": "/technical-details/country-list"
-					},
-					{
-						"text": "Travel Speeds",
-						"link": "/technical-details/travel-speeds/",
-						"items": [
-							{
-								"text": "Country Speeds",
-								"link": "/technical-details/travel-speeds/country-speeds.md"
-							},
-							{
-								"text": "Tracktype Speeds",
-								"link": "/technical-details/travel-speeds/tracktype-speeds.md"
-							},
-							{
-								"text": "Waytype Speeds",
-								"link": "/technical-details/travel-speeds/waytype-speeds.md"
-							},
-							{
-								"text": "Surface Speeds",
-								"link": "/technical-details/travel-speeds/surface-speeds.md"
-							}
-						]
-					},
-					{
-						"text": "Tag Filtering",
-						"link": "/technical-details/tag-filtering"
-					}
-				]
-			},
-			{
-				"text": "FAQ",
-				"link": "/frequently-asked-questions"
-			}
+			{"text": 'FAQ', "link": '/Frequently-Asked-Questions'}
 		]
 	}
 ]
