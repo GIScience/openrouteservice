@@ -82,62 +82,25 @@ export default withMermaid(defineVersionedConfig({
                                 text: 'Endpoints', collapsed: true, link: '/api-reference/endpoints/',
                                 items: [
                                     {
-                                        text: 'Directions',
-                                        collapsed: true,
-                                        link: '/api-reference/endpoints/directions/',
+                                        text: 'Directions', collapsed: true, link: '/api-reference/endpoints/directions/',
                                         items: [
+                                            {text: 'Requests and Return Types', link: '/api-reference/endpoints/directions/requests-and-return-types'},
+                                            {text: 'Routing Options', link: '/api-reference/endpoints/directions/routing-options'},
                                             {
-                                                text: 'Requests and Return Types',
-                                                link: '/api-reference/endpoints/directions/requests-and-return-types'
-                                            },
-                                            {
-                                                text: 'Routing Options',
-                                                link: '/api-reference/endpoints/directions/routing-options'
-                                            },
-                                            {
-                                                text: 'Extra info',
-                                                collapsed: true,
-                                                link: '/api-reference/endpoints/directions/extra-info/',
+                                                text: 'Extra info', collapsed: true, link: '/api-reference/endpoints/directions/extra-info/',
                                                 items: [
-                                                    {
-                                                        text: 'Steepness IDs',
-                                                        link: '/api-reference/endpoints/directions/extra-info/steepness'
-                                                    },
-                                                    {
-                                                        text: 'Surface IDs',
-                                                        link: '/api-reference/endpoints/directions/extra-info/surface'
-                                                    },
-                                                    {
-                                                        text: 'Category IDs',
-                                                        link: '/api-reference/endpoints/directions/extra-info/waycategory'
-                                                    },
-                                                    {
-                                                        text: 'Type IDs',
-                                                        link: '/api-reference/endpoints/directions/extra-info/waytype'
-                                                    },
-                                                    {
-                                                        text: 'Difficulty IDs',
-                                                        link: '/api-reference/endpoints/directions/extra-info/trail-difficulty'
-                                                    },
-                                                    {
-                                                        text: 'Restriction IDs',
-                                                        link: '/api-reference/endpoints/directions/extra-info/road-access-restrictions'
-                                                    },
+                                                    {text: 'Steepness IDs', link: '/api-reference/endpoints/directions/extra-info/steepness'},
+                                                    {text: 'Surface IDs', link: '/api-reference/endpoints/directions/extra-info/surface'},
+                                                    {text: 'Category IDs', link: '/api-reference/endpoints/directions/extra-info/waycategory'},
+                                                    {text: 'Type IDs', link: '/api-reference/endpoints/directions/extra-info/waytype'},
+                                                    {text: 'Difficulty IDs', link: '/api-reference/endpoints/directions/extra-info/trail-difficulty'},
+                                                    {text: 'Restriction IDs', link: '/api-reference/endpoints/directions/extra-info/road-access-restrictions'},
                                                     {text: 'Country IDs', link: '/technical-details/country-list'},
                                                 ]
                                             },
-                                            {
-                                                text: 'Route Attributes',
-                                                link: '/api-reference/endpoints/directions/route-attributes'
-                                            },
-                                            {
-                                                text: 'Geometry Decoding',
-                                                link: '/api-reference/endpoints/directions/geometry-decoding'
-                                            },
-                                            {
-                                                text: 'Instruction Types',
-                                                link: '/api-reference/endpoints/directions/instruction-types'
-                                            },
+                                            {text: 'Route Attributes', link: '/api-reference/endpoints/directions/route-attributes'},
+                                            {text: 'Geometry Decoding', link: '/api-reference/endpoints/directions/geometry-decoding'},
+                                            {text: 'Instruction Types', link: '/api-reference/endpoints/directions/instruction-types'},
                                         ]
                                     },
                                     {text: 'Isochrones', link: '/api-reference/endpoints/isochrones/'},
@@ -231,7 +194,7 @@ export default withMermaid(defineVersionedConfig({
                                     },
                                     {text: 'ors.cors', link: '/run-instance/configuration/cors/'},
                                     {text: 'ors.messages', link: '/run-instance/configuration/messages/'},
-                                    {text: 'JSON config (deprecated)', link: '/run-instance/configuration/json.md'}
+                                    {text: 'JSON config (deprecated)', link:'/run-instance/configuration/json.md'}
                                 ]
                             },
                             {
@@ -244,10 +207,7 @@ export default withMermaid(defineVersionedConfig({
                         text: 'Contributing', collapsed: true, link: '/contributing/',
                         items: [
                             {text: 'Backend documentation', link: '/contributing/backend-documentation'},
-                            {
-                                text: 'Contribution guidelines',
-                                link: 'https://github.com/GIScience/openrouteservice/blob/main/CONTRIBUTE.md'
-                            },
+                            {text: 'Contribution guidelines', link: 'https://github.com/GIScience/openrouteservice/blob/main/CONTRIBUTE.md'},
                             {text: 'Contributing translations', link: '/contributing/contributing-translations'},
                         ]
                     },
@@ -255,25 +215,12 @@ export default withMermaid(defineVersionedConfig({
                         text: 'Technical details', collapsed: true, link: '/technical-details/',
                         items: [
                             {text: 'Country List', link: '/technical-details/country-list'},
-                            {
-                                text: 'Travel Speeds', link: '/technical-details/travel-speeds/',
+                            {text: 'Travel Speeds', link: '/technical-details/travel-speeds/',
                                 items: [
-                                    {
-                                        text: 'Country Speeds',
-                                        link: '/technical-details/travel-speeds/country-speeds.md'
-                                    },
-                                    {
-                                        text: 'Tracktype Speeds',
-                                        link: '/technical-details/travel-speeds/tracktype-speeds.md'
-                                    },
-                                    {
-                                        text: 'Waytype Speeds',
-                                        link: '/technical-details/travel-speeds/waytype-speeds.md'
-                                    },
-                                    {
-                                        text: 'Surface Speeds',
-                                        link: '/technical-details/travel-speeds/surface-speeds.md'
-                                    },
+                                    {text: 'Country Speeds', link: '/technical-details/travel-speeds/country-speeds.md'},
+                                    {text: 'Tracktype Speeds', link: '/technical-details/travel-speeds/tracktype-speeds.md'},
+                                    {text: 'Waytype Speeds', link: '/technical-details/travel-speeds/waytype-speeds.md'},
+                                    {text: 'Surface Speeds', link: '/technical-details/travel-speeds/surface-speeds.md'},
                                 ]
                             },
                             {text: 'Tag Filtering', link: '/technical-details/tag-filtering'},
