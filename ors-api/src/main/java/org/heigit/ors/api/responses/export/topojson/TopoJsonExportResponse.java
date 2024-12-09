@@ -13,6 +13,8 @@ import org.locationtech.jts.geom.LineString;
 import java.io.Serializable;
 import java.util.*;
 
+import static org.heigit.ors.export.ExportResult.TopoGeometry;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({"type", "transform", "objects", "arcs", "bbox"})
 @Getter
@@ -33,70 +35,98 @@ public class TopoJsonExportResponse implements Serializable {
     private List<Double> bbox = new ArrayList<>();
 
     public static TopoJsonExportResponse fromExportResult(ExportResult exportResult, String topologyLayerName) {
-        List<Double> bbox = initializeBbox();
+        BBox bbox = new BBox();
         LinkedList<Geometry> geometries = new LinkedList<>();
         LinkedList<Arc> arcsLocal = new LinkedList<>();
         int arcCount = 0;
+        if (exportResult.getTopoGeometries().isEmpty()) {
+            // If OSM ids are not present, we are creating a simple topology with geometries for every edge
+            for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : exportResult.getEdgeWeights().entrySet()) {
+                Pair<Integer, Integer> fromTo = edgeWeight.getKey();
 
-        Map<Integer, Coordinate> nodes = exportResult.getLocations();
-        for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : exportResult.getEdgeWeights().entrySet()) {
-            Pair<Integer, Integer> fromTo = edgeWeight.getKey();
-            List<Double> from = getXY(nodes, fromTo.first);
-            List<Double> to = getXY(nodes, fromTo.second);
-            bbox = updateBbox(bbox, from, to);
+                LineString lineString = (LineString) exportResult.getEdgeExtras().get(fromTo).get("geometry");
+                arcsLocal.add(Arc.builder().coordinates(makeCoordinates(lineString, bbox)).build());
+                arcCount++;
 
-            // TODO: Add the correct geometry to the export result
-            LineString lineString = (LineString) exportResult.getEdgeExtras().get(fromTo).get("geometry");
-            // TODO: Can we decide to merge LineStrings into a single LineString based on osm_id?
-            // This would allow us to later just store two arcs for a single LineString for both directions.
-            long osmId = (long) exportResult.getEdgeExtras().get(fromTo).get("osm_id");
+                List<Integer> arcList = List.of(arcCount);
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("weight", edgeWeight.getValue());
+                Geometry geometry = Geometry.builder()
+                        .type("LineString")
+                        .properties(properties)
+                        .arcs(arcList)
+                        .build();
+                geometries.add(geometry);
+            }
+        } else {
+            for (long osmId : exportResult.getTopoGeometries().keySet()) {
+                TopoGeometry topoGeometry = exportResult.getTopoGeometries().get(osmId);
+                List<Integer> orsIdList = topoGeometry.getArcs().keySet().stream().sorted().toList();
+                List<Integer> arcList = new LinkedList<>();
+                List<Integer> nodeList = new LinkedList<>();
+                List<Double> distanceList = new LinkedList<>();
+                for (int orsId : orsIdList) {
+                    arcsLocal.add(Arc.builder().coordinates(makeCoordinates(topoGeometry.getArcs().get(orsId).geometry(), bbox)).build());
+                    arcList.add(arcCount);
+                    if (nodeList.isEmpty()) {
+                        nodeList.add(topoGeometry.getArcs().get(orsId).from());
+                    }
+                    nodeList.add(topoGeometry.getArcs().get(orsId).to());
+                    distanceList.add(topoGeometry.getArcs().get(orsId).length());
+                    arcCount++;
+                }
 
-            List<List<Double>> coordinates = List.of(from, to);
-            Arc arc = Arc.builder().coordinates(coordinates).build();
-            arcsLocal.add(arc);
+                Map<String, Object> properties = new HashMap<>();
+                properties.put("osm_id", osmId);
+                properties.put("ors_ids", orsIdList);
+                properties.put("ors_nodes", nodeList);
+                properties.put("speed", topoGeometry.getSpeed());
+                properties.put("distances", distanceList);
+                properties.put("both_directions", topoGeometry.isBothDirections());
+                if (topoGeometry.isBothDirections()) {
+                    properties.put("speed_reverse", topoGeometry.getSpeedReverse());
+                }
 
-            List<Integer> arcList = List.of(arcCount);
-            Map<String, Object> properties = new HashMap<>();
-            properties.put("weight", edgeWeight.getValue());
-            properties.put("osm_id", osmId);
-
-            Geometry geometry = Geometry.builder()
-                    .type("LineString")
-                    .properties(properties)
-                    .arcs(arcList)
-                    .build();
-            geometries.add(geometry);
-
-            arcCount++;
+                Geometry geometry = Geometry.builder()
+                        .type("LineString")
+                        .properties(properties)
+                        .arcs(arcList)
+                        .build();
+                geometries.add(geometry);
+            }
         }
-
-        Layer layer = Layer.builder()
-                .type("GeometryCollection")
-                .geometries(geometries)
-                .build();
-
         return TopoJsonExportResponse.builder()
                 .type("Topology")
-                .objects(new HashMap<>(Map.of(topologyLayerName, layer)))
+                .objects(new HashMap<>(Map.of(topologyLayerName, Layer.builder()
+                        .type("GeometryCollection")
+                        .geometries(geometries)
+                        .build())))
                 .arcs(arcsLocal)
-                .bbox(bbox)
+                .bbox(bbox.toList())
                 .build();
     }
 
-    private static List<Double> initializeBbox() {
-        return List.of(Double.MAX_VALUE, Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE);
+    private static List<List<Double>> makeCoordinates(LineString geometry, BBox bbox) {
+        List<List<Double>> coordinates = new LinkedList<>();
+        for (Coordinate coordinate : geometry.getCoordinates()) {
+            coordinates.add(List.of(coordinate.x, coordinate.y));
+            bbox.update(coordinate.x, coordinate.y);
+        }
+        return coordinates;
     }
 
-    private static List<Double> getXY(Map<Integer, Coordinate> nodes, int id) {
-        Coordinate coordinate = nodes.get(id);
-        return List.of(coordinate.x, coordinate.y);
-    }
+    private static class BBox {
+        private double[] coords = {Double.MAX_VALUE, Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE};
 
-    private static List<Double> updateBbox(List<Double> bbox, List<Double> node1, List<Double> node2) {
-        double minX = Math.min(bbox.get(0), Math.min(node1.get(0), node2.get(0)));
-        double minY = Math.min(bbox.get(1), Math.min(node1.get(1), node2.get(1)));
-        double maxX = Math.max(bbox.get(2), Math.max(node1.get(0), node2.get(0)));
-        double maxY = Math.max(bbox.get(3), Math.max(node1.get(1), node2.get(1)));
-        return List.of(minX, minY, maxX, maxY);
+        public void update(double x, double y) {
+            coords[0] = Math.min(coords[0], x);
+            coords[1] = Math.min(coords[1], y);
+            coords[2] = Math.max(coords[2], x);
+            coords[3] = Math.max(coords[3], y);
+        }
+
+        public List<Double> toList() {
+            return List.of(coords[0], coords[1], coords[2], coords[3]);
+        }
     }
 }
