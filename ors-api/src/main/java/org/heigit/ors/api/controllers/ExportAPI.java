@@ -30,6 +30,7 @@ import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.export.ExportApiRequest;
 import org.heigit.ors.api.responses.export.json.JsonExportResponse;
+import org.heigit.ors.api.responses.export.topojson.TopoJsonExportResponse;
 import org.heigit.ors.api.services.ExportService;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.exceptions.*;
@@ -76,8 +77,8 @@ public class ExportAPI {
     // Matches any response type that has not been defined
     @PostMapping(value = "/{profile}/*")
     @Operation(hidden = true)
-    public void getInvalidResponseType() throws StatusCodeException {
-        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
+    public void getInvalidResponseType(@PathVariable String profile) throws StatusCodeException {
+        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "The response format %s is not supported".formatted(profile));
     }
 
     // Functional request methods
@@ -126,6 +127,32 @@ public class ExportAPI {
 
         return new JsonExportResponse(result);
     }
+
+    @PostMapping(value = "/{profile}/topojson", produces = {"application/json;charset=UTF-8"})
+    @Operation(
+            description = "Returns a list of edges, edge weights, and their topoloy within a given bounding box for a selected profile JSON.",
+            summary = "Export Service JSON"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "TopoJSON Response.",
+            content = {@Content(
+                    mediaType = "application/geo+json",
+                    schema = @Schema(implementation = TopoJsonExportResponse.class)
+            )
+            })
+    public TopoJsonExportResponse getTopoJsonExport(
+            @Parameter(description = "Specifies the profile.", required = true, example = "driving-car") @PathVariable String profile,
+            @Parameter(description = "The request payload", required = true) @RequestBody ExportApiRequest request) throws StatusCodeException {
+        request.setProfile(getProfileEnum(profile));
+        request.setProfileName(profile);
+        request.setResponseType(APIEnums.ExportResponseType.TOPOJSON);
+
+        ExportResult result = exportService.generateExportFromRequest(request);
+
+        return TopoJsonExportResponse.fromExportResult(result, "network");
+    }
+
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Object> handleMissingParams(final MissingServletRequestParameterException e) {
