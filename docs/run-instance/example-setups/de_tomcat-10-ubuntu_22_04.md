@@ -89,13 +89,13 @@ Wir nennen diesen Benutzer `tomcat`.
 # Setze die Tomcat-Version
 > export TOMCAT_VERSION=10.1.33
 # Lade das Tomcat-10-Tarball herunter
-> curl -L https://dlcdn.apache.org/tomcat/tomcat-10/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz > apache-tomcat-${TOMCAT_VERSION}.tar.gz
+> curl -L https://dlcdn.apache.org/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz > apache-tomcat-$TOMCAT_VERSION.tar.gz
 # Entpacke die heruntergeladene Datei
-> tar -xf apache-tomcat-${TOMCAT_VERSION}.tar.gz
+> tar -xf apache-tomcat-$TOMCAT_VERSION.tar.gz
 # Kopiere den Inhalt des entpackten Verzeichnisses in das Verzeichnis /opt/tomcat
-> cp -R apache-tomcat-${TOMCAT_VERSION}/** /opt/tomcat
+> cp -R apache-tomcat-$TOMCAT_VERSION/** /opt/tomcat
 # Bereinige das entpackte Verzeichnis
-> rm -r apache-tomcat-${TOMCAT_VERSION} apache-tomcat-${TOMCAT_VERSION}.tar.gz
+> rm -r apache-tomcat-$TOMCAT_VERSION apache-tomcat-$TOMCAT_VERSION.tar.gz
 ```
 
 ### Setze die notwendigen Berechtigungen für den Tomcat-10-Benutzer
