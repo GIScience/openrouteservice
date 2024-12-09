@@ -287,6 +287,7 @@ The following steps are mandatory whenever you change the configuration, folder 
 # Reinstate ownerships for tomcat
 > sudo chown -R tomcat:tomcat /opt/tomcat
 > sudo chown -R tomcat:tomcat /opt/openrouteservice
+> sudo chmod -R 754 /opt/tomcat/bin/setenv.sh
 > sudo chmod -R 754 /opt/openrouteservice
 # Restart the Tomcat 10 service
 > sudo systemctl restart openrouteservice.service

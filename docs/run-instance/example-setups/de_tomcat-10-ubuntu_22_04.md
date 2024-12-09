@@ -289,6 +289,7 @@ möchtest.
 Achte darauf, dass `-Xmx` an dein System und deinen Graphen angepasst ist und dein System über genügend Speicher
 verfügt.
 
+
 ## openrouteservice ausführen
 
 Wenn du die oben genannten Schritte befolgt hast, sollte openrouteservice nun korrekt mit Tomcat 10 und Java 17
@@ -299,6 +300,7 @@ Die folgenden Schritte sind immer notwendig, wenn du die Konfiguration, die Ordn
 # Setze die Besitzrechte für Tomcat erneut
 > sudo chown -R tomcat:tomcat /opt/tomcat
 > sudo chown -R tomcat:tomcat /opt/openrouteservice
+> sudo chmod -R 754 /opt/tomcat/bin/setenv.sh
 > sudo chmod -R 754 /opt/openrouteservice
 # Starte den Tomcat-10-Dienst neu
 > sudo systemctl restart openrouteservice.service
