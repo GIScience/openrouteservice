@@ -64,8 +64,8 @@ Aktualisiere die Standard-Java-Version auf Java 17 oder die installierte Version
 ```
 
 ::: info
-**Hinweis:** Der Pfad zur Java-17-Installation kann je nach System unterschiedlich sein.
-Hinweis: Ab jetzt wird der Pfad zur Java-17-Installation als `JAVA_HOME` bezeichnet.
+**Hinweis:** Der Pfad zur Java-17-Installation kann je nach System unterschiedlich sein. \
+**Hinweis:** Ab jetzt wird der Pfad zur Java-17-Installation als `JAVA_HOME` bezeichnet.
 :::
 
 ### Einen neuen Benutzer für Tomcat 10 erstellen
@@ -126,7 +126,7 @@ Füge den folgenden Inhalt in die Datei ein und speichere sie.
 > sudo nano /etc/systemd/system/openrouteservice.service
 ```
 
-```shell
+```ini
 [Unit]
 Description=Tomcat - openrouteservice
 After=syslog.target network.target
@@ -384,7 +384,7 @@ new_graphs/
 └── cycling-regular
 ```
 
-5. Setze die [korrekten Berechtigungen](#openrouteservice-ausführen) für das Tomcat-Verzeichnis und starte den
+5. Setze die [korrekten Berechtigungen](#setze-die-notwendigen-berechtigungen-fur-den-tomcat-10-benutzer) für das Tomcat-Verzeichnis und starte den
    Tomcat-Dienst neu.
 6. Führe die [Beispielanfragen](#beispielanfragen) aus, um zu überprüfen, ob die neuen Graphen korrekt funktionieren.
 
@@ -401,6 +401,6 @@ Falls du openrouteservice auf eine neue Version aktualisieren möchtest, kannst 
 2. Lade die neue [WAR-Datei](#das-openrouteservice-war-file-herunterladen) für die gewünschte Version herunter.
 3. Leere das alte Webapps-Verzeichnis `/opt/tomcat/webapps/` und verschiebe die neue `WAR-Datei` in dieses Verzeichnis.
 4. Passe die [openrouteservice-Konfiguration](#openrouteservice-konfigurieren) in der Datei `setenv.sh` an.
-5. [Setze die korrekten Berechtigungen](#openrouteservice-ausführen) für das Tomcat-Verzeichnis und starte den
+5. [Setze die korrekten Berechtigungen](#setze-die-notwendigen-berechtigungen-fur-den-tomcat-10-benutzer) für das Tomcat-Verzeichnis und starte den
    Tomcat-Dienst neu.
 6. Führe die [Beispielanfragen](#beispielanfragen) aus, um zu überprüfen, ob die neue Version korrekt funktioniert.
