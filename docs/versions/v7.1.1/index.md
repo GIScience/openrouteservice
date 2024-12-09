@@ -2,7 +2,7 @@
 title: Home
 layout: home
 hero:
-    name: Openrouteservice Backend Documentation - v7.2.0
+    name: Openrouteservice Backend Documentation - v7.1.1
     tagline: Smart mobility made easy
     actions:
         - theme: brand
