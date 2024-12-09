@@ -31,7 +31,15 @@ export default withMermaid(defineVersionedConfig({
             alt: 'openrouteservice logo'
         },
         search: {
-            provider: 'local'
+            provider: 'local',
+	      options: {
+		_render(src, env, md) {
+		  const html = md.render(src, env)
+		  if (env.frontmatter?.search === false) return ''
+		  if (env.relativePath.startsWith('versions')) return ''
+		  return html
+		}
+	      }
         },
         outline: {
             level: [2, 4]
