@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.APIEnums;
+import org.heigit.ors.api.requests.common.APIRequest;
 
 import java.util.List;
 
@@ -17,6 +17,7 @@ public class ExportApiRequest extends APIRequest {
     public static final String PARAM_BBOX = "bbox";
     public static final String PARAM_PROFILE = "profile";
     public static final String PARAM_FORMAT = "format";
+    public static final String PARAM_GEOMETRY = "geometry";
 
     public static final String PARAM_DEBUG = "debug";
 
@@ -39,6 +40,10 @@ public class ExportApiRequest extends APIRequest {
     @Schema(name = PARAM_FORMAT, hidden = true)
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.ExportResponseType responseType = APIEnums.ExportResponseType.JSON;
+
+    @Schema(name = PARAM_GEOMETRY, description = "Wether to return the exact geometry of the graph.", example = "true", defaultValue = "true")
+    @JsonProperty(PARAM_GEOMETRY)
+    private boolean geometry = true;
 
     @Schema(name = PARAM_DEBUG, hidden = true)
     @JsonProperty(PARAM_DEBUG)
@@ -88,5 +93,9 @@ public class ExportApiRequest extends APIRequest {
 
     public APIEnums.ExportResponseType getResponseType() {
         return responseType;
+    }
+
+    public boolean getGeometry() {
+        return geometry;
     }
 }

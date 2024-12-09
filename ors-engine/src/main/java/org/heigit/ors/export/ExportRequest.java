@@ -12,6 +12,8 @@ import com.graphhopper.util.shapes.BBox;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.common.ServiceRequest;
+import org.heigit.ors.export.ExportResult.TopoArc;
+import org.heigit.ors.export.ExportResult.TopoGeometry;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
@@ -21,21 +23,28 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class ExportRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(ExportRequest.class);
+    private static final GeometryFactory geometryFactory = new GeometryFactory();
     private BBox boundingBox;
 
     private String profileName;
     private int profileType = -1;
 
     private boolean debug;
-
     private boolean topoJson;
+    private boolean osmIdsAvailable;
+    private boolean useRealGeometry;
+
+    private static final int NO_TIME = -1;
 
     public String getProfileName() {
         return profileName;
@@ -69,8 +78,8 @@ public class ExportRequest extends ServiceRequest {
         this.topoJson = equals;
     }
 
-    public boolean debug() {
-        return debug;
+    public void setUseRealGeometry(boolean useRealGeometry) {
+        this.useRealGeometry = useRealGeometry;
     }
 
     public ExportResult computeExport(RoutingProfile routingProfile) {
@@ -95,13 +104,12 @@ public class ExportRequest extends ServiceRequest {
         NodeAccess nodeAccess = graph.getNodeAccess();
         BBox bbox = getBoundingBox();
 
-        ArrayList<Integer> nodesInBBox = new ArrayList<>();
+        Set<Integer> nodesInBBox = new HashSet<>();
         index.query(bbox, edgeId -> {
             // According to GHUtility.getEdgeFromEdgeKey, edgeIds are calculated as edgeKey/2.
             EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
             int baseNode = edge.getBaseNode();
             int adjNode = edge.getAdjNode();
-
             if (bbox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
                 nodesInBBox.add(baseNode);
             }
@@ -117,22 +125,54 @@ public class ExportRequest extends ServiceRequest {
             res.setWarning(new ExportWarning(ExportWarning.EMPTY_BBOX));
             return res;
         }
+        Map<Long, TopoGeometry> topoGeometries = res.getTopoGeometries();
+        OsmIdGraphStorage osmIdGraphStorage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
+        osmIdsAvailable = osmIdGraphStorage != null;
 
         // calculate node coordinates
         for (int from : nodesInBBox) {
             Coordinate coord = new Coordinate(nodeAccess.getLon(from), nodeAccess.getLat(from));
             res.addLocation(from, coord);
-
             EdgeIterator iter = explorer.setBaseNode(from);
             while (iter.next()) {
                 int to = iter.getAdjNode();
                 if (nodesInBBox.contains(to)) {
-                    double weight = weighting.calcEdgeWeight(iter, false, EdgeIterator.NO_EDGE);
                     Pair<Integer, Integer> p = new Pair<>(from, to);
+                    Map<String, Object> extra = new HashMap<>();
+                    double weight = weighting.calcEdgeWeight(iter, false, NO_TIME);
+                    Coordinate toCoords = new Coordinate(nodeAccess.getLon(to), nodeAccess.getLat(to));
                     res.addEdge(p, weight);
+                    LOGGER.debug("Edge %d: from %d to %d".formatted(iter.getEdge(), from, to));
 
-                    if (debug()) {
-                        Map<String, Object> extra = new HashMap<>();
+                    if (topoJson) {
+                        LineString geo;
+                        if (useRealGeometry) {
+                            geo = iter.fetchWayGeometry(FetchMode.ALL).toLineString(false);
+                        } else {
+                            geo = geometryFactory.createLineString(new Coordinate[]{coord, toCoords});
+                        }
+                        if (osmIdsAvailable) {
+                            assert osmIdGraphStorage != null;
+                            boolean reverse = iter.getEdgeKey() % 2 == 1;
+                            TopoGeometry topoGeometry = topoGeometries.computeIfAbsent(osmIdGraphStorage.getEdgeValue(iter.getEdge()), x ->
+                                    new TopoGeometry(weighting.getSpeedCalculator().getSpeed(iter, reverse, NO_TIME),
+                                            weighting.getSpeedCalculator().getSpeed(iter, !reverse, NO_TIME))
+                            );
+                            topoGeometry.getArcs().compute(iter.getEdge(), (k, v) -> {
+                                if (v != null) {
+                                    topoGeometry.setBothDirections(true);
+                                    return v;
+                                } else {
+                                    return reverse ? new TopoArc(geo.reverse(), iter.getDistance(), iter.getAdjNode(), iter.getBaseNode()) :
+                                            new TopoArc(geo, iter.getDistance(), iter.getBaseNode(), iter.getAdjNode());
+                                }
+                            });
+                        } else {
+                            extra.put("geometry", geo);
+                        }
+                    }
+
+                    if (debug) {
                         extra.put("edge_id", iter.getEdge());
                         WheelchairAttributesGraphStorage storage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), WheelchairAttributesGraphStorage.class);
                         if (storage != null) {
@@ -145,26 +185,17 @@ public class ExportRequest extends ServiceRequest {
                                 extra.put("suitable", attributes.isSuitable());
                             }
                         }
-                        OsmIdGraphStorage storage2 = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
-                        if (storage2 != null) {
-                            extra.put("osm_id", storage2.getEdgeValue(iter.getEdge()));
-                        }
-                        res.addEdgeExtra(p, extra);
-                    }
-
-                    if (topoJson) {
-                        Map<String, Object> extra = new HashMap<>();
-                        extra.put("geometry", iter.fetchWayGeometry(FetchMode.ALL).toLineString(false));
-                        OsmIdGraphStorage osmIdGraphStorage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
                         if (osmIdGraphStorage != null) {
                             extra.put("osm_id", osmIdGraphStorage.getEdgeValue(iter.getEdge()));
                         }
+                    }
+
+                    if (!extra.isEmpty()) {
                         res.addEdgeExtra(p, extra);
                     }
                 }
             }
         }
-
         return res;
     }
 }
