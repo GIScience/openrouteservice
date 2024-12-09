@@ -87,13 +87,13 @@ We will call this user `tomcat`.
 # Set the Tomcat version
 > export TOMCAT_VERSION=10.1.33
 # Download the Tomcat 10 tarball
-> curl -L https://dlcdn.apache.org/tomcat/tomcat-10/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz > apache-tomcat-${TOMCAT_VERSION}.tar.gz
+> curl -L https://dlcdn.apache.org/tomcat/tomcat-10/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz > apache-tomcat-$TOMCAT_VERSION.tar.gz
 # Extract the downloaded file
-> tar -xf apache-tomcat-${TOMCAT_VERSION}.tar.gz
+> tar -xf apache-tomcat-$TOMCAT_VERSION.tar.gz
 # Copy the contents of the extracted directory to the /opt/tomcat directory
-> cp -R apache-tomcat-${TOMCAT_VERSION}/** /opt/tomcat
+> cp -R apache-tomcat-$TOMCAT_VERSION/** /opt/tomcat
 # Clean up the extracted directory
-> rm -r apache-tomcat-${TOMCAT_VERSION} apache-tomcat-${TOMCAT_VERSION}.tar.gz
+> rm -r apache-tomcat-$TOMCAT_VERSION apache-tomcat-$TOMCAT_VERSION.tar.gz
 ```
 
 ### Set the necessary permissions for the Tomcat 10 user
@@ -334,9 +334,9 @@ Please adapt the test according to your downloaded osm file.
   -d '{"locations":[[1.5036892890930176, 42.4972256361276]],"range":[300]}'
 ```
 
-## Optional: Pre-Build Graph Update
+## Optional: Pre-Built Graph Update
 
-In case you want to only update the existing graphs with new pre-build ones, you can follow these steps:
+In case you want to only update the existing graphs with new pre-built ones, you can follow these steps:
 
 1. Download the new graphs from the respective source. They will most like come in a zip or tar.xz file.
 2. Unpack the new graphs and make sure they are in the correct format.
