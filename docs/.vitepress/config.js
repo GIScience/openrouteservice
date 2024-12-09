@@ -184,6 +184,10 @@ export default withMermaid({
                                     {text: 'JSON config (deprecated)', link:'/run-instance/configuration/json.md'}
                                 ]
                             },
+                            {
+                                text: 'Example Setups', collapsed: true, link: '/run-instance/example-setups',
+                                items: [{text: 'Tomcat 10 - Ubuntu 22.04', link: '/run-instance/example-setups/tomcat-10-ubuntu_22_04'}]
+                            },
                         ]
                     },
                     {
