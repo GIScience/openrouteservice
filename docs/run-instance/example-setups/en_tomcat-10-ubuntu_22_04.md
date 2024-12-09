@@ -48,7 +48,7 @@ sudo update-alternatives --list java
 
 The output should look like similar to this:
 
-```text
+```shell
 [...]
 /usr/lib/jvm/java-17-openjdk-amd64/
 [...]
@@ -96,7 +96,7 @@ We will call this user `tomcat`.
 > rm -r apache-tomcat-${TOMCAT_VERSION} apache-tomcat-${TOMCAT_VERSION}.tar.gz
 ```
 
-### Set the necessary permissions for the Tomcat 10 user.
+### Set the necessary permissions for the Tomcat 10 user
 
 The following commands will set the necessary permissions for the `tomcat` user.
 They have to be executed as the root user and should always be executed when changes were made to the Tomcat directory.
@@ -112,13 +112,13 @@ They have to be executed as the root user and should always be executed when cha
     - `5` grants read and execute permissions to the group.
     - `4` grants read permissions to others.
 
-### Create a systemd service for Tomcat 10.
+### Create a systemd service for Tomcat 10
 
 We now create a systemd service for Tomcat 10 to manage the Tomcat 10 instance.
 This will allow your Systemd to start and stop Tomcat 10 as a service automatically.
 Paste the content into the file and save it.
 
-```bash
+```shell
 > sudo nano /etc/systemd/system/openrouteservice.service
 ```
 
@@ -167,16 +167,16 @@ Now navigate to [http://localhost:8080](http://localhost:8080) in your browser t
 
 Since we have set up Tomcat 10, we can now set up openrouteservice with Java 17.
 
-### Download the openrouteservice war-File
+### Download the openrouteservice WAR-File
 
 To set up openrouteservice v8 or v9 with Tomcat 10, you first need the respective war-File.
 Head over to the [openrouteservice releases page](https://github.com/GIScience/openrouteservice/releases) and download
-the latest release war-File.
+the latest release WAR-File.
 
 ```shell
-# Download the latest openrouteservice war-File e.g. for v8.2.0. For V9, just use e.g. v9.0.0
+# Download the latest openrouteservice WAR-File e.g. for v8.2.0. For V9, just use e.g. v9.0.0
 > curl -L https://github.com/GIScience/openrouteservice/releases/download/v8.2.0/ors.war > ors.war
-# Move the war-File to the Tomcat webapps directory
+# Move the WAR-File to the Tomcat webapps directory
 > mv ors.war /opt/tomcat/webapps/
 # Restart the Tomcat 10 service
 > sudo systemctl restart openrouteservice.service
@@ -297,7 +297,7 @@ The following steps are mandatory whenever you change the configuration, folder 
 Now that openrouteservice is set up with correct configurations, check the log files in the
 `/opt/openrouteservice/logs/ors.log` or the Tomcat log files in the `/opt/tomcat/logs` directory.
 
-Navigate to `http://localhost:8080/ors/v2/health` in your browser to see the health status of the openrouteservice or
+Navigate to [http://localhost:8080/ors/v2/health](http://localhost:8080/ors/v2/health) in your browser to see the health status of the openrouteservice or
 make a request to the API.
 
 ```shell
@@ -363,7 +363,7 @@ new_graphs/
 > mkdir /opt/openrouteservice/graphs
 ```
 
-3. Move the new graphs to the `/opt/openrouteservice/graphs/` directory. The new graphs folder structure should look
+4. Move the new graphs to the `/opt/openrouteservice/graphs/` directory. The new graphs folder structure should look
    similar to this:
 
 ```shell
@@ -372,9 +372,9 @@ new_graphs/
 └── cycling-regular
 ```
 
-4. [Apply the correct permissions](#run-openrouteservice) to the Tomcat directory
+5. [Apply the correct permissions](#set-the-necessary-permissions-for-the-tomcat-10-user) to the Tomcat directory
    and restart the Tomcat service.
-5. Try the [example requests](#example-requests) to see if the new graphs are working correctly.
+6. Try the [example requests](#example-requests) to see if the new graphs are working correctly.
 
 ## Optional: Update openrouteservice to a new version
 
@@ -389,6 +389,6 @@ In case you want to update openrouteservice to a new version, you can follow the
 2. Empty the old webapps directory `/opt/tomcat/webapps/` and move the new war-File to the directory.
 3. Download the new [war-File](#download-the-openrouteservice-war-file) for the new version.
 4. Adapt the [openrouteservice configuration](#configure-openrouteservice) in the `setenv.sh` file.
-5. [Apply the correct permissions](#run-openrouteservice) to the Tomcat directory
+5. [Apply the correct permissions](#set-the-necessary-permissions-for-the-tomcat-10-user) to the Tomcat directory
    and restart the Tomcat service.
 6. Try the [example requests](#example-requests) to see if the new version is working correctly.
