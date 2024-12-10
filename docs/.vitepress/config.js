@@ -64,9 +64,10 @@ export default withMermaid(defineVersionedConfig({
         ],
 	// undocumented options for NotFound-Page
 	notFound: {
-		title: 'MAYBE YOU CLICKED AN OLD LINK?',
+		title: 'PAGE NOT FOUND',
 		quote: 'We recently reworked most of our documentation. You probably ended up here by clicking an old link somewhere, e.g. in the forum. Let us know how you got here and we\'ll fix it. Click the link below and check "Getting Started" - this will help you figure out where to find what you came for.',
-		linkText: 'Documentation Home',
+		quote: 'We recently introduced versioning for our documentation. You probably ended up here by changing the version - and this page doesn\'t exist in this version. Click the link below and check "Getting Started" - you will need to change the version again, though.',
+		linkText: 'Documentation Home - latest Version',
 	},
         sidebar: {
 	    '/': [
