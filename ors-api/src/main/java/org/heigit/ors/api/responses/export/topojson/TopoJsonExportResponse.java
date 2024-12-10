@@ -47,7 +47,7 @@ public class TopoJsonExportResponse implements Serializable {
             for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : exportResult.getEdgeWeights().entrySet()) {
                 Pair<Integer, Integer> fromTo = edgeWeight.getKey();
 
-                LineString lineString = (LineString) exportResult.getEdgeExtras().get(fromTo).get("geometry");
+                LineString lineString = exportResult.getEdgeGeometries().get(fromTo);
                 arcsLocal.add(Arc.builder().coordinates(makeCoordinateList(lineString, bbox)).build());
                 arcCount++;
 
