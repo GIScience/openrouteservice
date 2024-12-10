@@ -199,7 +199,7 @@ export default withMermaid(defineVersionedConfig({
                             },
                             {
                                 text: 'Example Setups', collapsed: true, link: '/run-instance/example-setups',
-                                items: [{text: 'Tomcat 10 - Ubuntu 22.04', link: '/run-instance/example-setups/tomcat-10-ubuntu_22_04'}]
+                                items: [{text: 'Tomcat 10 - Ubuntu 22.04', link: '/run-instance/example-setups/en_tomcat-10-ubuntu_22_04'}]
                             },
                         ]
                     },
