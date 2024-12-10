@@ -150,6 +150,7 @@ class ParamsTest extends ServiceTest {
                 .body("containsKey('edges')", is(true))
                 .body("containsKey('nodes_count')", is(true))
                 .body("containsKey('edges_count')", is(true))
+                .body("containsKey('edges_extra')", is(false))
                 .statusCode(200);
     }
 
@@ -244,6 +245,29 @@ class ParamsTest extends ServiceTest {
                 .body("arcs.size()", is(30))
                 .body("objects.network.geometries.size()", is(30))
                 .body("objects.network.geometries[0].properties.containsKey('weight')", is(true))
+                .statusCode(200);
+    }
+
+    @Test
+    void expectAdditionalInfo() {
+        JSONObject body = new JSONObject();
+        body.put("bbox", getParameter("bboxProper"));
+        body.put("additional_info", true);
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", "wheelchair")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("containsKey('nodes')", is(true))
+                .body("containsKey('edges')", is(true))
+                .body("containsKey('edges_extra')", is(true))
+                .body("edges_extra[0].extra.containsKey('osm_id')", is(true))
+                .body("edges_extra[0].extra.containsKey('ors_id')", is(true))
+                .body("nodes_count", is(59))
+                .body("edges_count", is(128))
                 .statusCode(200);
     }
 }

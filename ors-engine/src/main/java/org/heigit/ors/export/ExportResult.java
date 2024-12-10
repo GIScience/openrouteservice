@@ -13,6 +13,7 @@ import java.util.Map;
 public class ExportResult {
     private final Map<Integer, Coordinate> locations;
     private final Map<Pair<Integer, Integer>, Double> edgeWeights;
+    private final Map<Pair<Integer, Integer>, LineString> edgeGeometries;
     private final Map<Long, TopoGeometry> topoGeometries;
     private Map<Pair<Integer, Integer>, Map<String, Object>> edgeExtras;
     @Setter
@@ -22,6 +23,7 @@ public class ExportResult {
     public ExportResult() {
         this.locations = new HashMap<>();
         this.edgeWeights = new HashMap<>();
+        this.edgeGeometries = new HashMap<>();
         this.topoGeometries = new HashMap<>();
         this.warning = null;
     }

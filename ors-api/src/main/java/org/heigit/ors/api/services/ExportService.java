@@ -59,7 +59,7 @@ public class ExportService extends ApiService {
         }
 
         exportRequest.setBoundingBox(convertBBox(exportApiRequest.getBbox()));
-        exportRequest.setDebug(exportApiRequest.debug());
+        exportRequest.setAdditionalEdgeInfo(exportApiRequest.additionalInfo());
         exportRequest.setTopoJson(exportApiRequest.getResponseType().equals(APIEnums.ExportResponseType.TOPOJSON));
         exportRequest.setUseRealGeometry(exportApiRequest.getGeometry());
 

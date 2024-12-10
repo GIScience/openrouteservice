@@ -18,8 +18,7 @@ public class ExportApiRequest extends APIRequest {
     public static final String PARAM_PROFILE = "profile";
     public static final String PARAM_FORMAT = "format";
     public static final String PARAM_GEOMETRY = "geometry";
-
-    public static final String PARAM_DEBUG = "debug";
+    public static final String PARAM_ADDITIONAL_INFO = "additional_info";
 
     @Schema(name = PARAM_ID, description = "Arbitrary identification string of the request reflected in the meta information.",
             example = "export_request")
@@ -45,9 +44,9 @@ public class ExportApiRequest extends APIRequest {
     @JsonProperty(PARAM_GEOMETRY)
     private boolean geometry = true;
 
-    @Schema(name = PARAM_DEBUG, hidden = true)
-    @JsonProperty(PARAM_DEBUG)
-    private boolean debug;
+    @Schema(name = PARAM_ADDITIONAL_INFO, hidden = true)
+    @JsonProperty(PARAM_ADDITIONAL_INFO)
+    private boolean additionalInfo;
 
     @JsonCreator
     public ExportApiRequest(@JsonProperty(value = PARAM_BBOX, required = true) List<List<Double>> bbox) {
@@ -67,8 +66,8 @@ public class ExportApiRequest extends APIRequest {
         this.hasId = true;
     }
 
-    public boolean debug() {
-        return debug;
+    public boolean additionalInfo() {
+        return additionalInfo;
     }
 
     public List<List<Double>> getBbox() {
