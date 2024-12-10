@@ -94,9 +94,10 @@ class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/blah")
-                .then()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("error.code", Matchers.is(ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT))
+                .body("error.message", Matchers.is("The response format blah is not supported"))
                 .statusCode(406);
     }
 
