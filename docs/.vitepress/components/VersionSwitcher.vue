@@ -22,7 +22,26 @@ const sortedVersions = computed(() => {
     })
 
     return versions
-})
+});
+
+/**
+ * generates the correct link in the dropdown for the specific version
+ * @param version - the version text of the current dropdown entry
+ */
+function versionedLink(version: string): string {
+    let pathElementsToRemove = 2
+    if (!currentVersion.value.includes('latest')) {
+        pathElementsToRemove = 3
+    }
+    const sitePath = router.route.path.split('/').slice(pathElementsToRemove).join('/')
+
+    let returnPath = '/'
+    if (!version.includes('latest')) {
+        returnPath = `/${version}/`
+    }
+
+    return `${returnPath}${sitePath}`
+}
 
 const currentVersion = computed(() => {
     let version = props.versioningPlugin.latestVersion;
@@ -50,7 +69,7 @@ const toggle = () => {
             <template v-for="version in sortedVersions" :key="version">
                 <VPMenuLink v-if="currentVersion != version" :item="{
           text: version,
-          link: `/${version === versioningPlugin.latestVersion ? '' : version + '/'}`,
+          link: versionedLink(version)
         }" />
             </template>
         </div>
@@ -65,7 +84,7 @@ const toggle = () => {
             <template v-for="version in sortedVersions" :key="version">
                 <VPMenuLink :item="{
           text: version,
-          link: `/${version === versioningPlugin.latestVersion ? '' : version + '/'}`,
+          link: versionedLink(version)
         }" />
             </template>
         </div>
