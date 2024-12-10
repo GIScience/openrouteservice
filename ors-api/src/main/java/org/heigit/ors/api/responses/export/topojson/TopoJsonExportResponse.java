@@ -32,7 +32,7 @@ public class TopoJsonExportResponse implements Serializable {
     private List<Arc> arcs = new LinkedList<>();
     @JsonProperty("bbox")
     @Builder.Default
-    private List<Double> bbox = new ArrayList<>();
+    private List<Double> bbox = new ArrayList<>(4);
 
     public static TopoJsonExportResponse fromExportResult(ExportResult exportResult, String topologyLayerName) {
         BBox bbox = new BBox();
@@ -75,7 +75,6 @@ public class TopoJsonExportResponse implements Serializable {
                     distanceList.add(topoGeometry.getArcs().get(orsId).length());
                     arcCount++;
                 }
-
                 Map<String, Object> properties = new HashMap<>();
                 properties.put("osm_id", osmId);
                 properties.put("ors_ids", orsIdList);

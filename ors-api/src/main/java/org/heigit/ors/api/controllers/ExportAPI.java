@@ -105,7 +105,7 @@ public class ExportAPI {
 
     @PostMapping(value = "/{profile}/json", produces = {"application/json;charset=UTF-8"})
     @Operation(
-            description = "Returns a list of points, edges and weights within a given bounding box for a selected profile JSON.",
+            description = "Returns a list of points, edges and weights within a given bounding box for a selected profile as JSON.",
             summary = "Export Service JSON"
     )
     @ApiResponse(
@@ -130,8 +130,8 @@ public class ExportAPI {
 
     @PostMapping(value = "/{profile}/topojson", produces = {"application/json;charset=UTF-8"})
     @Operation(
-            description = "Returns a list of edges, edge weights, and their topoloy within a given bounding box for a selected profile JSON.",
-            summary = "Export Service JSON"
+            description = "Returns a list of edges, edge properties, and their topology within a given bounding box for a selected profile.",
+            summary = "Export Service TopoJSON"
     )
     @ApiResponse(
             responseCode = "200",
