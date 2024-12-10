@@ -41,7 +41,7 @@ public class ExportApiRequest extends APIRequest {
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.ExportResponseType responseType = APIEnums.ExportResponseType.JSON;
 
-    @Schema(name = PARAM_GEOMETRY, description = "Wether to return the exact geometry of the graph.", example = "true", defaultValue = "true")
+    @Schema(name = PARAM_GEOMETRY, description = "Whether to return the exact geometry of the graph or a simplified (beeline) representation.", example = "true", defaultValue = "true")
     @JsonProperty(PARAM_GEOMETRY)
     private boolean geometry = true;
 

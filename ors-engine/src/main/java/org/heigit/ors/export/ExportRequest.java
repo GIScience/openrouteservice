@@ -41,7 +41,6 @@ public class ExportRequest extends ServiceRequest {
 
     private boolean debug;
     private boolean topoJson;
-    private boolean osmIdsAvailable;
     private boolean useRealGeometry;
 
     private static final int NO_TIME = -1;
@@ -98,22 +97,20 @@ public class ExportRequest extends ServiceRequest {
         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
         EdgeExplorer explorer = graph.createEdgeExplorer(AccessFilter.outEdges(flagEncoder.getAccessEnc()));
 
-
         // filter graph for nodes in Bounding Box
         LocationIndex index = gh.getLocationIndex();
         NodeAccess nodeAccess = graph.getNodeAccess();
-        BBox bbox = getBoundingBox();
 
         Set<Integer> nodesInBBox = new HashSet<>();
-        index.query(bbox, edgeId -> {
+        index.query(boundingBox, edgeId -> {
             // According to GHUtility.getEdgeFromEdgeKey, edgeIds are calculated as edgeKey/2.
             EdgeIteratorState edge = graph.getEdgeIteratorStateForKey(edgeId * 2);
             int baseNode = edge.getBaseNode();
             int adjNode = edge.getAdjNode();
-            if (bbox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
+            if (boundingBox.contains(nodeAccess.getLat(baseNode), nodeAccess.getLon(baseNode))) {
                 nodesInBBox.add(baseNode);
             }
-            if (bbox.contains(nodeAccess.getLat(adjNode), nodeAccess.getLon(adjNode))) {
+            if (boundingBox.contains(nodeAccess.getLat(adjNode), nodeAccess.getLon(adjNode))) {
                 nodesInBBox.add(adjNode);
             }
         });
@@ -127,21 +124,19 @@ public class ExportRequest extends ServiceRequest {
         }
         Map<Long, TopoGeometry> topoGeometries = res.getTopoGeometries();
         OsmIdGraphStorage osmIdGraphStorage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
-        osmIdsAvailable = osmIdGraphStorage != null;
+        boolean osmIdsAvailable = osmIdGraphStorage != null;
 
         // calculate node coordinates
         for (int from : nodesInBBox) {
-            Coordinate coord = new Coordinate(nodeAccess.getLon(from), nodeAccess.getLat(from));
-            res.addLocation(from, coord);
+            Coordinate fromCoords = new Coordinate(nodeAccess.getLon(from), nodeAccess.getLat(from));
+            res.addLocation(from, fromCoords);
             EdgeIterator iter = explorer.setBaseNode(from);
             while (iter.next()) {
                 int to = iter.getAdjNode();
                 if (nodesInBBox.contains(to)) {
                     Pair<Integer, Integer> p = new Pair<>(from, to);
                     Map<String, Object> extra = new HashMap<>();
-                    double weight = weighting.calcEdgeWeight(iter, false, NO_TIME);
-                    Coordinate toCoords = new Coordinate(nodeAccess.getLon(to), nodeAccess.getLat(to));
-                    res.addEdge(p, weight);
+                    res.addEdge(p, weighting.calcEdgeWeight(iter, false, NO_TIME));
                     LOGGER.debug("Edge %d: from %d to %d".formatted(iter.getEdge(), from, to));
 
                     if (topoJson) {
@@ -149,10 +144,10 @@ public class ExportRequest extends ServiceRequest {
                         if (useRealGeometry) {
                             geo = iter.fetchWayGeometry(FetchMode.ALL).toLineString(false);
                         } else {
-                            geo = geometryFactory.createLineString(new Coordinate[]{coord, toCoords});
+                            Coordinate toCoords = new Coordinate(nodeAccess.getLon(to), nodeAccess.getLat(to));
+                            geo = geometryFactory.createLineString(new Coordinate[]{fromCoords, toCoords});
                         }
                         if (osmIdsAvailable) {
-                            assert osmIdGraphStorage != null;
                             boolean reverse = iter.getEdgeKey() % 2 == 1;
                             TopoGeometry topoGeometry = topoGeometries.computeIfAbsent(osmIdGraphStorage.getEdgeValue(iter.getEdge()), x ->
                                     new TopoGeometry(weighting.getSpeedCalculator().getSpeed(iter, reverse, NO_TIME),
@@ -185,7 +180,7 @@ public class ExportRequest extends ServiceRequest {
                                 extra.put("suitable", attributes.isSuitable());
                             }
                         }
-                        if (osmIdGraphStorage != null) {
+                        if (osmIdsAvailable) {
                             extra.put("osm_id", osmIdGraphStorage.getEdgeValue(iter.getEdge()));
                         }
                     }
