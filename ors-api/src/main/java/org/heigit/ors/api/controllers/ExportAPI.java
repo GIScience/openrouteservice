@@ -74,13 +74,6 @@ public class ExportAPI {
         throw new MissingParameterException(ExportErrorCodes.MISSING_PARAMETER, "profile");
     }
 
-    // Matches any response type that has not been defined
-    @PostMapping(value = "/{profile}/*")
-    @Operation(hidden = true)
-    public void getInvalidResponseType(@PathVariable String profile) throws StatusCodeException {
-        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "The response format %s is not supported".formatted(profile));
-    }
-
     // Functional request methods
     @PostMapping(value = "/{profile}")
     @Operation(
@@ -153,6 +146,12 @@ public class ExportAPI {
         return TopoJsonExportResponse.fromExportResult(result);
     }
 
+    // Matches any response type that has not been defined
+    @PostMapping(value = "/{profile}/{responseType}")
+    @Operation(hidden = true)
+    public void getInvalidResponseType(@PathVariable String profile, @PathVariable String responseType) throws StatusCodeException {
+        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "The response format %s is not supported".formatted(responseType));
+    }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<Object> handleMissingParams(final MissingServletRequestParameterException e) {
