@@ -11,7 +11,10 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static org.heigit.ors.export.ExportResult.TopoGeometry;
 
@@ -21,12 +24,12 @@ import static org.heigit.ors.export.ExportResult.TopoGeometry;
 @Builder
 public class TopoJsonExportResponse implements Serializable {
 
-    @JsonProperty("type")
+    @JsonProperty(value = "type")
     @Builder.Default
     private String type = "Topology";
     @JsonProperty("objects")
     @Builder.Default
-    private HashMap<String, Layer> objects = new HashMap<>();
+    private Network objects = null;
     @JsonProperty("arcs")
     @Builder.Default
     private List<Arc> arcs = new LinkedList<>();
@@ -34,7 +37,7 @@ public class TopoJsonExportResponse implements Serializable {
     @Builder.Default
     private List<Double> bbox = new ArrayList<>(4);
 
-    public static TopoJsonExportResponse fromExportResult(ExportResult exportResult, String topologyLayerName) {
+    public static TopoJsonExportResponse fromExportResult(ExportResult exportResult) {
         BBox bbox = new BBox();
         LinkedList<Geometry> geometries = new LinkedList<>();
         LinkedList<Arc> arcsLocal = new LinkedList<>();
@@ -45,12 +48,13 @@ public class TopoJsonExportResponse implements Serializable {
                 Pair<Integer, Integer> fromTo = edgeWeight.getKey();
 
                 LineString lineString = (LineString) exportResult.getEdgeExtras().get(fromTo).get("geometry");
-                arcsLocal.add(Arc.builder().coordinates(makeCoordinates(lineString, bbox)).build());
+                arcsLocal.add(Arc.builder().coordinates(makeCoordinateList(lineString, bbox)).build());
                 arcCount++;
 
                 List<Integer> arcList = List.of(arcCount);
-                Map<String, Object> properties = new HashMap<>();
-                properties.put("weight", edgeWeight.getValue());
+                Properties properties = Properties.builder()
+                        .weight(edgeWeight.getValue())
+                        .build();
                 Geometry geometry = Geometry.builder()
                         .type("LineString")
                         .properties(properties)
@@ -66,7 +70,7 @@ public class TopoJsonExportResponse implements Serializable {
                 List<Integer> nodeList = new LinkedList<>();
                 List<Double> distanceList = new LinkedList<>();
                 for (int orsId : orsIdList) {
-                    arcsLocal.add(Arc.builder().coordinates(makeCoordinates(topoGeometry.getArcs().get(orsId).geometry(), bbox)).build());
+                    arcsLocal.add(Arc.builder().coordinates(makeCoordinateList(topoGeometry.getArcs().get(orsId).geometry(), bbox)).build());
                     arcList.add(arcCount);
                     if (nodeList.isEmpty()) {
                         nodeList.add(topoGeometry.getArcs().get(orsId).from());
@@ -75,16 +79,15 @@ public class TopoJsonExportResponse implements Serializable {
                     distanceList.add(topoGeometry.getArcs().get(orsId).length());
                     arcCount++;
                 }
-                Map<String, Object> properties = new HashMap<>();
-                properties.put("osm_id", osmId);
-                properties.put("ors_ids", orsIdList);
-                properties.put("ors_nodes", nodeList);
-                properties.put("speed", topoGeometry.getSpeed());
-                properties.put("distances", distanceList);
-                properties.put("both_directions", topoGeometry.isBothDirections());
-                if (topoGeometry.isBothDirections()) {
-                    properties.put("speed_reverse", topoGeometry.getSpeedReverse());
-                }
+                Properties properties = Properties.builder()
+                        .osmId(osmId)
+                        .bothDirections(topoGeometry.isBothDirections())
+                        .speed(topoGeometry.getSpeed())
+                        .speedReverse(topoGeometry.isBothDirections() ? topoGeometry.getSpeedReverse() : null)
+                        .orsIds(orsIdList)
+                        .orsNodes(nodeList)
+                        .distances(distanceList)
+                        .build();
 
                 Geometry geometry = Geometry.builder()
                         .type("LineString")
@@ -96,16 +99,16 @@ public class TopoJsonExportResponse implements Serializable {
         }
         return TopoJsonExportResponse.builder()
                 .type("Topology")
-                .objects(new HashMap<>(Map.of(topologyLayerName, Layer.builder()
+                .objects(Network.builder().network(Layer.builder()
                         .type("GeometryCollection")
                         .geometries(geometries)
-                        .build())))
+                        .build()).build())
                 .arcs(arcsLocal)
                 .bbox(bbox.toList())
                 .build();
     }
 
-    private static List<List<Double>> makeCoordinates(LineString geometry, BBox bbox) {
+    private static List<List<Double>> makeCoordinateList(LineString geometry, BBox bbox) {
         List<List<Double>> coordinates = new LinkedList<>();
         for (Coordinate coordinate : geometry.getCoordinates()) {
             coordinates.add(List.of(coordinate.x, coordinate.y));
