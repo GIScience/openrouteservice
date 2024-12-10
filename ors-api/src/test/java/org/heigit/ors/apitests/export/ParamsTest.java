@@ -109,7 +109,7 @@ class ParamsTest extends ServiceTest {
                 .pathParam("profile", "driving-car")
                 .body(body.toString())
                 .when()
-                .post(getEndPointPath() + "/{profile}/json")
+                .post(getEndPointPath() + "/{profile}/topojson")
                 .then()
                 .assertThat()
                 //not sure mismatched input is correct here, missing parameter seems more intuitive?
@@ -143,7 +143,7 @@ class ParamsTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/json")
-                .then()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("containsKey('nodes')", is(true))
                 .body("containsKey('edges')", is(true))

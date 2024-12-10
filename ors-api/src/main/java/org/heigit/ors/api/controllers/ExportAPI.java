@@ -137,7 +137,7 @@ public class ExportAPI {
             responseCode = "200",
             description = "TopoJSON Response.",
             content = {@Content(
-                    mediaType = "application/geo+json",
+                    mediaType = "application/json",
                     schema = @Schema(implementation = TopoJsonExportResponse.class)
             )
             })
@@ -150,7 +150,7 @@ public class ExportAPI {
 
         ExportResult result = exportService.generateExportFromRequest(request);
 
-        return TopoJsonExportResponse.fromExportResult(result, "network");
+        return TopoJsonExportResponse.fromExportResult(result);
     }
 
 

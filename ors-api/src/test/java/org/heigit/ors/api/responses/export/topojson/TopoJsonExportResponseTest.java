@@ -3,6 +3,7 @@ package org.heigit.ors.api.responses.export.topojson;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.heigit.ors.common.Pair;
 import org.heigit.ors.export.ExportResult;
 import org.junit.jupiter.api.Assertions;
@@ -22,19 +23,15 @@ class TopoJsonExportResponseTest {
     // setup function
     @BeforeEach
     void setUp() {
-        Map<String, Object> properties1 = new LinkedHashMap<>();
-        properties1.put("OBJECTID", 41106);
-        Map<String, Object> properties2 = new LinkedHashMap<>();
-        properties2.put("OBJECTID", 41107);
         Geometry geometry1 = Geometry.builder()
                 .type("LineString")
                 .arcs(List.of(0, 1))
-                .properties(properties1)
+                .properties(Properties.builder().osmId(41106L).build())
                 .build();
         Geometry geometry2 = Geometry.builder()
                 .type("LineString")
                 .arcs(List.of(2))
-                .properties(properties2)
+                .properties(Properties.builder().osmId(41107L).build())
                 .build();
         Layer layer = Layer.builder()
                 .type("GeometryCollection")
@@ -68,7 +65,7 @@ class TopoJsonExportResponseTest {
                 .build();
         topoJsonExportResponse = TopoJsonExportResponse.builder()
                 .type("Topology")
-                .objects(new HashMap<>(Map.of(topologyLayerName, layer)))
+                .objects(Network.builder().network(layer).build())
                 .bbox(List.of(-72.822573, 19.947123, -72.81259, 19.952703))
                 .arcs(List.of(arc1, arc2, arc3))
                 .build();
@@ -96,15 +93,13 @@ class TopoJsonExportResponseTest {
             }
         }
         Assertions.assertEquals(1, jsonNode.get("objects").size());
-        Assertions.assertEquals(jsonNode.get("objects").get("network").get("type").asText(), topoJsonExportResponse.getObjects().get("network").getType());
-        for (int j = 0; j < topoJsonExportResponse.getObjects().get("network").getGeometries().size(); j++) {
-            Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("type").asText(), topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getType());
-            for (int k = 0; k < topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getArcs().size(); k++) {
-                Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("arcs").get(k).asInt(), topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getArcs().get(k));
+        Assertions.assertEquals(jsonNode.get("objects").get("network").get("type").asText(), topoJsonExportResponse.getObjects().getNetwork().getType());
+        for (int j = 0; j < topoJsonExportResponse.getObjects().getNetwork().getGeometries().size(); j++) {
+            Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("type").asText(), topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getType());
+            for (int k = 0; k < topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getArcs().size(); k++) {
+                Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("arcs").get(k).asInt(), topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getArcs().get(k));
             }
-            for (String key : topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getProperties().keySet()) {
-                Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("properties").get(key).asText(), topoJsonExportResponse.getObjects().get("network").getGeometries().get(j).getProperties().get(key).toString());
-            }
+            Assertions.assertEquals(jsonNode.get("objects").get("network").get("geometries").get(j).get("properties").get("osm_id").asText(), topoJsonExportResponse.getObjects().getNetwork().getGeometries().get(j).getProperties().getOsmId().toString());
         }
     }
 
@@ -117,7 +112,6 @@ class TopoJsonExportResponseTest {
         Assertions.assertEquals("Topology", emptyTopoJsonExportResponse.getType());
         Assertions.assertEquals(0, jsonNode.get("bbox").size());
         Assertions.assertEquals(0, jsonNode.get("arcs").size());
-        Assertions.assertEquals(0, jsonNode.get("objects").size());
     }
 
     @Test
@@ -137,33 +131,32 @@ class TopoJsonExportResponseTest {
         exportResult.addEdgeExtra(new Pair<>(2, 3), new HashMap<>(Map.of("osm_id", 1L, "foo", "bla")));
         exportResult.addEdgeExtra(new Pair<>(0, 4), new HashMap<>(Map.of("osm_id", 2L, "foo", "bub")));
 
-        ExportResult.TopoGeometry topoGeometry1 = new ExportResult.TopoGeometry(1.0, 1.0);
+        ExportResult.TopoGeometry topoGeometry1 = new ExportResult.TopoGeometry(1.0F, 1.0F);
         topoGeometry1.getArcs().put(1, new ExportResult.TopoArc(geometryFactory.createLineString(new Coordinate[]{new Coordinate(0.0, 0.0), new Coordinate(1.0, 1.0)}), 1.0, 0, 1));
         topoGeometry1.getArcs().put(2, new ExportResult.TopoArc(geometryFactory.createLineString(new Coordinate[]{new Coordinate(1.0, 1.0), new Coordinate(2.0, 2.0)}), 2.0, 1, 2));
         topoGeometry1.getArcs().put(3, new ExportResult.TopoArc(geometryFactory.createLineString(new Coordinate[]{new Coordinate(2.0, 2.0), new Coordinate(3.0, 3.0)}), 3.0, 2, 3));
         topoGeometry1.setBothDirections(true);
         exportResult.getTopoGeometries().put(1L,topoGeometry1);
-        ExportResult.TopoGeometry topoGeometry2 = new ExportResult.TopoGeometry(2.0, 2.0);
+        ExportResult.TopoGeometry topoGeometry2 = new ExportResult.TopoGeometry(2.0F, 2.0F);
         topoGeometry2.getArcs().put(4, new ExportResult.TopoArc(geometryFactory.createLineString(new Coordinate[]{new Coordinate(0.0, 0.0), new Coordinate(4.0, 5.0)}), 4.0, 0, 4));
         exportResult.getTopoGeometries().put(2L, topoGeometry2);
 
-        TopoJsonExportResponse exportResultToTopoJson = TopoJsonExportResponse.fromExportResult(exportResult, topologyLayerName);
-        HashMap<String, Layer> layers = exportResultToTopoJson.getObjects();
-        Layer network = layers.get(topologyLayerName);
+        TopoJsonExportResponse exportResultToTopoJson = TopoJsonExportResponse.fromExportResult(exportResult);
+        Layer network = exportResultToTopoJson.getObjects().getNetwork();
         Assertions.assertEquals("GeometryCollection", network.getType());
         Assertions.assertEquals(2, network.getGeometries().size());
         Geometry geometry1 = network.getGeometries().get(0);
         Assertions.assertEquals("LineString", geometry1.getType());
         Assertions.assertEquals(List.of(0, 1, 2), geometry1.getArcs());
-        Assertions.assertEquals(1.0, geometry1.getProperties().get("speed"));
-        Assertions.assertEquals(1.0, geometry1.getProperties().get("speed_reverse"));
-        Assertions.assertEquals(1L, geometry1.getProperties().get("osm_id"));
+        Assertions.assertEquals(1.0, geometry1.getProperties().getSpeed());
+        Assertions.assertEquals(1.0, geometry1.getProperties().getSpeedReverse());
+        Assertions.assertEquals(1L, geometry1.getProperties().getOsmId());
         Geometry geometry2 = network.getGeometries().get(1);
         Assertions.assertEquals("LineString", geometry2.getType());
         Assertions.assertEquals(List.of(3), geometry2.getArcs());
-        Assertions.assertEquals(2.0, geometry2.getProperties().get("speed"));
-        Assertions.assertNull( geometry2.getProperties().get("speed_reverse"));
-        Assertions.assertEquals(2L, geometry2.getProperties().get("osm_id"));
+        Assertions.assertEquals(2.0, geometry2.getProperties().getSpeed());
+        Assertions.assertNull( geometry2.getProperties().getSpeedReverse());
+        Assertions.assertEquals(2L, geometry2.getProperties().getOsmId());
         List<Arc> arcs = exportResultToTopoJson.getArcs();
         Assertions.assertEquals(4, arcs.size());
         Assertions.assertEquals(List.of(List.of(0.0, 0.0), List.of(1.0, 1.0)), arcs.get(0).getCoordinates());
