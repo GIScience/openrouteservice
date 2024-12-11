@@ -56,14 +56,14 @@ public class IsochronesService extends ApiService {
         validateAgainstConfig(isochroneRequest);
 
         if (!travellers.isEmpty()) {
-            isochronesRequest.setIsoMaps(new IsochroneMapCollection());
-
+            IsochroneMapCollection isoMaps = new IsochroneMapCollection();
             for (int i = 0; i < travellers.size(); ++i) {
                 IsochroneSearchParameters searchParams = isochroneRequest.getSearchParameters(i);
                 IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
-                isochronesRequest.getIsoMaps().add(isochroneMap);
+                isoMaps.add(isochroneMap);
             }
-
+            // TODO: is this necessary? It seems unusual to transport the response through the request object
+            isochronesRequest.setIsoMaps(isoMaps);
         }
     }
 
