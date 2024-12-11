@@ -1,6 +1,6 @@
-# Einrichtung von ORS v8 und v9 mit Tomcat 10 auf Ubuntu 22.04
+# Einrichtung von ORS v8 mit Tomcat 10 auf Ubuntu 22.04
 
-Dieses Tutorial zeigt dir, wie du openrouteservice mit Java 17, Tomcat 10 und ORS v8 bzw. v9 einrichtest.
+Dieses Tutorial zeigt dir, wie du openrouteservice mit Java 17, Tomcat 10 und ORS v8 v9 einrichtest.
 
 ::: info
 Zur [englischen Version](en_tomcat-10-ubuntu_22_04) dieses Tutorials.
@@ -24,7 +24,7 @@ Die folgenden Schritte helfen dir, die Umgebung für Tomcat 10 vorzubereiten.
 
 ### Java 17 installieren
 
-Openrouteservice benötigt Java 17 oder höher, um ab Version 8 zu laufen.
+Openrouteservice v8 benötigt Java 17 oder höher.
 Der Grund dafür ist die Einführung von Tomcat 10.
 Du kannst auch eine neuere Version von Java verwenden, falls verfügbar.
 
@@ -174,12 +174,12 @@ Da Tomcat 10 nun eingerichtet ist, können wir auch openrouteservice mit Java 17
 
 ### Das openrouteservice WAR-File herunterladen
 
-Um openrouteservice v8 oder v9 mit Tomcat 10 einzurichten, benötigst du zunächst das entsprechende WAR-File. Besuche
+Um openrouteservice v8 mit Tomcat 10 einzurichten, benötigst du zunächst das entsprechende WAR-File. Besuche
 die [openrouteservice Releases-Seite](https://github.com/GIScience/openrouteservice/releases) und lade die neueste
 Version des WAR-Files herunter.
 
 ```shell
-# Lade das neueste openrouteservice WAR-File herunter, z. B. für v8.2.0. Für v9 nutze einfach z. B. v9.0.0
+# Lade das neueste openrouteservice WAR-File herunter für v8.2.0.
 > curl -L https://github.com/GIScience/openrouteservice/releases/download/v8.2.0/ors.war > ors.war
 # Verschiebe das WAR-File in das Tomcat-Webapps-Verzeichnis
 > mv ors.war /opt/tomcat/webapps/
@@ -248,10 +248,7 @@ Füge die folgenden Inhalte in die Datei ein und speichere sie.
 Stelle sicher, dass du den Wert von `-Xmx` an dein System und die Größe der verwendeten `OSM-Datei` anpasst.
 Wenn du eine andere `OSM-Datei` erstellen möchtest, kannst du den Wert von source_file anpassen.
 
-Zwischen den Versionen 8 und 9 haben sich die Konfigurationseigenschaften geändert. Achte darauf, die richtigen
-Eigenschaften zu verwenden.
-
-Wenn du mehr über die neuen Konfigurationsoptionen in den Versionen 8 & 9 erfahren möchtest, lies
+Wenn du mehr über die neuen Konfigurationsoptionen in Version 8 erfahren möchtest, lies
 die [Konfigurationsdokumentation](/run-instance/configuration/index.md).
 
 **Beispiel `setenv.sh`-Datei für openrouteservice v8**
@@ -264,21 +261,6 @@ export JAVA_OPTS="$JAVA_OPTS \
 -Dors.engine.profile_default.elevation=false \
 -Dors.engine.graphs_root_path=/opt/openrouteservice/graphs \
 -Dors.engine.source_file=/opt/openrouteservice/data/andorra-latest.osm.pbf \
--Dlogging.file.name=/opt/openrouteservice/logs/ors.log \
--Dors.engine.elevation.cache_path=/opt/openrouteservice/elevation_cache
-"
-```
-
-**Beispiel `setenv.sh`-Datei für openrouteservice v9**
-
-```shell
-export CATALINA_OPTS="$CATALINA_OPTS -server -XX:+UseParallelGC -Xmx15g"
-export JAVA_OPTS="$JAVA_OPTS \
--Dors.engine.profiles.driving-car.enabled=true \
--Dors.engine.graphs_data_access=MMAP \
--Dors.engine.profile_default.enabled=false \
--Dors.engine.profile_default.graph_path=/opt/openrouteservice/graphs \
--Dors.engine.profile_default.build.source_file=/opt/openrouteservice/data/andorra-latest.osm.pbf \
 -Dlogging.file.name=/opt/openrouteservice/logs/ors.log \
 -Dors.engine.elevation.cache_path=/opt/openrouteservice/elevation_cache
 "
