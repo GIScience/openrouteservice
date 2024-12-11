@@ -65,7 +65,6 @@ export default withMermaid(defineVersionedConfig({
 	// undocumented options for NotFound-Page
 	notFound: {
 		title: 'PAGE NOT FOUND',
-		quote: 'We recently reworked most of our documentation. You probably ended up here by clicking an old link somewhere, e.g. in the forum. Let us know how you got here and we\'ll fix it. Click the link below and check "Getting Started" - this will help you figure out where to find what you came for.',
 		quote: 'We recently introduced versioning for our documentation. You probably ended up here by changing the version - and this page doesn\'t exist in this version. Click the link below and check "Getting Started" - you will need to change the version again, though.',
 		linkText: 'Documentation Home - latest Version',
 	},
@@ -196,6 +195,10 @@ export default withMermaid(defineVersionedConfig({
                                     {text: 'ors.messages', link: '/run-instance/configuration/messages/'},
                                     {text: 'JSON config (deprecated)', link:'/run-instance/configuration/json.md'}
                                 ]
+                            },
+                            {
+                                text: 'Example Setups', collapsed: true, link: '/run-instance/example-setups',
+                                items: [{text: 'Tomcat 10 - Ubuntu 22.04', link: '/run-instance/example-setups/en_tomcat-10-ubuntu_22_04'}]
                             },
                         ]
                     },
