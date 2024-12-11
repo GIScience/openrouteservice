@@ -1,6 +1,6 @@
-# Setup ORS v8 and v9 with Tomcat 10 on Ubuntu 22.04
+# Setup ORS v9 with Tomcat 10 on Ubuntu 22.04
 
-This guide will guide you how to set up openrouteservice with Java 17, Tomcat 10 and ORS v8 and v9.
+This guide will guide you how to set up openrouteservice with Java 17, Tomcat 10 and ORS v9.
 
 ::: info
 To the [german version](de_tomcat-10-ubuntu_22_04) of this tutorial.
@@ -23,7 +23,7 @@ The following steps will guide you through the process of preparing the Tomcat 1
 
 ### Install Java 17
 
-Openrouteservice requires Java 17 or higher to run since Version 8.
+Openrouteservice v9 requires Java 17 or higher to run.
 The reason is the introduction of Tomcat 10.
 You can also use a higher version of Java if available.
 
@@ -169,13 +169,13 @@ Since we have set up Tomcat 10, we can now set up openrouteservice with Java 17.
 
 ### Download the openrouteservice WAR-File
 
-To set up openrouteservice v8 or v9 with Tomcat 10, you first need the respective war-File.
+To set up openrouteservice v9 with Tomcat 10, you first need the respective war-File.
 Head over to the [openrouteservice releases page](https://github.com/GIScience/openrouteservice/releases) and download
 the latest release WAR-File.
 
 ```shell
-# Download the latest openrouteservice WAR-File e.g. for v8.2.0. For V9, just use e.g. v9.0.0
-> curl -L https://github.com/GIScience/openrouteservice/releases/download/v8.2.0/ors.war > ors.war
+# Download the latest openrouteservice WAR-File, e.g. for v9.0.0
+> curl -L https://github.com/GIScience/openrouteservice/releases/download/v9.0.0/ors.war > ors.war
 # Move the WAR-File to the Tomcat webapps directory
 > mv ors.war /opt/tomcat/webapps/
 # Restart the Tomcat 10 service
@@ -239,26 +239,8 @@ Paste the following contents into the file and save it.
 Make sure to adjust the `-Xmx` value to a value that fits your system and graph.
 If you want to build another OSM-File, you can adjust the `source_file` value.
 
-Between version 8 and 9, the configuration properties have changed.
-Make sure to reference the correct properties.
-
-If you want to learn more about the new configuration options in versions 8 & 9, check
+If you want to learn more about the new configuration options in version 9, check
 the [configuration documentation](/run-instance/configuration/index.md).
-
-**Example `setenv.sh` file for openrouteservice v8**
-
-```shell
-export CATALINA_OPTS="$CATALINA_OPTS -server -XX:+UseParallelGC -Xmx15g"
-export JAVA_OPTS="$JAVA_OPTS \
--Dors.engine.profiles.car.enabled=true \
--Dors.engine.graphs_data_access=MMAP \
--Dors.engine.profile_default.elevation=false \
--Dors.engine.graphs_root_path=/opt/openrouteservice/graphs \
--Dors.engine.source_file=/opt/openrouteservice/data/andorra-latest.osm.pbf \
--Dlogging.file.name=/opt/openrouteservice/logs/ors.log \
--Dors.engine.elevation.cache_path=/opt/openrouteservice/elevation_cache
-"
-```
 
 **Example `setenv.sh` file for openrouteservice v9**
 
