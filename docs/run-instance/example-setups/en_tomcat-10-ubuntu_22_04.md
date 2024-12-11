@@ -1,6 +1,6 @@
 # Setup ORS v9 with Tomcat 10 on Ubuntu 22.04
 
-This guide will guide you how to set up openrouteservice with Java 17, Tomcat 10 and ORS v9.
+This guide will guide you how to set up openrouteservice v9 with Java 17 and Tomcat 10.
 
 ::: info
 To the [german version](de_tomcat-10-ubuntu_22_04) of this tutorial.
