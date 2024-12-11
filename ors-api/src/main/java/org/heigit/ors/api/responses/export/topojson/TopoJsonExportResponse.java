@@ -23,13 +23,12 @@ import static org.heigit.ors.export.ExportResult.TopoGeometry;
 @Getter
 @Builder
 public class TopoJsonExportResponse implements Serializable {
-
     @JsonProperty(value = "type")
     @Builder.Default
     private String type = "Topology";
     @JsonProperty("objects")
     @Builder.Default
-    private Network objects = null;
+    private Objects objects = null;
     @JsonProperty("arcs")
     @Builder.Default
     private List<Arc> arcs = new LinkedList<>();
@@ -41,71 +40,81 @@ public class TopoJsonExportResponse implements Serializable {
         BBox bbox = new BBox();
         LinkedList<Geometry> geometries = new LinkedList<>();
         LinkedList<Arc> arcsLocal = new LinkedList<>();
-        int arcCount = 0;
-        if (exportResult.getTopoGeometries().isEmpty()) {
-            // If OSM ids are not present, we are creating a simple topology with geometries for every edge
-            for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : exportResult.getEdgeWeights().entrySet()) {
-                Pair<Integer, Integer> fromTo = edgeWeight.getKey();
-
-                LineString lineString = exportResult.getEdgeGeometries().get(fromTo);
-                arcsLocal.add(Arc.builder().coordinates(makeCoordinateList(lineString, bbox)).build());
-                arcCount++;
-
-                List<Integer> arcList = List.of(arcCount);
-                Properties properties = Properties.builder()
-                        .weight(edgeWeight.getValue())
-                        .build();
-                Geometry geometry = Geometry.builder()
-                        .type("LineString")
-                        .properties(properties)
-                        .arcs(arcList)
-                        .build();
-                geometries.add(geometry);
-            }
+        if (exportResult.hasTopoGeometries()) {
+            buildGeometriesFromTopoGeometries(exportResult, bbox, geometries, arcsLocal);
         } else {
-            for (long osmId : exportResult.getTopoGeometries().keySet()) {
-                TopoGeometry topoGeometry = exportResult.getTopoGeometries().get(osmId);
-                List<Integer> orsIdList = topoGeometry.getArcs().keySet().stream().sorted().toList();
-                List<Integer> arcList = new LinkedList<>();
-                List<Integer> nodeList = new LinkedList<>();
-                List<Double> distanceList = new LinkedList<>();
-                for (int orsId : orsIdList) {
-                    arcsLocal.add(Arc.builder().coordinates(makeCoordinateList(topoGeometry.getArcs().get(orsId).geometry(), bbox)).build());
-                    arcList.add(arcCount);
-                    if (nodeList.isEmpty()) {
-                        nodeList.add(topoGeometry.getArcs().get(orsId).from());
-                    }
-                    nodeList.add(topoGeometry.getArcs().get(orsId).to());
-                    distanceList.add(topoGeometry.getArcs().get(orsId).length());
-                    arcCount++;
-                }
-                Properties properties = Properties.builder()
-                        .osmId(osmId)
-                        .bothDirections(topoGeometry.isBothDirections())
-                        .speed(topoGeometry.getSpeed())
-                        .speedReverse(topoGeometry.isBothDirections() ? topoGeometry.getSpeedReverse() : null)
-                        .orsIds(orsIdList)
-                        .orsNodes(nodeList)
-                        .distances(distanceList)
-                        .build();
-
-                Geometry geometry = Geometry.builder()
-                        .type("LineString")
-                        .properties(properties)
-                        .arcs(arcList)
-                        .build();
-                geometries.add(geometry);
-            }
+            buildGeometriesFromEdges(exportResult, bbox, geometries, arcsLocal);
         }
         return TopoJsonExportResponse.builder()
                 .type("Topology")
-                .objects(Network.builder().network(Layer.builder()
+                .objects(Objects.builder().network(Network.builder()
                         .type("GeometryCollection")
                         .geometries(geometries)
                         .build()).build())
                 .arcs(arcsLocal)
                 .bbox(bbox.toList())
                 .build();
+    }
+
+    private static void buildGeometriesFromEdges(ExportResult exportResult, BBox bbox, LinkedList<Geometry> geometries, LinkedList<Arc> arcsLocal) {
+        Map<Pair<Integer, Integer>, Double> edgeWeights = exportResult.getEdgeWeights();
+        Map<Pair<Integer, Integer>, LineString> edgeGeometries = exportResult.getEdgeGeometries();
+        int arcCount = 0;
+        for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : edgeWeights.entrySet()) {
+            arcsLocal.add(Arc.builder().coordinates(makeCoordinateList(edgeGeometries.get(edgeWeight.getKey()), bbox)).build());
+            List<Integer> arcList = List.of(arcCount);
+            arcCount++;
+
+            Properties properties = Properties.builder()
+                    .weight(edgeWeight.getValue())
+                    .build();
+            Geometry geometry = Geometry.builder()
+                    .type("LineString")
+                    .properties(properties)
+                    .arcs(arcList)
+                    .build();
+            geometries.add(geometry);
+        }
+    }
+
+    private static void buildGeometriesFromTopoGeometries(ExportResult exportResult, BBox bbox, List<Geometry> geometries, List<Arc> arcsLocal) {
+        Map<Long, TopoGeometry> topoGeometries = exportResult.getTopoGeometries();
+        int arcCount = 0;
+        for (long osmId : topoGeometries.keySet()) {
+            TopoGeometry topoGeometry = topoGeometries.get(osmId);
+            Map<Integer, ExportResult.TopoArc> arcs = topoGeometry.getArcs();
+            List<Integer> orsIdList = arcs.keySet().stream().sorted().toList();
+            List<Integer> arcList = new LinkedList<>();
+            List<Integer> nodeList = new LinkedList<>();
+            List<Double> distanceList = new LinkedList<>();
+            for (int orsId : orsIdList) {
+                ExportResult.TopoArc currentArc = arcs.get(orsId);
+                arcsLocal.add(Arc.builder().coordinates(makeCoordinateList(currentArc.geometry(), bbox)).build());
+                arcList.add(arcCount);
+                if (nodeList.isEmpty()) {
+                    nodeList.add(currentArc.from());
+                }
+                nodeList.add(currentArc.to());
+                distanceList.add(currentArc.length());
+                arcCount++;
+            }
+
+            Properties properties = Properties.builder()
+                    .osmId(osmId)
+                    .bothDirections(topoGeometry.isBothDirections())
+                    .speed(topoGeometry.getSpeed())
+                    .speedReverse(topoGeometry.isBothDirections() ? topoGeometry.getSpeedReverse() : null)
+                    .orsIds(orsIdList)
+                    .orsNodes(nodeList)
+                    .distances(distanceList)
+                    .build();
+            Geometry geometry = Geometry.builder()
+                    .type("LineString")
+                    .properties(properties)
+                    .arcs(arcList)
+                    .build();
+            geometries.add(geometry);
+        }
     }
 
     private static List<List<Double>> makeCoordinateList(LineString geometry, BBox bbox) {

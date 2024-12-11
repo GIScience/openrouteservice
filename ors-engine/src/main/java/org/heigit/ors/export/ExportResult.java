@@ -51,6 +51,10 @@ public class ExportResult {
         return edgeExtras != null;
     }
 
+    public boolean hasTopoGeometries() {
+        return !topoGeometries.isEmpty();
+    }
+
     @Getter
     public static class TopoGeometry {
         private final double speed;

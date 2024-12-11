@@ -12,13 +12,8 @@ import java.util.List;
 @Getter
 @Setter
 public class Arc implements Serializable {
-
     private List<List<Double>> coordinates;
-
-    public Arc(List<List<Double>> coordinates) {
-        this.coordinates = coordinates;
-    }
-
+    
     @JsonValue
     public List<List<Double>> getCoordinates() {
         return coordinates;
