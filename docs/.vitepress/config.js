@@ -1,7 +1,8 @@
 import {withMermaid} from "vitepress-plugin-mermaid";
+import defineVersionedConfig from 'vitepress-versioning-plugin'
 
 // https://vitepress.dev/reference/site-config
-export default withMermaid({
+export default withMermaid(defineVersionedConfig({
     mermaid: {
         // refer https://mermaid.js.org/config/setup/modules/mermaidAPI.html#mermaidapi-configuration-defaults for options
     },
@@ -22,6 +23,7 @@ export default withMermaid({
         }
     },
     themeConfig: {
+        versionSwitcher: false,
         // https://vitepress.dev/reference/default-theme-config
         siteTitle: false,
         logo: {
@@ -30,7 +32,15 @@ export default withMermaid({
             alt: 'openrouteservice logo'
         },
         search: {
-            provider: 'local'
+            provider: 'local',
+	      options: {
+		_render(src, env, md) {
+		  const html = md.render(src, env)
+		  if (env.frontmatter?.search === false) return ''
+		  if (env.relativePath.startsWith('versions')) return ''
+		  return html
+		}
+	      }
         },
         outline: {
             level: [2, 4]
@@ -50,16 +60,19 @@ export default withMermaid({
             {text: 'Homepage', link: 'https://openrouteservice.org'},
             {text: 'API Playground', link: 'https://openrouteservice.org/dev/#/api-docs'},
             {text: 'Forum', link: 'https://ask.openrouteservice.org'},
+            {component: 'VersionSwitcher'}
         ],
 	// undocumented options for NotFound-Page
 	notFound: {
-		title: 'MAYBE YOU CLICKED AN OLD LINK?',
+		title: 'PAGE NOT FOUND',
 		quote: 'We recently reworked most of our documentation. You probably ended up here by clicking an old link somewhere, e.g. in the forum. Let us know how you got here and we\'ll fix it. Click the link below and check "Getting Started" - this will help you figure out where to find what you came for.',
-		linkText: 'Documentation Home',
+		quote: 'We recently introduced versioning for our documentation. You probably ended up here by changing the version - and this page doesn\'t exist in this version. Click the link below and check "Getting Started" - you will need to change the version again, though.',
+		linkText: 'Documentation Home - latest Version',
 	},
-        sidebar: [
+        sidebar: {
+	    '/': [
             {
-                text: 'Home', link: '/',
+                text: 'Home - v9.0.0', link: '/',
                 items: [
                     {text: 'Getting Started', link: '/getting-started'},
                     {
@@ -221,5 +234,23 @@ export default withMermaid({
         footer: {
             message: '<a href="https://openrouteservice.org/">openrouteservice</a> is part of <a href="https://heigit.org/">HeiGIT gGmbH</a> and Universität Heidelberg <a href="https://www.geog.uni-heidelberg.de/gis/index_en.html">GIScience</a> research group. | <a href="https://heigit.org/imprint/">Imprint</a>'
         }
+	}
+    },
+
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en'
     }
-})
+  },
+
+    versioning: {
+        latestVersion: "v9.0.0 (latest)",
+        sidebars: {
+            processSidebarURLs: true,
+            sidebarPathResolver: (version) => `.vitepress/sidebars/versioned/${version}.json`,
+            sidebarUrlProcessor: (url, version) => url.startsWith("http") ? url : `/${version}${url}`
+        },
+    },
+
+}, __dirname ))
