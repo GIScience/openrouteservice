@@ -52,7 +52,7 @@ public class IsochronesService extends ApiService {
         List<TravellerInfo> travellers = isochronesRequest.getIsochroneRequest().getTravellers();
 
         // TODO REFACTORING where should we put the validation code?
-        validateAgainstConfig(isochronesRequest.getIsochroneRequest(), travellers);
+        validateAgainstConfig(isochronesRequest.getIsochroneRequest());
 
         if (!travellers.isEmpty()) {
             isochronesRequest.setIsoMaps(new IsochroneMapCollection());
@@ -288,7 +288,8 @@ public class IsochronesService extends ApiService {
         return parameters;
     }
 
-    void validateAgainstConfig(IsochroneRequest isochroneRequest, List<TravellerInfo> travellers) throws StatusCodeException {
+    void validateAgainstConfig(IsochroneRequest isochroneRequest) throws StatusCodeException {
+        List<TravellerInfo> travellers = isochroneRequest.getTravellers();
         if (!isochroneRequest.isAllowComputeArea() && isochroneRequest.hasAttribute("area"))
             throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 
