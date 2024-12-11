@@ -47,18 +47,19 @@ public class IsochronesService extends ApiService {
     }
 
     public void generateIsochronesFromRequest(IsochronesRequest isochronesRequest) throws Exception {
-        isochronesRequest.setIsochroneRequest(convertIsochroneRequest(isochronesRequest));
+        IsochroneRequest isochroneRequest = convertIsochroneRequest(isochronesRequest);
+        isochronesRequest.setIsochroneRequest(isochroneRequest);
         // request object is built, now check if ors config allows all settings
-        List<TravellerInfo> travellers = isochronesRequest.getIsochroneRequest().getTravellers();
+        List<TravellerInfo> travellers = isochroneRequest.getTravellers();
 
         // TODO REFACTORING where should we put the validation code?
-        validateAgainstConfig(isochronesRequest.getIsochroneRequest());
+        validateAgainstConfig(isochroneRequest);
 
         if (!travellers.isEmpty()) {
             isochronesRequest.setIsoMaps(new IsochroneMapCollection());
 
             for (int i = 0; i < travellers.size(); ++i) {
-                IsochroneSearchParameters searchParams = isochronesRequest.getIsochroneRequest().getSearchParameters(i);
+                IsochroneSearchParameters searchParams = isochroneRequest.getSearchParameters(i);
                 IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
                 isochronesRequest.getIsoMaps().add(isochroneMap);
             }
