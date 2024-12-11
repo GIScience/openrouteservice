@@ -1,6 +1,6 @@
 # Einrichtung von ORS v8 mit Tomcat 10 auf Ubuntu 22.04
 
-Dieses Tutorial zeigt dir, wie du openrouteservice mit Java 17, Tomcat 10 und ORS v8 v9 einrichtest.
+Dieses Tutorial zeigt dir, wie du openrouteservice v8 mit Java 17 und Tomcat 10 einrichtest.
 
 ::: info
 Zur [englischen Version](en_tomcat-10-ubuntu_22_04) dieses Tutorials.
