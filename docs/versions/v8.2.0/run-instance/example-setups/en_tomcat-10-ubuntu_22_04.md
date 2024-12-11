@@ -169,7 +169,7 @@ Since we have set up Tomcat 10, we can now set up openrouteservice with Java 17.
 
 ### Download the openrouteservice WAR-File
 
-To set up openrouteservice v8 with Tomcat 10, you first need the respective war-File.
+To set up openrouteservice v8 with Tomcat 10, you first need the respective WAR-File.
 Head over to the [openrouteservice releases page](https://github.com/GIScience/openrouteservice/releases) and download
 the latest release WAR-File.
 
@@ -369,8 +369,8 @@ In case you want to update openrouteservice to a new version, you can follow the
 > sudo systemctl stop openrouteservice.service
 ```
 
-2. Empty the old webapps directory `/opt/tomcat/webapps/` and move the new war-File to the directory.
-3. Download the new [war-File](#download-the-openrouteservice-war-file) for the new version.
+2. Empty the old webapps directory `/opt/tomcat/webapps/` and move the new WAR-File to the directory.
+3. Download the new [WAR-File](#download-the-openrouteservice-war-file) for the new version.
 4. Adapt the [openrouteservice configuration](#configure-openrouteservice) in the `setenv.sh` file.
 5. [Apply the correct permissions](#set-the-necessary-permissions-for-the-tomcat-10-user) to the Tomcat directory
    and restart the Tomcat service.
