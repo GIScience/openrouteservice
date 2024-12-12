@@ -6,19 +6,27 @@ This endpoint is not available in the public API, but you can use it when runnin
 
 The GET request http://localhost:8082/ors/v2/status (host and port are dependent on the setup) returns basic information about the running instance:
 
-* `languages`: available languages
-* `engine`: the build date and version of the openrouteservice.
-  `graph_version` is the version of the graph structure and build logic determining the graph repository address
-  if [graph management](/run-instance/configuration/engine/graph-management.md) is enabled
-* `profiles`: available routing profiles,
-  info about the graph's build (start) date (`graph_build_date`),
-  timestamp of the osm pbf file that was used for building the graph (`osm_date`),
-  storages and configured limits
-* `services`: activated services
+* `languages`: Available languages
+* `engine`:
+    * `version`: Release version of the running openrouteservice
+    * `build_date`: Build date of the running openrouteservice
+    * `graph_version` Version of the graph structure and build logic. This parameter is part of the software and cannot
+      be configured. Graphs with the same `graph_version` are compatible, e.g. openrouteservice version Y can load
+      graphs that were built with an older version X, if both versions have the same `graph_version`. The parameter is
+      also used to find a graph in a graph repository,
+      if [graph management](/run-instance/configuration/engine/graph-management.md) is enabled.
+* `profiles`: Available (enabled) routing profiles.
+  The profile names correspond to the keys in the configuration beneath `ors.engine.profiles`.   
+  The profile names are used as path parameters in API requests and as directory names for the graph directories.
+  Some basic information is shown for each profile:
+    * `encoder_name`: The vehicle type
+    * `osm_date`: Timestamp of the osm pbf file that was used for building the graph. This is usually the date of the
+      latest included change.
+    * `graph_build_date`: The date, when graph building was started for this routing profile.
+    * `storages`: configured storages
+    * `limits`: configured limits
+* `services`: Activated services. The endpoints `status` and `health` are not included here.
 
-[//]: # (TODO: engine git die ORS version aus, nicht die eigentliche engine version, die wir dann auch im graph management verwenden, oder?)
-
- 
 :::details This is an example response: 
 ```json
 {
