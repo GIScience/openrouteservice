@@ -377,24 +377,12 @@ public class RoutingProfile {
         return mGraphHopper;
     }
 
-    public BBox getBounds() {
-        return mGraphHopper.getGraphHopperStorage().getBounds();
-    }
-
     public StorableProperties getGraphProperties() {
         return mGraphHopper.getGraphHopperStorage().getProperties();
     }
 
     public ProfileProperties getProfileConfiguration() {
         return profileProperties;
-    }
-
-    public Integer[] getPreferences() {
-        return mRoutePrefs;
-    }
-
-    public boolean isCHEnabled() {
-        return mGraphHopper != null && mGraphHopper.getCHPreparationHandler().isEnabled();
     }
 
     public void close() {
