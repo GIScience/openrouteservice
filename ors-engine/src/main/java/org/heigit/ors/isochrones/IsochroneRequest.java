@@ -24,6 +24,7 @@ import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ProfileTools;
+import org.heigit.ors.util.TemporaryUtilShelter;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.util.*;
@@ -315,7 +316,7 @@ public class IsochroneRequest extends ServiceRequest {
         IsochroneMap result;
 
         try {
-            RouteSearchContext searchCntx = routingProfile.createSearchContext(parameters.getRouteParameters());
+            RouteSearchContext searchCntx = TemporaryUtilShelter.createSearchContext(parameters.getRouteParameters(), routingProfile);
             IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
             result = isochroneMapBuilderFactory.buildMap(parameters);
         } catch (Exception ex) {
