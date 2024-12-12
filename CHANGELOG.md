@@ -37,6 +37,7 @@ RELEASING:
 ### Added
 
 ### Changed
+- improved dutch translations ([#1913](https://github.com/GIScience/openrouteservice/issues/1913))
 
 ### Deprecated
 
