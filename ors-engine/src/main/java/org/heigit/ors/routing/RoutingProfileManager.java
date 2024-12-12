@@ -24,10 +24,6 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
-import org.heigit.ors.isochrones.IsochroneMap;
-import org.heigit.ors.isochrones.IsochroneMapCollection;
-import org.heigit.ors.isochrones.IsochroneRequest;
-import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
@@ -585,16 +581,5 @@ public class RoutingProfileManager {
         return rp;
     }
 
-
-    public IsochroneMapCollection computeIsochrones(IsochroneRequest isochroneRequest) throws Exception {
-        IsochroneMapCollection isoMaps = new IsochroneMapCollection();
-        for (int i = 0; i < isochroneRequest.getTravellers().size(); ++i) {
-            IsochroneSearchParameters searchParams = isochroneRequest.getSearchParameters(i);
-            RoutingProfile rp = getRoutingProfile(searchParams.getRouteParameters().getProfileName());
-            IsochroneMap isochroneMap = rp.buildIsochrone(searchParams);
-            isoMaps.add(isochroneMap);
-        }
-        return isoMaps;
-    }
 
 }

@@ -56,7 +56,7 @@ public class IsochronesService extends ApiService {
         validateAgainstConfig(isochroneRequest);
 
         if (!travellers.isEmpty()) {
-            IsochroneMapCollection isoMaps = RoutingProfileManager.getInstance().computeIsochrones(isochroneRequest);
+            IsochroneMapCollection isoMaps = isochroneRequest.computeIsochrones(RoutingProfileManager.getInstance());
             // TODO: is this necessary? It seems unusual to transport the response through the request object
             isochronesRequest.setIsoMaps(isoMaps);
         }

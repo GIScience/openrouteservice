@@ -17,6 +17,8 @@ import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.common.TravelRangeType;
 import org.heigit.ors.common.TravellerInfo;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
+import org.heigit.ors.routing.RoutingProfile;
+import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.locationtech.jts.geom.Coordinate;
@@ -281,5 +283,16 @@ public class IsochroneRequest extends ServiceRequest {
 
     public void setStatsProviders(Map<String, StatisticsProviderConfiguration> statsProviders) {
         this.statsProviders = statsProviders;
+    }
+
+    public IsochroneMapCollection computeIsochrones(RoutingProfileManager routingProfileManager) throws Exception {
+        IsochroneMapCollection isoMaps = new IsochroneMapCollection();
+        for (int i = 0; i < getTravellers().size(); ++i) {
+            IsochroneSearchParameters searchParams = getSearchParameters(i);
+            RoutingProfile rp = routingProfileManager.getRoutingProfile(searchParams.getRouteParameters().getProfileName());
+            IsochroneMap isochroneMap = rp.buildIsochrone(searchParams);
+            isoMaps.add(isochroneMap);
+        }
+        return isoMaps;
     }
 }
