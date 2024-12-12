@@ -6,20 +6,35 @@ This endpoint is not available in the public API, but you can use it when runnin
 
 The GET request http://localhost:8082/ors/v2/status (host and port are dependent on the setup) returns basic information about the running instance:
 
-* `languages`: available languages
-* `engine`: the build date and version of the openrouteservice
-* `profiles`: available routing profiles, info about storages and configured limits
-* `services`: activated services
+* `languages`: Available languages
+* `engine`:
+    * `version`: Release version of the running openrouteservice
+    * `build_date`: Build date of the running openrouteservice
+    * `graph_version` Version of the graph structure and build logic. This parameter is part of the software and cannot
+      be configured. Graphs with the same `graph_version` are compatible, e.g. openrouteservice version Y can load
+      graphs that were built with an older version X, if both versions have the same `graph_version`. The parameter is
+      also used to find a graph in a graph repository,
+      if [graph management](/run-instance/configuration/engine/graph-management.md) is enabled.
+* `profiles`: Available (enabled) routing profiles.
+  The profile names correspond to the keys in the configuration beneath `ors.engine.profiles`.   
+  The profile names are used as path parameters in API requests and as directory names for the graph directories.
+  Some basic information is shown for each profile:
+    * `encoder_name`: The vehicle type
+    * `osm_date`: Timestamp of the osm pbf file that was used for building the graph. This is usually the date of the
+      latest included change.
+    * `graph_build_date`: The date, when graph building was started for this routing profile.
+    * `storages`: configured storages
+    * `limits`: configured limits
+* `services`: Activated services. The endpoints `status` and `health` are not included here.
 
-[//]: # (TODO: engine git die ORS version aus, nicht die eigentliche engine version, die wir dann auch im graph management verwenden, oder?)
-
- 
 :::details This is an example response: 
 ```json
 {
     "languages": [
         "cs",
         "cs-cz",
+        "da",
+        "da-dk",
         "de",
         "de-de",
         "en",
@@ -28,6 +43,8 @@ The GET request http://localhost:8082/ors/v2/status (host and port are dependent
         "eo-eo",
         "es",
         "es-es",
+        "fi",
+        "fi-fi",
         "fr",
         "fr-fr",
         "gr",
@@ -42,6 +59,8 @@ The GET request http://localhost:8082/ors/v2/status (host and port are dependent
         "it-it",
         "ja",
         "ja-jp",
+        "nb",
+        "nb-no",
         "ne",
         "ne-np",
         "nl",
@@ -56,32 +75,50 @@ The GET request http://localhost:8082/ors/v2/status (host and port are dependent
         "ru-ru",
         "tr",
         "tr-tr",
+        "ua",
+        "ua-ua",
+        "vi",
+        "vi-vn",
         "zh",
         "zh-cn"
     ],
     "engine": {
-        "build_date": "2023-12-15T14:31:27Z",
-        "version": "8.0"
+        "build_date": "2024-12-11T12:44:36Z",
+        "graph_version": "1",
+        "version": "9.1.0"
     },
     "profiles": {
-        "profile 1": {
+        "car": {
             "storages": {
                 "WayCategory": {
-                    "gh_profile": "car_ors_fastest_with_turn_costs"
+                    "enabled": true
                 },
                 "HeavyVehicle": {
-                    "gh_profile": "car_ors_fastest_with_turn_costs"
+                    "restrictions": true,
+                    "enabled": true
                 },
                 "WaySurfaceType": {
-                    "gh_profile": "car_ors_fastest_with_turn_costs"
+                    "enabled": true
                 },
                 "RoadAccessRestrictions": {
-                    "gh_profile": "car_ors_fastest_with_turn_costs",
-                    "use_for_warnings": "true"
+                    "useForWarnings": true,
+                    "enabled": true
                 }
             },
-            "profiles": "driving-car",
-            "creation_date": "",
+            "encoder_name": "driving-car",
+            "graph_build_date": "2024-10-28T14:42:49Z",
+            "osm_date": "2023-10-11T20:21:48Z",
+            "limits": {
+                "maximum_distance": 100000,
+                "maximum_waypoints": 50,
+                "maximum_distance_dynamic_weights": 100000,
+                "maximum_distance_avoid_areas": 100000
+            }
+        },
+        "pedestrian": {
+            "encoder_name": "foot-walking",
+            "graph_build_date": "2024-10-11T11:08:44Z",
+            "osm_date": "2024-01-22T21:21:14Z",
             "limits": {
                 "maximum_distance": 100000,
                 "maximum_waypoints": 50,
