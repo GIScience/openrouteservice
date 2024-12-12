@@ -56,15 +56,20 @@ public class IsochronesService extends ApiService {
         validateAgainstConfig(isochroneRequest);
 
         if (!travellers.isEmpty()) {
-            IsochroneMapCollection isoMaps = new IsochroneMapCollection();
-            for (int i = 0; i < travellers.size(); ++i) {
-                IsochroneSearchParameters searchParams = isochroneRequest.getSearchParameters(i);
-                IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
-                isoMaps.add(isochroneMap);
-            }
+            IsochroneMapCollection isoMaps = computeIsochrones(isochroneRequest);
             // TODO: is this necessary? It seems unusual to transport the response through the request object
             isochronesRequest.setIsoMaps(isoMaps);
         }
+    }
+
+    private static IsochroneMapCollection computeIsochrones(IsochroneRequest isochroneRequest) throws Exception {
+        IsochroneMapCollection isoMaps = new IsochroneMapCollection();
+        for (int i = 0; i < isochroneRequest.getTravellers().size(); ++i) {
+            IsochroneSearchParameters searchParams = isochroneRequest.getSearchParameters(i);
+            IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
+            isoMaps.add(isochroneMap);
+        }
+        return isoMaps;
     }
 
     Float convertSmoothing(Double smoothingValue) throws ParameterValueException {
