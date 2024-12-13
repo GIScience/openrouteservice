@@ -34,20 +34,12 @@ import org.heigit.ors.config.profile.BuildProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
 import org.heigit.ors.config.profile.PreparationProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.isochrones.*;
-import org.heigit.ors.isochrones.statistics.StatisticsProvider;
-import org.heigit.ors.isochrones.statistics.StatisticsProviderConfiguration;
-import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.graphhopper.extensions.*;
-import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
-import org.heigit.ors.routing.parameters.ProfileParameters;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
-import org.heigit.ors.util.DebugUtility;
 import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
@@ -385,24 +377,12 @@ public class RoutingProfile {
         return mGraphHopper;
     }
 
-    public BBox getBounds() {
-        return mGraphHopper.getGraphHopperStorage().getBounds();
-    }
-
     public StorableProperties getGraphProperties() {
         return mGraphHopper.getGraphHopperStorage().getProperties();
     }
 
     public ProfileProperties getProfileConfiguration() {
         return profileProperties;
-    }
-
-    public Integer[] getPreferences() {
-        return mRoutePrefs;
-    }
-
-    public boolean isCHEnabled() {
-        return mGraphHopper != null && mGraphHopper.getCHPreparationHandler().isEnabled();
     }
 
     public void close() {
@@ -415,85 +395,6 @@ public class RoutingProfile {
 
     public Double getAstarEpsilon() {
         return astarEpsilon;
-    }
-
-    public RouteSearchContext createSearchContext(RouteSearchParameters searchParams) throws InternalServerException {
-        PMap props = new PMap();
-
-        int profileType = searchParams.getProfileType();
-        String encoderName = RoutingProfileType.getEncoderName(profileType);
-
-        if (FlagEncoderNames.UNKNOWN.equals(encoderName))
-            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "unknown vehicle profile.");
-
-        if (!mGraphHopper.getEncodingManager().hasEncoder(encoderName)) {
-            throw new IllegalArgumentException("Vehicle " + encoderName + " unsupported. " + "Supported are: "
-                    + mGraphHopper.getEncodingManager());
-        }
-
-        FlagEncoder flagEncoder = mGraphHopper.getEncodingManager().getEncoder(encoderName);
-        ProfileParameters profileParams = searchParams.getProfileParameters();
-
-        // PARAMETERS FOR PathProcessorFactory
-
-        props.putObject("routing_extra_info", searchParams.getExtraInfo());
-        props.putObject("routing_suppress_warnings", searchParams.getSuppressWarnings());
-
-        props.putObject("routing_profile_type", profileType);
-        props.putObject("routing_profile_params", profileParams);
-
-        /*
-         * PARAMETERS FOR EdgeFilterFactory
-         * ======================================================================================================
-         */
-
-        /* Avoid areas */
-        if (searchParams.hasAvoidAreas()) {
-            props.putObject("avoid_areas", searchParams.getAvoidAreas());
-        }
-
-        /* Heavy vehicle filter */
-        if (profileType == RoutingProfileType.DRIVING_HGV) {
-            props.putObject("edgefilter_hgv", searchParams.getVehicleType());
-        }
-
-        /* Wheelchair filter */
-        else if (profileType == RoutingProfileType.WHEELCHAIR) {
-            props.putObject("edgefilter_wheelchair", "true");
-        }
-
-        /* Avoid features */
-        if (searchParams.hasAvoidFeatures()) {
-            props.putObject("avoid_features", searchParams);
-        }
-
-        /* Avoid borders of some form */
-        if ((searchParams.hasAvoidBorders() || searchParams.hasAvoidCountries())
-                && (RoutingProfileType.isDriving(profileType) || RoutingProfileType.isCycling(profileType))) {
-            props.putObject("avoid_borders", searchParams);
-            if (searchParams.hasAvoidCountries())
-                props.putObject("avoid_countries", Arrays.toString(searchParams.getAvoidCountries()));
-        }
-
-        if (profileParams != null && profileParams.hasWeightings()) {
-            props.putObject(ProfileTools.KEY_CUSTOM_WEIGHTINGS, true);
-            Iterator<ProfileWeighting> iterator = profileParams.getWeightings().getIterator();
-            while (iterator.hasNext()) {
-                ProfileWeighting weighting = iterator.next();
-                if (!weighting.getParameters().isEmpty()) {
-                    String name = ProfileWeighting.encodeName(weighting.getName());
-                    for (Map.Entry<String, Object> kv : weighting.getParameters().toMap().entrySet())
-                        props.putObject(name + kv.getKey(), kv.getValue());
-                }
-            }
-        }
-
-        String localProfileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), Boolean.TRUE.equals(profileProperties.getBuild().getEncoderOptions().getTurnCosts()));
-        String profileNameCH = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
-        RouteSearchContext searchCntx = new RouteSearchContext(mGraphHopper, flagEncoder, localProfileName, profileNameCH);
-        searchCntx.setProperties(props);
-
-        return searchCntx;
     }
 
     /**
@@ -543,77 +444,6 @@ public class RoutingProfile {
 
         return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
                 || mGraphHopper.isTrafficEnabled();
-    }
-
-    /**
-     * This function creates the actual {@link IsochroneMap}.
-     * So the first step in the function is a checkup on that.
-     *
-     * @param parameters The input are {@link IsochroneSearchParameters}
-     * @return The return will be an {@link IsochroneMap}
-     * @throws Exception
-     */
-    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
-        IsochroneMap result;
-
-        try {
-            RouteSearchContext searchCntx = createSearchContext(parameters.getRouteParameters());
-            IsochroneMapBuilderFactory isochroneMapBuilderFactory = new IsochroneMapBuilderFactory(searchCntx);
-            result = isochroneMapBuilderFactory.buildMap(parameters);
-        } catch (Exception ex) {
-            if (DebugUtility.isDebug()) {
-                LOGGER.error(ex);
-            }
-            throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to build an isochrone map.");
-        }
-
-        if (result.getIsochronesCount() > 0) {
-            if (parameters.hasAttribute(ProfileTools.KEY_TOTAL_POP)) {
-                try {
-                    Map<StatisticsProviderConfiguration, List<String>> mapProviderToAttrs = new HashMap<>();
-                    StatisticsProviderConfiguration provConfig = parameters.getStatsProviders().get(ProfileTools.KEY_TOTAL_POP);
-                    if (provConfig != null) {
-                        List<String> attrList = new ArrayList<>();
-                        attrList.add(ProfileTools.KEY_TOTAL_POP);
-                        mapProviderToAttrs.put(provConfig, attrList);
-                    }
-                    for (Map.Entry<StatisticsProviderConfiguration, List<String>> entry : mapProviderToAttrs.entrySet()) {
-                        provConfig = entry.getKey();
-                        StatisticsProvider provider = StatisticsProviderFactory.getProvider(provConfig.getName(), provConfig.getParameters());
-                        String[] provAttrs = provConfig.getMappedProperties(entry.getValue());
-
-                        for (Isochrone isochrone : result.getIsochrones()) {
-
-                            double[] attrValues = provider.getStatistics(isochrone, provAttrs);
-                            isochrone.setAttributes(entry.getValue(), attrValues, provConfig.getAttribution());
-
-                        }
-                    }
-                } catch (Exception ex) {
-                    LOGGER.error(ex);
-
-                    throw new InternalServerException(IsochronesErrorCodes.UNKNOWN, "Unable to compute isochrone total_pop attribute.");
-                }
-            }
-            if (parameters.hasAttribute("reachfactor") || parameters.hasAttribute("area")) {
-                for (Isochrone isochrone : result.getIsochrones()) {
-                    String units = parameters.getUnits();
-                    String areaUnits = parameters.getAreaUnits();
-                    if (areaUnits != null) units = areaUnits;
-                    double area = isochrone.calcArea(units);
-                    if (parameters.hasAttribute("area")) {
-                        isochrone.setArea(area);
-                    }
-                    if (parameters.hasAttribute("reachfactor")) {
-                        double reachfactor = isochrone.calcReachfactor(units);
-                        // reach factor could be > 1, which would confuse people
-                        reachfactor = (reachfactor > 1) ? 1 : reachfactor;
-                        isochrone.setReachfactor(reachfactor);
-                    }
-                }
-            }
-        }
-        return result;
     }
 
     public boolean equals(Object o) {

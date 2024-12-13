@@ -37,6 +37,7 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSEdgeFilterFactory;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
 import org.heigit.ors.util.ProfileTools;
+import org.heigit.ors.util.TemporaryUtilShelter;
 import org.locationtech.jts.geom.Coordinate;
 
 public class MatrixRequest extends ServiceRequest {
@@ -282,7 +283,7 @@ public class MatrixRequest extends ServiceRequest {
     private MatrixResult computeCoreMatrix(GraphHopper gh, FlagEncoder flagEncoder, PMap hintsMap, String profileName, RoutingProfile routingProfile) throws Exception {
         Weighting weighting = new ORSWeightingFactory(gh.getGraphHopperStorage(), gh.getEncodingManager()).createWeighting(gh.getProfile(profileName), hintsMap, false);
         RoutingCHGraph graph = ((ORSGraphHopperStorage) gh.getGraphHopperStorage()).getCoreGraph(profileName);
-        RouteSearchContext searchCntx = routingProfile.createSearchContext(getSearchParameters());
+        RouteSearchContext searchCntx = TemporaryUtilShelter.createSearchContext(getSearchParameters(), routingProfile);
         PMap additionalHints = searchCntx.getProperties();
         EdgeFilter edgeFilter = new ORSEdgeFilterFactory().createEdgeFilter(additionalHints, flagEncoder, gh.getGraphHopperStorage());
 

@@ -24,8 +24,6 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
-import org.heigit.ors.isochrones.IsochroneMap;
-import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
@@ -583,16 +581,5 @@ public class RoutingProfileManager {
         return rp;
     }
 
-    /**
-     * This function sends the {@link IsochroneSearchParameters} together with the Attributes to the {@link RoutingProfile}.
-     *
-     * @param parameters The input is a {@link IsochroneSearchParameters}
-     * @return Return is a {@link IsochroneMap} holding the calculated data plus statistical data if the attributes where set.
-     * @throws Exception
-     */
-    public IsochroneMap buildIsochrone(IsochroneSearchParameters parameters) throws Exception {
-        RoutingProfile rp = getRoutingProfile(parameters.getRouteParameters().getProfileName());
-        return rp.buildIsochrone(parameters);
-    }
 
 }

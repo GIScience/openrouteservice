@@ -47,22 +47,18 @@ public class IsochronesService extends ApiService {
     }
 
     public void generateIsochronesFromRequest(IsochronesRequest isochronesRequest) throws Exception {
-        isochronesRequest.setIsochroneRequest(convertIsochroneRequest(isochronesRequest));
+        IsochroneRequest isochroneRequest = convertIsochroneRequest(isochronesRequest);
+        isochronesRequest.setIsochroneRequest(isochroneRequest);
         // request object is built, now check if ors config allows all settings
-        List<TravellerInfo> travellers = isochronesRequest.getIsochroneRequest().getTravellers();
+        List<TravellerInfo> travellers = isochroneRequest.getTravellers();
 
         // TODO REFACTORING where should we put the validation code?
-        validateAgainstConfig(isochronesRequest.getIsochroneRequest(), travellers);
+        validateAgainstConfig(isochroneRequest);
 
         if (!travellers.isEmpty()) {
-            isochronesRequest.setIsoMaps(new IsochroneMapCollection());
-
-            for (int i = 0; i < travellers.size(); ++i) {
-                IsochroneSearchParameters searchParams = isochronesRequest.getIsochroneRequest().getSearchParameters(i);
-                IsochroneMap isochroneMap = RoutingProfileManager.getInstance().buildIsochrone(searchParams);
-                isochronesRequest.getIsoMaps().add(isochroneMap);
-            }
-
+            IsochroneMapCollection isoMaps = isochroneRequest.computeIsochrones(RoutingProfileManager.getInstance());
+            // TODO: is this necessary? It seems unusual to transport the response through the request object
+            isochronesRequest.setIsoMaps(isoMaps);
         }
     }
 
@@ -288,7 +284,8 @@ public class IsochronesService extends ApiService {
         return parameters;
     }
 
-    void validateAgainstConfig(IsochroneRequest isochroneRequest, List<TravellerInfo> travellers) throws StatusCodeException {
+    void validateAgainstConfig(IsochroneRequest isochroneRequest) throws StatusCodeException {
+        List<TravellerInfo> travellers = isochroneRequest.getTravellers();
         if (!isochroneRequest.isAllowComputeArea() && isochroneRequest.hasAttribute("area"))
             throw new StatusCodeException(StatusCode.BAD_REQUEST, IsochronesErrorCodes.FEATURE_NOT_SUPPORTED, "Area computation is not enabled.");
 

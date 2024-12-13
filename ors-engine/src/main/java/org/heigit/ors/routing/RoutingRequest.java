@@ -361,7 +361,7 @@ public class RoutingRequest extends ServiceRequest {
                 return res;
             }
             int weightingMethod = searchParams.getWeightingMethod();
-            RouteSearchContext searchCntx = routingProfile.createSearchContext(searchParams);
+            RouteSearchContext searchCntx = TemporaryUtilShelter.createSearchContext(searchParams, routingProfile);
 
             int flexibleMode = searchParams.hasFlexibleMode() || Boolean.TRUE.equals(routingProfile.getProfileConfiguration().getService().getForceTurnCosts()) ? ProfileTools.KEY_FLEX_PREPROCESSED : ProfileTools.KEY_FLEX_STATIC;
             boolean optimized = searchParams.getOptimized();
@@ -473,7 +473,7 @@ public class RoutingRequest extends ServiceRequest {
         try {
             int profileType = searchParams.getProfileType();
             int weightingMethod = searchParams.getWeightingMethod();
-            RouteSearchContext searchCntx = routingProfile.createSearchContext(searchParams);
+            RouteSearchContext searchCntx = TemporaryUtilShelter.createSearchContext(searchParams, routingProfile);
 
             List<GHPoint> points = new ArrayList<>();
             points.add(new GHPoint(lat0, lon0));
