@@ -1,0 +1,31 @@
+package org.heigit.ors.api.responses.export.topojson;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.io.Serializable;
+import java.util.List;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Getter
+@Builder
+public class Properties implements Serializable {
+    @JsonProperty("weight")
+    private Double weight;
+    @JsonProperty("osm_id")
+    private Long osmId;
+    @JsonProperty("both_directions")
+    private Boolean bothDirections;
+    @JsonProperty("speed")
+    private Double speed;
+    @JsonProperty("speed_reverse")
+    private Double speedReverse;
+    @JsonProperty("ors_ids")
+    private List<Integer> orsIds;
+    @JsonProperty("ors_nodes")
+    private List<Integer> orsNodes;
+    @JsonProperty("distances")
+    private List<Double> distances;
+}

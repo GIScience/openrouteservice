@@ -2304,7 +2304,7 @@ class ResultTest extends ServiceTest {
     void testWheelchairDebugExport() {
         JSONObject body = new JSONObject();
         body.put("bbox", HelperFunctions.constructCoords("8.662440776824953, 49.41372343556617|8.677289485931398, 49.42018658125273"));
-        body.put("debug", true);
+        body.put("additional_info", true);
         given()
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
@@ -2315,7 +2315,6 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .statusCode(200);
-
     }
 
     @Test

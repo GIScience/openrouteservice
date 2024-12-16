@@ -46,7 +46,7 @@ public class JsonExportResponse extends ExportResponse {
         nodesCount = nodes.stream().count();
 
         edges = new ArrayList<>();
-        for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : exportResult.getEdgeWeigths().entrySet()) {
+        for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : exportResult.getEdgeWeights().entrySet()) {
             edges.add(new JsonEdge(edgeWeight));
         }
         edgesCount = edges.stream().count();

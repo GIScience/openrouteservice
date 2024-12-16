@@ -2,6 +2,7 @@ package org.heigit.ors.api.services;
 
 import com.google.common.primitives.Doubles;
 import com.graphhopper.util.shapes.BBox;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.config.ApiEngineProperties;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.export.ExportApiRequest;
@@ -58,7 +59,9 @@ public class ExportService extends ApiService {
         }
 
         exportRequest.setBoundingBox(convertBBox(exportApiRequest.getBbox()));
-        exportRequest.setDebug(exportApiRequest.debug());
+        exportRequest.setAdditionalEdgeInfo(exportApiRequest.additionalInfo());
+        exportRequest.setTopoJson(exportApiRequest.getResponseType().equals(APIEnums.ExportResponseType.TOPOJSON));
+        exportRequest.setUseRealGeometry(exportApiRequest.getGeometry());
 
         return exportRequest;
     }
