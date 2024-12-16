@@ -8,13 +8,15 @@ You can easily create requests with the [swagger-ui](/api-reference/index.md#swa
 
 Export the base graph for different modes of transport.
 
-In the request, the desired routing profile is specified as the last path parameter, 
-a bounding box for the area of interest has to be defined in the request body.
+In the request, the desired routing profile is specified as the penultimate path parameter.
+The result can be either obtained as a JSON of nodes and edges,
+or as a [topojson](https://github.com/topojson/topojson-specification/tree/master) of edges.
+A bounding box for the area of interest has to be defined in the request body.
 
 This is an example requests for a base graph for the profile `driving-car`:
 ```shell
 curl -X 'POST' \
-  'http://localhost:8082/ors/v2/export/driving-car' \
+  'http://localhost:8082/ors/v2/export/driving-car/json' \
   -H 'accept: application/geo+json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -32,9 +34,21 @@ curl -X 'POST' \
 }'
 ```
 
-The response contains nodes and edges in the bounding box relevant for this routing profile.
-The edge entry `weight` contains the fastest car duration in seconds:
+The json response contains nodes and edges in the bounding box relevant for this routing profile.
+The edge entry `weight` contains the fastest car duration in seconds.
 
+The topojson response contains edges in the bounding box with the geometry of the underlying road network geometry.
+These are saved as arcs, and collected as LineString geometries with common properties:
+- `osm_id` references the OpenStreetMap id of the underlying road geometry.
+- `both_directions` is a bool specifying if the edge can be traversed in both directions.
+- `speed` contains the speed the edge can be traversed at travelling in direction of the edge definition.
+- `speed_reverse` contains the speed the edge can be reversed at travelling in the opposite direction.
+- `ors_ids` is a list of the ors edge ids.
+- `ors_nodes` is a list of the touched ors node ids.
+- `distances` contains a list of distances for each edge.
+
+
+The json response for the above request looks like this:
 ```json
 {
   "nodes": [
