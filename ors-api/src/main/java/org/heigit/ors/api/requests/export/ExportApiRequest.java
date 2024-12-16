@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
+import org.heigit.ors.api.APIEnums;
 
 import java.util.List;
 
@@ -17,8 +17,8 @@ public class ExportApiRequest extends APIRequest {
     public static final String PARAM_BBOX = "bbox";
     public static final String PARAM_PROFILE = "profile";
     public static final String PARAM_FORMAT = "format";
-    public static final String PARAM_GEOMETRY = "geometry";
-    public static final String PARAM_ADDITIONAL_INFO = "additional_info";
+
+    public static final String PARAM_DEBUG = "debug";
 
     @Schema(name = PARAM_ID, description = "Arbitrary identification string of the request reflected in the meta information.",
             example = "export_request")
@@ -40,13 +40,9 @@ public class ExportApiRequest extends APIRequest {
     @JsonProperty(PARAM_FORMAT)
     private APIEnums.ExportResponseType responseType = APIEnums.ExportResponseType.JSON;
 
-    @Schema(name = PARAM_GEOMETRY, description = "Whether to return the exact geometry of the graph or a simplified (beeline) representation.", example = "true", defaultValue = "true")
-    @JsonProperty(PARAM_GEOMETRY)
-    private boolean geometry = true;
-
-    @Schema(name = PARAM_ADDITIONAL_INFO, hidden = true)
-    @JsonProperty(PARAM_ADDITIONAL_INFO)
-    private boolean additionalInfo;
+    @Schema(name = PARAM_DEBUG, hidden = true)
+    @JsonProperty(PARAM_DEBUG)
+    private boolean debug;
 
     @JsonCreator
     public ExportApiRequest(@JsonProperty(value = PARAM_BBOX, required = true) List<List<Double>> bbox) {
@@ -66,8 +62,8 @@ public class ExportApiRequest extends APIRequest {
         this.hasId = true;
     }
 
-    public boolean additionalInfo() {
-        return additionalInfo;
+    public boolean debug() {
+        return debug;
     }
 
     public List<List<Double>> getBbox() {
@@ -90,11 +86,4 @@ public class ExportApiRequest extends APIRequest {
         this.responseType = responseType;
     }
 
-    public APIEnums.ExportResponseType getResponseType() {
-        return responseType;
-    }
-
-    public boolean getGeometry() {
-        return geometry;
-    }
 }

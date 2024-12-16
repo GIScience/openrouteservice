@@ -75,7 +75,6 @@ ors:
               restrictions: true
             WaySurfaceType:
             Tollways:
-            OsmId:
             Borders:
               boundaries: ./src/test/files/borders/borders.geojson
               ids: ./src/test/files/borders/ids.csv

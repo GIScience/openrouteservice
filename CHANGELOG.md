@@ -35,7 +35,6 @@ RELEASING:
 ## [unreleased]
 
 ### Added
-- TopoJSON graph export ([#1926](https://github.com/GIScience/openrouteservice/pull/1926))
 
 ### Changed
 

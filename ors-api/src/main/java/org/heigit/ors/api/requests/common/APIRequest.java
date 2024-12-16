@@ -8,7 +8,6 @@ import org.heigit.ors.api.APIEnums;
 public class APIRequest {
     public static final String PARAM_ID = "id";
     public static final String PARAM_PROFILE = "profile";
-    public static final String PARAM_PROFILE_NAME = "profile_name";
 
     @Schema(name = PARAM_ID, description = "Arbitrary identification string of the request reflected in the meta information.",
             example = "my_request")
@@ -20,7 +19,7 @@ public class APIRequest {
     @Schema(name = PARAM_PROFILE, hidden = true)
     protected APIEnums.Profile profile;
 
-    @Schema(name = PARAM_PROFILE_NAME, hidden = true)
+
     protected String profileName;
 
     public boolean hasId() {
