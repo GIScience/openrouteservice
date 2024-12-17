@@ -10,14 +10,229 @@ Export the base graph for different modes of transport.
 
 In the request, the desired routing profile is specified as the penultimate path parameter.
 The result can be either obtained as a JSON of nodes and edges,
-or as a [topojson](https://github.com/topojson/topojson-specification/tree/master) of edges.
+or as a [TopoJSON](https://github.com/topojson/topojson-specification/tree/master) of edges.
 A bounding box for the area of interest has to be defined in the request body.
 
-This is an example requests for a base graph for the profile `driving-car`:
+## JSON Response
+
+This is an example request for a base graph for the profile `driving-car`:
 ```shell
 curl -X 'POST' \
   'http://localhost:8082/ors/v2/export/driving-car/json' \
-  -H 'accept: application/geo+json' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "bbox": [
+    [
+      8.681495,
+      49.41461
+    ],
+    [ 
+      8.686507,
+      49.41943
+    ]
+  ],
+  "id": "export_request"
+}'
+```
+
+The json response contains nodes and edges in the bounding box relevant for this routing profile.
+The edge entry `weight` contains the fastest car duration in seconds.
+
+The json response for the above request looks like this:
+```json
+{
+    "nodes": [
+        {
+            "nodeId": 1168,
+            "location": [
+                8.686742,
+                49.427883
+            ]
+        },
+        {
+            "nodeId": 1169,
+            "location": [
+                8.687107,
+                49.427982
+            ]
+        },
+        {
+            "nodeId": 1378,
+            "location": [
+                8.685439,
+                49.427668
+            ]
+        },
+        {
+            "nodeId": 1381,
+            "location": [
+                8.687425,
+                49.428074
+            ]
+        },
+        {
+            "nodeId": 2134,
+            "location": [
+                8.685844,
+                49.427873
+            ]
+        },
+        {
+            "nodeId": 2135,
+            "location": [
+                8.686699,
+                49.427997
+            ]
+        },
+        {
+            "nodeId": 1162,
+            "location": [
+                8.68758,
+                49.428213
+            ]
+        },
+        {
+            "nodeId": 1165,
+            "location": [
+                8.685955,
+                49.428631
+            ]
+        },
+        {
+            "nodeId": 1166,
+            "location": [
+                8.685896,
+                49.42772
+            ]
+        },
+        {
+            "nodeId": 1167,
+            "location": [
+                8.686352,
+                49.427783
+            ]
+        }
+    ],
+    "edges": [
+        {
+            "fromId": 1168,
+            "toId": 1169,
+            "weight": "6.872"
+        },
+        {
+            "fromId": 1169,
+            "toId": 1168,
+            "weight": "6.872"
+        },
+        {
+            "fromId": 2134,
+            "toId": 2135,
+            "weight": "15.234"
+        },
+        {
+            "fromId": 2135,
+            "toId": 2134,
+            "weight": "15.234"
+        },
+        {
+            "fromId": 1166,
+            "toId": 1167,
+            "weight": "8.1"
+        },
+        {
+            "fromId": 1167,
+            "toId": 1166,
+            "weight": "8.1"
+        },
+        {
+            "fromId": 1168,
+            "toId": 2135,
+            "weight": "3.15"
+        },
+        {
+            "fromId": 2135,
+            "toId": 1168,
+            "weight": "3.15"
+        },
+        {
+            "fromId": 1378,
+            "toId": 1166,
+            "weight": "8.07"
+        },
+        {
+            "fromId": 1166,
+            "toId": 1378,
+            "weight": "8.07"
+        },
+        {
+            "fromId": 1381,
+            "toId": 1162,
+            "weight": "4.759"
+        },
+        {
+            "fromId": 1162,
+            "toId": 1381,
+            "weight": "4.759"
+        },
+        {
+            "fromId": 1169,
+            "toId": 1381,
+            "weight": "6.042"
+        },
+        {
+            "fromId": 1381,
+            "toId": 1169,
+            "weight": "6.042"
+        },
+        {
+            "fromId": 2134,
+            "toId": 1166,
+            "weight": "4.191"
+        },
+        {
+            "fromId": 1166,
+            "toId": 2134,
+            "weight": "4.191"
+        },
+        {
+            "fromId": 2135,
+            "toId": 1165,
+            "weight": "23.852"
+        },
+        {
+            "fromId": 1165,
+            "toId": 2134,
+            "weight": "22.137"
+        },
+        {
+            "fromId": 1168,
+            "toId": 1167,
+            "weight": "7.259"
+        },
+        {
+            "fromId": 1167,
+            "toId": 1168,
+            "weight": "7.259"
+        }
+    ],
+    "nodes_count": 10,
+    "edges_count": 20
+}
+```
+
+## TopoJSON Response
+
+The [TopoJSON](https://github.com/topojson/topojson-specification/tree/master) response contains edges in the bounding box with the geometry of the underlying road network geometry. When requesting a TopoJSON, you can pass an additional optional parameter `geometry` accepting a boolean value (default is `true`) that controls if the actual geometry of the edges is returned or a beeline representation omitting all in between nodes. The TopoJSON format can be directly loaded and visualized with various tools including [QGIS](https://qgis.org) or [geojson.io](http://geojson.io).
+
+![Development server usage](/public/topojson_qgis.png "Export result in QGIS"){ style="display: block; margin: 0 auto"}
+
+This is an example request for a TopoJSON graph for the profile `driving-car`:
+
+```shell
+curl -X 'POST' \
+  'http://localhost:8082/ors/v2/export/driving-car/topojson' \
+  -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "bbox": [
@@ -31,443 +246,856 @@ curl -X 'POST' \
     ]
   ],
   "id": "export_request"
+  "geometry": "true"
 }'
 ```
 
-The json response contains nodes and edges in the bounding box relevant for this routing profile.
-The edge entry `weight` contains the fastest car duration in seconds.
+In the TopoJSON response (example listed below), each arc corresponds to an edge of the routing graph. If the openrouteservice profile that was queried has stored the OSM IDs of the original map data, each object in the `GeometryCollection` represents the set of edges that share the same OSM ID and therefore the same properties: 
 
-The topojson response contains edges in the bounding box with the geometry of the underlying road network geometry.
-These are saved as arcs, and collected as LineString geometries with common properties:
 - `osm_id` references the OpenStreetMap id of the underlying road geometry.
-- `both_directions` is a bool specifying if the edge can be traversed in both directions.
+- `both_directions` is a boolean specifying if the edge can be traversed in both directions.
 - `speed` contains the speed the edge can be traversed at travelling in direction of the edge definition.
 - `speed_reverse` contains the speed the edge can be reversed at travelling in the opposite direction.
 - `ors_ids` is a list of the ors edge ids.
 - `ors_nodes` is a list of the touched ors node ids.
 - `distances` contains a list of distances for each edge.
 
+To fully utilise this feature, you need to run your own instance of openrouteservice and configure the profile so that the `OsmId` [external storage feature](/run-instance/configuration/engine/profiles/build#ext-storages) is enabled.
 
-The json response for the above request looks like this:
 ```json
 {
-  "nodes": [
-    {
-      "nodeId": 11008,
-      "location": [
-        8.682782,
-        49.417388
-      ]
-    },
-    {
-      "nodeId": 11009,
-      "location": [
-        8.682461,
-        49.417389
-      ]
-    },
-    {
-      "nodeId": 11010,
-      "location": [
-        8.681794,
-        49.417637
-      ]
-    },
-    {
-      "nodeId": 1987,
-      "location": [
-        8.681674,
-        49.416601
-      ]
-    },
-    {
-      "nodeId": 1988,
-      "location": [
-        8.681532,
-        49.418291
-      ]
-    },
-    {
-      "nodeId": 1669,
-      "location": [
-        8.685746,
-        49.415712
-      ]
-    },
-    {
-      "nodeId": 1221,
-      "location": [
-        8.685382,
-        49.417368
-      ]
-    },
-    {
-      "nodeId": 15494,
-      "location": [
-        8.683159,
-        49.419081
-      ]
-    },
-    {
-      "nodeId": 1672,
-      "location": [
-        8.686424,
-        49.417375
-      ]
-    },
-    {
-      "nodeId": 3788,
-      "location": [
-        8.683666,
-        49.414963
-      ]
-    },
-    {
-      "nodeId": 3789,
-      "location": [
-        8.685888,
-        49.415001
-      ]
-    },
-    {
-      "nodeId": 3790,
-      "location": [
-        8.684803,
-        49.414908
-      ]
-    },
-    {
-      "nodeId": 16273,
-      "location": [
-        8.681976,
-        49.418537
-      ]
-    },
-    {
-      "nodeId": 16275,
-      "location": [
-        8.682777,
-        49.417663
-      ]
-    },
-    {
-      "nodeId": 16276,
-      "location": [
-        8.682465,
-        49.417623
-      ]
-    },
-    {
-      "nodeId": 16277,
-      "location": [
-        8.682592,
-        49.417719
-      ]
-    },
-    {
-      "nodeId": 2072,
-      "location": [
-        8.683596,
-        49.417386
-      ]
-    },
-    {
-      "nodeId": 216,
-      "location": [
-        8.686507,
-        49.41943
-      ]
-    },
-    {
-      "nodeId": 219,
-      "location": [
-        8.681882,
-        49.417391
-      ]
-    },
-    {
-      "nodeId": 12891,
-      "location": [
-        8.683295,
-        49.418568
-      ]
-    },
-    {
-      "nodeId": 3360,
-      "location": [
-        8.68504,
-        49.419273
-      ]
-    },
-    {
-      "nodeId": 3506,
-      "location": [
-        8.682577,
-        49.415744
-      ]
-    },
-    {
-      "nodeId": 3507,
-      "location": [
-        8.683801,
-        49.415725
-      ]
-    },
-    {
-      "nodeId": 3508,
-      "location": [
-        8.683767,
-        49.416544
-      ]
-    },
-    {
-      "nodeId": 3510,
-      "location": [
-        8.68269,
-        49.417389
-      ]
-    },
-    {
-      "nodeId": 3511,
-      "location": [
-        8.682661,
-        49.416511
-      ]
-    }
-  ],
-  "edges": [
-    {
-      "fromId": 1669,
-      "toId": 1221,
-      "weight": 44.655840000000005
-    },
-    {
-      "fromId": 3506,
-      "toId": 3507,
-      "weight": 21.26352
-    },
-    {
-      "fromId": 3507,
-      "toId": 3506,
-      "weight": 21.26352
-    },
-    {
-      "fromId": 3510,
-      "toId": 3511,
-      "weight": 23.4336
-    },
-    {
-      "fromId": 3788,
-      "toId": 3790,
-      "weight": 19.99776
-    },
-    {
-      "fromId": 3790,
-      "toId": 3789,
-      "weight": 19.008000000000003
-    },
-    {
-      "fromId": 3508,
-      "toId": 3511,
-      "weight": 19.22184
-    },
-    {
-      "fromId": 3511,
-      "toId": 3506,
-      "weight": 20.515680000000003
-    },
-    {
-      "fromId": 11010,
-      "toId": 1988,
-      "weight": 18.03816
-    },
-    {
-      "fromId": 1988,
-      "toId": 11010,
-      "weight": 18.03816
-    },
-    {
-      "fromId": 3507,
-      "toId": 3508,
-      "weight": 21.87696
-    },
-    {
-      "fromId": 3508,
-      "toId": 3507,
-      "weight": 21.87696
-    },
-    {
-      "fromId": 3789,
-      "toId": 1669,
-      "weight": 19.117440000000002
-    },
-    {
-      "fromId": 1672,
-      "toId": 1221,
-      "weight": 18.080640000000002
-    },
-    {
-      "fromId": 1221,
-      "toId": 1672,
-      "weight": 18.080640000000002
-    },
-    {
-      "fromId": 11008,
-      "toId": 16275,
-      "weight": 7.34184
-    },
-    {
-      "fromId": 16275,
-      "toId": 11008,
-      "weight": 7.34184
-    },
-    {
-      "fromId": 11009,
-      "toId": 16276,
-      "weight": 9.339839999999999
-    },
-    {
-      "fromId": 16276,
-      "toId": 11009,
-      "weight": 9.339839999999999
-    },
-    {
-      "fromId": 11010,
-      "toId": 16277,
-      "weight": 14.45232
-    },
-    {
-      "fromId": 16277,
-      "toId": 11010,
-      "weight": 14.45232
-    },
-    {
-      "fromId": 1987,
-      "toId": 219,
-      "weight": 21.433200000000003
-    },
-    {
-      "fromId": 2072,
-      "toId": 11008,
-      "weight": 14.133600000000001
-    },
-    {
-      "fromId": 219,
-      "toId": 1987,
-      "weight": 21.433200000000003
-    },
-    {
-      "fromId": 11008,
-      "toId": 2072,
-      "weight": 14.133600000000001
-    },
-    {
-      "fromId": 219,
-      "toId": 11010,
-      "weight": 6.74016
-    },
-    {
-      "fromId": 11010,
-      "toId": 219,
-      "weight": 6.74016
-    },
-    {
-      "fromId": 219,
-      "toId": 11009,
-      "weight": 10.039919999999999
-    },
-    {
-      "fromId": 11009,
-      "toId": 219,
-      "weight": 10.039919999999999
-    },
-    {
-      "fromId": 1221,
-      "toId": 2072,
-      "weight": 31.017120000000002
-    },
-    {
-      "fromId": 2072,
-      "toId": 1221,
-      "weight": 31.017120000000002
-    },
-    {
-      "fromId": 12891,
-      "toId": 1988,
-      "weight": 18.889488
-    },
-    {
-      "fromId": 1988,
-      "toId": 12891,
-      "weight": 18.889488
-    },
-    {
-      "fromId": 1221,
-      "toId": 3360,
-      "weight": 51.17568
-    },
-    {
-      "fromId": 15494,
-      "toId": 3360,
-      "weight": 33.06288
-    },
-    {
-      "fromId": 3508,
-      "toId": 2072,
-      "weight": 22.6584
-    },
-    {
-      "fromId": 2072,
-      "toId": 3508,
-      "weight": 22.6584
-    },
-    {
-      "fromId": 3511,
-      "toId": 1987,
-      "weight": 17.377920000000003
-    },
-    {
-      "fromId": 3507,
-      "toId": 1669,
-      "weight": 33.76656
-    },
-    {
-      "fromId": 3510,
-      "toId": 11008,
-      "weight": 1.59384
-    },
-    {
-      "fromId": 11008,
-      "toId": 3510,
-      "weight": 1.59384
-    },
-    {
-      "fromId": 3510,
-      "toId": 11009,
-      "weight": 3.9808799999999995
-    },
-    {
-      "fromId": 11009,
-      "toId": 3510,
-      "weight": 3.9808799999999995
-    },
-    {
-      "fromId": 3360,
-      "toId": 216,
-      "weight": 25.802400000000002
-    },
-    {
-      "fromId": 3788,
-      "toId": 3507,
-      "weight": 20.477040000000002
-    },
-    {
-      "fromId": 3507,
-      "toId": 3788,
-      "weight": 20.477040000000002
-    }
-  ],
-  "nodes_count": 26,
-  "edges_count": 46
+    "type": "Topology",
+    "objects": {
+        "network": {
+            "type": "GeometryCollection",
+            "geometries": [
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "osm_id": 24837547,
+                        "both_directions": true,
+                        "speed": 15.0,
+                        "speed_reverse": 15.0,
+                        "ors_ids": [
+                            1498
+                        ],
+                        "ors_nodes": [
+                            2135,
+                            2134
+                        ],
+                        "distances": [
+                            63.476
+                        ]
+                    },
+                    "arcs": [
+                        0
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "osm_id": 42806217,
+                        "both_directions": true,
+                        "speed": 15.0,
+                        "speed_reverse": 15.0,
+                        "ors_ids": [
+                            8017,
+                            8018,
+                            8019
+                        ],
+                        "ors_nodes": [
+                            1168,
+                            1169,
+                            1381,
+                            1162
+                        ],
+                        "distances": [
+                            28.632,
+                            25.173,
+                            19.828
+                        ]
+                    },
+                    "arcs": [
+                        1,
+                        2,
+                        3
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "osm_id": 42806216,
+                        "both_directions": true,
+                        "speed": 15.0,
+                        "speed_reverse": 15.0,
+                        "ors_ids": [
+                            8016
+                        ],
+                        "ors_nodes": [
+                            1166,
+                            1167
+                        ],
+                        "distances": [
+                            33.748
+                        ]
+                    },
+                    "arcs": [
+                        4
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "osm_id": 52956623,
+                        "both_directions": true,
+                        "speed": 15.0,
+                        "speed_reverse": 15.0,
+                        "ors_ids": [
+                            8909
+                        ],
+                        "ors_nodes": [
+                            2134,
+                            1166
+                        ],
+                        "distances": [
+                            17.461
+                        ]
+                    },
+                    "arcs": [
+                        5
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "osm_id": 24000937,
+                        "both_directions": true,
+                        "speed": 15.0,
+                        "speed_reverse": 15.0,
+                        "ors_ids": [
+                            719
+                        ],
+                        "ors_nodes": [
+                            2135,
+                            1168
+                        ],
+                        "distances": [
+                            13.127
+                        ]
+                    },
+                    "arcs": [
+                        6
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "osm_id": 42806218,
+                        "both_directions": true,
+                        "speed": 15.0,
+                        "speed_reverse": 15.0,
+                        "ors_ids": [
+                            8020
+                        ],
+                        "ors_nodes": [
+                            1168,
+                            1167
+                        ],
+                        "distances": [
+                            30.247
+                        ]
+                    },
+                    "arcs": [
+                        7
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "osm_id": 52956625,
+                        "both_directions": false,
+                        "speed": 15.0,
+                        "ors_ids": [
+                            8911
+                        ],
+                        "ors_nodes": [
+                            2135,
+                            1165
+                        ],
+                        "distances": [
+                            99.385
+                        ]
+                    },
+                    "arcs": [
+                        8
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "osm_id": 305482793,
+                        "both_directions": true,
+                        "speed": 15.0,
+                        "speed_reverse": 15.0,
+                        "ors_ids": [
+                            18296
+                        ],
+                        "ors_nodes": [
+                            1378,
+                            1166
+                        ],
+                        "distances": [
+                            33.626
+                        ]
+                    },
+                    "arcs": [
+                        9
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "osm_id": 37831084,
+                        "both_directions": false,
+                        "speed": 15.0,
+                        "ors_ids": [
+                            7456
+                        ],
+                        "ors_nodes": [
+                            1165,
+                            2134
+                        ],
+                        "distances": [
+                            92.239
+                        ]
+                    },
+                    "arcs": [
+                        10
+                    ]
+                }
+            ]
+        }
+    },
+    "arcs": [
+        [
+            [
+                8.686699,
+                49.427997
+            ],
+            [
+                8.686342,
+                49.427932
+            ],
+            [
+                8.685844,
+                49.427873
+            ]
+        ],
+        [
+            [
+                8.686742,
+                49.427883
+            ],
+            [
+                8.687107,
+                49.427982
+            ]
+        ],
+        [
+            [
+                8.687107,
+                49.427982
+            ],
+            [
+                8.687425,
+                49.428074
+            ]
+        ],
+        [
+            [
+                8.687425,
+                49.428074
+            ],
+            [
+                8.687534,
+                49.428133
+            ],
+            [
+                8.68758,
+                49.428213
+            ]
+        ],
+        [
+            [
+                8.685896,
+                49.42772
+            ],
+            [
+                8.686352,
+                49.427783
+            ]
+        ],
+        [
+            [
+                8.685844,
+                49.427873
+            ],
+            [
+                8.685896,
+                49.42772
+            ]
+        ],
+        [
+            [
+                8.686699,
+                49.427997
+            ],
+            [
+                8.686742,
+                49.427883
+            ]
+        ],
+        [
+            [
+                8.686742,
+                49.427883
+            ],
+            [
+                8.686352,
+                49.427783
+            ]
+        ],
+        [
+            [
+                8.686699,
+                49.427997
+            ],
+            [
+                8.686558,
+                49.428345
+            ],
+            [
+                8.686455,
+                49.428512
+            ],
+            [
+                8.686352,
+                49.428567
+            ],
+            [
+                8.686085,
+                49.428622
+            ],
+            [
+                8.685955,
+                49.428631
+            ]
+        ],
+        [
+            [
+                8.685439,
+                49.427668
+            ],
+            [
+                8.685646,
+                49.427682
+            ],
+            [
+                8.685896,
+                49.42772
+            ]
+        ],
+        [
+            [
+                8.685955,
+                49.428631
+            ],
+            [
+                8.685879,
+                49.428609
+            ],
+            [
+                8.685782,
+                49.42854
+            ],
+            [
+                8.685709,
+                49.428405
+            ],
+            [
+                8.685766,
+                49.428125
+            ],
+            [
+                8.685844,
+                49.427873
+            ]
+        ]
+    ],
+    "bbox": [
+        8.685439,
+        49.427668,
+        8.68758,
+        49.428631
+    ]
+}
+```
+
+If requesting the TopoJSON on a profile without OsmId storage, the response will contain geometries each consisting of a single arc, and only have a single property `weight` representing travel duration in seconds.
+
+```json
+{
+    "type": "Topology",
+    "objects": {
+        "network": {
+            "type": "GeometryCollection",
+            "geometries": [
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "6.872"
+                    },
+                    "arcs": [
+                        0
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "6.872"
+                    },
+                    "arcs": [
+                        1
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "15.234"
+                    },
+                    "arcs": [
+                        2
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "15.234"
+                    },
+                    "arcs": [
+                        3
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "8.1"
+                    },
+                    "arcs": [
+                        4
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "8.1"
+                    },
+                    "arcs": [
+                        5
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "3.15"
+                    },
+                    "arcs": [
+                        6
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "3.15"
+                    },
+                    "arcs": [
+                        7
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "8.07"
+                    },
+                    "arcs": [
+                        8
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "8.07"
+                    },
+                    "arcs": [
+                        9
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "4.759"
+                    },
+                    "arcs": [
+                        10
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "4.759"
+                    },
+                    "arcs": [
+                        11
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "6.042"
+                    },
+                    "arcs": [
+                        12
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "6.042"
+                    },
+                    "arcs": [
+                        13
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "4.191"
+                    },
+                    "arcs": [
+                        14
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "4.191"
+                    },
+                    "arcs": [
+                        15
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "23.852"
+                    },
+                    "arcs": [
+                        16
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "22.137"
+                    },
+                    "arcs": [
+                        17
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "7.259"
+                    },
+                    "arcs": [
+                        18
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "7.259"
+                    },
+                    "arcs": [
+                        19
+                    ]
+                }
+            ]
+        }
+    },
+    "arcs": [
+        [
+            [
+                8.686742,
+                49.427883
+            ],
+            [
+                8.687107,
+                49.427982
+            ]
+        ],
+        [
+            [
+                8.687107,
+                49.427982
+            ],
+            [
+                8.686742,
+                49.427883
+            ]
+        ],
+        [
+            [
+                8.685844,
+                49.427873
+            ],
+            [
+                8.686342,
+                49.427932
+            ],
+            [
+                8.686699,
+                49.427997
+            ]
+        ],
+        [
+            [
+                8.686699,
+                49.427997
+            ],
+            [
+                8.686342,
+                49.427932
+            ],
+            [
+                8.685844,
+                49.427873
+            ]
+        ],
+        [
+            [
+                8.685896,
+                49.42772
+            ],
+            [
+                8.686352,
+                49.427783
+            ]
+        ],
+        [
+            [
+                8.686352,
+                49.427783
+            ],
+            [
+                8.685896,
+                49.42772
+            ]
+        ],
+        [
+            [
+                8.686742,
+                49.427883
+            ],
+            [
+                8.686699,
+                49.427997
+            ]
+        ],
+        [
+            [
+                8.686699,
+                49.427997
+            ],
+            [
+                8.686742,
+                49.427883
+            ]
+        ],
+        [
+            [
+                8.685439,
+                49.427668
+            ],
+            [
+                8.685646,
+                49.427682
+            ],
+            [
+                8.685896,
+                49.42772
+            ]
+        ],
+        [
+            [
+                8.685896,
+                49.42772
+            ],
+            [
+                8.685646,
+                49.427682
+            ],
+            [
+                8.685439,
+                49.427668
+            ]
+        ],
+        [
+            [
+                8.687425,
+                49.428074
+            ],
+            [
+                8.687534,
+                49.428133
+            ],
+            [
+                8.68758,
+                49.428213
+            ]
+        ],
+        [
+            [
+                8.68758,
+                49.428213
+            ],
+            [
+                8.687534,
+                49.428133
+            ],
+            [
+                8.687425,
+                49.428074
+            ]
+        ],
+        [
+            [
+                8.687107,
+                49.427982
+            ],
+            [
+                8.687425,
+                49.428074
+            ]
+        ],
+        [
+            [
+                8.687425,
+                49.428074
+            ],
+            [
+                8.687107,
+                49.427982
+            ]
+        ],
+        [
+            [
+                8.685844,
+                49.427873
+            ],
+            [
+                8.685896,
+                49.42772
+            ]
+        ],
+        [
+            [
+                8.685896,
+                49.42772
+            ],
+            [
+                8.685844,
+                49.427873
+            ]
+        ],
+        [
+            [
+                8.686699,
+                49.427997
+            ],
+            [
+                8.686558,
+                49.428345
+            ],
+            [
+                8.686455,
+                49.428512
+            ],
+            [
+                8.686352,
+                49.428567
+            ],
+            [
+                8.686085,
+                49.428622
+            ],
+            [
+                8.685955,
+                49.428631
+            ]
+        ],
+        [
+            [
+                8.685955,
+                49.428631
+            ],
+            [
+                8.685879,
+                49.428609
+            ],
+            [
+                8.685782,
+                49.42854
+            ],
+            [
+                8.685709,
+                49.428405
+            ],
+            [
+                8.685766,
+                49.428125
+            ],
+            [
+                8.685844,
+                49.427873
+            ]
+        ],
+        [
+            [
+                8.686742,
+                49.427883
+            ],
+            [
+                8.686352,
+                49.427783
+            ]
+        ],
+        [
+            [
+                8.686352,
+                49.427783
+            ],
+            [
+                8.686742,
+                49.427883
+            ]
+        ]
+    ],
+    "bbox": [
+        8.685439,
+        49.427668,
+        8.68758,
+        49.428631
+    ]
 }
 ```
