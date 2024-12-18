@@ -38,6 +38,7 @@ RELEASING:
 - TopoJSON graph export ([#1926](https://github.com/GIScience/openrouteservice/pull/1926))
 
 ### Changed
+- improved dutch translations ([#1913](https://github.com/GIScience/openrouteservice/issues/1913))
 
 ### Deprecated
 
