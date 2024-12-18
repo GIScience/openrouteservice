@@ -13,8 +13,8 @@ If that doesn't work, the sidebar has you covered:
   [more docker stuff](installation/Advanced-Docker-Setup)
 * [Data](Data) contains info about the used data sets.
 * [Contributing](contributing/Contributing) contains info about contributing to
-  the openrouteservice, the OpenStreetMap and
+  openrouteservice, the OpenStreetMap and
   [translations](contributing/Contributing-Translations)
 * [Documentation](documentation/Documentation) contains all sorts of
-  explanation about the internal workings of the openrouteservice.
+  explanation about the internal workings of openrouteservice.
 * [FAQ](Frequently-Asked-Questions) contains answers to frequently asked questions.

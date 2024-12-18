@@ -21,7 +21,7 @@ Configuration: [`ors.engine.elevation`](configuration/engine/elevation.md)
 
 ### Population
 When requesting isochrones, you can also request to get population data for the isochrone areas. The data used for this is the [Global Human Settlement Layer (GHSL)](https://ghsl.jrc.ec.europa.eu/ghs_pop2023.php) from the European Commission.
-Note, that while the dataset was published in 2023, the most recent data contained is from 2020. This is used by the openrouteservice at a resolution of 100m.
+Note, that while the dataset was published in 2023, the most recent data contained is from 2020. This is used by openrouteservice at a resolution of 100m.
 
 ### Borders
 Data relating to the avoid borders features is derived from administrative boundaries features in OpenStreetMap. Information about open borders is obtained from [Wikipedia](https://en.wikipedia.org/wiki/Open_border).

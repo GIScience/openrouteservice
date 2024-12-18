@@ -1,6 +1,6 @@
 # Running openrouteservice as WAR
 
-Like older versions, ORS version 8 can still be built and run as a Web Application Resource aka Web Archive (WAR).
+Like older versions, openrouteservice version 8 can still be built and run as a Web Application Resource aka Web Archive (WAR).
 A WAR file can be deployed to a Servlet Container like Tomcat, which is running as a service.
 To run openrouteservice, you also need an OSM data file, e.g. from [Geofabrik](http://download.geofabrik.de). For more details see chapter [Data](data.md).
 

@@ -245,7 +245,7 @@ The commented lines (green) are just included for better readability.
 ## Docker Scenarios
 
 An openrouteservice instance running in a container works in the same way as described in this chapter.
-The difference is, that the openrouteservice has a docker container as its environment,
+The difference is, that openrouteservice has a docker container as its environment,
 with a separate file system (different paths) and individual environment variables.
 The lookup for configuration files is always related to the internal environment,
 this has to be respected when configuring paths in the YAML config or

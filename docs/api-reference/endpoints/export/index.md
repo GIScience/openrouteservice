@@ -8,14 +8,20 @@ You can easily create requests with the [swagger-ui](/api-reference/index.md#swa
 
 Export the base graph for different modes of transport.
 
-In the request, the desired routing profile is specified as the penultimate path parameter.
-The result can be either obtained as a JSON of nodes and edges,
-or as a [TopoJSON](https://github.com/topojson/topojson-specification/tree/master) of edges.
-A bounding box for the area of interest has to be defined in the request body.
+In the request, the desired routing profile is specified as the penultimate path parameter, and the desired format as
+the last path parameter. A bounding box for the area of interest has to be defined in the request body.
+
+The result can be either obtained as a JSON of nodes and edges, or as
+a [TopoJSON](https://github.com/topojson/topojson-specification/tree/master) of edges also capable of representing the
+actual geometries of the edges derived from OSM data.
+
+To make the differences between the two formats more clear, the example responses listed below are based on the same
+network extract.
 
 ## JSON Response
 
 This is an example request for a base graph for the profile `driving-car`:
+
 ```shell
 curl -X 'POST' \
   'http://localhost:8082/ors/v2/export/driving-car/json' \
@@ -31,8 +37,7 @@ curl -X 'POST' \
       8.686507,
       49.41943
     ]
-  ],
-  "id": "export_request"
+  ]
 }'
 ```
 
@@ -40,6 +45,7 @@ The json response contains nodes and edges in the bounding box relevant for this
 The edge entry `weight` contains the fastest car duration in seconds.
 
 The json response for the above request looks like this:
+
 ```json
 {
     "nodes": [
@@ -221,11 +227,23 @@ The json response for the above request looks like this:
 }
 ```
 
+Note how edges traversable in both directions are described as two edges with reversed `fromId` and `toId`. The example
+network consists of 10 nodes, 18 edges that represent 9 connections between the nodes in both directions, and two edges
+representing connections that are only traversable in one direction (one-way street).
+
 ## TopoJSON Response
 
-The [TopoJSON](https://github.com/topojson/topojson-specification/tree/master) response contains edges in the bounding box with the geometry of the underlying road network geometry. When requesting a TopoJSON, you can pass an additional optional parameter `geometry` accepting a boolean value (default is `true`) that controls if the actual geometry of the edges is returned or a beeline representation omitting all in between nodes. The TopoJSON format can be directly loaded and visualized with various tools including [QGIS](https://qgis.org) or [geojson.io](http://geojson.io).
+The [TopoJSON](https://github.com/topojson/topojson-specification/tree/master) response contains edges in the bounding
+box with the geometry of the underlying road network geometry. When requesting a TopoJSON, you can pass an additional
+optional parameter `geometry` accepting a boolean value (default is `true`) that controls if the actual geometry of the
+edges is returned or a beeline representation omitting all in between nodes. The TopoJSON format can be directly loaded
+and visualized with various tools including [QGIS](https://qgis.org) or [geojson.io](http://geojson.io).
 
 ![Development server usage](/public/topojson_qgis.png "Export result in QGIS"){ style="display: block; margin: 0 auto"}
+
+To fully utilise this feature, your instance of openrouteservice needs to be configured so that the
+`OsmId` [external storage feature](/run-instance/configuration/engine/profiles/build#ext-storages) is enabled for the
+profile.
 
 This is an example request for a TopoJSON graph for the profile `driving-car`:
 
@@ -245,22 +263,24 @@ curl -X 'POST' \
       49.41943
     ]
   ],
-  "id": "export_request"
   "geometry": "true"
 }'
-```
+```  
 
-In the TopoJSON response (example listed below), each arc corresponds to an edge of the routing graph. If the openrouteservice profile that was queried has stored the OSM IDs of the original map data, each object in the `GeometryCollection` represents the set of edges that share the same OSM ID and therefore the same properties: 
+### with OSM IDs
+
+In the TopoJSON response, each arc corresponds to an edge of the routing graph. If the openrouteservice profile that was
+queried has stored the OSM IDs of the original map data (i.e. has the `OsmId` storage enabled in configuration), each
+object in the `GeometryCollection` represents the set of edges that share the same ID and therefore the same properties:
 
 - `osm_id` references the OpenStreetMap id of the underlying road geometry.
 - `both_directions` is a boolean specifying if the edge can be traversed in both directions.
 - `speed` contains the speed the edge can be traversed at travelling in direction of the edge definition.
-- `speed_reverse` contains the speed the edge can be reversed at travelling in the opposite direction.
+- `speed_reverse` contains the speed the edge can be reversed at travelling in the opposite direction (only present if
+  `both_directions` is true).
 - `ors_ids` is a list of the ors edge ids.
 - `ors_nodes` is a list of the touched ors node ids.
 - `distances` contains a list of distances for each edge.
-
-To fully utilise this feature, you need to run your own instance of openrouteservice and configure the profile so that the `OsmId` [external storage feature](/run-instance/configuration/engine/profiles/build#ext-storages) is enabled.
 
 ```json
 {
@@ -641,7 +661,23 @@ To fully utilise this feature, you need to run your own instance of openrouteser
 }
 ```
 
-If requesting the TopoJSON on a profile without OsmId storage, the response will contain geometries each consisting of a single arc, and only have a single property `weight` representing travel duration in seconds.
+This dataset is the same network extract as in the JSON example. Note that two `LineString` elements are marked as
+`"both_directions": false` and represent the one-way streets with one arc each, the remaining 9 arcs correspond to the 9
+pairs of edges in the JSON response.
+
+This format reduces information redundancy for edges and their respective geometry. The array `ors_ids` contains the
+edge ids within openrouteservice. Note that in openrouteservice edges are always bidirectional, so the `ors_ids` array
+contains the ids of the edges in both directions.
+
+### without OSM IDs
+
+If requesting the TopoJSON on a profile without `OsmId` storage, the response will contain geometries each consisting of
+a
+single arc, and have different set of properties:
+
+- `weight` represents travel duration in seconds.
+- `node_from` is the ors node id of the edge start.
+- `node_to` is the ors node id of the edge end.
 
 ```json
 {
@@ -653,7 +689,9 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "6.872"
+                        "weight": "6.872",
+                        "node_from": 1168,
+                        "node_to": 1169
                     },
                     "arcs": [
                         0
@@ -662,7 +700,20 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "6.872"
+                        "weight": "6.872",
+                        "node_from": 1169,
+                        "node_to": 1168
+                    },
+                    "arcs": [
+                        -1
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "15.234",
+                        "node_from": 2134,
+                        "node_to": 2135
                     },
                     "arcs": [
                         1
@@ -671,7 +722,20 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "15.234"
+                        "weight": "15.234",
+                        "node_from": 2135,
+                        "node_to": 2134
+                    },
+                    "arcs": [
+                        -2
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "8.1",
+                        "node_from": 1166,
+                        "node_to": 1167
                     },
                     "arcs": [
                         2
@@ -680,7 +744,20 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "15.234"
+                        "weight": "8.1",
+                        "node_from": 1167,
+                        "node_to": 1166
+                    },
+                    "arcs": [
+                        -3
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "3.15",
+                        "node_from": 1168,
+                        "node_to": 2135
                     },
                     "arcs": [
                         3
@@ -689,7 +766,20 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "8.1"
+                        "weight": "3.15",
+                        "node_from": 2135,
+                        "node_to": 1168
+                    },
+                    "arcs": [
+                        -4
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "8.07",
+                        "node_from": 1378,
+                        "node_to": 1166
                     },
                     "arcs": [
                         4
@@ -698,7 +788,20 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "8.1"
+                        "weight": "8.07",
+                        "node_from": 1166,
+                        "node_to": 1378
+                    },
+                    "arcs": [
+                        -5
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "4.759",
+                        "node_from": 1381,
+                        "node_to": 1162
                     },
                     "arcs": [
                         5
@@ -707,7 +810,20 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "3.15"
+                        "weight": "4.759",
+                        "node_from": 1162,
+                        "node_to": 1381
+                    },
+                    "arcs": [
+                        -6
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "6.042",
+                        "node_from": 1169,
+                        "node_to": 1381
                     },
                     "arcs": [
                         6
@@ -716,7 +832,20 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "3.15"
+                        "weight": "6.042",
+                        "node_from": 1381,
+                        "node_to": 1169
+                    },
+                    "arcs": [
+                        -7
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "4.191",
+                        "node_from": 2134,
+                        "node_to": 1166
                     },
                     "arcs": [
                         7
@@ -725,7 +854,20 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "8.07"
+                        "weight": "4.191",
+                        "node_from": 1166,
+                        "node_to": 2134
+                    },
+                    "arcs": [
+                        -8
+                    ]
+                },
+                {
+                    "type": "LineString",
+                    "properties": {
+                        "weight": "23.852",
+                        "node_from": 2135,
+                        "node_to": 1165
                     },
                     "arcs": [
                         8
@@ -734,7 +876,9 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "8.07"
+                        "weight": "22.137",
+                        "node_from": 1165,
+                        "node_to": 2134
                     },
                     "arcs": [
                         9
@@ -743,7 +887,9 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "4.759"
+                        "weight": "7.259",
+                        "node_from": 1168,
+                        "node_to": 1167
                     },
                     "arcs": [
                         10
@@ -752,82 +898,12 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 {
                     "type": "LineString",
                     "properties": {
-                        "weight": "4.759"
+                        "weight": "7.259",
+                        "node_from": 1167,
+                        "node_to": 1168
                     },
                     "arcs": [
-                        11
-                    ]
-                },
-                {
-                    "type": "LineString",
-                    "properties": {
-                        "weight": "6.042"
-                    },
-                    "arcs": [
-                        12
-                    ]
-                },
-                {
-                    "type": "LineString",
-                    "properties": {
-                        "weight": "6.042"
-                    },
-                    "arcs": [
-                        13
-                    ]
-                },
-                {
-                    "type": "LineString",
-                    "properties": {
-                        "weight": "4.191"
-                    },
-                    "arcs": [
-                        14
-                    ]
-                },
-                {
-                    "type": "LineString",
-                    "properties": {
-                        "weight": "4.191"
-                    },
-                    "arcs": [
-                        15
-                    ]
-                },
-                {
-                    "type": "LineString",
-                    "properties": {
-                        "weight": "23.852"
-                    },
-                    "arcs": [
-                        16
-                    ]
-                },
-                {
-                    "type": "LineString",
-                    "properties": {
-                        "weight": "22.137"
-                    },
-                    "arcs": [
-                        17
-                    ]
-                },
-                {
-                    "type": "LineString",
-                    "properties": {
-                        "weight": "7.259"
-                    },
-                    "arcs": [
-                        18
-                    ]
-                },
-                {
-                    "type": "LineString",
-                    "properties": {
-                        "weight": "7.259"
-                    },
-                    "arcs": [
-                        19
+                        -11
                     ]
                 }
             ]
@@ -846,16 +922,6 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
         ],
         [
             [
-                8.687107,
-                49.427982
-            ],
-            [
-                8.686742,
-                49.427883
-            ]
-        ],
-        [
-            [
                 8.685844,
                 49.427873
             ],
@@ -870,20 +936,6 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
         ],
         [
             [
-                8.686699,
-                49.427997
-            ],
-            [
-                8.686342,
-                49.427932
-            ],
-            [
-                8.685844,
-                49.427873
-            ]
-        ],
-        [
-            [
                 8.685896,
                 49.42772
             ],
@@ -894,32 +946,12 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
         ],
         [
             [
-                8.686352,
-                49.427783
-            ],
-            [
-                8.685896,
-                49.42772
-            ]
-        ],
-        [
-            [
                 8.686742,
                 49.427883
             ],
             [
                 8.686699,
                 49.427997
-            ]
-        ],
-        [
-            [
-                8.686699,
-                49.427997
-            ],
-            [
-                8.686742,
-                49.427883
             ]
         ],
         [
@@ -938,20 +970,6 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
         ],
         [
             [
-                8.685896,
-                49.42772
-            ],
-            [
-                8.685646,
-                49.427682
-            ],
-            [
-                8.685439,
-                49.427668
-            ]
-        ],
-        [
-            [
                 8.687425,
                 49.428074
             ],
@@ -966,20 +984,6 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
         ],
         [
             [
-                8.68758,
-                49.428213
-            ],
-            [
-                8.687534,
-                49.428133
-            ],
-            [
-                8.687425,
-                49.428074
-            ]
-        ],
-        [
-            [
                 8.687107,
                 49.427982
             ],
@@ -990,32 +994,12 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
         ],
         [
             [
-                8.687425,
-                49.428074
-            ],
-            [
-                8.687107,
-                49.427982
-            ]
-        ],
-        [
-            [
                 8.685844,
                 49.427873
             ],
             [
                 8.685896,
                 49.42772
-            ]
-        ],
-        [
-            [
-                8.685896,
-                49.42772
-            ],
-            [
-                8.685844,
-                49.427873
             ]
         ],
         [
@@ -1079,16 +1063,6 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
                 8.686352,
                 49.427783
             ]
-        ],
-        [
-            [
-                8.686352,
-                49.427783
-            ],
-            [
-                8.686742,
-                49.427883
-            ]
         ]
     ],
     "bbox": [
@@ -1099,3 +1073,7 @@ If requesting the TopoJSON on a profile without OsmId storage, the response will
     ]
 }
 ```
+
+Note how the number of arcs is equal to the number of arcs in the response with OSM IDs present, so that the geometries
+can be represented without redundancies, and the geometries simply contain pairs of `LineString` elements for each edge
+that is traversable in both directions, similar to the JSON response.
