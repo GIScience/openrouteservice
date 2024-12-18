@@ -11,7 +11,7 @@ But on the other hand, there is also information about endpoints that are not av
 but e.g. on instances you run or host yourself
 like [Export](endpoints/export/index.md), [Health](endpoints/health/index.md) and [Status](endpoints/status/index.md).
 
-If you are developing ORS or running your own instance, you might benefit from the included [Swagger-UI](#swagger-ui).
+If you are developing openrouteservice or running your own instance, you might benefit from the included [Swagger-UI](#swagger-ui).
 
 ## API Playground
 
@@ -40,7 +40,7 @@ This is a way to get an interactive API doc for your current or an older version
 (the port may be different on your local environment).
 
 :::warning Hint
-The swagger-ui is not available on the production ORS instances hosted by HeiGIT.
+The swagger-ui is not available on the production openrouteservice instances hosted by HeiGIT.
 :::
 
 ![Swagger-UI](/public/swagger-ui.png "Swagger UI")

@@ -1,6 +1,6 @@
 # Contributing
 
-We are glad that you decided to contribute to the openrouteservice.
+We are glad that you decided to contribute to openrouteservice.
 
 There are plenty of ways to help make it an even better routing service.
 Whether you are a Java developer who is interested in fixing

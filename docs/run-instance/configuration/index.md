@@ -10,6 +10,6 @@ a [minimal configuration example](what-to-configure.md#minimal-configuration).
 There are different ways to set configuration properties.
 This again gives you flexibility in the way you run openrouteservice.
 But it is crucial to know and understand the different configuration mechanisms
-in order to operate the openrouteservice with the desired configuration.
+in order to operate openrouteservice with the desired configuration.
 In Chapter [How to configure](how-to-configure.md)
 we handle the different dimensions of the configuration topic. 

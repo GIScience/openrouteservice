@@ -10,7 +10,7 @@
 
 <!-- /TOC -->
 
-**Firstly, thanks for using the ORS and contributing to making it better for everyone.**
+**Firstly, thanks for using openrouteservice and contributing to making it better for everyone.**
 
 Openrouteservice has been around for over ten years, and as such it has seen many changes and adoption of new
 methodologies and techniques, as well as the coming and going of multiple developers.

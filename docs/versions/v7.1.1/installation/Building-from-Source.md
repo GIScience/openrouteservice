@@ -25,7 +25,7 @@ If you need to install without Docker, on an Ubuntu 20.04 system (also generally
      [path to folder]` command.
      An explanation of the file format and parameters can be found [here](Configuration)
   7. From within the `openrouteservice` root directory run the command `mvn package`. This will build
-     the openrouteservice ready for tomcat deployment.
+     openrouteservice ready for tomcat deployment.
   8. For running both the unit and api tests, add `-Papitests` as a parameter to `mvn`.
      ```
      mvn -Papitests verify
