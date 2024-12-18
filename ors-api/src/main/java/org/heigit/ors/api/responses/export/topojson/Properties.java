@@ -17,6 +17,10 @@ public class Properties implements Serializable {
     @JsonProperty("weight")
     @JsonSerialize(using = WeightSerializer.class)
     private Double weight;
+    @JsonProperty("node_from")
+    private Long nodeFrom;
+    @JsonProperty("node_to")
+    private Long nodeTo;
     @JsonProperty("osm_id")
     private Long osmId;
     @JsonProperty("both_directions")

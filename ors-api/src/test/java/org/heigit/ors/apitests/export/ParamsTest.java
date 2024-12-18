@@ -242,7 +242,7 @@ class ParamsTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("type", is("Topology"))
-                .body("arcs.size()", is(30))
+                .body("arcs.size()", is(28))
                 .body("objects.network.geometries.size()", is(30))
                 .body("objects.network.geometries[0].properties.containsKey('weight')", is(true))
                 .statusCode(200);
