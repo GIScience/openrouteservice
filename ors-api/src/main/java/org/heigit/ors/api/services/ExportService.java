@@ -11,6 +11,7 @@ import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.export.ExportErrorCodes;
+import org.heigit.ors.export.ExportRequest;
 import org.heigit.ors.export.ExportResult;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
@@ -29,13 +30,9 @@ public class ExportService extends ApiService {
     }
 
     public ExportResult generateExportFromRequest(ExportApiRequest exportApiRequest) throws StatusCodeException {
-        org.heigit.ors.export.ExportRequest exportRequest = this.convertExportRequest(exportApiRequest);
-
         try {
-            RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(exportRequest.getProfileName());
-            if (rp == null)
-                throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
-            return exportRequest.computeExport(rp);
+            ExportRequest exportRequest = this.parseExportRequest(exportApiRequest);
+            return exportRequest.computeExport();
         } catch (StatusCodeException e) {
             throw e;
         } catch (Exception e) {
@@ -43,27 +40,36 @@ public class ExportService extends ApiService {
         }
     }
 
-    private org.heigit.ors.export.ExportRequest convertExportRequest(ExportApiRequest exportApiRequest) throws StatusCodeException {
-        org.heigit.ors.export.ExportRequest exportRequest = new org.heigit.ors.export.ExportRequest();
-        exportRequest.setProfileName(exportApiRequest.getProfileName());
+    private ExportRequest parseExportRequest(ExportApiRequest exportApiRequest) throws StatusCodeException {
+        ExportRequest exportRequest = new ExportRequest();
+        exportRequest.setProfile(parseRoutingProfile(exportApiRequest.getProfileName()));
         if (exportApiRequest.hasId())
             exportRequest.setId(exportApiRequest.getId());
 
-        int profileType = -1;
-
-        try {
-            profileType = convertRouteProfileType(exportApiRequest.getProfile());
-            exportRequest.setProfileType(profileType);
-        } catch (Exception e) {
-            throw new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ExportApiRequest.PARAM_PROFILE);
-        }
-
+        exportRequest.setProfileType(parseProfileType(exportApiRequest.getProfile()));
         exportRequest.setBoundingBox(convertBBox(exportApiRequest.getBbox()));
         exportRequest.setAdditionalEdgeInfo(exportApiRequest.additionalInfo());
         exportRequest.setTopoJson(exportApiRequest.getResponseType().equals(APIEnums.ExportResponseType.TOPOJSON));
         exportRequest.setUseRealGeometry(exportApiRequest.getGeometry());
 
         return exportRequest;
+    }
+
+    private static RoutingProfile parseRoutingProfile(String profileName) throws InternalServerException {
+        RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(profileName);
+        if (rp == null)
+            throw new InternalServerException(ExportErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+        return rp;
+    }
+
+    private static int parseProfileType(APIEnums.Profile profile) throws ParameterValueException {
+        int profileType = -1;
+        try {
+            profileType = convertRouteProfileType(profile);
+        } catch (Exception e) {
+            throw new ParameterValueException(ExportErrorCodes.INVALID_PARAMETER_VALUE, ExportApiRequest.PARAM_PROFILE);
+        }
+        return profileType;
     }
 
     BBox convertBBox(List<List<Double>> coordinates) throws ParameterValueException {
@@ -87,5 +93,4 @@ public class ExportService extends ApiService {
 
         return new double[]{coordinate.get(0), coordinate.get(1)};
     }
-
 }
