@@ -151,7 +151,7 @@ public class ExportAPI {
     @Operation(hidden = true)
     public void getInvalidResponseType(@PathVariable String profile, @PathVariable String responseType) throws StatusCodeException {
         if (responseType.equals("topojson")) {
-            throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "The response format topojson is not supported, use 'json' instead");
+            throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "The response format topojson requires 'application/json' as accept and content-type headers.");
 
         } else {
             throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, ExportErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "The response format %s is not supported".formatted(responseType));
