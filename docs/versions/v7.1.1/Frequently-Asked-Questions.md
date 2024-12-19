@@ -34,19 +34,19 @@ There are three main reasons for this problem, listed in order of most to least 
 
 ---
 
-## When does the OSM data update in the openrouteservice?
+## When does the OSM data update in openrouteservice?
 
-The openrouteservice builds its data from the `planet.osm.pbf`-files. According
+Openrouteservice builds its data from the `planet.osm.pbf`-files. According
 to [the osm-wiki](https://wiki.openstreetmap.org/wiki/Planet.osm), these files
 take two days to build and are updated weekly.
 
 Since the `planet`-files are rather large (currently over 60GB), there is a bit
 of work involved to make sure the download went right and the file is not
 corrupted in any way and in fact new. Parts of this process are in the hands of
-the OSM, parts are done by the openrouteservice.
+the OSM, parts are done by openrouteservice.
 
-Once the newest `planet`-file is on the openrouteservice-servers, it needs to
-be preprocessed before the openrouteservice can start building the graphs used
+Once the newest `planet`-file is on the openrouteservice servers, it needs to
+be preprocessed before openrouteservice can start building the graphs used
 for routing.
 
 The build process in itself is [rather

@@ -2,6 +2,7 @@ package org.heigit.ors.api.responses.export.json;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.common.Pair;
 
@@ -21,7 +22,7 @@ public class JsonEdge {
     @Schema(description = "Weight of the corresponding edge in the given bounding box",
             example = "123.45")
     @JsonProperty(value = "weight")
-    @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT)
+    @JsonSerialize(using = WeightSerializer.class)
     protected Double weight;
 
     JsonEdge(Map.Entry<Pair<Integer, Integer>, Double> weightedEdge) {

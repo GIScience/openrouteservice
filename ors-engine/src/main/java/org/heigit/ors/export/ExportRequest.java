@@ -2,7 +2,6 @@ package org.heigit.ors.export;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.util.AccessFilter;
-import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
 import com.graphhopper.storage.NodeAccess;
@@ -36,7 +35,11 @@ public class ExportRequest extends ServiceRequest {
     private static final GeometryFactory geometryFactory = new GeometryFactory();
     private BBox boundingBox;
 
-    private String profileName;
+    public void setProfile(RoutingProfile profile) {
+        this.profile = profile;
+    }
+
+    private RoutingProfile profile;
     private int profileType = -1;
 
     private boolean additionalEdgeInfo;
@@ -47,14 +50,6 @@ public class ExportRequest extends ServiceRequest {
     private OsmIdGraphStorage osmIdGraphStorage;
     private WheelchairAttributesGraphStorage wheelchairAttributesGraphStorage;
     private Weighting weighting;
-
-    public String getProfileName() {
-        return profileName;
-    }
-
-    public void setProfileName(String profileName) {
-        this.profileName = profileName;
-    }
 
     public void setBoundingBox(BBox bbox) {
         this.boundingBox = bbox;
@@ -76,11 +71,11 @@ public class ExportRequest extends ServiceRequest {
         this.useRealGeometry = useRealGeometry;
     }
 
-    public ExportResult computeExport(RoutingProfile routingProfile) {
+    public ExportResult computeExport() {
         ExportResult res = new ExportResult();
 
         // Prepare graph data access
-        GraphHopper gh = routingProfile.getGraphhopper();
+        GraphHopper gh = profile.getGraphhopper();
         String encoderName = RoutingProfileType.getEncoderName(profileType);
         Graph graph = gh.getGraphHopperStorage().getBaseGraph();
         NodeAccess nodeAccess = graph.getNodeAccess();

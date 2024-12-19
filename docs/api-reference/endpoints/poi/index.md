@@ -1,7 +1,7 @@
 # Points-Of-Interest (POI) Service
 
 :::warning NOTE
-This endpoint is not part of the openrouteservice, but of our public API. It is not available when running an own instance of openrouteservice.
+This endpoint is not part of openrouteservice, but of our public API. It is not available when running an own instance of openrouteservice.
 :::
 
 The [openpoiservice](https://github.com/GIScience/openpoiservice) is a stand-alone service from HeiGIT that returns
