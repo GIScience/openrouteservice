@@ -13,6 +13,6 @@ export default {
     setup() {
         const { frontmatter } = useData();
         const route = useRoute();
-        codeblocksFold({ route, frontmatter }, true, 250);
+        codeblocksFold({ route, frontmatter }, false, 200);
     }
 } satisfies Theme;
