@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.common.Pair;
 
-import java.text.DecimalFormat;
 import java.util.Map;
 
 public class JsonEdge {
