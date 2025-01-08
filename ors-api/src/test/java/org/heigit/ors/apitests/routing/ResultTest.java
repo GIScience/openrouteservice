@@ -140,6 +140,20 @@ class ResultTest extends ServiceTest {
         addParameter("coordinatesPTFlipped", coordinatesPTFlipped);
         addParameter("coordinatesPT2", coordinatesPT2);
 
+        JSONArray coordinatesCustom = new JSONArray();
+        JSONArray coordinatesCustom1 = new JSONArray();
+        coordinatesCustom1.put(8.689885139465334);
+        coordinatesCustom1.put(49.40667302975234);
+//        coordinatesCustom1.put(8.660252);
+//        coordinatesCustom1.put(49.409744);
+        JSONArray coordinatesCustom2 = new JSONArray();
+        coordinatesCustom2.put(8.7184506654739);
+        coordinatesCustom2.put(49.41430278032613);
+//        coordinatesCustom2.put(8.626949);
+//        coordinatesCustom2.put(49.371783);
+        coordinatesCustom.put(coordinatesCustom1);
+        coordinatesCustom.put(coordinatesCustom2);
+        addParameter("coordinatesCustom", coordinatesCustom);
 
         JSONArray extraInfo = new JSONArray();
         extraInfo.put("surface");
@@ -3970,6 +3984,52 @@ class ResultTest extends ServiceTest {
                 .body("error.code", is(errorCode))
                 .body("error.message", containsString(messages[messageIndex]))
                 .statusCode(404);
+    }
+
+    @Test
+    void testCustomProfile() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+//        given()
+//                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+//                .headers(CommonHeaders.jsonContent)
+//                .pathParam("profile", getParameter("carProfile"))
+//                .body(body.toString())
+//                .when()
+//                .post(getEndPointPath() + "/{profile}")
+//                .then().log().all()
+//                .assertThat()
+//                .body("any { it.key == 'routes' }", is(true))
+//                .statusCode(200);
+
+        JSONObject customModel = new JSONObject();
+        JSONObject speed = new JSONObject();
+        speed.put("if", true);
+        speed.put("limit_to", 100);
+        JSONObject priority = new JSONObject();
+//        priority.put("if", "road_class == MOTORWAY");
+        priority.put("if", "road_environment == TUNNEL");
+        priority.put("multiply_by", 0);
+        customModel.put("speed", new JSONArray().put(speed));
+        customModel.put("priority", new JSONArray().put(priority));
+        customModel.put("distance_influence", 100);
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .statusCode(200);
     }
 
     private JSONArray constructBearings(String coordString) {

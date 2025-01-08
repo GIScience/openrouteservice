@@ -388,6 +388,10 @@ public class RoutingRequest extends ServiceRequest {
             if (props != null && !props.isEmpty())
                 req.getHints().putAll(props);
 
+            if (searchParams.getCustomModel() != null) {
+                req.setCustomModel(searchParams.getCustomModel());
+            }
+
             if (TemporaryUtilShelter.supportWeightingMethod(profileType)) {
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, TemporaryUtilShelter.hasTimeDependentSpeed(searchParams, searchCntx));
                 if (routingProfile.requiresTimeDependentAlgorithm(searchParams, searchCntx))

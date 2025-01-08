@@ -19,13 +19,14 @@ import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.weighting.custom.CustomProfile;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
-import com.graphhopper.util.shapes.BBox;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.ElevationProperties;
@@ -211,6 +212,13 @@ public class RoutingProfile {
             }
             String profileName = ProfileTools.makeProfileName(vehicle, weighting, false);
             profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(false));
+        }
+
+        if (true) { // TODO: replace with config flag
+            if (hasTurnCosts) {
+                profiles.put(vehicle + "_custom_with_turn_costs", new CustomProfile(vehicle + "_custom_with_turn_costs").setCustomModel(new CustomModel()).setVehicle(vehicle).setTurnCosts(true));
+            }
+            profiles.put(vehicle + "_custom", new CustomProfile(vehicle + "_custom").setCustomModel(new CustomModel()).setVehicle(vehicle).setTurnCosts(false));
         }
 
         ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");

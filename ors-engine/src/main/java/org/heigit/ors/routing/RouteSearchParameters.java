@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing;
 
+import com.graphhopper.util.CustomModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
@@ -72,6 +73,9 @@ public class RouteSearchParameters {
     private boolean hasScheduleRows = false;
     private boolean hasWalkingTime = false;
     private boolean hasScheduleDuration = false;
+
+    @Getter
+    private CustomModel customModel;
 
     public int getProfileType() {
         return profileType;
@@ -327,7 +331,8 @@ public class RouteSearchParameters {
                 || hasBearings()
                 || hasContinueStraight()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings())
-                || getAlternativeRoutesCount() > 0;
+                || getAlternativeRoutesCount() > 0
+                || customModel != null;
     }
 
     // time-dependent stuff
@@ -416,5 +421,10 @@ public class RouteSearchParameters {
 
     public boolean hasScheduleDuration() {
         return this.hasScheduleDuration;
+    }
+
+    public void setCustomModel(CustomModel customModel) {
+        this.customModel = customModel;
+        weightingMethod = WeightingMethod.CUSTOM;
     }
 }

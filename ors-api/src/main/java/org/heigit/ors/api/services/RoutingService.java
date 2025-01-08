@@ -205,6 +205,10 @@ public class RoutingService extends ApiService {
             params.setScheduleDuaration(request.getScheduleDuration());
         }
 
+        if (request.hasCustomModel()) {
+            params.setCustomModel(request.getCustomModel().toGHCustomModel());
+        }
+
         params.setConsiderTurnRestrictions(false);
 
         routingRequest.setSearchParameters(params);
