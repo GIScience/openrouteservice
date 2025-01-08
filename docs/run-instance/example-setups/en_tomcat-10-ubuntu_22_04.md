@@ -184,7 +184,7 @@ the latest release WAR-File.
 > sudo systemctl status openrouteservice.service
 ```
 
-If you navigate to `http://localhost:8080/ors/v2/health` you should see the health status of the openrouteservice.
+If you navigate to `http://localhost:8080/ors/v2/health` you should see the health status of the openrouteservice instance.
 The output will be as follows:
 
 ```json
@@ -280,7 +280,7 @@ The following steps are mandatory whenever you change the configuration, folder 
 Now that openrouteservice is set up with correct configurations, check the log files in the
 `/opt/openrouteservice/logs/ors.log` or the Tomcat log files in the `/opt/tomcat/logs` directory.
 
-Navigate to [http://localhost:8080/ors/v2/health](http://localhost:8080/ors/v2/health) in your browser to see the health status of the openrouteservice or
+Navigate to [http://localhost:8080/ors/v2/health](http://localhost:8080/ors/v2/health) in your browser to see the health status of the openrouteservice instance or
 make a request to the API.
 
 ```shell

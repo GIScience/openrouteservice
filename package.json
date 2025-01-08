@@ -12,6 +12,7 @@
     "build-preview": "vitepress build docs && vitepress preview docs"
   },
   "dependencies": {
+    "vitepress-plugin-codeblocks-fold": "^1.2.28",
     "vitepress-versioning-plugin": "git+https://github.com/GIScience/vitepress-versioning-plugin.git#fix-sidebar-rewrites"
   }
 }

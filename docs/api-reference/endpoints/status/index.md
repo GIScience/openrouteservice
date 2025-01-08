@@ -27,7 +27,7 @@ The GET request http://localhost:8082/ors/v2/status (host and port are dependent
     * `limits`: configured limits
 * `services`: Activated services. The endpoints `status` and `health` are not included here.
 
-:::details This is an example response: 
+This is an example response: 
 ```json
 {
     "languages": [
@@ -135,5 +135,3 @@ The GET request http://localhost:8082/ors/v2/status (host and port are dependent
     ]
 }
 ```
-:::
-

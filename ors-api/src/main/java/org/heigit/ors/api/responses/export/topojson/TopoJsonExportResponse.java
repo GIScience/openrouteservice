@@ -11,10 +11,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.heigit.ors.export.ExportResult.TopoGeometry;
 
@@ -59,19 +56,27 @@ public class TopoJsonExportResponse implements Serializable {
     private static void buildGeometriesFromEdges(ExportResult exportResult, BBox bbox, LinkedList<Geometry> geometries, LinkedList<Arc> arcsLocal) {
         Map<Pair<Integer, Integer>, Double> edgeWeights = exportResult.getEdgeWeights();
         Map<Pair<Integer, Integer>, LineString> edgeGeometries = exportResult.getEdgeGeometries();
-        int arcCount = 0;
-        for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : edgeWeights.entrySet()) {
-            arcsLocal.add(Arc.builder().coordinates(makeCoordinateList(edgeGeometries.get(edgeWeight.getKey()), bbox)).build());
-            List<Integer> arcList = List.of(arcCount);
-            arcCount++;
+        Map<Pair<Integer, Integer>, Integer> edgeArcs = new HashMap<>();
 
+        for (Map.Entry<Pair<Integer, Integer>, Double> edgeWeight : edgeWeights.entrySet()) {
+            Pair<Integer, Integer> key = edgeWeight.getKey();
+            Pair<Integer, Integer> reverseKey = Pair.create(key.second, key.first);
+            int nextArc = edgeArcs.size();
+            if (edgeArcs.containsKey(reverseKey)) {
+                nextArc = - (1 + edgeArcs.get(reverseKey));
+            } else {
+                arcsLocal.add(Arc.builder().coordinates(makeCoordinateList(edgeGeometries.get(key), bbox)).build());
+                edgeArcs.put(key, nextArc);
+            }
             Properties properties = Properties.builder()
                     .weight(edgeWeight.getValue())
+                    .nodeFrom((long) key.first)
+                    .nodeTo((long) key.second)
                     .build();
             Geometry geometry = Geometry.builder()
                     .type("LineString")
                     .properties(properties)
-                    .arcs(arcList)
+                    .arcs(List.of(nextArc))
                     .build();
             geometries.add(geometry);
         }

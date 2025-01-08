@@ -1,7 +1,7 @@
 # Geocoder Endpoint
 
 :::warning NOTE
-This endpoint is not part of the openrouteservice, but of our public API. It is not available when running an own instance of openrouteservice. 
+This endpoint is not part of openrouteservice, but of our public API. It is not available when running an own instance of openrouteservice. 
 :::
 
 The Geocoder Endpoint of our public API is served by a [Pelias](https://www.pelias.io) instance.
