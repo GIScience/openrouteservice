@@ -38,6 +38,7 @@ RELEASING:
 - TopoJSON graph export ([#1926](https://github.com/GIScience/openrouteservice/pull/1926))
 
 ### Changed
+- update dependencies: spring, geotools, jackson, springdoc, swagger, jupiter, testcontainers, surefire ([#1939](https://github.com/GIScience/openrouteservice/pull/1939))
 
 ### Deprecated
 
