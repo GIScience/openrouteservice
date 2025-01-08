@@ -19,7 +19,7 @@ The following table describes the supported HTTP status codes.
 
 ## Internal Error Codes
 
-The following sections describes the list of possible internal error codes that might be provided by different ORS
+The following sections describes the list of possible internal error codes that might be provided by different openrouteservice
 Endpoints.
 
 ### Routing API

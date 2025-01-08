@@ -4,7 +4,7 @@ title: FAQ
 
 # Frequently Asked Questions
 
-## Why is my ors reporting `Could not find point`?
+## Why is my openrouteservice instance reporting `Could not find point`?
 
 This is a frequently encountered error message:
 ```
@@ -29,22 +29,22 @@ There are three main reasons for this problem, listed in order of most to least 
    350m of a routable road. This should only happen with a local installation.
    Usually, this means that ors is trying to route in an area that graphs have not
    been built for.
-   If routes in Heidelberg(Germany) can be found, the ors is still running on the
+   If routes in Heidelberg(Germany) can be found, openrouteservice is still running on the
    default dataset.
 
-## When does the OSM data update in the openrouteservice?
+## When does the OSM data update in openrouteservice?
 
-The openrouteservice builds its data from the `planet.osm.pbf`-files. According
+Openrouteservice builds its data from the `planet.osm.pbf`-files. According
 to [the osm-wiki](https://wiki.openstreetmap.org/wiki/Planet.osm), these files
 take two days to build and are updated weekly.
 
 Since the `planet`-files are rather large (currently over 60GB), there is a bit
 of work involved to make sure the download went right and the file is not
 corrupted in any way and in fact new. Parts of this process are in the hands of
-the OSM, parts are done by the openrouteservice.
+the OSM, parts are done by openrouteservice.
 
-Once the newest `planet`-file is on the openrouteservice-servers, it needs to
-be preprocessed before the openrouteservice can start building the graphs used
+Once the newest `planet`-file is on the openrouteservice servers, it needs to
+be preprocessed before openrouteservice can start building the graphs used
 for routing.
 
 The build process in itself is [rather
@@ -84,10 +84,10 @@ This issue most commonly manifests itself in two ways:
 
 In both cases, there might be a node with a `barrier=*`-tag on the roads accessing the ferry port or the residential area.
 The corresponding barriers are made to disallow unauthorized access.
-Thus, if no more information than `barrier=*` is given, the openrouteservice will not route over them.
+Thus, if no more information than `barrier=*` is given, openrouteservice will not route over them.
 
 This behaviour is often misinterpreted as _wrong_ since in many cases, the barrier is passable by default or a ticket can be purchased.
-While often obvious to a human looking at the map, the openrouteservice can not know that.
+While often obvious to a human looking at the map, openrouteservice can not know that.
 Routing over such a barrier would be an assumption that the openrouteservice will not make.
 
 [A lot](https://wiki.openstreetmap.org/wiki/Key:access#List_of_possible_values)
@@ -100,7 +100,7 @@ Depending on the parameters of your request, the openrouteservice will use
 different routing algorithms with different preparations to calculate an
 answer.
 
-For matrix calculations, the ors uses the very fast RPHAST algorithm, which is
+For matrix calculations, openrouteservice uses the very fast RPHAST algorithm, which is
 based on so-called _Contraction Hierarchies_ (CH for short).  While the usage
 of CH speeds up matrix calculation by a lot, preparing them is rather costly.
 Thus, they are not calculated by default, but have to be turned on manually.

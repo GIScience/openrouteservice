@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>3.4.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -54,12 +54,12 @@
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.22.1</log4j.version>
-        <springdoc-openapi-starter.version>2.6.0</springdoc-openapi-starter.version>
-        <swagger-core.version>2.2.22</swagger-core.version>
-        <swagger-parser.version>2.1.22</swagger-parser.version>
+        <springdoc-openapi-starter.version>2.8.0</springdoc-openapi-starter.version>
+        <swagger-core.version>2.2.27</swagger-core.version>
+        <swagger-parser.version>2.1.24</swagger-parser.version>
         <snakeyaml.version>2.2</snakeyaml.version>
-        <geotools.version>31.2</geotools.version>
-        <fasterxml.jackson.version>2.17.2</fasterxml.jackson.version>
+        <geotools.version>32.1</geotools.version>
+        <fasterxml.jackson.version>2.18.2</fasterxml.jackson.version>
         <commons-io.version>2.16.1</commons-io.version>
         <commons-logging.version>1.3.4</commons-logging.version>
         <commons-compress.version>1.27.1</commons-compress.version>
@@ -77,7 +77,6 @@
         <hppc.version>0.8.2</hppc.version>
 
         <gson-fire-version>1.8.5</gson-fire-version>
-        <swagger-annotations-version>1.6.6</swagger-annotations-version>
         <okhttp-version>4.10.0</okhttp-version>
         <gson-version>2.9.1</gson-version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
@@ -85,18 +84,16 @@
         <javax-annotation-api.version>1.3.2</javax-annotation-api.version>
         <jakarta-annotation-version>1.3.5</jakarta-annotation-version>
 
-        <junit-version>5.9.3</junit-version>
-        <junit-platform-runner.version>1.9.1</junit-platform-runner.version>
-        <jupiter.version>5.10.3</jupiter.version>
+        <jupiter.version>5.11.4</jupiter.version>
         <mockito.version>5.12.0</mockito.version>
         <rest-assured.version>5.5.0</rest-assured.version>
-        <testcontainers.version>1.20.1</testcontainers.version>
+        <testcontainers.version>1.20.4</testcontainers.version>
         <mockito-core-version>3.12.4</mockito-core-version>
         <javax.ws.rs-api-version>2.1.1</javax.ws.rs-api-version>
         <jsr311-api-version>1.1.1</jsr311-api-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spotless.version>2.27.2</spotless.version>
-        <surefire.version>3.1.2</surefire.version>
+        <surefire.version>3.5.2</surefire.version>
 
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -173,6 +170,10 @@
                         <groupId>com.fasterxml.jackson.dataformat</groupId>
                         <artifactId>jackson-dataformat-xml</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-datatype-jts</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
 
@@ -184,6 +185,10 @@
                     <exclusion>
                         <groupId>com.fasterxml.jackson.dataformat</groupId>
                         <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-datatype-jts</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -254,12 +259,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-common</artifactId>
-                <version>${springdoc-openapi-starter.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <type>pom</type>
@@ -323,6 +322,18 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${fasterxml.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jts</artifactId>
+                <version>${fasterxml.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${fasterxml.jackson.version}</version>
             </dependency>
 

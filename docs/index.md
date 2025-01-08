@@ -24,11 +24,11 @@ features:
       linkText: Instructions
       link: /run-instance/
     - title: Data Sources
-      details: Find all information on the data used by the openrouteservice here.
+      details: Find all information on the data used by openrouteservice here.
       linkText: Data
       link: /run-instance/data
     - title: Latest Changes
-      details: Check out the latest changes to the openrouteservice.
+      details: Check out the latest changes to openrouteservice.
       linkText: CHANGELOG.md
       link: https://github.com/GIScience/openrouteservice/blob/main/CHANGELOG.md
 ---

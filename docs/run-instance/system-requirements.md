@@ -15,7 +15,7 @@ As a guide, you can look at the size of OSM data extracts as a rough guide as to
 
 ## JVM configuration
 
-Independent of the configuration of the openrouteservice itself, you might need to adjust settings of the Java Virtual Machine (JVM) running the code. Since the memory requirements of openrouteservice are proportional to the size of the OSM data (and therefore the resulting graph), the setting that needs to be adjusted most often is the heap memory size.
+Independent of the configuration of openrouteservice itself, you might need to adjust settings of the Java Virtual Machine (JVM) running the code. Since the memory requirements of openrouteservice are proportional to the size of the OSM data (and therefore the resulting graph), the setting that needs to be adjusted most often is the heap memory size.
 
 [//]: # (TODO: elaborate)
 

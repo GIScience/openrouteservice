@@ -9,7 +9,7 @@ The fastest way to get to the info you are looking for is **the search bar above
   * [Matrix](api-reference/endpoints/matrix/index.md) endpoint
   * [Snapping](api-reference/endpoints/snapping/index.md) endpoint
   * [Export](api-reference/endpoints/export/index.md) endpoint _(not available in our live API)_
-* [Run ORS instance](run-instance/index.md) contains all info about setting up the ors locally. 
+* [Run openrouteservice instance](run-instance/index.md) contains all info about setting up openrouteservice locally. 
   * [System requirements](run-instance/system-requirements)
   * [Data](run-instance/data) used by openrouteservice
   * [Running with Docker](run-instance/running-with-docker.md) artifact
@@ -17,8 +17,8 @@ The fastest way to get to the info you are looking for is **the search bar above
   * [Running WAR](run-instance/running-war.md) artifact
   * [Building from Source](run-instance/building-from-source.md)
   * [Configuration](run-instance/configuration/index.md) of openrouteservice instances
-* [Contributing](contributing/index.md) contains info about contributing to the openrouteservice, the OpenStreetMap and [translations](contributing/contributing-translations)
-* [Technical details](technical-details/index.md) contains all sorts of explanation about the internal workings of the openrouteservice.
+* [Contributing](contributing/index.md) contains info about contributing to openrouteservice, the OpenStreetMap and [translations](contributing/contributing-translations)
+* [Technical details](technical-details/index.md) contains all sorts of explanation about the internal workings of openrouteservice.
 * [FAQ](frequently-asked-questions) contains answers to frequently asked questions.
 
 For a more general overview, visit our website at [openrouteservice.org](https://openrouteservice.org).

@@ -123,7 +123,7 @@ Properties beneath `ors.engine.profiles.*.ext_storages`:
 | HillIndex              | object | Returns the ascent/descent in the route response, compatible with any profile type                                                               |                                                   |
 | TrailDifficulty        | object | Returns the trail difficulty in the route response, compatible with walking and cycling profiles                                                 |                                                   |
 | Wheelchair             | object | Wheelchair-specific attributes compatible only with that profile                                                                                 | [Wheelchair](#wheelchair)                         |
-| OsmId                  | object | Returns the OsmId of the way, compatible only with wheelchair profile                                                                            |                                                   |
+| OsmId                  | object | Returns the OsmId of the way, compatible with any profile type                                                                                   |                                                   |
 
 Check [this table](/api-reference/endpoints/directions/extra-info/index.md#extra-info-availability) for extra
 info availability.
