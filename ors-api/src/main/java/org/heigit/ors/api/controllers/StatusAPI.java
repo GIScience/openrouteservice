@@ -15,6 +15,7 @@
 
 package org.heigit.ors.api.controllers;
 
+import com.graphhopper.routing.ev.EncodedValue;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.config.EndpointsProperties;
@@ -24,6 +25,7 @@ import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -101,6 +103,11 @@ public class StatusAPI {
                     if (profile.getBuild().getExtStorages() != null && !profile.getBuild().getExtStorages().isEmpty())
                         jProfileProps.put("storages", profile.getBuild().getExtStorages());
 
+                    var profile_evs = rp.getGraphhopper().getEncodingManager().getEncodedValues();
+                    if (profile_evs != null && !profile_evs.isEmpty()) {
+                        JSONArray jEVs = new JSONArray(profile_evs.stream().map(EncodedValue::getName).toArray());
+                        jProfileProps.put("encoded_values",jEVs);
+                    }
                     jProfiles.put(profile.getProfileName(), jProfileProps);
                 }
 
