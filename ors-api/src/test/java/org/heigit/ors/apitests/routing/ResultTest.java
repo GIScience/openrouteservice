@@ -3994,27 +3994,11 @@ class ResultTest extends ServiceTest {
         body.put("instructions", true);
         body.put("elevation", true);
 
-//        given()
-//                .config(JSON_CONFIG_DOUBLE_NUMBERS)
-//                .headers(CommonHeaders.jsonContent)
-//                .pathParam("profile", getParameter("carProfile"))
-//                .body(body.toString())
-//                .when()
-//                .post(getEndPointPath() + "/{profile}")
-//                .then().log().all()
-//                .assertThat()
-//                .body("any { it.key == 'routes' }", is(true))
-//                .statusCode(200);
-
+        // This custom model blocks tunnels
         JSONObject customModel = new JSONObject();
-        JSONObject speed = new JSONObject();
-        speed.put("if", true);
-        speed.put("limit_to", 100);
         JSONObject priority = new JSONObject();
-//        priority.put("if", "road_class == MOTORWAY");
         priority.put("if", "road_environment == TUNNEL");
         priority.put("multiply_by", 0);
-        customModel.put("speed", new JSONArray().put(speed));
         customModel.put("priority", new JSONArray().put(priority));
         customModel.put("distance_influence", 100);
         body.put("custom_model", customModel);
@@ -4029,6 +4013,7 @@ class ResultTest extends ServiceTest {
                 .then().log().all()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(3338f, 40f)))
                 .statusCode(200);
     }
 
