@@ -4032,6 +4032,66 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    void testCustomProfileAreas() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "in_custom1");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+
+        JSONObject areas = new JSONObject();
+        JSONObject area1 = new JSONObject();
+        area1.put("type", "Feature");
+        area1.put("id", "something");
+        JSONObject area1props = new JSONObject();
+        area1.put("properties", area1props);
+        JSONObject area1geo = new JSONObject();
+        area1geo.put("type", "Polygon");
+        JSONArray area1coords = new JSONArray();
+        JSONArray coordinate1 = new JSONArray();
+        coordinate1.put(8.7062144);
+        coordinate1.put(49.4077481);
+        area1coords.put(coordinate1);
+        JSONArray coordinate2 = new JSONArray();
+        coordinate2.put(8.7068045);
+        coordinate2.put(49.4108196);
+        area1coords.put(coordinate2);
+        JSONArray coordinate3 = new JSONArray();
+        coordinate3.put(8.7132203);
+        coordinate3.put(49.4117201);
+        area1coords.put(coordinate3);
+        JSONArray coordinate4 = new JSONArray();
+        coordinate4.put(8.7139713);
+        coordinate4.put(49.4084322);
+        area1coords.put(coordinate4);
+        area1coords.put(coordinate1);
+        area1geo.put("coordinates", new JSONArray().put(area1coords));
+        area1.put("geometry", area1geo);
+        areas.put("custom1", area1);
+        customModel.put("areas", areas);
+
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().all()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .statusCode(200);
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");

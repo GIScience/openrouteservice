@@ -216,9 +216,9 @@ public class RoutingProfile {
 
         if (true) { // TODO: replace with config flag
             if (hasTurnCosts) {
-                profiles.put(vehicle + "_custom_with_turn_costs", new CustomProfile(vehicle + "_custom_with_turn_costs").setCustomModel(new CustomModel()).setVehicle(vehicle).setTurnCosts(true));
+                profiles.put(vehicle + "_custom_with_turn_costs", new CustomProfile(vehicle + "_custom_with_turn_costs").setCustomModel(new CustomModel().setDistanceInfluence(0)).setVehicle(vehicle).setTurnCosts(true));
             }
-            profiles.put(vehicle + "_custom", new CustomProfile(vehicle + "_custom").setCustomModel(new CustomModel()).setVehicle(vehicle).setTurnCosts(false));
+            profiles.put(vehicle + "_custom", new CustomProfile(vehicle + "_custom").setCustomModel(new CustomModel().setDistanceInfluence(0)).setVehicle(vehicle).setTurnCosts(false));
         }
 
         ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
