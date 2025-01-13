@@ -140,20 +140,27 @@ class ResultTest extends ServiceTest {
         addParameter("coordinatesPTFlipped", coordinatesPTFlipped);
         addParameter("coordinatesPT2", coordinatesPT2);
 
-        JSONArray coordinatesCustom = new JSONArray();
         JSONArray coordinatesCustom1 = new JSONArray();
-        coordinatesCustom1.put(8.689885139465334);
-        coordinatesCustom1.put(49.40667302975234);
-//        coordinatesCustom1.put(8.660252);
-//        coordinatesCustom1.put(49.409744);
+        JSONArray coordinateCustom1 = new JSONArray();
+        coordinateCustom1.put(8.689885139465334);
+        coordinateCustom1.put(49.40667302975234);
+        JSONArray coordinateCustom2 = new JSONArray();
+        coordinateCustom2.put(8.7184506654739);
+        coordinateCustom2.put(49.41430278032613);
+        coordinatesCustom1.put(coordinateCustom1);
+        coordinatesCustom1.put(coordinateCustom2);
+        addParameter("coordinatesCustom1", coordinatesCustom1);
+
         JSONArray coordinatesCustom2 = new JSONArray();
-        coordinatesCustom2.put(8.7184506654739);
-        coordinatesCustom2.put(49.41430278032613);
-//        coordinatesCustom2.put(8.626949);
-//        coordinatesCustom2.put(49.371783);
-        coordinatesCustom.put(coordinatesCustom1);
-        coordinatesCustom.put(coordinatesCustom2);
-        addParameter("coordinatesCustom", coordinatesCustom);
+        JSONArray coordinateCustom3 = new JSONArray();
+        coordinateCustom3.put(8.669232130050661);
+        coordinateCustom3.put(49.40850204416985);
+        JSONArray coordinateCustom4 = new JSONArray();
+        coordinateCustom4.put(8.625125885009767);
+        coordinateCustom4.put(49.37098664229148);
+        coordinatesCustom2.put(coordinateCustom3);
+        coordinatesCustom2.put(coordinateCustom4);
+        addParameter("coordinatesCustom2", coordinatesCustom2);
 
         JSONArray extraInfo = new JSONArray();
         extraInfo.put("surface");
@@ -3989,7 +3996,7 @@ class ResultTest extends ServiceTest {
     @Test
     void testCustomProfileBlockTunnels() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", getParameter("coordinatesCustom"));
+        body.put("coordinates", getParameter("coordinatesCustom1"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
@@ -3999,7 +4006,6 @@ class ResultTest extends ServiceTest {
         priority.put("if", "road_environment == TUNNEL");
         priority.put("multiply_by", 0);
         customModel.put("priority", new JSONArray().put(priority));
-        customModel.put("distance_influence", 100);
         body.put("custom_model", customModel);
 
         given()
@@ -4062,17 +4068,17 @@ class ResultTest extends ServiceTest {
     @Test
     void testCustomProfileAreas() {
         JSONObject body = new JSONObject();
-        body.put("coordinates", getParameter("coordinatesCustom"));
+        body.put("coordinates", getParameter("coordinatesCustom1"));
         body.put("preference", getParameter("preference"));
         body.put("instructions", true);
         body.put("elevation", true);
 
+        // This custom model blocks a certain area
         JSONObject customModel = new JSONObject();
         JSONObject priority = new JSONObject();
         priority.put("if", "in_custom1");
         priority.put("multiply_by", 0);
         customModel.put("priority", new JSONArray().put(priority));
-
         JSONObject areas = new JSONObject();
         JSONObject area1 = new JSONObject();
         area1.put("type", "Feature");
@@ -4103,7 +4109,6 @@ class ResultTest extends ServiceTest {
         area1.put("geometry", area1geo);
         areas.put("custom1", area1);
         customModel.put("areas", areas);
-
         body.put("custom_model", customModel);
 
         given()
@@ -4111,11 +4116,52 @@ class ResultTest extends ServiceTest {
                 .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
-                .when().log().all()
+                .when().log().ifValidationFails()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().all()
+                .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(3338f, 40f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileDistanceInfluence() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(9746, 50f)))
+                .statusCode(200);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("priority", new JSONArray());
+        customModel.put("distance_influence", 150);
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(7648f, 50f)))
                 .statusCode(200);
     }
 
