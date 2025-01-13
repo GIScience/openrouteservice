@@ -4082,9 +4082,6 @@ class ResultTest extends ServiceTest {
         JSONObject areas = new JSONObject();
         JSONObject area1 = new JSONObject();
         area1.put("type", "Feature");
-        area1.put("id", "something");
-        JSONObject area1props = new JSONObject();
-        area1.put("properties", area1props);
         JSONObject area1geo = new JSONObject();
         area1geo.put("type", "Polygon");
         JSONArray area1coords = new JSONArray();
