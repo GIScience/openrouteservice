@@ -91,7 +91,7 @@ public class RoutingProfileManager {
                 try {
                     RoutingProfile rp = future.get();
                     nCompletedTasks++;
-                    routingProfiles.put(rp.getProfileName(), rp);
+                    routingProfiles.put(rp.name(), rp);
                 } catch (ExecutionException e) {
                     LOGGER.debug(e);
                     if (ExceptionUtils.indexOfThrowable(e, FileNotFoundException.class) != -1) {

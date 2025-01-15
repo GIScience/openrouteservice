@@ -27,7 +27,6 @@ import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
-import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.ElevationProperties;
 import org.heigit.ors.config.EngineProperties;
@@ -66,9 +65,7 @@ public class RoutingProfile {
     private static int profileIdentifier = 0;
     private final Integer[] mRoutePrefs;
 
-    @Getter
     private String profileName;
-    @Getter
     private ProfileProperties profileProperties;
     private EngineProperties engineProperties;
     private String graphVersion;
@@ -460,5 +457,13 @@ public class RoutingProfile {
 
     public int hashCode() {
         return mGraphHopper.getGraphHopperStorage().getDirectory().getLocation().hashCode();
+    }
+
+    public String name() {
+        return this.profileName;
+    }
+
+    public ProfileProperties getProfileProperties() {
+        return this.profileProperties;
     }
 }
