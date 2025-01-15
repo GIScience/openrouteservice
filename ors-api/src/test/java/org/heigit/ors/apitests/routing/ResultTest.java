@@ -4023,6 +4023,33 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testCustomProfileBlockTunnelsRejectedWhenDisabled() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom1"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "road_environment == TUNNEL");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("bikeProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .statusCode(500);
+    }
+
+    @Test
     void testCustomProfileBlockHighway() {
         JSONObject body = new JSONObject();
         JSONArray coordinates = new JSONArray();

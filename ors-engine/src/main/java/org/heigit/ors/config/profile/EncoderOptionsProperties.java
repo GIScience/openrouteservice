@@ -34,6 +34,8 @@ public class EncoderOptionsProperties {
     private Boolean conditionalAccess;
     @JsonProperty("conditional_speed")
     private Boolean conditionalSpeed;
+    @JsonProperty("enable_custom_models")
+    private Boolean enableCustomModels;
 
     public EncoderOptionsProperties() {
     }
@@ -44,7 +46,7 @@ public class EncoderOptionsProperties {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return blockFords == null && considerElevation == null && turnCosts == null && useAcceleration == null && maximumGradeLevel == null && preferredSpeedFactor == null && problematicSpeedFactor == null && conditionalAccess == null && conditionalSpeed == null;
+        return blockFords == null && considerElevation == null && turnCosts == null && useAcceleration == null && maximumGradeLevel == null && preferredSpeedFactor == null && problematicSpeedFactor == null && conditionalAccess == null && conditionalSpeed == null && enableCustomModels == null;
     }
 
     @JsonIgnore
@@ -77,6 +79,9 @@ public class EncoderOptionsProperties {
         if (conditionalSpeed != null) {
             out.add("conditional_speed=" + conditionalSpeed);
         }
+        if (enableCustomModels != null) {
+            out.add("enable_custom_models=" + enableCustomModels);
+        }
         return String.join("|", out);
     }
 
@@ -90,6 +95,7 @@ public class EncoderOptionsProperties {
         problematicSpeedFactor = ofNullable(this.problematicSpeedFactor).orElse(other.problematicSpeedFactor);
         conditionalAccess = ofNullable(this.conditionalAccess).orElse(other.conditionalAccess);
         conditionalSpeed = ofNullable(this.conditionalSpeed).orElse(other.conditionalSpeed);
+        enableCustomModels = ofNullable(this.enableCustomModels).orElse(other.enableCustomModels);
     }
 }
 
