@@ -45,6 +45,7 @@ Endpoints.
 |    2015    | Entry not reached.                                 |
 |    2016    | No route between entry and exit found.             |
 |    2017    | Maximum number of nodes exceeded.                  |
+|    2018    | Unsupported request option.                        |
 |    2099    | Unknown internal error.                            |
 
 ### Isochrones API
