@@ -286,7 +286,7 @@ The internal value for the specific profile wins over the user's `profile_defaul
 
 ## Graph build properties loaded from graph directories
 
-The configured profile properties in `ors.engine.profiles.<profile>.build` (and `ors.engine.profile_default.build`)
+The configured profile properties in `ors.engine.profiles.<PROFILE-NAME>.build` (and `ors.engine.profile_default.build`)
 are used to _build_ a graph.
 openrouteservice stores these build properties in the file `graphs/<profile>/graph_build_info.yml` when a graph is
 computed.
