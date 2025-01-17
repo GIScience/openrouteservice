@@ -162,6 +162,24 @@ class ResultTest extends ServiceTest {
         coordinatesCustom2.put(coordinateCustom4);
         addParameter("coordinatesCustom2", coordinatesCustom2);
 
+        JSONArray coordinatesCustom3 = new JSONArray();
+        JSONArray coordinateCustom5 = new JSONArray();
+        coordinateCustom5.put(8.687862753868105);
+        coordinateCustom5.put(49.41309522267728);
+        JSONArray coordinateCustom6 = new JSONArray();
+        coordinateCustom6.put(8.691891431808473);
+        coordinateCustom6.put(49.41331858818114);
+        coordinatesCustom3.put(coordinateCustom5);
+        coordinatesCustom3.put(coordinateCustom6);
+        addParameter("coordinatesCustom3", coordinatesCustom3);
+
+//        8.6947238445282, 49.41176896906394
+//        8.7036609649658, 49.41281775942496
+
+        // 8.687862753868105, 49.41309522267728
+        // 8.691891431808473, 49.41331858818114
+
+
         JSONArray extraInfo = new JSONArray();
         extraInfo.put("surface");
         extraInfo.put("suitability");
@@ -4186,6 +4204,80 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(7648f, 50f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileWithRecommended() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom3"));
+        body.put("preference", "recommended");
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("distance_influence", 0);
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo( 306.6f, 50f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileWithRecommendedCarDoesntBreak() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", "recommended");
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("distance_influence", 0);
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(9746.7f, 50f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileWithoutModelDoesntBreak() { //???
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", "custom");
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(9746.7f, 5f)))
                 .statusCode(200);
     }
 

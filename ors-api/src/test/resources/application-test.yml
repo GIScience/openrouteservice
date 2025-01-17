@@ -233,7 +233,7 @@ ors:
           interpolate_bridges_and_tunnels: false
           encoder_options:
             block_fords: false
-            enable_custom_models: false
+            enable_custom_models: true
           ext_storages:
             GreenIndex:
               filepath: ./src/test/files/green_streets_hd.csv

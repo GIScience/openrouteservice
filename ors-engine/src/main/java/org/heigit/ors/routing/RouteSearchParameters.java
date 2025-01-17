@@ -74,6 +74,7 @@ public class RouteSearchParameters {
     private boolean hasWalkingTime = false;
     private boolean hasScheduleDuration = false;
 
+    @Setter
     @Getter
     private CustomModel customModel;
 
@@ -421,10 +422,5 @@ public class RouteSearchParameters {
 
     public boolean hasScheduleDuration() {
         return this.hasScheduleDuration;
-    }
-
-    public void setCustomModel(CustomModel customModel) {
-        this.customModel = customModel;
-        weightingMethod = WeightingMethod.CUSTOM;
     }
 }

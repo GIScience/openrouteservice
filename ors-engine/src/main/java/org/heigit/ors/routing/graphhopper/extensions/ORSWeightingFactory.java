@@ -35,6 +35,7 @@ import static com.graphhopper.routing.weighting.TurnCostProvider.NO_TURN_COST_PR
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Helper.toLowerCase;
 import static org.heigit.ors.util.ProfileTools.VAL_CUSTOM;
+import static org.heigit.ors.util.ProfileTools.VAL_RECOMMENDED;
 
 /**
  * This class is a preliminary adaptation of ORSWeightingFactory to the new
@@ -85,14 +86,13 @@ public class ORSWeightingFactory implements WeightingFactory {
         if (weightingStr.isEmpty())
             throw new IllegalArgumentException("You need to specify a weighting");
 
-        Weighting weighting = null;
-        if (VAL_CUSTOM.equalsIgnoreCase(weightingStr)) {
-            if (!(profile instanceof CustomProfile)) {
+        Weighting weighting;
+        if (VAL_CUSTOM.equalsIgnoreCase(weightingStr) || profile instanceof CustomProfile) {
+            if (!(profile instanceof CustomProfile customProfile)) {
                 throw new IllegalArgumentException("custom weighting requires a CustomProfile but was profile=" + profile.getName());
             }
 
-            CustomModel queryCustomModel = (CustomModel) requestHints.getObject("custom_model", (Object) null);
-            CustomProfile customProfile = (CustomProfile) profile;
+            CustomModel queryCustomModel = requestHints.getObject("custom_model", null);
             if (queryCustomModel != null) {
                 queryCustomModel.checkLMConstraints(customProfile.getCustomModel());
             }
@@ -101,18 +101,12 @@ public class ORSWeightingFactory implements WeightingFactory {
             weighting = CustomModelParser.createWeighting(encoder, this.encodingManager, turnCostProvider, queryCustomModel);
         } else if ("shortest".equalsIgnoreCase(weightingStr)) {
             weighting = new ShortestWeighting(encoder, turnCostProvider);
-        } else if ("fastest".equalsIgnoreCase(weightingStr) || "recommended".equalsIgnoreCase(weightingStr)) {
-            if (encoder.supports(PriorityWeighting.class)) {
-                weighting = new ORSPriorityWeighting(encoder, hints, turnCostProvider);
-            } else {
-                weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
-            }
         } else {
-            if (encoder.supports(PriorityWeighting.class)) {
-                weighting = new FastestSafeWeighting(encoder, hints, turnCostProvider);
-            } else {
-                weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
-            }
+            weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
+        }
+
+        if ("recommended".equalsIgnoreCase(weightingStr) && encoder.supports(PriorityWeighting.class)) {
+            weighting = new ORSPriorityWeighting(encoder, turnCostProvider, weighting);
         }
 
         weighting = applySoftWeightings(hints, encoder, weighting);

@@ -415,8 +415,11 @@ public class RoutingService extends ApiService {
     }
 
     private int convertWeightingMethod(RouteRequest request, APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
-        if (request.getProfile().equals(APIEnums.Profile.DRIVING_CAR) && preferenceIn.equals(APIEnums.RoutePreference.RECOMMENDED))
+        if (request.getProfile().equals(APIEnums.Profile.DRIVING_CAR) && preferenceIn.equals(APIEnums.RoutePreference.RECOMMENDED)) {
+            if (request.getCustomModel() != null)
+                return WeightingMethod.CUSTOM;
             return WeightingMethod.FASTEST;
+        }
         int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
         if (weightingMethod == WeightingMethod.UNKNOWN)
             throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PREFERENCE, preferenceIn.toString());
