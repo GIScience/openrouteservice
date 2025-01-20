@@ -191,6 +191,7 @@ class ResultTest extends ServiceTest {
         addParameter("bikeProfile", "cycling-regular");
         addParameter("carProfile", "driving-car");
         addParameter("footProfile", "foot-walking");
+        addParameter("hikeProfile", "foot-hiking");
         addParameter("ptProfile", "public-transport");
         addParameter("carCustomProfile", "driving-car-no-preparations");
     }
@@ -4085,7 +4086,7 @@ class ResultTest extends ServiceTest {
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
-                .pathParam("profile", getParameter("footProfile"))
+                .pathParam("profile", getParameter("hikeProfile"))
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")

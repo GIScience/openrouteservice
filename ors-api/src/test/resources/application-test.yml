@@ -247,15 +247,13 @@ ors:
             WaySurfaceType:
             HillIndex:
             TrailDifficulty:
-        service:
-          allow_custom_models: false
       foot-hiking:
         enabled: true
         encoder_name: foot-hiking
         build:
           encoder_options:
             block_fords: false
-            enable_custom_models: false
+            enable_custom_models: true
           ext_storages:
             GreenIndex:
               filepath: ./src/test/files/green_streets_hd.csv
@@ -267,6 +265,8 @@ ors:
             WaySurfaceType:
             HillIndex:
             TrailDifficulty:
+        service:
+          allow_custom_models: false
       wheelchair:
         enabled: true
         encoder_name: wheelchair
