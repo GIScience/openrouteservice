@@ -196,7 +196,7 @@ go in touch with us to discuss if we can calculate the required graphs for you a
 
 The local directory, where openrouteservice stores and loads graphs, is defined by the configuration property
 `graph_path`
-(in `ors.engine.profile_default` or in a single profile in `ors.engine.profiles.<profile>.graph_path`).
+(in `ors.engine.profile_default` or in a single profile in `ors.engine.profiles.<PROFILE-NAME>.graph_path`).
 The graphs are located in sub directories named like their routing profiles.
 
 E.g. with `ors.engine.profile_default.graph_path: /home/ors/graphs` and the enabled profiles `car` and `bike`,
@@ -338,7 +338,7 @@ The general graph management is configured in the config properties beneatch [
 
 To define a graph in the openrouteservice config, configuration parameters similar to the elements of
 the [repository structure](#repository-structure) are used
-(see also [`ors.engine.profiles.<profile>.repo`](/run-instance/configuration/engine/profiles/repo.md)):
+(see also [`ors.engine.profiles.<PROFILE-NAME>.repo`](/run-instance/configuration/engine/profiles/repo.md)):
 
 | Repo Path Parameter        | Configuration Parameter                                                               |
 |----------------------------|---------------------------------------------------------------------------------------|

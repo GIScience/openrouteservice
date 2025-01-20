@@ -26,18 +26,20 @@ Note, that while the dataset was published in 2023, the most recent data contain
 ### Borders
 Data relating to the avoid borders features is derived from administrative boundaries features in OpenStreetMap. Information about open borders is obtained from [Wikipedia](https://en.wikipedia.org/wiki/Open_border).
 
-Configuration parameters: [`ors.engine.profiles.*.ext_storages.Borders`](configuration/engine/profiles/build.md#borders)
+Configuration parameters: [
+`ors.engine.profiles.<PROFILE-NAME>.ext_storages.Borders`](configuration/engine/profiles/build.md#borders)
 
 ### GTFS
 The public transport profile integrates [GTFS](https://developers.google.com/transit/gtfs) data for the public transit part. GTFS feeds can be obtained e.g. from sites like https://gtfs.de/ (for Germany), or from local public transport operators.
 
-Configuration parameters: [`ors.engine.profiles.*.gtfs_file`](configuration/engine/profiles/build.md)
+Configuration parameters: [`ors.engine.profiles.<PROFILE-NAME>.gtfs_file`](configuration/engine/profiles/build.md)
 
 ### Green & Quiet
 The data used to identify green and quiet routes were derived from research projects in the GIScience research group at Heidelberg University. 
 More information about these can be found on the GIScience news blog [here](https://giscienceblog.uni-heidelberg.de/2017/07/03/healthy-routing-prefering-green-areas-added-to-openrouteserviceorg/) and [here](http://giscienceblog.uni-heidelberg.de/2017/07/10/reducing-stress-by-avoiding-noise-with-quiet-routing-in-openrouteservice/)
 
-Configuration parameters: [`ors.engine.profiles.*.ext_storages`](configuration/engine/profiles/build.md#ext_storages)
+Configuration parameters: [
+`ors.engine.profiles.<PROFILE-NAME>.ext_storages`](configuration/engine/profiles/build.md#ext_storages)
 
 
 ## Output Files

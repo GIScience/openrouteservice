@@ -1,6 +1,6 @@
-# `ors.engine.profiles.<profile>.build`
+# `ors.engine.profiles.<PROFILE-NAME>.build`
 
-Properties beneath `ors.engine.profiles.<profile>.build` are used to define the parameters for building the routing
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build` are used to define the parameters for building the routing
 graphs for the specified profile.
 
 | key                              | type    | description                                                                                                                                                                                                                                                                                                                                                       | default value                                |
@@ -19,11 +19,11 @@ graphs for the specified profile.
 | gtfs_file                        | string  | Only for `public-transport` profile: location of GTFS data; can either be a zip-file or the unzipped folder                                                                                                                                                                                                                                                       | _NA_                                         |
 | encoder_options                  | string  | For details see [encoder_options](#encoder-options) below                                                                                                                                                                                                                                                                                                         |                                              |
 | preparation                      | object  | [Preparation settings](#preparation) for building the routing graphs                                                                                                                                                                                                                                                                                              |                                              |
-| ext_storages                     | object  | [External storages](#ext_storages) for returning extra information                                                                                                                                                                                                                                                                                                |                                              |
+| ext_storages                     | object  | [External storages](#ext-storages) for returning extra information                                                                                                                                                                                                                                                                                                |                                              |
 
 ## `encoder_options`
 
-Properties beneath `ors.engine.profiles.*.encoder_options`:
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.encoder_options`:
 
 | key                      | type    | profiles         | description                                                                                                                                                                                                                                                                                                                                                                                                      | example value |
 |--------------------------|---------|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
@@ -37,7 +37,7 @@ Properties beneath `ors.engine.profiles.*.encoder_options`:
 
 ## `preparation`
 
-Properties beneath `ors.engine.profiles.*.preparation`:
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.preparation`:
 
 | key              | type   | description                                                       | default value |
 |------------------|--------|-------------------------------------------------------------------|---------------|
@@ -48,7 +48,7 @@ Properties beneath `ors.engine.profiles.*.preparation`:
 
 Settings for preprocessing contraction hierarchies
 
-Properties beneath `ors.engine.profiles.*.preparation.methods.ch`:
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.preparation.methods.ch`:
 
 | key        | type    | description                                              | example value          |
 |------------|---------|----------------------------------------------------------|------------------------|
@@ -60,7 +60,7 @@ Properties beneath `ors.engine.profiles.*.preparation.methods.ch`:
 
 Settings for preprocessing A* with landmarks
 
-Properties beneath `ors.engine.profiles.*.preparation.methods.lm`:
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.preparation.methods.lm`:
 
 | key        | type    | description                                                                                                               | default value          |
 |------------|---------|---------------------------------------------------------------------------------------------------------------------------|------------------------|
@@ -73,7 +73,7 @@ Properties beneath `ors.engine.profiles.*.preparation.methods.lm`:
 
 Settings for preprocessing core routing with landmarks
 
-Properties beneath `ors.engine.profiles.*.preparation.methods.core`:
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.preparation.methods.core`:
 
 | key        | type    | description                                                                                                                 | example value                                               |
 |------------|---------|-----------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
@@ -110,7 +110,7 @@ parameter
 rely on the `HeavyVehicle` storage.
 :::
 
-Properties beneath `ors.engine.profiles.*.ext_storages`:
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.ext_storages`:
 
 | key                    | type   | description                                                                                                                                      | example value                                     |
 |------------------------|--------|--------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
@@ -152,7 +152,8 @@ route response.
 
 ### `Borders`
 
-Properties beneath `ors.engine.profiles.*.ext_storages.Borders` allows to define restriction of routes to not cross
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.ext_storages.Borders` allows to define restriction of
+routes to not cross
 country borders, compatible with any profile type.
 
 | key         | type   | description                                                                                         | example value            |

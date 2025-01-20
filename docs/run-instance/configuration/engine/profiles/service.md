@@ -1,6 +1,7 @@
-# `ors.engine.profiles.<profile>.service`
+# `ors.engine.profiles.<PROFILE-NAME>.service`
 
-Properties beneath `ors.engine.profiles.<profile>.service` represent parameters relevant when querying services that
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.service` represent parameters relevant when querying services
+that
 need to be set specifically for each profile. More parameters relevant at query time can be found in the [
 `ors.endpoints`](/api-reference/endpoints/index.md) section.
 
@@ -19,13 +20,14 @@ need to be set specifically for each profile. More parameters relevant at query 
 
 ## `execution`
 
-Properties beneath `ors.engine.profiles.<profile>.service.execution` represent options specific for certain algorithms.
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.service.execution` represent options specific for certain
+algorithms.
 
 ### `methods.astar`
 
 Parameters for beeline approximation in the A* routing algorithm.
 
-Properties beneath `ors.engine.profiles.<profile>.service.execution.methods.astar`:
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.service.execution.methods.astar`:
 
 | key           | type   | description                                                                                                                                 | default value           |
 |---------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------|-------------------------| 
@@ -36,7 +38,7 @@ Properties beneath `ors.engine.profiles.<profile>.service.execution.methods.asta
 
 Settings for using landmarks in routing.
 
-Properties beneath `ors.engine.profiles.<profile>.service.execution.methods.lm`:
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.service.execution.methods.lm`:
 
 | key              | type   | description                                      | default value |
 |------------------|--------|--------------------------------------------------|---------------| 
@@ -46,7 +48,7 @@ Properties beneath `ors.engine.profiles.<profile>.service.execution.methods.lm`:
 
 Settings for using landmarks in routing using the Core-ALT algorithm.
 
-Properties beneath `ors.engine.profiles.<profile>.service.execution.methods.core`:
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.service.execution.methods.core`:
 
 | key              | type   | description                                      | example value |
 |------------------|--------|--------------------------------------------------|---------------| 

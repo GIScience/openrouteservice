@@ -1,6 +1,6 @@
-# `ors.engine.profiles.<profile>.repo`
+# `ors.engine.profiles.<PROFILE-NAME>.repo`
 
-Properties beneath `ors.engine.profiles.<profile>.repo` are used to address a graph in a graph repository.
+Properties beneath `ors.engine.profiles.<PROFILE-NAME>.repo` are used to address a graph in a graph repository.
 If *all* of these properties are set,
 and if graph management is
 enabled [ors.engine.graph_management.enabled](/run-instance/configuration/engine/graph-management.md),
