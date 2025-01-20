@@ -15,7 +15,9 @@ package org.heigit.ors.routing.graphhopper.extensions.weighting;
 
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.TurnCostProvider;
+import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderKeys;
@@ -23,19 +25,21 @@ import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
-public class ORSPriorityWeighting extends ORSFastestWeighting {
+public class ORSPriorityWeighting extends AbstractWeighting {
     private static final double PRIORITY_BEST = PriorityCode.BEST.getValue();
     private static final double PRIORITY_UNCHANGED = PriorityCode.UNCHANGED.getValue();
     private final DecimalEncodedValue priorityEncoder;
+    private final Weighting superWeighting;
 
-    public ORSPriorityWeighting(FlagEncoder encoder, PMap map, TurnCostProvider tcp) {
-        super(encoder, map, tcp);
+    public ORSPriorityWeighting(FlagEncoder encoder, TurnCostProvider tcp, Weighting superWeighting) {
+        super(encoder, tcp);
+        this.superWeighting = superWeighting;
         priorityEncoder = encoder.getDecimalEncodedValue(getKey(encoder, FlagEncoderKeys.PRIORITY_KEY));
     }
 
     @Override
     public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse, long edgeEnterTime) {
-        double weight = super.calcEdgeWeight(edgeState, reverse, edgeEnterTime);
+        double weight = superWeighting.calcEdgeWeight(edgeState, reverse, edgeEnterTime);
         if (Double.isInfinite(weight))
             return Double.POSITIVE_INFINITY;
 
@@ -46,6 +50,16 @@ public class ORSPriorityWeighting extends ORSFastestWeighting {
         double factor = Math.pow(2, normalizedPriority / (PRIORITY_UNCHANGED - PRIORITY_BEST));
 
         return weight * factor;
+    }
+
+    @Override
+    public double getMinWeight(double distance) {
+        return 0;
+    }
+
+    @Override
+    public double calcEdgeWeight(EdgeIteratorState edgeState, boolean reverse) {
+        return calcEdgeWeight(edgeState, reverse, -1);
     }
 
     @Override

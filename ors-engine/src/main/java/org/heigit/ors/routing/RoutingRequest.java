@@ -57,6 +57,7 @@ public class RoutingRequest extends ServiceRequest {
     private List<Integer> skipSegments = new ArrayList<>();
     private boolean includeCountryInfo = false;
     private double maximumSpeed;
+    private RoutingProfile routingProfile;
 
     private String responseFormat = "json";
     // Fields specific to GraphHopper GTFS
@@ -68,6 +69,14 @@ public class RoutingRequest extends ServiceRequest {
 
     public RoutingRequest() {
         searchParameters = new RouteSearchParameters();
+    }
+
+    public RoutingProfile profile() {
+        return routingProfile;
+    }
+
+    public void setRoutingProfile(RoutingProfile profile) {
+        this.routingProfile = profile;
     }
 
     public Coordinate[] getCoordinates() {
@@ -387,6 +396,10 @@ public class RoutingRequest extends ServiceRequest {
 
             if (props != null && !props.isEmpty())
                 req.getHints().putAll(props);
+
+            if (searchParams.getCustomModel() != null) {
+                req.setCustomModel(searchParams.getCustomModel());
+            }
 
             if (TemporaryUtilShelter.supportWeightingMethod(profileType)) {
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, TemporaryUtilShelter.hasTimeDependentSpeed(searchParams, searchCntx));

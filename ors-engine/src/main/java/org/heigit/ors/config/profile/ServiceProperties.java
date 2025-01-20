@@ -18,6 +18,7 @@ public class ServiceProperties {
     private Integer maximumSnappingRadius;
     private Integer maximumVisitedNodes;
     private Boolean forceTurnCosts;
+    private Boolean allowCustomModels;
     private ExecutionProperties execution = new ExecutionProperties();
 
     public ServiceProperties() {
@@ -37,6 +38,7 @@ public class ServiceProperties {
         maximumSnappingRadius = ofNullable(this.maximumSnappingRadius).orElse(other.maximumSnappingRadius);
         maximumVisitedNodes = ofNullable(this.maximumVisitedNodes).orElse(other.maximumVisitedNodes);
         forceTurnCosts = ofNullable(forceTurnCosts).orElse(other.forceTurnCosts);
+        allowCustomModels = ofNullable(allowCustomModels).orElse(other.allowCustomModels);
         execution.merge(other.execution);
     }
 }

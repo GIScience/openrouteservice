@@ -140,6 +140,45 @@ class ResultTest extends ServiceTest {
         addParameter("coordinatesPTFlipped", coordinatesPTFlipped);
         addParameter("coordinatesPT2", coordinatesPT2);
 
+        JSONArray coordinatesCustom1 = new JSONArray();
+        JSONArray coordinateCustom1 = new JSONArray();
+        coordinateCustom1.put(8.689885139465334);
+        coordinateCustom1.put(49.40667302975234);
+        JSONArray coordinateCustom2 = new JSONArray();
+        coordinateCustom2.put(8.7184506654739);
+        coordinateCustom2.put(49.41430278032613);
+        coordinatesCustom1.put(coordinateCustom1);
+        coordinatesCustom1.put(coordinateCustom2);
+        addParameter("coordinatesCustom1", coordinatesCustom1);
+
+        JSONArray coordinatesCustom2 = new JSONArray();
+        JSONArray coordinateCustom3 = new JSONArray();
+        coordinateCustom3.put(8.669232130050661);
+        coordinateCustom3.put(49.40850204416985);
+        JSONArray coordinateCustom4 = new JSONArray();
+        coordinateCustom4.put(8.625125885009767);
+        coordinateCustom4.put(49.37098664229148);
+        coordinatesCustom2.put(coordinateCustom3);
+        coordinatesCustom2.put(coordinateCustom4);
+        addParameter("coordinatesCustom2", coordinatesCustom2);
+
+        JSONArray coordinatesCustom3 = new JSONArray();
+        JSONArray coordinateCustom5 = new JSONArray();
+        coordinateCustom5.put(8.687862753868105);
+        coordinateCustom5.put(49.41309522267728);
+        JSONArray coordinateCustom6 = new JSONArray();
+        coordinateCustom6.put(8.691891431808473);
+        coordinateCustom6.put(49.41331858818114);
+        coordinatesCustom3.put(coordinateCustom5);
+        coordinatesCustom3.put(coordinateCustom6);
+        addParameter("coordinatesCustom3", coordinatesCustom3);
+
+//        8.6947238445282, 49.41176896906394
+//        8.7036609649658, 49.41281775942496
+
+        // 8.687862753868105, 49.41309522267728
+        // 8.691891431808473, 49.41331858818114
+
 
         JSONArray extraInfo = new JSONArray();
         extraInfo.put("surface");
@@ -152,6 +191,7 @@ class ResultTest extends ServiceTest {
         addParameter("bikeProfile", "cycling-regular");
         addParameter("carProfile", "driving-car");
         addParameter("footProfile", "foot-walking");
+        addParameter("hikeProfile", "foot-hiking");
         addParameter("ptProfile", "public-transport");
         addParameter("carCustomProfile", "driving-car-no-preparations");
     }
@@ -3970,6 +4010,303 @@ class ResultTest extends ServiceTest {
                 .body("error.code", is(errorCode))
                 .body("error.message", containsString(messages[messageIndex]))
                 .statusCode(404);
+    }
+
+    @Test
+    void testCustomProfileBlockTunnels() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom1"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "road_environment == TUNNEL");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(3338f, 40f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileBlockTunnelsRejectedWhenDisabled() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom1"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "road_environment == TUNNEL");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("bikeProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .statusCode(500);
+    }
+
+    @Test
+    void testCustomProfileBlockTunnelsRejectedWhenDisallowed() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom1"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "road_environment == TUNNEL");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("hikeProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .statusCode(500);
+    }
+
+    @Test
+    void testCustomProfileBlockHighway() {
+        JSONObject body = new JSONObject();
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+
+        coord1.put(8.64751);
+        coord1.put(49.41316);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+
+        coord2.put(8.623651);
+        coord2.put(49.371185);
+        coordinates.put(coord2);
+
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "road_class == MOTORWAY");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+        customModel.put("distance_influence", 100);
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(9039f, 80f)))
+                .body("routes[0].summary.duration", is(closeTo(895f, 9f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileAreas() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom1"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        // This custom model blocks a certain area
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "in_custom1");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+        JSONObject areas = new JSONObject();
+        JSONObject area1 = new JSONObject();
+        area1.put("type", "Feature");
+        JSONObject area1geo = new JSONObject();
+        area1geo.put("type", "Polygon");
+        JSONArray area1coords = new JSONArray();
+        JSONArray coordinate1 = new JSONArray();
+        coordinate1.put(8.7062144);
+        coordinate1.put(49.4077481);
+        area1coords.put(coordinate1);
+        JSONArray coordinate2 = new JSONArray();
+        coordinate2.put(8.7068045);
+        coordinate2.put(49.4108196);
+        area1coords.put(coordinate2);
+        JSONArray coordinate3 = new JSONArray();
+        coordinate3.put(8.7132203);
+        coordinate3.put(49.4117201);
+        area1coords.put(coordinate3);
+        JSONArray coordinate4 = new JSONArray();
+        coordinate4.put(8.7139713);
+        coordinate4.put(49.4084322);
+        area1coords.put(coordinate4);
+        area1coords.put(coordinate1);
+        area1geo.put("coordinates", new JSONArray().put(area1coords));
+        area1.put("geometry", area1geo);
+        areas.put("custom1", area1);
+        customModel.put("areas", areas);
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(3338f, 40f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileDistanceInfluence() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(9746, 50f)))
+                .statusCode(200);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("priority", new JSONArray());
+        customModel.put("distance_influence", 150);
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(7648f, 50f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileWithRecommended() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom3"));
+        body.put("preference", "recommended");
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("distance_influence", 0);
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo( 306.6f, 50f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileWithRecommendedCarDoesntBreak() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", "recommended");
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("distance_influence", 0);
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(9746.7f, 50f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileWithoutModelDoesntBreak() { //???
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", "custom");
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().all()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(9746.7f, 5f)))
+                .statusCode(200);
     }
 
     private JSONArray constructBearings(String coordString) {

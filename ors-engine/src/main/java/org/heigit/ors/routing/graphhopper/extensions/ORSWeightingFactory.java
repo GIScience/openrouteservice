@@ -6,8 +6,11 @@ import com.graphhopper.routing.util.ConditionalSpeedCalculator;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.weighting.*;
+import com.graphhopper.routing.weighting.custom.CustomModelParser;
+import com.graphhopper.routing.weighting.custom.CustomProfile;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.Parameters;
@@ -31,6 +34,8 @@ import java.util.Map;
 import static com.graphhopper.routing.weighting.TurnCostProvider.NO_TURN_COST_PROVIDER;
 import static com.graphhopper.routing.weighting.Weighting.INFINITE_U_TURN_COSTS;
 import static com.graphhopper.util.Helper.toLowerCase;
+import static org.heigit.ors.util.ProfileTools.VAL_CUSTOM;
+import static org.heigit.ors.util.ProfileTools.VAL_RECOMMENDED;
 
 /**
  * This class is a preliminary adaptation of ORSWeightingFactory to the new
@@ -81,21 +86,27 @@ public class ORSWeightingFactory implements WeightingFactory {
         if (weightingStr.isEmpty())
             throw new IllegalArgumentException("You need to specify a weighting");
 
-        Weighting weighting = null;
-        if ("shortest".equalsIgnoreCase(weightingStr)) {
+        Weighting weighting;
+        if (VAL_CUSTOM.equalsIgnoreCase(weightingStr) || profile instanceof CustomProfile) {
+            if (!(profile instanceof CustomProfile customProfile)) {
+                throw new IllegalArgumentException("custom weighting requires a CustomProfile but was profile=" + profile.getName());
+            }
+
+            CustomModel queryCustomModel = requestHints.getObject("custom_model", null);
+            if (queryCustomModel != null) {
+                queryCustomModel.checkLMConstraints(customProfile.getCustomModel());
+            }
+
+            queryCustomModel = CustomModel.merge(customProfile.getCustomModel(), queryCustomModel);
+            weighting = CustomModelParser.createWeighting(encoder, this.encodingManager, turnCostProvider, queryCustomModel);
+        } else if ("shortest".equalsIgnoreCase(weightingStr)) {
             weighting = new ShortestWeighting(encoder, turnCostProvider);
-        } else if ("fastest".equalsIgnoreCase(weightingStr) || "recommended".equalsIgnoreCase(weightingStr)) {
-            if (encoder.supports(PriorityWeighting.class)) {
-                weighting = new ORSPriorityWeighting(encoder, hints, turnCostProvider);
-            } else {
-                weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
-            }
         } else {
-            if (encoder.supports(PriorityWeighting.class)) {
-                weighting = new FastestSafeWeighting(encoder, hints, turnCostProvider);
-            } else {
-                weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
-            }
+            weighting = new ORSFastestWeighting(encoder, hints, turnCostProvider);
+        }
+
+        if ("recommended".equalsIgnoreCase(weightingStr) && encoder.supports(PriorityWeighting.class)) {
+            weighting = new ORSPriorityWeighting(encoder, turnCostProvider, weighting);
         }
 
         weighting = applySoftWeightings(hints, encoder, weighting);

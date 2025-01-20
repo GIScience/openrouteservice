@@ -7,6 +7,7 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 
 public class ProfileTools {
     public static final String VAL_RECOMMENDED = "recommended";
+    public static final String VAL_CUSTOM = "custom";
     private static final String KEY_WEIGHTING = "weighting";
     private static final String KEY_WEIGHTING_METHOD = "weighting_method";
     public static final String KEY_CH_DISABLE = "ch.disable";
@@ -63,6 +64,9 @@ public class ProfileTools {
                 weightingMethod = VAL_RECOMMENDED;
             }
         }
+
+        if (requestWeighting == WeightingMethod.CUSTOM)
+            weightingMethod = VAL_CUSTOM;
 
         map.putObject(KEY_WEIGHTING_METHOD, weightingMethod);
 

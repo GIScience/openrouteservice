@@ -161,6 +161,7 @@ ors:
         maximum_distance_round_trip_routes: 100000
         maximum_visited_nodes: 1000000
         force_turn_costs: false
+        allow_custom_models: true
         execution:
           methods:
             lm:
@@ -179,6 +180,7 @@ ors:
             turn_costs: true
             block_fords: false
             use_acceleration: true
+            enable_custom_models: false
           preparation:
             min_network_size: 200
             methods:
@@ -215,6 +217,7 @@ ors:
             turn_costs: true
             block_fords: false
             use_acceleration: true
+            enable_custom_models: false
           preparation:
             min_network_size: 200
             methods:
@@ -248,6 +251,7 @@ ors:
             consider_elevation: true
             turn_costs: true
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -260,6 +264,7 @@ ors:
             consider_elevation: true
             turn_costs: true
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -272,6 +277,7 @@ ors:
             consider_elevation: true
             turn_costs: true
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -284,6 +290,7 @@ ors:
             consider_elevation: true
             turn_costs: true
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -294,6 +301,7 @@ ors:
         build:
           encoder_options:
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -304,6 +312,7 @@ ors:
         build:
           encoder_options:
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -314,6 +323,7 @@ ors:
         build:
           encoder_options:
             block_fords: true
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -327,6 +337,7 @@ ors:
         build:
           encoder_options:
             block_fords: false
+            enable_custom_models: false
           elevation: true
           gtfs_file: ./src/test/files/vrn_gtfs_cut.zip
         service:

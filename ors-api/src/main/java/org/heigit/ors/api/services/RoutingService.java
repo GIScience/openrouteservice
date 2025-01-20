@@ -1,11 +1,14 @@
 package org.heigit.ors.api.services;
 
+import com.graphhopper.util.DistanceCalc;
+import com.graphhopper.util.DistanceCalcEarth;
 import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.config.ApiEngineProperties;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestRoundTripOptions;
 import org.heigit.ors.common.StatusCode;
+import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.*;
@@ -28,6 +31,80 @@ public class RoutingService extends ApiService {
         this.apiEngineProperties = apiEngineProperties;
     }
 
+    public static void validateRouteProfileForRequest(RoutingRequest req) throws InternalServerException, ServerLimitExceededException, ParameterValueException {
+        boolean oneToMany = false;
+        RouteSearchParameters searchParams = req.getSearchParameters();
+        String profileName = searchParams.getProfileName();
+
+        boolean fallbackAlgorithm = searchParams.requiresFullyDynamicWeights();
+        boolean dynamicWeights = searchParams.requiresDynamicPreprocessedWeights();
+        boolean useAlternativeRoutes = searchParams.getAlternativeRoutesCount() > 1;
+
+        RoutingProfile rp = req.profile();
+
+        if (rp == null)
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to get an appropriate routing profile for the name " + profileName + ".");
+
+        ProfileProperties profileProperties = rp.getProfileConfiguration();
+
+        if (profileProperties.getService().getMaximumDistance() != null
+                || dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null
+                || profileProperties.getService().getMaximumWayPoints() != null
+                || fallbackAlgorithm && profileProperties.getService().getMaximumDistanceAvoidAreas() != null
+        ) {
+            Coordinate[] coords = req.getCoordinates();
+            int nCoords = coords.length;
+            if (profileProperties.getService().getMaximumWayPoints() > 0 && !oneToMany && nCoords > profileProperties.getService().getMaximumWayPoints()) {
+                throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The specified number of waypoints must not be greater than " + profileProperties.getService().getMaximumWayPoints() + ".");
+            }
+
+            if (profileProperties.getService().getMaximumDistance() != null
+                    || dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null
+                    || fallbackAlgorithm && profileProperties.getService().getMaximumDistanceAvoidAreas() != null
+            ) {
+                DistanceCalc distCalc = DistanceCalcEarth.DIST_EARTH;
+
+                List<Integer> skipSegments = req.getSkipSegments();
+                Coordinate c0 = coords[0];
+                Coordinate c1;
+                double totalDist = 0.0;
+
+                if (oneToMany) {
+                    for (int i = 1; i < nCoords; i++) {
+                        c1 = coords[i];
+                        totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+                    }
+                } else {
+                    for (int i = 1; i < nCoords; i++) {
+                        c1 = coords[i];
+                        if (!skipSegments.contains(i)) { // ignore skipped segments
+                            totalDist += distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
+                        }
+                        c0 = c1;
+                    }
+                }
+
+                if (profileProperties.getService().getMaximumDistance() != null && totalDist > profileProperties.getService().getMaximumDistance())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistance()));
+                if (dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null && totalDist > profileProperties.getService().getMaximumDistanceDynamicWeights())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceDynamicWeights()));
+                if (fallbackAlgorithm && profileProperties.getService().getMaximumDistanceAvoidAreas() != null && totalDist > profileProperties.getService().getMaximumDistanceAvoidAreas())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With these options, the approximated route distance must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceAvoidAreas()));
+                if (useAlternativeRoutes && profileProperties.getService().getMaximumDistanceAlternativeRoutes() != null && totalDist > profileProperties.getService().getMaximumDistanceAlternativeRoutes())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters for use with the alternative Routes algorithm.".formatted(profileProperties.getService().getMaximumDistanceAlternativeRoutes()));
+            }
+        }
+
+        if (searchParams.hasMaximumSpeed() && profileProperties.getBuild().getMaximumSpeedLowerBound() != null) {
+            if (searchParams.getMaximumSpeed() < profileProperties.getBuild().getMaximumSpeedLowerBound()) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequestParameterNames.PARAM_MAXIMUM_SPEED, String.valueOf(searchParams.getMaximumSpeed()), "The maximum speed must not be lower than " + profileProperties.getBuild().getMaximumSpeedLowerBound() + " km/h.");
+            }
+            if (RoutingProfileCategory.getFromEncoder(rp.getGraphhopper().getEncodingManager()) != RoutingProfileCategory.DRIVING) {
+                throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "The maximum speed feature can only be used with cars and heavy vehicles.");
+            }
+        }
+    }
+
     @Override
     double getMaximumAvoidPolygonArea() {
         return this.endpointsProperties.getRouting().getMaximumAvoidPolygonArea();
@@ -38,10 +115,23 @@ public class RoutingService extends ApiService {
         return this.endpointsProperties.getRouting().getMaximumAvoidPolygonExtent();
     }
 
-    public RouteResult[] generateRouteFromRequest(RouteRequest request) throws StatusCodeException {
-        RoutingRequest routingRequest = this.convertRouteRequest(request);
-
+    public RouteResult[] generateRouteFromRequest(RouteRequest routeApiRequest) throws StatusCodeException {
         try {
+            RoutingRequest routingRequest = convertRouteRequest(routeApiRequest);
+            RoutingProfile profile = parseRoutingProfile(routeApiRequest.getProfileName());
+            routingRequest.setRoutingProfile(profile);
+            validateRouteProfileForRequest(routingRequest);
+            if (routeApiRequest.hasCustomModel()) {
+                if (!profile.getProfileProperties().getBuild().getEncoderOptions().getEnableCustomModels()) {
+                    throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, RoutingErrorCodes.UNSUPPORTED_REQUEST_OPTION,
+                            "Custom model not available for profile '" + profile.name() + "'.");
+                }
+                if (!profile.getProfileProperties().getService().getAllowCustomModels()) {
+                    throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, RoutingErrorCodes.UNSUPPORTED_REQUEST_OPTION,
+                            "Custom model disabled for profile '" + profile.name() + "'.");
+                }
+            }
+
             return RoutingProfileManager.getInstance().computeRoute(routingRequest);
         } catch (StatusCodeException e) {
             throw e;
@@ -50,159 +140,163 @@ public class RoutingService extends ApiService {
         }
     }
 
-    public RoutingRequest convertRouteRequest(RouteRequest request) throws StatusCodeException {
+    public RoutingRequest convertRouteRequest(RouteRequest routeApiRequest) throws StatusCodeException {
         RoutingRequest routingRequest = new RoutingRequest();
-        boolean isRoundTrip = request.hasRouteOptions() && request.getRouteOptions().hasRoundTripOptions();
-        routingRequest.setCoordinates(convertCoordinates(request.getCoordinates(), isRoundTrip));
-        routingRequest.setGeometryFormat(convertGeometryFormat(request.getResponseType()));
+        boolean isRoundTrip = routeApiRequest.hasRouteOptions() && routeApiRequest.getRouteOptions().hasRoundTripOptions();
+        routingRequest.setCoordinates(convertCoordinates(routeApiRequest.getCoordinates(), isRoundTrip));
+        routingRequest.setGeometryFormat(convertGeometryFormat(routeApiRequest.getResponseType()));
 
-        if (request.hasUseElevation())
-            routingRequest.setIncludeElevation(request.getUseElevation());
+        if (routeApiRequest.hasUseElevation())
+            routingRequest.setIncludeElevation(routeApiRequest.getUseElevation());
 
-        if (request.hasContinueStraightAtWaypoints())
-            routingRequest.setContinueStraight(request.getContinueStraightAtWaypoints());
+        if (routeApiRequest.hasContinueStraightAtWaypoints())
+            routingRequest.setContinueStraight(routeApiRequest.getContinueStraightAtWaypoints());
 
-        if (request.hasIncludeGeometry())
-            routingRequest.setIncludeGeometry(convertIncludeGeometry(request));
+        if (routeApiRequest.hasIncludeGeometry())
+            routingRequest.setIncludeGeometry(convertIncludeGeometry(routeApiRequest));
 
-        if (request.hasIncludeManeuvers())
-            routingRequest.setIncludeManeuvers(request.getIncludeManeuvers());
+        if (routeApiRequest.hasIncludeManeuvers())
+            routingRequest.setIncludeManeuvers(routeApiRequest.getIncludeManeuvers());
 
-        if (request.hasIncludeInstructions())
-            routingRequest.setIncludeInstructions(request.getIncludeInstructionsInResponse());
+        if (routeApiRequest.hasIncludeInstructions())
+            routingRequest.setIncludeInstructions(routeApiRequest.getIncludeInstructionsInResponse());
 
-        if (request.hasIncludeRoundaboutExitInfo())
-            routingRequest.setIncludeRoundaboutExits(request.getIncludeRoundaboutExitInfo());
+        if (routeApiRequest.hasIncludeRoundaboutExitInfo())
+            routingRequest.setIncludeRoundaboutExits(routeApiRequest.getIncludeRoundaboutExitInfo());
 
-        if (request.hasAttributes())
-            routingRequest.setAttributes(convertAttributes(request));
+        if (routeApiRequest.hasAttributes())
+            routingRequest.setAttributes(convertAttributes(routeApiRequest));
 
-        if (request.hasExtraInfo()) {
-            routingRequest.setExtraInfo(convertExtraInfo(request));
-            for (APIEnums.ExtraInfo extra : request.getExtraInfo()) {
+        if (routeApiRequest.hasExtraInfo()) {
+            routingRequest.setExtraInfo(convertExtraInfo(routeApiRequest));
+            for (APIEnums.ExtraInfo extra : routeApiRequest.getExtraInfo()) {
                 if (extra.compareTo(APIEnums.ExtraInfo.COUNTRY_INFO) == 0) {
                     routingRequest.setIncludeCountryInfo(true);
                 }
             }
         }
-        if (request.hasLanguage())
-            routingRequest.setLanguage(convertLanguage(request.getLanguage()));
+        if (routeApiRequest.hasLanguage())
+            routingRequest.setLanguage(convertLanguage(routeApiRequest.getLanguage()));
 
-        if (request.hasInstructionsFormat())
-            routingRequest.setInstructionsFormat(convertInstructionsFormat(request.getInstructionsFormat()));
+        if (routeApiRequest.hasInstructionsFormat())
+            routingRequest.setInstructionsFormat(convertInstructionsFormat(routeApiRequest.getInstructionsFormat()));
 
-        if (request.hasUnits())
-            routingRequest.setUnits(convertUnits(request.getUnits()));
+        if (routeApiRequest.hasUnits())
+            routingRequest.setUnits(convertUnits(routeApiRequest.getUnits()));
 
-        if (request.hasSimplifyGeometry()) {
-            routingRequest.setGeometrySimplify(request.getSimplifyGeometry());
-            if (request.hasExtraInfo() && request.getSimplifyGeometry()) {
+        if (routeApiRequest.hasSimplifyGeometry()) {
+            routingRequest.setGeometrySimplify(routeApiRequest.getSimplifyGeometry());
+            if (routeApiRequest.hasExtraInfo() && routeApiRequest.getSimplifyGeometry()) {
                 throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_SIMPLIFY_GEOMETRY, "true", RouteRequest.PARAM_EXTRA_INFO, "*");
             }
         }
 
-        if (request.hasSkipSegments()) {
-            routingRequest.setSkipSegments(processSkipSegments(request));
+        if (routeApiRequest.hasSkipSegments()) {
+            routingRequest.setSkipSegments(processSkipSegments(routeApiRequest));
         }
 
-        if (request.hasId())
-            routingRequest.setId(request.getId());
+        if (routeApiRequest.hasId())
+            routingRequest.setId(routeApiRequest.getId());
 
-        if (request.hasMaximumSpeed()) {
-            routingRequest.setMaximumSpeed(request.getMaximumSpeed());
+        if (routeApiRequest.hasMaximumSpeed()) {
+            routingRequest.setMaximumSpeed(routeApiRequest.getMaximumSpeed());
         }
 
         int profileType = -1;
 
-        int coordinatesLength = request.getCoordinates().size();
+        int coordinatesLength = routeApiRequest.getCoordinates().size();
 
         RouteSearchParameters params = new RouteSearchParameters();
 
-        params.setProfileName(request.getProfileName());
+        params.setProfileName(routeApiRequest.getProfileName());
 
-        if (request.hasExtraInfo()) {
-            routingRequest.setExtraInfo(convertExtraInfo(request));//todo remove duplicate?
-            params.setExtraInfo(convertExtraInfo(request));
+        if (routeApiRequest.hasExtraInfo()) {
+            routingRequest.setExtraInfo(convertExtraInfo(routeApiRequest));//todo remove duplicate?
+            params.setExtraInfo(convertExtraInfo(routeApiRequest));
         }
 
-        if (request.hasSuppressWarnings())
-            params.setSuppressWarnings(request.getSuppressWarnings());
+        if (routeApiRequest.hasSuppressWarnings())
+            params.setSuppressWarnings(routeApiRequest.getSuppressWarnings());
 
         try {
-            profileType = convertRouteProfileType(request.getProfile());
+            profileType = convertRouteProfileType(routeApiRequest.getProfile());
             params.setProfileType(profileType);
         } catch (Exception e) {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
         }
 
-        APIEnums.RoutePreference preference = request.hasRoutePreference() ? request.getRoutePreference() : APIEnums.RoutePreference.RECOMMENDED;
-        params.setWeightingMethod(convertWeightingMethod(request, preference));
+        APIEnums.RoutePreference preference = routeApiRequest.hasRoutePreference() ? routeApiRequest.getRoutePreference() : APIEnums.RoutePreference.RECOMMENDED;
+        params.setWeightingMethod(convertWeightingMethod(routeApiRequest, preference));
 
-        if (request.hasBearings())
-            params.setBearings(convertBearings(request.getBearings(), coordinatesLength));
+        if (routeApiRequest.hasBearings())
+            params.setBearings(convertBearings(routeApiRequest.getBearings(), coordinatesLength));
 
-        if (request.hasContinueStraightAtWaypoints())
-            params.setContinueStraight(request.getContinueStraightAtWaypoints());
+        if (routeApiRequest.hasContinueStraightAtWaypoints())
+            params.setContinueStraight(routeApiRequest.getContinueStraightAtWaypoints());
 
-        if (request.hasMaximumSearchRadii())
-            params.setMaximumRadiuses(convertMaxRadii(request.getMaximumSearchRadii(), coordinatesLength, profileType));
+        if (routeApiRequest.hasMaximumSearchRadii())
+            params.setMaximumRadiuses(convertMaxRadii(routeApiRequest.getMaximumSearchRadii(), coordinatesLength, profileType));
 
-        if (request.hasUseContractionHierarchies()) {
-            params.setFlexibleMode(convertSetFlexibleMode(request.getUseContractionHierarchies()));
-            params.setOptimized(request.getUseContractionHierarchies());
+        if (routeApiRequest.hasUseContractionHierarchies()) {
+            params.setFlexibleMode(convertSetFlexibleMode(routeApiRequest.getUseContractionHierarchies()));
+            params.setOptimized(routeApiRequest.getUseContractionHierarchies());
         }
 
-        if (request.hasRouteOptions()) {
-            params = processRouteRequestOptions(request, params);
+        if (routeApiRequest.hasRouteOptions()) {
+            params = processRouteRequestOptions(routeApiRequest, params);
         }
 
-        if (request.hasAlternativeRoutes()) {
-            if (request.getCoordinates().size() > 2) {
+        if (routeApiRequest.hasAlternativeRoutes()) {
+            if (routeApiRequest.getCoordinates().size() > 2) {
                 throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_ALTERNATIVE_ROUTES, "(number of waypoints > 2)");
             }
-            if (request.getAlternativeRoutes().hasTargetCount()) {
-                params.setAlternativeRoutesCount(request.getAlternativeRoutes().getTargetCount());
+            if (routeApiRequest.getAlternativeRoutes().hasTargetCount()) {
+                params.setAlternativeRoutesCount(routeApiRequest.getAlternativeRoutes().getTargetCount());
                 int countLimit = endpointsProperties.getRouting().getMaximumAlternativeRoutes();
-                if (countLimit > 0 && request.getAlternativeRoutes().getTargetCount() > countLimit) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(request.getAlternativeRoutes().getTargetCount()), "The target alternative routes count has to be equal to or less than " + countLimit);
+                if (countLimit > 0 && routeApiRequest.getAlternativeRoutes().getTargetCount() > countLimit) {
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(routeApiRequest.getAlternativeRoutes().getTargetCount()), "The target alternative routes count has to be equal to or less than " + countLimit);
                 }
             }
-            if (request.getAlternativeRoutes().hasWeightFactor())
-                params.setAlternativeRoutesWeightFactor(request.getAlternativeRoutes().getWeightFactor());
-            if (request.getAlternativeRoutes().hasShareFactor())
-                params.setAlternativeRoutesShareFactor(request.getAlternativeRoutes().getShareFactor());
+            if (routeApiRequest.getAlternativeRoutes().hasWeightFactor())
+                params.setAlternativeRoutesWeightFactor(routeApiRequest.getAlternativeRoutes().getWeightFactor());
+            if (routeApiRequest.getAlternativeRoutes().hasShareFactor())
+                params.setAlternativeRoutesShareFactor(routeApiRequest.getAlternativeRoutes().getShareFactor());
         }
 
-        if (request.hasDeparture() && request.hasArrival())
+        if (routeApiRequest.hasDeparture() && routeApiRequest.hasArrival())
             throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_DEPARTURE, RouteRequest.PARAM_ARRIVAL);
-        else if (request.hasDeparture())
-            params.setDeparture(request.getDeparture());
-        else if (request.hasArrival())
-            params.setArrival(request.getArrival());
+        else if (routeApiRequest.hasDeparture())
+            params.setDeparture(routeApiRequest.getDeparture());
+        else if (routeApiRequest.hasArrival())
+            params.setArrival(routeApiRequest.getArrival());
 
-        if (request.hasMaximumSpeed()) {
-            params.setMaximumSpeed(request.getMaximumSpeed());
+        if (routeApiRequest.hasMaximumSpeed()) {
+            params.setMaximumSpeed(routeApiRequest.getMaximumSpeed());
         }
 
         // propagate GTFS-parameters to params to convert to ptRequest in RoutingProfile.computeRoute
-        if (request.hasSchedule()) {
-            params.setSchedule(request.getSchedule());
+        if (routeApiRequest.hasSchedule()) {
+            params.setSchedule(routeApiRequest.getSchedule());
         }
 
-        if (request.hasWalkingTime()) {
-            params.setWalkingTime(request.getWalkingTime());
+        if (routeApiRequest.hasWalkingTime()) {
+            params.setWalkingTime(routeApiRequest.getWalkingTime());
         }
 
-        if (request.hasScheduleRows()) {
-            params.setScheduleRows(request.getScheduleRows());
+        if (routeApiRequest.hasScheduleRows()) {
+            params.setScheduleRows(routeApiRequest.getScheduleRows());
         }
 
-        if (request.hasIgnoreTransfers()) {
-            params.setIgnoreTransfers(request.isIgnoreTransfers());
+        if (routeApiRequest.hasIgnoreTransfers()) {
+            params.setIgnoreTransfers(routeApiRequest.isIgnoreTransfers());
         }
 
-        if (request.hasScheduleDuration()) {
-            params.setScheduleDuaration(request.getScheduleDuration());
+        if (routeApiRequest.hasScheduleDuration()) {
+            params.setScheduleDuaration(routeApiRequest.getScheduleDuration());
+        }
+
+        if (routeApiRequest.hasCustomModel()) {
+            params.setCustomModel(routeApiRequest.getCustomModel().toGHCustomModel());
         }
 
         params.setConsiderTurnRestrictions(false);
@@ -210,6 +304,13 @@ public class RoutingService extends ApiService {
         routingRequest.setSearchParameters(params);
 
         return routingRequest;
+    }
+
+    private static RoutingProfile parseRoutingProfile(String profileName) throws InternalServerException {
+        RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(profileName);
+        if (rp == null)
+            throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to find routing profile named '" + profileName + "'.");
+        return rp;
     }
 
     private Coordinate[] convertCoordinates(List<List<Double>> coordinates, boolean allowSingleCoordinate) throws ParameterValueException {
@@ -318,8 +419,11 @@ public class RoutingService extends ApiService {
     }
 
     private int convertWeightingMethod(RouteRequest request, APIEnums.RoutePreference preferenceIn) throws UnknownParameterValueException {
-        if (request.getProfile().equals(APIEnums.Profile.DRIVING_CAR) && preferenceIn.equals(APIEnums.RoutePreference.RECOMMENDED))
+        if (request.getProfile().equals(APIEnums.Profile.DRIVING_CAR) && preferenceIn.equals(APIEnums.RoutePreference.RECOMMENDED)) {
+            if (request.getCustomModel() != null)
+                return WeightingMethod.CUSTOM;
             return WeightingMethod.FASTEST;
+        }
         int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
         if (weightingMethod == WeightingMethod.UNKNOWN)
             throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PREFERENCE, preferenceIn.toString());

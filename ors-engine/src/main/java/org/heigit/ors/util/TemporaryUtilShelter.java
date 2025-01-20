@@ -125,7 +125,8 @@ public class TemporaryUtilShelter {
             }
         }
 
-        String localProfileName = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()),
+        String effectiveWeightingMethod = searchParams.getCustomModel() != null ? WeightingMethod.getName(WeightingMethod.CUSTOM) : WeightingMethod.getName(searchParams.getWeightingMethod());
+        String localProfileName = ProfileTools.makeProfileName(encoderName, effectiveWeightingMethod,
                 Boolean.TRUE.equals(routingProfile.getProfileProperties().getBuild().getEncoderOptions().getTurnCosts()));
         String profileNameCH = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
         RouteSearchContext searchCntx = new RouteSearchContext(routingProfile.getGraphhopper(), flagEncoder, localProfileName, profileNameCH);

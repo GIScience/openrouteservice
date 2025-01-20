@@ -30,7 +30,7 @@ class ORSStartupTest extends ServiceTest {
         assertNull(profileProperties.getBuild().getGtfsFile(), "GTFS file path settings should not be set in the graph_build_info");
         assertTrue(profileProperties.getRepo().isEmpty(), "Repo settings should not be set in the graph_build_info");
         assertTrue(profileProperties.getService().getExecution().isEmpty(), "Execution settings should not be set in the graph_build_info");
-        assertEquals("turn_costs=true|block_fords=false|use_acceleration=true|maximum_grade_level=1|conditional_access=true|conditional_speed=true", profileProperties.getBuild().getEncoderOptions().toString(), "Encoder options should be set in the graph_build_info");
+        assertEquals("turn_costs=true|block_fords=false|use_acceleration=true|maximum_grade_level=1|conditional_access=true|conditional_speed=true|enable_custom_models=true", profileProperties.getBuild().getEncoderOptions().toString(), "Encoder options should be set in the graph_build_info");
         assertFalse(profileProperties.getBuild().getPreparation().isEmpty(), "Preparation settings should be set in the graph_build_info");
         assertTrue(profileProperties.getBuild().getPreparation().getMethods().getCore().getEnabled(), "Preparation settings should contain enabled core method");
         assertFalse(profileProperties.getBuild().getExtStorages().isEmpty(), "ExtStorages settings should be set in the graph_build_info");

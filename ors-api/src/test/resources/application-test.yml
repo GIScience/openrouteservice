@@ -52,6 +52,7 @@ ors:
             maximum_grade_level: 1
             conditional_access: true
             conditional_speed: true
+            enable_custom_models: true
           preparation:
             min_network_size: 200
             methods:
@@ -106,6 +107,7 @@ ors:
             turn_costs: true
             block_fords: false
             use_acceleration: true
+            enable_custom_models: false
           preparation:
             min_network_size: 200
             methods:
@@ -161,6 +163,7 @@ ors:
             consider_elevation: false
             turn_costs: true
             block_fords: false
+            enable_custom_models: false
           preparation:
             min_network_size: 200
             methods:
@@ -187,6 +190,7 @@ ors:
             consider_elevation: false
             turn_costs: true
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -202,6 +206,7 @@ ors:
             consider_elevation: false
             turn_costs: false
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -215,6 +220,7 @@ ors:
             consider_elevation: false
             turn_costs: true
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             WayCategory:
             WaySurfaceType:
@@ -227,6 +233,7 @@ ors:
           interpolate_bridges_and_tunnels: false
           encoder_options:
             block_fords: false
+            enable_custom_models: true
           ext_storages:
             GreenIndex:
               filepath: ./src/test/files/green_streets_hd.csv
@@ -246,6 +253,7 @@ ors:
         build:
           encoder_options:
             block_fords: false
+            enable_custom_models: true
           ext_storages:
             GreenIndex:
               filepath: ./src/test/files/green_streets_hd.csv
@@ -257,12 +265,15 @@ ors:
             WaySurfaceType:
             HillIndex:
             TrailDifficulty:
+        service:
+          allow_custom_models: false
       wheelchair:
         enabled: true
         encoder_name: wheelchair
         build:
           encoder_options:
             block_fords: false
+            enable_custom_models: false
           ext_storages:
             Wheelchair:
               kerbs_on_crossings: true
@@ -277,6 +288,7 @@ ors:
         build:
           encoder_options:
             block_fords: false
+            enable_custom_models: false
           gtfs_file: ./src/test/files/vrn_gtfs_cut.zip
         service:
           maximum_visited_nodes: 15000
@@ -291,6 +303,7 @@ ors:
             maximum_grade_level: 1
             conditional_access: false
             conditional_speed: false
+            enable_custom_models: false
           preparation:
             min_network_size: 200
 

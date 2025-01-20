@@ -19,9 +19,10 @@ import com.fasterxml.jackson.annotation.*;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.routing.RouteRequestParameterNames;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import org.heigit.ors.routing.RoutingProfileType;
@@ -330,6 +331,28 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     private boolean ignoreTransfers;
     @JsonIgnore
     private boolean hasIgnoreTransfers = false;
+
+    @Getter
+    @Schema(name = PARAM_CUSTOM_MODEL, description = "Specifies custom model for weighting.", example = """
+    {\
+        "speed": [\
+            {\
+                "if": true,\
+                "limit_to": 100\
+            }\
+        ],\
+        "priority": [\
+            {\
+                "if": "road_class == MOTORWAY",\
+                "multiply_by": 0\
+            }\
+        ],\
+        "distance_influence": 100\
+    }""")
+    @JsonProperty(PARAM_CUSTOM_MODEL)
+    private RouteRequestCustomModel customModel;
+    @JsonIgnore
+    private boolean hasCustomModel = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -754,4 +777,12 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
         return convertRouteProfileType(profile) == RoutingProfileType.PUBLIC_TRANSPORT;
     }
 
+    public void setCustomModel(RouteRequestCustomModel customModel) {
+        this.customModel = customModel;
+        this.hasCustomModel = true;
+    }
+
+    public boolean hasCustomModel() {
+        return hasCustomModel;
+    }
 }
