@@ -161,6 +161,7 @@ ors:
         maximum_distance_round_trip_routes: 100000
         maximum_visited_nodes: 1000000
         force_turn_costs: false
+        allow_custom_models: true
         execution:
           methods:
             lm:

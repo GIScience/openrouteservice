@@ -124,7 +124,11 @@ public class RoutingService extends ApiService {
             if (routeApiRequest.hasCustomModel()) {
                 if (!profile.getProfileProperties().getBuild().getEncoderOptions().getEnableCustomModels()) {
                     throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, RoutingErrorCodes.UNSUPPORTED_REQUEST_OPTION,
-                            "Custom model not supported for profile '" + profile.name() + "'.");
+                            "Custom model not available for profile '" + profile.name() + "'.");
+                }
+                if (!profile.getProfileProperties().getService().getAllowCustomModels()) {
+                    throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, RoutingErrorCodes.UNSUPPORTED_REQUEST_OPTION,
+                            "Custom model disabled for profile '" + profile.name() + "'.");
                 }
             }
 

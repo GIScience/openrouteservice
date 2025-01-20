@@ -247,6 +247,8 @@ ors:
             WaySurfaceType:
             HillIndex:
             TrailDifficulty:
+        service:
+          allow_custom_models: false
       foot-hiking:
         enabled: true
         encoder_name: foot-hiking
