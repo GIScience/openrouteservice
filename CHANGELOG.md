@@ -54,8 +54,8 @@ RELEASING:
 ### Added
 - take into account tunnel categories B, C, D, and E when restricting roads for the transport of dangerous goods via the `hazmat` flag in vehicle parameters ([#1879](https://github.com/GIScience/openrouteservice/pull/1879))
 - Ukrainian translation ([#1883](https://github.com/GIScience/openrouteservice/pull/1883))
-- add new functionality to download new routing graphs from a remote
-  repository ([#1889](https://github.com/GIScience/openrouteservice/pull/1889))
+- add new functionality to download new routing graphs from a remote repository ([#1889](https://github.com/GIScience/openrouteservice/pull/1889))
+- add support for custom model for directions requests ([#1950](https://github.com/GIScience/openrouteservice/pull/1950))
 ### Changed
 - update docs dependency: VitePress ([#1872](https://github.com/GIScience/openrouteservice/pull/1872))
 - adjust documentation for export endpoint ([#1872](https://github.com/GIScience/openrouteservice/pull/1872))
