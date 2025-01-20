@@ -333,7 +333,22 @@ public class RouteRequest extends APIRequest implements RouteRequestParameterNam
     private boolean hasIgnoreTransfers = false;
 
     @Getter
-    @Schema(name = PARAM_CUSTOM_MODEL, description = "Specifies custom model for weighting.")
+    @Schema(name = PARAM_CUSTOM_MODEL, description = "Specifies custom model for weighting.", example = """
+    {\
+        "speed": [\
+            {\
+                "if": true,\
+                "limit_to": 100\
+            }\
+        ],\
+        "priority": [\
+            {\
+                "if": "road_class == MOTORWAY",\
+                "multiply_by": 0\
+            }\
+        ],\
+        "distance_influence": 100\
+    }""")
     @JsonProperty(PARAM_CUSTOM_MODEL)
     private RouteRequestCustomModel customModel;
     @JsonIgnore
