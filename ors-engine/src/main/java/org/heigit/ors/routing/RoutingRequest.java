@@ -416,7 +416,7 @@ public class RoutingRequest extends ServiceRequest {
         return ptRequest;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
+    private GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
                                    double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
             throws Exception {
 
@@ -544,7 +544,7 @@ public class RoutingRequest extends ServiceRequest {
         return resp;
     }
 
-    public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
+    private GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
             bearing, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile) throws Exception {
         GHResponse resp;
 
@@ -605,7 +605,7 @@ public class RoutingRequest extends ServiceRequest {
         return resp;
     }
 
-    public RouteResult[] computeRoundTripRoute() throws Exception {
+    private RouteResult[] computeRoundTripRoute() throws Exception {
         List<GHResponse> routes = new ArrayList<>();
 
         RoutingProfile rp = profile();
@@ -683,7 +683,7 @@ public class RoutingRequest extends ServiceRequest {
         return new RouteResultBuilder().createRouteResults(routes, this, new List[]{extraInfos});
     }
 
-    public RouteResult[] computeRoute(RoutingProfileManager routingProfileManager) throws Exception {
+    public RouteResult[] computeRoute() throws Exception {
         if (getSearchParameters().getRoundTripLength() > 0) {
             return computeRoundTripRoute();
         } else {
@@ -691,7 +691,7 @@ public class RoutingRequest extends ServiceRequest {
         }
     }
 
-    public RouteResult[] computeLinearRoute() throws Exception {
+    private RouteResult[] computeLinearRoute() throws Exception {
         List<Integer> skipSegments = getSkipSegments();
         List<GHResponse> routes = new ArrayList<>();
 

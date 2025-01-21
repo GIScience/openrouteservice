@@ -132,7 +132,7 @@ public class RoutingService extends ApiService {
                 }
             }
 
-            return routingRequest.computeRoute(RoutingProfileManager.getInstance());
+            return routingRequest.computeRoute();
         } catch (StatusCodeException e) {
             throw e;
         } catch (Exception e) {
