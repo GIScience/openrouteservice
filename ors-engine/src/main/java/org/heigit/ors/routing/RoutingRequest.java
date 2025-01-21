@@ -17,22 +17,24 @@ import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.gtfs.*;
 import com.graphhopper.util.*;
+import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import com.graphhopper.util.shapes.GHPoint;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.ServiceRequest;
-import org.heigit.ors.exceptions.IncompatibleParameterException;
-import org.heigit.ors.exceptions.InternalServerException;
+import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.exceptions.*;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
-import org.heigit.ors.util.DebugUtility;
-import org.heigit.ors.util.ProfileTools;
-import org.heigit.ors.util.TemporaryUtilShelter;
+import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
+import org.heigit.ors.util.*;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.time.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RoutingRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(RoutingRequest.class);
@@ -69,6 +71,69 @@ public class RoutingRequest extends ServiceRequest {
 
     public RoutingRequest() {
         searchParameters = new RouteSearchParameters();
+    }
+
+    public static double getHeadingDirection(GHResponse resp) {
+        PointList points = resp.getBest().getPoints();
+        int nPoints = points.size();
+        if (nPoints > 1) {
+            double lon1 = points.getLon(nPoints - 2);
+            double lat1 = points.getLat(nPoints - 2);
+            double lon2 = points.getLon(nPoints - 1);
+            double lat2 = points.getLat(nPoints - 1);
+            // For some reason, GH may return a response where the last two points are identical
+            if (lon1 == lon2 && lat1 == lat2 && nPoints > 2) {
+                lon1 = points.getLon(nPoints - 3);
+                lat1 = points.getLat(nPoints - 3);
+            }
+            return AngleCalc.ANGLE_CALC.calcAzimuth(lat1, lon1, lat2, lon2);
+        } else
+            return 0;
+    }
+
+    /**
+     * This will enrich all direct routes with an approximated travel time that is being calculated from the real graphhopper
+     * results. The routes object should contain all routes, so the function can maintain and return the proper order!
+     *
+     * @param routes Should hold all the routes that have been calculated, not only the direct routes.
+     * @return will return routes object with enriched direct routes if any we're found in the same order as the input object.
+     */
+    public static List<GHResponse> enrichDirectRoutesTime(List<GHResponse> routes) {
+        List<GHResponse> graphhopperRoutes = new ArrayList<>();
+        List<GHResponse> directRoutes = new ArrayList<>();
+        long graphHopperTravelTime = 0;
+        double graphHopperTravelDistance = 0;
+        double averageTravelTimePerMeter;
+
+        for (GHResponse ghResponse : routes) {
+            if (!ghResponse.getHints().has("skipped_segment")) {
+                graphHopperTravelDistance += ghResponse.getBest().getDistance();
+                graphHopperTravelTime += ghResponse.getBest().getTime();
+                graphhopperRoutes.add(ghResponse);
+            } else {
+                directRoutes.add(ghResponse);
+            }
+        }
+
+        if (graphhopperRoutes.isEmpty() || directRoutes.isEmpty()) {
+            return routes;
+        }
+
+        if (graphHopperTravelDistance == 0) {
+            return routes;
+        }
+
+        averageTravelTimePerMeter = graphHopperTravelTime / graphHopperTravelDistance;
+        for (GHResponse ghResponse : routes) {
+            if (ghResponse.getHints().has("skipped_segment")) {
+                double directRouteDistance = ghResponse.getBest().getDistance();
+                ghResponse.getBest().setTime(Math.round(directRouteDistance * averageTravelTimePerMeter));
+                double directRouteInstructionDistance = ghResponse.getBest().getInstructions().get(0).getDistance();
+                ghResponse.getBest().getInstructions().get(0).setTime(Math.round(directRouteInstructionDistance * averageTravelTimePerMeter));
+            }
+        }
+
+        return routes;
     }
 
     public RoutingProfile profile() {
@@ -351,7 +416,7 @@ public class RoutingRequest extends ServiceRequest {
         return ptRequest;
     }
 
-    public GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
+    private GHResponse computeRoute(double lat0, double lon0, double lat1, double lon1, WayPointBearing[] bearings,
                                    double[] radiuses, boolean directedSegment, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile)
             throws Exception {
 
@@ -479,7 +544,7 @@ public class RoutingRequest extends ServiceRequest {
         return resp;
     }
 
-    public GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
+    private GHResponse computeRoundTripRoute(double lat0, double lon0, WayPointBearing
             bearing, RouteSearchParameters searchParams, Boolean geometrySimplify, RoutingProfile routingProfile) throws Exception {
         GHResponse resp;
 
@@ -538,5 +603,283 @@ public class RoutingRequest extends ServiceRequest {
         }
 
         return resp;
+    }
+
+    private RouteResult[] computeRoundTripRoute() throws Exception {
+        List<GHResponse> routes = new ArrayList<>();
+
+        RoutingProfile rp = profile();
+        RouteSearchParameters searchParams = getSearchParameters();
+        ProfileProperties profileProperties = rp.getProfileConfiguration();
+
+        if (profileProperties.getService().getMaximumDistanceRoundTripRoutes() != null && profileProperties.getService().getMaximumDistanceRoundTripRoutes() < searchParams.getRoundTripLength()) {
+            throw new ServerLimitExceededException(
+                    RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT,
+                    "The requested route length must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceRoundTripRoutes())
+            );
+        }
+
+        Coordinate[] coords = getCoordinates();
+        Coordinate c0 = coords[0];
+
+        ExtraInfoProcessor extraInfoProcessor = null;
+
+        WayPointBearing bearing = null;
+        if (searchParams.getBearings() != null) {
+            bearing = searchParams.getBearings()[0];
+        }
+
+        GHResponse gr = computeRoundTripRoute(c0.y, c0.x, bearing, searchParams, getGeometrySimplify(), rp);
+
+        if (gr.hasErrors()) {
+            if (!gr.getErrors().isEmpty()) {
+                if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException) {
+                    throw new RouteNotFoundException(
+                            RoutingErrorCodes.ROUTE_NOT_FOUND,
+                            "Unable to find a route for point (%s).".formatted(FormatUtility.formatCoordinate(c0))
+                    );
+                } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
+                    StringBuilder message = new StringBuilder();
+                    for (Throwable error : gr.getErrors()) {
+                        if (!message.isEmpty())
+                            message.append("; ");
+                        message.append(error.getMessage());
+                    }
+                    throw new PointNotFoundException(message.toString());
+                } else {
+                    throw new InternalServerException(RoutingErrorCodes.UNKNOWN, gr.getErrors().get(0).getMessage());
+                }
+            } else {
+                // If there are no errors stored but there is indication that there are errors, something strange
+                // has happened, so return that a route could not be found
+                throw new RouteNotFoundException(
+                        RoutingErrorCodes.ROUTE_NOT_FOUND,
+                        "Unable to find a route for point (%s).".formatted(
+                                FormatUtility.formatCoordinate(c0)
+                        ));
+            }
+        }
+
+        try {
+            for (Object obj : gr.getReturnObjects()) {
+                if (obj instanceof ExtraInfoProcessor processor) {
+                    if (extraInfoProcessor == null) {
+                        extraInfoProcessor = processor;
+                        if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                            gr.getHints().putObject(RoutingProfileManager.KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
+                        }
+                    } else {
+                        extraInfoProcessor.appendData(processor);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error(e);
+        }
+
+        routes.add(gr);
+
+        List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
+        return new RouteResultBuilder().createRouteResults(routes, this, new List[]{extraInfos});
+    }
+
+    public RouteResult[] computeRoute() throws Exception {
+        if (getSearchParameters().getRoundTripLength() > 0) {
+            return computeRoundTripRoute();
+        } else {
+            return computeLinearRoute();
+        }
+    }
+
+    private RouteResult[] computeLinearRoute() throws Exception {
+        List<Integer> skipSegments = getSkipSegments();
+        List<GHResponse> routes = new ArrayList<>();
+
+        RoutingProfile rp = profile();
+        RouteSearchParameters searchParams = getSearchParameters();
+
+        Coordinate[] coords = getCoordinates();
+        Coordinate c0 = coords[0];
+        Coordinate c1;
+        int nSegments = coords.length - 1;
+        GHResponse prevResp = null;
+        WayPointBearing[] bearings = (getContinueStraight() || searchParams.getBearings() != null) ? new WayPointBearing[2] : null;
+        String profileName = getSearchParameters().getProfileName();
+        double[] radiuses = null;
+
+        if (getSearchParameters().getAlternativeRoutesCount() > 1 && coords.length > 2) {
+            throw new InternalServerException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Alternative routes algorithm does not support more than two way points.");
+        }
+
+        int numberOfExpectedExtraInfoProcessors = getSearchParameters().getAlternativeRoutesCount() < 0 ? 1 : getSearchParameters().getAlternativeRoutesCount();
+        ExtraInfoProcessor[] extraInfoProcessors = new ExtraInfoProcessor[numberOfExpectedExtraInfoProcessors];
+
+        for (int i = 1; i <= nSegments; ++i) {
+            c1 = coords[i];
+
+            if (bearings != null) {
+                bearings[0] = null;
+                if (prevResp != null && getContinueStraight()) {
+                    bearings[0] = new WayPointBearing(getHeadingDirection(prevResp));
+                }
+
+                if (searchParams.getBearings() != null) {
+                    bearings[0] = searchParams.getBearings()[i - 1];
+                    bearings[1] = (i == nSegments && searchParams.getBearings().length != nSegments + 1) ? new WayPointBearing(Double.NaN) : searchParams.getBearings()[i];
+                }
+            }
+
+            if (searchParams.getMaximumRadiuses() != null) {
+                radiuses = new double[2];
+                radiuses[0] = searchParams.getMaximumRadiuses()[i - 1];
+                radiuses[1] = searchParams.getMaximumRadiuses()[i];
+            } else {
+                try {
+                    int maximumSnappingRadius = profile().getProfileConfiguration().getService().getMaximumSnappingRadius();
+                    radiuses = new double[2];
+                    radiuses[0] = maximumSnappingRadius;
+                    radiuses[1] = maximumSnappingRadius;
+                } catch (Exception ex) {
+                    // do nothing
+                }
+            }
+
+            GHResponse gr = computeRoute(c0.y, c0.x, c1.y, c1.x, bearings, radiuses, skipSegments.contains(i), searchParams, getGeometrySimplify(), rp);
+
+            if (gr.hasErrors()) {
+                if (!gr.getErrors().isEmpty()) {
+                    if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.ConnectionNotFoundException ex) {
+                        Map<String, Object> details = ex.getDetails();
+                        if (!details.isEmpty()) {
+                            int code = RoutingErrorCodes.ROUTE_NOT_FOUND;
+                            if (details.containsKey("entry_not_reached") && details.containsKey("exit_not_reached")) {
+                                code = RoutingErrorCodes.PT_NOT_REACHED;
+                            } else if (details.containsKey("entry_not_reached")) {
+                                code = RoutingErrorCodes.PT_ENTRY_NOT_REACHED;
+                            } else if (details.containsKey("exit_not_reached")) {
+                                code = RoutingErrorCodes.PT_EXIT_NOT_REACHED;
+                            } else if (details.containsKey("combined_not_reached")) {
+                                code = RoutingErrorCodes.PT_ROUTE_NOT_FOUND;
+                            }
+                            throw new RouteNotFoundException(
+                                    code,
+                                    "Unable to find a route between points %d (%s) and %d (%s). %s".formatted(
+                                            i,
+                                            FormatUtility.formatCoordinate(c0),
+                                            i + 1,
+                                            FormatUtility.formatCoordinate(c1),
+                                            details.values().stream().map(Object::toString).collect(Collectors.joining(" "))
+                                    )
+                            );
+                        }
+                        throw new RouteNotFoundException(
+                                RoutingErrorCodes.ROUTE_NOT_FOUND,
+                                "Unable to find a route between points %d (%s) and %d (%s).".formatted(
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1)
+                                )
+                        );
+                    } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.MaximumNodesExceededException ex) {
+                        Map<String, Object> details = ex.getDetails();
+                        throw new RouteNotFoundException(
+                                RoutingErrorCodes.PT_MAX_VISITED_NODES_EXCEEDED,
+                                "Unable to find a route between points %d (%s) and %d (%s). Maximum number of nodes exceeded: %s".formatted(
+                                        i,
+                                        FormatUtility.formatCoordinate(c0),
+                                        i + 1,
+                                        FormatUtility.formatCoordinate(c1),
+                                        details.get(MaximumNodesExceededException.NODES_KEY).toString()
+                                )
+                        );
+                    } else if (gr.getErrors().get(0) instanceof com.graphhopper.util.exceptions.PointNotFoundException) {
+                        StringBuilder message = new StringBuilder();
+                        for (Throwable error : gr.getErrors()) {
+                            if (!message.isEmpty())
+                                message.append("; ");
+                            if (error instanceof com.graphhopper.util.exceptions.PointNotFoundException pointNotFoundException) {
+                                int pointReference = (i - 1) + pointNotFoundException.getPointIndex();
+
+                                Coordinate pointCoordinate = (pointNotFoundException.getPointIndex() == 0) ? c0 : c1;
+                                assert radiuses != null;
+                                double pointRadius = radiuses[pointNotFoundException.getPointIndex()];
+
+                                // -1 is used to indicate the use of internal limits instead of specifying it in the request.
+                                // we should therefore let them know that they are already using the limit.
+                                if (pointRadius == -1) {
+                                    pointRadius = profile().getProfileConfiguration().getService().getMaximumSnappingRadius();
+                                    message.append("Could not find routable point within the maximum possible radius of %.1f meters of specified coordinate %d: %s.".formatted(
+                                            pointRadius,
+                                            pointReference,
+                                            FormatUtility.formatCoordinate(pointCoordinate)));
+                                } else {
+                                    message.append("Could not find routable point within a radius of %.1f meters of specified coordinate %d: %s.".formatted(
+                                            pointRadius,
+                                            pointReference,
+                                            FormatUtility.formatCoordinate(pointCoordinate)));
+                                }
+
+                            } else {
+                                message.append(error.getMessage());
+                            }
+                        }
+                        throw new PointNotFoundException(message.toString());
+                    } else {
+                        throw new InternalServerException(RoutingErrorCodes.UNKNOWN, gr.getErrors().get(0).getMessage());
+                    }
+                } else {
+                    // If there are no errors stored but there is indication that there are errors, something strange
+                    // has happened, so return that a route could not be found
+                    throw new RouteNotFoundException(
+                            RoutingErrorCodes.ROUTE_NOT_FOUND,
+                            "Unable to find a route between points %d (%s) and %d (%s).".formatted(
+                                    i,
+                                    FormatUtility.formatCoordinate(c0),
+                                    i + 1,
+                                    FormatUtility.formatCoordinate(c1))
+                    );
+                }
+            }
+
+            if (numberOfExpectedExtraInfoProcessors > 1) {
+                int extraInfoProcessorIndex = 0;
+                for (Object o : gr.getReturnObjects()) {
+                    if (o instanceof ExtraInfoProcessor processor) {
+                        extraInfoProcessors[extraInfoProcessorIndex] = processor;
+                        extraInfoProcessorIndex++;
+                        if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                            gr.getHints().putObject(RoutingProfileManager.KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
+                        }
+                    }
+                }
+            } else {
+                for (Object o : gr.getReturnObjects()) {
+                    if (o instanceof ExtraInfoProcessor processor) {
+                        if (extraInfoProcessors[0] == null) {
+                            extraInfoProcessors[0] = processor;
+                            if (!StringUtility.isNullOrEmpty(processor.getSkippedExtraInfo())) {
+                                gr.getHints().putObject(RoutingProfileManager.KEY_SKIPPED_EXTRA_INFO, processor.getSkippedExtraInfo());
+                            }
+                        } else {
+                            extraInfoProcessors[0].appendData(processor);
+                        }
+                    }
+                }
+            }
+
+            prevResp = gr;
+            routes.add(gr);
+            c0 = c1;
+        }
+        routes = enrichDirectRoutesTime(routes);
+
+        List<RouteExtraInfo>[] extraInfos = new List[numberOfExpectedExtraInfoProcessors];
+        int i = 0;
+        for (ExtraInfoProcessor e : extraInfoProcessors) {
+            extraInfos[i] = e != null ? e.getExtras() : null;
+            i++;
+        }
+        return new RouteResultBuilder().createRouteResults(routes, this, extraInfos);
     }
 }
