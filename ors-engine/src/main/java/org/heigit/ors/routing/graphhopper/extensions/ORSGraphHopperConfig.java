@@ -80,7 +80,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
             profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(false));
         }
 
-        if (profile.getBuild().getEncoderOptions().getEnableCustomModels()) {
+        if (Boolean.TRUE == profile.getBuild().getEncoderOptions().getEnableCustomModels()) {
             if (hasTurnCosts) {
                 profiles.put(vehicle + "_custom_with_turn_costs", new CustomProfile(vehicle + "_custom_with_turn_costs").setCustomModel(new CustomModel().setDistanceInfluence(0)).setVehicle(vehicle).setTurnCosts(true));
             }
