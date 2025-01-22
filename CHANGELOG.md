@@ -41,6 +41,7 @@ RELEASING:
 - improved dutch translations ([#1913](https://github.com/GIScience/openrouteservice/issues/1913))
 - update dependencies: spring, geotools, jackson, springdoc, swagger, jupiter, testcontainers, surefire ([#1939](https://github.com/GIScience/openrouteservice/pull/1939))
 - refactor routing profile management
+- update vite (docs) 5.4.10 to 5.4.14 ([#1953](https://github.com/GIScience/openrouteservice/pull/1953))
 
 ### Deprecated
 
