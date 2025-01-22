@@ -51,6 +51,7 @@ RELEASING:
 - NPE in error handling ([#1925](https://github.com/GIScience/openrouteservice/pull/1925))
 - Add missing 'build' in documentation for profile
   properties ([#1947](https://github.com/GIScience/openrouteservice/issues//1947))
+- implicit vehicle access handling for ferries
 
 ### Security
 
