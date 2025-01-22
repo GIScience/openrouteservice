@@ -41,6 +41,10 @@ class CarFlagEncoderTest {
         return weightingFactory.createWeighting(profile, new PMap(), false);
     }
 
+    private ReaderWay generateFerryWay() {
+        way.getTags().put("route", "ferry");
+        return way;
+    }
     @Test
     void testDestinationTag() {
         IntsRef relFlags = em.createRelationFlags();
@@ -67,4 +71,26 @@ class CarFlagEncoderTest {
         assertEquals(WAY_DISTANCE * LimitedAccessWeighting.VEHICLE_DESTINATION_FACTOR, carShortest.calcEdgeWeight(GHUtility.createMockedEdgeIteratorState(WAY_DISTANCE, edgeFlags), false), 0.1);
         assertEquals(WAY_DISTANCE * LimitedAccessWeighting.DEFAULT_DESTINATION_FACTOR, bikeShortest.calcEdgeWeight(GHUtility.createMockedEdgeIteratorState(WAY_DISTANCE, edgeFlags), false), 0.1);
     }
+
+    @Test
+    void testFerryTag() {
+        way = generateFerryWay();
+        CarFlagEncoder flagEncoder = (CarFlagEncoder) em.getEncoder(FlagEncoderNames.CAR_ORS);
+        // motor_vehicle = no -> reject
+        way.getTags().put("motor_vehicle", "no");
+        assertTrue(flagEncoder.getAccess(way).canSkip());
+
+        // foot = * -> reject
+        way.getTags().remove("motor_vehicle");
+        way.getTags().put("foot", "no");
+        assertTrue(flagEncoder.getAccess(way).canSkip());
+
+        way.getTags().replace("foot", "yes");
+        assertTrue(flagEncoder.getAccess(way).canSkip());
+
+        // only ferry flag -> accept
+        way.getTags().remove("foot");
+        assertTrue(flagEncoder.getAccess(way).isFerry());
+    }
+
 }
