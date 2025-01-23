@@ -165,10 +165,10 @@ public class HeavyVehicleFlagEncoder extends VehicleFlagEncoder {
                     if (intendedValues.contains(restrictionValue))
                         return EncodingManager.Access.FERRY;
                 }
-            }
-            // implied default is allowed only if foot and bicycle is not specified:
-            if (restrictionValues.length == 0 && !way.hasTag("foot") && !way.hasTag("bicycle")) {
-                        return EncodingManager.Access.FERRY;
+                // implied default is allowed only if foot and bicycle is not specified:
+                if (restrictionValues.length == 0 && !way.hasTag("foot") && !way.hasTag("bicycle")) {
+                    return EncodingManager.Access.FERRY;
+                }
             }
             return EncodingManager.Access.CAN_SKIP;
         }
