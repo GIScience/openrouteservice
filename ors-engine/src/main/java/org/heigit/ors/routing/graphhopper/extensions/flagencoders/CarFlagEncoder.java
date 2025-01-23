@@ -81,10 +81,13 @@ public class CarFlagEncoder extends VehicleFlagEncoder {
                 for (String restrictionValue : restrictionValues) {
                     if (restrictedValues.contains(restrictionValue))
                         return EncodingManager.Access.CAN_SKIP;
-                    if (intendedValues.contains(restrictionValue) ||
-                            // implied default is allowed only if foot and bicycle is not specified:
-                            restrictionValue.isEmpty() && !way.hasTag("foot") && !way.hasTag("bicycle"))
+                    if (intendedValues.contains(restrictionValue))
                         return EncodingManager.Access.FERRY;
+                }
+
+                // implied default is allowed only if foot and bicycle is not specified:
+                if (restrictionValues.length == 0 && !way.hasTag("foot") && !way.hasTag("bicycle")) {
+                    return EncodingManager.Access.FERRY;
                 }
             }
             return EncodingManager.Access.CAN_SKIP;

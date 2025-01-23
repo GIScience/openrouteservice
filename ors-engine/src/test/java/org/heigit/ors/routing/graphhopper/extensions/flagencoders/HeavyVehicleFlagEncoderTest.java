@@ -19,12 +19,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CarFlagEncoderTest {
-    private final EncodingManager em = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.CAR_ORS + "," + FlagEncoderNames.BIKE_ORS);
+class HeavyVehicleFlagEncoderTest {
+    private final EncodingManager em = EncodingManager.create(new ORSDefaultFlagEncoderFactory(), FlagEncoderNames.HEAVYVEHICLE + "," + FlagEncoderNames.BIKE_ORS);
     private ReaderWay way;
 
     static final double WAY_DISTANCE = 1000;
-    static final double CAR_DURATION = 180;
+    static final double HEAVYVEHICLE_DURATION = 180;
     static final double BIKE_DURATION = 300;
 
     @BeforeEach
@@ -49,22 +49,22 @@ class CarFlagEncoderTest {
     void testDestinationTag() {
         IntsRef relFlags = em.createRelationFlags();
 
-        Weighting carFastest = createWeighting(FlagEncoderNames.CAR_ORS, "fastest");
+        Weighting hgvFastest = createWeighting(FlagEncoderNames.HEAVYVEHICLE, "fastest");
         Weighting bikeFastest = createWeighting(FlagEncoderNames.BIKE_ORS, "fastest");
 
         way.setTag("highway", "road");
         EncodingManager.AcceptWay acceptWay = new EncodingManager.AcceptWay();
         assertTrue(em.acceptWay(way, acceptWay));
         IntsRef edgeFlags = em.handleWayTags(way, acceptWay, relFlags);
-        assertEquals(CAR_DURATION, carFastest.calcEdgeWeight(GHUtility.createMockedEdgeIteratorState(WAY_DISTANCE, edgeFlags), false), 0.1);
+        assertEquals(HEAVYVEHICLE_DURATION, hgvFastest.calcEdgeWeight(GHUtility.createMockedEdgeIteratorState(WAY_DISTANCE, edgeFlags), false), 0.1);
         assertEquals(BIKE_DURATION, bikeFastest.calcEdgeWeight(GHUtility.createMockedEdgeIteratorState(WAY_DISTANCE, edgeFlags), false), 0.1);
 
         way.setTag("motor_vehicle", "destination");
         edgeFlags = em.handleWayTags(way, acceptWay, relFlags);
-        assertEquals(CAR_DURATION * LimitedAccessWeighting.VEHICLE_DESTINATION_FACTOR, carFastest.calcEdgeWeight(GHUtility.createMockedEdgeIteratorState(WAY_DISTANCE, edgeFlags), false), 0.1);
+        assertEquals(HEAVYVEHICLE_DURATION * LimitedAccessWeighting.VEHICLE_DESTINATION_FACTOR, hgvFastest.calcEdgeWeight(GHUtility.createMockedEdgeIteratorState(WAY_DISTANCE, edgeFlags), false), 0.1);
         assertEquals(BIKE_DURATION * LimitedAccessWeighting.DEFAULT_DESTINATION_FACTOR, bikeFastest.calcEdgeWeight(GHUtility.createMockedEdgeIteratorState(WAY_DISTANCE, edgeFlags), false), 0.1);
 
-        Weighting carShortest = createWeighting(FlagEncoderNames.CAR_ORS, "shortest");
+        Weighting carShortest = createWeighting(FlagEncoderNames.HEAVYVEHICLE, "shortest");
         Weighting bikeShortest = createWeighting(FlagEncoderNames.BIKE_ORS, "shortest");
 
         edgeFlags = em.handleWayTags(way, acceptWay, relFlags);
@@ -75,7 +75,7 @@ class CarFlagEncoderTest {
     @Test
     void testFerryTag() {
         way = generateFerryWay();
-        CarFlagEncoder flagEncoder = (CarFlagEncoder) em.getEncoder(FlagEncoderNames.CAR_ORS);
+        HeavyVehicleFlagEncoder flagEncoder = (HeavyVehicleFlagEncoder) em.getEncoder(FlagEncoderNames.HEAVYVEHICLE);
         // motor_vehicle = no -> reject
         way.getTags().put("motor_vehicle", "no");
         assertTrue(flagEncoder.getAccess(way).canSkip());
