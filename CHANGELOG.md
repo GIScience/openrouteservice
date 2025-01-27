@@ -53,6 +53,7 @@ Releasing is documented in RELEASE.md
 - NPE in error handling ([#1925](https://github.com/GIScience/openrouteservice/pull/1925))
 - Add missing 'build' in documentation for profile properties ([#1947](https://github.com/GIScience/openrouteservice/issues//1947))
 - Allow vehicles on ferries without explicit access tags ([#1954](https://github.com/GIScience/openrouteservice/pull/1954))
+- ORS_CONFIG_LOCATION doesn't log with wrong paths ([#1816](https://github.com/GIScience/openrouteservice/issues/1816))
 
 ## [9.0.0] - 2024-12-02
 ### Added
