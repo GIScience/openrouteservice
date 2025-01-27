@@ -16,7 +16,7 @@ need to be set specifically for each profile. More parameters relevant at query 
 | maximum_snapping_radius             | number  | Maximum distance around a given coordinate to find connectable edges                                                                                                                | `400`         |
 | maximum_visited_nodes               | number  | Only for `public-transport` profile: maximum allowed number of visited nodes in shortest path computation                                                                           | `1000000`     |
 | force_turn_costs                    | boolean | Should turn restrictions be obeyed                                                                                                                                                  | `false`       |
-| allow_custom_models                 | boolean | Allows custom model requests on this profile. Requires that `encoder_options.enable_custom_models` is set to true in the [build](build.md#encoder_options) section of this profile. | `false`       |
+| allow_custom_models                 | boolean | Allows custom model requests on this profile. Requires that `encoder_options.enable_custom_models` is set to true in the [build](build.md#encoder_options) section of this profile. | `true`        |
 | execution                           | object  | [Execution settings](#execution) relevant when querying services                                                                                                                    |               |
 
 ## `execution`

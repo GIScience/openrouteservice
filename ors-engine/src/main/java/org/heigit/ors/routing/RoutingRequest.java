@@ -828,6 +828,8 @@ public class RoutingRequest extends ServiceRequest {
                             }
                         }
                         throw new PointNotFoundException(message.toString());
+                    } else if (gr.getErrors().get(0) instanceof IllegalArgumentException) {
+                        throw new InternalServerException(RoutingErrorCodes.UNSUPPORTED_REQUEST_OPTION, gr.getErrors().get(0).getMessage());
                     } else {
                         throw new InternalServerException(RoutingErrorCodes.UNKNOWN, gr.getErrors().get(0).getMessage());
                     }

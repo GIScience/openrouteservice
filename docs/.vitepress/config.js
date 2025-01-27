@@ -94,6 +94,10 @@ export default withMermaid(defineVersionedConfig({
                                                     link: '/api-reference/endpoints/directions/routing-options'
                                                 },
                                                 {
+                                                    text: 'Custom Models',
+                                                    link: '/api-reference/endpoints/directions/custom-models'
+                                                },
+                                                {
                                                     text: 'Extra info',
                                                     collapsed: true,
                                                     link: '/api-reference/endpoints/directions/extra-info/',
