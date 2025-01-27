@@ -16,6 +16,9 @@ package org.heigit.ors.routing;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.gtfs.*;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import com.graphhopper.util.shapes.GHPoint;
@@ -468,7 +471,7 @@ public class RoutingRequest extends ServiceRequest {
 
             if (TemporaryUtilShelter.supportWeightingMethod(profileType)) {
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, TemporaryUtilShelter.hasTimeDependentSpeed(searchParams, searchCntx));
-                if (routingProfile.requiresTimeDependentAlgorithm(searchCntx, this))
+                if (requiresTimeDependentAlgorithm(searchCntx))
                     flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
                 flexibleMode = TemporaryUtilShelter.getFlexibilityMode(flexibleMode, searchParams, profileType);
             } else
@@ -501,7 +504,7 @@ public class RoutingRequest extends ServiceRequest {
                 Instant time = dateTime.atZone(ZoneId.of("Europe/Berlin")).toInstant();
                 req.getHints().putObject(key, time);
 
-                if (routingProfile.requiresTimeDependentAlgorithm(searchCntx, this)) {
+                if (requiresTimeDependentAlgorithm(searchCntx)) {
                     req.getHints().putObject("time", time.toEpochMilli());
                     req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
                 }
@@ -881,5 +884,23 @@ public class RoutingRequest extends ServiceRequest {
             i++;
         }
         return new RouteResultBuilder().createRouteResults(routes, this, extraInfos);
+    }
+
+    boolean requiresTimeDependentAlgorithm(RouteSearchContext searchCntx) {
+        RouteSearchParameters searchParams = getSearchParameters();
+
+        if (!searchParams.isTimeDependent())
+            return false;
+
+        FlagEncoder flagEncoder = searchCntx.getEncoder();
+
+        if (flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)))
+            return true;
+
+        if (WeightingMethod.SHORTEST == searchParams.getWeightingMethod())
+            return false;
+
+        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
+                || profile().getGraphhopper().isTrafficEnabled();
     }
 }

@@ -15,9 +15,6 @@ package org.heigit.ors.routing;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.config.CHProfile;
-import com.graphhopper.routing.util.EncodingManager;
-import com.graphhopper.routing.util.FlagEncoder;
-import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.util.Parameters;
@@ -217,24 +214,6 @@ public class RoutingProfile {
             // fallback to a core profile without turn costs if one is available
             req.setProfile(profileNameNoTC);
 
-    }
-
-    boolean requiresTimeDependentAlgorithm(RouteSearchContext searchCntx, RoutingRequest req) {
-        RouteSearchParameters searchParams = req.getSearchParameters();
-
-        if (!searchParams.isTimeDependent())
-            return false;
-
-        FlagEncoder flagEncoder = searchCntx.getEncoder();
-
-        if (flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)))
-            return true;
-
-        if (WeightingMethod.SHORTEST == searchParams.getWeightingMethod())
-            return false;
-
-        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
-                || getGraphhopper().isTrafficEnabled();
     }
 
     public boolean equals(Object o) {
