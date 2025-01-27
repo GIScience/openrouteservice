@@ -52,6 +52,7 @@ RELEASING:
 - Add missing 'build' in documentation for profile
   properties ([#1947](https://github.com/GIScience/openrouteservice/issues//1947))
 - Allow vehicles on ferries without explicit access tags ([#1954](https://github.com/GIScience/openrouteservice/pull/1954))
+- ORS_CONFIG_LOCATION doesn't log with wrong paths ([#1816](https://github.com/GIScience/openrouteservice/issues/1816))
 
 ### Security
 

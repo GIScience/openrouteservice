@@ -12,6 +12,7 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.FileSystemResource;
 
 import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -42,8 +43,18 @@ public class ORSEnvironmentPostProcessor implements EnvironmentPostProcessor {
             log.info("Configuration file set by program argument.");
         }
         if (configLocations.isEmpty() && !StringUtility.isNullOrEmpty(System.getenv(ORS_CONFIG_LOCATION_ENV))) {
-            configLocations.add(System.getenv(ORS_CONFIG_LOCATION_ENV));
-            log.info("Configuration file set by environment variable.");
+            String configPath = System.getenv(ORS_CONFIG_LOCATION_ENV);
+            File configFile = new File(configPath);
+            // Check if the file exists and log the appropriate message
+            if (configFile.exists()) {
+                log.info("ORS config file found at: " + configFile.getAbsolutePath());
+                configLocations.add(configPath);
+                log.info("Configuration file set by environment variable.");
+            } else {
+                // Add it anyway to provoke error and stop ORS
+                configLocations.add(configPath);
+                log.error("ORS config file not found at: " + configPath);
+            }
         }
         if (configLocations.isEmpty()) {
             String home = System.getProperty("user.home");
