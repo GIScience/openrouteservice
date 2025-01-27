@@ -16,6 +16,9 @@ package org.heigit.ors.routing;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.gtfs.*;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.util.*;
 import com.graphhopper.util.exceptions.MaximumNodesExceededException;
 import com.graphhopper.util.shapes.GHPoint;
@@ -468,7 +471,7 @@ public class RoutingRequest extends ServiceRequest {
 
             if (TemporaryUtilShelter.supportWeightingMethod(profileType)) {
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, TemporaryUtilShelter.hasTimeDependentSpeed(searchParams, searchCntx));
-                if (routingProfile.requiresTimeDependentAlgorithm(searchParams, searchCntx))
+                if (requiresTimeDependentAlgorithm(searchCntx))
                     flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
                 flexibleMode = TemporaryUtilShelter.getFlexibilityMode(flexibleMode, searchParams, profileType);
             } else
@@ -477,15 +480,15 @@ public class RoutingRequest extends ServiceRequest {
             if (flexibleMode == ProfileTools.KEY_FLEX_STATIC)
                 //Speedup order: useCH, useCore, useALT
                 // TODO Future improvement: profileNameCH is an ugly hack and is required because of the hard-coded turnCost=false for CH
-                routingProfile.setSpeedups(req, true, true, true, searchCntx.profileNameCH());
+                setSpeedups(req, true, true, true, searchCntx.profileNameCH());
 
             if (flexibleMode == ProfileTools.KEY_FLEX_PREPROCESSED) {
-                routingProfile.setSpeedups(req, false, optimized, true, searchCntx.profileNameCH());
+                setSpeedups(req, false, optimized, true, searchCntx.profileNameCH());
             }
 
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
             if (flexibleMode == ProfileTools.KEY_FLEX_FULLY)
-                routingProfile.setSpeedups(req, false, false, true, searchCntx.profileNameCH());
+                setSpeedups(req, false, false, true, searchCntx.profileNameCH());
 
             if (searchParams.isTimeDependent()) {
                 String key;
@@ -501,7 +504,7 @@ public class RoutingRequest extends ServiceRequest {
                 Instant time = dateTime.atZone(ZoneId.of("Europe/Berlin")).toInstant();
                 req.getHints().putObject(key, time);
 
-                if (routingProfile.requiresTimeDependentAlgorithm(searchParams, searchCntx)) {
+                if (requiresTimeDependentAlgorithm(searchCntx)) {
                     req.getHints().putObject("time", time.toEpochMilli());
                     req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
                 }
@@ -585,7 +588,7 @@ public class RoutingRequest extends ServiceRequest {
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
             //Roundtrip not possible with preprocessed edges.
-            routingProfile.setSpeedups(req, false, false, true, searchCntx.profileNameCH());
+            setSpeedups(req, false, false, true, searchCntx.profileNameCH());
 
             if (routingProfile.getAstarEpsilon() != null)
                 req.getHints().putObject("astarbi.epsilon", routingProfile.getAstarEpsilon());
@@ -881,5 +884,59 @@ public class RoutingRequest extends ServiceRequest {
             i++;
         }
         return new RouteResultBuilder().createRouteResults(routes, this, extraInfos);
+    }
+
+    boolean requiresTimeDependentAlgorithm(RouteSearchContext searchCntx) {
+        RouteSearchParameters searchParams = getSearchParameters();
+
+        if (!searchParams.isTimeDependent())
+            return false;
+
+        FlagEncoder flagEncoder = searchCntx.getEncoder();
+
+        if (flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.ACCESS)))
+            return true;
+
+        if (WeightingMethod.SHORTEST == searchParams.getWeightingMethod())
+            return false;
+
+        return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
+                || profile().getGraphhopper().isTrafficEnabled();
+    }
+
+    /**
+     * Set the speedup techniques used for calculating the route.
+     * Reults in usage of CH, Core or ALT/AStar, if they are enabled.
+     *
+     * @param req           Request whose hints will be set
+     * @param useCH         Should CH be enabled
+     * @param useCore       Should Core be enabled
+     * @param useALT        Should ALT be enabled
+     * @param profileNameCH
+     */
+    public void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH) {
+        String requestProfileName = req.getProfile();
+
+        //Priority: CH->Core->ALT
+        String profileNameNoTC = requestProfileName.replace("_with_turn_costs", "");
+
+        ORSGraphHopper gh = profile().getGraphhopper();
+
+        useCH = useCH && gh.isCHAvailable(profileNameCH);
+        useCore = useCore && !useCH && (gh.isCoreAvailable(requestProfileName) || gh.isCoreAvailable(profileNameNoTC));
+        useALT = useALT && !useCH && !useCore && gh.isLMAvailable(requestProfileName);
+
+        req.getHints().putObject(ProfileTools.KEY_CH_DISABLE, !useCH);
+        req.getHints().putObject(ProfileTools.KEY_CORE_DISABLE, !useCore);
+        req.getHints().putObject(ProfileTools.KEY_LM_DISABLE, !useALT);
+
+        if (useCH) {
+            req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
+            req.setProfile(profileNameCH);
+        }
+        if (useCore && !gh.isCoreAvailable(requestProfileName) && gh.isCoreAvailable(profileNameNoTC))
+            // fallback to a core profile without turn costs if one is available
+            req.setProfile(profileNameNoTC);
+
     }
 }
