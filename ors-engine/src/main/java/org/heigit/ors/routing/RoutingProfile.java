@@ -219,7 +219,9 @@ public class RoutingProfile {
 
     }
 
-    boolean requiresTimeDependentAlgorithm(RouteSearchParameters searchParams, RouteSearchContext searchCntx) {
+    boolean requiresTimeDependentAlgorithm(RouteSearchContext searchCntx, RoutingRequest req) {
+        RouteSearchParameters searchParams = req.getSearchParameters();
+
         if (!searchParams.isTimeDependent())
             return false;
 

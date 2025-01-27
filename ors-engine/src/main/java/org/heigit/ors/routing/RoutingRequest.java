@@ -468,7 +468,7 @@ public class RoutingRequest extends ServiceRequest {
 
             if (TemporaryUtilShelter.supportWeightingMethod(profileType)) {
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, TemporaryUtilShelter.hasTimeDependentSpeed(searchParams, searchCntx));
-                if (routingProfile.requiresTimeDependentAlgorithm(searchParams, searchCntx))
+                if (routingProfile.requiresTimeDependentAlgorithm(searchCntx, this))
                     flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
                 flexibleMode = TemporaryUtilShelter.getFlexibilityMode(flexibleMode, searchParams, profileType);
             } else
@@ -501,7 +501,7 @@ public class RoutingRequest extends ServiceRequest {
                 Instant time = dateTime.atZone(ZoneId.of("Europe/Berlin")).toInstant();
                 req.getHints().putObject(key, time);
 
-                if (routingProfile.requiresTimeDependentAlgorithm(searchParams, searchCntx)) {
+                if (routingProfile.requiresTimeDependentAlgorithm(searchCntx, this)) {
                     req.getHints().putObject("time", time.toEpochMilli());
                     req.setAlgorithm(Parameters.Algorithms.TD_ASTAR);
                 }
