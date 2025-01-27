@@ -9,7 +9,7 @@ ARG CONTAINER_WORK_DIR=/home/ors/openrouteservice
 
 FROM docker.io/maven:3.9.9-amazoncorretto-21-alpine AS ors-test-scenarios-builder
 
-RUN apk add --no-cache bash=5.2.26-r0 yq=4.44.1-r2 zip=3.0-r12 && \
+RUN apk add --no-cache bash~=5 yq~=4 zip~=3 && \
     rm -rf /var/cache/apk/*
 
 ARG CONTAINER_BUILD_DIR
@@ -101,7 +101,7 @@ ENV JAVA_OPTS="-Xmx350M"
 
 FROM docker.io/amazoncorretto:21.0.4-alpine3.20 AS ors-test-scenarios-jar-builder
 # Build: docker build --target ors-test-scenarios-jar-bare --tag ors-test-scenarios-jar-bare:latest -f ors-test-scenarios/src/test/resources/Dockerfile .
-RUN apk add --no-cache bash=5.2.26-r0 yq=4.44.1-r2 zip=3.0-r12
+RUN apk add --no-cache bash~=5 yq~=4 zip~=3
 
 ARG CONTAINER_WORK_DIR
 ARG CONTAINER_BUILD_DIR
