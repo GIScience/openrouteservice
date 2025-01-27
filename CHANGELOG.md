@@ -33,9 +33,10 @@ RELEASING:
 7. Bump version in pom.xml
  -->
 
-## [Unreleased]
+## [7.2.1] - 2025-01-27
 ### Fixed
-- fixed setting SELinux type during update of SELinux RPM package  
+- Accidential execution of RPM postun ([#1619](https://github.com/GIScience/openrouteservice/pull/1619))  
+- Fast Isochrones negative memory allocation error ([#1615](https://github.com/GIScience/openrouteservice/pull/1615))
 
 ## [7.2.0] - 2023-11-16
 ### Added
@@ -701,7 +702,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.2.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v7.2.1...HEAD
+[7.2.1]: https://github.com/GIScience/openrouteservice/compare/v7.2.0...v7.2.1
 [7.2.0]: https://github.com/GIScience/openrouteservice/compare/v7.1.1...v7.2.0
 [7.1.1]: https://github.com/GIScience/openrouteservice/compare/v7.1.0...v7.1.1
 [7.1.0]: https://github.com/GIScience/openrouteservice/compare/v7.0.1...v7.1.0
