@@ -480,15 +480,15 @@ public class RoutingRequest extends ServiceRequest {
             if (flexibleMode == ProfileTools.KEY_FLEX_STATIC)
                 //Speedup order: useCH, useCore, useALT
                 // TODO Future improvement: profileNameCH is an ugly hack and is required because of the hard-coded turnCost=false for CH
-                routingProfile.setSpeedups(req, true, true, true, searchCntx.profileNameCH());
+                routingProfile.setSpeedups(req, true, true, true, searchCntx.profileNameCH(), this);
 
             if (flexibleMode == ProfileTools.KEY_FLEX_PREPROCESSED) {
-                routingProfile.setSpeedups(req, false, optimized, true, searchCntx.profileNameCH());
+                routingProfile.setSpeedups(req, false, optimized, true, searchCntx.profileNameCH(), this);
             }
 
             //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
             if (flexibleMode == ProfileTools.KEY_FLEX_FULLY)
-                routingProfile.setSpeedups(req, false, false, true, searchCntx.profileNameCH());
+                routingProfile.setSpeedups(req, false, false, true, searchCntx.profileNameCH(), this);
 
             if (searchParams.isTimeDependent()) {
                 String key;
@@ -588,7 +588,7 @@ public class RoutingRequest extends ServiceRequest {
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
             //Roundtrip not possible with preprocessed edges.
-            routingProfile.setSpeedups(req, false, false, true, searchCntx.profileNameCH());
+            routingProfile.setSpeedups(req, false, false, true, searchCntx.profileNameCH(), this);
 
             if (routingProfile.getAstarEpsilon() != null)
                 req.getHints().putObject("astarbi.epsilon", routingProfile.getAstarEpsilon());

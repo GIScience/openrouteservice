@@ -185,18 +185,19 @@ public class RoutingProfile {
      * Set the speedup techniques used for calculating the route.
      * Reults in usage of CH, Core or ALT/AStar, if they are enabled.
      *
+     * @param routingRequest
      * @param req     Request whose hints will be set
      * @param useCH   Should CH be enabled
      * @param useCore Should Core be enabled
      * @param useALT  Should ALT be enabled
      */
-    public void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH) {
+    public void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH, RoutingRequest routingRequest) {
         String requestProfileName = req.getProfile();
 
         //Priority: CH->Core->ALT
         String profileNameNoTC = requestProfileName.replace("_with_turn_costs", "");
 
-        ORSGraphHopper gh = getGraphhopper();
+        ORSGraphHopper gh = routingRequest.profile().getGraphhopper();
 
         useCH = useCH && gh.isCHAvailable(profileNameCH);
         useCore = useCore && !useCH && (gh.isCoreAvailable(requestProfileName) || gh.isCoreAvailable(profileNameNoTC));
