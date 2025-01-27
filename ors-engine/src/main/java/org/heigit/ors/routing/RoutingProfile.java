@@ -199,9 +199,11 @@ public class RoutingProfile {
         //Priority: CH->Core->ALT
         String profileNameNoTC = requestProfileName.replace("_with_turn_costs", "");
 
-        useCH = useCH && mGraphHopper.isCHAvailable(profileNameCH);
-        useCore = useCore && !useCH && (mGraphHopper.isCoreAvailable(requestProfileName) || mGraphHopper.isCoreAvailable(profileNameNoTC));
-        useALT = useALT && !useCH && !useCore && mGraphHopper.isLMAvailable(requestProfileName);
+        ORSGraphHopper gh = getGraphhopper();
+
+        useCH = useCH && gh.isCHAvailable(profileNameCH);
+        useCore = useCore && !useCH && (gh.isCoreAvailable(requestProfileName) || gh.isCoreAvailable(profileNameNoTC));
+        useALT = useALT && !useCH && !useCore && gh.isLMAvailable(requestProfileName);
 
         req.getHints().putObject(ProfileTools.KEY_CH_DISABLE, !useCH);
         req.getHints().putObject(ProfileTools.KEY_CORE_DISABLE, !useCore);
@@ -211,7 +213,7 @@ public class RoutingProfile {
             req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
             req.setProfile(profileNameCH);
         }
-        if (useCore && !mGraphHopper.isCoreAvailable(requestProfileName) && mGraphHopper.isCoreAvailable(profileNameNoTC))
+        if (useCore && !gh.isCoreAvailable(requestProfileName) && gh.isCoreAvailable(profileNameNoTC))
             // fallback to a core profile without turn costs if one is available
             req.setProfile(profileNameNoTC);
 
@@ -230,7 +232,7 @@ public class RoutingProfile {
             return false;
 
         return flagEncoder.hasEncodedValue(EncodingManager.getKey(flagEncoder, ConditionalEdges.SPEED))
-                || mGraphHopper.isTrafficEnabled();
+                || getGraphhopper().isTrafficEnabled();
     }
 
     public boolean equals(Object o) {
