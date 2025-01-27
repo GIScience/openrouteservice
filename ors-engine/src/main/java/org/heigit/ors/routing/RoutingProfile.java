@@ -13,11 +13,9 @@
  */
 package org.heigit.ors.routing;
 
-import com.graphhopper.GHRequest;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
-import com.graphhopper.util.Parameters;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.config.profile.ExecutionProperties;
@@ -27,7 +25,6 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
-import org.heigit.ors.util.ProfileTools;
 import org.heigit.ors.util.TimeUtility;
 
 import java.io.File;
@@ -179,42 +176,6 @@ public class RoutingProfile {
 
     public Double getAstarEpsilon() {
         return astarEpsilon;
-    }
-
-    /**
-     * Set the speedup techniques used for calculating the route.
-     * Reults in usage of CH, Core or ALT/AStar, if they are enabled.
-     *
-     * @param routingRequest
-     * @param req     Request whose hints will be set
-     * @param useCH   Should CH be enabled
-     * @param useCore Should Core be enabled
-     * @param useALT  Should ALT be enabled
-     */
-    public void setSpeedups(GHRequest req, boolean useCH, boolean useCore, boolean useALT, String profileNameCH, RoutingRequest routingRequest) {
-        String requestProfileName = req.getProfile();
-
-        //Priority: CH->Core->ALT
-        String profileNameNoTC = requestProfileName.replace("_with_turn_costs", "");
-
-        ORSGraphHopper gh = routingRequest.profile().getGraphhopper();
-
-        useCH = useCH && gh.isCHAvailable(profileNameCH);
-        useCore = useCore && !useCH && (gh.isCoreAvailable(requestProfileName) || gh.isCoreAvailable(profileNameNoTC));
-        useALT = useALT && !useCH && !useCore && gh.isLMAvailable(requestProfileName);
-
-        req.getHints().putObject(ProfileTools.KEY_CH_DISABLE, !useCH);
-        req.getHints().putObject(ProfileTools.KEY_CORE_DISABLE, !useCore);
-        req.getHints().putObject(ProfileTools.KEY_LM_DISABLE, !useALT);
-
-        if (useCH) {
-            req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
-            req.setProfile(profileNameCH);
-        }
-        if (useCore && !gh.isCoreAvailable(requestProfileName) && gh.isCoreAvailable(profileNameNoTC))
-            // fallback to a core profile without turn costs if one is available
-            req.setProfile(profileNameNoTC);
-
     }
 
     public boolean equals(Object o) {
