@@ -215,7 +215,7 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
                 Assertions.assertTrue(logs.contains("ORS config file not found at: nonexistent/ors-config.yaml"));
 
             } catch (ContainerLaunchException e) {
-
+                // Pass when throwing this exception since the container is supposed to fail when the config path is wrong.
             } catch (Exception e) {
                 Assertions.fail("Container startup failed with exception: " + e.getMessage());
             } finally {
