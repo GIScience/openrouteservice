@@ -20,6 +20,7 @@ The GET request http://localhost:8082/ors/v2/status (host and port are dependent
   The profile names are used as path parameters in API requests and as directory names for the graph directories.
   Some basic information is shown for each profile:
     * `encoder_name`: The vehicle type
+    * `encoded_values`: The list of available encoded values that can be used in [custom models](/api-reference/endpoints/directions/custom-models)
     * `osm_date`: Timestamp of the osm pbf file that was used for building the graph. This is usually the date of the
       latest included change.
     * `graph_build_date`: The date, when graph building was started for this routing profile.
@@ -106,6 +107,23 @@ This is an example response:
                 }
             },
             "encoder_name": "driving-car",
+            "encoded_values": [
+                "road_environment",
+                "car_ors_fastest_with_turn_costs_subnetwork",
+                "car_ors_fastest_subnetwork",
+                "car_ors_shortest_with_turn_costs_subnetwork",
+                "car_ors_shortest_subnetwork",
+                "car_ors_recommended_with_turn_costs_subnetwork",
+                "car_ors_recommended_subnetwork",
+                "roundabout",
+                "road_class",
+                "road_class_link",
+                "max_speed",
+                "road_access",
+                "car_ors$access",
+                "car_ors$average_speed",
+                "car_ors$turn_cost"
+            ],
             "graph_build_date": "2024-10-28T14:42:49Z",
             "osm_date": "2023-10-11T20:21:48Z",
             "limits": {
@@ -117,6 +135,21 @@ This is an example response:
         },
         "pedestrian": {
             "encoder_name": "foot-walking",
+            "encoded_values": [
+                "road_environment",
+                "pedestrian_ors_fastest_subnetwork",
+                "pedestrian_ors_shortest_subnetwork",
+                "pedestrian_ors_recommended_subnetwork",
+                "roundabout",
+                "road_class",
+                "road_class_link",
+                "max_speed",
+                "road_access",
+                "foot_network",
+                "pedestrian_ors$access",
+                "pedestrian_ors$average_speed",
+                "pedestrian_ors$priority"
+            ],
             "graph_build_date": "2024-10-11T11:08:44Z",
             "osm_date": "2024-01-22T21:21:14Z",
             "limits": {
