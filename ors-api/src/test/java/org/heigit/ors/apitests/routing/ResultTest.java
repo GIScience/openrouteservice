@@ -4065,6 +4065,8 @@ class ResultTest extends ServiceTest {
                 .post(getEndPointPath() + "/{profile}")
                 .then().log().ifValidationFails()
                 .assertThat()
+                .body("error.code", is(2018))
+                .body("error.message", is("Custom model not available for profile 'cycling-regular'."))
                 .statusCode(500);
     }
 
@@ -4090,8 +4092,10 @@ class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}")
-                .then().log().ifValidationFails()
+                .then().log().all()
                 .assertThat()
+                .body("error.code", is(2018))
+                .body("error.message", is("Custom model disabled for profile 'foot-hiking'."))
                 .statusCode(500);
     }
 
@@ -4235,6 +4239,140 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+
+    @Test
+    void testCustomProfileLimitSpeed() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("priority", new JSONArray());
+        customModel.put("distance_influence", 0);
+        JSONObject speed = new JSONObject();
+        speed.put("if", true);
+        speed.put("limit_to", 60);
+        customModel.put("speed", new JSONArray().put(speed));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(9746, 50f)))
+                .body("routes[0].summary.duration", is(closeTo(702f, 5f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileAvoidByMaxSpeed() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("distance_influence", 0);
+        JSONObject priority = new JSONObject();
+        priority.put("if", "max_speed > 60");
+        priority.put("multiply_by", 0.1);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(11909.7, 50f)))
+                .body("routes[0].summary.duration", is(closeTo(1677.6, 5f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileComplexCondition() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom1"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("distance_influence", 0);
+        JSONObject priority = new JSONObject();
+        priority.put("if", "max_speed > 30 && (road_environment == TUNNEL || roundabout)");
+        priority.put("multiply_by", 0.1);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(3338.7, 50f)))
+                .body("routes[0].summary.duration", is(closeTo(602.3, 5f)))
+                .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileAvoidBooleanEncodedValue() {
+        JSONObject body = new JSONObject();
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.6818009);
+        coord1.put( 49.397251);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.6769783);
+        coord2.put(49.3962072);
+        coordinates.put(coord2);
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("distance_influence", 0);
+        JSONObject priority = new JSONObject();
+        priority.put("multiply_by", 0);
+        priority.put("if", "roundabout");
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(1287.9, 50f))) // big detour to avoid the roundabout
+                .statusCode(200);
+    }
+
     @Test
     void testCustomProfileWithRecommended() {
         JSONObject body = new JSONObject();
@@ -4307,6 +4445,68 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(9746.7f, 5f)))
                 .statusCode(200);
+    }
+
+    @Test
+    void testCustomProfileUnavailableEncodedValueFails() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("distance_influence", 0);
+        JSONObject priority = new JSONObject();
+        priority.put("if", "max_width < 30");
+        priority.put("multiply_by", 0.1);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(false))
+                .body("error.code", is(2018))
+                .body("error.message", is("Cannot compile expression: in 'priority' entry,  invalid expression \"max_width < 30\": encoded value 'max_width' not available"))
+                .statusCode(500);
+    }
+
+    @Test
+    void testCustomProfileInvalidConditionFails() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("coordinatesCustom2"));
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        customModel.put("distance_influence", 0);
+        JSONObject priority = new JSONObject();
+        priority.put("if", "äöü this is not a valid condition expression.");
+        priority.put("multiply_by", 0.1);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when().log().ifValidationFails()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(false))
+                .body("error.code", is(2018))
+                .body("error.message", is("Cannot compile expression: in 'priority' entry,  invalid expression \"äöü this is not a valid condition expression.\""))
+                .statusCode(500);
     }
 
     private JSONArray constructBearings(String coordString) {
