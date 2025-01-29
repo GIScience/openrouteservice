@@ -4354,8 +4354,8 @@ class ResultTest extends ServiceTest {
         JSONObject customModel = new JSONObject();
         customModel.put("distance_influence", 0);
         JSONObject priority = new JSONObject();
-        priority.put("if", "roundabout");
         priority.put("multiply_by", 0);
+        priority.put("if", "roundabout");
         customModel.put("priority", new JSONArray().put(priority));
         body.put("custom_model", customModel);
 
