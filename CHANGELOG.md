@@ -33,7 +33,20 @@ RELEASING:
 7. Adding the corresponding tag is done when releasing via GitHub.
 -->
 ## [unreleased]
+### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+
+## [9.1.0] - 2025-01-29
 ### Added
 - TopoJSON graph export ([#1926](https://github.com/GIScience/openrouteservice/pull/1926))
 
@@ -43,17 +56,10 @@ RELEASING:
 - refactor routing profile management
 - update vite (docs) 5.4.10 to 5.4.14 ([#1953](https://github.com/GIScience/openrouteservice/pull/1953))
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 - NPE in error handling ([#1925](https://github.com/GIScience/openrouteservice/pull/1925))
-- Add missing 'build' in documentation for profile
-  properties ([#1947](https://github.com/GIScience/openrouteservice/issues//1947))
+- Add missing 'build' in documentation for profile properties ([#1947](https://github.com/GIScience/openrouteservice/issues//1947))
 - Allow vehicles on ferries without explicit access tags ([#1954](https://github.com/GIScience/openrouteservice/pull/1954))
-
-### Security
 
 ## [9.0.0] - 2024-12-02
 ### Added
@@ -851,8 +857,9 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.0.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.1.0...HEAD
 
+[9.1.0]: https://github.com/GIScience/openrouteservice/compare/v9.0.0...v9.1.0
 [9.0.0]: https://github.com/GIScience/openrouteservice/compare/v8.2.0...v9.0.0
 [8.2.0]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...v8.2.0
 [8.1.3]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...v8.1.3
