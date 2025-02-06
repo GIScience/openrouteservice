@@ -68,7 +68,7 @@ public class ORSInitContextListener implements ServletContextListener {
                 }
                 if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
                     LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
-                    RoutingProfileManagerStatus.setShutdown(true);
+                    System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
                 }
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
