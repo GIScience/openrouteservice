@@ -42,6 +42,7 @@ RELEASING:
 ### Removed
 
 ### Fixed
+- preparation_mode flag ([#1966](https://github.com/GIScience/openrouteservice/pull/1966))
 
 ### Security
 
