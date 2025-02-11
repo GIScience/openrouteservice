@@ -1,4 +1,4 @@
-package org.heigit.org.benchmark;
+package org.heigit.ors.benchmark;
 
 import io.gatling.javaapi.core.ChainBuilder;
 import io.gatling.javaapi.core.FeederBuilder;
@@ -46,6 +46,7 @@ public class IsochronesLoadTest extends Simulation {
 //            http.baseUrl("https://api.openrouteservice.org")
 //                    .authorizationHeader("Bearer API_KEY")
             http.baseUrl("http://localhost:8082/ors")
+                    .authorizationHeader("Bearer 5b3ce3597851110001cf6248e9b8b3f4b7b94b5b8f7b4f4b7b94b5b8")
                     .acceptHeader("application/geo+json; charset=utf-8")
                     .contentTypeHeader("application/json; charset=utf-8")
                     .userAgentHeader(

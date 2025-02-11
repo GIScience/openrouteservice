@@ -95,7 +95,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spotless.version>2.27.2</spotless.version>
         <surefire.version>3.5.2</surefire.version>
-
+        <httpclient5.version>5.4.2</httpclient5.version>
         <sonar.projectKey>GIScience_openrouteservice</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.organization>giscience</sonar.organization>
@@ -522,7 +522,11 @@
                 <artifactId>nginx</artifactId>
                 <version>${testcontainers.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
