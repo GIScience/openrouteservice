@@ -1,6 +1,7 @@
 package org.heigit.org.benchmark;
 
 import io.gatling.javaapi.core.ChainBuilder;
+import io.gatling.javaapi.core.FeederBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
@@ -11,34 +12,31 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 
 public class IsochronesLoadTest extends Simulation {
 
-//    FeederBuilder<String> feeder = csv("search.csv").random();
-//
-//    ChainBuilder search = exec(
-//        http("Home").get("/"),
-//        pause(1),
-//        feed(feeder),
-//        http("Search")
-//            .get("/computers?f=#{searchCriterion}")
-//            .check(
-//                css("a:contains('#{searchComputerName}')", "href").saveAs("computerUrl")
-//            ),
-//        pause(1),
-//        http("Select")
-//            .get("#{computerUrl}")
-//            .check(status().is(200)),
-//        pause(1)
-//    );
+    static final int POINTS = 3;
 
+    static String locations(int num) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < num; i++) {
+            sb.append("[#{point(").append(i).append(")}]");
+            if (i < num - 1) {
+                sb.append(",");
+            }
+        }
+        return sb.toString();
+    }
+
+    FeederBuilder<String> feeder = ssv("search.csv").random();
     ChainBuilder request = exec(
-        http("Post")
-                .post("/v2/isochrones/driving-car")
-                .body(StringBody("{\"locations\":[[8.681495,49.41461],[8.686507,49.41943]],\"range\":[300]}"))
-                .check(status().is(200))
-                .check(status().saveAs("responseStatus"))
-                .check(bodyString().saveAs("responseBody"))
+            feed(feeder, POINTS),
+            http("Post")
+                    .post("/v2/isochrones/driving-car")
+                    .body(StringBody("{\"locations\":[" + locations(POINTS) + "] , \"range\":[100, 200, 300]}"))
+                    .check(status().is(200))
+                    .check(status().saveAs("responseStatus"))
+                    .check(bodyString().saveAs("responseBody"))
     ).exec(session -> {
         int responseStatus = session.getInt("responseStatus");
-        if (responseStatus == 200) {
+        if (responseStatus != 200) {
             System.out.println("Response status: " + responseStatus + ", Response body: " + session.getString("responseBody"));
         }
         return session;
@@ -46,8 +44,8 @@ public class IsochronesLoadTest extends Simulation {
 
     HttpProtocolBuilder httpProtocol =
 //            http.baseUrl("https://api.openrouteservice.org")
+//                    .authorizationHeader("Bearer API_KEY")
             http.baseUrl("http://localhost:8082/ors")
-                    .authorizationHeader("Bearer API_KEY")
                     .acceptHeader("application/geo+json; charset=utf-8")
                     .contentTypeHeader("application/json; charset=utf-8")
                     .userAgentHeader(
