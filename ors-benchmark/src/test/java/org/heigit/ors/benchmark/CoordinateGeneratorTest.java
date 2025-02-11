@@ -25,7 +25,7 @@ class CoordinateGeneratorTest {
     @Test
     void testCoordinateGeneratorWithMissingApiKey() {
         assertThrows(RuntimeException.class, () -> {
-            CoordinateGenerator generator = new CoordinateGenerator(
+            new CoordinateGenerator(
                     100, extent, 1, 100, 100, 350, "driving-car", "https://openrouteservice.org");
         });
     }
