@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -14,9 +13,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.StatusLine;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +26,8 @@ import static org.mockito.Mockito.*;
 class CoordinateGeneratorTest {
     private CoordinateGenerator generator;
     private double[] extent;
-
+    CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
+    CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
 
     @BeforeEach
     void setUp() {
@@ -228,6 +226,98 @@ class CoordinateGeneratorTest {
         testGenerator.setHttpClient(closeableHttpClient);
 
         assertThrows(IOException.class, () -> testGenerator.applyMatrix(List.of(new double[] { 8.681, 49.41 })));
+    }
+
+    @Test
+    void testApplyMatrixWithEmptyDestinations() throws Exception {
+        String mockJsonResponse = """
+                {
+                  "distances": [[0], [99]],
+                  "destinations": [],
+                  "sources": [
+                    { "location": [8.681009, 49.409929], "snapped_distance": 7.93 },
+                    { "location": [8.687026, 49.420002], "snapped_distance": 1.86 }
+                  ]
+                }
+                """;
+
+        StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
+
+        when(closeableHttpResponse.getEntity()).thenReturn(entity);
+        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+
+        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
+                100, extent, 1, 100, 100, 350, "driving-car", null);
+        testGenerator.setHttpClient(closeableHttpClient);
+
+        Map<String, List<double[]>> result = testGenerator.applyMatrix(
+                List.of(new double[] { 8.681009, 49.409929 }));
+
+        // Verify empty results are returned
+        assertNotNull(result);
+        assertTrue(result.get("from_points").isEmpty());
+        assertTrue(result.get("to_points").isEmpty());
+    }
+
+    @Test
+    void testApplyMatrixWithMissingLocation() throws Exception {
+        String mockJsonResponse = """
+                {
+                  "distances": [[0], [99]],
+                  "destinations": [{ "snapped_distance": 7.93 }],
+                  "sources": [
+                    { "location": [8.681009, 49.409929], "snapped_distance": 7.93 }
+                  ]
+                }
+                """;
+        StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
+
+        when(closeableHttpResponse.getEntity()).thenReturn(entity);
+        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
+                100, extent, 1, 100, 100, 350, "driving-car", null);
+        testGenerator.setHttpClient(closeableHttpClient);
+
+        Map<String, List<double[]>> result = testGenerator.applyMatrix(
+                List.of(new double[] { 8.681009, 49.409929 }));
+
+        // Verify empty results are returned for invalid destination
+        assertNotNull(result);
+        assertTrue(result.get("from_points").isEmpty());
+        assertTrue(result.get("to_points").isEmpty());
+    }
+
+    @Test
+    void testApplyMatrixWithNullResponse() throws Exception {
+        when(closeableHttpClient.execute(any())).thenReturn(null);
+
+        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
+                100, extent, 1, 100, 100, 350, "driving-car", null);
+        testGenerator.setHttpClient(closeableHttpClient);
+
+        Map<String, List<double[]>> result = testGenerator.applyMatrix(
+                List.of(new double[] { 8.681009, 49.409929 }));
+
+        assertNotNull(result);
+        assertTrue(result.get("from_points").isEmpty());
+        assertTrue(result.get("to_points").isEmpty());
+    }
+
+    @Test
+    void testApplyMatrixWithNullResponseEntity() throws Exception {
+        when(closeableHttpResponse.getEntity()).thenReturn(null);
+        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+
+        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
+                100, extent, 1, 100, 100, 350, "driving-car", null);
+        testGenerator.setHttpClient(closeableHttpClient);
+
+        Map<String, List<double[]>> result = testGenerator.applyMatrix(
+                List.of(new double[] { 8.681009, 49.409929 }));
+
+        assertNotNull(result);
+        assertTrue(result.get("from_points").isEmpty());
+        assertTrue(result.get("to_points").isEmpty());
     }
 
     // Test helper class
