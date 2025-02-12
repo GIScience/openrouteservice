@@ -8,6 +8,8 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 public class CoordinateGenerator {
     private final String baseUrl;
@@ -24,10 +26,10 @@ public class CoordinateGenerator {
     private final Random random;
     ObjectMapper mapper = new ObjectMapper();
 
-    public CoordinateGenerator(int numPoints, double[] extent, double minDistance,
-            double maxDistance, int maxAttempts, double radius,
+    protected CoordinateGenerator(int numPoints, double[] extent, double minDistance,
+                    double maxDistance, int maxAttempts, double radius,
             String profile, String baseUrl) {
-        this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8080/ors";
+        this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8082/ors";
         this.extent = extent;
         this.numPoints = numPoints;
         this.minDistance = minDistance;
@@ -56,7 +58,7 @@ public class CoordinateGenerator {
         result.put("from_points", new ArrayList<>());
     }
 
-    private void generatePoints() {
+    protected void generatePoints() {
         for (int i = 0; i < maxAttempts; i++) {
             while (result.get("to_points").size() < numPoints) {
                 List<double[]> rawPoints = randomCoordinatesInExtent(5);
@@ -79,7 +81,7 @@ public class CoordinateGenerator {
         }
     }
 
-    public List<double[]> randomCoordinatesInExtent(int numPoints) {
+    protected List<double[]> randomCoordinatesInExtent(int numPoints) {
         List<double[]> points = new ArrayList<>();
         for (int i = 0; i < numPoints; i++) {
             double x = random.nextDouble() * (extent[2] - extent[0]) + extent[0];
@@ -93,9 +95,8 @@ public class CoordinateGenerator {
         return HttpClients.createDefault();
     }
 
-    Map<String, List<double[]>> applyMatrix(List<double[]> points) throws Exception {
-
-        Map<String, Object> responseMap = new HashMap<>();
+    @SuppressWarnings("unchecked")
+    protected Map<String, List<double[]>> applyMatrix(List<double[]> points) throws Exception {
         Map<String, Object> payload = new HashMap<>();
         payload.put("locations", points);
         payload.put("destinations", Collections.singletonList(0));
@@ -108,25 +109,47 @@ public class CoordinateGenerator {
         try (CloseableHttpClient client = createHttpClient()) {
             HttpPost httpPost = new HttpPost(url);
             headers.forEach(httpPost::addHeader);
-            httpPost.setEntity(new StringEntity(jsonPayload,
-                    ContentType.APPLICATION_JSON));
+            httpPost.setEntity(new StringEntity(jsonPayload, ContentType.APPLICATION_JSON));
 
             try (CloseableHttpResponse response = client.execute(httpPost)) {
                 String responseContent = new String(response.getEntity().getContent().readAllBytes());
+                Map<String, Object> responseMap = mapper.readValue(responseContent, Map.class);
 
-                // Process JSON response and return results
-                responseMap = mapper.readValue(responseContent,
-                        Map.class);
+                // Get the start point (first destination)
+                List<Map<String, Object>> destinations = (List<Map<String, Object>>) responseMap.get("destinations");
+                double[] startPoint = ((List<Number>) destinations.get(0).get("location")).stream()
+                        .mapToDouble(Number::doubleValue)
+                        .toArray();
 
+                // Get all source points
+                List<Map<String, Object>> sources = (List<Map<String, Object>>) responseMap.get("sources");
+                List<double[]> sourcePoints = sources.stream()
+                        .map(source -> ((List<Number>) source.get("location")).stream()
+                                .mapToDouble(Number::doubleValue)
+                                .toArray())
+                        .collect(Collectors.toList());
+
+                // Get distances matrix
+                List<List<Number>> distances = (List<List<Number>>) responseMap.get("distances");
+
+                // Filter points based on distance constraints
+                List<double[]> filteredDestPoints = new ArrayList<>();
+                List<double[]> filteredStartPoints = new ArrayList<>();
+
+                for (int i = 0; i < distances.size(); i++) {
+                    double distance = distances.get(i).get(0).doubleValue();
+                    if (distance > minDistance && distance < maxDistance) {
+                        filteredDestPoints.add(sourcePoints.get(i));
+                        filteredStartPoints.add(startPoint);
+                    }
+                }
+
+                Map<String, List<double[]>> result = new HashMap<>();
+                result.put("from_points", filteredStartPoints);
+                result.put("to_points", filteredDestPoints);
+                return result;
             }
-
-            // Get the sources and destinations from the response
-            List<double[]> sources = (List<double[]>) responseMap.get("sources");
-            List<double[]> destinations = (List<double[]>) responseMap.get("destinations");
-            System.out.println("Sources: " + sources);
-
         }
-        return new HashMap<>();
     }
 
     public Map<String, List<double[]>> getResult() {
