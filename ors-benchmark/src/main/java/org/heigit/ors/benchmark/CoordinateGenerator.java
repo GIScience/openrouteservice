@@ -58,7 +58,7 @@ public class CoordinateGenerator {
 
     protected void generatePoints() {
         for (int i = 0; i < maxAttempts; i++) {
-            while (result.get("to_points").size() < numPoints) {
+            if (result.get("to_points").size() < numPoints) {
                 List<double[]> rawPoints = randomCoordinatesInExtent(5);
                 try {
                     Map<String, List<double[]>> points = applyMatrix(rawPoints);
