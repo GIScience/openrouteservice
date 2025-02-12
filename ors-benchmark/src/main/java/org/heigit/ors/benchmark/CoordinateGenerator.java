@@ -22,6 +22,7 @@ public class CoordinateGenerator {
     private final Map<String, String> headers;
     private final Map<String, List<double[]>> result;
     private final Random random;
+    ObjectMapper mapper = new ObjectMapper();
 
     public CoordinateGenerator(int numPoints, double[] extent, double minDistance,
             double maxDistance, int maxAttempts, double radius,
@@ -93,6 +94,8 @@ public class CoordinateGenerator {
     }
 
     Map<String, List<double[]>> applyMatrix(List<double[]> points) throws Exception {
+
+        Map<String, Object> responseMap = new HashMap<>();
         Map<String, Object> payload = new HashMap<>();
         payload.put("locations", points);
         payload.put("destinations", Collections.singletonList(0));
@@ -100,31 +103,30 @@ public class CoordinateGenerator {
         payload.put("profile", profile);
         payload.put("metrics", Collections.singletonList("distance"));
 
-        ObjectMapper mapper = new ObjectMapper();
         String jsonPayload = mapper.writeValueAsString(payload);
 
-        // try (CloseableHttpClient client = createHttpClient()) {
-        // HttpPost httpPost = new HttpPost(url);
-        // headers.forEach(httpPost::addHeader);
-        // httpPost.setEntity(new StringEntity(jsonPayload,
-        // ContentType.APPLICATION_JSON));
+        try (CloseableHttpClient client = createHttpClient()) {
+            HttpPost httpPost = new HttpPost(url);
+            headers.forEach(httpPost::addHeader);
+            httpPost.setEntity(new StringEntity(jsonPayload,
+                    ContentType.APPLICATION_JSON));
 
-        // try (CloseableHttpResponse response = client.execute(httpPost)) {
-        // String responseContent = new
-        // String(response.getEntity().getContent().readAllBytes());
+            try (CloseableHttpResponse response = client.execute(httpPost)) {
+                String responseContent = new String(response.getEntity().getContent().readAllBytes());
 
-        // // Process JSON response and return results
-        // Map<String, Object> responseMap = mapper.readValue(responseContent,
-        // Map.class);
+                // Process JSON response and return results
+                responseMap = mapper.readValue(responseContent,
+                        Map.class);
 
-        // // Process response and create return value
-        // // Add your processing logic here
+            }
 
-        // }
+            // Get the sources and destinations from the response
+            List<double[]> sources = (List<double[]>) responseMap.get("sources");
+            List<double[]> destinations = (List<double[]>) responseMap.get("destinations");
+            System.out.println("Sources: " + sources);
 
-        // }
-        return new HashMap<>(); // Replace with actual processing
-
+        }
+        return new HashMap<>();
     }
 
     public Map<String, List<double[]>> getResult() {
