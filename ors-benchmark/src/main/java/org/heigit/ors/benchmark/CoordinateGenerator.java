@@ -18,7 +18,6 @@ public class CoordinateGenerator {
     private final double minDistance;
     private final double maxDistance;
     private final int maxAttempts;
-    private final double radius;
     private final String profile;
     private final String url;
     private final Map<String, String> headers;
@@ -35,7 +34,6 @@ public class CoordinateGenerator {
         this.minDistance = minDistance;
         this.maxDistance = maxDistance;
         this.maxAttempts = maxAttempts;
-        this.radius = radius;
         this.profile = profile;
         this.random = new Random();
 
@@ -60,7 +58,7 @@ public class CoordinateGenerator {
 
     protected void generatePoints() {
         for (int i = 0; i < maxAttempts; i++) {
-            while (result.get("to_points").size() < numPoints) {
+            if (result.get("to_points").size() < numPoints) {
                 List<double[]> rawPoints = randomCoordinatesInExtent(5);
                 try {
                     Map<String, List<double[]>> points = applyMatrix(rawPoints);
@@ -106,18 +104,44 @@ public class CoordinateGenerator {
 
         String jsonPayload = mapper.writeValueAsString(payload);
 
+        // Create empty result for invalid responses
+        Map<String, List<double[]>> emptyResult = new HashMap<>();
+        emptyResult.put("from_points", new ArrayList<>());
+        emptyResult.put("to_points", new ArrayList<>());
+
         try (CloseableHttpClient client = createHttpClient()) {
             HttpPost httpPost = new HttpPost(url);
             headers.forEach(httpPost::addHeader);
             httpPost.setEntity(new StringEntity(jsonPayload, ContentType.APPLICATION_JSON));
 
             try (CloseableHttpResponse response = client.execute(httpPost)) {
-                String responseContent = new String(response.getEntity().getContent().readAllBytes());
-                Map<String, Object> responseMap = mapper.readValue(responseContent, Map.class);
+                if (response == null || response.getEntity() == null) {
+                    return emptyResult;
+                }
 
-                // Get the start point (first destination)
+                String responseContent = new String(response.getEntity().getContent().readAllBytes());
+                if (responseContent == null || responseContent.isEmpty()) {
+                    return emptyResult;
+                }
+
+                Map<String, Object> responseMap = mapper.readValue(responseContent, Map.class);
+                if (responseMap == null) {
+                    return emptyResult;
+                }
+
+                // Check for empty or invalid destinations
                 List<Map<String, Object>> destinations = (List<Map<String, Object>>) responseMap.get("destinations");
-                double[] startPoint = ((List<Number>) destinations.get(0).get("location")).stream()
+                if (destinations == null || destinations.isEmpty()) {
+                    return emptyResult;
+                }
+
+                // Check for valid location in first destination
+                Map<String, Object> firstDestination = destinations.get(0);
+                if (firstDestination == null || !firstDestination.containsKey("location")) {
+                    return emptyResult;
+                }
+
+                double[] startPoint = ((List<Number>) firstDestination.get("location")).stream()
                         .mapToDouble(Number::doubleValue)
                         .toArray();
 
