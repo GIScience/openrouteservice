@@ -1,7 +1,12 @@
 package org.heigit.ors.benchmark;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import java.util.*;
 
 public class CoordinateGenerator {
@@ -16,12 +21,11 @@ public class CoordinateGenerator {
     private final String url;
     private final Map<String, String> headers;
     private final Map<String, List<double[]>> result;
-    Random random = new Random();
-    ObjectMapper mapper = new ObjectMapper();
+    private final Random random;
 
     public CoordinateGenerator(int numPoints, double[] extent, double minDistance,
-                               double maxDistance, int maxAttempts, double radius,
-                               String profile, String baseUrl) {
+            double maxDistance, int maxAttempts, double radius,
+            String profile, String baseUrl) {
         this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8080/ors";
         this.extent = extent;
         this.numPoints = numPoints;
@@ -30,6 +34,7 @@ public class CoordinateGenerator {
         this.maxAttempts = maxAttempts;
         this.radius = radius;
         this.profile = profile;
+        this.random = new Random();
 
         String apiKey = "";
         if (this.baseUrl.contains("openrouteservice.org")) {
@@ -48,21 +53,6 @@ public class CoordinateGenerator {
         this.result = new HashMap<>();
         result.put("to_points", new ArrayList<>());
         result.put("from_points", new ArrayList<>());
-    }
-
-    public static void main(String[] args) {
-        double[] extent = {8.6286, 49.3590, 8.7957, 49.4715};
-        int n = 100;
-        double minDist = 10000;
-        double maxDist = 1000000;
-        double snapRadius = 10;
-        int maxAttempts = 1000000;
-        String profile = "driving-car";
-
-        CoordinateGenerator generator = new CoordinateGenerator(
-                n, extent, minDist, maxDist, maxAttempts, snapRadius, profile, null);
-
-        // Note: CSV writing implementation needed here
     }
 
     private void generatePoints() {
@@ -89,17 +79,20 @@ public class CoordinateGenerator {
     }
 
     public List<double[]> randomCoordinatesInExtent(int numPoints) {
-
         List<double[]> points = new ArrayList<>();
         for (int i = 0; i < numPoints; i++) {
             double x = random.nextDouble() * (extent[2] - extent[0]) + extent[0];
             double y = random.nextDouble() * (extent[3] - extent[1]) + extent[1];
-            points.add(new double[]{x, y});
+            points.add(new double[] { x, y });
         }
         return points;
     }
 
-    private Map<String, List<double[]>> applyMatrix(List<double[]> points) throws Exception {
+    protected CloseableHttpClient createHttpClient() {
+        return HttpClients.createDefault();
+    }
+
+    Map<String, List<double[]>> applyMatrix(List<double[]> points) throws Exception {
         Map<String, Object> payload = new HashMap<>();
         payload.put("locations", points);
         payload.put("destinations", Collections.singletonList(0));
@@ -107,12 +100,49 @@ public class CoordinateGenerator {
         payload.put("profile", profile);
         payload.put("metrics", Collections.singletonList("distance"));
 
+        ObjectMapper mapper = new ObjectMapper();
         String jsonPayload = mapper.writeValueAsString(payload);
 
-        return new HashMap<>();
+        // try (CloseableHttpClient client = createHttpClient()) {
+        // HttpPost httpPost = new HttpPost(url);
+        // headers.forEach(httpPost::addHeader);
+        // httpPost.setEntity(new StringEntity(jsonPayload,
+        // ContentType.APPLICATION_JSON));
+
+        // try (CloseableHttpResponse response = client.execute(httpPost)) {
+        // String responseContent = new
+        // String(response.getEntity().getContent().readAllBytes());
+
+        // // Process JSON response and return results
+        // Map<String, Object> responseMap = mapper.readValue(responseContent,
+        // Map.class);
+
+        // // Process response and create return value
+        // // Add your processing logic here
+
+        // }
+
+        // }
+        return new HashMap<>(); // Replace with actual processing
+
     }
 
     public Map<String, List<double[]>> getResult() {
         return result;
+    }
+
+    public static void main(String[] args) {
+        double[] extent = { 8.6286, 49.3590, 8.7957, 49.4715 };
+        int n = 100;
+        double minDist = 10000;
+        double maxDist = 1000000;
+        double snapRadius = 10;
+        int maxAttempts = 1000000;
+        String profile = "driving-car";
+
+        CoordinateGenerator generator = new CoordinateGenerator(
+                n, extent, minDist, maxDist, maxAttempts, snapRadius, profile, null);
+
+        // Note: CSV writing implementation needed here
     }
 }
