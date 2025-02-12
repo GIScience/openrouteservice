@@ -2,28 +2,219 @@
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Matrix Test Plan">
+      <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
     </TestPlan>
     <hashTree>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Request counts">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Variables">
         <collectionProp name="Arguments.arguments">
-          <elementProp name="requests_count" elementType="Argument">
-            <stringProp name="Argument.name">requests_count</stringProp>
-            <stringProp name="Argument.value">1000</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="request_repetitions" elementType="Argument">
-            <stringProp name="Argument.name">request_repetitions</stringProp>
-            <stringProp name="Argument.value">3</stringProp>
+          <elementProp name="coordinates_dir" elementType="Argument">
+            <stringProp name="Argument.name">coordinates_dir</stringProp>
+            <stringProp name="Argument.value">C:\Users\Hendrik\Documents\HeiGIT\Benchmarking\</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
-        <stringProp name="TestPlan.comments">How many requests, and how often each request should be called</stringProp>
+        <stringProp name="TestPlan.comments">Location of coordinates CSV files</stringProp>
       </Arguments>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="1x10">
+      <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group" enabled="true">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </SetupThreadGroup>
+      <hashTree>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Set up coordinate files" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">import groovy.io.FileType
+
+def dirPath = vars.get(&quot;coordinates_dir&quot;)
+File dir = new File(dirPath)
+
+// Get small region CSV
+def filePattern = ~/^coordinates_small.*\.csv$/
+
+
+if (!dir.exists() || !dir.isDirectory()) {
+   log.error(&quot;Folder does not exist or is not a directory: &quot; + dirPath)
+} else {
+   File foundFile = dir.listFiles().find { it.name ==~ filePattern }
+   if (foundFile == null) {
+       log.error(&quot;No file matching pattern &quot; + filePattern + &quot; found in folder &quot; + dirPath)
+   } else {
+       vars.put(&quot;coordinates_small_path&quot;, foundFile.absolutePath)
+       log.info(&quot;Coordinates file set to: &quot; + foundFile.absolutePath)
+   }
+}
+
+// Get medium region CSV
+filePattern = ~/^coordinates_medium.*\.csv$/
+
+
+if (!dir.exists() || !dir.isDirectory()) {
+   log.error(&quot;Folder does not exist or is not a directory: &quot; + dirPath)
+   // Optionally, you could set a JMeter variable to indicate an error.
+} else {
+   // Look for a file in the folder that matches the pattern.
+   File foundFile = dir.listFiles().find { it.name ==~ filePattern }
+   if (foundFile == null) {
+       log.error(&quot;No file matching pattern &quot; + filePattern + &quot; found in folder &quot; + dirPath)
+   } else {
+       vars.put(&quot;coordinates_medium_path&quot;, foundFile.absolutePath)
+       log.info(&quot;Coordinates file set to: &quot; + foundFile.absolutePath)
+   }
+}
+
+// Get large region CSV
+filePattern = ~/^coordinates_large.*\.csv$/
+
+
+if (!dir.exists() || !dir.isDirectory()) {
+   log.error(&quot;Folder does not exist or is not a directory: &quot; + dirPath)
+   // Optionally, you could set a JMeter variable to indicate an error.
+} else {
+   // Look for a file in the folder that matches the pattern.
+   File foundFile = dir.listFiles().find { it.name ==~ filePattern }
+   if (foundFile == null) {
+       log.error(&quot;No file matching pattern &quot; + filePattern + &quot; found in folder &quot; + dirPath)
+   } else {
+       vars.put(&quot;coordinates_large_path&quot;, foundFile.absolutePath)
+       log.info(&quot;Coordinates file set to: &quot; + foundFile.absolutePath)
+   }
+}</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Set up coordinate objects" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">//Set small region coordinates object
+if (props.get(&quot;coordinatesList_small&quot;) == null) {
+    def filePath = vars.get(&quot;coordinates_small_path&quot;)
+    def file = new File(filePath)
+    // Each line is lat, lon
+    def list = file.readLines().collect { line -&gt;
+        def parts = line.split(&quot;,&quot;)
+        [ parts[0] as double, parts[1] as double ]
+    }
+    props.put(&quot;coordinatesList_small&quot;, list)
+}
+def smallCoordinates = props.get(&quot;coordinatesList_small&quot;)
+
+//Set medium region coordinates object
+if (props.get(&quot;coordinatesList_medium&quot;) == null) {
+    def filePath = vars.get(&quot;coordinates_medium_path&quot;)
+    def file = new File(filePath)
+    // Each line is lat, lon
+    def list = file.readLines().collect { line -&gt;
+        def parts = line.split(&quot;,&quot;)
+        [ parts[0] as double, parts[1] as double ]
+    }
+    props.put(&quot;coordinatesList_medium&quot;, list)
+}
+def mediumCoordinates = props.get(&quot;coordinatesList_medium&quot;)
+
+//Set large region coordinates object
+if (props.get(&quot;coordinatesList_large&quot;) == null) {
+    def filePath = vars.get(&quot;coordinates_large_path&quot;)
+    def file = new File(filePath)
+    // Each line is lat, lon
+    def list = file.readLines().collect { line -&gt;
+        def parts = line.split(&quot;,&quot;)
+        [ parts[0] as double, parts[1] as double ]
+    }
+    props.put(&quot;coordinatesList_large&quot;, list)
+}
+def largeCoordinates = props.get(&quot;coordinatesList_large&quot;)
+</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RPHAST small 1x10">
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">1</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -34,51 +225,33 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
           <collectionProp name="Arguments.arguments">
             <elementProp name="batchSize" elementType="Argument">
               <stringProp name="Argument.name">batchSize</stringProp>
               <stringProp name="Argument.value">11</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
-            <elementProp name="COORDINATES_FILE" elementType="Argument">
-              <stringProp name="Argument.name">COORDINATES_FILE</stringProp>
-              <stringProp name="Argument.value"></stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
           </collectionProp>
         </Arguments>
         <hashTree/>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller">
-          <stringProp name="LoopController.loops">1000</stringProp>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
           <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
         </LoopController>
         <hashTree>
-          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator" enabled="true">
             <stringProp name="cacheKey">true</stringProp>
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="script">import groovy.json.JsonOutput
-
-// --- Load the full coordinate list once and cache it as a JMeter property.
-if (vars.getObject(&quot;coordinatesList&quot;) == null) {
-    // Use the COORDINATES_FILE variable as path
-    def filePath = vars.get(&quot;COORDINATES_FILE&quot;)
-    def file = new File(filePath)
-    // Each line is lat, lon
-    def list = file.readLines().collect { line -&gt;
-        def parts = line.split(&quot;,&quot;)
-        [ parts[0] as double, parts[1] as double ]
-    }
-    vars.putObject(&quot;coordinatesList&quot;, list)
-}
-def allCoordinates = vars.getObject(&quot;coordinatesList&quot;)
-
 // --- Read the batch size from the variables.
 int batchSize = vars.get(&quot;batchSize&quot;) as int
 
 // Create a Random instance.
 def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_small&quot;)
 
 // --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
 // Here we pick with replacement. (For no replacement, a different approach is needed.)
@@ -112,12 +285,12 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
             <stringProp name="scriptLanguage">groovy</stringProp>
           </JSR223Sampler>
           <hashTree/>
-          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller">
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
             <stringProp name="LoopController.loops">3</stringProp>
             <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
           </LoopController>
           <hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
               <stringProp name="HTTPSampler.domain">localhost</stringProp>
               <stringProp name="HTTPSampler.port">8082</stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -137,7 +310,7 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="" elementType="Header">
                     <stringProp name="Header.name">Content-Type</stringProp>
@@ -149,119 +322,8 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
             </hashTree>
           </hashTree>
         </hashTree>
-        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>true</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
-              <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
-        <hashTree/>
-        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>true</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
-              <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
-        <hashTree/>
-        <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>true</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
-              <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
-        <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="10x10">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RPHAST medium 1x10">
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">1</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -272,51 +334,254 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
           <collectionProp name="Arguments.arguments">
             <elementProp name="batchSize" elementType="Argument">
               <stringProp name="Argument.name">batchSize</stringProp>
-              <stringProp name="Argument.value">20</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-            <elementProp name="COORDINATES_FILE" elementType="Argument">
-              <stringProp name="Argument.name">COORDINATES_FILE</stringProp>
-              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.value">11</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
           </collectionProp>
         </Arguments>
         <hashTree/>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller">
-          <stringProp name="LoopController.loops">1000</stringProp>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
           <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
         </LoopController>
         <hashTree>
-          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator" enabled="true">
             <stringProp name="cacheKey">true</stringProp>
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="script">import groovy.json.JsonOutput
-
-// --- Load the full coordinate list once and cache it as a JMeter property.
-if (vars.getObject(&quot;coordinatesList&quot;) == null) {
-    // Use the COORDINATES_FILE variable as path
-    def filePath = vars.get(&quot;COORDINATES_FILE&quot;)
-    def file = new File(filePath)
-    // Each line is lat, lon
-    def list = file.readLines().collect { line -&gt;
-        def parts = line.split(&quot;,&quot;)
-        [ parts[0] as double, parts[1] as double ]
-    }
-    vars.putObject(&quot;coordinatesList&quot;, list)
-}
-def allCoordinates = vars.getObject(&quot;coordinatesList&quot;)
 
 // --- Read the batch size from the variables.
 int batchSize = vars.get(&quot;batchSize&quot;) as int
 
 // Create a Random instance.
 def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_medium&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// --- Select source and destination indices.
+List sources = []
+List destinations = []
+
+// For batchSize == 11: 1 source and 10 destinations.
+int sourceIdx = rnd.nextInt(11)
+sources &lt;&lt; sourceIdx
+(0..&lt;11).each { i -&gt; if (i != sourceIdx) destinations &lt;&lt; i }
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RPHAST large 1x10" enabled="true">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">11</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator" enabled="true">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_large&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// --- Select source and destination indices.
+List sources = []
+List destinations = []
+
+// For batchSize == 11: 1 source and 10 destinations.
+int sourceIdx = rnd.nextInt(11)
+sources &lt;&lt; sourceIdx
+(0..&lt;11).each { i -&gt; if (i != sourceIdx) destinations &lt;&lt; i }
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RPHAST small 10x10" enabled="true">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">20</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator" enabled="true">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_small&quot;)
 
 // --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
 // Here we pick with replacement. (For no replacement, a different approach is needed.)
@@ -356,12 +621,12 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
             <stringProp name="scriptLanguage">groovy</stringProp>
           </JSR223Sampler>
           <hashTree/>
-          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller">
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
             <stringProp name="LoopController.loops">3</stringProp>
             <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
           </LoopController>
           <hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
               <stringProp name="HTTPSampler.domain">localhost</stringProp>
               <stringProp name="HTTPSampler.port">8082</stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -381,7 +646,7 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="" elementType="Header">
                     <stringProp name="Header.name">Content-Type</stringProp>
@@ -393,119 +658,8 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
             </hashTree>
           </hashTree>
         </hashTree>
-        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>true</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
-              <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
-        <hashTree/>
-        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>true</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
-              <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
-        <hashTree/>
-        <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>true</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
-              <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
-        <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="10x100">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RPHAST medium 10x10">
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">1</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -516,51 +670,267 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
           <collectionProp name="Arguments.arguments">
             <elementProp name="batchSize" elementType="Argument">
               <stringProp name="Argument.name">batchSize</stringProp>
-              <stringProp name="Argument.value">110</stringProp>
-              <stringProp name="Argument.metadata">=</stringProp>
-            </elementProp>
-            <elementProp name="COORDINATES_FILE" elementType="Argument">
-              <stringProp name="Argument.name">COORDINATES_FILE</stringProp>
-              <stringProp name="Argument.value"></stringProp>
+              <stringProp name="Argument.value">20</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
           </collectionProp>
         </Arguments>
         <hashTree/>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller">
-          <stringProp name="LoopController.loops">1000</stringProp>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
           <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
         </LoopController>
         <hashTree>
-          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator" enabled="true">
             <stringProp name="cacheKey">true</stringProp>
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="script">import groovy.json.JsonOutput
-
-// --- Load the full coordinate list once and cache it as a JMeter property.
-if (vars.getObject(&quot;coordinatesList&quot;) == null) {
-    // Use the COORDINATES_FILE variable as path
-    def filePath = vars.get(&quot;COORDINATES_FILE&quot;)
-    def file = new File(filePath)
-    // Each line is lat, lon
-    def list = file.readLines().collect { line -&gt;
-        def parts = line.split(&quot;,&quot;)
-        [ parts[0] as double, parts[1] as double ]
-    }
-    vars.putObject(&quot;coordinatesList&quot;, list)
-}
-def allCoordinates = vars.getObject(&quot;coordinatesList&quot;)
 
 // --- Read the batch size from the variables.
 int batchSize = vars.get(&quot;batchSize&quot;) as int
 
 // Create a Random instance.
 def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_medium&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;20).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 20))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RPHAST large 10x10" enabled="true">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">20</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator" enabled="true">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_large&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;20).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 20))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RPHAST small 10x100" enabled="true">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">110</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator" enabled="true">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_small&quot;)
 
 // --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
 // Here we pick with replacement. (For no replacement, a different approach is needed.)
@@ -600,12 +970,12 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
             <stringProp name="scriptLanguage">groovy</stringProp>
           </JSR223Sampler>
           <hashTree/>
-          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller">
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
             <stringProp name="LoopController.loops">3</stringProp>
             <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
           </LoopController>
           <hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
               <stringProp name="HTTPSampler.domain">localhost</stringProp>
               <stringProp name="HTTPSampler.port">8082</stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -625,7 +995,7 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="" elementType="Header">
                     <stringProp name="Header.name">Content-Type</stringProp>
@@ -637,117 +1007,1291 @@ vars.put(&quot;jsonBody&quot;, jsonBody)
             </hashTree>
           </hashTree>
         </hashTree>
-        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>true</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
-              <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RPHAST medium 10x100" enabled="true">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">110</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
         <hashTree/>
-        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>true</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
-              <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator" enabled="true">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_medium&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;110).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 110))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RPHAST large 10x100">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">110</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
         <hashTree/>
-        <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-          <objProp>
-            <name>saveConfig</name>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>true</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-              <bytes>true</bytes>
-              <sentBytes>true</sentBytes>
-              <url>true</url>
-              <threadCounts>true</threadCounts>
-              <idleTime>true</idleTime>
-              <connectTime>true</connectTime>
-            </value>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-        </ResultCollector>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator" enabled="true">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_large&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;110).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 110))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="CoreMatrix small 1x10">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">11</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
         <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_small&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// --- Select source and destination indices.
+List sources = []
+List destinations = []
+
+// For batchSize == 11: 1 source and 10 destinations.
+int sourceIdx = rnd.nextInt(11)
+sources &lt;&lt; sourceIdx
+(0..&lt;11).each { i -&gt; if (i != sourceIdx) destinations &lt;&lt; i }
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations,
+    options     : [
+        dynamic_speeds: true
+    ]
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="CoreMatrix medium 1x10">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">11</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_medium&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// --- Select source and destination indices.
+List sources = []
+List destinations = []
+
+// For batchSize == 11: 1 source and 10 destinations.
+int sourceIdx = rnd.nextInt(11)
+sources &lt;&lt; sourceIdx
+(0..&lt;11).each { i -&gt; if (i != sourceIdx) destinations &lt;&lt; i }
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations,
+    options     : [
+        dynamic_speeds: true
+    ]
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="CoreMatrix large 1x10">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">11</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_large&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// --- Select source and destination indices.
+List sources = []
+List destinations = []
+
+// For batchSize == 11: 1 source and 10 destinations.
+int sourceIdx = rnd.nextInt(11)
+sources &lt;&lt; sourceIdx
+(0..&lt;11).each { i -&gt; if (i != sourceIdx) destinations &lt;&lt; i }
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations,
+    options     : [
+        dynamic_speeds: true
+    ]
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="CoreMatrix small 10x10">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">20</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_small&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;20).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 20))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations,
+    options     : [
+        dynamic_speeds: true
+    ]
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="CoreMatrix medium 10x10">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">20</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_medium&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;20).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 20))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations,
+    options     : [
+        dynamic_speeds: true
+    ]
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="CoreMatrix large 10x10">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">20</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_large&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;20).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 20))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations,
+    options     : [
+        dynamic_speeds: true
+    ]
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="CoreMatrix small 10x100">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">110</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_small&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;110).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 110))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations,
+    options     : [
+        dynamic_speeds: true
+    ]
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="CoreMatrix medium 10x100">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">110</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_medium&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;110).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 110))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations,
+    options     : [
+        dynamic_speeds: true
+    ]
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller" enabled="true">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="CoreMatrix large 10x100">
+        <intProp name="ThreadGroup.num_threads">1</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="batchSize" elementType="Argument">
+              <stringProp name="Argument.name">batchSize</stringProp>
+              <stringProp name="Argument.value">110</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Outer Loop Controller" enabled="true">
+          <stringProp name="LoopController.loops">${__P(LOOP_COUNT,1000)}</stringProp>
+          <stringProp name="TestPlan.comments">Iterates over 10000 NxM coordinate batches sampled from COORDINATES_FILE</stringProp>
+        </LoopController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="Payload Generator">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// --- Read the batch size from the variables.
+int batchSize = vars.get(&quot;batchSize&quot;) as int
+
+// Create a Random instance.
+def rnd = new Random()
+
+def allCoordinates = props.get(&quot;coordinatesList_large&quot;)
+
+// --- Randomly pick &quot;batchSize&quot; coordinates from allCoordinates.
+// Here we pick with replacement. (For no replacement, a different approach is needed.)
+def batchCoordinates = (1..batchSize).collect {
+    int idx = rnd.nextInt(allCoordinates.size())
+    return allCoordinates[idx]
+}
+
+// Create a list of indices from 0 to 19
+def indices = (0..&lt;110).toList()
+// Shuffle the list in place using your random instance
+indices.shuffle(rnd)
+
+// Ensure that sources and destinations are defined as empty lists
+def sources = []   // or: sources = [] if already declared
+def destinations = []
+
+// Assign the first 10 shuffled indices as sources
+sources.addAll(indices.subList(0, 10))
+
+// Assign the remaining 10 indices as destinations
+destinations.addAll(indices.subList(10, 110))
+
+// --- Build the JSON payload.
+def payload = [
+    locations   : batchCoordinates,
+    sources     : sources,
+    destinations: destinations,
+    options     : [
+        dynamic_speeds: true
+    ]
+]
+
+// Convert the payload map to JSON.
+String jsonBody = JsonOutput.toJson(payload)
+
+// Save the JSON payload into a JMeter variable so that the HTTP Request can use it.
+vars.put(&quot;jsonBody&quot;, jsonBody)
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Inner Loop Controller">
+            <stringProp name="LoopController.loops">3</stringProp>
+            <stringProp name="TestPlan.comments">Re-run each request 3 times for some small statistics</stringProp>
+          </LoopController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Matrix Request" enabled="true">
+              <stringProp name="HTTPSampler.domain">localhost</stringProp>
+              <stringProp name="HTTPSampler.port">8082</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.path">/ors/v2/matrix/driving-car</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">${jsonBody}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Content-Type</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+        </hashTree>
       </hashTree>
     </hashTree>
   </hashTree>
