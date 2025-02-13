@@ -10,6 +10,13 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 public class IsochronesLoadTest extends Simulation {
 
     static final int BATCH_SIZE_UPTO = 5;
+    static final String BASE_URL;
+    static final String API_KEY;
+
+    static {
+        BASE_URL = System.getenv("BENCH_BASE_URL") != null ? System.getenv("BENCH_BASE_URL") : "http://localhost:8082/ors";
+        API_KEY = System.getenv("BENCH_API_KEY") != null ? System.getenv("BENCH_API_KEY") : "API KEY";
+    }
 
     static String locations(int num) {
         StringBuilder sb = new StringBuilder();
@@ -28,7 +35,7 @@ public class IsochronesLoadTest extends Simulation {
                 feed(feeder, batchSize),
                 http("Post")
                         .post("/v2/isochrones/driving-car")
-                        .body(StringBody("{\"locations\":[" + locations(batchSize) + "] , \"range\":[100, 200, 300]}"))
+                        .body(StringBody("{\"locations\":[" + locations(batchSize) + "] , \"range\":[300]}"))
                         .check(status().is(200))
                         .check(status().saveAs("responseStatus"))
                         .check(bodyString().saveAs("responseBody"))
@@ -42,10 +49,8 @@ public class IsochronesLoadTest extends Simulation {
     }
 
     HttpProtocolBuilder httpProtocol =
-//            http.baseUrl("https://api.openrouteservice.org")
-//                    .authorizationHeader("Bearer API_KEY")
-            http.baseUrl("http://localhost:8082/ors")
-                    .authorizationHeader("Bearer API KEY")
+            http.baseUrl(BASE_URL)
+                    .authorizationHeader("Bearer " + API_KEY)
                     .acceptHeader("application/geo+json; charset=utf-8")
                     .contentTypeHeader("application/json; charset=utf-8")
                     .userAgentHeader(
