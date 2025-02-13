@@ -37,6 +37,8 @@ public class CoordinateGenerator {
     private Map<String, List<double[]>> result;
     private final Random random;
     ObjectMapper mapper = new ObjectMapper();
+    // logger
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CoordinateGenerator.class);
 
     protected CoordinateGenerator(int numPoints, double[] extent, double minDistance,
                     double maxDistance, int maxAttempts, double radius,
@@ -74,10 +76,13 @@ public class CoordinateGenerator {
 
     protected void generatePoints() {
         for (int i = 0; i < maxAttempts; i++) {
+            LOGGER.info("Attempt {}", i);
             try {
                 if (result.get("to_points").size() < numPoints) {
+                    LOGGER.info("In attempt {}", i);
                     List<double[]> rawPoints = randomCoordinatesInExtent(numPoints);
                     Map<String, List<double[]>> points = applyMatrix(rawPoints);
+                    LOGGER.info("Points: {}", points);
                     if (points.get("to_points") != null && points.get("from_points") != null) {
                         result.get("from_points").addAll(points.get("from_points"));
                         result.get("to_points").addAll(points.get("to_points"));
@@ -143,50 +148,96 @@ public class CoordinateGenerator {
             final HttpPost httpPost = new HttpPost(url);
             headers.forEach(httpPost::addHeader);
             httpPost.setEntity(new StringEntity(jsonPayload, ContentType.APPLICATION_JSON));
+            LOGGER.info("Execute request");
             String executeResults = client.execute(httpPost, this::processResponse);
             if (executeResults == null) {
                 return matrixResults;
             }
+            LOGGER.info("Read values");
             Map<String, Object> responseMap = mapper.readValue(executeResults, Map.class);
 
             // Check for empty or invalid destinations
+            LOGGER.info("Check for empty or invalid destinations");
             List<Map<String, Object>> destinations = (List<Map<String, Object>>) responseMap.get("destinations");
             if (destinations == null || destinations.isEmpty()) {
                 return matrixResults;
             }
 
             // Check for valid location in first destination
+            LOGGER.info("Check for valid location in first destination");
             Map<String, Object> firstDestination = destinations.get(0);
             if (firstDestination == null || !firstDestination.containsKey("location")) {
                 return matrixResults;
             }
 
+            LOGGER.info("Get start point");
             double[] startPoint = ((List<Number>) firstDestination.get("location")).stream()
                     .mapToDouble(Number::doubleValue)
                     .toArray();
 
             // Get all source points
+            LOGGER.info("Get all source points");
             List<Map<String, Object>> sources = (List<Map<String, Object>>) responseMap.get("sources");
+            LOGGER.info("Sources: {}", sources);
+
+            if (sources == null || sources.isEmpty()) {
+                LOGGER.warn("No sources found in response");
+                return matrixResults;
+            }
+
             List<double[]> sourcePoints = sources.stream()
-                    .map(source -> ((List<Number>) source.get("location")).stream()
-                            .mapToDouble(Number::doubleValue)
-                            .toArray())
+                    .filter(Objects::nonNull) // Filter out null sources
+                    .filter(source -> source.get("location") != null) // Filter out sources without location
+                    .map(source -> {
+                        try {
+                            List<Number> location = (List<Number>) source.get("location");
+                            if (location != null && location.size() >= 2) {
+                                return new double[] {
+                                        location.get(0).doubleValue(),
+                                        location.get(1).doubleValue()
+                                };
+                            }
+                        } catch (ClassCastException e) {
+                            LOGGER.warn("Invalid location format in source: {}", source);
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull) // Filter out null results
                     .collect(Collectors.toList());
 
+            if (sourcePoints.isEmpty()) {
+                LOGGER.warn("No valid source points found");
+                return matrixResults;
+            }
+
             // Get distances matrix
+            LOGGER.info("Get distances matrix");
             List<List<Number>> distances = (List<List<Number>>) responseMap.get("distances");
+
+            if (distances == null || distances.isEmpty()) {
+                LOGGER.warn("No distances found in response");
+                return matrixResults;
+            }
 
             // Filter points based on distance constraints
             List<double[]> filteredDestPoints = new ArrayList<>();
             List<double[]> filteredStartPoints = new ArrayList<>();
+            LOGGER.info("Filter points based on distance constraints");
 
-            for (int i = 0; i < distances.size(); i++) {
-                double distance = distances.get(i).get(0).doubleValue();
-                if (distance > minDistance && distance < maxDistance) {
-                    filteredDestPoints.add(sourcePoints.get(i));
-                    filteredStartPoints.add(startPoint);
+            for (int i = 0; i < Math.min(distances.size(), sourcePoints.size()); i++) {
+                List<Number> distanceRow = distances.get(i);
+                if (distanceRow != null && !distanceRow.isEmpty() && distanceRow.get(0) != null) {
+                    double distance = distanceRow.get(0).doubleValue();
+                    LOGGER.debug("Distance at index {}: {}", i, distance);
+                    if (distance > minDistance && distance < maxDistance) {
+                        filteredDestPoints.add(sourcePoints.get(i));
+                        filteredStartPoints.add(startPoint);
+                    }
+                } else {
+                    LOGGER.warn("Invalid distance data at index {}", i);
                 }
             }
+            LOGGER.info("Filtered points: {}", filteredDestPoints.size());
             matrixResults.put("from_points", filteredStartPoints);
             matrixResults.put("to_points", filteredDestPoints);
             return matrixResults;
@@ -219,6 +270,35 @@ public class CoordinateGenerator {
         File csvOutputFile = new File(filePath);
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
             pw.print(csv);
+        }
+    }
+
+    public static void main(String[] args) throws org.apache.commons.cli.ParseException {
+        try {
+            GeneratorCLI cli = new GeneratorCLI(args);
+
+            if (cli.hasHelp()) {
+                cli.printHelp();
+                return;
+            }
+
+            LOGGER.info("Create generator");
+            CoordinateGenerator generator = cli.createGenerator();
+
+            LOGGER.info("Generate points");
+            generator.generatePoints();
+            LOGGER.info("Write to CSV");
+            generator.writeToCSV(cli.getOutputFile());
+
+            System.out.println("Generated " + generator.getResult().get("to_points").size() + " coordinate pairs");
+            System.out.println("Results written to: " + cli.getOutputFile());
+
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing numeric arguments: " + e.getMessage());
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Error writing to output file: " + e.getMessage());
+            System.exit(1);
         }
     }
 }
