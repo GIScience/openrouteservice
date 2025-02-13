@@ -3,6 +3,7 @@ package org.heigit.ors.benchmark;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,6 +17,7 @@ import org.apache.hc.core5.http.message.StatusLine;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -502,6 +504,50 @@ class CoordinateGeneratorTest {
                  
         String result = testGenerator.printToCSV(coordinates);
 
+        assertEquals(expected_result, result);
+    }
+
+    @Test
+    void testWriteCSVToFile(@TempDir Path tempDir) throws IOException {
+        CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
+        CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
+
+        // Mock successful response with valid points
+        String mockJsonResponse = """
+                {
+                  "distances": [[0], [75], [85], [100]],
+                  "destinations": [
+                    { "location": [8.681, 49.41] }
+                  ],
+                  "sources": [
+                    { "location": [8.681, 49.41] },
+                    { "location": [8.682, 49.42] },
+                    { "location": [8.683, 49.43] },
+                    { "location": [8.684, 49.44] }
+                  ]
+                }
+                """;
+        StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
+        when(closeableHttpResponse.getEntity()).thenReturn(entity);
+        when(closeableHttpClient.execute(any(HttpPost.class))).thenReturn(closeableHttpResponse);
+
+        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
+                4, extent, 0, 200, 5, 350, "driving-car", null);
+        testGenerator.setHttpClient(closeableHttpClient);
+        testGenerator.generatePoints();
+
+        String expected_result = """
+                from_lat,from_lon,to_lat,to_lon
+                8.681,49.41,8.682,49.42
+                8.681,49.41,8.683,49.43
+                8.681,49.41,8.684,49.44
+                8.681,49.41,8.682,49.42
+                """;
+        String filename = "test.csv";
+        String filePath = tempDir.resolve(filename).toString();
+        testGenerator.writeToCSV(filePath);
+        // Read the file
+        String result = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filePath)));
         assertEquals(expected_result, result);
     }
 
