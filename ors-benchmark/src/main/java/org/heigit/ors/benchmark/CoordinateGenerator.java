@@ -1,12 +1,18 @@
 package org.heigit.ors.benchmark;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -28,7 +34,7 @@ public class CoordinateGenerator {
     protected CoordinateGenerator(int numPoints, double[] extent, double minDistance,
                     double maxDistance, int maxAttempts, double radius,
             String profile, String baseUrl) {
-        this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8082/ors";
+        this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8080/ors";
         this.extent = extent;
         this.numPoints = numPoints;
         this.minDistance = minDistance;
@@ -180,6 +186,23 @@ public class CoordinateGenerator {
         return result;
     }
 
+    public String printToCSV(Map<String, List<double[]>> result) throws IOException {
+        final CsvMapper CSV_MAPPER = new CsvMapper();
+
+        try (StringWriter stringWriter = new StringWriter()){
+            SequenceWriter sequenceWriter = CSV_MAPPER.writer().writeValues(stringWriter);
+            sequenceWriter.write(Arrays.asList("from_lat", "from_lon", "to_lat", "to_lon"));
+            for (int i = 0; i < result.get("from_points").size(); i ++) {
+                double[] fromPoint = result.get("from_points").get(i);
+                double[] toPoint = result.get("to_points").get(i);
+                sequenceWriter.write(Arrays.asList(fromPoint[0], fromPoint[1], toPoint[0], toPoint[1]));
+            }
+            sequenceWriter.close();
+            String csv = stringWriter.toString();
+            return csv;
+        }
+    }
+
     public static void main(String[] args) {
         double[] extent = { 8.6286, 49.3590, 8.7957, 49.4715 };
         int n = 100;
@@ -192,6 +215,14 @@ public class CoordinateGenerator {
         CoordinateGenerator generator = new CoordinateGenerator(
                 n, extent, minDist, maxDist, maxAttempts, snapRadius, profile, null);
 
+        generator.generatePoints();
+        Map<String, List<double[]>> coordinates = generator.getResult();
         // Note: CSV writing implementation needed here
+        try {
+            String csv = generator.printToCSV(coordinates);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }
