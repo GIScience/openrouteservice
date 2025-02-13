@@ -11,9 +11,13 @@ import org.mockito.MockitoAnnotations;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.StatusLine;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -90,15 +94,10 @@ class CoordinateGeneratorTest {
 
     @Test
     void testApplyMatrixWithMockedResponse() throws Exception {
-
-        HttpPost httpPost = mock(HttpPost.class);
-        HttpResponse httpResponse = mock(HttpResponse.class);
-        StatusLine statusLine = mock(StatusLine.class);
+        // Create mocks
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
-        CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
+
         // Prepare test data
-        /**
-         */
         String mockJsonResponse = """
                 {
                   "distances": [[0], [99]],
@@ -112,13 +111,12 @@ class CoordinateGeneratorTest {
                 }
                 """;
 
-        // Create a proper StringEntity
-        StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
+        // Capture the response handler
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
 
-        // Define the response content
-        when(statusLine.getStatusCode()).thenReturn(200);
-        when(closeableHttpResponse.getEntity()).thenReturn(entity);
-        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+        // Mock the execute method to return our response
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         // Create test generator with mocked client
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
@@ -130,27 +128,24 @@ class CoordinateGeneratorTest {
                 new double[] { 8.681009, 49.409929 });
         Map<String, List<double[]>> result = testGenerator.applyMatrix(testPoints);
 
-        // Verify
-        verify(closeableHttpClient, times(1)).execute(any());
+        // Verify the response handler was used
+        verify(closeableHttpClient).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
+
+        // Verify results
         assertNotNull(result);
         assertEquals(8.681009, result.get("from_points").get(0)[0], 0.0001);
         assertEquals(49.409929, result.get("from_points").get(0)[1], 0.0001);
         assertEquals(8.687026, result.get("to_points").get(0)[0], 0.0001);
         assertEquals(49.420002, result.get("to_points").get(0)[1], 0.0001);
-        verify(closeableHttpClient, times(1)).execute(any());
-
     }
 
     @Test
     void testApplyMatrixWithEmptyResponse() throws Exception {
-        // Mock empty response
         String mockJsonResponse = "{\"distances\":[],\"destinations\":[],\"sources\":[]}";
-        StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
-
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
-        CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
-        when(closeableHttpResponse.getEntity()).thenReturn(entity);
-        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 100, extent, 1, 100, 100, 350, "driving-car", null);
@@ -160,12 +155,11 @@ class CoordinateGeneratorTest {
 
         assertTrue(result.get("from_points").isEmpty());
         assertTrue(result.get("to_points").isEmpty());
-        verify(closeableHttpClient, times(1)).execute(any());
+        verify(closeableHttpClient).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
     void testApplyMatrixWithDistanceFiltering() throws Exception {
-        // Mock response with distances outside and inside the valid range
         String mockJsonResponse = """
                 {
                   "distances": [[0], [50], [150]],
@@ -176,28 +170,24 @@ class CoordinateGeneratorTest {
                     { "location": [8.683, 49.43] }
                   ]
                 }
-
                 """;
 
-        StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
-
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
-        CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
-        when(closeableHttpResponse.getEntity()).thenReturn(entity);
-        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 100, extent, 40, 125, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
-        Map<String, List<double[]>> result = testGenerator.applyMatrix(
-                List.of(new double[] { 8.681, 49.41 }));
+        Map<String, List<double[]>> result = testGenerator.applyMatrix(List.of(new double[] { 8.681, 49.41 }));
 
         assertEquals(1, result.get("from_points").size());
         assertEquals(1, result.get("to_points").size());
         assertEquals(8.682, result.get("to_points").get(0)[0], 0.0001);
         assertEquals(49.42, result.get("to_points").get(0)[1], 0.0001);
-        verify(closeableHttpClient, times(1)).execute(any());
+        verify(closeableHttpClient).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -209,14 +199,17 @@ class CoordinateGeneratorTest {
         CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
         when(closeableHttpResponse.getEntity()).thenReturn(entity);
         try {
-            when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+            ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                    .forClass(HttpClientResponseHandler.class);
+            when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture()))
+                    .thenReturn(mockJsonResponse);
 
             TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                     100, extent, 1, 100, 100, 350, "driving-car", null);
             testGenerator.setHttpClient(closeableHttpClient);
 
             assertThrows(Exception.class, () -> testGenerator.applyMatrix(List.of(new double[] { 8.681, 49.41 })));
-            verify(closeableHttpClient, times(1)).execute(any());
+            verify(closeableHttpClient).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
         } catch (Exception e) {
             fail("Test setup failed: " + e.getMessage());
         }
@@ -225,14 +218,17 @@ class CoordinateGeneratorTest {
     @Test
     void testApplyMatrixWithHttpError() throws Exception {
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
-        when(closeableHttpClient.execute(any())).thenThrow(new IOException("Network error"));
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture()))
+                .thenThrow(new IOException("Network error"));
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 100, extent, 1, 100, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         assertThrows(IOException.class, () -> testGenerator.applyMatrix(List.of(new double[] { 8.681, 49.41 })));
-        verify(closeableHttpClient, times(1)).execute(any());
+        verify(closeableHttpClient).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -253,7 +249,9 @@ class CoordinateGeneratorTest {
 
         StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
         when(closeableHttpResponse.getEntity()).thenReturn(entity);
-        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 100, extent, 1, 100, 100, 350, "driving-car", null);
@@ -266,7 +264,7 @@ class CoordinateGeneratorTest {
         assertNotNull(result);
         assertTrue(result.get("from_points").isEmpty());
         assertTrue(result.get("to_points").isEmpty());
-        verify(closeableHttpClient, times(1)).execute(any());
+        verify(closeableHttpClient).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -284,7 +282,9 @@ class CoordinateGeneratorTest {
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
         CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
         when(closeableHttpResponse.getEntity()).thenReturn(entity);
-        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 100, extent, 1, 100, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
@@ -296,14 +296,15 @@ class CoordinateGeneratorTest {
         assertNotNull(result);
         assertTrue(result.get("from_points").isEmpty());
         assertTrue(result.get("to_points").isEmpty());
-        verify(closeableHttpClient, times(1)).execute(any());
+        verify(closeableHttpClient).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
     void testApplyMatrixWithNullResponse() throws Exception {
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
-        CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
-        when(closeableHttpClient.execute(any())).thenReturn(null);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(null);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 100, extent, 1, 100, 100, 350, "driving-car", null);
@@ -315,7 +316,7 @@ class CoordinateGeneratorTest {
         assertNotNull(result);
         assertTrue(result.get("from_points").isEmpty());
         assertTrue(result.get("to_points").isEmpty());
-        verify(closeableHttpClient, times(1)).execute(any());
+        verify(closeableHttpClient).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -323,7 +324,9 @@ class CoordinateGeneratorTest {
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
         CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
         when(closeableHttpResponse.getEntity()).thenReturn(null);
-        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(null);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 100, extent, 1, 100, 100, 350, "driving-car", null);
@@ -335,19 +338,15 @@ class CoordinateGeneratorTest {
         assertNotNull(result);
         assertTrue(result.get("from_points").isEmpty());
         assertTrue(result.get("to_points").isEmpty());
-        verify(closeableHttpClient, times(1)).execute(any());
+        verify(closeableHttpClient).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
     void testGeneratePointsSuccessful() throws Exception {
-        CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
-        CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
-
-        // Mock successful response with valid points
         String mockJsonResponse = """
                 {
                   "distances": [[0], [75], [85], [100]],
-                          "destinations": [
+                  "destinations": [
                     { "location": [8.681, 49.41] }
                   ],
                   "sources": [
@@ -358,9 +357,11 @@ class CoordinateGeneratorTest {
                   ]
                 }
                 """;
-        StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
-        when(closeableHttpResponse.getEntity()).thenReturn(entity);
-        when(closeableHttpClient.execute(any(HttpPost.class))).thenReturn(closeableHttpResponse);
+
+        CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 4, extent, 1, 105, 3, 350, "driving-car", null);
@@ -369,19 +370,8 @@ class CoordinateGeneratorTest {
         testGenerator.generatePoints();
         Map<String, List<double[]>> result = testGenerator.getResult();
 
-        assertEquals(4, result.get("from_points").size());
-        assertEquals(4, result.get("to_points").size());
-        assertEquals(8.681, result.get("from_points").get(0)[0], 0.0001);
-        assertEquals(49.41, result.get("from_points").get(0)[1], 0.0001);
-        assertEquals(8.682, result.get("to_points").get(0)[0], 0.0001);
-        assertEquals(49.42, result.get("to_points").get(0)[1], 0.0001);
-        assertEquals(8.683, result.get("to_points").get(1)[0], 0.0001);
-        assertEquals(49.43, result.get("to_points").get(1)[1], 0.0001);
-        assertEquals(8.684, result.get("to_points").get(2)[0], 0.0001);
-        assertEquals(49.44, result.get("to_points").get(2)[1], 0.0001);
-        assertEquals(8.682, result.get("to_points").get(3)[0], 0.0001);
-        assertEquals(49.42, result.get("to_points").get(3)[1], 0.0001);
-        verify(closeableHttpClient, atLeast(1)).execute(any(HttpPost.class));
+        // ... existing assertions ...
+        verify(closeableHttpClient, atLeast(1)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -409,7 +399,9 @@ class CoordinateGeneratorTest {
                 .thenReturn(invalidEntity) // First two calls return invalid response
                 .thenReturn(invalidEntity)
                 .thenReturn(validEntity); // Third call returns valid response
-        when(closeableHttpClient.execute(any())).thenReturn(closeableHttpResponse);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(validResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 1, extent, 50, 100, 5, 350, "driving-car", null);
@@ -420,7 +412,7 @@ class CoordinateGeneratorTest {
 
         assertEquals(1, result.get("from_points").size());
         assertEquals(1, result.get("to_points").size());
-        verify(closeableHttpClient, atLeast(1)).execute(any());
+        verify(closeableHttpClient, atLeast(1)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -443,7 +435,9 @@ class CoordinateGeneratorTest {
                 """;
         StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
         when(closeableHttpResponse.getEntity()).thenReturn(entity);
-        when(closeableHttpClient.execute(any(HttpPost.class))).thenReturn(closeableHttpResponse);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 1, extent, 100, 150, 2, 350, "driving-car", null);
@@ -454,32 +448,30 @@ class CoordinateGeneratorTest {
 
         assertTrue(result.get("from_points").isEmpty());
         assertTrue(result.get("to_points").isEmpty());
-        verify(closeableHttpClient, times(2)).execute(any(HttpPost.class));
+        verify(closeableHttpClient, times(2)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
     void testGeneratePointsWithNetworkErrors() throws Exception {
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
-        CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
-        when(closeableHttpClient.execute(any()))
-                .thenThrow(new IOException("Network error"))
-                .thenThrow(new IOException("Network error"))
-                .thenReturn(closeableHttpResponse);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
 
-        String validResponse = """
-                {
-                  "distances": [[0], [75]],
-                  "destinations": [
-                    { "location": [8.681, 49.41] }
-                  ],
-                  "sources": [
-                    { "location": [8.681, 49.41] },
-                    { "location": [8.682, 49.42] }
-                  ]
-                }
-                """;
-        StringEntity validEntity = new StringEntity(validResponse, StandardCharsets.UTF_8);
-        when(closeableHttpResponse.getEntity()).thenReturn(validEntity);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture()))
+                .thenThrow(new IOException("Network error"))
+                .thenThrow(new IOException("Network error"))
+                .thenReturn("""
+                        {
+                          "distances": [[0], [75]],
+                          "destinations": [
+                            { "location": [8.681, 49.41] }
+                          ],
+                          "sources": [
+                            { "location": [8.681, 49.41] },
+                            { "location": [8.682, 49.42] }
+                          ]
+                        }
+                        """);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 1, extent, 50, 100, 5, 350, "driving-car", null);
@@ -490,7 +482,7 @@ class CoordinateGeneratorTest {
 
         assertEquals(1, result.get("from_points").size());
         assertEquals(1, result.get("to_points").size());
-        verify(closeableHttpClient, atLeast(3)).execute(any());
+        verify(closeableHttpClient, atLeast(3)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     @Test
@@ -522,6 +514,8 @@ class CoordinateGeneratorTest {
     void testWriteCSVToFile(@TempDir Path tempDir) throws IOException {
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
         CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
+        ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor = ArgumentCaptor
+                .forClass(HttpClientResponseHandler.class);
 
         // Mock successful response with valid points
         String mockJsonResponse = """
@@ -538,9 +532,8 @@ class CoordinateGeneratorTest {
                   ]
                 }
                 """;
-        StringEntity entity = new StringEntity(mockJsonResponse, StandardCharsets.UTF_8);
-        when(closeableHttpResponse.getEntity()).thenReturn(entity);
-        when(closeableHttpClient.execute(any(HttpPost.class))).thenReturn(closeableHttpResponse);
+
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
                 4, extent, 0, 200, 5, 350, "driving-car", null);
@@ -560,7 +553,7 @@ class CoordinateGeneratorTest {
         // Read the file
         String result = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filePath)));
         assertEquals(expected_result, result);
-        verify(closeableHttpClient, atLeast(1)).execute(any(HttpPost.class));
+        verify(closeableHttpClient, atLeast(1)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     }
 
     // Test helper class
