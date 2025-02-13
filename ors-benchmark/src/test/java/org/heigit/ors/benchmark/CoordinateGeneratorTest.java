@@ -36,7 +36,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class CoordinateGeneratorTest {
-    private CoordinateGenerator generator;
     private double[] extent;
 
     @Mock
@@ -45,12 +44,14 @@ class CoordinateGeneratorTest {
     @Captor
     private ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor;
 
+    private TestCoordinateGenerator testGenerator;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         extent = new double[] { 8.6286, 49.3590, 8.7957, 49.4715 };
-        generator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
+        testGenerator = new TestCoordinateGenerator(
+                5, extent, 1, 100, 100, 350, "driving-car", null);
     }
 
     // Set the base url to openrouteservice.org and catch the runtime exception
@@ -84,7 +85,7 @@ class CoordinateGeneratorTest {
     @ParameterizedTest
     @MethodSource("pointSizeProvider")
     void testRandomCoordinatesInExtentWithDifferentSizes(int numPoints) {
-        List<double[]> points = generator.randomCoordinatesInExtent(numPoints);
+        List<double[]> points = testGenerator.randomCoordinatesInExtent(numPoints);
 
         // Test correct number of points
         assertEquals(numPoints, points.size());
@@ -101,13 +102,13 @@ class CoordinateGeneratorTest {
 
     @Test
     void testRandomCoordinatesInExtentZeroPoints() {
-        List<double[]> points = generator.randomCoordinatesInExtent(0);
+        List<double[]> points = testGenerator.randomCoordinatesInExtent(0);
         assertTrue(points.isEmpty());
     }
 
     @Test
     void testRandomCoordinatesInExtentNegativePoints() {
-        List<double[]> points = generator.randomCoordinatesInExtent(-1);
+        List<double[]> points = testGenerator.randomCoordinatesInExtent(-1);
         assertTrue(points.isEmpty());
     }
 
@@ -130,9 +131,6 @@ class CoordinateGeneratorTest {
         // Mock the execute method to return our response
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
-        // Create test generator with mocked client
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         // Test with sample points
@@ -145,6 +143,8 @@ class CoordinateGeneratorTest {
 
         // Verify results
         assertNotNull(result);
+        assertEquals(1, result.get("from_points").size());
+        assertEquals(1, result.get("to_points").size());
         assertEquals(8.681009, result.get("from_points").get(0)[0], 0.0001);
         assertEquals(49.409929, result.get("from_points").get(0)[1], 0.0001);
         assertEquals(8.687026, result.get("to_points").get(0)[0], 0.0001);
@@ -157,8 +157,6 @@ class CoordinateGeneratorTest {
 
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         Map<String, List<double[]>> result = testGenerator.applyMatrix(List.of(new double[] { 8.681, 49.41 }));
@@ -184,8 +182,6 @@ class CoordinateGeneratorTest {
 
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                100, extent, 40, 125, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         Map<String, List<double[]>> result = testGenerator.applyMatrix(List.of(new double[] { 8.681, 49.41 }));
@@ -209,8 +205,6 @@ class CoordinateGeneratorTest {
             when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture()))
                     .thenReturn(mockJsonResponse);
 
-            TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                    100, extent, 1, 100, 100, 350, "driving-car", null);
             testGenerator.setHttpClient(closeableHttpClient);
 
             assertThrows(Exception.class, () -> testGenerator.applyMatrix(List.of(new double[] { 8.681, 49.41 })));
@@ -226,8 +220,6 @@ class CoordinateGeneratorTest {
                 .thenThrow(new IOException("Network error"))
                 .thenThrow(new IOException("Network error"));
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         assertThrows(Exception.class, () -> testGenerator.applyMatrix(List.of(new double[] { 8.681, 49.41 })));
@@ -254,8 +246,6 @@ class CoordinateGeneratorTest {
         when(closeableHttpResponse.getEntity()).thenReturn(entity);
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         Map<String, List<double[]>> result = testGenerator.applyMatrix(
@@ -284,8 +274,7 @@ class CoordinateGeneratorTest {
         CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
         when(closeableHttpResponse.getEntity()).thenReturn(entity);
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
+
         testGenerator.setHttpClient(closeableHttpClient);
 
         Map<String, List<double[]>> result = testGenerator.applyMatrix(
@@ -303,8 +292,6 @@ class CoordinateGeneratorTest {
 
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(null);
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         Map<String, List<double[]>> result = testGenerator.applyMatrix(
@@ -323,8 +310,6 @@ class CoordinateGeneratorTest {
         when(closeableHttpResponse.getEntity()).thenReturn(null);
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(null);
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         Map<String, List<double[]>> result = testGenerator.applyMatrix(
@@ -356,8 +341,6 @@ class CoordinateGeneratorTest {
 
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                4, extent, 1, 105, 3, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         testGenerator.generatePoints();
@@ -394,15 +377,13 @@ class CoordinateGeneratorTest {
                 .thenReturn(validEntity); // Third call returns valid response
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(validResponse);
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                1, extent, 50, 100, 5, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         testGenerator.generatePoints();
         Map<String, List<double[]>> result = testGenerator.getResult();
 
-        assertEquals(1, result.get("from_points").size());
-        assertEquals(1, result.get("to_points").size());
+        assertEquals(5, result.get("from_points").size());
+        assertEquals(5, result.get("to_points").size());
         verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
     }
 
@@ -428,12 +409,12 @@ class CoordinateGeneratorTest {
         when(closeableHttpResponse.getEntity()).thenReturn(entity);
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
+        TestCoordinateGenerator localTestGenerator = new TestCoordinateGenerator(
                 1, extent, 100, 150, 2, 350, "driving-car", null);
-        testGenerator.setHttpClient(closeableHttpClient);
+        localTestGenerator.setHttpClient(closeableHttpClient);
 
-        testGenerator.generatePoints();
-        Map<String, List<double[]>> result = testGenerator.getResult();
+        localTestGenerator.generatePoints();
+        Map<String, List<double[]>> result = localTestGenerator.getResult();
 
         assertTrue(result.get("from_points").isEmpty());
         assertTrue(result.get("to_points").isEmpty());
@@ -484,11 +465,6 @@ class CoordinateGeneratorTest {
         coordinates.put("to_points", toPoints);
         coordinates.put("from_points", fromPoints);
 
-        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                1, extent, 50, 100, 5, 350, "driving-car", null);
-        
-
-
         String header = "from_lon,from_lat,to_lon,to_lat\n";
         String expected_result = header.concat("9.0,10.0,1.0,2.0\n").concat("9.0,10.0,1.0,2.0\n");
                  
@@ -499,8 +475,6 @@ class CoordinateGeneratorTest {
 
     @Test
     void testWriteCSVToFile(@TempDir Path tempDir) throws IOException {
-
-        CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);
 
         // Mock successful response with valid points
         String mockJsonResponse = """
@@ -586,10 +560,8 @@ class CoordinateGeneratorTest {
         when(response.getCode()).thenReturn(HttpStatus.SC_OK);
         when(response.getEntity()).thenReturn(entity);
 
-        TestCoordinateGenerator generator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
 
-        String result = generator.processResponse(response);
+        String result = testGenerator.processResponse(response);
         assertEquals("test content", result);
     }
 
@@ -599,10 +571,7 @@ class CoordinateGeneratorTest {
         ClassicHttpResponse response = mock(ClassicHttpResponse.class);
         when(response.getCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
 
-        TestCoordinateGenerator generator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
-
-        IOException exception = assertThrows(IOException.class, () -> generator.processResponse(response));
+        IOException exception = assertThrows(IOException.class, () -> testGenerator.processResponse(response));
         assertEquals("Request failed with status code: 400", exception.getMessage());
     }
 
@@ -613,10 +582,7 @@ class CoordinateGeneratorTest {
         when(response.getCode()).thenReturn(HttpStatus.SC_OK);
         when(response.getEntity()).thenReturn(null);
 
-        TestCoordinateGenerator generator = new TestCoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
-
-        assertThrows(IOException.class, () -> generator.processResponse(response));
+        assertThrows(IOException.class, () -> testGenerator.processResponse(response));
     }
 
     @Test
@@ -632,10 +598,7 @@ class CoordinateGeneratorTest {
             entityUtils.when(() -> EntityUtils.toString(any(HttpEntity.class)))
                     .thenThrow(new ParseException("Failed to parse response entity"));
 
-            TestCoordinateGenerator generator = new TestCoordinateGenerator(
-                    100, extent, 1, 100, 100, 350, "driving-car", null);
-
-            IOException exception = assertThrows(IOException.class, () -> generator.processResponse(response));
+            IOException exception = assertThrows(IOException.class, () -> testGenerator.processResponse(response));
             assertEquals("Failed to parse response entity", exception.getMessage());
         }
     }
