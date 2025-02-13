@@ -346,14 +346,15 @@ class CoordinateGeneratorTest {
         // Mock successful response with valid points
         String mockJsonResponse = """
                 {
-                  "distances": [[0], [75], [85]],
-                  "destinations": [
+                  "distances": [[0], [75], [85], [100]],
+                          "destinations": [
                     { "location": [8.681, 49.41] }
                   ],
                   "sources": [
                     { "location": [8.681, 49.41] },
                     { "location": [8.682, 49.42] },
-                    { "location": [8.683, 49.43] }
+                    { "location": [8.683, 49.43] },
+                    { "location": [8.684, 49.44] }
                   ]
                 }
                 """;
@@ -362,14 +363,24 @@ class CoordinateGeneratorTest {
         when(closeableHttpClient.execute(any(HttpPost.class))).thenReturn(closeableHttpResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                2, extent, 50, 100, 3, 350, "driving-car", null);
+                4, extent, 1, 105, 3, 350, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         testGenerator.generatePoints();
         Map<String, List<double[]>> result = testGenerator.getResult();
 
-        assertEquals(2, result.get("from_points").size());
-        assertEquals(2, result.get("to_points").size());
+        assertEquals(4, result.get("from_points").size());
+        assertEquals(4, result.get("to_points").size());
+        assertEquals(8.681, result.get("from_points").get(0)[0], 0.0001);
+        assertEquals(49.41, result.get("from_points").get(0)[1], 0.0001);
+        assertEquals(8.682, result.get("to_points").get(0)[0], 0.0001);
+        assertEquals(49.42, result.get("to_points").get(0)[1], 0.0001);
+        assertEquals(8.683, result.get("to_points").get(1)[0], 0.0001);
+        assertEquals(49.43, result.get("to_points").get(1)[1], 0.0001);
+        assertEquals(8.684, result.get("to_points").get(2)[0], 0.0001);
+        assertEquals(49.44, result.get("to_points").get(2)[1], 0.0001);
+        assertEquals(8.682, result.get("to_points").get(3)[0], 0.0001);
+        assertEquals(49.42, result.get("to_points").get(3)[1], 0.0001);
         verify(closeableHttpClient, atLeast(1)).execute(any(HttpPost.class));
     }
 
@@ -549,6 +560,7 @@ class CoordinateGeneratorTest {
         // Read the file
         String result = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filePath)));
         assertEquals(expected_result, result);
+        verify(closeableHttpClient, atLeast(1)).execute(any(HttpPost.class));
     }
 
     // Test helper class

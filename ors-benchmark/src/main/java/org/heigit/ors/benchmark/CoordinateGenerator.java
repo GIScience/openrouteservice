@@ -67,7 +67,7 @@ public class CoordinateGenerator {
     protected void generatePoints() {
         for (int i = 0; i < maxAttempts; i++) {
             if (result.get("to_points").size() < numPoints) {
-                List<double[]> rawPoints = randomCoordinatesInExtent(5);
+                List<double[]> rawPoints = randomCoordinatesInExtent(numPoints);
                 try {
                     Map<String, List<double[]>> points = applyMatrix(rawPoints);
                     if (points.get("to_points") != null && points.get("from_points") != null) {
@@ -113,9 +113,10 @@ public class CoordinateGenerator {
         String jsonPayload = mapper.writeValueAsString(payload);
 
         // Create empty result for invalid responses
-        Map<String, List<double[]>> emptyResult = new HashMap<>();
-        emptyResult.put("from_points", new ArrayList<>());
-        emptyResult.put("to_points", new ArrayList<>());
+        Map<String, List<double[]>> matrixResults = new HashMap<>();
+
+        matrixResults.put("from_points", new ArrayList<>());
+        matrixResults.put("to_points", new ArrayList<>());
 
         try (CloseableHttpClient client = createHttpClient()) {
             HttpPost httpPost = new HttpPost(url);
@@ -124,29 +125,29 @@ public class CoordinateGenerator {
 
             try (CloseableHttpResponse response = client.execute(httpPost)) {
                 if (response == null || response.getEntity() == null) {
-                    return emptyResult;
+                    return matrixResults;
                 }
 
                 String responseContent = new String(response.getEntity().getContent().readAllBytes());
                 if (responseContent == null || responseContent.isEmpty()) {
-                    return emptyResult;
+                    return matrixResults;
                 }
 
                 Map<String, Object> responseMap = mapper.readValue(responseContent, Map.class);
                 if (responseMap == null) {
-                    return emptyResult;
+                    return matrixResults;
                 }
 
                 // Check for empty or invalid destinations
                 List<Map<String, Object>> destinations = (List<Map<String, Object>>) responseMap.get("destinations");
                 if (destinations == null || destinations.isEmpty()) {
-                    return emptyResult;
+                    return matrixResults;
                 }
 
                 // Check for valid location in first destination
                 Map<String, Object> firstDestination = destinations.get(0);
                 if (firstDestination == null || !firstDestination.containsKey("location")) {
-                    return emptyResult;
+                    return matrixResults;
                 }
 
                 double[] startPoint = ((List<Number>) firstDestination.get("location")).stream()
@@ -175,10 +176,9 @@ public class CoordinateGenerator {
                         filteredStartPoints.add(startPoint);
                     }
                 }
-
-                result.put("from_points", filteredStartPoints);
-                result.put("to_points", filteredDestPoints);
-                return result;
+                matrixResults.put("from_points", filteredStartPoints);
+                matrixResults.put("to_points", filteredDestPoints);
+                return matrixResults;
             }
         }
     }
