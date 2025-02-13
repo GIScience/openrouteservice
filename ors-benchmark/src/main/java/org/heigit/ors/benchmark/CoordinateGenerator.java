@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.HttpHostConnectException;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -72,20 +73,21 @@ public class CoordinateGenerator {
     }
 
     protected void generatePoints() {
-        for (int i = 0; i < maxAttempts; i++) {
-            if (result.get("to_points").size() < numPoints) {
-                List<double[]> rawPoints = randomCoordinatesInExtent(numPoints);
-                try {
+        try {
+            for (int i = 0; i < maxAttempts; i++) {
+                if (result.get("to_points").size() < numPoints) {
+                    List<double[]> rawPoints = randomCoordinatesInExtent(numPoints);
                     Map<String, List<double[]>> points = applyMatrix(rawPoints);
                     if (points.get("to_points") != null && points.get("from_points") != null) {
                         result.get("from_points").addAll(points.get("from_points"));
                         result.get("to_points").addAll(points.get("to_points"));
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-
             }
+        } catch (HttpHostConnectException e) {
+            System.err.println("Failed to connect to ORS instance");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         if (result.get("to_points").size() > numPoints) {
@@ -218,33 +220,6 @@ public class CoordinateGenerator {
         File csvOutputFile = new File(filePath);
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
             pw.print(csv);
-        }
-    }
-
-    public static void main(String[] args) {
-        if (args.length < 1) {
-            System.err.println("Usage: CoordinateGenerator <output_filepath>");
-            System.exit(1);
-        }
-        String outputFilePath = args[0];
-
-        double[] extent = { 8.6286, 49.3590, 8.7957, 49.4715 };
-        int n = 100;
-        double minDist = 10000;
-        double maxDist = 1000000;
-        double snapRadius = 10;
-        int maxAttempts = 1000000;
-        String profile = "driving-car";
-
-        CoordinateGenerator generator = new CoordinateGenerator(
-                n, extent, minDist, maxDist, maxAttempts, snapRadius, profile, null);
-
-        generator.generatePoints();
-        try {
-            generator.writeToCSV(outputFilePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
         }
     }
 }
