@@ -510,7 +510,7 @@ class CoordinateGeneratorTest {
         
 
 
-        String header = "from_lat,from_lon,to_lat,to_lon\n";
+        String header = "from_lon,from_lat,to_lon,to_lat\n";
         String expected_result = header.concat("9.0,10.0,1.0,2.0\n").concat("9.0,10.0,1.0,2.0\n");
                  
         String result = testGenerator.printToCSV(coordinates);
@@ -548,7 +548,7 @@ class CoordinateGeneratorTest {
         testGenerator.generatePoints();
 
         String expected_result = """
-                from_lat,from_lon,to_lat,to_lon
+                from_lon,from_lat,to_lon,to_lat
                 8.681,49.41,8.682,49.42
                 8.681,49.41,8.683,49.43
                 8.681,49.41,8.684,49.44

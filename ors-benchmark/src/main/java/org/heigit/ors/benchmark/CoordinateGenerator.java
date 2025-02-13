@@ -192,7 +192,7 @@ public class CoordinateGenerator {
 
         try (StringWriter stringWriter = new StringWriter()){
             SequenceWriter sequenceWriter = CSV_MAPPER.writer().writeValues(stringWriter);
-            sequenceWriter.write(Arrays.asList("from_lat", "from_lon", "to_lat", "to_lon"));
+            sequenceWriter.write(Arrays.asList("from_lon", "from_lat", "to_lon", "to_lat"));
             for (int i = 0; i < result.get("from_points").size(); i ++) {
                 double[] fromPoint = result.get("from_points").get(i);
                 double[] toPoint = result.get("to_points").get(i);
