@@ -73,8 +73,8 @@ public class CoordinateGenerator {
     }
 
     protected void generatePoints() {
-        try {
-            for (int i = 0; i < maxAttempts; i++) {
+        for (int i = 0; i < maxAttempts; i++) {
+            try {
                 if (result.get("to_points").size() < numPoints) {
                     List<double[]> rawPoints = randomCoordinatesInExtent(numPoints);
                     Map<String, List<double[]>> points = applyMatrix(rawPoints);
@@ -83,13 +83,12 @@ public class CoordinateGenerator {
                         result.get("to_points").addAll(points.get("to_points"));
                     }
                 }
+            } catch (IOException e) {
+                System.err.println("Failed to connect to ORS instance");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (HttpHostConnectException e) {
-            System.err.println("Failed to connect to ORS instance");
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
         if (result.get("to_points").size() > numPoints) {
             result.get("to_points").subList(numPoints, result.get("to_points").size()).clear();
             result.get("from_points").subList(numPoints, result.get("from_points").size()).clear();
