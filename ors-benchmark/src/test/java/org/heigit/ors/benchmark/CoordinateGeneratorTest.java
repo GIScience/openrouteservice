@@ -20,7 +20,6 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.mockito.MockedStatic;
 
@@ -61,6 +60,15 @@ class CoordinateGeneratorTest {
             new CoordinateGenerator(
                     100, extent, 1, 100, 100, 350, "driving-car", "https://openrouteservice.org");
         });
+    }
+
+    @Test
+    void testCoordinateGeneratorWithExistingApiKey() {
+        System.setProperty("ORS_API_KEY", "test-api");
+        CoordinateGenerator generator = new CoordinateGenerator(
+                100, extent, 1, 100, 100, 350, "driving-car", "https://openrouteservice.org");
+        assertNotNull(generator);
+        System.clearProperty("ORS_API_KEY");
     }
 
     static Stream<Arguments> pointSizeProvider() {
@@ -531,6 +539,19 @@ class CoordinateGeneratorTest {
         String result = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filePath)));
         assertEquals(expected_result, result);
         verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
+    }
+
+    @Test
+    void testCreateHttpClient() {
+        CoordinateGenerator generator = new CoordinateGenerator(
+                100, extent, 1, 100, 100, 350, "driving-car", null);
+
+        try (CloseableHttpClient client = generator.createHttpClient()) {
+            assertNotNull(client, "HTTP client should not be null");
+            assertTrue(client instanceof CloseableHttpClient, "Client should be instance of CloseableHttpClient");
+        } catch (IOException e) {
+            fail("Failed to create or close HTTP client: " + e.getMessage());
+        }
     }
 
     // Test helper class
