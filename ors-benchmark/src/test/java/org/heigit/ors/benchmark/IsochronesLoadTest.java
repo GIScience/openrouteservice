@@ -14,8 +14,8 @@ public class IsochronesLoadTest extends Simulation {
     static final String API_KEY;
 
     static {
-        BASE_URL = System.getenv("BENCH_BASE_URL") != null ? System.getenv("BENCH_BASE_URL") : "http://localhost:8082/ors";
-        API_KEY = System.getenv("BENCH_API_KEY") != null ? System.getenv("BENCH_API_KEY") : "API KEY";
+        BASE_URL = System.getProperty("base_url") != null ? System.getProperty("base_url") : "http://localhost:8082/ors";
+        API_KEY = System.getProperty("api_key") != null ? System.getProperty("api_key") : "API KEY";
     }
 
     static String locations(int num) {
