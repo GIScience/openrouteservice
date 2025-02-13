@@ -40,6 +40,10 @@ public class IsochronesLoadTest extends Simulation {
                         .check(status().saveAs("responseStatus"))
                         .check(bodyString().saveAs("responseBody"))
         ).exec(session -> {
+            if (!session.contains("responseStatus")) {
+                System.out.println("Connection failed, check the server status or baseURL: " + BASE_URL);
+                return session;
+            }
             int responseStatus = session.getInt("responseStatus");
             if (responseStatus != 200) {
                 System.out.println("Response status: " + responseStatus + ", Response body: " + session.getString("responseBody"));
