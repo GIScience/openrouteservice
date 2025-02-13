@@ -53,6 +53,9 @@ public class CoordinateGenerator {
         if (this.baseUrl.contains("openrouteservice.org")) {
             apiKey = System.getenv("ORS_API_KEY");
             if (apiKey == null) {
+                apiKey = System.getProperty("ORS_API_KEY");
+            }
+            if (apiKey == null) {
                 throw new RuntimeException("ORS_API_KEY environment variable is not set.");
             }
         }
