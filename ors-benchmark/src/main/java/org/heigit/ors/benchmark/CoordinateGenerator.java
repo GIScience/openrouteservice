@@ -16,6 +16,8 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.io.File;
+import java.io.PrintWriter;
 
 public class CoordinateGenerator {
     private final String baseUrl;
@@ -27,7 +29,7 @@ public class CoordinateGenerator {
     private final String profile;
     private final String url;
     private final Map<String, String> headers;
-    private final Map<String, List<double[]>> result;
+    private Map<String, List<double[]>> result;
     private final Random random;
     ObjectMapper mapper = new ObjectMapper();
 
@@ -174,7 +176,6 @@ public class CoordinateGenerator {
                     }
                 }
 
-                Map<String, List<double[]>> result = new HashMap<>();
                 result.put("from_points", filteredStartPoints);
                 result.put("to_points", filteredDestPoints);
                 return result;
@@ -182,11 +183,11 @@ public class CoordinateGenerator {
         }
     }
 
-    public Map<String, List<double[]>> getResult() {
+    protected Map<String, List<double[]>> getResult() {
         return result;
     }
 
-    public String printToCSV(Map<String, List<double[]>> result) throws IOException {
+    protected String printToCSV(Map<String, List<double[]>> result) throws IOException {
         final CsvMapper CSV_MAPPER = new CsvMapper();
 
         try (StringWriter stringWriter = new StringWriter()){
@@ -203,7 +204,21 @@ public class CoordinateGenerator {
         }
     }
 
+    protected void writeToCSV(String filePath) throws IOException {
+        String csv = printToCSV(result);
+        File csvOutputFile = new File(filePath);
+        try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
+            pw.print(csv);
+        }
+    }
+
     public static void main(String[] args) {
+        if (args.length < 1) {
+            System.err.println("Usage: CoordinateGenerator <output_filepath>");
+            System.exit(1);
+        }
+        String outputFilePath = args[0];
+
         double[] extent = { 8.6286, 49.3590, 8.7957, 49.4715 };
         int n = 100;
         double minDist = 10000;
@@ -216,13 +231,11 @@ public class CoordinateGenerator {
                 n, extent, minDist, maxDist, maxAttempts, snapRadius, profile, null);
 
         generator.generatePoints();
-        Map<String, List<double[]>> coordinates = generator.getResult();
-        // Note: CSV writing implementation needed here
         try {
-            String csv = generator.printToCSV(coordinates);
+            generator.writeToCSV(outputFilePath);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            System.exit(1);
         }
     }
 }
