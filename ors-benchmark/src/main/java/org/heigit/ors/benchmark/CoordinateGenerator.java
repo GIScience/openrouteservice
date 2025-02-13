@@ -5,17 +5,18 @@ import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 import java.io.File;
 import java.io.PrintWriter;
 
@@ -98,7 +99,7 @@ public class CoordinateGenerator {
     }
 
     protected CloseableHttpClient createHttpClient() {
-        return HttpClients.createDefault();
+        return HttpClientBuilder.create().build();
     }
 
     @SuppressWarnings("unchecked")
@@ -112,74 +113,69 @@ public class CoordinateGenerator {
 
         String jsonPayload = mapper.writeValueAsString(payload);
 
-        // Create empty result for invalid responses
         Map<String, List<double[]>> matrixResults = new HashMap<>();
-
         matrixResults.put("from_points", new ArrayList<>());
         matrixResults.put("to_points", new ArrayList<>());
 
         try (CloseableHttpClient client = createHttpClient()) {
-            HttpPost httpPost = new HttpPost(url);
+            final HttpPost httpPost = new HttpPost(url);
             headers.forEach(httpPost::addHeader);
             httpPost.setEntity(new StringEntity(jsonPayload, ContentType.APPLICATION_JSON));
 
-            try (CloseableHttpResponse response = client.execute(httpPost)) {
-                if (response == null || response.getEntity() == null) {
-                    return matrixResults;
+            String executeResults = client.execute(httpPost, response -> {
+                int status = response.getCode();
+                if (status != HttpStatus.SC_OK) {
+                    throw new IOException("Request failed with status code: " + status);
                 }
-
-                String responseContent = new String(response.getEntity().getContent().readAllBytes());
-                if (responseContent == null || responseContent.isEmpty()) {
-                    return matrixResults;
-                }
-
-                Map<String, Object> responseMap = mapper.readValue(responseContent, Map.class);
-                if (responseMap == null) {
-                    return matrixResults;
-                }
-
-                // Check for empty or invalid destinations
-                List<Map<String, Object>> destinations = (List<Map<String, Object>>) responseMap.get("destinations");
-                if (destinations == null || destinations.isEmpty()) {
-                    return matrixResults;
-                }
-
-                // Check for valid location in first destination
-                Map<String, Object> firstDestination = destinations.get(0);
-                if (firstDestination == null || !firstDestination.containsKey("location")) {
-                    return matrixResults;
-                }
-
-                double[] startPoint = ((List<Number>) firstDestination.get("location")).stream()
-                        .mapToDouble(Number::doubleValue)
-                        .toArray();
-
-                // Get all source points
-                List<Map<String, Object>> sources = (List<Map<String, Object>>) responseMap.get("sources");
-                List<double[]> sourcePoints = sources.stream()
-                        .map(source -> ((List<Number>) source.get("location")).stream()
-                                .mapToDouble(Number::doubleValue)
-                                .toArray())
-                        .collect(Collectors.toList());
-
-                // Get distances matrix
-                List<List<Number>> distances = (List<List<Number>>) responseMap.get("distances");
-
-                // Filter points based on distance constraints
-                List<double[]> filteredDestPoints = new ArrayList<>();
-                List<double[]> filteredStartPoints = new ArrayList<>();
-
-                for (int i = 0; i < distances.size(); i++) {
-                    double distance = distances.get(i).get(0).doubleValue();
-                    if (distance > minDistance && distance < maxDistance) {
-                        filteredDestPoints.add(sourcePoints.get(i));
-                        filteredStartPoints.add(startPoint);
-                    }
-                }
-                matrixResults.put("from_points", filteredStartPoints);
-                matrixResults.put("to_points", filteredDestPoints);
+                HttpEntity entity = response.getEntity();
+                return EntityUtils.toString(entity);
+            });
+            if (executeResults == null) {
                 return matrixResults;
             }
+            Map<String, Object> responseMap = mapper.readValue(executeResults, Map.class);
+
+            // Check for empty or invalid destinations
+            List<Map<String, Object>> destinations = (List<Map<String, Object>>) responseMap.get("destinations");
+            if (destinations == null || destinations.isEmpty()) {
+                return matrixResults;
+            }
+
+            // Check for valid location in first destination
+            Map<String, Object> firstDestination = destinations.get(0);
+            if (firstDestination == null || !firstDestination.containsKey("location")) {
+                return matrixResults;
+            }
+
+            double[] startPoint = ((List<Number>) firstDestination.get("location")).stream()
+                    .mapToDouble(Number::doubleValue)
+                    .toArray();
+
+            // Get all source points
+            List<Map<String, Object>> sources = (List<Map<String, Object>>) responseMap.get("sources");
+            List<double[]> sourcePoints = sources.stream()
+                    .map(source -> ((List<Number>) source.get("location")).stream()
+                            .mapToDouble(Number::doubleValue)
+                            .toArray())
+                    .collect(Collectors.toList());
+
+            // Get distances matrix
+            List<List<Number>> distances = (List<List<Number>>) responseMap.get("distances");
+
+            // Filter points based on distance constraints
+            List<double[]> filteredDestPoints = new ArrayList<>();
+            List<double[]> filteredStartPoints = new ArrayList<>();
+
+            for (int i = 0; i < distances.size(); i++) {
+                double distance = distances.get(i).get(0).doubleValue();
+                if (distance > minDistance && distance < maxDistance) {
+                    filteredDestPoints.add(sourcePoints.get(i));
+                    filteredStartPoints.add(startPoint);
+                }
+            }
+            matrixResults.put("from_points", filteredStartPoints);
+            matrixResults.put("to_points", filteredDestPoints);
+            return matrixResults;
         }
     }
 
