@@ -16,6 +16,13 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -547,6 +554,68 @@ class CoordinateGeneratorTest {
                 fail("Test client not set properly");
             }
             return testClient;
+        }
+    }
+
+    @Test
+    void testProcessResponseSuccess() throws IOException {
+        // Mock response with successful status and valid content
+        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
+        HttpEntity entity = new StringEntity("test content");
+        when(response.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(response.getEntity()).thenReturn(entity);
+
+        TestCoordinateGenerator generator = new TestCoordinateGenerator(
+                100, extent, 1, 100, 100, 350, "driving-car", null);
+
+        String result = generator.processResponse(response);
+        assertEquals("test content", result);
+    }
+
+    @Test
+    void testProcessResponseNonOkStatus() {
+        // Mock response with non-OK status
+        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
+        when(response.getCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
+
+        TestCoordinateGenerator generator = new TestCoordinateGenerator(
+                100, extent, 1, 100, 100, 350, "driving-car", null);
+
+        IOException exception = assertThrows(IOException.class, () -> generator.processResponse(response));
+        assertEquals("Request failed with status code: 400", exception.getMessage());
+    }
+
+    @Test
+    void testProcessResponseNullEntity() {
+        // Mock response with null entity
+        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
+        when(response.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(response.getEntity()).thenReturn(null);
+
+        TestCoordinateGenerator generator = new TestCoordinateGenerator(
+                100, extent, 1, 100, 100, 350, "driving-car", null);
+
+        assertThrows(IOException.class, () -> generator.processResponse(response));
+    }
+
+    @Test
+    void testProcessResponseParseError() throws IOException {
+        // Mock response and entity
+        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
+        HttpEntity entity = mock(HttpEntity.class);
+        when(response.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(response.getEntity()).thenReturn(entity);
+
+        // Use MockedStatic to mock the static EntityUtils.toString method
+        try (MockedStatic<EntityUtils> entityUtils = mockStatic(EntityUtils.class)) {
+            entityUtils.when(() -> EntityUtils.toString(any(HttpEntity.class)))
+                    .thenThrow(new ParseException("Failed to parse response entity"));
+
+            TestCoordinateGenerator generator = new TestCoordinateGenerator(
+                    100, extent, 1, 100, 100, 350, "driving-car", null);
+
+            IOException exception = assertThrows(IOException.class, () -> generator.processResponse(response));
+            assertEquals("Failed to parse response entity", exception.getMessage());
         }
     }
 
