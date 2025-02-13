@@ -6,17 +6,20 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import java.io.File;
 import java.io.PrintWriter;
 
@@ -102,6 +105,21 @@ public class CoordinateGenerator {
         return HttpClientBuilder.create().build();
     }
 
+    protected String processResponse(ClassicHttpResponse response) throws IOException {
+        int status = response.getCode();
+        if (status != HttpStatus.SC_OK) {
+            throw new IOException("Request failed with status code: " + status);
+        }
+        HttpEntity entity = response.getEntity();
+        try {
+            return EntityUtils.toString(entity);
+        } catch (ParseException | IOException e) {
+            throw new IOException("Failed to parse response entity", e);
+        } catch (NullPointerException e) {
+            throw new IOException("Response entity is null", e);
+        }
+    }
+
     @SuppressWarnings("unchecked")
     protected Map<String, List<double[]>> applyMatrix(List<double[]> points) throws Exception {
         Map<String, Object> payload = new HashMap<>();
@@ -121,15 +139,7 @@ public class CoordinateGenerator {
             final HttpPost httpPost = new HttpPost(url);
             headers.forEach(httpPost::addHeader);
             httpPost.setEntity(new StringEntity(jsonPayload, ContentType.APPLICATION_JSON));
-
-            String executeResults = client.execute(httpPost, response -> {
-                int status = response.getCode();
-                if (status != HttpStatus.SC_OK) {
-                    throw new IOException("Request failed with status code: " + status);
-                }
-                HttpEntity entity = response.getEntity();
-                return EntityUtils.toString(entity);
-            });
+            String executeResults = client.execute(httpPost, this::processResponse);
             if (executeResults == null) {
                 return matrixResults;
             }
