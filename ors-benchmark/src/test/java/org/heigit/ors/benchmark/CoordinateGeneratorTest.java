@@ -16,6 +16,7 @@ import org.apache.hc.core5.http.message.StatusLine;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -477,6 +478,31 @@ class CoordinateGeneratorTest {
         assertEquals(1, result.get("from_points").size());
         assertEquals(1, result.get("to_points").size());
         verify(closeableHttpClient, atLeast(3)).execute(any());
+    }
+
+    @Test
+    void testConvertToCSV() throws IOException {
+        Map<String, List<double[]>> coordinates;
+        double[] fromCoordinate = {9.0, 10.0};
+        double[] toCoordinate = {1.0, 2.0};
+        List<double[]> fromPoints = List.of(fromCoordinate, fromCoordinate);
+        List<double[]> toPoints = List.of(toCoordinate, toCoordinate);
+
+        coordinates = new HashMap<String, List<double[]>>();
+        coordinates.put("to_points", toPoints);
+        coordinates.put("from_points", fromPoints);
+
+        TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
+                1, extent, 50, 100, 5, 350, "driving-car", null);
+        
+
+
+        String header = "from_lat,from_lon,to_lat,to_lon\n";
+        String expected_result = header.concat("9.0,10.0,1.0,2.0\n").concat("9.0,10.0,1.0,2.0\n");
+                 
+        String result = testGenerator.printToCSV(coordinates);
+
+        assertEquals(expected_result, result);
     }
 
     // Test helper class
