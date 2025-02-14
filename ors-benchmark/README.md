@@ -12,10 +12,10 @@ mvn clean compile
 
 ### Usage
 
-Run the tool using Maven:
+Run the tool using Maven from the parent project directory:
 
 ```bash
-mvn exec:java \
+mvn compile exec:java -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGenerator" \
   -Dexec.args="[options]"
 ```
@@ -37,7 +37,7 @@ mvn exec:java \
 Generate 100 coordinate pairs in Heidelberg area with distances between 100 and 5000 meters:
 
 ```bash
-mvn exec:java \
+mvn compile exec:java -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGenerator" \
   -Dexec.args="-n 100 \
   -e 8.573179 49.352003 8.794049 49.459693 \
@@ -68,7 +68,7 @@ export ORS_API_KEY=your_api_key_here
 Or pass it as a system property:
 
 ```bash
-mvn exec:java \
+mvn compile exec:java -pl 'ors-benchmark' \
   -DORS_API_KEY=your_api_key_here \
   -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGenerator" \
   -Dexec.args="[options]"
