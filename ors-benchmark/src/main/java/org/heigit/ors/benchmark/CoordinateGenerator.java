@@ -41,8 +41,8 @@ public class CoordinateGenerator {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CoordinateGenerator.class);
 
     protected CoordinateGenerator(int numPoints, double[] extent, double minDistance,
-                    double maxDistance, int maxAttempts, double radius,
-            String profile, String baseUrl) {
+            double maxDistance, int maxAttempts,
+                    String profile, String baseUrl) {
         this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8080/ors";
         this.extent = extent;
         this.numPoints = numPoints;

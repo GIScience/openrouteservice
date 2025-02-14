@@ -26,7 +26,6 @@ mvn compile exec:java -pl 'ors-benchmark' \
 - `-e, --extent <minLon> <minLat> <maxLon> <maxLat>` : Bounding box for coordinates (required)
 - `-d, --distance <min> <max>` : Distance range in meters (required)
 - `-m, --max-attempts <value>` : Maximum number of generation attempts (default: 1000)
-- `-r, --radius <value>` : Search radius in meters (default: 100)
 - `-p, --profile <value>` : Routing profile (e.g., driving-car) (required)
 - `-u, --url <value>` : ORS API base URL (default: http://localhost:8080/ors)
 - `-o, --output <file>` : Output CSV file path (default: coordinates.csv)
@@ -39,14 +38,13 @@ Generate 100 coordinate pairs in Heidelberg area with distances between 100 and 
 ```bash
 mvn compile exec:java -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGenerator" \
-  -Dexec.args="-n 100 \
-  -e 8.573179 49.352003 8.794049 49.459693 \
-  -d 100 5000 \
-  -m 100 \
-  -r 100 \
-  -p driving-car \
-  -u http://localhost:8082/ors \
-  -o output.csv"
+  -Dexec.args="--num-points 100 \
+  --extent 8.573179 49.352003 8.794049 49.459693 \
+  --distance 100 5000 \
+  --max-attempts 100 \
+  --profile driving-car \
+  --url http://localhost:8082/ors \
+  --output output.csv"
 ```
 
 ### Output Format
@@ -71,5 +69,11 @@ Or pass it as a system property:
 mvn compile exec:java -pl 'ors-benchmark' \
   -DORS_API_KEY=your_api_key_here \
   -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGenerator" \
-  -Dexec.args="[options]"
+  -Dexec.args="--num-points 100 \
+  --extent 8.573179 49.352003 8.794049 49.459693 \
+  --distance 100 5000 \
+  --max-attempts 100 \
+  --profile driving-car \
+  --url https://api.openrouteservice.org \
+  --output cloud_output.csv"
 ```

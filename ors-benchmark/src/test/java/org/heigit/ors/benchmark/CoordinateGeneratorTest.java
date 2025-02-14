@@ -51,7 +51,7 @@ class CoordinateGeneratorTest {
         MockitoAnnotations.openMocks(this);
         extent = new double[] { 8.6286, 49.3590, 8.7957, 49.4715 };
         testGenerator = new TestCoordinateGenerator(
-                5, extent, 1, 100, 100, 350, "driving-car", null);
+                5, extent, 1, 100, 100, "driving-car", null);
     }
 
     // Set the base url to openrouteservice.org and catch the runtime exception
@@ -59,7 +59,7 @@ class CoordinateGeneratorTest {
     void testCoordinateGeneratorWithMissingApiKey() {
         assertThrows(RuntimeException.class, () -> {
             new CoordinateGenerator(
-                    100, extent, 1, 100, 100, 350, "driving-car", "https://openrouteservice.org");
+                    100, extent, 1, 100, 100, "driving-car", "https://openrouteservice.org");
         });
     }
 
@@ -67,7 +67,7 @@ class CoordinateGeneratorTest {
     void testCoordinateGeneratorWithExistingApiKey() {
         System.setProperty("ORS_API_KEY", "test-api");
         CoordinateGenerator generator = new CoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", "https://openrouteservice.org");
+                100, extent, 1, 100, 100, "driving-car", "https://openrouteservice.org");
         assertNotNull(generator);
         System.clearProperty("ORS_API_KEY");
     }
@@ -410,7 +410,7 @@ class CoordinateGeneratorTest {
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         TestCoordinateGenerator localTestGenerator = new TestCoordinateGenerator(
-                1, extent, 100, 150, 2, 350, "driving-car", null);
+                1, extent, 100, 150, 2, "driving-car", null);
         localTestGenerator.setHttpClient(closeableHttpClient);
 
         localTestGenerator.generatePoints();
@@ -442,7 +442,7 @@ class CoordinateGeneratorTest {
                 .thenReturn(mockJsonResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                1, extent, 50, 100, 5, 350, "driving-car", null);
+                1, extent, 50, 100, 5, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
 
         testGenerator.generatePoints();
@@ -495,7 +495,7 @@ class CoordinateGeneratorTest {
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         TestCoordinateGenerator testGenerator = new TestCoordinateGenerator(
-                4, extent, 0, 200, 5, 350, "driving-car", null);
+                4, extent, 0, 200, 5, "driving-car", null);
         testGenerator.setHttpClient(closeableHttpClient);
         testGenerator.generatePoints();
 
@@ -518,7 +518,7 @@ class CoordinateGeneratorTest {
     @Test
     void testCreateHttpClient() {
         CoordinateGenerator generator = new CoordinateGenerator(
-                100, extent, 1, 100, 100, 350, "driving-car", null);
+                100, extent, 1, 100, 100, "driving-car", null);
 
         try (CloseableHttpClient client = generator.createHttpClient()) {
             assertNotNull(client, "HTTP client should not be null");
@@ -533,9 +533,9 @@ class CoordinateGeneratorTest {
         private CloseableHttpClient testClient;
 
         public TestCoordinateGenerator(int numPoints, double[] extent, double minDistance,
-                double maxDistance, int maxAttempts, double radius,
-                String profile, String baseUrl) {
-            super(numPoints, extent, minDistance, maxDistance, maxAttempts, radius, profile, baseUrl);
+                double maxDistance, int maxAttempts,
+                        String profile, String baseUrl) {
+            super(numPoints, extent, minDistance, maxDistance, maxAttempts, profile, baseUrl);
         }
 
         void setHttpClient(CloseableHttpClient client) {
