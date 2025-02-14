@@ -76,13 +76,13 @@ public class CoordinateGenerator {
 
     protected void generatePoints() {
         for (int i = 0; i < maxAttempts; i++) {
-            LOGGER.info("Attempt {}", i);
+            LOGGER.debug("Attempt {}", i);
             try {
                 if (result.get("to_points").size() < numPoints) {
-                    LOGGER.info("In attempt {}", i);
+                    LOGGER.debug("In attempt {}", i);
                     List<double[]> rawPoints = randomCoordinatesInExtent(numPoints);
                     Map<String, List<double[]>> points = applyMatrix(rawPoints);
-                    LOGGER.info("Points: {}", points);
+                    LOGGER.debug("Points: {}", points);
                     if (points.get("to_points") != null && points.get("from_points") != null) {
                         result.get("from_points").addAll(points.get("from_points"));
                         result.get("to_points").addAll(points.get("to_points"));
@@ -148,37 +148,37 @@ public class CoordinateGenerator {
             final HttpPost httpPost = new HttpPost(url);
             headers.forEach(httpPost::addHeader);
             httpPost.setEntity(new StringEntity(jsonPayload, ContentType.APPLICATION_JSON));
-            LOGGER.info("Execute request");
+            LOGGER.debug("Execute request");
             String executeResults = client.execute(httpPost, this::processResponse);
             if (executeResults == null) {
                 return matrixResults;
             }
-            LOGGER.info("Read values");
+            LOGGER.debug("Read values");
             Map<String, Object> responseMap = mapper.readValue(executeResults, Map.class);
 
             // Check for empty or invalid destinations
-            LOGGER.info("Check for empty or invalid destinations");
+            LOGGER.debug("Check for empty or invalid destinations");
             List<Map<String, Object>> destinations = (List<Map<String, Object>>) responseMap.get("destinations");
             if (destinations == null || destinations.isEmpty()) {
                 return matrixResults;
             }
 
             // Check for valid location in first destination
-            LOGGER.info("Check for valid location in first destination");
+            LOGGER.debug("Check for valid location in first destination");
             Map<String, Object> firstDestination = destinations.get(0);
             if (firstDestination == null || !firstDestination.containsKey("location")) {
                 return matrixResults;
             }
 
-            LOGGER.info("Get start point");
+            LOGGER.debug("Get start point");
             double[] startPoint = ((List<Number>) firstDestination.get("location")).stream()
                     .mapToDouble(Number::doubleValue)
                     .toArray();
 
             // Get all source points
-            LOGGER.info("Get all source points");
+            LOGGER.debug("Get all source points");
             List<Map<String, Object>> sources = (List<Map<String, Object>>) responseMap.get("sources");
-            LOGGER.info("Sources: {}", sources);
+            LOGGER.debug("Sources: {}", sources);
 
             if (sources == null || sources.isEmpty()) {
                 LOGGER.warn("No sources found in response");
@@ -211,7 +211,7 @@ public class CoordinateGenerator {
             }
 
             // Get distances matrix
-            LOGGER.info("Get distances matrix");
+            LOGGER.debug("Get distances matrix");
             List<List<Number>> distances = (List<List<Number>>) responseMap.get("distances");
 
             if (distances == null || distances.isEmpty()) {
@@ -222,7 +222,7 @@ public class CoordinateGenerator {
             // Filter points based on distance constraints
             List<double[]> filteredDestPoints = new ArrayList<>();
             List<double[]> filteredStartPoints = new ArrayList<>();
-            LOGGER.info("Filter points based on distance constraints");
+            LOGGER.debug("Filter points based on distance constraints");
 
             for (int i = 0; i < Math.min(distances.size(), sourcePoints.size()); i++) {
                 List<Number> distanceRow = distances.get(i);
@@ -237,7 +237,7 @@ public class CoordinateGenerator {
                     LOGGER.warn("Invalid distance data at index {}", i);
                 }
             }
-            LOGGER.info("Filtered points: {}", filteredDestPoints.size());
+            LOGGER.debug("Filtered points: {}", filteredDestPoints.size());
             matrixResults.put("from_points", filteredStartPoints);
             matrixResults.put("to_points", filteredDestPoints);
             return matrixResults;
@@ -282,12 +282,12 @@ public class CoordinateGenerator {
                 return;
             }
 
-            LOGGER.info("Create generator");
+            LOGGER.debug("Create generator");
             CoordinateGenerator generator = cli.createGenerator();
 
-            LOGGER.info("Generate points");
+            LOGGER.debug("Generate points");
             generator.generatePoints();
-            LOGGER.info("Write to CSV");
+            LOGGER.debug("Write to CSV");
             generator.writeToCSV(cli.getOutputFile());
 
             System.out.println("Generated " + generator.getResult().get("to_points").size() + " coordinate pairs");
