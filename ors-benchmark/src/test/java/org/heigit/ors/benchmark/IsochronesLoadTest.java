@@ -17,7 +17,7 @@ public class IsochronesLoadTest extends Simulation {
     static {
         BASE_URL = System.getProperty("base_url") != null ? System.getProperty("base_url") : "http://localhost:8082/ors";
         API_KEY = System.getProperty("api_key") != null ? System.getProperty("api_key") : "API KEY";
-        feeder = csv(System.getProperty("source_file") != null ? System.getProperty("api_key") : "search.csv");
+        feeder = csv(System.getProperty("source_file") != null ? System.getProperty("source_file") : "search.csv");
     }
 
     static String locations(int num) {
