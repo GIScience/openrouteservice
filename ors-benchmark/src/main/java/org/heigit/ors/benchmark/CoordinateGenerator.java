@@ -251,8 +251,12 @@ public class CoordinateGenerator {
             matrixResults.put("to_points", filteredDestPoints);
             return matrixResults;
         } catch (HttpHostConnectException e) {
-            LOGGER.error("Failed to connect to ORS instance", e);
-            throw new IOException("Failed to connect to ORS instance", e);
+            String message = String.format("Failed to connect to ORS instance at URL: %s", url);
+            LOGGER.error(message, e);
+            throw new IOException(message, e);
+        } catch (IOException e) {
+            LOGGER.error("Failed to execute request", e);
+            throw e;
         }
     }
 
