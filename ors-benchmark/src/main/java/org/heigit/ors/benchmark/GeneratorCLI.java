@@ -50,13 +50,6 @@ public class GeneratorCLI {
                 .desc("Maximum number of attempts")
                 .build());
 
-        options.addOption(Option.builder("r")
-                .longOpt("radius")
-                .hasArg()
-                .type(Number.class)
-                .desc("Search radius in meters")
-                .build());
-
         options.addOption(Option.builder("p")
                 .longOpt("profile")
                 .hasArg()
@@ -97,13 +90,13 @@ public class GeneratorCLI {
         double maxDistance = Double.parseDouble(distanceValues[1]);
         
         int maxAttempts = Integer.parseInt(cmd.getOptionValue("m", "1000"));
-        double radius = Double.parseDouble(cmd.getOptionValue("r", "100"));
         String profile = cmd.getOptionValue("p");
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
-        LOGGER.info("Creating CoordinateGenerator with numPoints={}, extent={}, minDistance={}, maxDistance={}, maxAttempts={}, radius={}, profile={}, baseUrl={}",
-                numPoints, extent, minDistance, maxDistance, maxAttempts, radius, profile, baseUrl);
+        LOGGER.info(
+                "Creating CoordinateGenerator with numPoints={}, extent={}, minDistance={}, maxDistance={}, maxAttempts={}, profile={}, baseUrl={}",
+                numPoints, extent, minDistance, maxDistance, maxAttempts, profile, baseUrl);
         return new CoordinateGenerator(
-                numPoints, extent, minDistance, maxDistance, maxAttempts, radius, profile, baseUrl
+                numPoints, extent, minDistance, maxDistance, maxAttempts, profile, baseUrl
         );
     }
 
