@@ -12,11 +12,13 @@ public class IsochronesLoadTest extends Simulation {
     static final int BATCH_SIZE_UPTO = 5;
     static final String BASE_URL;
     static final String API_KEY;
+    static final String TARGET_PROFILE;
     static final FeederBuilder<String> feeder;
 
     static {
         BASE_URL = System.getProperty("base_url") != null ? System.getProperty("base_url") : "http://localhost:8082/ors";
         API_KEY = System.getProperty("api_key") != null ? System.getProperty("api_key") : "API KEY";
+        TARGET_PROFILE = System.getProperty("profile") != null ? System.getProperty("profile") : "driving-car";
         feeder = csv(System.getProperty("source_file") != null ? System.getProperty("source_file") : "search.csv");
     }
 
@@ -35,7 +37,7 @@ public class IsochronesLoadTest extends Simulation {
         return exec(
                 feed(feeder, batchSize),
                 http("Post")
-                        .post("/v2/isochrones/driving-car")
+                        .post("/v2/isochrones/" + TARGET_PROFILE)
                         .body(StringBody("{\"locations\":[" + locations(batchSize) + "] , \"range\":[300]}"))
                         .check(status().is(200))
                         .check(status().saveAs("responseStatus"))
