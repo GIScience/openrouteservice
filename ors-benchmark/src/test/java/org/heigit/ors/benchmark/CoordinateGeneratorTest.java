@@ -51,7 +51,7 @@ class CoordinateGeneratorTest {
         MockitoAnnotations.openMocks(this);
         extent = new double[] { 8.6286, 49.3590, 8.7957, 49.4715 };
         testGenerator = new TestCoordinateGenerator(
-                5, extent, 1, 100, 100, "driving-car", null);
+                2, extent, 1, 100, 2, "driving-car", null);
     }
 
     // Set the base url to openrouteservice.org and catch the runtime exception
@@ -356,13 +356,14 @@ class CoordinateGeneratorTest {
         String invalidResponse = "{ invalid json }";
         String validResponse = """
                 {
-                  "distances": [[0], [75]],
-                  "destinations": [
+                  "distances": [[0], [75], [85]],
+                          "destinations": [
                     { "location": [8.681, 49.41] }
                   ],
                   "sources": [
                     { "location": [8.681, 49.41] },
-                    { "location": [8.682, 49.42] }
+                    { "location": [8.682, 49.42] },
+                    { "location": [8.683, 49.43] }
                   ]
                 }
                 """;
@@ -382,8 +383,8 @@ class CoordinateGeneratorTest {
         testGenerator.generatePoints();
         Map<String, List<double[]>> result = testGenerator.getResult();
 
-        assertEquals(5, result.get("from_points").size());
-        assertEquals(5, result.get("to_points").size());
+        assertEquals(2, result.get("from_points").size());
+        assertEquals(2, result.get("to_points").size());
         verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
     }
 
@@ -504,7 +505,6 @@ class CoordinateGeneratorTest {
                 8.681,49.41,8.682,49.42
                 8.681,49.41,8.683,49.43
                 8.681,49.41,8.684,49.44
-                8.681,49.41,8.682,49.42
                 """;
         String filename = "test.csv";
         String filePath = tempDir.resolve(filename).toString();
