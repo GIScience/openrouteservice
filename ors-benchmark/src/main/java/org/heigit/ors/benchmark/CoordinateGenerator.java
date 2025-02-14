@@ -34,7 +34,7 @@ public class CoordinateGenerator {
     private final String profile;
     private final String url;
     private final Map<String, String> headers;
-    private Map<String, List<double[]>> result;
+    private final Map<String, Object> result;
     private final Random random;
     ObjectMapper mapper = new ObjectMapper();
     // logger
@@ -70,33 +70,73 @@ public class CoordinateGenerator {
         headers.put("Authorization", apiKey);
 
         this.result = new HashMap<>();
-        result.put("to_points", new ArrayList<>());
-        result.put("from_points", new ArrayList<>());
+        result.put("to_points", new ArrayList<double[]>());
+        result.put("from_points", new ArrayList<double[]>());
+        result.put("existing_pairs", new HashSet<String>());
     }
 
+    protected boolean isNewCoordinatePair(double[] fromPoint, double[] toPoint) {
+        String pairKey = String.format("%.6f,%.6f,%.6f,%.6f",
+                fromPoint[0], fromPoint[1], toPoint[0], toPoint[1]);
+        return ((Set<String>) result.get("existing_pairs")).add(pairKey);
+    }
+
+    @SuppressWarnings("unchecked")
     protected void generatePoints() {
-        for (int i = 0; i < maxAttempts; i++) {
-            LOGGER.debug("Attempt {}", i);
+        int attempts = 0;
+        final int batchSize = 30;
+
+        List<double[]> fromPoints = (List<double[]>) result.get("from_points");
+        List<double[]> toPoints = (List<double[]>) result.get("to_points");
+
+        while (attempts < maxAttempts && toPoints.size() < numPoints) {
+            LOGGER.debug("Processing batch with attempt {}", attempts);
             try {
-                if (result.get("to_points").size() < numPoints) {
-                    LOGGER.debug("In attempt {}", i);
-                    List<double[]> rawPoints = randomCoordinatesInExtent(numPoints);
-                    Map<String, List<double[]>> points = applyMatrix(rawPoints);
-                    LOGGER.debug("Points: {}", points);
-                    if (points.get("to_points") != null && points.get("from_points") != null) {
-                        result.get("from_points").addAll(points.get("from_points"));
-                        result.get("to_points").addAll(points.get("to_points"));
+                List<double[]> rawPoints = randomCoordinatesInExtent(batchSize);
+                Map<String, List<double[]>> points = applyMatrix(rawPoints);
+
+                if (points.get("to_points") != null && points.get("from_points") != null) {
+                    boolean foundNewPair = false;
+
+                    // Try to add new coordinate combinations
+                    for (int i = 0; i < points.get("to_points").size(); i++) {
+                        double[] fromPoint = points.get("from_points").get(i);
+                        double[] toPoint = points.get("to_points").get(i);
+
+                        if (isNewCoordinatePair(fromPoint, toPoint)) {
+                            fromPoints.add(fromPoint);
+                            toPoints.add(toPoint);
+                            foundNewPair = true;
+
+                            if (toPoints.size() >= numPoints) {
+                                break;
+                            }
+                        }
                     }
+
+                    // If no new pairs were found in this batch, consider it a failed attempt
+                    if (!foundNewPair) {
+                        LOGGER.warn("No new coordinate pairs found in this batch, counting as failed attempt");
+                        attempts++;
+                    }
+                } else {
+                    // Invalid response counts as a failed attempt
+                    attempts++;
                 }
-            } catch (IOException e) {
-                System.err.println("Failed to connect to ORS instance");
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Error in attempt {}: {}", attempts, e.getMessage());
+                attempts++;
+            }
+
+            if (attempts >= maxAttempts) {
+                LOGGER.warn("Max attempts ({}) reached", maxAttempts);
             }
         }
-        if (result.get("to_points").size() > numPoints) {
-            result.get("to_points").subList(numPoints, result.get("to_points").size()).clear();
-            result.get("from_points").subList(numPoints, result.get("from_points").size()).clear();
+
+        // Trim excess points if we somehow got more than requested
+        if (toPoints.size() > numPoints) {
+            toPoints.subList(numPoints, toPoints.size()).clear();
+            fromPoints.subList(numPoints, fromPoints.size()).clear();
         }
     }
 
@@ -260,24 +300,32 @@ public class CoordinateGenerator {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected Map<String, List<double[]>> getResult() {
-        return result;
+        Map<String, List<double[]>> cleanResult = new HashMap<>();
+        cleanResult.put("from_points", (List<double[]>) result.get("from_points"));
+        cleanResult.put("to_points", (List<double[]>) result.get("to_points"));
+        return cleanResult;
     }
 
-    protected String printToCSV(Map<String, List<double[]>> result) throws IOException {
+    @SuppressWarnings("unchecked")
+    protected String printToCSV(Map<String, ?> result) throws IOException {
         final CsvMapper CSV_MAPPER = new CsvMapper();
 
         try (StringWriter stringWriter = new StringWriter()){
             SequenceWriter sequenceWriter = CSV_MAPPER.writer().writeValues(stringWriter);
             sequenceWriter.write(Arrays.asList("from_lon", "from_lat", "to_lon", "to_lat"));
-            for (int i = 0; i < result.get("from_points").size(); i ++) {
-                double[] fromPoint = result.get("from_points").get(i);
-                double[] toPoint = result.get("to_points").get(i);
+
+            List<double[]> fromPoints = (List<double[]>) result.get("from_points");
+            List<double[]> toPoints = (List<double[]>) result.get("to_points");
+
+            for (int i = 0; i < fromPoints.size(); i++) {
+                double[] fromPoint = fromPoints.get(i);
+                double[] toPoint = toPoints.get(i);
                 sequenceWriter.write(Arrays.asList(fromPoint[0], fromPoint[1], toPoint[0], toPoint[1]));
             }
             sequenceWriter.close();
-            String csv = stringWriter.toString();
-            return csv;
+            return stringWriter.toString();
         }
     }
 
