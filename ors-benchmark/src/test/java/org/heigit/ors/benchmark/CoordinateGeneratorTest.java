@@ -619,20 +619,19 @@ class CoordinateGeneratorTest {
                 }
                 """;
 
-        // when(closeableHttpClient.execute(any(HttpPost.class),
-        // handlerCaptor.capture())).thenReturn(mockJsonResponse);
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
-        CoordinateGenerator walkingGenerator = new CoordinateGenerator(
-                4, extent, 1000, 2000, 5, "foot-walking", null);
-        // walkingGenerator.setHttpClient(closeableHttpClient);
+        TestCoordinateGenerator walkingGenerator = new TestCoordinateGenerator(
+                3, extent, 1, 5000, 1000, "foot-walking", null);
+        walkingGenerator.setHttpClient(closeableHttpClient);
 
         walkingGenerator.generatePoints();
         Map<String, List<double[]>> result = walkingGenerator.getResult();
 
         // Verify expected number of points (should be 3 pairs as the first distance is
         // 0m and last is >2000m)
-        assertEquals(4, result.get("from_points").size());
-        assertEquals(4, result.get("to_points").size());
+        assertEquals(3, result.get("from_points").size());
+        assertEquals(3, result.get("to_points").size());
 
         // Verify interaction with mock
         verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
