@@ -30,7 +30,7 @@ public class IsochronesLoadTest extends Simulation {
     }
 
     static ChainBuilder makeRequest(int batchSize) {
-        FeederBuilder<String> feeder = ssv("search.csv").random();
+        FeederBuilder<String> feeder = ssv("search.csv");
         return exec(
                 feed(feeder, batchSize),
                 http("Post")
@@ -71,6 +71,13 @@ public class IsochronesLoadTest extends Simulation {
                 executions = executions.andThen(scenario("Scenario " + i).exec(makeRequest(i)).injectOpen(injection));
             }
         }
+//        CA requested a comparison of different approaches to handle 200 points.
+//        Comment in each of the following 4 lines to test it.
+//        executions = scenario("Scenario 1: 40 requests, 5 points each").exec(makeRequest(5)).injectOpen(atOnceUsers(40));
+//        executions = scenario("Scenario 2: 20 requests, 10 points each").exec(makeRequest(10)).injectOpen(atOnceUsers(20)));
+//        executions = scenario("Scenario 3: 4 requests, 50 points each").exec(makeRequest(50)).injectOpen(atOnceUsers(4)));
+//        executions = scenario("Scenario 4: 2 requests, 100 points each").exec(makeRequest(200)).injectOpen(atOnceUsers(1)));
+//        executions = scenario("Scenario 5: 1 request, all 200 points").exec(makeRequest(200)).injectOpen(atOnceUsers(1)));
         setUp(executions).protocols(httpProtocol);
     }
 }
