@@ -542,10 +542,9 @@ class CoordinateGeneratorTest {
             this.testClient = client;
         }
 
-        @Override
         protected CloseableHttpClient createHttpClient() {
             // if testClient is null fail
-            if (testClient == null) {
+            if (this.testClient == null) {
                 fail("Test client not set properly");
             }
             return testClient;
@@ -601,6 +600,42 @@ class CoordinateGeneratorTest {
             IOException exception = assertThrows(IOException.class, () -> testGenerator.processResponse(response));
             assertEquals("Failed to parse response entity", exception.getMessage());
         }
+    }
+
+    @Test
+    void testGeneratePointsWithFootWalkingProfile() throws Exception {
+        String mockJsonResponse = """
+                {
+                  "distances": [[0], [1200], [1500], [2000]],
+                  "destinations": [
+                    { "location": [8.681, 49.41] }
+                  ],
+                  "sources": [
+                    { "location": [8.681, 49.41] },
+                    { "location": [8.682, 49.42] },
+                    { "location": [8.683, 49.43] },
+                    { "location": [8.684, 49.44] }
+                  ]
+                }
+                """;
+
+        // when(closeableHttpClient.execute(any(HttpPost.class),
+        // handlerCaptor.capture())).thenReturn(mockJsonResponse);
+
+        CoordinateGenerator walkingGenerator = new CoordinateGenerator(
+                4, extent, 1000, 2000, 5, "foot-walking", null);
+        // walkingGenerator.setHttpClient(closeableHttpClient);
+
+        walkingGenerator.generatePoints();
+        Map<String, List<double[]>> result = walkingGenerator.getResult();
+
+        // Verify expected number of points (should be 3 pairs as the first distance is
+        // 0m and last is >2000m)
+        assertEquals(4, result.get("from_points").size());
+        assertEquals(4, result.get("to_points").size());
+
+        // Verify interaction with mock
+        verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
     }
 
     @AfterEach
