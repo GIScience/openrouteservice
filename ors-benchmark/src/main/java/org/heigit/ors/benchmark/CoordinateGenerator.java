@@ -43,7 +43,7 @@ public class CoordinateGenerator {
     protected CoordinateGenerator(int numPoints, double[] extent, double minDistance,
             double maxDistance, int maxAttempts,
                     String profile, String baseUrl) {
-        this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8080/ors";
+        this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8082/ors";
         this.extent = extent;
         this.numPoints = numPoints;
         this.minDistance = minDistance;
@@ -151,6 +151,7 @@ public class CoordinateGenerator {
             LOGGER.debug("Execute request");
             String executeResults = client.execute(httpPost, this::processResponse);
             if (executeResults == null) {
+                LOGGER.warn("No results from request");
                 return matrixResults;
             }
             LOGGER.debug("Read values");
@@ -160,6 +161,7 @@ public class CoordinateGenerator {
             LOGGER.debug("Check for empty or invalid destinations");
             List<Map<String, Object>> destinations = (List<Map<String, Object>>) responseMap.get("destinations");
             if (destinations == null || destinations.isEmpty()) {
+                LOGGER.warn("No destinations found in response");
                 return matrixResults;
             }
 
@@ -167,6 +169,7 @@ public class CoordinateGenerator {
             LOGGER.debug("Check for valid location in first destination");
             Map<String, Object> firstDestination = destinations.get(0);
             if (firstDestination == null || !firstDestination.containsKey("location")) {
+                LOGGER.warn("Invalid location in first destination: {}", firstDestination);
                 return matrixResults;
             }
 
@@ -226,12 +229,18 @@ public class CoordinateGenerator {
 
             for (int i = 0; i < Math.min(distances.size(), sourcePoints.size()); i++) {
                 List<Number> distanceRow = distances.get(i);
-                if (distanceRow != null && !distanceRow.isEmpty() && distanceRow.get(0) != null) {
-                    double distance = distanceRow.get(0).doubleValue();
-                    LOGGER.debug("Distance at index {}: {}", i, distance);
-                    if (distance > minDistance && distance < maxDistance) {
-                        filteredDestPoints.add(sourcePoints.get(i));
-                        filteredStartPoints.add(startPoint);
+                if (distanceRow != null && !distanceRow.isEmpty()) {
+                    // Handle null values in the distance matrix
+                    Number distanceValue = distanceRow.get(0);
+                    if (distanceValue != null) {
+                        double distance = distanceValue.doubleValue();
+                        LOGGER.debug("Distance at index {}: {}", i, distance);
+                        if (distance > minDistance && distance < maxDistance) {
+                            filteredDestPoints.add(sourcePoints.get(i));
+                            filteredStartPoints.add(startPoint);
+                        }
+                    } else {
+                        LOGGER.debug("Null distance value at index {}", i);
                     }
                 } else {
                     LOGGER.warn("Invalid distance data at index {}", i);
@@ -241,6 +250,9 @@ public class CoordinateGenerator {
             matrixResults.put("from_points", filteredStartPoints);
             matrixResults.put("to_points", filteredDestPoints);
             return matrixResults;
+        } catch (HttpHostConnectException e) {
+            LOGGER.error("Failed to connect to ORS instance", e);
+            throw new IOException("Failed to connect to ORS instance", e);
         }
     }
 
