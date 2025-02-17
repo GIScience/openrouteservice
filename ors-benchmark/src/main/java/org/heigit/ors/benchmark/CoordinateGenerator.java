@@ -123,14 +123,14 @@ public class CoordinateGenerator {
                     // If no new pairs were found in this batch, consider it a failed attempt
                     if (!foundNewPair) {
                         LOGGER.warn("No new coordinate pairs found in this batch, counting as failed attempt");
+                        LOGGER.warn("Currently found {} coordinate pairs", toPoints.size());
                         attempts++;
                     }
                 } else {
                     // Invalid response counts as a failed attempt
                     attempts++;
                 }
-            } catch (Exception e) {
-                LOGGER.error("Error in attempt {}: {}", attempts, e.getMessage());
+            } catch (Exception e) {                LOGGER.error("Error in attempt {}: {}", attempts, e.getMessage());
                 attempts++;
             }
 
