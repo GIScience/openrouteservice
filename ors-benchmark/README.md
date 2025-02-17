@@ -16,7 +16,7 @@ Run the tool using Maven from the parent project directory:
 
 ```bash
 mvn compile exec:java -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGenerator" \
+  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorMatrix" \
   -Dexec.args="[options]"
 ```
 
@@ -37,7 +37,7 @@ Generate 100 coordinate pairs in Heidelberg area with distances between 100 and 
 
 ```bash
 mvn compile exec:java -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGenerator" \
+  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorMatrix" \
   -Dexec.args="--num-points 100 \
   --extent 8.573179 49.352003 8.794049 49.459693 \
   --distance 100 5000 \
@@ -68,7 +68,7 @@ Or pass it as a system property:
 ```bash
 mvn compile exec:java -pl 'ors-benchmark' \
   -DORS_API_KEY=your_api_key_here \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGenerator" \
+  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorMatrix" \
   -Dexec.args="--num-points 100 \
   --extent 8.573179 49.352003 8.794049 49.459693 \
   --distance 100 5000 \
