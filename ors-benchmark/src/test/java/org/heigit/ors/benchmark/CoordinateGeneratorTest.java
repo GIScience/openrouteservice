@@ -389,6 +389,37 @@ class CoordinateGeneratorTest {
     }
 
     @Test
+    void testGenerateNoDuplicatePoints() throws Exception {
+        // Mock response with duplicate points
+        String mockJsonResponse = """
+                {
+                  "distances": [[0], [75], [85], [100]],
+                  "destinations": [
+                    { "location": [8.681, 49.41] }
+                  ],
+                  "sources": [
+                    { "location": [8.681, 49.41] },
+                    { "location": [8.681, 49.41] },
+                    { "location": [8.683, 49.43] },
+                    { "location": [8.684, 49.44] },
+                    { "location": [8.684, 49.45] }
+                  ]
+                }
+                """;
+
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
+
+        testGenerator.setHttpClient(closeableHttpClient);
+
+        testGenerator.generatePoints();
+        Map<String, List<double[]>> result = testGenerator.getResult();
+
+        assertEquals(2, result.get("from_points").size());
+        assertEquals(2, result.get("to_points").size());
+        verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
+    }
+
+    @Test
     void testGeneratePointsMaxAttemptsReached() throws Exception {
 
         CloseableHttpResponse closeableHttpResponse = mock(CloseableHttpResponse.class);

@@ -73,12 +73,18 @@ public class CoordinateGenerator {
         result.put("to_points", new ArrayList<double[]>());
         result.put("from_points", new ArrayList<double[]>());
         result.put("existing_pairs", new HashSet<String>());
+        result.put("existing_destinations", new HashSet<String>());
     }
 
     protected boolean isNewCoordinatePair(double[] fromPoint, double[] toPoint) {
         String pairKey = String.format("%.6f,%.6f,%.6f,%.6f",
                 fromPoint[0], fromPoint[1], toPoint[0], toPoint[1]);
-        return ((Set<String>) result.get("existing_pairs")).add(pairKey);
+        String destKey = String.format("%.6f,%.6f", toPoint[0], toPoint[1]);
+
+        Set<String> existingPairs = (Set<String>) result.get("existing_pairs");
+        Set<String> existingDests = (Set<String>) result.get("existing_destinations");
+
+        return existingPairs.add(pairKey) && existingDests.add(destKey);
     }
 
     @SuppressWarnings("unchecked")
