@@ -668,6 +668,16 @@ class CoordinateGeneratorMatrixTest {
         verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
     }
 
+    // @Test
+    // void testRequestFootWalking() throws Exception {
+    // extent = new double[] { 13.088345, 52.338271, 13.761161, 52.675509 };
+    // CoordinateGeneratorMatrix generator = new CoordinateGeneratorMatrix(
+    // 100, extent, 1, 15000, 100, "foot-walking", "http://localhost:9082/ors");
+    // generator.generatePoints();
+    // Map<String, List<double[]>> result = generator.getResult();
+    // System.out.println(result);
+    // }
+
     @AfterEach
     public void validate() {
         validateMockitoUsage();

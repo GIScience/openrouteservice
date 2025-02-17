@@ -372,7 +372,7 @@ public class CoordinateGeneratorMatrix {
 
     public static void main(String[] args) throws org.apache.commons.cli.ParseException {
         try {
-            GeneratorCLI cli = new GeneratorCLI(args);
+            CoordinateGeneratorMatrixCLI cli = new CoordinateGeneratorMatrixCLI(args);
 
             if (cli.hasHelp()) {
                 cli.printHelp();

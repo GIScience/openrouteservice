@@ -2,13 +2,13 @@ package org.heigit.ors.benchmark;
 
 import org.apache.commons.cli.*;
 
-public class GeneratorCLI {
+public class CoordinateGeneratorMatrixCLI {
     // Logging
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(GeneratorCLI.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CoordinateGeneratorMatrixCLI.class);
     private final Options options;
     private final CommandLine cmd;
 
-    public GeneratorCLI(String[] args) throws ParseException {
+    public CoordinateGeneratorMatrixCLI(String[] args) throws ParseException {
         options = new Options();
         setupOptions();
         cmd = new DefaultParser().parse(options, args);
