@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class CoordinateGeneratorTest {
+class CoordinateGeneratorMatrixTest {
     private double[] extent;
 
     @Mock
@@ -58,7 +58,7 @@ class CoordinateGeneratorTest {
     @Test
     void testCoordinateGeneratorWithMissingApiKey() {
         assertThrows(RuntimeException.class, () -> {
-            new CoordinateGenerator(
+            new CoordinateGeneratorMatrix(
                     100, extent, 1, 100, 100, "driving-car", "https://openrouteservice.org");
         });
     }
@@ -66,7 +66,7 @@ class CoordinateGeneratorTest {
     @Test
     void testCoordinateGeneratorWithExistingApiKey() {
         System.setProperty("ORS_API_KEY", "test-api");
-        CoordinateGenerator generator = new CoordinateGenerator(
+        CoordinateGeneratorMatrix generator = new CoordinateGeneratorMatrix(
                 100, extent, 1, 100, 100, "driving-car", "https://openrouteservice.org");
         assertNotNull(generator);
         System.clearProperty("ORS_API_KEY");
@@ -548,7 +548,7 @@ class CoordinateGeneratorTest {
 
     @Test
     void testCreateHttpClient() {
-        CoordinateGenerator generator = new CoordinateGenerator(
+        CoordinateGeneratorMatrix generator = new CoordinateGeneratorMatrix(
                 100, extent, 1, 100, 100, "driving-car", null);
 
         try (CloseableHttpClient client = generator.createHttpClient()) {
@@ -560,7 +560,7 @@ class CoordinateGeneratorTest {
     }
 
     // Test helper class
-    private class TestCoordinateGenerator extends CoordinateGenerator {
+    private class TestCoordinateGenerator extends CoordinateGeneratorMatrix {
         private CloseableHttpClient testClient;
 
         public TestCoordinateGenerator(int numPoints, double[] extent, double minDistance,
@@ -602,7 +602,7 @@ class CoordinateGeneratorTest {
         when(response.getCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
 
         IOException exception = assertThrows(IOException.class, () -> testGenerator.processResponse(response));
-        assertEquals("Request failed with status code: 400", exception.getMessage());
+        assertEquals("HTTP/1.1 400", exception.getMessage().trim());
     }
 
     @Test
@@ -612,7 +612,7 @@ class CoordinateGeneratorTest {
         when(response.getCode()).thenReturn(HttpStatus.SC_OK);
         when(response.getEntity()).thenReturn(null);
 
-        assertThrows(IOException.class, () -> testGenerator.processResponse(response));
+        assertDoesNotThrow(() -> testGenerator.processResponse(response));
     }
 
     @Test

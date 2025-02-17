@@ -77,7 +77,7 @@ public class GeneratorCLI {
         formatter.printHelp("CoordinateGenerator", options, true);
     }
 
-    public CoordinateGenerator createGenerator() {
+    public CoordinateGeneratorMatrix createGenerator() {
         int numPoints = Integer.parseInt(cmd.getOptionValue("n"));
         String[] extentValues = cmd.getOptionValues("e");
         double[] extent = new double[4];
@@ -95,7 +95,7 @@ public class GeneratorCLI {
         LOGGER.info(
                 "Creating CoordinateGenerator with numPoints={}, extent={}, minDistance={}, maxDistance={}, maxAttempts={}, profile={}, baseUrl={}",
                 numPoints, extent, minDistance, maxDistance, maxAttempts, profile, baseUrl);
-        return new CoordinateGenerator(
+        return new CoordinateGeneratorMatrix(
                 numPoints, extent, minDistance, maxDistance, maxAttempts, profile, baseUrl
         );
     }

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import java.io.File;
 import java.io.PrintWriter;
 
-public class CoordinateGenerator {
+public class CoordinateGeneratorMatrix {
     private final String baseUrl;
     private final double[] extent;
     private final int numPoints;
@@ -48,10 +48,10 @@ public class CoordinateGenerator {
     private final Random random;
     ObjectMapper mapper = new ObjectMapper();
     // logger
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CoordinateGenerator.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CoordinateGeneratorMatrix.class);
     ProgressBarBuilder progressBar;
 
-    protected CoordinateGenerator(int numPoints, double[] extent, double minDistance,
+    protected CoordinateGeneratorMatrix(int numPoints, double[] extent, double minDistance,
             double maxDistance, int maxAttempts,
                     String profile, String baseUrl) {
         this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8082/ors";
@@ -380,7 +380,7 @@ public class CoordinateGenerator {
             }
 
             LOGGER.debug("Create generator");
-            CoordinateGenerator generator = cli.createGenerator();
+            CoordinateGeneratorMatrix generator = cli.createGenerator();
 
             LOGGER.debug("Generate points");
             generator.generatePoints();
