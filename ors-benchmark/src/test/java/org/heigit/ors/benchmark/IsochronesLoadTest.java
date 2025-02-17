@@ -85,7 +85,7 @@ public class IsochronesLoadTest extends Simulation {
         int querySize = System.getProperty("query_size") != null ? Integer.parseInt(System.getProperty("query_size")) : 5;
         int rampTime = System.getProperty("ramp_time") != null ? Integer.parseInt(System.getProperty("ramp_time")) : 1;
         if (NUM_CALLS * querySize > dataPoints) {
-            System.out.println("The number of calls (" + NUM_CALLS + ") exceeds the number of data points (" + dataPoints + "). Please reduce the number of calls or increase the number of data points.");
+            System.out.println("The number of calls * query size (" + NUM_CALLS + " * " + querySize + ") exceeds the number of data points (" + dataPoints + "). Please reduce the number of calls or increase the number of data points.");
             System.exit(1);
         }
         executions = scenario("Scenario: " + NUM_CALLS + " requests, " + querySize + " points each").exec(makeRequest(querySize)).injectOpen(rampUsers(NUM_CALLS).during(rampTime));
