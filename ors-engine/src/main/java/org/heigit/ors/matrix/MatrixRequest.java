@@ -23,9 +23,7 @@ import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.ServiceRequest;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.MaxVisitedNodesExceededException;
-import org.heigit.ors.exceptions.PointNotFoundException;
+import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matrix.algorithms.core.CoreMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.dijkstra.DijkstraMatrixAlgorithm;
 import org.heigit.ors.matrix.algorithms.rphast.RPHASTMatrixAlgorithm;
@@ -224,9 +222,9 @@ public class MatrixRequest extends ServiceRequest {
         } catch (PointNotFoundException e) {
             throw e;
         } catch (MaxVisitedNodesExceededException e) {
-            throw new InternalServerException(MatrixErrorCodes.MAX_VISITED_NODES_EXCEEDED, "Unable to compute a distance/duration matrix: " + e.getMessage());
+            throw new StatusCodeException(400, MatrixErrorCodes.MAX_VISITED_NODES_EXCEEDED, "Unable to compute a distance/duration matrix: " + e.getMessage());
         } catch (Exception ex) {
-            throw new InternalServerException(MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix: " + ex.getMessage());
+            throw new StatusCodeException(500, MatrixErrorCodes.UNKNOWN, "Unable to compute a distance/duration matrix: " + ex.getMessage());
         }
     }
 
