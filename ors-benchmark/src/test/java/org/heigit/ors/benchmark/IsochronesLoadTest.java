@@ -10,16 +10,20 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 public class IsochronesLoadTest extends Simulation {
 
     static final int BATCH_SIZE_UPTO = 5;
+    static final FeederBuilder<String> feeder;
     static final String BASE_URL;
     static final String API_KEY;
     static final String TARGET_PROFILE;
-    static final FeederBuilder<String> feeder;
+    static final String RANGE;
+    static final int NUM_CALLS;
 
     static {
+        feeder = csv(System.getProperty("source_file") != null ? System.getProperty("source_file") : "search.csv");
         BASE_URL = System.getProperty("base_url") != null ? System.getProperty("base_url") : "http://localhost:8082/ors";
         API_KEY = System.getProperty("api_key") != null ? System.getProperty("api_key") : "API KEY";
         TARGET_PROFILE = System.getProperty("profile") != null ? System.getProperty("profile") : "driving-car";
-        feeder = csv(System.getProperty("source_file") != null ? System.getProperty("source_file") : "search.csv");
+        RANGE = System.getProperty("range") != null ? System.getProperty("range") : "300";
+        NUM_CALLS = System.getProperty("calls") != null ? Integer.parseInt(System.getProperty("calls")) : 100;
     }
 
     static String locations(int num) {
@@ -38,7 +42,7 @@ public class IsochronesLoadTest extends Simulation {
                 feed(feeder, batchSize),
                 http("Post")
                         .post("/v2/isochrones/" + TARGET_PROFILE)
-                        .body(StringBody("{\"locations\":[" + locations(batchSize) + "] , \"range\":[300]}"))
+                        .body(StringBody("{\"locations\":[" + locations(batchSize) + "] , \"range\":[" + RANGE + "]}"))
                         .check(status().is(200))
                         .check(status().saveAs("responseStatus"))
                         .check(bodyString().saveAs("responseBody"))
@@ -65,6 +69,7 @@ public class IsochronesLoadTest extends Simulation {
                     );
 
     PopulationBuilder executions;
+
     {
         OpenInjectionStep injection = rampUsers(100).during(5);
         for (int i = 1; i <= BATCH_SIZE_UPTO; i++) {
@@ -79,8 +84,11 @@ public class IsochronesLoadTest extends Simulation {
         int dataPoints = feeder.recordsCount();
         int querySize = System.getProperty("query_size") != null ? Integer.parseInt(System.getProperty("query_size")) : 5;
         int rampTime = System.getProperty("ramp_time") != null ? Integer.parseInt(System.getProperty("ramp_time")) : 1;
-        int calls = (int) dataPoints / querySize;
-        executions = scenario("Scenario: " + calls + " requests, " + querySize + " points each").exec(makeRequest(querySize)).injectOpen(rampUsers(calls).during(rampTime));
+        if (NUM_CALLS * querySize > dataPoints) {
+            System.out.println("The number of calls (" + NUM_CALLS + ") exceeds the number of data points (" + dataPoints + "). Please reduce the number of calls or increase the number of data points.");
+            System.exit(1);
+        }
+        executions = scenario("Scenario: " + NUM_CALLS + " requests, " + querySize + " points each").exec(makeRequest(querySize)).injectOpen(rampUsers(NUM_CALLS).during(rampTime));
 //
         setUp(executions).protocols(httpProtocol);
     }
