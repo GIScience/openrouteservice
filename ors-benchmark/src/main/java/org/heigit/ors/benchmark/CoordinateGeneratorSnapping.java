@@ -150,8 +150,35 @@ public class CoordinateGeneratorSnapping {
         }
     }
 
-    public static void main(String[] args) {
-        // Implementation similar to CoordinateGeneratorMatrix main method
-        // Add command line parsing for radius parameter
+    public static void main(String[] args) throws org.apache.commons.cli.ParseException {
+        try {
+            CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+
+            if (cli.hasHelp()) {
+                cli.printHelp();
+                return;
+            }
+
+            LOGGER.info("Creating coordinate generator for snapping...");
+            CoordinateGeneratorSnapping generator = cli.createGenerator();
+
+            LOGGER.info("Generating and snapping {} points...", generator.numPoints);
+            generator.generatePoints();
+
+            LOGGER.info("Writing {} snapped points to {}", generator.getResult().size(), cli.getOutputFile());
+            generator.writeToCSV(cli.getOutputFile());
+
+            int generatedPoints = generator.getResult().size();
+            System.out.printf("%nSuccessfully snapped %d coordinate%s%n",
+                    generatedPoints, generatedPoints != 1 ? "s" : "");
+            System.out.println("Results written to: " + cli.getOutputFile());
+
+        } catch (NumberFormatException e) {
+            System.err.println("Error parsing numeric arguments: " + e.getMessage());
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("Error writing to output file: " + e.getMessage());
+            System.exit(1);
+        }
     }
 }
