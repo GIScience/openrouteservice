@@ -4,12 +4,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 
+import me.tongfei.progressbar.DelegatingProgressBarConsumer;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
+
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.HttpHostConnectException;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.StatusLine;
+import org.slf4j.Logger;
+
+import org.heigit.ors.util.ProgressBarLogger;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpStatus;
@@ -39,6 +49,7 @@ public class CoordinateGenerator {
     ObjectMapper mapper = new ObjectMapper();
     // logger
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CoordinateGenerator.class);
+    ProgressBarBuilder progressBar;
 
     protected CoordinateGenerator(int numPoints, double[] extent, double minDistance,
             double maxDistance, int maxAttempts,
@@ -74,6 +85,16 @@ public class CoordinateGenerator {
         result.put("from_points", new ArrayList<double[]>());
         result.put("existing_pairs", new HashSet<String>());
         result.put("existing_destinations", new HashSet<String>());
+
+        Logger progressBarLogger = ProgressBarLogger.getLogger();
+        // Initialize the progress bar with the print stream and the style of the
+        // progress bar.
+        progressBar = new ProgressBarBuilder()
+                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
+                .setUpdateIntervalMillis(5000) // slow update for better visualization and less IO. Avoids % calculation
+                                               // for each element.
+                .setConsumer(new DelegatingProgressBarConsumer(progressBarLogger::info));
+
     }
 
     protected boolean isNewCoordinatePair(double[] fromPoint, double[] toPoint) {
@@ -94,48 +115,51 @@ public class CoordinateGenerator {
 
         List<double[]> fromPoints = (List<double[]>) result.get("from_points");
         List<double[]> toPoints = (List<double[]>) result.get("to_points");
+        try (ProgressBar pb = progressBar.setInitialMax(numPoints).setTaskName("Generating points").build()) {
+            while (attempts < maxAttempts && toPoints.size() < numPoints) {
+                LOGGER.debug("Processing batch with attempt {}", attempts);
+                try {
+                    List<double[]> rawPoints = randomCoordinatesInExtent(batchSize);
+                    Map<String, List<double[]>> points = applyMatrix(rawPoints);
 
-        while (attempts < maxAttempts && toPoints.size() < numPoints) {
-            LOGGER.debug("Processing batch with attempt {}", attempts);
-            try {
-                List<double[]> rawPoints = randomCoordinatesInExtent(batchSize);
-                Map<String, List<double[]>> points = applyMatrix(rawPoints);
+                    if (points.get("to_points") != null && points.get("from_points") != null) {
+                        boolean foundNewPair = false;
 
-                if (points.get("to_points") != null && points.get("from_points") != null) {
-                    boolean foundNewPair = false;
+                        // Try to add new coordinate combinations
+                        for (int i = 0; i < points.get("to_points").size(); i++) {
+                            double[] fromPoint = points.get("from_points").get(i);
+                            double[] toPoint = points.get("to_points").get(i);
 
-                    // Try to add new coordinate combinations
-                    for (int i = 0; i < points.get("to_points").size(); i++) {
-                        double[] fromPoint = points.get("from_points").get(i);
-                        double[] toPoint = points.get("to_points").get(i);
-
-                        if (isNewCoordinatePair(fromPoint, toPoint)) {
-                            fromPoints.add(fromPoint);
-                            toPoints.add(toPoint);
-                            foundNewPair = true;
-
-                            if (toPoints.size() >= numPoints) {
-                                break;
+                            if (isNewCoordinatePair(fromPoint, toPoint)) {
+                                fromPoints.add(fromPoint);
+                                toPoints.add(toPoint);
+                                foundNewPair = true;
+                                // update the pb with the new size
+                                pb.step();
+                                if (toPoints.size() >= numPoints) {
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    // If no new pairs were found in this batch, consider it a failed attempt
-                    if (!foundNewPair) {
-                        LOGGER.warn("No new coordinate pairs found in this batch, counting as failed attempt");
-                        LOGGER.warn("Currently found {} coordinate pairs", toPoints.size());
+                        // If no new pairs were found in this batch, consider it a failed attempt
+                        if (!foundNewPair) {
+                            LOGGER.debug("No new coordinate pairs found in this batch, counting as failed attempt");
+                            LOGGER.debug("Currently found {} coordinate pairs", toPoints.size());
+                            attempts++;
+                        }
+                    } else {
+                        // Invalid response counts as a failed attempt
                         attempts++;
                     }
-                } else {
-                    // Invalid response counts as a failed attempt
+                } catch (Exception e) {
+                    LOGGER.error("Failed to process batch", e);
                     attempts++;
                 }
-            } catch (Exception e) {                LOGGER.error("Error in attempt {}: {}", attempts, e.getMessage());
-                attempts++;
-            }
 
-            if (attempts >= maxAttempts) {
-                LOGGER.warn("Max attempts ({}) reached", maxAttempts);
+                if (attempts >= maxAttempts) {
+                    LOGGER.warn("Max attempts ({}) reached", maxAttempts);
+                }
             }
         }
 
@@ -162,10 +186,13 @@ public class CoordinateGenerator {
 
     protected String processResponse(ClassicHttpResponse response) throws IOException {
         int status = response.getCode();
-        if (status != HttpStatus.SC_OK) {
-            throw new IOException("Request failed with status code: " + status);
+        if (status >= HttpStatus.SC_REDIRECTION) {
+            throw new ClientProtocolException(new StatusLine(response).toString());
         }
         HttpEntity entity = response.getEntity();
+        if (entity == null) {
+            return null;
+        }
         try {
             return EntityUtils.toString(entity);
         } catch (ParseException | IOException e) {
@@ -360,7 +387,7 @@ public class CoordinateGenerator {
             LOGGER.debug("Write to CSV");
             generator.writeToCSV(cli.getOutputFile());
 
-            System.out.println("Generated " + generator.getResult().get("to_points").size() + " coordinate pairs");
+            System.out.println("\nGenerated " + generator.getResult().get("to_points").size() + " coordinate pairs");
             System.out.println("Results written to: " + cli.getOutputFile());
 
         } catch (NumberFormatException e) {
