@@ -15,6 +15,8 @@ public class IsochronesLoadTest extends Simulation {
     static final String API_KEY;
     static final String TARGET_PROFILE;
     static final String RANGE;
+    static final String FIELD_LON;
+    static final String FIELD_LAT;
     static final int NUM_CALLS;
 
     static {
@@ -23,13 +25,15 @@ public class IsochronesLoadTest extends Simulation {
         API_KEY = System.getProperty("api_key") != null ? System.getProperty("api_key") : "API KEY";
         TARGET_PROFILE = System.getProperty("profile") != null ? System.getProperty("profile") : "driving-car";
         RANGE = System.getProperty("range") != null ? System.getProperty("range") : "300";
+        FIELD_LON = System.getProperty("field_lon") != null ? System.getProperty("field_lon") : "longitude";
+        FIELD_LAT = System.getProperty("field_lat") != null ? System.getProperty("field_lat") : "latitude";
         NUM_CALLS = System.getProperty("calls") != null ? Integer.parseInt(System.getProperty("calls")) : 100;
     }
 
     static String locations(int num) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < num; i++) {
-            sb.append("[#{longitude(").append(i).append(")},#{latitude(").append(i).append(")}]");
+            sb.append("[#{").append(FIELD_LON).append("(").append(i).append(")},#{").append(FIELD_LAT).append("(").append(i).append(")}]");
             if (i < num - 1) {
                 sb.append(",");
             }
