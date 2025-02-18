@@ -29,7 +29,7 @@ public class IsochronesLoadTest extends Simulation {
     static String locations(int num) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < num; i++) {
-            sb.append("[#{to_lon(").append(i).append(")},#{to_lat(").append(i).append(")}]");
+            sb.append("[#{longitude(").append(i).append(")},#{latitude(").append(i).append(")}]");
             if (i < num - 1) {
                 sb.append(",");
             }
