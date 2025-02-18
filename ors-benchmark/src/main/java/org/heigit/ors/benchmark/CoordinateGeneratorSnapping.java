@@ -150,6 +150,9 @@ public class CoordinateGeneratorSnapping {
                     
                     if (locations != null) {
                         for (Map<String, Object> location : locations) {
+                            if (location == null) {
+                                continue;
+                            }
                             List<Number> coords = (List<Number>) location.get("location");
                             if (coords != null && coords.size() >= 2) {
                                 double[] point = new double[] {
