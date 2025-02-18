@@ -22,6 +22,8 @@ import org.mockito.MockedStatic;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -152,6 +154,45 @@ class CoordinateGeneratorSnappingTest {
             IOException exception = assertThrows(IOException.class, () -> testGenerator.processResponse(response));
             assertEquals("Failed to parse response entity", exception.getMessage());
         }
+    }
+
+    @Test
+    void testGeneratePointsWithDuplicates() throws Exception {
+        // Mock response with duplicate points
+        String mockJsonResponse = """
+                {
+                    "locations": [
+                        {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
+                        {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
+                        {"location": [8.676105, 49.41853], "name": "Berliner Straße", "snapped_distance": 19.11},
+                        {"location": [8.676105, 49.41853], "name": "Berliner Straße", "snapped_distance": 19.11},
+                        {"location": [8.677000, 49.41900], "name": "Another Street", "snapped_distance": 25.00}
+                    ]
+                }
+                """;
+
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
+        testGenerator = new TestCoordinateGeneratorSnapping(
+                3, extent, 350, "driving-car", null);
+
+        testGenerator.setHttpClient(closeableHttpClient);
+        testGenerator.generatePoints();
+
+        List<double[]> result = testGenerator.getResult();
+
+        // Should only contain unique points (3 instead of 5)
+        assertEquals(3, result.size());
+
+        // Verify the points are actually unique by checking coordinates
+        Set<String> uniqueCoords = new HashSet<>();
+        for (double[] point : result) {
+            String coordKey = String.format("%.6f,%.6f", point[0], point[1]);
+            assertTrue(uniqueCoords.add(coordKey),
+                    "Point " + coordKey + " should not already exist in results");
+        }
+        assertTrue(uniqueCoords.contains("8.666862,49.413181"));
+        assertTrue(uniqueCoords.contains("8.676105,49.418530"));
+        assertTrue(uniqueCoords.contains("8.677000,49.419000"));
     }
 
     private class TestCoordinateGeneratorSnapping extends CoordinateGeneratorSnapping {

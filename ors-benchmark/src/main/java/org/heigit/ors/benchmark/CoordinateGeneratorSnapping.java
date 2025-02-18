@@ -33,6 +33,34 @@ public class CoordinateGeneratorSnapping {
     private final List<double[]> result;
     private final Random random;
     private final ObjectMapper mapper;
+    private final Set<Point> uniquePoints;
+
+    protected static class Point {
+        final double[] coordinates;
+
+        Point(double[] coordinates) {
+            this.coordinates = coordinates;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            Point point = (Point) o;
+            return Math.abs(coordinates[0] - point.coordinates[0]) < 1e-6 &&
+                    Math.abs(coordinates[1] - point.coordinates[1]) < 1e-6;
+        }
+
+        @Override
+        public int hashCode() {
+            // Use 6 decimal places precision for hash code
+            return Objects.hash(
+                    Math.round(coordinates[0] * 1e6) / 1e6,
+                    Math.round(coordinates[1] * 1e6) / 1e6);
+        }
+    }
 
     protected CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String profile, String baseUrl) {
         this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8082/ors";
@@ -43,6 +71,7 @@ public class CoordinateGeneratorSnapping {
         this.random = new Random();
         this.mapper = new ObjectMapper();
         this.result = new ArrayList<>();
+        this.uniquePoints = new HashSet<>();
 
         String apiKey = "";
         if (this.baseUrl.contains("openrouteservice.org")) {
@@ -98,10 +127,12 @@ public class CoordinateGeneratorSnapping {
     protected void generatePoints() {
         final int batchSize = 100;
         result.clear();
+        uniquePoints.clear();
 
         try (CloseableHttpClient client = createHttpClient()) {
-            while (result.size() < numPoints) {
-                List<double[]> rawPoints = randomCoordinatesInExtent(Math.min(batchSize, numPoints - result.size()));
+            while (uniquePoints.size() < numPoints) {
+                List<double[]> rawPoints = randomCoordinatesInExtent(
+                        Math.min(batchSize, numPoints - uniquePoints.size()));
                 
                 Map<String, Object> payload = new HashMap<>();
                 payload.put("locations", rawPoints);
@@ -121,11 +152,17 @@ public class CoordinateGeneratorSnapping {
                         for (Map<String, Object> location : locations) {
                             List<Number> coords = (List<Number>) location.get("location");
                             if (coords != null && coords.size() >= 2) {
-                                result.add(new double[]{
+                                double[] point = new double[] {
                                     coords.get(0).doubleValue(),
                                     coords.get(1).doubleValue()
-                                });
-                                if (result.size() >= numPoints) break;
+                                };
+                                if (uniquePoints.add(new Point(point))) {
+                                    result.add(point);
+                                    if (uniquePoints.size() >= numPoints)
+                                        break;
+                                } else {
+                                    LOGGER.debug("Skipping duplicate point: [{}, {}]", point[0], point[1]);
+                                }
                             }
                         }
                     }
