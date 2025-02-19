@@ -20,7 +20,7 @@ public class IsochronesLoadTest extends Simulation {
     static final int NUM_CALLS;
 
     static {
-        feeder = csv(System.getProperty("source_file") != null ? System.getProperty("source_file") : "search.csv");
+        feeder = csv(System.getProperty("source_file") != null ? System.getProperty("source_file") : "search.csv").random();
         BASE_URL = System.getProperty("base_url") != null ? System.getProperty("base_url") : "http://localhost:8082/ors";
         API_KEY = System.getProperty("api_key") != null ? System.getProperty("api_key") : "API KEY";
         TARGET_PROFILE = System.getProperty("profile") != null ? System.getProperty("profile") : "driving-car";
