@@ -76,7 +76,7 @@ public class CoordinateGeneratorSnappingCLI {
         for (int i = 0; i < 4; i++) {
             extent[i] = Double.parseDouble(extentValues[i]);
         }
-        
+
         double radius = Double.parseDouble(cmd.getOptionValue("r", "350"));
         String profile = cmd.getOptionValue("p");
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
