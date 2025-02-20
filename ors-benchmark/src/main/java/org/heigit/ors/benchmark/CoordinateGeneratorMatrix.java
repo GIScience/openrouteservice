@@ -53,7 +53,7 @@ public class CoordinateGeneratorMatrix {
 
     protected CoordinateGeneratorMatrix(int numPoints, double[] extent, double minDistance,
             double maxDistance, int maxAttempts,
-                    String profile, String baseUrl) {
+            String profile, String baseUrl) {
         this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8082/ors";
         this.extent = extent;
         this.numPoints = numPoints;
@@ -345,7 +345,7 @@ public class CoordinateGeneratorMatrix {
     protected String printToCSV(Map<String, ?> result) throws IOException {
         final CsvMapper CSV_MAPPER = new CsvMapper();
 
-        try (StringWriter stringWriter = new StringWriter()){
+        try (StringWriter stringWriter = new StringWriter()) {
             SequenceWriter sequenceWriter = CSV_MAPPER.writer().writeValues(stringWriter);
             sequenceWriter.write(Arrays.asList("from_lon", "from_lat", "to_lon", "to_lat"));
 

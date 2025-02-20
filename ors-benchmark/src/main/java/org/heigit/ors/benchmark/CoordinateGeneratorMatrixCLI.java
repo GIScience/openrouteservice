@@ -4,7 +4,8 @@ import org.apache.commons.cli.*;
 
 public class CoordinateGeneratorMatrixCLI {
     // Logging
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(CoordinateGeneratorMatrixCLI.class);
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory
+            .getLogger(CoordinateGeneratorMatrixCLI.class);
     private final Options options;
     private final CommandLine cmd;
 
@@ -69,7 +70,6 @@ public class CoordinateGeneratorMatrixCLI {
                 .desc("Output CSV file path")
                 .build());
 
-
     }
 
     public void printHelp() {
@@ -84,11 +84,11 @@ public class CoordinateGeneratorMatrixCLI {
         for (int i = 0; i < 4; i++) {
             extent[i] = Double.parseDouble(extentValues[i]);
         }
-        
+
         String[] distanceValues = cmd.getOptionValues("d");
         double minDistance = Double.parseDouble(distanceValues[0]);
         double maxDistance = Double.parseDouble(distanceValues[1]);
-        
+
         int maxAttempts = Integer.parseInt(cmd.getOptionValue("m", "1000"));
         String profile = cmd.getOptionValue("p");
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
@@ -96,8 +96,7 @@ public class CoordinateGeneratorMatrixCLI {
                 "Creating CoordinateGenerator with numPoints={}, extent={}, minDistance={}, maxDistance={}, maxAttempts={}, profile={}, baseUrl={}",
                 numPoints, extent, minDistance, maxDistance, maxAttempts, profile, baseUrl);
         return new CoordinateGeneratorMatrix(
-                numPoints, extent, minDistance, maxDistance, maxAttempts, profile, baseUrl
-        );
+                numPoints, extent, minDistance, maxDistance, maxAttempts, profile, baseUrl);
     }
 
     public String getOutputFile() {
