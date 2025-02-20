@@ -10,7 +10,11 @@ public class ProgressBarLogger {
     private static final String LOGGER_NAME = "ProgressBarLogger";
     private static Logger logger;
 
-    private static Logger initializeLogger() {
+    private ProgressBarLogger() {
+        // Private constructor to hide implicit public one
+    }
+
+    private static synchronized Logger initializeLogger() {
         if (logger == null) {
             LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
             
@@ -39,7 +43,7 @@ public class ProgressBarLogger {
         return logger;
     }
 
-    public static Logger getLogger() {
+    public static synchronized Logger getLogger() {
         return initializeLogger();
     }
 }

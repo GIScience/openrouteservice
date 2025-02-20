@@ -13,9 +13,11 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.StatusLine;
+import org.heigit.ors.util.ProgressBarLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
+import me.tongfei.progressbar.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,8 +69,10 @@ public class CoordinateGeneratorRoute {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             RoutePair that = (RoutePair) o;
             return coordinatesEqual(start, that.start) && coordinatesEqual(end, that.end);
         }
@@ -76,16 +80,15 @@ public class CoordinateGeneratorRoute {
         @Override
         public int hashCode() {
             return Objects.hash(
-                Math.round(start[0] * 1e6) / 1e6,
-                Math.round(start[1] * 1e6) / 1e6,
-                Math.round(end[0] * 1e6) / 1e6,
-                Math.round(end[1] * 1e6) / 1e6
-            );
+                    Math.round(start[0] * 1e6) / 1e6,
+                            Math.round(start[1] * 1e6) / 1e6,
+                    Math.round(end[0] * 1e6) / 1e6,
+                    Math.round(end[1] * 1e6) / 1e6);
         }
 
         private boolean coordinatesEqual(double[] coord1, double[] coord2) {
             return Math.abs(coord1[0] - coord2[0]) < COORDINATE_PRECISION &&
-                   Math.abs(coord1[1] - coord2[1]) < COORDINATE_PRECISION;
+                    Math.abs(coord1[1] - coord2[1]) < COORDINATE_PRECISION;
         }
     }
 
@@ -171,25 +174,47 @@ public class CoordinateGeneratorRoute {
         int attempts = 0;
         int lastSize = 0;
 
+        // Create progress bar builder
+        ProgressBarBuilder pbb = new ProgressBarBuilder()
+                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
+                .setUpdateIntervalMillis(5000)
+                .setTaskName("Generating routes")
+                .setInitialMax(numRoutes)
+                .setConsumer(new DelegatingProgressBarConsumer(ProgressBarLogger.getLogger()::info));
+        ProgressBar pb = pbb.build();
+        // Use try-with-resources for both client and progress bar to ensure proper closing
         try (CloseableHttpClient client = createHttpClient()) {
+            
+            pb.setExtraMessage("Starting...");
+
             while (uniqueRoutes.size() < numRoutes && attempts < maxAttempts) {
                 processNextBatch(client);
 
                 if (uniqueRoutes.size() == lastSize) {
                     attempts++;
+                    pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, maxAttempts));
                     LOGGER.debug("No new routes found in attempt {}/{}", attempts, maxAttempts);
                 } else {
+                    pb.stepTo(uniqueRoutes.size());
+                    pb.setExtraMessage(String.format("Found %d unique routes ", uniqueRoutes.size()));
                     attempts = 0;
                     lastSize = uniqueRoutes.size();
                 }
             }
 
+            pb.stepTo(uniqueRoutes.size());
             if (attempts >= maxAttempts) {
+                pb.setExtraMessage(String.format("Stopped after %d attempts - Found %d/%d routes",
+                        maxAttempts, uniqueRoutes.size(), numRoutes));
                 LOGGER.warn("Stopped route generation after {} attempts. Found {}/{} routes",
                         maxAttempts, uniqueRoutes.size(), numRoutes);
             }
         } catch (Exception e) {
             LOGGER.error("Error generating routes", e);
+        } finally {
+            pb.close();
+            LOGGER.info("\n");
+            LOGGER.info("Generated {} unique routes", uniqueRoutes.size());
         }
     }
 
@@ -222,11 +247,12 @@ public class CoordinateGeneratorRoute {
     }
 
     private void processMatrixResponse(String response, List<double[]> inputCoordinates) throws IOException {
-        Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {});
-        
+        Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {
+        });
+
         List<List<Double>> durations = extractDurations(responseMap);
         List<Map<String, Object>> locations = extractLocations(responseMap, "destinations");
-        
+
         if (durations == null || locations == null || locations.isEmpty()) {
             return;
         }
@@ -251,7 +277,6 @@ public class CoordinateGeneratorRoute {
         }
         return Collections.emptyList();
     }
-    
 
     private void processMatrixResults(List<List<Double>> durations, List<Map<String, Object>> locations) {
         int size = locations.size();
@@ -292,10 +317,10 @@ public class CoordinateGeneratorRoute {
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
             pw.println("start_longitude,start_latitude,end_longitude,end_latitude,duration");
             for (Route route : routes) {
-                pw.printf("%f,%f,%f,%f,%f%n", 
-                    route.start[0], route.start[1],
-                    route.end[0], route.end[1],
-                    route.duration);
+                pw.printf("%f,%f,%f,%f,%f%n",
+                        route.start[0], route.start[1],
+                        route.end[0], route.end[1],
+                        route.duration);
             }
         }
     }
