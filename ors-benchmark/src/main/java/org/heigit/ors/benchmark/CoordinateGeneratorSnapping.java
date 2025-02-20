@@ -62,7 +62,8 @@ public class CoordinateGeneratorSnapping {
         }
     }
 
-    protected CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String profile, String baseUrl) {
+    protected CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String profile,
+            String baseUrl) {
         this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8082/ors";
         this.extent = extent;
         this.numPoints = numPoints;
@@ -133,7 +134,7 @@ public class CoordinateGeneratorSnapping {
             while (uniquePoints.size() < numPoints) {
                 List<double[]> rawPoints = randomCoordinatesInExtent(
                         Math.min(batchSize, numPoints - uniquePoints.size()));
-                
+
                 Map<String, Object> payload = new HashMap<>();
                 payload.put("locations", rawPoints);
                 payload.put("radius", radius);
@@ -147,7 +148,7 @@ public class CoordinateGeneratorSnapping {
                 if (response != null) {
                     Map<String, Object> responseMap = mapper.readValue(response, Map.class);
                     List<Map<String, Object>> locations = (List<Map<String, Object>>) responseMap.get("locations");
-                    
+
                     if (locations != null) {
                         for (Map<String, Object> location : locations) {
                             if (location == null) {
@@ -156,8 +157,8 @@ public class CoordinateGeneratorSnapping {
                             List<Number> coords = (List<Number>) location.get("location");
                             if (coords != null && coords.size() >= 2) {
                                 double[] point = new double[] {
-                                    coords.get(0).doubleValue(),
-                                    coords.get(1).doubleValue()
+                                        coords.get(0).doubleValue(),
+                                        coords.get(1).doubleValue()
                                 };
                                 if (uniquePoints.add(new Point(point))) {
                                     result.add(point);
