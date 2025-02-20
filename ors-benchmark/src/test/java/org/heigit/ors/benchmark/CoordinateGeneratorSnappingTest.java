@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.mockito.ArgumentCaptor;
@@ -17,13 +19,22 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.heigit.ors.benchmark.CoordinateGeneratorSnapping.Point;
 import org.mockito.MockedStatic;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.stream.Stream;
+import java.util.Map;
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,6 +43,7 @@ import static org.mockito.Mockito.*;
 class CoordinateGeneratorSnappingTest {
     private double[] extent;
     private TestCoordinateGeneratorSnapping testGenerator;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorSnapping.class);
 
     @Mock
     CloseableHttpClient closeableHttpClient;
@@ -42,7 +54,7 @@ class CoordinateGeneratorSnappingTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        extent = new double[] { 8.6286, 49.3590, 8.7957, 49.4715 };
+        extent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
         testGenerator = new TestCoordinateGeneratorSnapping(
                 2, extent, 350, "driving-car", null);
     }
@@ -139,7 +151,7 @@ class CoordinateGeneratorSnappingTest {
     }
 
     @Test
-    void testProcessResponseParseError() throws IOException {
+    void testProcessResponseParseError() {
         // Mock response and entity
         ClassicHttpResponse response = mock(ClassicHttpResponse.class);
         HttpEntity entity = mock(HttpEntity.class);
@@ -195,10 +207,384 @@ class CoordinateGeneratorSnappingTest {
         assertTrue(uniqueCoords.contains("8.677000,49.419000"));
     }
 
+    @Test
+    void testInvalidInputParameters() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new TestCoordinateGeneratorSnapping(-1, extent, 350, "driving-car", null));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new TestCoordinateGeneratorSnapping(2, new double[3], 350, "driving-car", null));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new TestCoordinateGeneratorSnapping(2, extent, -1, "driving-car", null));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new TestCoordinateGeneratorSnapping(2, extent, 350, "", null));
+    }
+
+    @Test
+    void testEmptyResponseHandling() throws Exception {
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn("{}");
+
+        testGenerator.setHttpClient(closeableHttpClient);
+        testGenerator.generatePoints();
+
+        assertTrue(testGenerator.getResult().isEmpty());
+    }
+
+    @Test
+    void testBatchProcessing() throws Exception {
+        int totalPoints = 100;
+        int numBatches = 3;
+        List<String> responses = createDistributedMockResponses(totalPoints, numBatches);
+
+        // Setup sequential responses
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture()))
+                .thenReturn(responses.get(0))
+                .thenReturn(responses.get(1))
+                .thenReturn(responses.get(2));
+
+        TestCoordinateGeneratorSnapping largeGenerator = new TestCoordinateGeneratorSnapping(
+                totalPoints, extent, 350, "driving-car", null);
+        largeGenerator.setHttpClient(closeableHttpClient);
+
+        largeGenerator.generatePoints();
+
+        List<double[]> result = largeGenerator.getResult();
+        assertEquals(totalPoints, result.size());
+        verify(closeableHttpClient, times(3)).execute(any(), handlerCaptor.capture());
+
+        // Verify all points are unique across batches
+        Set<String> allCoords = new HashSet<>();
+        for (double[] point : result) {
+            String coordKey = String.format("%.6f,%.6f", point[0], point[1]);
+            assertTrue(allCoords.add(coordKey),
+                    "Point " + coordKey + " should not already exist in results");
+        }
+    }
+
+    private List<String> createDistributedMockResponses(int totalPoints, int numBatches) {
+        Set<String> allUsedCoords = new HashSet<>();
+        List<String> responses = new ArrayList<>();
+
+        int basePointsPerBatch = totalPoints / numBatches;
+        int remainingPoints = totalPoints % numBatches;
+
+        for (int batch = 0; batch < numBatches; batch++) {
+            int pointsForThisBatch = basePointsPerBatch + (batch < remainingPoints ? 1 : 0);
+            responses.add(createMockResponseWithNPoints(pointsForThisBatch, allUsedCoords));
+        }
+
+        return responses;
+    }
+
+    private String createMockResponseWithNPoints(int n) {
+        return createMockResponseWithNPoints(n, new HashSet<>());
+    }
+
+    private String createMockResponseWithNPoints(int n, Set<String> existingCoords) {
+        Random random = new Random(42); // Fixed seed for reproducibility
+        StringBuilder responseBuilder = new StringBuilder("{\"locations\":[");
+        int added = 0;
+
+        while (added < n) {
+            double lon = random.nextDouble() * (extent[2] - extent[0]) + extent[0];
+            double lat = random.nextDouble() * (extent[3] - extent[1]) + extent[1];
+            String coord = String.format("%.6f,%.6f", lon, lat);
+
+            if (!existingCoords.contains(coord)) {
+                if (added > 0) {
+                    responseBuilder.append(",");
+                }
+                String[] parts = coord.split(",");
+                responseBuilder.append(String.format(
+                        "{\"location\":[%s,%s],\"snapped_distance\":20.0}",
+                        parts[0], parts[1]));
+                added++;
+                existingCoords.add(coord);
+            }
+        }
+
+        responseBuilder.append("]}");
+        return responseBuilder.toString();
+    }
+
+    @Test
+    void testGeneratePointsMaxAttemptsReached() throws Exception {
+        // Mock response that always returns the same point
+        String mockJsonResponse = """
+                {
+                    "locations": [
+                        {"location": [8.666862, 49.413181], "snapped_distance": 200.94}
+                    ]
+                }
+                """;
+
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture()))
+                .thenReturn(mockJsonResponse);
+
+        testGenerator = new TestCoordinateGeneratorSnapping(
+                3, extent, 350, "driving-car", null);
+        testGenerator.setHttpClient(closeableHttpClient);
+
+        testGenerator.generatePoints(2); // Set max attempts to 2
+
+        List<double[]> result = testGenerator.getResult();
+        assertEquals(1, result.size()); // Should only contain one point as others were duplicates
+        verify(closeableHttpClient, atLeast(2)).execute(any(), handlerCaptor.capture());
+    }
+
+    @Test
+    void testGeneratePointsSuccessBeforeMaxAttempts() throws Exception {
+        // First response has unique points, should succeed before max attempts
+        String successResponse = createMockResponseWithNPoints(2);
+
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture()))
+                .thenReturn(successResponse);
+
+        testGenerator = new TestCoordinateGeneratorSnapping(
+                2, extent, 350, "driving-car", null);
+        testGenerator.setHttpClient(closeableHttpClient);
+
+        testGenerator.generatePoints(5);
+
+        List<double[]> result = testGenerator.getResult();
+        assertEquals(2, result.size());
+        verify(closeableHttpClient, times(1)).execute(any(), handlerCaptor.capture());
+    }
+
+    @SuppressWarnings("unlikely-arg-type")
+    @Test
+    void testPointEquals() {
+        double coordinatePrecision = 1e-6;
+        Point point1 = new Point(new double[] { 8.123456, 49.123456 });
+
+        // Test same object reference
+        assertEquals(point1, point1, "Point should equal itself");
+
+        // Test null comparison
+        assertEquals(false, point1.equals(null), "Point should not equal null");
+
+        // Test different class
+        assertEquals(false, point1.equals("not a point"), "Point should not equal different class");
+
+        // Test exact same coordinates
+        Point point2 = new Point(new double[] { 8.123456, 49.123456 });
+        assertEquals(point1, point2, "Points with same coordinates should be equal");
+
+        // Test coordinates within precision
+        Point point3 = new Point(new double[] {
+                8.123456 + (coordinatePrecision / 2),
+                49.123456 + (coordinatePrecision / 2)
+        });
+        assertEquals(point1, point3, "Points within precision should be equal");
+
+        // Test coordinates just outside precision
+        Point point4 = new Point(new double[] {
+                8.123456 + (coordinatePrecision * 2),
+                49.123456 + (coordinatePrecision * 2)
+        });
+        assertEquals(false, point1.equals(point4), "Points outside precision should not be equal");
+
+        // Test only longitude differs
+        Point point5 = new Point(new double[] { 8.123457, 49.123456 });
+        assertEquals(false, point1.equals(point5), "Points with different longitude should not be equal");
+
+        // Test only latitude differs
+        Point point6 = new Point(new double[] { 8.123456, 49.123457 });
+        assertEquals(false, point1.equals(point6), "Points with different latitude should not be equal");
+    }
+
+    @Test
+    void testPointEqualsSymmetry() {
+        Point point1 = new Point(new double[] { 8.123456, 49.123456 });
+        Point point2 = new Point(new double[] { 8.123456, 49.123456 });
+
+        // Test symmetry of equals
+        boolean symmetric = point1.equals(point2) && point2.equals(point1);
+        assertEquals(true, symmetric, "Equals should be symmetric");
+    }
+
+    @Test
+    void testPointEqualsTransitivity() {
+        Point point1 = new Point(new double[] { 8.123456, 49.123456 });
+        Point point2 = new Point(new double[] { 8.123456, 49.123456 });
+        Point point3 = new Point(new double[] { 8.123456, 49.123456 });
+
+        // Test transitivity of equals
+        boolean transitive = point1.equals(point2) && point2.equals(point3) && point1.equals(point3);
+        assertEquals(true, transitive, "Equals should be transitive");
+    }
+
+    @Test
+    void testPointEqualsConsistency() {
+        Point point1 = new Point(new double[] { 8.123456, 49.123456 });
+        Point point2 = new Point(new double[] { 8.123456, 49.123456 });
+
+        // Test consistency of equals
+        boolean firstCall = point1.equals(point2);
+        for (int i = 0; i < 10; i++) {
+            assertEquals(firstCall, point1.equals(point2),
+                    "Equals should be consistent across multiple calls");
+        }
+    }
+
+    private static Stream<Arguments> invalidConstructorParameters() {
+        double[] validExtent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
+        return Stream.of(
+                // Test invalid numPoints
+                Arguments.of(
+                        0, validExtent, 350.0, "driving-car",
+                        "Number of points must be positive"),
+                Arguments.of(
+                        -1, validExtent, 350.0, "driving-car",
+                        "Number of points must be positive"),
+
+                // Test invalid extent
+                Arguments.of(
+                        1, null, 350.0, "driving-car",
+                        "Extent must contain 4 coordinates"),
+                Arguments.of(
+                        1, new double[3], 350.0, "driving-car",
+                        "Extent must contain 4 coordinates"),
+                Arguments.of(
+                        1, new double[5], 350.0, "driving-car",
+                        "Extent must contain 4 coordinates"),
+
+                // Test invalid radius
+                Arguments.of(
+                        1, validExtent, 0.0, "driving-car",
+                        "Radius must be positive"),
+                Arguments.of(
+                        1, validExtent, -1.0, "driving-car",
+                        "Radius must be positive"),
+
+                // Test invalid profile
+                Arguments.of(
+                        1, validExtent, 350.0, null,
+                        "Profile must not be empty"),
+                Arguments.of(
+                        1, validExtent, 350.0, "",
+                        "Profile must not be empty"),
+                Arguments.of(
+                        1, validExtent, 350.0, "   ",
+                        "Profile must not be empty"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidConstructorParameters")
+    void testInvalidConstructorParameters(
+            int numPoints,
+            double[] extent,
+            double radius,
+            String profile,
+            String expectedMessage) {
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> new TestCoordinateGeneratorSnapping(numPoints, extent, radius, profile, null),
+                "Constructor should throw IllegalArgumentException for invalid parameters");
+
+        assertEquals(expectedMessage, exception.getMessage(),
+                "Exception message should match expected message");
+    }
+
+    @Test
+    void testValidConstructorParameters() {
+        double[] validExtent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
+        assertDoesNotThrow(() -> new TestCoordinateGeneratorSnapping(1, validExtent, 350.0, "driving-car", null),
+                "Constructor should not throw exception for valid parameters");
+    }
+
+    private static Stream<Arguments> apiKeyTestParameters() {
+        return Stream.of(
+                // Test local URL (should not require API key)
+                Arguments.of(
+                        "http://localhost:8082/ors",
+                        null,
+                        null,
+                        true,
+                        "Local URL should not require API key"),
+                // Test openrouteservice.org URL with system property
+                Arguments.of(
+                        "https://api.openrouteservice.org",
+                        null,
+                        "test-api-key",
+                        true,
+                        "Should accept API key from system property"),
+
+                // Test openrouteservice.org URL without API key
+                Arguments.of(
+                        "https://api.openrouteservice.org",
+                        null,
+                        null,
+                        false,
+                        "Should fail without API key for openrouteservice.org"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("apiKeyTestParameters")
+    void testApiKeyValidation(
+            String baseUrl,
+            String envApiKey,
+            String systemPropertyApiKey,
+            boolean shouldSucceed,
+            String message) {
+
+        // Store original environment
+        String originalPropertyKey = System.getProperty("ORS_API_KEY");
+
+        try {
+            // Setup environment for test
+            if (envApiKey != null) {
+                withEnvironmentVariable("ORS_API_KEY", envApiKey);
+            }
+            if (systemPropertyApiKey != null) {
+                System.setProperty("ORS_API_KEY", systemPropertyApiKey);
+            }
+
+            if (shouldSucceed) {
+                assertDoesNotThrow(() -> new TestCoordinateGeneratorSnapping(
+                        1, extent, 350, "driving-car", baseUrl),
+                        message);
+            } else {
+                assertThrows(IllegalStateException.class, () -> new TestCoordinateGeneratorSnapping(
+                        1, extent, 350, "driving-car", baseUrl),
+                        message);
+            }
+
+        } finally {
+            if (originalPropertyKey != null) {
+                System.setProperty("ORS_API_KEY", originalPropertyKey);
+            } else {
+                System.clearProperty("ORS_API_KEY");
+            }
+        }
+    }
+
+    // Helper method to simulate environment variable
+    private void withEnvironmentVariable(String name, String value) {
+        try {
+            setEnv(name, value);
+        } catch (Exception e) {
+            LOGGER.error("Failed to set environment variable: {}", e.getMessage());
+        }
+    }
+
+    // Utility method to set environment variables (requires security permissions)
+    @SuppressWarnings({ "unchecked" })
+    private void setEnv(String name, String value) throws Exception {
+        Map<String, String> env = System.getenv();
+        Field field = env.getClass().getDeclaredField("m");
+        field.setAccessible(true);
+        ((Map<String, String>) field.get(env)).put(name, value);
+    }
+
     private class TestCoordinateGeneratorSnapping extends CoordinateGeneratorSnapping {
         private CloseableHttpClient testClient;
 
-        public TestCoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String profile, String baseUrl) {
+        public TestCoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String profile,
+                String baseUrl) {
             super(numPoints, extent, radius, profile, baseUrl);
         }
 
