@@ -77,8 +77,6 @@ public class CoordinateGeneratorSnapping {
         this.radius = radius;
         this.profile = profile;
         this.random = new SecureRandom();
-        byte[] bytes = new byte[20];
-        this.random.nextBytes(bytes);
         this.mapper = new ObjectMapper();
         this.result = new ArrayList<>();
         this.uniquePoints = new HashSet<>();
