@@ -3,7 +3,8 @@
 *.ipr
 .DS_Store
 **/.m2/
-
+*.code-workspace
+.vscode
 graphs/
 graph-repo/
 graphs-*/
