@@ -2,12 +2,15 @@ package org.heigit.ors.benchmark;
 
 import io.gatling.javaapi.core.*;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 
 public class IsochronesLoadTest extends Simulation {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IsochronesLoadTest.class);
 
     static final int BATCH_SIZE_UPTO = 5;
     static final FeederBuilder<String> feeder;
@@ -52,12 +55,13 @@ public class IsochronesLoadTest extends Simulation {
                         .check(bodyString().saveAs("responseBody"))
         ).exec(session -> {
             if (!session.contains("responseStatus")) {
-                System.out.println("Connection failed, check the server status or baseURL: " + BASE_URL);
+                LOGGER.error("Connection failed, check the server status or baseURL: {}", BASE_URL);
                 return session;
             }
             int responseStatus = session.getInt("responseStatus");
             if (responseStatus != 200) {
-                System.out.println("Response status: " + responseStatus + ", Response body: " + session.getString("responseBody"));
+                LOGGER.error("Response status: {}, Response body: {}",
+                        responseStatus, session.getString("responseBody"));
             }
             return session;
         });
@@ -89,11 +93,15 @@ public class IsochronesLoadTest extends Simulation {
         int querySize = System.getProperty("query_size") != null ? Integer.parseInt(System.getProperty("query_size")) : 5;
         int rampTime = System.getProperty("ramp_time") != null ? Integer.parseInt(System.getProperty("ramp_time")) : 1;
         if (NUM_CALLS * querySize > dataPoints) {
-            System.out.println("The number of calls * query size (" + NUM_CALLS + " * " + querySize + ") exceeds the number of data points (" + dataPoints + "). Please reduce the number of calls or increase the number of data points.");
-            System.exit(1);
+            LOGGER.error("The number of calls * query size ({} * {}) exceeds the number of data points ({}). " +
+                    "Please reduce the number of calls or increase the number of data points.",
+                    NUM_CALLS, querySize, dataPoints);
+            throw new IllegalStateException("Insufficient data points for requested load test configuration");
         }
-        executions = scenario("Scenario: " + NUM_CALLS + " requests, " + querySize + " points each").exec(makeRequest(querySize)).injectOpen(rampUsers(NUM_CALLS).during(rampTime));
-//
+        executions = scenario("Scenario: " + NUM_CALLS + " requests, " + querySize + " points each")
+                .exec(makeRequest(querySize))
+                .injectOpen(rampUsers(NUM_CALLS).during(rampTime));
+
         setUp(executions).protocols(httpProtocol);
     }
 }
