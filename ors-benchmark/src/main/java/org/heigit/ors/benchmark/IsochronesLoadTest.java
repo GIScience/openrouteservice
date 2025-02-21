@@ -1,5 +1,6 @@
 package org.heigit.ors.benchmark;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -9,13 +10,15 @@ import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
+import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
 import static io.gatling.javaapi.core.CoreDsl.csv;
-import static io.gatling.javaapi.core.CoreDsl.rampUsers;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import io.gatling.javaapi.core.FeederBuilder;
+import io.gatling.javaapi.core.PopulationBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.Simulation;
@@ -40,16 +43,21 @@ public class IsochronesLoadTest extends Simulation {
         FeederBuilder<String> feeder = initCsvFeeder(config.getSourceFile());
         return scenario(name)
                 .feed(feeder)
-                .exec(http("Isochrones " + name)
-                        .post("/v2/isochrones/" + config.getTargetProfile())
-                        .body(StringBody(session -> createRequestBody(
+                .during(Duration.ofSeconds(config.getRunTime()))
+                .on(
+                        http("Isochrones " + name)
+                                .post("/v2/isochrones/" + config.getTargetProfile())
+                                .body(
+                                        StringBody(session -> createRequestBody(
                                 session,
                                 locationCount,
                                 config.getFieldLon(),
                                 config.getFieldLat(),
                                 config.getRange())))
                         .asJson()
-                        .check(status().is(200)));
+                                .check(
+                                        status()
+                                                .is(200)));
     }
 
     static String createRequestBody(Session session, int locationCount, String fieldLon, String fieldLat,
@@ -62,15 +70,25 @@ public class IsochronesLoadTest extends Simulation {
 
         Map<String, Object> requestBody = Map.of(
                 "locations", locations,
-                "range", Collections.singletonList(Integer.parseInt(range)));
+                "range", Collections.singletonList(Integer.valueOf(range)));
         try {
             logger.debug("Created request body with {} locations", locationCount);
             return objectMapper.writeValueAsString(requestBody);
-        } catch (Exception e) {
-            logger.error("Failed to create request body for {} locations: {}", locationCount, e.getMessage(), e);
-            throw new RequestBodyCreationException("Failed to create request body for " + locationCount + " locations",
-                    e);
+        } catch (JsonProcessingException e) {
+            throw new RequestBodyCreationException("Failed to create request body", e);
         }
+    }
+
+    @Override
+    public void before() {
+        // Inject some code here to run before the simulation starts
+        logger.info("Starting gatling simulation...");
+    }
+
+    @Override
+    public void after() {
+        // Inject some code here to run after the simulation has completed
+        logger.info("Gatling simulation completed.");
     }
 
     /**
@@ -85,19 +103,21 @@ public class IsochronesLoadTest extends Simulation {
     }
 
     public IsochronesLoadTest() {
-        logger.info("Initializing IsochronesLoadTest with {} users ramping up over {} seconds",
-                config.getNumCalls(), config.getRampTime());
+        logger.info(
+                "Initializing IsochronesLoadTest with {} concurrent users and {} concurrent locations, running for {} seconds",
+                config.getNumConcurrentUsers(), config.getQuerySize(), config.getRunTime());
 
-        ScenarioBuilder singleLocationScenario = createScenario("Single Location", 1, config);
-        ScenarioBuilder multiLocationScenario = createScenario("Multiple Locations", config.getQuerySize(), config);
+        PopulationBuilder singleLocationScenario = createScenario("Single Location", 1, config)
+                .injectClosed(
+                        constantConcurrentUsers(config.getNumConcurrentUsers()).during(config.getRunTime()));
+
+        PopulationBuilder multiLocationScenario = createScenario("Multiple Locations", config.getQuerySize(), config)
+                .injectClosed(
+                        constantConcurrentUsers(config.getNumConcurrentUsers()).during(config.getRunTime()));
 
         setUp(
-                singleLocationScenario
-                        .injectOpen(
-                                rampUsers(config.getNumCalls()).during(config.getRampTime())),
-                multiLocationScenario
-                        .injectOpen(
-                                rampUsers(config.getNumCalls()).during(config.getRampTime())))
+                singleLocationScenario,
+                multiLocationScenario)
                 .protocols(httpProtocol);
     }
 }

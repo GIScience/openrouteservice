@@ -16,9 +16,9 @@ public class TestConfig {
     private final String range;
     private final String fieldLon;
     private final String fieldLat;
-    private final int numCalls;
+    private final int numConcurrentUsers;
     private final int querySize;
-    private final int rampTime;
+    private final int runTime;
 
     public TestConfig() {
         this.sourceFile = getSystemProperty("source_file", "search.csv");
@@ -28,9 +28,9 @@ public class TestConfig {
         this.range = getSystemProperty("range", "300");
         this.fieldLon = getSystemProperty("field_lon", "longitude");
         this.fieldLat = getSystemProperty("field_lat", "latitude");
-        this.numCalls = Integer.parseInt(getSystemProperty("calls", "100"));
+        this.numConcurrentUsers = Integer.parseInt(getSystemProperty("concurrent_users", "1"));
         this.querySize = Integer.parseInt(getSystemProperty("query_size", "5"));
-        this.rampTime = Integer.parseInt(getSystemProperty("ramp_time", "1"));
+        this.runTime = Integer.parseInt(getSystemProperty("run_time", "60"));
     }
 
     private String getSystemProperty(String key, String defaultValue) {
@@ -47,7 +47,13 @@ public class TestConfig {
     public String getRange() { return range; }
     public String getFieldLon() { return fieldLon; }
     public String getFieldLat() { return fieldLat; }
-    public int getNumCalls() { return numCalls; }
+
+    public int getNumConcurrentUsers() {
+        return numConcurrentUsers;
+    }
     public int getQuerySize() { return querySize; }
-    public int getRampTime() { return rampTime; }
+
+    public int getRunTime() {
+        return runTime;
+    }
 }
