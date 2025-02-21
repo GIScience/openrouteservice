@@ -33,7 +33,7 @@ Options:
 Example:
 
 ```bash
-mvn clean compile exec:java -pl 'ors-benchmark' \
+mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorRoute" \
   -Dexec.args="\
   -n 100 \
@@ -46,7 +46,7 @@ mvn clean compile exec:java -pl 'ors-benchmark' \
 Example with long parameters:
 
 ```bash
-mvn clean compile exec:java -pl 'ors-benchmark' \
+mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorRoute" \
   -Dexec.args="\
   --num-routes 50 \
@@ -76,7 +76,7 @@ Options:
 Example:
 
 ```bash
-mvn clean compile exec:java -pl 'ors-benchmark' \
+mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorSnapping" \
   -Dexec.args="\
   -n 100 \
@@ -89,7 +89,7 @@ mvn clean compile exec:java -pl 'ors-benchmark' \
 Example with long parameters:
 
 ```bash
-mvn clean compile exec:java -pl 'ors-benchmark' \
+mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorSnapping" \
   -Dexec.args="\
   --num-points 50 \
