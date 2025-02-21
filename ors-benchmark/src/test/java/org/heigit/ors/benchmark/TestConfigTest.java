@@ -21,7 +21,7 @@ class TestConfigTest {
         assertEquals("300", config.getRange());
         assertEquals("longitude", config.getFieldLon());
         assertEquals("latitude", config.getFieldLat());
-        assertEquals(100, config.getNumCalls());
+        assertEquals(100, config.getNumConcurrentUsers());
         assertEquals(5, config.getQuerySize());
         assertEquals(1, config.getRampTime());
         assertEquals("search.csv", config.getSourceFile());
@@ -36,7 +36,7 @@ class TestConfigTest {
         TestConfig customConfig = new TestConfig();
         assertEquals("http://test.com", customConfig.getBaseUrl());
         assertEquals("test-key", customConfig.getApiKey());
-        assertEquals(200, customConfig.getNumCalls());
+        assertEquals(200, customConfig.getNumConcurrentUsers());
 
         // Clean up system properties
         System.clearProperty("base_url");
