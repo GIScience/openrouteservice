@@ -99,3 +99,50 @@ mvn clean compile exec:java -pl 'ors-benchmark' \
   --url http://localhost:8080/ors \
   --output heidelberg_snapped.csv"
 ```
+
+### Isochrones Load Test
+
+A Gatling-based load test for the ORS Isochrones API.
+
+#### Isochrones Load Test Usage
+
+Options:
+
+- `source_file`: CSV file containing coordinates (required)
+- `base_url`: ORS API base URL (default: http://localhost:8082/ors)
+- `api_key`: API key for authentication
+- `profile`: Routing profile (default: driving-car)
+- `range`: Isochrone range in meters (default: 300)
+- `field_lon`: CSV field name for longitude (default: longitude)
+- `field_lat`: CSV field name for latitude (default: latitude)
+- `calls`: Number of API calls to make (default: 100)
+- `query_size`: Number of points per request (default: 5)
+- `ramp_time`: Duration for ramping up users in minutes (default: 1)
+
+Example:
+
+```bash
+mvn -pl 'ors-benchmark' gatling:test \
+  -Dsource_file='points_berlin_cycling-regular_10000.csv' \
+  -Dbase_url='http://localhost:8080/ors' \
+  -Dcalls=2000 \
+  -Drange=1000
+```
+
+Example with additional parameters:
+
+```bash
+mvn -pl 'ors-benchmark' gatling:test \
+  -Dsource_file='heidelberg_points.csv' \
+  -Dbase_url='http://localhost:8080/ors' \
+  -Dapi_key='your-api-key' \
+  -Dprofile='cycling-regular' \
+  -Drange=2000 \
+  -Dcalls=1000 \
+  -Dquery_size=10 \
+  -Dramp_time=5 \
+  -Dfield_lon='lon' \
+  -Dfield_lat='lat'
+```
+
+The test will generate a Gatling report with detailed performance metrics after completion.
