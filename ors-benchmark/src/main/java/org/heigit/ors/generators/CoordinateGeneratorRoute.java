@@ -1,4 +1,4 @@
-package org.heigit.ors.benchmark;
+package org.heigit.ors.generators;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -233,7 +233,7 @@ public class CoordinateGeneratorRoute {
         List<double[]> coordinates = randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE);
         String response = sendMatrixRequest(client, coordinates);
         if (response != null) {
-            processMatrixResponse(response, coordinates);
+            processMatrixResponse(response);
         }
     }
 
@@ -253,7 +253,7 @@ public class CoordinateGeneratorRoute {
         return request;
     }
 
-    private void processMatrixResponse(String response, List<double[]> inputCoordinates) throws IOException {
+    private void processMatrixResponse(String response) throws IOException {
         Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {});
         
         List<List<Double>> distances = extractDistances(responseMap);  // Changed from durations to distances
