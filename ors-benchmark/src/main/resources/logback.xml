@@ -6,7 +6,21 @@
         </encoder>
     </appender>
 
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/ors-benchmark.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/ors-benchmark-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.heigit.ors.benchmark" level="INFO" />
+
     <root level="INFO">
         <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE" />
     </root>
 </configuration>
