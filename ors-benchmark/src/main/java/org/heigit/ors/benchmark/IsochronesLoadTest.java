@@ -1,7 +1,6 @@
 package org.heigit.ors.benchmark;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,53 +25,44 @@ import io.gatling.javaapi.core.Simulation;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
+import io.gatling.javaapi.http.HttpRequestActionBuilder;
 
 public class IsochronesLoadTest extends Simulation {
     private static final Logger logger = LoggerFactory.getLogger(IsochronesLoadTest.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final TestConfig config = new TestConfig();
+    private final HttpProtocolBuilder httpProtocol = createHttpProtocol();
 
-    private final HttpProtocolBuilder httpProtocol = http
-            .baseUrl(config.getBaseUrl())
-            .acceptHeader("application/geo+json; charset=utf-8")
-            .contentTypeHeader("application/json; charset=utf-8")
-            .userAgentHeader("Gatling")
-            .header("Authorization", config.getApiKey());
-
-    static ScenarioBuilder createScenario(String name, int locationCount, TestConfig config) {
-        FeederBuilder<String> feeder = initCsvFeeder(config.getSourceFile());
-        return scenario(name)
-                .feed(feeder)
-                .during(Duration.ofSeconds(config.getRunTime()))
-                .on(
-                        http("Isochrones " + name)
-                                .post("/v2/isochrones/" + config.getTargetProfile())
-                                .body(
-                                        StringBody(session -> createRequestBody(
-                                session,
-                                locationCount,
-                                config.getFieldLon(),
-                                config.getFieldLat(),
-                                config.getRange())))
-                        .asJson()
-                                .check(
-                                        status()
-                                                .is(200)));
+    private HttpProtocolBuilder createHttpProtocol() {
+        return http.baseUrl(config.getBaseUrl())
+                .acceptHeader("application/geo+json; charset=utf-8")
+                .contentTypeHeader("application/json; charset=utf-8")
+                .userAgentHeader("Gatling")
+                .header("Authorization", config.getApiKey());
     }
 
-    static String createRequestBody(Session session, int locationCount, String fieldLon, String fieldLat,
-            String range) {
-        List<List<Double>> locations = IntStream.range(0, locationCount)
-                .mapToObj(i -> List.of(
-                        session.getDouble(fieldLon),
-                        session.getDouble(fieldLat)))
-                .toList();
+    private static ScenarioBuilder createIsochroneScenario(String name, int locationCount, TestConfig config) {
+        return scenario(name)
+                .feed(initCsvFeeder(config.getSourceFile()))
+                .during(Duration.ofSeconds(config.getRunTime()))
+                .on(createIsochroneRequest(name, locationCount, config));
+    }
 
-        Map<String, Object> requestBody = Map.of(
-                "locations", locations,
-                "range", Collections.singletonList(Integer.valueOf(range)));
+    private static HttpRequestActionBuilder createIsochroneRequest(String name, int locationCount, TestConfig config) {
+        return http("Isochrones " + name)
+                .post("/v2/isochrones/" + config.getTargetProfile())
+                .body(StringBody(session -> createRequestBody(session, locationCount, config)))
+                .asJson()
+                .check(status().is(200));
+    }
+
+    static String createRequestBody(Session session, int locationCount, TestConfig config) {
         try {
+            Map<String, Object> requestBody = Map.of(
+                    "locations", createLocationsList(session, locationCount, config),
+                    "range", Collections.singletonList(Integer.valueOf(config.getRange())));
+
             logger.debug("Created request body with {} locations", locationCount);
             return objectMapper.writeValueAsString(requestBody);
         } catch (JsonProcessingException e) {
@@ -80,70 +70,71 @@ public class IsochronesLoadTest extends Simulation {
         }
     }
 
-    @Override
-    public void before() {
-        // Inject some code here to run before the simulation starts
-        logger.info("Starting gatling simulation...");
+    static List<List<Double>> createLocationsList(Session session, int locationCount, TestConfig config) {
+        return IntStream.range(0, locationCount)
+                .mapToObj(i -> List.of(
+                        session.getDouble(config.getFieldLon()),
+                        session.getDouble(config.getFieldLat())))
+                .toList();
     }
 
-    @Override
-    public void after() {
-        // Inject some code here to run after the simulation has completed
-        logger.info("Gatling simulation completed.");
-    }
-
-    /**
-     * Initialize feeder with source file. Cannot only be instantiated by Gatling.
-     * 
-     * @param sourceFile Source file to read from
-     * @return FeederBuilder with random access
-     */
     private static FeederBuilder<String> initCsvFeeder(String sourceFile) {
         logger.info("Initializing feeder with source file: {}", sourceFile);
         return csv(sourceFile).shuffle();
     }
 
-    public IsochronesLoadTest() {
-        logger.info(
-                "Initializing IsochronesLoadTest with {} concurrent users for query sizes {}, running for {} seconds (parallel: {})",
-                config.getNumConcurrentUsers(), config.getQuerySizes(), config.getRunTime(),
-                config.isParallelExecution());
+    private String formatScenarioName(int querySize, boolean isParallel) {
+        String executionMode = isParallel ? "Parallel" : "Sequential";
+        return String.format("%s | Users (%d) | Locations (%d)",
+                executionMode, config.getNumConcurrentUsers(), querySize);
+    }
 
-        List<PopulationBuilder> scenarios = new ArrayList<>();
+    private PopulationBuilder createScenarioWithInjection(int querySize, boolean isParallel) {
+        String scenarioName = formatScenarioName(querySize, isParallel);
+        return createIsochroneScenario(scenarioName, querySize, config)
+                .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers())
+                        .during(config.getRunTime()));
+    }
+
+    private void executeParallelScenarios() {
+        List<PopulationBuilder> scenarios = config.getQuerySizes().stream()
+                .map(querySize -> createScenarioWithInjection(querySize, true))
+                .toList();
+
+        setUp(scenarios.toArray(PopulationBuilder[]::new))
+                .protocols(httpProtocol);
+    }
+
+    private void executeSequentialScenarios() {
+        PopulationBuilder chainedScenario = config.getQuerySizes().stream()
+                .map(querySize -> createScenarioWithInjection(querySize, false))
+                .reduce(PopulationBuilder::andThen)
+                .orElseThrow(() -> new IllegalStateException("No scenarios to run"));
+
+        setUp(chainedScenario).protocols(httpProtocol);
+    }
+
+    public IsochronesLoadTest() {
+        logger.info("Initializing IsochronesLoadTest:");
+        logger.info("- Concurrent users: {}", config.getNumConcurrentUsers());
+        logger.info("- Query sizes: {}", config.getQuerySizes());
+        logger.info("- Runtime: {} seconds", config.getRunTime());
+        logger.info("- Execution mode: {}", config.isParallelExecution() ? "parallel" : "sequential");
 
         if (config.isParallelExecution()) {
-            // Run scenarios in parallel
-            for (Integer querySize : config.getQuerySizes()) {
-                scenarios.add(
-                        createScenario(
-                                "Parallel | Users ("
-                                                + config.getNumConcurrentUsers()
-                                        + ") | Locations (" + querySize + ") ",
-                                querySize, config)
-                                .injectClosed(
-                                        constantConcurrentUsers(config.getNumConcurrentUsers())
-                                                .during(config.getRunTime())));
-            }
-            setUp(scenarios.toArray(PopulationBuilder[]::new)).protocols(httpProtocol);
+            executeParallelScenarios();
         } else {
-            // Chain scenarios sequentially
-            PopulationBuilder chainedScenario = null;
-            for (Integer querySize : config.getQuerySizes()) {
-                PopulationBuilder currentScenario = createScenario(
-                        "Sequential | Users ("
-                                        + config.getNumConcurrentUsers() + ") | Locations (" + querySize + ")",
-                        querySize, config)
-                        .injectClosed(
-                                constantConcurrentUsers(config.getNumConcurrentUsers())
-                                        .during(config.getRunTime()));
-
-                chainedScenario = (chainedScenario == null) ? currentScenario
-                        : chainedScenario.andThen(currentScenario);
-            }
-            if (chainedScenario != null)
-                setUp(chainedScenario).protocols(httpProtocol);
-            else
-                logger.warn("No scenarios to run");
+            executeSequentialScenarios();
         }
+    }
+
+    @Override
+    public void before() {
+        logger.info("Starting Gatling simulation...");
+    }
+
+    @Override
+    public void after() {
+        logger.info("Gatling simulation completed.");
     }
 }

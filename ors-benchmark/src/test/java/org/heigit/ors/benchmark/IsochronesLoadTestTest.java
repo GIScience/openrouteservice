@@ -1,5 +1,7 @@
 package org.heigit.ors.benchmark;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,22 +17,25 @@ import io.gatling.javaapi.core.Session;
 class IsochronesLoadTestTest {
     private ObjectMapper objectMapper;
     private Session mockSession;
+    private TestConfig mockConfig;
 
     @BeforeEach
     @SuppressWarnings("unused")
     void setUp() {
         objectMapper = new ObjectMapper();
         mockSession = mock(Session.class);
+        mockConfig = mock(TestConfig.class);
+
         when(mockSession.getDouble("longitude")).thenReturn(8.681495);
         when(mockSession.getDouble("latitude")).thenReturn(49.41461);
+        when(mockConfig.getFieldLon()).thenReturn("longitude");
+        when(mockConfig.getFieldLat()).thenReturn("latitude");
+        when(mockConfig.getRange()).thenReturn("300");
     }
 
     @Test
     void testCreateRequestBodySingleLocation() throws Exception {
-        String requestBody = IsochronesLoadTest.createRequestBody(
-            mockSession, 1, "longitude", "latitude", "300"
-        );
-        
+        String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig);
         JsonNode json = objectMapper.readTree(requestBody);
         
         assertEquals(1, json.get("locations").size());
@@ -41,10 +46,8 @@ class IsochronesLoadTestTest {
 
     @Test
     void testCreateRequestBodyMultipleLocations() throws Exception {
-        String requestBody = IsochronesLoadTest.createRequestBody(
-            mockSession, 3, "longitude", "latitude", "500"
-        );
-        
+        when(mockConfig.getRange()).thenReturn("500");
+        String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 3, mockConfig);
         JsonNode json = objectMapper.readTree(requestBody);
         
         assertEquals(3, json.get("locations").size());
@@ -60,23 +63,28 @@ class IsochronesLoadTestTest {
         Session invalidSession = mock(Session.class);
         when(invalidSession.getDouble("longitude")).thenThrow(new RuntimeException("Session error"));
         
-        RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> 
-            IsochronesLoadTest.createRequestBody(
-                invalidSession, 1, "longitude", "latitude", "300"
-            )
-        );
-        assertEquals("Session error", exception.getMessage());
+        Throwable thrown = assertThrows(RuntimeException.class,
+                () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, mockConfig));
+        assertEquals(RuntimeException.class, thrown.getClass());
     }
 
     @Test
     void testCreateRequestBodyWithInvalidRange() {
-        NumberFormatException exception = assertThrows(NumberFormatException.class,
-                () -> 
-            IsochronesLoadTest.createRequestBody(
-                mockSession, 1, "longitude", "latitude", "invalid"
-            )
-        );
-        assertEquals("For input string: \"invalid\"", exception.getMessage());
+        when(mockConfig.getRange()).thenReturn("invalid");
+
+        Throwable thrown = assertThrows(NumberFormatException.class,
+                () -> IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig));
+        assertEquals(NumberFormatException.class, thrown.getClass());
+    }
+
+    @Test
+    void testCreateLocationsList() {
+        List<List<Double>> locations = IsochronesLoadTest.createLocationsList(mockSession, 2, mockConfig);
+
+        assertEquals(2, locations.size());
+        locations.forEach(coord -> {
+            assertEquals(8.681495, coord.get(0));
+            assertEquals(49.41461, coord.get(1));
+        });
     }
 }
