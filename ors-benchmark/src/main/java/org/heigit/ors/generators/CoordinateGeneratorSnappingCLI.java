@@ -1,15 +1,15 @@
-package org.heigit.ors.benchmark;
+package org.heigit.ors.generators;
 
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CoordinateGeneratorRouteCLI {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorRouteCLI.class);
+public class CoordinateGeneratorSnappingCLI {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorSnappingCLI.class);
     private final Options options;
     private final CommandLine cmd;
 
-    public CoordinateGeneratorRouteCLI(String[] args) throws ParseException {
+    public CoordinateGeneratorSnappingCLI(String[] args) throws ParseException {
         options = new Options();
         setupOptions();
         cmd = new DefaultParser().parse(options, args);
@@ -22,11 +22,11 @@ public class CoordinateGeneratorRouteCLI {
                 .build());
 
         options.addOption(Option.builder("n")
-                .longOpt("num-routes")
+                .longOpt("num-points")
                 .hasArg()
                 .required()
                 .type(Number.class)
-                .desc("Number of routes to generate")
+                .desc("Number of points to generate")
                 .build());
 
         options.addOption(Option.builder("e")
@@ -35,6 +35,13 @@ public class CoordinateGeneratorRouteCLI {
                 .numberOfArgs(4)
                 .required()
                 .desc("Bounding box (minLon minLat maxLon maxLat)")
+                .build());
+
+        options.addOption(Option.builder("r")
+                .longOpt("radius")
+                .hasArg()
+                .type(Number.class)
+                .desc("Search radius in meters (default: 350)")
                 .build());
 
         options.addOption(Option.builder("p")
@@ -55,41 +62,34 @@ public class CoordinateGeneratorRouteCLI {
                 .hasArg()
                 .desc("Output CSV file path")
                 .build());
-
-        options.addOption(Option.builder("d")
-                .longOpt("min-distance")
-                .hasArg()
-                .type(Number.class)
-                .desc("Minimum distance between coordinates in meters (default: 0)")
-                .build());
     }
 
     public void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("CoordinateGeneratorRoute", options, true);
+        formatter.printHelp("CoordinateGeneratorSnapping", options, true);
     }
 
-    public CoordinateGeneratorRoute createGenerator() {
-        int numRoutes = Integer.parseInt(cmd.getOptionValue("n"));
+    public CoordinateGeneratorSnapping createGenerator() {
+        int numPoints = Integer.parseInt(cmd.getOptionValue("n"));
         String[] extentValues = cmd.getOptionValues("e");
         double[] extent = new double[4];
         for (int i = 0; i < 4; i++) {
             extent[i] = Double.parseDouble(extentValues[i]);
         }
 
+        double radius = Double.parseDouble(cmd.getOptionValue("r", "350"));
         String profile = cmd.getOptionValue("p");
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
-        double minDistance = Double.parseDouble(cmd.getOptionValue("d", "1"));
 
         LOGGER.info(
-                "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profile={}, baseUrl={}, minDistance={}",
-                numRoutes, extent, profile, baseUrl, minDistance);
+                "Creating CoordinateGeneratorSnapping with numPoints={}, extent={}, radius={}, profile={}, baseUrl={}",
+                numPoints, extent, radius, profile, baseUrl);
 
-        return new CoordinateGeneratorRoute(numRoutes, extent, profile, baseUrl, minDistance);
+        return new CoordinateGeneratorSnapping(numPoints, extent, radius, profile, baseUrl);
     }
 
     public String getOutputFile() {
-        return cmd.getOptionValue("o", "route_coordinates.csv");
+        return cmd.getOptionValue("o", "snapped_coordinates.csv");
     }
 
     public boolean hasHelp() {

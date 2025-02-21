@@ -1,4 +1,4 @@
-package org.heigit.ors.benchmark;
+package org.heigit.ors.generators;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -234,6 +234,7 @@ public class CoordinateGeneratorSnapping {
         return request;
     }
 
+    @SuppressWarnings("unchecked")
     private void processSnappingResponse(String response) throws IOException {
         Map<String, Object> responseMap = mapper.readValue(response,
                 new TypeReference<Map<String, Object>>() {
