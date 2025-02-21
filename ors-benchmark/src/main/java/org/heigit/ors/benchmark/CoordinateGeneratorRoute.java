@@ -200,17 +200,18 @@ public class CoordinateGeneratorRoute {
                     pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, maxAttempts));
                     LOGGER.debug("No new routes found in attempt {}/{}", attempts, maxAttempts);
                 } else {
-                    pb.stepTo(uniqueRoutes.size());
-                    pb.setExtraMessage(String.format("Found %d unique routes ", uniqueRoutes.size()));
+                    pb.stepTo(Math.min(uniqueRoutes.size(), numRoutes));
+                    pb.setExtraMessage(
+                            String.format("Found %d unique routes ", Math.min(uniqueRoutes.size(), numRoutes)));
                     attempts = 0;
                     lastSize = uniqueRoutes.size();
                 }
             }
 
-            pb.stepTo(uniqueRoutes.size());
+            pb.stepTo(Math.min(uniqueRoutes.size(), numRoutes));
             if (attempts >= maxAttempts) {
-                pb.setExtraMessage(String.format("Stopped after %d attempts - Found %d/%d routes",
-                        maxAttempts, uniqueRoutes.size(), numRoutes));
+                pb.setExtraMessage(String.format("Stopped after %d attempts - Found at least %d/%d routes",
+                                maxAttempts, uniqueRoutes.size(), numRoutes));
                 LOGGER.warn("Stopped route generation after {} attempts. Found {}/{} routes",
                         maxAttempts, uniqueRoutes.size(), numRoutes);
             }
@@ -219,7 +220,7 @@ public class CoordinateGeneratorRoute {
         } finally {
             pb.close();
             LOGGER.info("\n");
-            LOGGER.info("Generated {} unique routes", uniqueRoutes.size());
+            LOGGER.info("Generated {} unique routes", Math.min(uniqueRoutes.size(), numRoutes));
         }
     }
 
@@ -320,18 +321,21 @@ public class CoordinateGeneratorRoute {
     }
 
     protected List<Route> getResult() {
-        return new ArrayList<>(routes);
+        return routes.subList(0, Math.min(numRoutes, routes.size()));
     }
 
     protected void writeToCSV(String filePath) throws IOException {
+        // Get cleaned up results
+        List<Route> cleanedRoutes = getResult();
+
         File csvOutputFile = new File(filePath);
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-            pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance");  // Changed header
-            for (Route route : routes) {
+            pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance");
+            for (Route route : cleanedRoutes) { // Use cleaned routes
                 pw.printf("%f,%f,%f,%f,%f%n", 
                     route.start[0], route.start[1],
                     route.end[0], route.end[1],
-                    route.distance);  // Changed field name
+                        route.distance);
             }
         }
     }
@@ -351,12 +355,13 @@ public class CoordinateGeneratorRoute {
             LOGGER.info("Generating {} routes...", generator.numRoutes);
             generator.generateRoutes(DEFAULT_MAX_ATTEMPTS);
 
-            LOGGER.info("Writing {} routes to {}", generator.getResult().size(), cli.getOutputFile());
+            List<Route> result = generator.getResult(); // Get cleaned results
+            LOGGER.info("Writing {} routes to {}", result.size(), cli.getOutputFile());
             generator.writeToCSV(cli.getOutputFile());
 
             LOGGER.info("Successfully generated {} route{}",
-                    generator.getResult().size(),
-                    generator.getResult().size() != 1 ? "s" : "");
+                    result.size(),
+                    result.size() != 1 ? "s" : "");
             LOGGER.info("Results written to: {}", cli.getOutputFile());
 
         } catch (NumberFormatException e) {
