@@ -34,7 +34,7 @@ Example:
 
 ```bash
 mvn clean compile exec:java -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorRoute" \
+  -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorRoute" \
   -Dexec.args="\
   -n 100 \
   -e 8.6 49.3 8.7 49.4 \
@@ -47,7 +47,7 @@ Example with long parameters:
 
 ```bash
 mvn clean compile exec:java -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorRoute" \
+  -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorRoute" \
   -Dexec.args="\
   --num-routes 50 \
   --extent 8.681495 49.411721 8.695485 49.419365 \
@@ -63,10 +63,6 @@ A command-line tool for generating coordinates and snapping them to the nearest 
 
 #### Point Generator Usage
 
-```bash
-java -cp target/ors-benchmark.jar org.heigit.ors.benchmark.CoordinateGeneratorSnapping [options]
-```
-
 Options:
 
 - `-n, --num-points <value>`: Number of points to generate (required)
@@ -81,7 +77,7 @@ Example:
 
 ```bash
 mvn clean compile exec:java -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorSnapping" \
+  -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorSnapping" \
   -Dexec.args="\
   -n 100 \
   -e 8.6 49.3 8.7 49.4 \
@@ -94,7 +90,7 @@ Example with long parameters:
 
 ```bash
 mvn clean compile exec:java -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorSnapping" \
+  -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorSnapping" \
   -Dexec.args="\
   --num-points 50 \
   --extent 8.681495 49.411721 8.695485 49.419365 \
