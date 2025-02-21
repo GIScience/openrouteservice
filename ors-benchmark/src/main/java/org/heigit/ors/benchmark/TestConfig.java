@@ -1,8 +1,10 @@
 package org.heigit.ors.benchmark;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class TestConfig {
     public static final int BATCH_SIZE_UPTO = 5;
@@ -17,7 +19,7 @@ public class TestConfig {
     private final String fieldLon;
     private final String fieldLat;
     private final int numConcurrentUsers;
-    private final int querySize;
+    private final List<Integer> querySizes;
     private final int runTime;
 
     public TestConfig() {
@@ -29,7 +31,7 @@ public class TestConfig {
         this.fieldLon = getSystemProperty("field_lon", "longitude");
         this.fieldLat = getSystemProperty("field_lat", "latitude");
         this.numConcurrentUsers = Integer.parseInt(getSystemProperty("concurrent_users", "1"));
-        this.querySize = Integer.parseInt(getSystemProperty("query_size", "5"));
+        this.querySizes = parseQuerySizes(getSystemProperty("query_sizes", "1"));
         this.runTime = Integer.parseInt(getSystemProperty("run_time", "60"));
     }
 
@@ -37,6 +39,14 @@ public class TestConfig {
         String value = System.getProperty(key) != null ? System.getProperty(key) : defaultValue;
         logger.debug("Config property {} = {}", key, value);
         return value;
+    }
+
+    private List<Integer> parseQuerySizes(String querySizesStr) {
+        return Arrays.stream(querySizesStr.split(","))
+                .map(String::trim)
+                .map(Integer::parseInt)
+                .sorted()
+                .toList();
     }
 
     // Getters
@@ -51,7 +61,10 @@ public class TestConfig {
     public int getNumConcurrentUsers() {
         return numConcurrentUsers;
     }
-    public int getQuerySize() { return querySize; }
+
+    public List<Integer> getQuerySizes() {
+        return querySizes;
+    }
 
     public int getRunTime() {
         return runTime;

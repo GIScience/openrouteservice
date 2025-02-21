@@ -1,6 +1,7 @@
 package org.heigit.ors.benchmark;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -104,20 +105,21 @@ public class IsochronesLoadTest extends Simulation {
 
     public IsochronesLoadTest() {
         logger.info(
-                "Initializing IsochronesLoadTest with {} concurrent users and {} concurrent locations, running for {} seconds",
-                config.getNumConcurrentUsers(), config.getQuerySize(), config.getRunTime());
+                "Initializing IsochronesLoadTest with {} concurrent users for query sizes {}, running for {} seconds",
+                config.getNumConcurrentUsers(), config.getQuerySizes(), config.getRunTime());
 
-        PopulationBuilder singleLocationScenario = createScenario("Single Location", 1, config)
-                .injectClosed(
-                        constantConcurrentUsers(config.getNumConcurrentUsers()).during(config.getRunTime()));
+        List<PopulationBuilder> scenarios = new ArrayList<>();
 
-        PopulationBuilder multiLocationScenario = createScenario("Multiple Locations", config.getQuerySize(), config)
-                .injectClosed(
-                        constantConcurrentUsers(config.getNumConcurrentUsers()).during(config.getRunTime()));
+        // Add scenarios for each query size
+        for (Integer querySize : config.getQuerySizes()) {
+            scenarios.add(
+                    createScenario("Locations (" + querySize + ")", querySize, config)
+                            .injectClosed(
+                                    constantConcurrentUsers(config.getNumConcurrentUsers())
+                                            .during(config.getRunTime())));
+        }
 
-        setUp(
-                singleLocationScenario,
-                multiLocationScenario)
+        setUp(scenarios.toArray(PopulationBuilder[]::new))
                 .protocols(httpProtocol);
     }
 }

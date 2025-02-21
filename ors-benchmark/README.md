@@ -115,21 +115,21 @@ Options:
 - `range`: Isochrone range in meters (default: 300)
 - `field_lon`: CSV field name for longitude (default: longitude)
 - `field_lat`: CSV field name for latitude (default: latitude)
-- `calls`: Number of API calls to make (default: 100)
-- `query_size`: Number of points per request (default: 5)
-- `ramp_time`: Duration for ramping up users in minutes (default: 1)
+- `concurrent_users`: Number of concurrent users (default: 1)
+- `query_sizes`: Comma-separated list of locations per request (default: 1)
+- `run_time`: Duration of the test in seconds (default: 60)
 
 Example:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
-  -Dsource_file='points_berlin_cycling-regular_10000.csv' \
+  -Dsource_file='points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
-  -Dcalls=2000 \
-  -Drange=1000
+  -Dquery_sizes='1,2,3,4,5' \
+  -Drun_time=300
 ```
 
-Example with additional parameters:
+Example with all parameters:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
@@ -138,9 +138,9 @@ mvn -pl 'ors-benchmark' gatling:test \
   -Dapi_key='your-api-key' \
   -Dprofile='cycling-regular' \
   -Drange=2000 \
-  -Dcalls=1000 \
-  -Dquery_size=10 \
-  -Dramp_time=5 \
+  -Dconcurrent_users=5 \
+  -Dquery_sizes='1,3,5,10' \
+  -Drun_time=600 \
   -Dfield_lon='lon' \
   -Dfield_lat='lat'
 ```
