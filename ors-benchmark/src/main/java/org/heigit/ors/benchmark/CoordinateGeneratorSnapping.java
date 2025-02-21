@@ -16,6 +16,8 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
+import me.tongfei.progressbar.*;
+import org.heigit.ors.util.ProgressBarLogger;
 
 import java.io.File;
 import java.io.IOException;
@@ -156,25 +158,47 @@ public class CoordinateGeneratorSnapping {
         int attempts = 0;
         int lastSize = 0;
 
-        try (CloseableHttpClient client = createHttpClient()) {
+        // Create progress bar builder
+        ProgressBarBuilder pbb = new ProgressBarBuilder()
+                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
+                .setUpdateIntervalMillis(5000)
+                .setTaskName("Generating snapped points")
+                .setInitialMax(numPoints)
+                .setConsumer(new DelegatingProgressBarConsumer(ProgressBarLogger.getLogger()::info));
+
+        // Use try-with-resources for client and progress bar
+        try (CloseableHttpClient client = createHttpClient();
+                ProgressBar pb = pbb.build()) {
+
+            pb.setExtraMessage("Starting...");
+
             while (uniquePoints.size() < numPoints && attempts < maxAttempts) {
                 processNextBatch(client);
 
                 if (uniquePoints.size() == lastSize) {
                     attempts++;
+                    pb.setExtraMessage(String.format("Attempt %d/%d - No new points", attempts, maxAttempts));
                     LOGGER.debug("No new points found in attempt {}/{}", attempts, maxAttempts);
                 } else {
+                    pb.stepTo(uniquePoints.size());
+                    pb.setExtraMessage(String.format("Found %d unique points", uniquePoints.size()));
                     attempts = 0;
                     lastSize = uniquePoints.size();
                 }
             }
 
+            pb.stepTo(uniquePoints.size());
             if (attempts >= maxAttempts) {
-                LOGGER.warn("Stopped point generation after {} attempts without finding new points. Found {}/{} points",
+                pb.setExtraMessage(String.format("Stopped after %d attempts - Found %d/%d points",
+                                maxAttempts, uniquePoints.size(), numPoints));
+                LOGGER.warn("Stopped point generation after {} attempts. Found {}/{} points",
                         maxAttempts, uniquePoints.size(), numPoints);
             }
         } catch (Exception e) {
             LOGGER.error("Error generating points", e);
+        } finally {
+            LOGGER.info("\n");
+            LOGGER.info("Generated {} unique points", uniquePoints.size());
         }
     }
 
