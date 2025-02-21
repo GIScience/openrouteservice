@@ -55,6 +55,13 @@ public class CoordinateGeneratorRouteCLI {
                 .hasArg()
                 .desc("Output CSV file path")
                 .build());
+
+        options.addOption(Option.builder("d")
+                .longOpt("min-distance")
+                .hasArg()
+                .type(Number.class)
+                .desc("Minimum distance between coordinates in meters (default: 0)")
+                .build());
     }
 
     public void printHelp() {
@@ -72,12 +79,13 @@ public class CoordinateGeneratorRouteCLI {
 
         String profile = cmd.getOptionValue("p");
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
+        double minDistance = Double.parseDouble(cmd.getOptionValue("d", "1"));
 
         LOGGER.info(
-                "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profile={}, baseUrl={}",
-                numRoutes, extent, profile, baseUrl);
+                "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profile={}, baseUrl={}, minDistance={}",
+                numRoutes, extent, profile, baseUrl, minDistance);
 
-        return new CoordinateGeneratorRoute(numRoutes, extent, profile, baseUrl);
+        return new CoordinateGeneratorRoute(numRoutes, extent, profile, baseUrl, minDistance);
     }
 
     public String getOutputFile() {

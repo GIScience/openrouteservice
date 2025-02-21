@@ -44,15 +44,15 @@ class CoordinateGeneratorRouteTest {
         MockitoAnnotations.openMocks(this);
         extent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
         testGenerator = new TestCoordinateGeneratorRoute(
-                2, extent, "driving-car", null);
+                2, extent, "driving-car", null, 0); // Added minDistance parameter
     }
 
     @Test
     void testGenerateRoutesSuccessful() throws Exception {
         String mockJsonResponse = """
                 {
-                    "durations": [[0,100.2],[100.3,0]],
-                    "destinations": [
+                    "distances": [[0,1500.2],[1500.3,0]],
+                            "destinations": [
                         {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
                         {"location": [8.676105, 49.41853], "snapped_distance": 19.11}
                     ],
@@ -77,8 +77,8 @@ class CoordinateGeneratorRouteTest {
     void testWriteCSVToFile(@TempDir Path tempDir) throws Exception {
         String mockJsonResponse = """
                 {
-                    "durations": [[0,100.3],[100.1,0]],
-                    "destinations": [
+                    "distances": [[0,1500.3],[1500.1,0]],
+                            "destinations": [
                         {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
                         {"location": [8.676105, 49.41853], "snapped_distance": 19.11}
                     ],
@@ -100,7 +100,8 @@ class CoordinateGeneratorRouteTest {
 
         assertTrue(Files.exists(filePath));
         List<String> lines = Files.readAllLines(filePath);
-        assertEquals("start_longitude,start_latitude,end_longitude,end_latitude,duration", lines.get(0));
+        assertEquals("start_longitude,start_latitude,end_longitude,end_latitude,distance", lines.get(0)); // Updated
+                                                                                                          // header
         assertEquals(3, lines.size()); // Header + 2 routes
     }
 
@@ -123,23 +124,64 @@ class CoordinateGeneratorRouteTest {
         assertThrows(IOException.class, () -> testGenerator.processResponse(response));
     }
 
+    @Test
+    void testMinimumDistanceFiltering() throws Exception {
+        String mockJsonResponse = """
+                {
+                    "distances": [
+                        [0, 500.2, 1500.3],
+                        [500.0, 0, 2000.6],
+                        [1500.5, 2000.3, 0]
+                    ],
+                    "destinations": [
+                        {"location": [8.666862, 49.413181]},
+                        {"location": [8.676105, 49.418530]},
+                        {"location": [8.686105, 49.428530]}
+                    ],
+                    "sources": [
+                        {"location": [8.666862, 49.413181]},
+                        {"location": [8.676105, 49.418530]},
+                        {"location": [8.686105, 49.428530]}
+                    ]
+                }
+                """;
+
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
+
+        // Create generator with minimum distance of 1000 meters
+        TestCoordinateGeneratorRoute generator = new TestCoordinateGeneratorRoute(
+                6, extent, "driving-car", null, 1000.0);
+        generator.setHttpClient(closeableHttpClient);
+        generator.generateRoutes();
+
+        List<CoordinateGeneratorRoute.Route> result = generator.getResult();
+
+        // Should only include routes with distance > 1000m
+        for (CoordinateGeneratorRoute.Route route : result) {
+            assertTrue(route.distance > 1000.0,
+                    "Route distance " + route.distance + " should be greater than minimum 1000.0");
+        }
+    }
+
     private static Stream<Arguments> invalidConstructorParameters() {
         double[] validExtent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
         return Stream.of(
-                Arguments.of(0, validExtent, "driving-car", "Number of routes must be positive"),
-                Arguments.of(1, null, "driving-car", "Extent must contain 4 coordinates"),
-                Arguments.of(1, new double[3], "driving-car", "Extent must contain 4 coordinates"),
-                Arguments.of(1, validExtent, "", "Profile must not be empty"),
-                Arguments.of(1, validExtent, null, "Profile must not be empty")
+                Arguments.of(0, validExtent, "driving-car", 0.0, "Number of routes must be positive"),
+                Arguments.of(1, null, "driving-car", 0.0, "Extent must contain 4 coordinates"),
+                Arguments.of(1, new double[3], "driving-car", 0.0, "Extent must contain 4 coordinates"),
+                Arguments.of(1, validExtent, "", 0.0, "Profile must not be empty"),
+                Arguments.of(1, validExtent, null, 0.0, "Profile must not be empty"),
+                Arguments.of(1, validExtent, "driving-car", -1.0, "Minimum distance must be non-negative")
         );
     }
 
     @ParameterizedTest
     @MethodSource("invalidConstructorParameters")
-    void testInvalidConstructorParameters(int numRoutes, double[] extent, String profile, String expectedMessage) {
+    void testInvalidConstructorParameters(int numRoutes, double[] extent, String profile, double minDistance,
+            String expectedMessage) {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> new TestCoordinateGeneratorRoute(numRoutes, extent, profile, null)
+                () -> new TestCoordinateGeneratorRoute(numRoutes, extent, profile, null, minDistance)
         );
         assertEquals(expectedMessage, exception.getMessage());
     }
@@ -148,8 +190,8 @@ class CoordinateGeneratorRouteTest {
     void testUniquePairGeneration() throws Exception {
         String mockJsonResponse = """
                 {
-                    "durations": [[0,100.2,200.3],[100.0,0,300.6],[200.5,300.3,0]],
-                    "destinations": [
+                    "distances": [[0,100.2,200.3],[100.0,0,300.6],[200.5,300.3,0]],
+                            "destinations": [
                         {"location": [8.666862, 49.413181]},
                         {"location": [8.676105, 49.418530]},
                         {"location": [8.686105, 49.428530]}
@@ -195,7 +237,12 @@ class CoordinateGeneratorRouteTest {
         private CloseableHttpClient testClient;
 
         public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl) {
-            super(numRoutes, extent, profile, baseUrl);
+            super(numRoutes, extent, profile, baseUrl, 0); // Added default minDistance
+        }
+
+        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl,
+                double minDistance) {
+            super(numRoutes, extent, profile, baseUrl, minDistance); // Added minDistance parameter
         }
 
         void setHttpClient(CloseableHttpClient client) {

@@ -41,16 +41,17 @@ public class CoordinateGeneratorRoute {
     private final Random random;
     private final ObjectMapper mapper;
     private final Set<RoutePair> uniqueRoutes;
+    private final double minDistance; // Add this field
 
     protected static class Route {
         final double[] start;
         final double[] end;
-        final double duration;
+        final double distance;  // Changed from duration to distance
 
-        Route(double[] start, double[] end, double duration) {
+        Route(double[] start, double[] end, double distance) {  // Changed parameter name
             this.start = start;
             this.end = end;
-            this.duration = duration;
+            this.distance = distance;  // Changed field name
         }
     }
 
@@ -92,12 +93,14 @@ public class CoordinateGeneratorRoute {
         }
     }
 
-    protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl) {
+    protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl,
+            double minDistance) {
         this.baseUrl = baseUrl != null ? baseUrl : DEFAULT_BASE_URL;
-        validateInputParameters(numRoutes, extent, profile);
+        validateInputParameters(numRoutes, extent, profile, minDistance);
         this.extent = extent;
         this.numRoutes = numRoutes;
         this.profile = profile;
+        this.minDistance = minDistance;
         this.random = new SecureRandom();
         this.mapper = new ObjectMapper();
         this.routes = new ArrayList<>();
@@ -111,13 +114,15 @@ public class CoordinateGeneratorRoute {
         headers.put("Authorization", apiKey);
     }
 
-    private void validateInputParameters(int numRoutes, double[] extent, String profile) {
+    private void validateInputParameters(int numRoutes, double[] extent, String profile, double minDistance) {
         if (numRoutes <= 0)
             throw new IllegalArgumentException("Number of routes must be positive");
         if (extent == null || extent.length != 4)
             throw new IllegalArgumentException("Extent must contain 4 coordinates");
         if (profile == null || profile.isBlank())
             throw new IllegalArgumentException("Profile must not be empty");
+        if (minDistance < 0)
+            throw new IllegalArgumentException("Minimum distance must be non-negative");
     }
 
     private String getApiKey() {
@@ -239,6 +244,7 @@ public class CoordinateGeneratorRoute {
     private HttpPost createMatrixRequest(List<double[]> coordinates) throws IOException {
         Map<String, Object> payload = new HashMap<>();
         payload.put("locations", coordinates);
+        payload.put("metrics", new String[]{"distance"});  // Add metrics parameter to request distance
 
         HttpPost request = new HttpPost(url);
         headers.forEach(request::addHeader);
@@ -247,24 +253,23 @@ public class CoordinateGeneratorRoute {
     }
 
     private void processMatrixResponse(String response, List<double[]> inputCoordinates) throws IOException {
-        Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {
-        });
-
-        List<List<Double>> durations = extractDurations(responseMap);
+        Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {});
+        
+        List<List<Double>> distances = extractDistances(responseMap);  // Changed from durations to distances
         List<Map<String, Object>> locations = extractLocations(responseMap, "destinations");
-
-        if (durations == null || locations == null || locations.isEmpty()) {
+        
+        if (distances == null || locations == null || locations.isEmpty()) {
             return;
         }
 
-        processMatrixResults(durations, locations);
+        processMatrixResults(distances, locations);  // Updated parameter name
     }
 
     @SuppressWarnings("unchecked")
-    private List<List<Double>> extractDurations(Map<String, Object> responseMap) {
-        Object durationsObj = responseMap.get("durations");
-        if (durationsObj instanceof List<?>) {
-            return (List<List<Double>>) durationsObj;
+    private List<List<Double>> extractDistances(Map<String, Object> responseMap) {  // Changed method name
+        Object distancesObj = responseMap.get("distances");  // Changed from durations to distances
+        if (distancesObj instanceof List<?>) {
+            return (List<List<Double>>) distancesObj;
         }
         return Collections.emptyList();
     }
@@ -278,14 +283,14 @@ public class CoordinateGeneratorRoute {
         return Collections.emptyList();
     }
 
-    private void processMatrixResults(List<List<Double>> durations, List<Map<String, Object>> locations) {
+    private void processMatrixResults(List<List<Double>> distances, List<Map<String, Object>> locations) {  // Updated parameter name
         int size = locations.size();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i != j) {
-                    Double duration = durations.get(i).get(j);
-                    if (duration > 0) {
-                        addRouteIfUnique(locations.get(i), locations.get(j), duration);
+                    Double distance = distances.get(i).get(j);  // Changed from duration to distance
+                    if (distance > 0) {
+                        addRouteIfUnique(locations.get(i), locations.get(j), distance);  // Updated parameter name
                     }
                 }
             }
@@ -293,7 +298,7 @@ public class CoordinateGeneratorRoute {
     }
 
     @SuppressWarnings("unchecked")
-    private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double duration) {
+    private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance) {  // Updated parameter name
         List<Number> startCoord = (List<Number>) start.get("location");
         List<Number> endCoord = (List<Number>) end.get("location");
 
@@ -301,9 +306,15 @@ public class CoordinateGeneratorRoute {
             double[] startPoint = new double[] { startCoord.get(0).doubleValue(), startCoord.get(1).doubleValue() };
             double[] endPoint = new double[] { endCoord.get(0).doubleValue(), endCoord.get(1).doubleValue() };
 
+            // Check if distance is greater than minimum (now in meters instead of seconds)
+            if (distance < minDistance) {
+                LOGGER.debug("Skipping route with distance {} < minimum {} meters", distance, minDistance);
+                return;
+            }
+
             RoutePair routePair = new RoutePair(startPoint, endPoint);
             if (uniqueRoutes.add(routePair)) {
-                routes.add(new Route(startPoint, endPoint, duration));
+                routes.add(new Route(startPoint, endPoint, distance));
             }
         }
     }
@@ -315,12 +326,12 @@ public class CoordinateGeneratorRoute {
     protected void writeToCSV(String filePath) throws IOException {
         File csvOutputFile = new File(filePath);
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-            pw.println("start_longitude,start_latitude,end_longitude,end_latitude,duration");
+            pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance");  // Changed header
             for (Route route : routes) {
-                pw.printf("%f,%f,%f,%f,%f%n",
-                        route.start[0], route.start[1],
-                        route.end[0], route.end[1],
-                        route.duration);
+                pw.printf("%f,%f,%f,%f,%f%n", 
+                    route.start[0], route.start[1],
+                    route.end[0], route.end[1],
+                    route.distance);  // Changed field name
             }
         }
     }
