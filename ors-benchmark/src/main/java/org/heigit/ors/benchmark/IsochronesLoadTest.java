@@ -105,21 +105,41 @@ public class IsochronesLoadTest extends Simulation {
 
     public IsochronesLoadTest() {
         logger.info(
-                "Initializing IsochronesLoadTest with {} concurrent users for query sizes {}, running for {} seconds",
-                config.getNumConcurrentUsers(), config.getQuerySizes(), config.getRunTime());
+                "Initializing IsochronesLoadTest with {} concurrent users for query sizes {}, running for {} seconds (parallel: {})",
+                config.getNumConcurrentUsers(), config.getQuerySizes(), config.getRunTime(),
+                config.isParallelExecution());
 
         List<PopulationBuilder> scenarios = new ArrayList<>();
 
-        // Add scenarios for each query size
-        for (Integer querySize : config.getQuerySizes()) {
-            scenarios.add(
-                    createScenario("Locations (" + querySize + ")", querySize, config)
-                            .injectClosed(
-                                    constantConcurrentUsers(config.getNumConcurrentUsers())
-                                            .during(config.getRunTime())));
-        }
+        if (config.isParallelExecution()) {
+            // Run scenarios in parallel
+            for (Integer querySize : config.getQuerySizes()) {
+                scenarios.add(
+                        createScenario(
+                                "Locations (" + querySize + ") | Parallel | Users (" + config.getNumConcurrentUsers()
+                                        + ")",
+                                querySize, config)
+                                .injectClosed(
+                                        constantConcurrentUsers(config.getNumConcurrentUsers())
+                                                .during(config.getRunTime())));
+            }
+            setUp(scenarios.toArray(PopulationBuilder[]::new)).protocols(httpProtocol);
+        } else {
+            // Chain scenarios sequentially
+            PopulationBuilder chainedScenario = null;
+            for (Integer querySize : config.getQuerySizes()) {
+                PopulationBuilder currentScenario = createScenario(
+                        "Locations (" + querySize + ") | Sequential | Users ("
+                                + config.getNumConcurrentUsers() + ")",
+                        querySize, config)
+                        .injectClosed(
+                                constantConcurrentUsers(config.getNumConcurrentUsers())
+                                        .during(config.getRunTime()));
 
-        setUp(scenarios.toArray(PopulationBuilder[]::new))
-                .protocols(httpProtocol);
+                chainedScenario = (chainedScenario == null) ? currentScenario
+                        : chainedScenario.andThen(currentScenario);
+            }
+            setUp(chainedScenario).protocols(httpProtocol);
+        }
     }
 }

@@ -118,6 +118,7 @@ Options:
 - `concurrent_users`: Number of concurrent users (default: 1)
 - `query_sizes`: Comma-separated list of locations per request (default: 1)
 - `run_time`: Duration of the test in seconds (default: 60)
+- `parallel_execution`: Run scenarios in parallel or sequential (default: true)
 
 Example:
 
@@ -143,6 +144,16 @@ mvn -pl 'ors-benchmark' gatling:test \
   -Drun_time=600 \
   -Dfield_lon='lon' \
   -Dfield_lat='lat'
+```
+
+Example with sequential execution:
+
+```bash
+mvn -pl 'ors-benchmark' gatling:test \
+  -Dsource_file='points.csv' \
+  -Dquery_sizes='1,2,3,4,5' \
+  -Dparallel_execution=false \
+  -Drun_time=300
 ```
 
 The test will generate a Gatling report with detailed performance metrics after completion.
