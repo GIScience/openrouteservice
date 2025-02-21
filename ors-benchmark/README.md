@@ -1,5 +1,7 @@
 # ORS Benchmark Tools
 
+Collection of tools for generating test coordinates using OpenRouteService APIs.
+
 ## Coordinate Generator
 
 A tool to generate coordinate pairs within specified distance constraints using the ORS Matrix API.
@@ -10,70 +12,94 @@ A tool to generate coordinate pairs within specified distance constraints using 
 mvn clean compile
 ```
 
-### Usage
+### Point Generator
 
-Run the tool using Maven from the parent project directory:
+### Route Generator
+
+A command-line tool for generating pairs of coordinates suitable for route testing based on specified criteria.
+
+#### Route Generator Usage
+
+Options:
+
+- `-n, --num-routes <value>`: Number of routes to generate (required)
+- `-e, --extent <minLon> <minLat> <maxLon> <maxLat>`: Bounding box for coordinate generation (required)
+- `-p, --profile <value>`: Routing profile to use (e.g., driving-car) (required)
+- `-u, --url <value>`: ORS API base URL (default: http://localhost:8080/ors)
+- `-o, --output <file>`: Output CSV file path (default: route_coordinates.csv)
+- `-d, --min-distance <value>`: Minimum distance between coordinates in meters (default: 0)
+- `-h, --help`: Show help message
+
+Example:
 
 ```bash
-mvn compile exec:java -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorMatrix" \
-  -Dexec.args="[options]"
+mvn clean compile exec:java -pl 'ors-benchmark' \
+  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorRoute" \
+  -Dexec.args="\
+  -n 100 \
+  -e 8.6 49.3 8.7 49.4 \
+  -p driving-car \
+  -d 1000 \
+  -o routes.csv"
 ```
 
-### Options
-
-- `-n, --num-points <value>` : Number of coordinate pairs to generate (required)
-- `-e, --extent <minLon> <minLat> <maxLon> <maxLat>` : Bounding box for coordinates (required)
-- `-d, --distance <min> <max>` : Distance range in meters (required)
-- `-m, --max-attempts <value>` : Maximum number of generation attempts (default: 1000)
-- `-p, --profile <value>` : Routing profile (e.g., driving-car) (required)
-- `-u, --url <value>` : ORS API base URL (default: http://localhost:8080/ors)
-- `-o, --output <file>` : Output CSV file path (default: coordinates.csv)
-- `-h, --help` : Show help message
-
-### Example
-
-Generate 100 coordinate pairs in Heidelberg area with distances between 100 and 5000 meters:
+Example with long parameters:
 
 ```bash
-mvn compile exec:java -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorMatrix" \
-  -Dexec.args="--num-points 100 \
-  --extent 8.573179 49.352003 8.794049 49.459693 \
-  --distance 100 5000 \
-  --max-attempts 100 \
+mvn clean compile exec:java -pl 'ors-benchmark' \
+  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorRoute" \
+  -Dexec.args="\
+  --num-routes 50 \
+  --extent 8.681495 49.411721 8.695485 49.419365 \
   --profile driving-car \
-  --url http://localhost:8082/ors \
-  --output output.csv"
+  --url http://localhost:8080/ors \
+  --min-distance 2000 \
+  --output heidelberg_routes.csv"
 ```
 
-### Output Format
+### Snapping Generator
 
-The tool generates a CSV file with columns:
-- `from_lon`: Starting point longitude
-- `from_lat`: Starting point latitude
-- `to_lon`: Destination point longitude
-- `to_lat`: Destination point latitude
+A command-line tool for generating coordinates and snapping them to the nearest road network points.
 
-### Note for ORS Cloud API Users
-
-When using the openrouteservice.org API, set your API key as an environment variable:
+#### Point Generator Usage
 
 ```bash
-export ORS_API_KEY=your_api_key_here
+java -cp target/ors-benchmark.jar org.heigit.ors.benchmark.CoordinateGeneratorSnapping [options]
 ```
 
-Or pass it as a system property:
+Options:
+
+- `-n, --num-points <value>`: Number of points to generate (required)
+- `-e, --extent <minLon> <minLat> <maxLon> <maxLat>`: Bounding box for coordinate generation (required)
+- `-p, --profile <value>`: Routing profile to use (e.g., driving-car) (required)
+- `-r, --radius <value>`: Search radius in meters (default: 350)
+- `-u, --url <value>`: ORS API base URL (default: http://localhost:8080/ors)
+- `-o, --output <file>`: Output CSV file path (default: snapped_coordinates.csv)
+- `-h, --help`: Show help message
+
+Example:
 
 ```bash
-mvn compile exec:java -pl 'ors-benchmark' \
-  -DORS_API_KEY=your_api_key_here \
-  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorMatrix" \
-  -Dexec.args="--num-points 100 \
-  --extent 8.573179 49.352003 8.794049 49.459693 \
-  --distance 100 5000 \
-  --max-attempts 100 \
+mvn clean compile exec:java -pl 'ors-benchmark' \
+  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorSnapping" \
+  -Dexec.args="\
+  -n 100 \
+  -e 8.6 49.3 8.7 49.4 \
+  -p driving-car \
+  -r 500 \
+  -o snapped.csv"
+```
+
+Example with long parameters:
+
+```bash
+mvn clean compile exec:java -pl 'ors-benchmark' \
+  -Dexec.mainClass="org.heigit.ors.benchmark.CoordinateGeneratorSnapping" \
+  -Dexec.args="\
+  --num-points 50 \
+  --extent 8.681495 49.411721 8.695485 49.419365 \
   --profile driving-car \
-  --url https://api.openrouteservice.org \
-  --output cloud_output.csv"
+  --radius 250 \
+  --url http://localhost:8080/ors \
+  --output heidelberg_snapped.csv"
 ```
