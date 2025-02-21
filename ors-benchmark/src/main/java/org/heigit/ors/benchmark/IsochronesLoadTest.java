@@ -78,7 +78,7 @@ public class IsochronesLoadTest extends Simulation {
 
     PopulationBuilder executions;
 
-    {
+    public IsochronesLoadTest() {
         OpenInjectionStep injection = rampUsers(100).during(5);
         for (int i = 1; i <= BATCH_SIZE_UPTO; i++) {
             if (executions == null) {
