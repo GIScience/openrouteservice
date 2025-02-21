@@ -100,7 +100,7 @@ public class IsochronesLoadTest extends Simulation {
      */
     private static FeederBuilder<String> initCsvFeeder(String sourceFile) {
         logger.info("Initializing feeder with source file: {}", sourceFile);
-        return csv(sourceFile).random();
+        return csv(sourceFile).shuffle();
     }
 
     public IsochronesLoadTest() {
