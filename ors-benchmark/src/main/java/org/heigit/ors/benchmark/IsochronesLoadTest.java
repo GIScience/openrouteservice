@@ -1,107 +1,103 @@
 package org.heigit.ors.benchmark;
 
-import io.gatling.javaapi.core.*;
-import io.gatling.javaapi.http.HttpProtocolBuilder;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
+
+import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.gatling.javaapi.core.CoreDsl.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static io.gatling.javaapi.core.CoreDsl.StringBody;
+import static io.gatling.javaapi.core.CoreDsl.csv;
+import static io.gatling.javaapi.core.CoreDsl.rampUsers;
+import static io.gatling.javaapi.core.CoreDsl.scenario;
+import io.gatling.javaapi.core.FeederBuilder;
+import io.gatling.javaapi.core.ScenarioBuilder;
+import io.gatling.javaapi.core.Session;
+import io.gatling.javaapi.core.Simulation;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
+import io.gatling.javaapi.http.HttpProtocolBuilder;
 
 public class IsochronesLoadTest extends Simulation {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IsochronesLoadTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(IsochronesLoadTest.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    static final int BATCH_SIZE_UPTO = 5;
-    static final FeederBuilder<String> feeder;
-    static final String BASE_URL;
-    static final String API_KEY;
-    static final String TARGET_PROFILE;
-    static final String RANGE;
-    static final String FIELD_LON;
-    static final String FIELD_LAT;
-    static final int NUM_CALLS;
+    private final TestConfig config = new TestConfig();
 
-    static {
-        feeder = csv(System.getProperty("source_file") != null ? System.getProperty("source_file") : "search.csv").random();
-        BASE_URL = System.getProperty("base_url") != null ? System.getProperty("base_url") : "http://localhost:8082/ors";
-        API_KEY = System.getProperty("api_key") != null ? System.getProperty("api_key") : "API KEY";
-        TARGET_PROFILE = System.getProperty("profile") != null ? System.getProperty("profile") : "driving-car";
-        RANGE = System.getProperty("range") != null ? System.getProperty("range") : "300";
-        FIELD_LON = System.getProperty("field_lon") != null ? System.getProperty("field_lon") : "longitude";
-        FIELD_LAT = System.getProperty("field_lat") != null ? System.getProperty("field_lat") : "latitude";
-        NUM_CALLS = System.getProperty("calls") != null ? Integer.parseInt(System.getProperty("calls")) : 100;
+    private final HttpProtocolBuilder httpProtocol = http
+            .baseUrl(config.getBaseUrl())
+            .acceptHeader("application/geo+json; charset=utf-8")
+            .contentTypeHeader("application/json; charset=utf-8")
+            .userAgentHeader("Gatling")
+            .header("Authorization", config.getApiKey());
+
+    static ScenarioBuilder createScenario(String name, int locationCount, TestConfig config) {
+        FeederBuilder<String> feeder = initCsvFeeder(config.getSourceFile());
+        return scenario(name)
+                .feed(feeder)
+                .exec(http("Isochrones " + name)
+                        .post("/v2/isochrones/" + config.getTargetProfile())
+                        .body(StringBody(session -> createRequestBody(
+                                session,
+                                locationCount,
+                                config.getFieldLon(),
+                                config.getFieldLat(),
+                                config.getRange())))
+                        .asJson()
+                        .check(status().is(200)));
     }
 
-    static String locations(int num) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < num; i++) {
-            sb.append("[#{").append(FIELD_LON).append("(").append(i).append(")},#{").append(FIELD_LAT).append("(").append(i).append(")}]");
-            if (i < num - 1) {
-                sb.append(",");
-            }
+    static String createRequestBody(Session session, int locationCount, String fieldLon, String fieldLat,
+            String range) {
+        List<List<Double>> locations = IntStream.range(0, locationCount)
+                .mapToObj(i -> List.of(
+                        session.getDouble(fieldLon),
+                        session.getDouble(fieldLat)))
+                .toList();
+
+        Map<String, Object> requestBody = Map.of(
+                "locations", locations,
+                "range", Collections.singletonList(Integer.parseInt(range)));
+        try {
+            logger.debug("Created request body with {} locations", locationCount);
+            return objectMapper.writeValueAsString(requestBody);
+        } catch (Exception e) {
+            logger.error("Failed to create request body for {} locations: {}", locationCount, e.getMessage(), e);
+            throw new RequestBodyCreationException("Failed to create request body for " + locationCount + " locations",
+                    e);
         }
-        return sb.toString();
     }
 
-    static ChainBuilder makeRequest(int batchSize) {
-        return exec(
-                feed(feeder, batchSize),
-                http("Post")
-                        .post("/v2/isochrones/" + TARGET_PROFILE)
-                        .body(StringBody("{\"locations\":[" + locations(batchSize) + "] , \"range\":[" + RANGE + "]}"))
-                        .check(status().is(200))
-                        .check(status().saveAs("responseStatus"))
-                        .check(bodyString().saveAs("responseBody"))
-        ).exec(session -> {
-            if (!session.contains("responseStatus")) {
-                LOGGER.error("Connection failed, check the server status or baseURL: {}", BASE_URL);
-                return session;
-            }
-            int responseStatus = session.getInt("responseStatus");
-            if (responseStatus != 200) {
-                LOGGER.error("Response status: {}, Response body: {}",
-                        responseStatus, session.getString("responseBody"));
-            }
-            return session;
-        });
+    /**
+     * Initialize feeder with source file. Cannot only be instantiated by Gatling.
+     * 
+     * @param sourceFile Source file to read from
+     * @return FeederBuilder with random access
+     */
+    private static FeederBuilder<String> initCsvFeeder(String sourceFile) {
+        logger.info("Initializing feeder with source file: {}", sourceFile);
+        return csv(sourceFile).random();
     }
-
-    HttpProtocolBuilder httpProtocol =
-            http.baseUrl(BASE_URL)
-                    .authorizationHeader("Bearer " + API_KEY)
-                    .acceptHeader("application/geo+json; charset=utf-8")
-                    .contentTypeHeader("application/json; charset=utf-8")
-                    .userAgentHeader(
-                            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
-                    );
-
-    PopulationBuilder executions;
 
     public IsochronesLoadTest() {
-        OpenInjectionStep injection = rampUsers(100).during(5);
-        for (int i = 1; i <= BATCH_SIZE_UPTO; i++) {
-            if (executions == null) {
-                executions = scenario("Scenario " + i).exec(makeRequest(i)).injectOpen(injection);
-            } else {
-                executions = executions.andThen(scenario("Scenario " + i).exec(makeRequest(i)).injectOpen(injection));
-            }
-        }
-//        CA requested a comparison of different approaches to handle 200 points.
-//        Comment in the following lines to test it.
-        int dataPoints = feeder.recordsCount();
-        int querySize = System.getProperty("query_size") != null ? Integer.parseInt(System.getProperty("query_size")) : 5;
-        int rampTime = System.getProperty("ramp_time") != null ? Integer.parseInt(System.getProperty("ramp_time")) : 1;
-        if (NUM_CALLS * querySize > dataPoints) {
-            LOGGER.error("The number of calls * query size ({} * {}) exceeds the number of data points ({}). " +
-                    "Please reduce the number of calls or increase the number of data points.",
-                    NUM_CALLS, querySize, dataPoints);
-            throw new IllegalStateException("Insufficient data points for requested load test configuration");
-        }
-        executions = scenario("Scenario: " + NUM_CALLS + " requests, " + querySize + " points each")
-                .exec(makeRequest(querySize))
-                .injectOpen(rampUsers(NUM_CALLS).during(rampTime));
+        logger.info("Initializing IsochronesLoadTest with {} users ramping up over {} seconds",
+                config.getNumCalls(), config.getRampTime());
 
-        setUp(executions).protocols(httpProtocol);
+        ScenarioBuilder singleLocationScenario = createScenario("Single Location", 1, config);
+        ScenarioBuilder multiLocationScenario = createScenario("Multiple Locations", config.getQuerySize(), config);
+
+        setUp(
+                singleLocationScenario
+                        .injectOpen(
+                                rampUsers(config.getNumCalls()).during(config.getRampTime())),
+                multiLocationScenario
+                        .injectOpen(
+                                rampUsers(config.getNumCalls()).during(config.getRampTime())))
+                .protocols(httpProtocol);
     }
 }
