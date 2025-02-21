@@ -1,18 +1,29 @@
 package org.heigit.ors.benchmark;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class TestConfigTest {
     private TestConfig config;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         config = new TestConfig();
+    }
+
+    @AfterEach
+    @SuppressWarnings("unused")
+    void tearDown() {
+        System.clearProperty("base_url");
+        System.clearProperty("api_key");
+        System.clearProperty("concurrent_users");
+        System.clearProperty("query_sizes");
+        System.clearProperty("run_time");
     }
 
     @Test
@@ -23,26 +34,35 @@ class TestConfigTest {
         assertEquals("300", config.getRange());
         assertEquals("longitude", config.getFieldLon());
         assertEquals("latitude", config.getFieldLat());
-        assertEquals(100, config.getNumConcurrentUsers());
+        assertEquals(1, config.getNumConcurrentUsers());
         assertEquals(List.of(1), config.getQuerySizes());
-        assertEquals(1, config.getRunTime());
+        assertEquals(60, config.getRunTime());
         assertEquals("search.csv", config.getSourceFile());
+        assertEquals(true, config.isParallelExecution());
+    }
+
+    @Test
+    void testQuerySizesParsing() {
+        System.setProperty("query_sizes", "1,3,2,5,4");
+        TestConfig customConfig = new TestConfig();
+        assertEquals(List.of(1, 2, 3, 4, 5), customConfig.getQuerySizes());
     }
 
     @Test
     void testCustomValues() {
         System.setProperty("base_url", "http://test.com");
         System.setProperty("api_key", "test-key");
-        System.setProperty("calls", "200");
+        System.setProperty("concurrent_users", "5");
+        System.setProperty("query_sizes", "2,4");
+        System.setProperty("run_time", "120");
+        System.setProperty("parallel_execution", "false");
         
         TestConfig customConfig = new TestConfig();
         assertEquals("http://test.com", customConfig.getBaseUrl());
         assertEquals("test-key", customConfig.getApiKey());
-        assertEquals(200, customConfig.getNumConcurrentUsers());
-
-        // Clean up system properties
-        System.clearProperty("base_url");
-        System.clearProperty("api_key");
-        System.clearProperty("calls");
+        assertEquals(5, customConfig.getNumConcurrentUsers());
+        assertEquals(List.of(2, 4), customConfig.getQuerySizes());
+        assertEquals(120, customConfig.getRunTime());
+        assertEquals(false, customConfig.isParallelExecution());
     }
 }

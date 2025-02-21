@@ -17,6 +17,7 @@ class IsochronesLoadTestTest {
     private Session mockSession;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         objectMapper = new ObjectMapper();
         mockSession = mock(Session.class);
@@ -59,19 +60,23 @@ class IsochronesLoadTestTest {
         Session invalidSession = mock(Session.class);
         when(invalidSession.getDouble("longitude")).thenThrow(new RuntimeException("Session error"));
         
-        assertThrows(RuntimeException.class, () -> 
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> 
             IsochronesLoadTest.createRequestBody(
                 invalidSession, 1, "longitude", "latitude", "300"
             )
         );
+        assertEquals("Session error", exception.getMessage());
     }
 
     @Test
     void testCreateRequestBodyWithInvalidRange() {
-        assertThrows(NumberFormatException.class, () -> 
+        NumberFormatException exception = assertThrows(NumberFormatException.class,
+                () -> 
             IsochronesLoadTest.createRequestBody(
                 mockSession, 1, "longitude", "latitude", "invalid"
             )
         );
+        assertEquals("For input string: \"invalid\"", exception.getMessage());
     }
 }

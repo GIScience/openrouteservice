@@ -116,8 +116,9 @@ public class IsochronesLoadTest extends Simulation {
             for (Integer querySize : config.getQuerySizes()) {
                 scenarios.add(
                         createScenario(
-                                "Locations (" + querySize + ") | Parallel | Users (" + config.getNumConcurrentUsers()
-                                        + ")",
+                                "Parallel | Users ("
+                                                + config.getNumConcurrentUsers()
+                                        + ") | Locations (" + querySize + ") ",
                                 querySize, config)
                                 .injectClosed(
                                         constantConcurrentUsers(config.getNumConcurrentUsers())
@@ -129,8 +130,8 @@ public class IsochronesLoadTest extends Simulation {
             PopulationBuilder chainedScenario = null;
             for (Integer querySize : config.getQuerySizes()) {
                 PopulationBuilder currentScenario = createScenario(
-                        "Locations (" + querySize + ") | Sequential | Users ("
-                                + config.getNumConcurrentUsers() + ")",
+                        "Sequential | Users ("
+                                        + config.getNumConcurrentUsers() + ") | Locations (" + querySize + ")",
                         querySize, config)
                         .injectClosed(
                                 constantConcurrentUsers(config.getNumConcurrentUsers())
@@ -139,7 +140,10 @@ public class IsochronesLoadTest extends Simulation {
                 chainedScenario = (chainedScenario == null) ? currentScenario
                         : chainedScenario.andThen(currentScenario);
             }
-            setUp(chainedScenario).protocols(httpProtocol);
+            if (chainedScenario != null)
+                setUp(chainedScenario).protocols(httpProtocol);
+            else
+                logger.warn("No scenarios to run");
         }
     }
 }
