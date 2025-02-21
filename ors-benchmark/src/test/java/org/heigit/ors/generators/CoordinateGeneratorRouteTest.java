@@ -1,4 +1,4 @@
-package org.heigit.ors.benchmark;
+package org.heigit.ors.generators;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
