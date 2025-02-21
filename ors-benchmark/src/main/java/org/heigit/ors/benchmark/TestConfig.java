@@ -21,6 +21,7 @@ public class TestConfig {
     private final int numConcurrentUsers;
     private final List<Integer> querySizes;
     private final int runTime;
+    private final boolean parallelExecution;
 
     public TestConfig() {
         this.sourceFile = getSystemProperty("source_file", "search.csv");
@@ -33,6 +34,7 @@ public class TestConfig {
         this.numConcurrentUsers = Integer.parseInt(getSystemProperty("concurrent_users", "1"));
         this.querySizes = parseQuerySizes(getSystemProperty("query_sizes", "1"));
         this.runTime = Integer.parseInt(getSystemProperty("run_time", "60"));
+        this.parallelExecution = Boolean.parseBoolean(getSystemProperty("parallel_execution", "true"));
     }
 
     private String getSystemProperty(String key, String defaultValue) {
@@ -68,5 +70,9 @@ public class TestConfig {
 
     public int getRunTime() {
         return runTime;
+    }
+
+    public boolean isParallelExecution() {
+        return parallelExecution;
     }
 }

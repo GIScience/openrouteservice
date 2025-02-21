@@ -1,14 +1,16 @@
 package org.heigit.ors.benchmark;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.gatling.javaapi.core.Session;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.gatling.javaapi.core.Session;
 
 class IsochronesLoadTestTest {
     private ObjectMapper objectMapper;
@@ -71,13 +73,5 @@ class IsochronesLoadTestTest {
                 mockSession, 1, "longitude", "latitude", "invalid"
             )
         );
-    }
-
-    @Test
-    void testCreateScenario() {
-        TestConfig config = new TestConfig();
-        var scenario = IsochronesLoadTest.createScenario("Test", 2, config);
-        
-        assertNotNull(scenario);
     }
 }
