@@ -2,10 +2,12 @@ package org.heigit.ors.benchmark;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,8 +36,60 @@ class IsochronesLoadTestTest {
     }
 
     @Test
+    void createRequestBody_ShouldCreateValidJson() throws Exception {
+        // given
+        TestConfig config = new TestConfig();
+
+        // when
+        String result = IsochronesLoadTest.createRequestBody(mockSession, 1, config, RangeType.TIME);
+
+        // then
+        assertThat(result).contains("\"locations\":[[8.681495,49.41461]]");
+        assertThat(result).contains("\"range\":[300]");
+        assertThat(result).contains("\"range_type\":\"time\"");
+    }
+
+    @Test
+    void createRequestBody_ShouldCreateValidJsonForDistance() throws Exception {
+        // given
+        TestConfig config = new TestConfig();
+
+        // when
+        String result = IsochronesLoadTest.createRequestBody(mockSession, 1, config, RangeType.DISTANCE);
+
+        // then
+        assertThat(result).contains("\"locations\":[[8.681495,49.41461]]");
+        assertThat(result).contains("\"range\":[300]");
+        assertThat(result).contains("\"range_type\":\"distance\"");
+    }
+
+    @Test
+    void createRequestBody_ShouldIncludeMultipleLocations() throws Exception {
+        // given
+        TestConfig config = new TestConfig();
+
+        // when
+        String result = IsochronesLoadTest.createRequestBody(mockSession, 2, config, RangeType.TIME);
+
+        // then
+        assertThat(result).contains("\"locations\":[[8.681495,49.41461],[8.681495,49.41461]]");
+    }
+
+    @Test
+    void createRequestBody_ShouldThrowExceptionOnInvalidJson() {
+        // given
+        Session invalidSession = mock(Session.class);
+        when(invalidSession.getDouble(anyString())).thenThrow(new RuntimeException("Invalid session"));
+        TestConfig config = new TestConfig();
+
+        // when / then
+        assertThrows(RuntimeException.class,
+                () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, config, RangeType.TIME));
+    }
+
+    @Test
     void testCreateRequestBodySingleLocation() throws Exception {
-        String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig);
+        String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
         
         assertEquals(1, json.get("locations").size());
@@ -47,7 +101,7 @@ class IsochronesLoadTestTest {
     @Test
     void testCreateRequestBodyMultipleLocations() throws Exception {
         when(mockConfig.getRange()).thenReturn("500");
-        String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 3, mockConfig);
+        String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 3, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
         
         assertEquals(3, json.get("locations").size());
@@ -64,7 +118,7 @@ class IsochronesLoadTestTest {
         when(invalidSession.getDouble("longitude")).thenThrow(new RuntimeException("Session error"));
         
         Throwable thrown = assertThrows(RuntimeException.class,
-                () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, mockConfig));
+                () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, mockConfig, RangeType.TIME));
         assertEquals(RuntimeException.class, thrown.getClass());
     }
 
@@ -73,7 +127,7 @@ class IsochronesLoadTestTest {
         when(mockConfig.getRange()).thenReturn("invalid");
 
         Throwable thrown = assertThrows(NumberFormatException.class,
-                () -> IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig));
+                () -> IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME));
         assertEquals(NumberFormatException.class, thrown.getClass());
     }
 
