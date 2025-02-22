@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
 import static io.gatling.javaapi.core.CoreDsl.csv;
+import static io.gatling.javaapi.core.CoreDsl.group;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import io.gatling.javaapi.core.FeederBuilder;
 import io.gatling.javaapi.core.PopulationBuilder;
@@ -46,24 +47,31 @@ public class IsochronesLoadTest extends Simulation {
         return scenario(name)
                 .feed(initCsvFeeder(config.getSourceFile()))
                 .during(Duration.ofSeconds(config.getRunTime()))
-                .on(createIsochroneRequest(name, locationCount, config));
+                .on(
+                        group("Time Isochrones").on(
+                                createIsochroneRequest(name + " (Time)", locationCount, config, RangeType.TIME)),
+                        group("Distance Isochrones").on(
+                                createIsochroneRequest(name + " (Distance)", locationCount, config,
+                                        RangeType.DISTANCE)));
     }
 
-    private static HttpRequestActionBuilder createIsochroneRequest(String name, int locationCount, TestConfig config) {
+    private static HttpRequestActionBuilder createIsochroneRequest(String name, int locationCount, TestConfig config,
+            RangeType rangeType) {
         return http("Isochrones " + name)
                 .post("/v2/isochrones/" + config.getTargetProfile())
-                .body(StringBody(session -> createRequestBody(session, locationCount, config)))
+                .body(StringBody(session -> createRequestBody(session, locationCount, config, rangeType)))
                 .asJson()
                 .check(status().is(200));
     }
 
-    static String createRequestBody(Session session, int locationCount, TestConfig config) {
+    static String createRequestBody(Session session, int locationCount, TestConfig config, RangeType rangeType) {
         try {
             Map<String, Object> requestBody = Map.of(
                     "locations", createLocationsList(session, locationCount, config),
+                    "range_type", rangeType.getValue(),
                     "range", Collections.singletonList(Integer.valueOf(config.getRange())));
 
-            logger.debug("Created request body with {} locations", locationCount);
+            logger.debug("Created request body with {} locations and range_type {}", locationCount, rangeType);
             return objectMapper.writeValueAsString(requestBody);
         } catch (JsonProcessingException e) {
             throw new RequestBodyCreationException("Failed to create request body", e);
@@ -131,6 +139,7 @@ public class IsochronesLoadTest extends Simulation {
     @Override
     public void before() {
         logger.info("Starting Gatling simulation...");
+        logger.info("Testing both time and distance isochrones");
     }
 
     @Override
