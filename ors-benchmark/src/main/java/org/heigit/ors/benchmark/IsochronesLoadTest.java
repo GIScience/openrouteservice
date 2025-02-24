@@ -2,7 +2,6 @@ package org.heigit.ors.benchmark;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -46,8 +45,11 @@ public class IsochronesLoadTest extends Simulation {
 
     private static ScenarioBuilder createIsochroneScenario(String name, int locationCount, String sourceFile,
             TestConfig config,
-            RangeType rangeType) {
-        String groupName = "Isochrones " + rangeType.getValue() + " - " + getFileNameWithoutExtension(sourceFile);
+            RangeType rangeType, boolean isParallel) {
+        String parallelOrSequential = isParallel ? "parallel" : "sequential";
+        String groupName = String.format("Isochrones %s %s - %s - %s",
+                parallelOrSequential, rangeType.getValue(), getFileNameWithoutExtension(sourceFile),
+                config.getNumConcurrentUsers());
         return scenario(name)
                 .feed(initCsvFeeder(sourceFile))
                 .during(Duration.ofSeconds(config.getRunTime()))
@@ -58,7 +60,7 @@ public class IsochronesLoadTest extends Simulation {
 
     private static HttpRequestActionBuilder createIsochroneRequest(String name, int locationCount, TestConfig config,
             RangeType rangeType) {
-        return http("Isochrones " + name)
+        return http(name)
                 .post("/v2/isochrones/" + config.getTargetProfile())
                 .body(StringBody(session -> createRequestBody(session, locationCount, config, rangeType)))
                 .asJson()
@@ -70,9 +72,10 @@ public class IsochronesLoadTest extends Simulation {
             Map<String, Object> requestBody = Map.of(
                     "locations", createLocationsList(session, locationCount, config),
                     "range_type", rangeType.getValue(),
-                    "range", Collections.singletonList(Integer.valueOf(config.getRange())));
+                    "range", config.getRanges());
 
-            logger.debug("Created request body with {} locations and range_type {}", locationCount, rangeType);
+            logger.debug("Created request body with {} locations, {} ranges and range_type {}",
+                    locationCount, config.getRanges().size(), rangeType);
             return objectMapper.writeValueAsString(requestBody);
         } catch (JsonProcessingException e) {
             throw new RequestBodyCreationException("Failed to create request body", e);
@@ -98,17 +101,16 @@ public class IsochronesLoadTest extends Simulation {
         return lastDotIndex > 0 ? fileName.substring(0, lastDotIndex) : fileName;
     }
 
-    private String formatScenarioName(String sourceFile, int querySize, boolean isParallel, RangeType rangeType) {
-        String executionMode = isParallel ? "Parallel" : "Sequential";
+    private String formatScenarioName(String sourceFile, int querySize) {
+
         String fileName = getFileNameWithoutExtension(sourceFile);
-        return String.format("%s | %s | %s | Users (%d) | Locations (%d)",
-                executionMode, fileName, rangeType.getValue(), config.getNumConcurrentUsers(), querySize);
+        return String.format("Locations (%d) | %s", querySize, fileName);
     }
 
     private PopulationBuilder createScenarioWithInjection(String sourceFile, int querySize, boolean isParallel,
             RangeType rangeType) {
-        String scenarioName = formatScenarioName(sourceFile, querySize, isParallel, rangeType);
-        return createIsochroneScenario(scenarioName, querySize, sourceFile, config, rangeType)
+        String scenarioName = formatScenarioName(sourceFile, querySize);
+        return createIsochroneScenario(scenarioName, querySize, sourceFile, config, rangeType, isParallel)
                 .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers())
                         .during(config.getRunTime()));
     }
