@@ -1,5 +1,6 @@
 package org.heigit.ors.benchmark;
 
+import java.io.File;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -43,13 +44,15 @@ public class IsochronesLoadTest extends Simulation {
                 .header("Authorization", config.getApiKey());
     }
 
-    private static ScenarioBuilder createIsochroneScenario(String name, int locationCount, TestConfig config,
+    private static ScenarioBuilder createIsochroneScenario(String name, int locationCount, String sourceFile,
+            TestConfig config,
             RangeType rangeType) {
+        String groupName = "Isochrones " + rangeType.getValue() + " - " + getFileNameWithoutExtension(sourceFile);
         return scenario(name)
-                .feed(initCsvFeeder(config.getSourceFile()))
+                .feed(initCsvFeeder(sourceFile))
                 .during(Duration.ofSeconds(config.getRunTime()))
                 .on(
-                        group("Isochrones " + rangeType.getValue()).on(
+                        group(groupName).on(
                                 createIsochroneRequest(name, locationCount, config, rangeType)));
     }
 
@@ -89,23 +92,32 @@ public class IsochronesLoadTest extends Simulation {
         return csv(sourceFile).shuffle();
     }
 
-    private String formatScenarioName(int querySize, boolean isParallel, RangeType rangeType) {
-        String executionMode = isParallel ? "Parallel" : "Sequential";
-        return String.format("%s | %s | Users (%d) | Locations (%d)",
-                executionMode, rangeType.getValue(), config.getNumConcurrentUsers(), querySize);
+    private static String getFileNameWithoutExtension(String filePath) {
+        String fileName = new File(filePath).getName();
+        int lastDotIndex = fileName.lastIndexOf('.');
+        return lastDotIndex > 0 ? fileName.substring(0, lastDotIndex) : fileName;
     }
 
-    private PopulationBuilder createScenarioWithInjection(int querySize, boolean isParallel, RangeType rangeType) {
-        String scenarioName = formatScenarioName(querySize, isParallel, rangeType);
-        return createIsochroneScenario(scenarioName, querySize, config, rangeType)
+    private String formatScenarioName(String sourceFile, int querySize, boolean isParallel, RangeType rangeType) {
+        String executionMode = isParallel ? "Parallel" : "Sequential";
+        String fileName = getFileNameWithoutExtension(sourceFile);
+        return String.format("%s | %s | %s | Users (%d) | Locations (%d)",
+                executionMode, fileName, rangeType.getValue(), config.getNumConcurrentUsers(), querySize);
+    }
+
+    private PopulationBuilder createScenarioWithInjection(String sourceFile, int querySize, boolean isParallel,
+            RangeType rangeType) {
+        String scenarioName = formatScenarioName(sourceFile, querySize, isParallel, rangeType);
+        return createIsochroneScenario(scenarioName, querySize, sourceFile, config, rangeType)
                 .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers())
                         .during(config.getRunTime()));
     }
 
     private void executeParallelScenarios() {
         List<PopulationBuilder> scenarios = createScenariosForTestUnit().stream()
-                .flatMap(rangeType -> config.getQuerySizes().stream()
-                        .map(querySize -> createScenarioWithInjection(querySize, true, rangeType)))
+                .flatMap(rangeType -> config.getSourceFiles().stream()
+                        .flatMap(sourceFile -> config.getQuerySizes().stream()
+                                .map(querySize -> createScenarioWithInjection(sourceFile, querySize, true, rangeType))))
                 .toList();
 
         setUp(scenarios.toArray(PopulationBuilder[]::new))
@@ -114,8 +126,10 @@ public class IsochronesLoadTest extends Simulation {
 
     private void executeSequentialScenarios() {
         PopulationBuilder chainedScenario = createScenariosForTestUnit().stream()
-                .flatMap(rangeType -> config.getQuerySizes().stream()
-                        .map(querySize -> createScenarioWithInjection(querySize, false, rangeType)))
+                .flatMap(rangeType -> config.getSourceFiles().stream()
+                        .flatMap(sourceFile -> config.getQuerySizes().stream()
+                                .map(querySize -> createScenarioWithInjection(sourceFile, querySize, false,
+                                        rangeType))))
                 .reduce(PopulationBuilder::andThen)
                 .orElseThrow(() -> new IllegalStateException("No scenarios to run"));
 
@@ -131,6 +145,7 @@ public class IsochronesLoadTest extends Simulation {
 
     public IsochronesLoadTest() {
         logger.info("Initializing IsochronesLoadTest:");
+        logger.info("- Source files: {}", config.getSourceFiles());
         logger.info("- Concurrent users: {}", config.getNumConcurrentUsers());
         logger.info("- Query sizes: {}", config.getQuerySizes());
         logger.info("- Runtime: {} seconds", config.getRunTime());
