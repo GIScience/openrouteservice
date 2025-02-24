@@ -1,5 +1,6 @@
 package org.heigit.ors.benchmark;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -37,7 +38,7 @@ class TestConfigTest {
         assertEquals(1, config.getNumConcurrentUsers());
         assertEquals(List.of(1), config.getQuerySizes());
         assertEquals(60, config.getRunTime());
-        assertEquals("search.csv", config.getSourceFile());
+        assertEquals(Collections.singletonList("search.csv"), config.getSourceFiles());
         assertEquals(true, config.isParallelExecution());
     }
 

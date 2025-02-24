@@ -108,11 +108,11 @@ A Gatling-based load test for the ORS Isochrones API.
 
 Options:
 
-- `source_file`: CSV file containing coordinates (required)
+- `source_files`: Comma-separated list of CSV files to test in parallel
 - `base_url`: ORS API base URL (default: http://localhost:8082/ors)
 - `api_key`: API key for authentication
 - `profile`: Routing profile (default: driving-car)
-- `range`: Isochrone range in meters (default: 300)
+- `range`: Comma-separated list of isochrone ranges in meters (default: 300)
 - `field_lon`: CSV field name for longitude (default: longitude)
 - `field_lat`: CSV field name for latitude (default: latitude)
 - `concurrent_users`: Number of concurrent users (default: 1)
@@ -124,7 +124,7 @@ Example:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
-  -Dsource_file='points.csv' \
+  -Dsource_files='points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
   -Dquery_sizes='1,2,3,4,5' \
   -Drun_time=300
@@ -134,7 +134,7 @@ Example with all parameters:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
-  -Dsource_file='points.csv' \
+  -Dsource_files='points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
   -Dprofile='cycling-regular' \
   -Drange=500 \
@@ -148,9 +148,19 @@ Example with sequential execution:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
-  -Dsource_file='points.csv' \
+  -Dsource_files='points.csv' \
   -Dquery_sizes='1,2,3,4,5' \
   -Dparallel_execution=false \
+  -Drun_time=300
+```
+
+Example with multiple source files:
+
+```bash
+mvn -pl 'ors-benchmark' gatling:test \
+  -Dsource_files='points1.csv,points2.csv' \
+  -Dbase_url='http://localhost:8080/ors' \
+  -Dquery_sizes='1,2,3,4,5' \
   -Drun_time=300
 ```
 

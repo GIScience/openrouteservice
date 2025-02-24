@@ -1,7 +1,6 @@
 package org.heigit.ors.benchmark;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -25,7 +24,6 @@ public class TestConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
 
-    private final String sourceFile;
     private final String baseUrl;
     private final String apiKey;
     private final String targetProfile;
@@ -38,9 +36,9 @@ public class TestConfig {
     private final boolean parallelExecution;
     private final TestUnit testUnit;
     private final List<String> sourceFiles;
+    private final List<Integer> ranges;
 
     public TestConfig() {
-        this.sourceFile = getSystemProperty("source_file", "search.csv");
         this.baseUrl = getSystemProperty("base_url", "http://localhost:8082/ors");
         this.apiKey = getSystemProperty("api_key", "API KEY");
         this.targetProfile = getSystemProperty("profile", "driving-car");
@@ -52,7 +50,8 @@ public class TestConfig {
         this.runTime = Integer.parseInt(getSystemProperty("run_time", "60"));
         this.parallelExecution = Boolean.parseBoolean(getSystemProperty("parallel_execution", "true"));
         this.testUnit = TestUnit.fromString(getSystemProperty("test_unit", "distance"));
-        this.sourceFiles = parseSourceFiles(getSystemProperty("source_files", this.sourceFile));
+        this.sourceFiles = parseSourceFiles(getSystemProperty("source_files", "search.csv"));
+        this.ranges = parseRanges(this.range);
     }
 
     private String getSystemProperty(String key, String defaultValue) {
@@ -70,20 +69,20 @@ public class TestConfig {
     }
 
     private List<String> parseSourceFiles(String files) {
-        if (files == null || files.trim().isEmpty()) {
-            return Collections.singletonList(this.sourceFile);
-        }
         return Arrays.stream(files.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .toList();
     }
 
-    // Getters
-    public String getSourceFile() {
-        return sourceFile;
+    private List<Integer> parseRanges(String rangesStr) {
+        return Arrays.stream(rangesStr.split(","))
+                .map(String::trim)
+                .map(Integer::parseInt)
+                .toList();
     }
 
+    // Getters
     public String getBaseUrl() {
         return baseUrl;
     }
@@ -130,5 +129,9 @@ public class TestConfig {
 
     public List<String> getSourceFiles() {
         return sourceFiles;
+    }
+
+    public List<Integer> getRanges() {
+        return ranges;
     }
 }
