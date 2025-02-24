@@ -3,6 +3,8 @@ package org.heigit.ors.benchmark;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class TestConfigTest {
@@ -22,8 +24,8 @@ class TestConfigTest {
         assertEquals("longitude", config.getFieldLon());
         assertEquals("latitude", config.getFieldLat());
         assertEquals(100, config.getNumConcurrentUsers());
-        assertEquals(5, config.getQuerySize());
-        assertEquals(1, config.getRampTime());
+        assertEquals(List.of(1), config.getQuerySizes());
+        assertEquals(1, config.getRunTime());
         assertEquals("search.csv", config.getSourceFile());
     }
 
