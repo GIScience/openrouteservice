@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,7 +37,7 @@ class IsochronesLoadTestTest {
     }
 
     @Test
-    void createRequestBody_ShouldCreateValidJson() throws Exception {
+    void createRequestBody_ShouldCreateValidJson() {
         // given
         TestConfig config = new TestConfig();
 
@@ -44,13 +45,14 @@ class IsochronesLoadTestTest {
         String result = IsochronesLoadTest.createRequestBody(mockSession, 1, config, RangeType.TIME);
 
         // then
-        assertThat(result).contains("\"locations\":[[8.681495,49.41461]]");
-        assertThat(result).contains("\"range\":[300]");
-        assertThat(result).contains("\"range_type\":\"time\"");
+        assertThat(result)
+                .contains("\"locations\":[[8.681495,49.41461]]")
+                .contains("\"range\":[300]")
+                .contains("\"range_type\":\"time\"");
     }
 
     @Test
-    void createRequestBody_ShouldCreateValidJsonForDistance() throws Exception {
+    void createRequestBody_ShouldCreateValidJsonForDistance() {
         // given
         TestConfig config = new TestConfig();
 
@@ -58,13 +60,14 @@ class IsochronesLoadTestTest {
         String result = IsochronesLoadTest.createRequestBody(mockSession, 1, config, RangeType.DISTANCE);
 
         // then
-        assertThat(result).contains("\"locations\":[[8.681495,49.41461]]");
-        assertThat(result).contains("\"range\":[300]");
-        assertThat(result).contains("\"range_type\":\"distance\"");
+        assertThat(result)
+                .contains("\"locations\":[[8.681495,49.41461]]")
+                .contains("\"range\":[300]")
+                .contains("\"range_type\":\"distance\"");
     }
 
     @Test
-    void createRequestBody_ShouldIncludeMultipleLocations() throws Exception {
+    void createRequestBody_ShouldIncludeMultipleLocations() {
         // given
         TestConfig config = new TestConfig();
 
@@ -83,12 +86,13 @@ class IsochronesLoadTestTest {
         TestConfig config = new TestConfig();
 
         // when / then
-        assertThrows(RuntimeException.class,
-                () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, config, RangeType.TIME));
+        Throwable thrown = assertThrows(RuntimeException.class,
+                        () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, config, RangeType.TIME));
+        assertEquals(RuntimeException.class, thrown.getClass());
     }
 
     @Test
-    void testCreateRequestBodySingleLocation() throws Exception {
+    void testCreateRequestBodySingleLocation() throws JsonProcessingException {
         String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
         
@@ -99,7 +103,7 @@ class IsochronesLoadTestTest {
     }
 
     @Test
-    void testCreateRequestBodyMultipleLocations() throws Exception {
+    void testCreateRequestBodyMultipleLocations() throws JsonProcessingException {
         when(mockConfig.getRange()).thenReturn("500");
         String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 3, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
