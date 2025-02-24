@@ -87,7 +87,7 @@ class IsochronesLoadTestTest {
 
         // when / then
         Throwable thrown = assertThrows(RuntimeException.class,
-                        () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, config, RangeType.TIME));
+                () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, config, RangeType.TIME));
         assertEquals(RuntimeException.class, thrown.getClass());
     }
 
@@ -95,7 +95,7 @@ class IsochronesLoadTestTest {
     void testCreateRequestBodySingleLocation() throws JsonProcessingException {
         String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
-        
+
         assertEquals(1, json.get("locations").size());
         assertEquals(8.681495, json.get("locations").get(0).get(0).asDouble());
         assertEquals(49.41461, json.get("locations").get(0).get(1).asDouble());
@@ -107,7 +107,7 @@ class IsochronesLoadTestTest {
         when(mockConfig.getRange()).thenReturn("500");
         String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 3, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
-        
+
         assertEquals(3, json.get("locations").size());
         for (int i = 0; i < 3; i++) {
             assertEquals(8.681495, json.get("locations").get(i).get(0).asDouble());
@@ -120,7 +120,7 @@ class IsochronesLoadTestTest {
     void testCreateRequestBodyWithInvalidSession() {
         Session invalidSession = mock(Session.class);
         when(invalidSession.getDouble("longitude")).thenThrow(new RuntimeException("Session error"));
-        
+
         Throwable thrown = assertThrows(RuntimeException.class,
                 () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, mockConfig, RangeType.TIME));
         assertEquals(RuntimeException.class, thrown.getClass());

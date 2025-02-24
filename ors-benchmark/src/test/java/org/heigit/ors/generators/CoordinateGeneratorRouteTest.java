@@ -44,6 +44,7 @@ class CoordinateGeneratorRouteTest {
     private ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         MockitoAnnotations.openMocks(this);
         extent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
@@ -125,7 +126,8 @@ class CoordinateGeneratorRouteTest {
         ClassicHttpResponse response = mock(ClassicHttpResponse.class);
         when(response.getCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
 
-        assertThrows(IOException.class, () -> testGenerator.processResponse(response));
+        IOException exception = assertThrows(IOException.class, () -> testGenerator.processResponse(response));
+        assertEquals("HTTP/1.1 400", exception.getMessage().strip());
     }
 
     @Test
@@ -167,6 +169,7 @@ class CoordinateGeneratorRouteTest {
         }
     }
 
+    @SuppressWarnings("unused")
     private static Stream<Arguments> invalidConstructorParameters() {
         double[] validExtent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
         return Stream.of(
@@ -175,8 +178,7 @@ class CoordinateGeneratorRouteTest {
                 Arguments.of(1, new double[3], "driving-car", 0.0, "Extent must contain 4 coordinates"),
                 Arguments.of(1, validExtent, "", 0.0, "Profile must not be empty"),
                 Arguments.of(1, validExtent, null, 0.0, "Profile must not be empty"),
-                Arguments.of(1, validExtent, "driving-car", -1.0, "Minimum distance must be non-negative")
-        );
+                Arguments.of(1, validExtent, "driving-car", -1.0, "Minimum distance must be non-negative"));
     }
 
     @ParameterizedTest
@@ -185,8 +187,7 @@ class CoordinateGeneratorRouteTest {
             String expectedMessage) {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> new TestCoordinateGeneratorRoute(numRoutes, extent, profile, null, minDistance)
-        );
+                () -> new TestCoordinateGeneratorRoute(numRoutes, extent, profile, null, minDistance));
         assertEquals(expectedMessage, exception.getMessage());
     }
 
@@ -222,9 +223,8 @@ class CoordinateGeneratorRouteTest {
         for (int i = 0; i < result.size(); i++) {
             for (int j = i + 1; j < result.size(); j++) {
                 assertFalse(
-                    areRoutePairsEqual(result.get(i), result.get(j)),
-                    "Found duplicate route pair at indices " + i + " and " + j
-                );
+                        areRoutePairsEqual(result.get(i), result.get(j)),
+                                "Found duplicate route pair at indices " + i + " and " + j);
             }
         }
     }
