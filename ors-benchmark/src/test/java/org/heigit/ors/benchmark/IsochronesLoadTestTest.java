@@ -1,5 +1,6 @@
 package org.heigit.ors.benchmark;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,6 +35,8 @@ class IsochronesLoadTestTest {
         when(mockConfig.getFieldLon()).thenReturn("longitude");
         when(mockConfig.getFieldLat()).thenReturn("latitude");
         when(mockConfig.getRange()).thenReturn("300");
+        when(mockConfig.getRange()).thenReturn("300,600,900");
+        when(mockConfig.getRanges()).thenReturn(Arrays.asList(300, 600, 900));
     }
 
     @Test
@@ -113,7 +116,7 @@ class IsochronesLoadTestTest {
             assertEquals(8.681495, json.get("locations").get(i).get(0).asDouble());
             assertEquals(49.41461, json.get("locations").get(i).get(1).asDouble());
         }
-        assertEquals(500, json.get("range").get(0).asInt());
+        assertEquals(300, json.get("range").get(0).asInt());
     }
 
     @Test
@@ -127,15 +130,6 @@ class IsochronesLoadTestTest {
     }
 
     @Test
-    void testCreateRequestBodyWithInvalidRange() {
-        when(mockConfig.getRange()).thenReturn("invalid");
-
-        Throwable thrown = assertThrows(NumberFormatException.class,
-                () -> IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME));
-        assertEquals(NumberFormatException.class, thrown.getClass());
-    }
-
-    @Test
     void testCreateLocationsList() {
         List<List<Double>> locations = IsochronesLoadTest.createLocationsList(mockSession, 2, mockConfig);
 
@@ -144,5 +138,18 @@ class IsochronesLoadTestTest {
             assertEquals(8.681495, coord.get(0));
             assertEquals(49.41461, coord.get(1));
         });
+    }
+
+    @Test
+    void createRequestBody_ShouldCreateValidJsonWithMultipleRanges() throws JsonProcessingException {
+        // given
+        when(mockConfig.getRanges()).thenReturn(Arrays.asList(300, 600, 900));
+
+        // when
+        String result = IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME);
+        JsonNode json = objectMapper.readTree(result);
+
+        // then
+        assertThat(json.get("range").size()).isEqualTo(3);
     }
 }
