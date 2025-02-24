@@ -134,16 +134,14 @@ Example with all parameters:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
-  -Dsource_file='heidelberg_points.csv' \
+  -Dsource_file='points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
-  -Dapi_key='your-api-key' \
   -Dprofile='cycling-regular' \
-  -Drange=2000 \
-  -Dconcurrent_users=5 \
-  -Dquery_sizes='1,3,5,10' \
-  -Drun_time=600 \
-  -Dfield_lon='lon' \
-  -Dfield_lat='lat'
+  -Drange=500 \
+  -Dconcurrent_users=1 \
+  -Dquery_sizes='1,2,4,6,8,10,12,15,20' \
+  -Drun_time=60 \
+  -Dtest_unit='distance'
 ```
 
 Example with sequential execution:
