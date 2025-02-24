@@ -1,15 +1,14 @@
 package org.heigit.ors.generators;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpStatus;
@@ -17,17 +16,24 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.mockito.MockedStatic;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
 class CoordinateGeneratorSnappingTest {
     private double[] extent;
@@ -40,6 +46,7 @@ class CoordinateGeneratorSnappingTest {
     private ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         MockitoAnnotations.openMocks(this);
         extent = new double[] { 8.6286, 49.3590, 8.7957, 49.4715 };
@@ -125,7 +132,9 @@ class CoordinateGeneratorSnappingTest {
         ClassicHttpResponse response = mock(ClassicHttpResponse.class);
         when(response.getCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
 
-        assertThrows(ClientProtocolException.class, () -> testGenerator.processResponse(response));
+        ClientProtocolException exception = assertThrows(ClientProtocolException.class,
+                () -> testGenerator.processResponse(response));
+        assertEquals("HTTP/1.1 400", exception.getMessage().strip());
     }
 
     @Test
@@ -198,7 +207,8 @@ class CoordinateGeneratorSnappingTest {
     private class TestCoordinateGeneratorSnapping extends CoordinateGeneratorSnapping {
         private CloseableHttpClient testClient;
 
-        public TestCoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String profile, String baseUrl) {
+        public TestCoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String profile,
+                String baseUrl) {
             super(numPoints, extent, radius, profile, baseUrl);
         }
 

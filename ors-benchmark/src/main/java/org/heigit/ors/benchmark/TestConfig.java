@@ -21,9 +21,9 @@ public class TestConfig {
     }
 
     public static final int BATCH_SIZE_UPTO = 5;
-    
+
     private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
-    
+
     private final String sourceFile;
     private final String baseUrl;
     private final String apiKey;
@@ -67,13 +67,33 @@ public class TestConfig {
     }
 
     // Getters
-    public String getSourceFile() { return sourceFile; }
-    public String getBaseUrl() { return baseUrl; }
-    public String getApiKey() { return apiKey; }
-    public String getTargetProfile() { return targetProfile; }
-    public String getRange() { return range; }
-    public String getFieldLon() { return fieldLon; }
-    public String getFieldLat() { return fieldLat; }
+    public String getSourceFile() {
+        return sourceFile;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public String getTargetProfile() {
+        return targetProfile;
+    }
+
+    public String getRange() {
+        return range;
+    }
+
+    public String getFieldLon() {
+        return fieldLon;
+    }
+
+    public String getFieldLat() {
+        return fieldLat;
+    }
 
     public int getNumConcurrentUsers() {
         return numConcurrentUsers;
