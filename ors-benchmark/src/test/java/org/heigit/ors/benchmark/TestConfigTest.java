@@ -56,7 +56,7 @@ class TestConfigTest {
         System.setProperty("query_sizes", "2,4");
         System.setProperty("run_time", "120");
         System.setProperty("parallel_execution", "false");
-        
+
         TestConfig customConfig = new TestConfig();
         assertEquals("http://test.com", customConfig.getBaseUrl());
         assertEquals("test-key", customConfig.getApiKey());
