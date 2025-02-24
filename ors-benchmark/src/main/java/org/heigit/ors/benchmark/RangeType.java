@@ -14,4 +14,3 @@ public enum RangeType {
         return value;
     }
 }
-

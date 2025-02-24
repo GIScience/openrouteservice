@@ -190,7 +190,7 @@ public class CoordinateGeneratorSnapping {
             pb.stepTo(uniquePoints.size());
             if (attempts >= maxAttempts) {
                 pb.setExtraMessage(String.format("Stopped after %d attempts - Found %d/%d points",
-                                maxAttempts, uniquePoints.size(), numPoints));
+                        maxAttempts, uniquePoints.size(), numPoints));
                 LOGGER.warn("Stopped point generation after {} attempts. Found {}/{} points",
                         maxAttempts, uniquePoints.size(), numPoints);
             }

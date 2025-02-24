@@ -49,12 +49,12 @@ public class CoordinateGeneratorRoute {
     protected static class Route {
         final double[] start;
         final double[] end;
-        final double distance;  // Changed from duration to distance
+        final double distance; // Changed from duration to distance
 
-        Route(double[] start, double[] end, double distance) {  // Changed parameter name
+        Route(double[] start, double[] end, double distance) { // Changed parameter name
             this.start = start;
             this.end = end;
-            this.distance = distance;  // Changed field name
+            this.distance = distance; // Changed field name
         }
     }
 
@@ -88,8 +88,8 @@ public class CoordinateGeneratorRoute {
         public int hashCode() {
             return Objects.hash(
                     Math.round(start[0] * 1e6) / 1e6,
-                            Math.round(start[1] * 1e6) / 1e6,
-                    Math.round(end[0] * 1e6) / 1e6,
+                    Math.round(start[1] * 1e6) / 1e6,
+                            Math.round(end[0] * 1e6) / 1e6,
                     Math.round(end[1] * 1e6) / 1e6);
         }
 
@@ -193,9 +193,10 @@ public class CoordinateGeneratorRoute {
                 .setInitialMax(numRoutes)
                 .setConsumer(new DelegatingProgressBarConsumer(ProgressBarLogger.getLogger()::info));
         ProgressBar pb = pbb.build();
-        // Use try-with-resources for both client and progress bar to ensure proper closing
+        // Use try-with-resources for both client and progress bar to ensure proper
+        // closing
         try (CloseableHttpClient client = createHttpClient()) {
-            
+
             pb.setExtraMessage("Starting...");
 
             while (uniqueRoutes.size() < numRoutes && attempts < maxAttempts) {
@@ -217,7 +218,7 @@ public class CoordinateGeneratorRoute {
             pb.stepTo(Math.min(uniqueRoutes.size(), numRoutes));
             if (attempts >= maxAttempts) {
                 pb.setExtraMessage(String.format("Stopped after %d attempts - Found at least %d/%d routes",
-                                maxAttempts, uniqueRoutes.size(), numRoutes));
+                        maxAttempts, uniqueRoutes.size(), numRoutes));
                 LOGGER.warn("Stopped route generation after {} attempts. Found {}/{} routes",
                         maxAttempts, uniqueRoutes.size(), numRoutes);
             }
@@ -251,7 +252,7 @@ public class CoordinateGeneratorRoute {
     private HttpPost createMatrixRequest(List<double[]> coordinates) throws JsonProcessingException {
         Map<String, Object> payload = new HashMap<>();
         payload.put("locations", coordinates);
-        payload.put("metrics", new String[]{"distance"});  // Add metrics parameter to request distance
+        payload.put("metrics", new String[] { "distance" }); // Add metrics parameter to request distance
 
         HttpPost request = new HttpPost(url);
         headers.forEach(request::addHeader);
@@ -260,21 +261,22 @@ public class CoordinateGeneratorRoute {
     }
 
     private void processMatrixResponse(String response) throws JsonProcessingException {
-        Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {});
-        
-        List<List<Double>> distances = extractDistances(responseMap);  // Changed from durations to distances
+        Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {
+        });
+
+        List<List<Double>> distances = extractDistances(responseMap); // Changed from durations to distances
         List<Map<String, Object>> locations = extractLocations(responseMap, "destinations");
-        
+
         if (distances == null || locations == null || locations.isEmpty()) {
             return;
         }
 
-        processMatrixResults(distances, locations);  // Updated parameter name
+        processMatrixResults(distances, locations); // Updated parameter name
     }
 
     @SuppressWarnings("unchecked")
-    private List<List<Double>> extractDistances(Map<String, Object> responseMap) {  // Changed method name
-        Object distancesObj = responseMap.get("distances");  // Changed from durations to distances
+    private List<List<Double>> extractDistances(Map<String, Object> responseMap) { // Changed method name
+        Object distancesObj = responseMap.get("distances"); // Changed from durations to distances
         if (distancesObj instanceof List<?>) {
             return (List<List<Double>>) distancesObj;
         }
@@ -290,14 +292,16 @@ public class CoordinateGeneratorRoute {
         return Collections.emptyList();
     }
 
-    private void processMatrixResults(List<List<Double>> distances, List<Map<String, Object>> locations) {  // Updated parameter name
+    private void processMatrixResults(List<List<Double>> distances, List<Map<String, Object>> locations) { // Updated
+                                                                                                           // parameter
+                                                                                                           // name
         int size = locations.size();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i != j) {
-                    Double distance = distances.get(i).get(j);  // Changed from duration to distance
+                    Double distance = distances.get(i).get(j); // Changed from duration to distance
                     if (distance > 0) {
-                        addRouteIfUnique(locations.get(i), locations.get(j), distance);  // Updated parameter name
+                        addRouteIfUnique(locations.get(i), locations.get(j), distance); // Updated parameter name
                     }
                 }
             }
@@ -305,7 +309,9 @@ public class CoordinateGeneratorRoute {
     }
 
     @SuppressWarnings("unchecked")
-    private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance) {  // Updated parameter name
+    private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance) { // Updated
+                                                                                                         // parameter
+                                                                                                         // name
         List<Number> startCoord = (List<Number>) start.get("location");
         List<Number> endCoord = (List<Number>) end.get("location");
 
@@ -338,9 +344,9 @@ public class CoordinateGeneratorRoute {
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
             pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance");
             for (Route route : cleanedRoutes) { // Use cleaned routes
-                pw.printf("%f,%f,%f,%f,%f%n", 
-                    route.start[0], route.start[1],
-                    route.end[0], route.end[1],
+                pw.printf("%f,%f,%f,%f,%f%n",
+                                route.start[0], route.start[1],
+                        route.end[0], route.end[1],
                         route.distance);
             }
         }
