@@ -1,6 +1,7 @@
 package org.heigit.ors.benchmark;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ public class TestConfig {
     private final int runTime;
     private final boolean parallelExecution;
     private final TestUnit testUnit;
+    private final List<String> sourceFiles;
 
     public TestConfig() {
         this.sourceFile = getSystemProperty("source_file", "search.csv");
@@ -50,6 +52,7 @@ public class TestConfig {
         this.runTime = Integer.parseInt(getSystemProperty("run_time", "60"));
         this.parallelExecution = Boolean.parseBoolean(getSystemProperty("parallel_execution", "true"));
         this.testUnit = TestUnit.fromString(getSystemProperty("test_unit", "distance"));
+        this.sourceFiles = parseSourceFiles(getSystemProperty("source_files", this.sourceFile));
     }
 
     private String getSystemProperty(String key, String defaultValue) {
@@ -63,6 +66,16 @@ public class TestConfig {
                 .map(String::trim)
                 .map(Integer::parseInt)
                 .sorted()
+                .toList();
+    }
+
+    private List<String> parseSourceFiles(String files) {
+        if (files == null || files.trim().isEmpty()) {
+            return Collections.singletonList(this.sourceFile);
+        }
+        return Arrays.stream(files.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
                 .toList();
     }
 
@@ -113,5 +126,9 @@ public class TestConfig {
 
     public TestUnit getTestUnit() {
         return testUnit;
+    }
+
+    public List<String> getSourceFiles() {
+        return sourceFiles;
     }
 }
