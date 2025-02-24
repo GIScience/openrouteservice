@@ -43,16 +43,14 @@ public class IsochronesLoadTest extends Simulation {
                 .header("Authorization", config.getApiKey());
     }
 
-    private static ScenarioBuilder createIsochroneScenario(String name, int locationCount, TestConfig config) {
+    private static ScenarioBuilder createIsochroneScenario(String name, int locationCount, TestConfig config,
+            RangeType rangeType) {
         return scenario(name)
                 .feed(initCsvFeeder(config.getSourceFile()))
                 .during(Duration.ofSeconds(config.getRunTime()))
                 .on(
-                        group("Time Isochrones").on(
-                                createIsochroneRequest(name + " (Time)", locationCount, config, RangeType.TIME)),
-                        group("Distance Isochrones").on(
-                                createIsochroneRequest(name + " (Distance)", locationCount, config,
-                                        RangeType.DISTANCE)));
+                        group("Isochrones " + rangeType.getValue()).on(
+                                createIsochroneRequest(name, locationCount, config, rangeType)));
     }
 
     private static HttpRequestActionBuilder createIsochroneRequest(String name, int locationCount, TestConfig config,
@@ -91,22 +89,23 @@ public class IsochronesLoadTest extends Simulation {
         return csv(sourceFile).shuffle();
     }
 
-    private String formatScenarioName(int querySize, boolean isParallel) {
+    private String formatScenarioName(int querySize, boolean isParallel, RangeType rangeType) {
         String executionMode = isParallel ? "Parallel" : "Sequential";
-        return String.format("%s | Users (%d) | Locations (%d)",
-                executionMode, config.getNumConcurrentUsers(), querySize);
+        return String.format("%s | %s | Users (%d) | Locations (%d)",
+                executionMode, rangeType.getValue(), config.getNumConcurrentUsers(), querySize);
     }
 
-    private PopulationBuilder createScenarioWithInjection(int querySize, boolean isParallel) {
-        String scenarioName = formatScenarioName(querySize, isParallel);
-        return createIsochroneScenario(scenarioName, querySize, config)
+    private PopulationBuilder createScenarioWithInjection(int querySize, boolean isParallel, RangeType rangeType) {
+        String scenarioName = formatScenarioName(querySize, isParallel, rangeType);
+        return createIsochroneScenario(scenarioName, querySize, config, rangeType)
                 .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers())
                         .during(config.getRunTime()));
     }
 
     private void executeParallelScenarios() {
-        List<PopulationBuilder> scenarios = config.getQuerySizes().stream()
-                .map(querySize -> createScenarioWithInjection(querySize, true))
+        List<PopulationBuilder> scenarios = createScenariosForTestUnit().stream()
+                .flatMap(rangeType -> config.getQuerySizes().stream()
+                        .map(querySize -> createScenarioWithInjection(querySize, true, rangeType)))
                 .toList();
 
         setUp(scenarios.toArray(PopulationBuilder[]::new))
@@ -114,12 +113,20 @@ public class IsochronesLoadTest extends Simulation {
     }
 
     private void executeSequentialScenarios() {
-        PopulationBuilder chainedScenario = config.getQuerySizes().stream()
-                .map(querySize -> createScenarioWithInjection(querySize, false))
+        PopulationBuilder chainedScenario = createScenariosForTestUnit().stream()
+                .flatMap(rangeType -> config.getQuerySizes().stream()
+                        .map(querySize -> createScenarioWithInjection(querySize, false, rangeType)))
                 .reduce(PopulationBuilder::andThen)
                 .orElseThrow(() -> new IllegalStateException("No scenarios to run"));
 
         setUp(chainedScenario).protocols(httpProtocol);
+    }
+
+    private List<RangeType> createScenariosForTestUnit() {
+        return switch (config.getTestUnit()) {
+            case DISTANCE -> List.of(RangeType.DISTANCE);
+            case TIME -> List.of(RangeType.TIME);
+        };
     }
 
     public IsochronesLoadTest() {
@@ -139,7 +146,7 @@ public class IsochronesLoadTest extends Simulation {
     @Override
     public void before() {
         logger.info("Starting Gatling simulation...");
-        logger.info("Testing both time and distance isochrones");
+        logger.info("Testing {} isochrones", config.getTestUnit());
     }
 
     @Override
