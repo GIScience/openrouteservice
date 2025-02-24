@@ -16,10 +16,13 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.heigit.ors.util.ProgressBarLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import me.tongfei.progressbar.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
@@ -55,7 +58,10 @@ public class CoordinateGeneratorRoute {
         }
     }
 
-    public static <t extends Number> double rand(t x) {
+    public static <T extends Number> double rand(T x) {
+        if (x == null) {
+            throw new IllegalArgumentException("Input number cannot be null");
+        }
         return (x instanceof Double || x instanceof Float) ? x.doubleValue() : x.longValue();
     }
 
@@ -242,7 +248,7 @@ public class CoordinateGeneratorRoute {
         return client.execute(request, this::processResponse);
     }
 
-    private HttpPost createMatrixRequest(List<double[]> coordinates) throws IOException {
+    private HttpPost createMatrixRequest(List<double[]> coordinates) throws JsonProcessingException {
         Map<String, Object> payload = new HashMap<>();
         payload.put("locations", coordinates);
         payload.put("metrics", new String[]{"distance"});  // Add metrics parameter to request distance
@@ -253,7 +259,7 @@ public class CoordinateGeneratorRoute {
         return request;
     }
 
-    private void processMatrixResponse(String response) throws IOException {
+    private void processMatrixResponse(String response) throws JsonProcessingException {
         Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {});
         
         List<List<Double>> distances = extractDistances(responseMap);  // Changed from durations to distances
@@ -324,7 +330,7 @@ public class CoordinateGeneratorRoute {
         return routes.subList(0, Math.min(numRoutes, routes.size()));
     }
 
-    protected void writeToCSV(String filePath) throws IOException {
+    protected void writeToCSV(String filePath) throws FileNotFoundException {
         // Get cleaned up results
         List<Route> cleanedRoutes = getResult();
 
