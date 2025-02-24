@@ -47,9 +47,9 @@ public class IsochronesLoadTest extends Simulation {
             TestConfig config,
             RangeType rangeType, boolean isParallel) {
         String parallelOrSequential = isParallel ? "parallel" : "sequential";
-        String groupName = String.format("Isochrones %s %s - %s - %s",
-                parallelOrSequential, rangeType.getValue(), getFileNameWithoutExtension(sourceFile),
-                config.getNumConcurrentUsers());
+        String groupName = String.format("Isochrones %s %s - %s - Users %s - Ranges %s",
+                        parallelOrSequential, rangeType.getValue(), getFileNameWithoutExtension(sourceFile),
+                config.getNumConcurrentUsers(), config.getRanges());
         return scenario(name)
                 .feed(initCsvFeeder(sourceFile))
                 .during(Duration.ofSeconds(config.getRunTime()))
