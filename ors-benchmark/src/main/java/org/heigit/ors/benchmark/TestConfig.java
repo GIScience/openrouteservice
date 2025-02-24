@@ -7,6 +7,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestConfig {
+    public enum TestUnit {
+        DISTANCE,
+        TIME;
+
+        public static TestUnit fromString(String value) {
+            return switch (value.toLowerCase()) {
+                case "distance" -> DISTANCE;
+                case "time" -> TIME;
+                default -> throw new IllegalArgumentException("Invalid test unit: " + value);
+            };
+        }
+    }
+
     public static final int BATCH_SIZE_UPTO = 5;
     
     private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
@@ -22,6 +35,7 @@ public class TestConfig {
     private final List<Integer> querySizes;
     private final int runTime;
     private final boolean parallelExecution;
+    private final TestUnit testUnit;
 
     public TestConfig() {
         this.sourceFile = getSystemProperty("source_file", "search.csv");
@@ -35,6 +49,7 @@ public class TestConfig {
         this.querySizes = parseQuerySizes(getSystemProperty("query_sizes", "1"));
         this.runTime = Integer.parseInt(getSystemProperty("run_time", "60"));
         this.parallelExecution = Boolean.parseBoolean(getSystemProperty("parallel_execution", "true"));
+        this.testUnit = TestUnit.fromString(getSystemProperty("test_unit", "distance"));
     }
 
     private String getSystemProperty(String key, String defaultValue) {
@@ -74,5 +89,9 @@ public class TestConfig {
 
     public boolean isParallelExecution() {
         return parallelExecution;
+    }
+
+    public TestUnit getTestUnit() {
+        return testUnit;
     }
 }
