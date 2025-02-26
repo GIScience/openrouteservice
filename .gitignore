@@ -4,6 +4,9 @@
 .DS_Store
 **/.m2/
 
+# maven wrapper
+!.mvn/wrapper/maven-wrapper.jar
+
 graphs/
 graph-repo/
 graphs-*/
