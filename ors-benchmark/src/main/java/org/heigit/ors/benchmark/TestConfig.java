@@ -32,7 +32,6 @@ public class TestConfig {
     private final String fieldLat;
     private final int numConcurrentUsers;
     private final List<Integer> querySizes;
-    private final int runTime;
     private final boolean parallelExecution;
     private final TestUnit testUnit;
     private final List<String> sourceFiles;
@@ -47,7 +46,6 @@ public class TestConfig {
         this.fieldLat = getSystemProperty("field_lat", "latitude");
         this.numConcurrentUsers = Integer.parseInt(getSystemProperty("concurrent_users", "1"));
         this.querySizes = parseQuerySizes(getSystemProperty("query_sizes", "1"));
-        this.runTime = Integer.parseInt(getSystemProperty("run_time", "60"));
         this.parallelExecution = Boolean.parseBoolean(getSystemProperty("parallel_execution", "true"));
         this.testUnit = TestUnit.fromString(getSystemProperty("test_unit", "distance"));
         this.sourceFiles = parseSourceFiles(getSystemProperty("source_files", "search.csv"));
@@ -113,10 +111,6 @@ public class TestConfig {
 
     public List<Integer> getQuerySizes() {
         return querySizes;
-    }
-
-    public int getRunTime() {
-        return runTime;
     }
 
     public boolean isParallelExecution() {

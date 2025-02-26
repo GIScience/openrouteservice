@@ -37,7 +37,6 @@ class TestConfigTest {
         assertEquals("latitude", config.getFieldLat());
         assertEquals(1, config.getNumConcurrentUsers());
         assertEquals(List.of(1), config.getQuerySizes());
-        assertEquals(60, config.getRunTime());
         assertEquals(Collections.singletonList("search.csv"), config.getSourceFiles());
         assertEquals(true, config.isParallelExecution());
     }
@@ -63,7 +62,6 @@ class TestConfigTest {
         assertEquals("test-key", customConfig.getApiKey());
         assertEquals(5, customConfig.getNumConcurrentUsers());
         assertEquals(List.of(2, 4), customConfig.getQuerySizes());
-        assertEquals(120, customConfig.getRunTime());
         assertEquals(false, customConfig.isParallelExecution());
     }
 }
