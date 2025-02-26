@@ -4,6 +4,7 @@ import java.io.File;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import org.heigit.ors.exceptions.RequestBodyCreationException;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
 import static io.gatling.javaapi.core.CoreDsl.csv;
+import static io.gatling.javaapi.core.CoreDsl.feed;
 import static io.gatling.javaapi.core.CoreDsl.group;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import io.gatling.javaapi.core.FeederBuilder;
@@ -50,12 +52,21 @@ public class IsochronesLoadTest extends Simulation {
         String groupName = String.format("Isochrones %s %s - %s - Users %s - Ranges %s",
                         parallelOrSequential, rangeType.getValue(), getFileNameWithoutExtension(sourceFile),
                 config.getNumConcurrentUsers(), config.getRanges());
+
+        FeederBuilder<String> feeder = initCsvFeeder(sourceFile);
+        AtomicInteger remainingRecords = new AtomicInteger(feeder.recordsCount());
+
         return scenario(name)
-                .feed(initCsvFeeder(sourceFile))
-                .during(Duration.ofSeconds(config.getRunTime()))
+                .asLongAs(session -> remainingRecords.get() > 0)
                 .on(
+                        feed(feeder)
+                                .exec(session -> {
+                                    remainingRecords.decrementAndGet();
+                                    return session;
+                                })
+                                .exec(
                         group(groupName).on(
-                                createIsochroneRequest(name, locationCount, config, rangeType)));
+                                                createIsochroneRequest(name, locationCount, config, rangeType))));
     }
 
     private static HttpRequestActionBuilder createIsochroneRequest(String name, int locationCount, TestConfig config,
@@ -111,8 +122,7 @@ public class IsochronesLoadTest extends Simulation {
             RangeType rangeType) {
         String scenarioName = formatScenarioName(sourceFile, querySize);
         return createIsochroneScenario(scenarioName, querySize, sourceFile, config, rangeType, isParallel)
-                .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers())
-                        .during(config.getRunTime()));
+                .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers()).during(Duration.ofSeconds(1)));
     }
 
     private void executeParallelScenarios() {
@@ -150,7 +160,6 @@ public class IsochronesLoadTest extends Simulation {
         logger.info("- Source files: {}", config.getSourceFiles());
         logger.info("- Concurrent users: {}", config.getNumConcurrentUsers());
         logger.info("- Query sizes: {}", config.getQuerySizes());
-        logger.info("- Runtime: {} seconds", config.getRunTime());
         logger.info("- Execution mode: {}", config.isParallelExecution() ? "parallel" : "sequential");
 
         if (config.isParallelExecution()) {
