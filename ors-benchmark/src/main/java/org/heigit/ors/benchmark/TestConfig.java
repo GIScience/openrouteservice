@@ -46,7 +46,7 @@ public class TestConfig {
         this.fieldLat = getSystemProperty("field_lat", "latitude");
         this.numConcurrentUsers = Integer.parseInt(getSystemProperty("concurrent_users", "1"));
         this.querySizes = parseQuerySizes(getSystemProperty("query_sizes", "1"));
-        this.parallelExecution = Boolean.parseBoolean(getSystemProperty("parallel_execution", "true"));
+        this.parallelExecution = Boolean.parseBoolean(getSystemProperty("parallel_execution", "false"));
         this.testUnit = TestUnit.fromString(getSystemProperty("test_unit", "distance"));
         this.sourceFiles = parseSourceFiles(getSystemProperty("source_files", "search.csv"));
         this.ranges = parseRanges(this.range);
