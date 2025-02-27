@@ -344,7 +344,7 @@ public class CoordinateGeneratorRoute {
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
             pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance");
             for (Route route : cleanedRoutes) { // Use cleaned routes
-                pw.printf("%f,%f,%f,%f,%f%n",
+                pw.printf("%f,%f,%f,%f,%.2f%n",
                                 route.start[0], route.start[1],
                         route.end[0], route.end[1],
                         route.distance);
@@ -375,7 +375,6 @@ public class CoordinateGeneratorRoute {
                     result.size(),
                     result.size() != 1 ? "s" : "");
             LOGGER.info("Results written to: {}", cli.getOutputFile());
-
         } catch (NumberFormatException e) {
             LOGGER.error("Error parsing numeric arguments: {}", e.getMessage());
             System.exit(1);
@@ -383,5 +382,6 @@ public class CoordinateGeneratorRoute {
             LOGGER.error("Error writing to output file: {}", e.getMessage());
             System.exit(1);
         }
+        System.exit(0);
     }
 }
