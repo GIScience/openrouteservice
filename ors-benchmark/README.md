@@ -102,33 +102,44 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
 
 ### Isochrones Load Test
 
-A Gatling-based load test for the ORS Isochrones API.
+A Gatling-based load test for the ORS Isochrones API. The test supports batch processing of locations, allowing multiple coordinate pairs to be processed in a single request.
 
 #### Isochrones Load Test Usage
 
 Options:
 
-- `source_files`: Comma-separated list of CSV files to test in parallel
+- `source_files`: Comma-separated list of CSV files containing coordinate pairs
 - `base_url`: ORS API base URL (default: http://localhost:8082/ors)
 - `api_key`: API key for authentication
 - `profile`: Routing profile (default: driving-car)
-- `range`: Comma-separated list of isochrone ranges in meters (default: 300)
-- `field_lon`: CSV field name for longitude (default: longitude)
-- `field_lat`: CSV field name for latitude (default: latitude)
+- `range`: Comma-separated list of isochrone ranges in meters (e.g., "300,600,900")
+- `field_lon`: CSV field name for longitude column (default: longitude)
+- `field_lat`: CSV field name for latitude column (default: latitude)
 - `concurrent_users`: Number of concurrent users (default: 1)
-- `query_sizes`: Comma-separated list of locations per request (default: 1)
-- `run_time`: Duration of the test in seconds (default: 60)
-- `parallel_execution`: Run scenarios in parallel or sequential (default: true)
+- `query_sizes`: Comma-separated list of batch sizes for location processing (e.g., "1,2,4,8")
+- `test_unit`: Type of range to test - 'distance' or 'time' (default: distance)
+- `parallel_execution`: Run scenarios in parallel or sequential (default: false)
 
-Example:
+CSV File Format:
+```csv
+longitude,latitude
+8.681495,49.41461
+8.686507,49.41943
+...
+```
+
+Example with batch processing:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
-  -Dsource_files='points.csv' \
+  -Dsource_files='heidelberg_points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
-  -Dquery_sizes='1,2,3,4,5' \
-  -Drun_time=300
+  -Dquery_sizes='1,2,4,8' \
+  -Drange='300,600,900' \
+  -Dtest_unit='time'
 ```
+
+This will test the Isochrones API with varying batch sizes, processing 1, 2, 4, and 8 locations per request, using time-based isochrones at 300, 600, and 900 second intervals.
 
 Example with all parameters:
 

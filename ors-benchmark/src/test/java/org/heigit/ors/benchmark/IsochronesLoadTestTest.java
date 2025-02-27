@@ -5,10 +5,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,12 +29,11 @@ class IsochronesLoadTestTest {
         mockSession = mock(Session.class);
         mockConfig = mock(TestConfig.class);
 
-        when(mockSession.getDouble("longitude")).thenReturn(8.681495);
-        when(mockSession.getDouble("latitude")).thenReturn(49.41461);
+        // Update mock setup to handle Lists
+        when(mockSession.get("longitude")).thenReturn(Arrays.asList(8.681495, 8.681495));
+        when(mockSession.get("latitude")).thenReturn(Arrays.asList(49.41461, 49.41461));
         when(mockConfig.getFieldLon()).thenReturn("longitude");
         when(mockConfig.getFieldLat()).thenReturn("latitude");
-        when(mockConfig.getRange()).thenReturn("300");
-        when(mockConfig.getRange()).thenReturn("300,600,900");
         when(mockConfig.getRanges()).thenReturn(Arrays.asList(300, 600, 900));
     }
 
@@ -82,19 +80,6 @@ class IsochronesLoadTestTest {
     }
 
     @Test
-    void createRequestBody_ShouldThrowExceptionOnInvalidJson() {
-        // given
-        Session invalidSession = mock(Session.class);
-        when(invalidSession.getDouble(anyString())).thenThrow(new RuntimeException("Invalid session"));
-        TestConfig config = new TestConfig();
-
-        // when / then
-        Throwable thrown = assertThrows(RuntimeException.class,
-                () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, config, RangeType.TIME));
-        assertEquals(RuntimeException.class, thrown.getClass());
-    }
-
-    @Test
     void testCreateRequestBodySingleLocation() throws JsonProcessingException {
         String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
@@ -107,7 +92,11 @@ class IsochronesLoadTestTest {
 
     @Test
     void testCreateRequestBodyMultipleLocations() throws JsonProcessingException {
+        // Setup mock to return three coordinates
+        when(mockSession.get("longitude")).thenReturn(Arrays.asList(8.681495, 8.681495, 8.681495));
+        when(mockSession.get("latitude")).thenReturn(Arrays.asList(49.41461, 49.41461, 49.41461));
         when(mockConfig.getRange()).thenReturn("500");
+
         String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 3, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
 
@@ -119,25 +108,26 @@ class IsochronesLoadTestTest {
         assertEquals(300, json.get("range").get(0).asInt());
     }
 
+    // Replace old testCreateLocationsList with new test
     @Test
-    void testCreateRequestBodyWithInvalidSession() {
-        Session invalidSession = mock(Session.class);
-        when(invalidSession.getDouble("longitude")).thenThrow(new RuntimeException("Session error"));
-
-        Throwable thrown = assertThrows(RuntimeException.class,
-                () -> IsochronesLoadTest.createRequestBody(invalidSession, 1, mockConfig, RangeType.TIME));
-        assertEquals(RuntimeException.class, thrown.getClass());
-    }
-
-    @Test
-    void testCreateLocationsList() {
-        List<List<Double>> locations = IsochronesLoadTest.createLocationsList(mockSession, 2, mockConfig);
+    void testCreateLocationsListFromArrays() {
+        List<List<Double>> locations = IsochronesLoadTest.createLocationsListFromArrays(mockSession, 2, mockConfig);
 
         assertEquals(2, locations.size());
         locations.forEach(coord -> {
             assertEquals(8.681495, coord.get(0));
             assertEquals(49.41461, coord.get(1));
         });
+    }
+
+    @Test
+    void testCreateLocationsListFromArrays_WithNullValues() {
+        when(mockSession.get("longitude")).thenReturn(null);
+        when(mockSession.get("latitude")).thenReturn(Arrays.asList(49.41461));
+
+        List<List<Double>> locations = IsochronesLoadTest.createLocationsListFromArrays(mockSession, 2, mockConfig);
+
+        assertTrue(locations.isEmpty());
     }
 
     @Test
