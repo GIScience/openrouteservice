@@ -1,10 +1,12 @@
 package org.heigit.ors.benchmark;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.heigit.ors.benchmark.TestConfig.DirectionsModes.AVOID_HIGHWAY;
+import static org.heigit.ors.benchmark.TestConfig.DirectionsModes.BASIC_FASTEST;
 
 public class TestConfig {
     public enum TestUnit {
@@ -20,7 +22,12 @@ public class TestConfig {
         }
     }
 
-    public static final int BATCH_SIZE_UPTO = 5;
+    public enum DirectionsModes {
+        BASIC_FASTEST("BasicFastest"),
+        AVOID_HIGHWAY("AvoidHighway");
+        DirectionsModes(String s) {
+        }
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
 
@@ -30,11 +37,17 @@ public class TestConfig {
     private final String range;
     private final String fieldLon;
     private final String fieldLat;
+    private final String fieldStartLon;
+    private final String fieldStartLat;
+    private final String fieldEndLon;
+    private final String fieldEndLat;
+    private final String sourceFilePrefix;
     private final int numConcurrentUsers;
     private final List<Integer> querySizes;
     private final boolean parallelExecution;
     private final TestUnit testUnit;
     private final List<String> sourceFiles;
+    private final List<String> modes;
     private final List<Integer> ranges;
 
     public TestConfig() {
@@ -44,12 +57,18 @@ public class TestConfig {
         this.range = getSystemProperty("range", "300");
         this.fieldLon = getSystemProperty("field_lon", "longitude");
         this.fieldLat = getSystemProperty("field_lat", "latitude");
+        this.fieldStartLon = getSystemProperty("field_start_lon", "start_longitude");
+        this.fieldStartLat = getSystemProperty("field_start_lat", "start_latitude");
+        this.fieldEndLon = getSystemProperty("field_end_lon", "end_longitude");
+        this.fieldEndLat = getSystemProperty("field_end_lat", "end_latitude");
+        this.sourceFilePrefix = getSystemProperty("source_file_prefix", "");
         this.numConcurrentUsers = Integer.parseInt(getSystemProperty("concurrent_users", "1"));
         this.querySizes = parseQuerySizes(getSystemProperty("query_sizes", "1"));
         this.parallelExecution = Boolean.parseBoolean(getSystemProperty("parallel_execution", "false"));
         this.testUnit = TestUnit.fromString(getSystemProperty("test_unit", "distance"));
-        this.sourceFiles = parseSourceFiles(getSystemProperty("source_files", "search.csv"));
-        this.ranges = parseRanges(this.range);
+        this.sourceFiles = parseCommaSeparatedStringToStrings(getSystemProperty("source_files", ""));
+        this.ranges = parseCommaSeparatedStringToInts(this.range);
+        this.modes = parseCommaSeparatedStringToStrings(getSystemProperty("modes", ""));
     }
 
     private String getSystemProperty(String key, String defaultValue) {
@@ -66,14 +85,14 @@ public class TestConfig {
                 .toList();
     }
 
-    private List<String> parseSourceFiles(String files) {
-        return Arrays.stream(files.split(","))
+    private List<String> parseCommaSeparatedStringToStrings(String list) {
+        return Arrays.stream(list.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .toList();
     }
 
-    private List<Integer> parseRanges(String rangesStr) {
+    private List<Integer> parseCommaSeparatedStringToInts(String rangesStr) {
         return Arrays.stream(rangesStr.split(","))
                 .map(String::trim)
                 .map(Integer::parseInt)
@@ -105,6 +124,22 @@ public class TestConfig {
         return fieldLat;
     }
 
+    public String getFieldStartLon() {
+        return fieldStartLon;
+    }
+
+    public String getFieldStartLat() {
+        return fieldStartLat;
+    }
+
+    public String getFieldEndLon() {
+        return fieldEndLon;
+    }
+
+    public String getFieldEndLat() {
+        return fieldEndLat;
+    }
+
     public int getNumConcurrentUsers() {
         return numConcurrentUsers;
     }
@@ -127,5 +162,34 @@ public class TestConfig {
 
     public List<Integer> getRanges() {
         return ranges;
+    }
+
+    public List<String> getSourceFiles(DirectionsModes mode) {
+        if (sourceFiles.isEmpty() && !sourceFilePrefix.isEmpty()) {
+            return getTargetProfiles(mode).stream()
+                    .map(profile -> sourceFilePrefix + profile + ".csv")
+                    .toList();
+        }
+        return sourceFiles;
+    }
+
+    public List<String> getTargetProfiles(DirectionsModes mode) {
+        return System.getProperty("profile_override") != null ? parseCommaSeparatedStringToStrings(System.getProperty("profile_override")) : switch (mode) {
+            case BASIC_FASTEST -> List.of("driving-car", "driving-hgv", "cycling-regular", "cycling-road", "cycling-mountain", "cycling-electric", "foot-walking", "foot-hiking");
+            case AVOID_HIGHWAY -> List.of("driving-car", "driving-hgv");
+        };
+    }
+
+    public List<DirectionsModes> getDirectionsModes() {
+        return modes.isEmpty() ? List.of(BASIC_FASTEST, AVOID_HIGHWAY) : modes.stream()
+                .map(DirectionsModes::valueOf)
+                .toList();
+    }
+
+    public Map<String,?> getAdditionalRequestParams(DirectionsModes mode) {
+        return switch (mode) {
+            case BASIC_FASTEST -> Map.of("preference", "fastest");
+            case AVOID_HIGHWAY -> Map.of("preference", "fastest", "options", Map.of("avoid_features", List.of("highways")));
+        };
     }
 }
