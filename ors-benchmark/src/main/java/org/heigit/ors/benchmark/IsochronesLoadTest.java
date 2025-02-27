@@ -2,10 +2,10 @@ package org.heigit.ors.benchmark;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 
 import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.slf4j.Logger;
@@ -59,9 +59,9 @@ public class IsochronesLoadTest extends Simulation {
         return scenario(name)
                 .asLongAs(session -> remainingRecords.get() > 0)
                 .on(
-                        feed(feeder)
+                        feed(feeder, locationCount)
                                 .exec(session -> {
-                                    remainingRecords.decrementAndGet();
+                                    remainingRecords.getAndAdd(-locationCount);
                                     return session;
                                 })
                                 .exec(
@@ -81,8 +81,8 @@ public class IsochronesLoadTest extends Simulation {
     static String createRequestBody(Session session, int locationCount, TestConfig config, RangeType rangeType) {
         try {
             Map<String, Object> requestBody = Map.of(
-                    "locations", createLocationsList(session, locationCount, config),
-                    "range_type", rangeType.getValue(),
+                    "locations", createLocationsListFromArrays(session, locationCount, config),
+                            "range_type", rangeType.getValue(),
                     "range", config.getRanges());
 
             logger.debug("Created request body with {} locations, {} ranges and range_type {}",
@@ -93,17 +93,43 @@ public class IsochronesLoadTest extends Simulation {
         }
     }
 
-    static List<List<Double>> createLocationsList(Session session, int locationCount, TestConfig config) {
-        return IntStream.range(0, locationCount)
-                .mapToObj(i -> List.of(
-                        session.getDouble(config.getFieldLon()),
-                        session.getDouble(config.getFieldLat())))
-                .toList();
+    static List<List<Double>> createLocationsListFromArrays(Session session, int locationCount, TestConfig config) {
+        List<List<Double>> locations = new ArrayList<>();
+        
+        try {
+            List<?> lons = session.get(config.getFieldLon());
+            List<?> lats = session.get(config.getFieldLat());
+
+            if (lons == null || lats == null) {
+                logger.error("Longitude or latitude values are null in session");
+                return locations;
+            }
+
+            int size = Math.min(Math.min(locationCount, lons.size()), lats.size());
+            
+            for (int i = 0; i < size; i++) {
+                Object lon = lons.get(i);
+                Object lat = lats.get(i);
+                
+                if (lon != null && lat != null) {
+                    locations.add(List.of(Double.valueOf(lon.toString()),
+                            Double.valueOf(lat.toString())));
+                }
+            }
+            
+            logger.debug("Created location list with {} coordinates", locations.size());
+            
+        } catch (NumberFormatException e) {
+            String errorMessage = String.format("Failed to parse coordinate values in locations list at index %d. Original value could not be converted to double", locations.size());
+            throw new RequestBodyCreationException("Error processing coordinates: " + errorMessage, e);
+        }
+        
+        return locations;
     }
 
     private static FeederBuilder<String> initCsvFeeder(String sourceFile) {
         logger.info("Initializing feeder with source file: {}", sourceFile);
-        return csv(sourceFile).shuffle();
+        return csv(sourceFile).circular();
     }
 
     private static String getFileNameWithoutExtension(String filePath) {

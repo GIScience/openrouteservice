@@ -38,7 +38,7 @@ class TestConfigTest {
         assertEquals(1, config.getNumConcurrentUsers());
         assertEquals(List.of(1), config.getQuerySizes());
         assertEquals(Collections.singletonList("search.csv"), config.getSourceFiles());
-        assertEquals(true, config.isParallelExecution());
+        assertEquals(false, config.isParallelExecution());
     }
 
     @Test
