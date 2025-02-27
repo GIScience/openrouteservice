@@ -2,6 +2,7 @@ package org.heigit.ors.benchmark;
 
 import java.util.*;
 
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +24,15 @@ public class TestConfig {
     }
 
     public enum DirectionsModes {
-        BASIC_FASTEST("BasicFastest"),
-        AVOID_HIGHWAY("AvoidHighway");
-        DirectionsModes(String s) {
+        BASIC_FASTEST,
+        AVOID_HIGHWAY;
+
+        public static DirectionsModes fromString(String value) {
+            return switch (value.toLowerCase()) {
+                case "basicfastest" -> BASIC_FASTEST;
+                case "avoidhighway" -> AVOID_HIGHWAY;
+                default -> throw new IllegalArgumentException("Invalid directions mode: " + value);
+            };
         }
     }
 
@@ -182,7 +189,7 @@ public class TestConfig {
 
     public List<DirectionsModes> getDirectionsModes() {
         return modes.isEmpty() ? List.of(BASIC_FASTEST, AVOID_HIGHWAY) : modes.stream()
-                .map(DirectionsModes::valueOf)
+                .map(DirectionsModes::fromString)
                 .toList();
     }
 
