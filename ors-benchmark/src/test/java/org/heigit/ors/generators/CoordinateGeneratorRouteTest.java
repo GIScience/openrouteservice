@@ -1,6 +1,5 @@
 package org.heigit.ors.generators;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -8,11 +7,6 @@ import java.util.stream.Stream;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,33 +17,24 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
-import org.mockito.Captor;
-import org.mockito.Mock;
 import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
 
-class CoordinateGeneratorRouteTest {
-    private double[] extent;
+class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
     private TestCoordinateGeneratorRoute testGenerator;
 
-    @Mock
-    CloseableHttpClient closeableHttpClient;
-
-    @Captor
-    private ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor;
-
+    @Override
     @BeforeEach
-    @SuppressWarnings("unused")
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        extent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
-        testGenerator = new TestCoordinateGeneratorRoute(
-                2, extent, "driving-car", null, 0); // Added minDistance parameter
+    void setUpBase() {
+        super.setUpBase();
+        testGenerator = new TestCoordinateGeneratorRoute(2, extent, "driving-car", null, 0);
+    }
+
+    @Override
+    protected AbstractCoordinateGenerator createTestGenerator() {
+        return new TestCoordinateGeneratorRoute(2, extent, "driving-car", null, 0);
     }
 
     @Test
@@ -108,26 +93,6 @@ class CoordinateGeneratorRouteTest {
         assertEquals("start_longitude,start_latitude,end_longitude,end_latitude,distance", lines.get(0)); // Updated
                                                                                                           // header
         assertEquals(3, lines.size()); // Header + 2 routes
-    }
-
-    @Test
-    void testProcessResponseSuccess() throws IOException {
-        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
-        HttpEntity entity = new StringEntity("test content");
-        when(response.getCode()).thenReturn(HttpStatus.SC_OK);
-        when(response.getEntity()).thenReturn(entity);
-
-        String result = testGenerator.processResponse(response);
-        assertEquals("test content", result);
-    }
-
-    @Test
-    void testProcessResponseNonOkStatus() {
-        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
-        when(response.getCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
-
-        IOException exception = assertThrows(IOException.class, () -> testGenerator.processResponse(response));
-        assertEquals("HTTP/1.1 400", exception.getMessage().strip());
     }
 
     @Test
