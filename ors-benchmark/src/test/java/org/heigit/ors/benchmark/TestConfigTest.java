@@ -37,7 +37,7 @@ class TestConfigTest {
         assertEquals("latitude", config.getFieldLat());
         assertEquals(1, config.getNumConcurrentUsers());
         assertEquals(List.of(1), config.getQuerySizes());
-        assertEquals(Collections.singletonList("search.csv"), config.getSourceFiles());
+        assertEquals(Collections.emptyList(), config.getSourceFiles());
         assertEquals(false, config.isParallelExecution());
     }
 
