@@ -1,9 +1,7 @@
 package org.heigit.ors.generators;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.ClientProtocolException;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -14,8 +12,6 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.heigit.ors.util.ProgressBarLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -25,44 +21,26 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.SecureRandom;
 import java.util.*;
 
-public class CoordinateGeneratorRoute {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorRoute.class);
-    private static final int DEFAULT_MAX_ATTEMPTS = 10;
+public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     private static final int DEFAULT_MATRIX_SIZE = 4;
-    private static final double COORDINATE_PRECISION = 1e-6;
-    private static final String DEFAULT_BASE_URL = "http://localhost:8082/ors";
-    private final String baseUrl;
-    private final double[] extent;
+
     private final int numRoutes;
-    private final String profile;
-    private final String url;
-    private final Map<String, String> headers;
-    private final List<Route> routes;
-    private final Random random;
-    private final ObjectMapper mapper;
+    private final double minDistance;
+    private final List<Route> result;
     private final Set<RoutePair> uniqueRoutes;
-    private final double minDistance; // Add this field
 
     protected static class Route {
         final double[] start;
         final double[] end;
-        final double distance; // Changed from duration to distance
+        final double distance;
 
-        Route(double[] start, double[] end, double distance) { // Changed parameter name
+        Route(double[] start, double[] end, double distance) {
             this.start = start;
             this.end = end;
-            this.distance = distance; // Changed field name
+            this.distance = distance;
         }
-    }
-
-    public static <T extends Number> double rand(T x) {
-        if (x == null) {
-            throw new IllegalArgumentException("Input number cannot be null");
-        }
-        return (x instanceof Double || x instanceof Float) ? x.doubleValue() : x.longValue();
     }
 
     protected static class RoutePair {
@@ -89,7 +67,7 @@ public class CoordinateGeneratorRoute {
             return Objects.hash(
                     Math.round(start[0] * 1e6) / 1e6,
                     Math.round(start[1] * 1e6) / 1e6,
-                            Math.round(end[0] * 1e6) / 1e6,
+                    Math.round(end[0] * 1e6) / 1e6,
                     Math.round(end[1] * 1e6) / 1e6);
         }
 
@@ -101,51 +79,19 @@ public class CoordinateGeneratorRoute {
 
     protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl,
             double minDistance) {
-        this.baseUrl = baseUrl != null ? baseUrl : DEFAULT_BASE_URL;
-        validateInputParameters(numRoutes, extent, profile, minDistance);
-        this.extent = extent;
-        this.numRoutes = numRoutes;
-        this.profile = profile;
-        this.minDistance = minDistance;
-        this.random = new SecureRandom();
-        this.mapper = new ObjectMapper();
-        this.routes = new ArrayList<>();
-        this.uniqueRoutes = new HashSet<>();
-
-        String apiKey = getApiKey();
-        this.url = String.format("%s/v2/matrix/%s", this.baseUrl, this.profile);
-        this.headers = new HashMap<>();
-        headers.put("Accept", "application/json");
-        headers.put("Content-Type", "application/json");
-        headers.put("Authorization", apiKey);
-    }
-
-    private void validateInputParameters(int numRoutes, double[] extent, String profile, double minDistance) {
+        super(extent, profile, baseUrl, "matrix");
         if (numRoutes <= 0)
             throw new IllegalArgumentException("Number of routes must be positive");
-        if (extent == null || extent.length != 4)
-            throw new IllegalArgumentException("Extent must contain 4 coordinates");
-        if (profile == null || profile.isBlank())
-            throw new IllegalArgumentException("Profile must not be empty");
         if (minDistance < 0)
             throw new IllegalArgumentException("Minimum distance must be non-negative");
+
+        this.numRoutes = numRoutes;
+        this.minDistance = minDistance;
+        this.result = new ArrayList<>();
+        this.uniqueRoutes = new HashSet<>();
     }
 
-    private String getApiKey() {
-        if (!baseUrl.contains("openrouteservice.org")) {
-            return "";
-        }
-
-        String apiKey = System.getenv("ORS_API_KEY");
-        if (apiKey == null) {
-            apiKey = System.getProperty("ORS_API_KEY");
-        }
-        if (apiKey == null) {
-            throw new IllegalStateException("ORS_API_KEY environment variable is not set.");
-        }
-        return apiKey;
-    }
-
+    @Override
     protected List<double[]> randomCoordinatesInExtent(int count) {
         List<double[]> points = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -156,10 +102,7 @@ public class CoordinateGeneratorRoute {
         return points;
     }
 
-    protected CloseableHttpClient createHttpClient() {
-        return HttpClientBuilder.create().build();
-    }
-
+    @Override
     protected String processResponse(ClassicHttpResponse response) throws IOException {
         int status = response.getCode();
         if (status >= HttpStatus.SC_REDIRECTION) {
@@ -176,26 +119,26 @@ public class CoordinateGeneratorRoute {
         }
     }
 
+
     public void generateRoutes() {
-        generateRoutes(DEFAULT_MAX_ATTEMPTS);
+        generate(DEFAULT_MAX_ATTEMPTS);
     }
 
-    public void generateRoutes(int maxAttempts) {
+    @Override
+    public void generate(int maxAttempts) {
         initializeCollections();
         int attempts = 0;
         int lastSize = 0;
 
-        // Create progress bar builder
         ProgressBarBuilder pbb = new ProgressBarBuilder()
                 .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
                 .setUpdateIntervalMillis(5000)
                 .setTaskName("Generating routes")
                 .setInitialMax(numRoutes)
                 .setConsumer(new DelegatingProgressBarConsumer(ProgressBarLogger.getLogger()::info));
-        ProgressBar pb = pbb.build();
-        // Use try-with-resources for both client and progress bar to ensure proper
-        // closing
-        try (CloseableHttpClient client = createHttpClient()) {
+
+        try (CloseableHttpClient client = createHttpClient();
+                ProgressBar pb = pbb.build()) {
 
             pb.setExtraMessage("Starting...");
 
@@ -209,7 +152,7 @@ public class CoordinateGeneratorRoute {
                 } else {
                     pb.stepTo(Math.min(uniqueRoutes.size(), numRoutes));
                     pb.setExtraMessage(
-                            String.format("Found %d unique routes ", Math.min(uniqueRoutes.size(), numRoutes)));
+                            String.format("Found %d unique routes", Math.min(uniqueRoutes.size(), numRoutes)));
                     attempts = 0;
                     lastSize = uniqueRoutes.size();
                 }
@@ -217,6 +160,7 @@ public class CoordinateGeneratorRoute {
 
             pb.stepTo(Math.min(uniqueRoutes.size(), numRoutes));
             if (attempts >= maxAttempts) {
+                LOGGER.info("\n");
                 pb.setExtraMessage(String.format("Stopped after %d attempts - Found at least %d/%d routes",
                         maxAttempts, uniqueRoutes.size(), numRoutes));
                 LOGGER.warn("Stopped route generation after {} attempts. Found {}/{} routes",
@@ -224,19 +168,17 @@ public class CoordinateGeneratorRoute {
             }
         } catch (Exception e) {
             LOGGER.error("Error generating routes", e);
-        } finally {
-            pb.close();
-            LOGGER.info("\n");
-            LOGGER.info("Generated {} unique routes", Math.min(uniqueRoutes.size(), numRoutes));
         }
     }
 
-    private void initializeCollections() {
-        routes.clear();
+    @Override
+    protected void initializeCollections() {
+        result.clear();
         uniqueRoutes.clear();
     }
 
-    private void processNextBatch(CloseableHttpClient client) throws IOException {
+    @Override
+    protected void processNextBatch(CloseableHttpClient client) throws IOException {
         List<double[]> coordinates = randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE);
         String response = sendMatrixRequest(client, coordinates);
         if (response != null) {
@@ -252,7 +194,7 @@ public class CoordinateGeneratorRoute {
     private HttpPost createMatrixRequest(List<double[]> coordinates) throws JsonProcessingException {
         Map<String, Object> payload = new HashMap<>();
         payload.put("locations", coordinates);
-        payload.put("metrics", new String[] { "distance" }); // Add metrics parameter to request distance
+        payload.put("metrics", new String[] { "distance" });
 
         HttpPost request = new HttpPost(url);
         headers.forEach(request::addHeader);
@@ -264,19 +206,19 @@ public class CoordinateGeneratorRoute {
         Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {
         });
 
-        List<List<Double>> distances = extractDistances(responseMap); // Changed from durations to distances
+        List<List<Double>> distances = extractDistances(responseMap);
         List<Map<String, Object>> locations = extractLocations(responseMap, "destinations");
 
         if (distances == null || locations == null || locations.isEmpty()) {
             return;
         }
 
-        processMatrixResults(distances, locations); // Updated parameter name
+        processMatrixResults(distances, locations);
     }
 
     @SuppressWarnings("unchecked")
-    private List<List<Double>> extractDistances(Map<String, Object> responseMap) { // Changed method name
-        Object distancesObj = responseMap.get("distances"); // Changed from durations to distances
+    private List<List<Double>> extractDistances(Map<String, Object> responseMap) {
+        Object distancesObj = responseMap.get("distances");
         if (distancesObj instanceof List<?>) {
             return (List<List<Double>>) distancesObj;
         }
@@ -292,16 +234,14 @@ public class CoordinateGeneratorRoute {
         return Collections.emptyList();
     }
 
-    private void processMatrixResults(List<List<Double>> distances, List<Map<String, Object>> locations) { // Updated
-                                                                                                           // parameter
-                                                                                                           // name
+    private void processMatrixResults(List<List<Double>> distances, List<Map<String, Object>> locations) {
         int size = locations.size();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i != j) {
-                    Double distance = distances.get(i).get(j); // Changed from duration to distance
+                    Double distance = distances.get(i).get(j);
                     if (distance > 0) {
-                        addRouteIfUnique(locations.get(i), locations.get(j), distance); // Updated parameter name
+                        addRouteIfUnique(locations.get(i), locations.get(j), distance);
                     }
                 }
             }
@@ -309,9 +249,7 @@ public class CoordinateGeneratorRoute {
     }
 
     @SuppressWarnings("unchecked")
-    private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance) { // Updated
-                                                                                                         // parameter
-                                                                                                         // name
+    private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance) {
         List<Number> startCoord = (List<Number>) start.get("location");
         List<Number> endCoord = (List<Number>) end.get("location");
 
@@ -319,7 +257,6 @@ public class CoordinateGeneratorRoute {
             double[] startPoint = new double[] { startCoord.get(0).doubleValue(), startCoord.get(1).doubleValue() };
             double[] endPoint = new double[] { endCoord.get(0).doubleValue(), endCoord.get(1).doubleValue() };
 
-            // Check if distance is greater than minimum (now in meters instead of seconds)
             if (distance < minDistance) {
                 LOGGER.debug("Skipping route with distance {} < minimum {} meters", distance, minDistance);
                 return;
@@ -327,15 +264,18 @@ public class CoordinateGeneratorRoute {
 
             RoutePair routePair = new RoutePair(startPoint, endPoint);
             if (uniqueRoutes.add(routePair)) {
-                routes.add(new Route(startPoint, endPoint, distance));
+                result.add(new Route(startPoint, endPoint, distance));
             }
         }
     }
 
-    protected List<Route> getResult() {
-        return routes.subList(0, Math.min(numRoutes, routes.size()));
+    @SuppressWarnings("unchecked")
+    @Override
+    protected <T> List<T> getResult() {
+        return (List<T>) result.subList(0, Math.min(numRoutes, result.size()));
     }
 
+    @Override
     protected void writeToCSV(String filePath) throws FileNotFoundException {
         // Get cleaned up results
         List<Route> cleanedRoutes = getResult();
@@ -343,7 +283,7 @@ public class CoordinateGeneratorRoute {
         File csvOutputFile = new File(filePath);
         try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
             pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance");
-            for (Route route : cleanedRoutes) { // Use cleaned routes
+            for (Route route : cleanedRoutes) {
                 pw.printf("%f,%f,%f,%f,%.2f%n",
                                 route.start[0], route.start[1],
                         route.end[0], route.end[1],
@@ -365,12 +305,14 @@ public class CoordinateGeneratorRoute {
             CoordinateGeneratorRoute generator = cli.createGenerator();
 
             LOGGER.info("Generating {} routes...", generator.numRoutes);
-            generator.generateRoutes(DEFAULT_MAX_ATTEMPTS);
+            generator.generateRoutes();
+            LOGGER.info("\n");
 
-            List<Route> result = generator.getResult(); // Get cleaned results
+            List<Route> result = generator.getResult();
             LOGGER.info("Writing {} routes to {}", result.size(), cli.getOutputFile());
             generator.writeToCSV(cli.getOutputFile());
 
+            LOGGER.info("\n");
             LOGGER.info("Successfully generated {} route{}",
                     result.size(),
                     result.size() != 1 ? "s" : "");

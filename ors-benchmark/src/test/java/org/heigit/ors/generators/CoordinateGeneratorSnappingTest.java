@@ -1,57 +1,35 @@
 package org.heigit.ors.generators;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
 
-class CoordinateGeneratorSnappingTest {
-    private double[] extent;
+class CoordinateGeneratorSnappingTest extends AbstractCoordinateGeneratorTest {
     private TestCoordinateGeneratorSnapping testGenerator;
 
-    @Mock
-    CloseableHttpClient closeableHttpClient;
-
-    @Captor
-    private ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor;
-
+    @Override
     @BeforeEach
-    @SuppressWarnings("unused")
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        extent = new double[] { 8.6286, 49.3590, 8.7957, 49.4715 };
-        testGenerator = new TestCoordinateGeneratorSnapping(
-                2, extent, 350, "driving-car", null);
+    void setUpBase() {
+        super.setUpBase();
+        testGenerator = new TestCoordinateGeneratorSnapping(2, extent, 350, "driving-car", null);
+    }
+
+    @Override
+    protected AbstractCoordinateGenerator createTestGenerator() {
+        return new TestCoordinateGeneratorSnapping(2, extent, 350, "driving-car", null);
     }
 
     @Test
@@ -68,7 +46,7 @@ class CoordinateGeneratorSnappingTest {
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         testGenerator.setHttpClient(closeableHttpClient);
-        testGenerator.generatePoints();
+        testGenerator.generate();
 
         List<double[]> result = testGenerator.getResult();
         assertEquals(2, result.size());
@@ -82,7 +60,7 @@ class CoordinateGeneratorSnappingTest {
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(invalidResponse);
 
         testGenerator.setHttpClient(closeableHttpClient);
-        testGenerator.generatePoints();
+        testGenerator.generate();
 
         List<double[]> result = testGenerator.getResult();
         assertTrue(result.isEmpty());
@@ -103,7 +81,7 @@ class CoordinateGeneratorSnappingTest {
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         testGenerator.setHttpClient(closeableHttpClient);
-        testGenerator.generatePoints();
+        testGenerator.generate();
 
         String filename = "test_snap.csv";
         String filePath = tempDir.resolve(filename).toString();
@@ -112,57 +90,6 @@ class CoordinateGeneratorSnappingTest {
         String expected = "longitude,latitude\n8.666862,49.413181\n8.676105,49.418530\n";
         String result = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filePath)));
         assertEquals(expected, result);
-    }
-
-    @Test
-    void testProcessResponseSuccess() throws IOException {
-        // Mock response with successful status and valid content
-        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
-        HttpEntity entity = new StringEntity("test content");
-        when(response.getCode()).thenReturn(HttpStatus.SC_OK);
-        when(response.getEntity()).thenReturn(entity);
-
-        String result = testGenerator.processResponse(response);
-        assertEquals("test content", result);
-    }
-
-    @Test
-    void testProcessResponseNonOkStatus() {
-        // Mock response with non-OK status
-        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
-        when(response.getCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
-
-        ClientProtocolException exception = assertThrows(ClientProtocolException.class,
-                () -> testGenerator.processResponse(response));
-        assertEquals("HTTP/1.1 400", exception.getMessage().strip());
-    }
-
-    @Test
-    void testProcessResponseNullEntity() {
-        // Mock response with null entity
-        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
-        when(response.getCode()).thenReturn(HttpStatus.SC_OK);
-        when(response.getEntity()).thenReturn(null);
-
-        assertDoesNotThrow(() -> testGenerator.processResponse(response));
-    }
-
-    @Test
-    void testProcessResponseParseError() {
-        // Mock response and entity
-        ClassicHttpResponse response = mock(ClassicHttpResponse.class);
-        HttpEntity entity = mock(HttpEntity.class);
-        when(response.getCode()).thenReturn(HttpStatus.SC_OK);
-        when(response.getEntity()).thenReturn(entity);
-
-        // Use MockedStatic to mock the static EntityUtils.toString method
-        try (MockedStatic<EntityUtils> entityUtils = mockStatic(EntityUtils.class)) {
-            entityUtils.when(() -> EntityUtils.toString(any(HttpEntity.class)))
-                    .thenThrow(new ParseException("Failed to parse response entity"));
-
-            IOException exception = assertThrows(IOException.class, () -> testGenerator.processResponse(response));
-            assertEquals("Failed to parse response entity", exception.getMessage());
-        }
     }
 
     @Test
@@ -185,7 +112,7 @@ class CoordinateGeneratorSnappingTest {
                 3, extent, 350, "driving-car", null);
 
         testGenerator.setHttpClient(closeableHttpClient);
-        testGenerator.generatePoints();
+        testGenerator.generate();
 
         List<double[]> result = testGenerator.getResult();
 
