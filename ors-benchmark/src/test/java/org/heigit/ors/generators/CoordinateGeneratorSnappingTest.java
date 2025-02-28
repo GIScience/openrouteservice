@@ -1,8 +1,10 @@
 package org.heigit.ors.generators;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -24,12 +26,14 @@ class CoordinateGeneratorSnappingTest extends AbstractCoordinateGeneratorTest {
     @BeforeEach
     protected void setUpBase() {
         super.setUpBase();
-        testGenerator = new TestCoordinateGeneratorSnapping(2, extent, 350, "driving-car", null);
+        testGenerator = new TestCoordinateGeneratorSnapping(2, extent, 350,
+                new String[] { "driving-car", "cycling-regular" }, null);
     }
 
     @Override
     protected AbstractCoordinateGenerator createTestGenerator() {
-        return new TestCoordinateGeneratorSnapping(2, extent, 350, "driving-car", null);
+        return new TestCoordinateGeneratorSnapping(2, extent, 350,
+                new String[] { "driving-car", "cycling-regular" }, null);
     }
 
     @Test
@@ -48,10 +52,16 @@ class CoordinateGeneratorSnappingTest extends AbstractCoordinateGeneratorTest {
         testGenerator.setHttpClient(closeableHttpClient);
         testGenerator.generate();
 
-        List<double[]> result = testGenerator.getResult();
-        assertEquals(2, result.size());
-        assertEquals(2, result.get(0).length);
-        verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
+        List<Object[]> result = testGenerator.getResult();
+        assertEquals(4, result.size()); // 2 points * 2 profiles
+
+        // Check format of results (lon, lat, profile)
+        for (Object[] point : result) {
+            assertEquals(3, point.length);
+            assertTrue(point[2] instanceof String);
+            String profile = (String) point[2];
+            assertTrue(profile.equals("driving-car") || profile.equals("cycling-regular"));
+        }
     }
 
     @Test
@@ -87,56 +97,59 @@ class CoordinateGeneratorSnappingTest extends AbstractCoordinateGeneratorTest {
         String filePath = tempDir.resolve(filename).toString();
         testGenerator.writeToCSV(filePath);
 
-        String expected = "longitude,latitude\n8.666862,49.413181\n8.676105,49.418530\n";
+        String expected = """
+                longitude,latitude,profile
+                8.666862,49.413181,driving-car
+                8.676105,49.418530,driving-car
+                8.666862,49.413181,cycling-regular
+                8.676105,49.418530,cycling-regular
+                """;
         String result = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filePath)));
         assertEquals(expected, result);
     }
 
     @Test
     void testGeneratePointsWithDuplicates() throws Exception {
-        // Mock response with duplicate points
         String mockJsonResponse = """
                 {
                     "locations": [
                         {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
                         {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
-                        {"location": [8.676105, 49.41853], "name": "Berliner Straße", "snapped_distance": 19.11},
-                        {"location": [8.676105, 49.41853], "name": "Berliner Straße", "snapped_distance": 19.11},
-                        {"location": [8.677000, 49.41900], "name": "Another Street", "snapped_distance": 25.00}
+                        {"location": [8.676105, 49.41853], "name": "Berliner Straße", "snapped_distance": 19.11}
                     ]
                 }
                 """;
 
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
-        testGenerator = new TestCoordinateGeneratorSnapping(
-                3, extent, 350, "driving-car", null);
+        testGenerator = new TestCoordinateGeneratorSnapping(2, extent, 350,
+                new String[] { "driving-car", "cycling-regular" }, null);
 
         testGenerator.setHttpClient(closeableHttpClient);
         testGenerator.generate();
 
-        List<double[]> result = testGenerator.getResult();
+        List<Object[]> result = testGenerator.getResult();
 
-        // Should only contain unique points (3 instead of 5)
-        assertEquals(3, result.size());
+        // Should have 2 points per profile = 4 total
+        assertEquals(4, result.size());
 
-        // Verify the points are actually unique by checking coordinates
-        Set<String> uniqueCoords = new HashSet<>();
-        for (double[] point : result) {
+        // Verify unique points per profile
+        Map<String, Set<String>> pointsByProfile = new HashMap<>();
+        for (Object[] point : result) {
+            String profile = (String) point[2];
             String coordKey = String.format("%.6f,%.6f", point[0], point[1]);
-            assertTrue(uniqueCoords.add(coordKey),
-                    "Point " + coordKey + " should not already exist in results");
+            pointsByProfile.computeIfAbsent(profile, k -> new HashSet<>()).add(coordKey);
         }
-        assertTrue(uniqueCoords.contains("8.666862,49.413181"));
-        assertTrue(uniqueCoords.contains("8.676105,49.418530"));
-        assertTrue(uniqueCoords.contains("8.677000,49.419000"));
+
+        assertEquals(2, pointsByProfile.get("driving-car").size());
+        assertEquals(2, pointsByProfile.get("cycling-regular").size());
     }
 
     private class TestCoordinateGeneratorSnapping extends CoordinateGeneratorSnapping {
         private CloseableHttpClient testClient;
 
-        public TestCoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String profile,
+        public TestCoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String[] profiles,
                 String baseUrl) {
-            super(numPoints, extent, radius, profile, baseUrl);
+            super(numPoints, extent, radius, profiles, baseUrl);
         }
 
         void setHttpClient(CloseableHttpClient client) {

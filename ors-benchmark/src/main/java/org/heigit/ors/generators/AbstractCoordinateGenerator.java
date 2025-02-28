@@ -122,8 +122,8 @@ public abstract class AbstractCoordinateGenerator {
     protected abstract void generate(int maxAttempts);
     protected abstract <T> List<T> getResult();
     protected abstract void initializeCollections();
-    protected abstract void processNextBatch(CloseableHttpClient client) throws IOException;
 
+    protected abstract void processNextBatch(CloseableHttpClient client, String profile) throws IOException;
 
     protected void generate() {
         generate(DEFAULT_MAX_ATTEMPTS);

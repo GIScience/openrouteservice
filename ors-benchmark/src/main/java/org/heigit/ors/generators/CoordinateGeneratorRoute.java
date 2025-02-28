@@ -143,7 +143,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             pb.setExtraMessage("Starting...");
 
             while (uniqueRoutes.size() < numRoutes && attempts < maxAttempts) {
-                processNextBatch(client);
+                processNextBatch(client, "");
 
                 if (uniqueRoutes.size() == lastSize) {
                     attempts++;
@@ -178,7 +178,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     }
 
     @Override
-    protected void processNextBatch(CloseableHttpClient client) throws IOException {
+    protected void processNextBatch(CloseableHttpClient client, String profile) throws IOException {
         List<double[]> coordinates = randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE);
         String response = sendMatrixRequest(client, coordinates);
         if (response != null) {
