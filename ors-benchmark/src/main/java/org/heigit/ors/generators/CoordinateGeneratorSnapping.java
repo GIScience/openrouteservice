@@ -27,8 +27,9 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
 
     private final int numPoints;
     private final double radius;
-    private final List<double[]> result;
-    private final Set<Point> uniquePoints;
+    private final Map<String, List<double[]>> resultsByProfile;
+    private final Map<String, Set<Point>> uniquePointsByProfile;
+    private final String[] profiles;
 
     protected static class Point {
         final double[] coordinates;
@@ -53,101 +54,160 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         }
     }
 
-    protected CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String profile,
-            String baseUrl) {
-        super(extent, profile, baseUrl, "snap");
+    protected CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String[] profiles,
+                    String baseUrl) {
+        super(extent, profiles[0], baseUrl, "snap"); // Use first profile as default
         if (numPoints <= 0)
             throw new IllegalArgumentException("Number of points must be positive");
         if (radius <= 0)
             throw new IllegalArgumentException("Radius must be positive");
+        if (profiles.length == 0)
+            throw new IllegalArgumentException("At least one profile must be specified");
 
         this.numPoints = numPoints;
         this.radius = radius;
-        this.result = new ArrayList<>();
-        this.uniquePoints = new HashSet<>();
+        this.profiles = profiles.clone();
+        this.resultsByProfile = new HashMap<>();
+        this.uniquePointsByProfile = new HashMap<>();
+        for (String userProfile : profiles) {
+            resultsByProfile.put(userProfile, new ArrayList<>());
+            uniquePointsByProfile.put(userProfile, new HashSet<>());
+        }
     }
 
     @Override
     protected void generate(int maxAttempts) {
         initializeCollections();
-        int attempts = 0;
-        int lastSize = 0;
+        Map<String, Integer> lastSizes = initializeLastSizes();
 
-        ProgressBarBuilder pbb = new ProgressBarBuilder()
+        final ProgressBarBuilder pbb = new ProgressBarBuilder()
                 .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
                 .setUpdateIntervalMillis(5000)
                 .setTaskName("Generating snapped points")
-                .setInitialMax(numPoints)
+                .setInitialMax((long) numPoints * profiles.length)
                 .setConsumer(new DelegatingProgressBarConsumer(ProgressBarLogger.getLogger()::info));
 
         try (CloseableHttpClient client = createHttpClient();
                 ProgressBar pb = pbb.build()) {
 
             pb.setExtraMessage("Starting...");
+            generatePoints(client, pb, lastSizes, maxAttempts);
 
-            while (uniquePoints.size() < numPoints && attempts < maxAttempts) {
-                processNextBatch(client);
-
-                if (uniquePoints.size() == lastSize) {
-                    attempts++;
-                    pb.setExtraMessage(String.format("Attempt %d/%d - No new points", attempts, maxAttempts));
-                    LOGGER.debug("No new points found in attempt {}/{}", attempts, maxAttempts);
-                } else {
-                    pb.stepTo(uniquePoints.size());
-                    pb.setExtraMessage(String.format("Found %d unique points", uniquePoints.size()));
-                    attempts = 0;
-                    lastSize = uniquePoints.size();
-                }
-            }
-
-            pb.stepTo(uniquePoints.size());
-            if (attempts >= maxAttempts) {
-                pb.setExtraMessage(String.format("Stopped after %d attempts - Found %d/%d points",
-                        maxAttempts, uniquePoints.size(), numPoints));
-                LOGGER.warn("Stopped point generation after {} attempts. Found {}/{} points",
-                        maxAttempts, uniquePoints.size(), numPoints);
-            }
         } catch (Exception e) {
             LOGGER.error("Error generating points", e);
         }
     }
 
-    @Override
-    protected void initializeCollections() {
-        result.clear();
-        uniquePoints.clear();
+    private Map<String, Integer> initializeLastSizes() {
+        Map<String, Integer> lastSizes = new HashMap<>();
+        for (String userProfile : profiles) {
+            lastSizes.put(userProfile, 0);
+        }
+        return lastSizes;
     }
 
-    @Override
-    protected void processNextBatch(CloseableHttpClient client) throws IOException {
-        int remainingPoints = numPoints - uniquePoints.size();
-        int currentBatchSize = Math.min(DEFAULT_BATCH_SIZE, remainingPoints);
-        List<double[]> rawPoints = randomCoordinatesInExtent(currentBatchSize);
+    private void generatePoints(CloseableHttpClient client, ProgressBar pb, Map<String, Integer> lastSizes,
+            int maxAttempts) throws IOException {
+        int attempts = 0;
+        while (!isGenerationComplete() && attempts < maxAttempts) {
+            boolean newPointsFound = processProfiles(client, lastSizes);
 
-        String response = sendSnappingRequest(client, rawPoints);
-        if (response != null) {
-            processSnappingResponse(response);
+            if (!newPointsFound) {
+                attempts++;
+                pb.setExtraMessage(String.format("Attempt %d/%d - No new points", attempts, maxAttempts));
+            } else {
+                updateProgress(pb);
+                attempts = 0;
+            }
+        }
+
+        pb.stepTo(getTotalPoints());
+        if (attempts >= maxAttempts && LOGGER.isWarnEnabled()) {
+            LOGGER.warn("Stopped point generation after {} attempts. Points per profile: {}",
+                    maxAttempts, formatProgressMessage());
         }
     }
 
-    private String sendSnappingRequest(CloseableHttpClient client, List<double[]> points) throws IOException {
-        HttpPost request = createSnappingRequest(points);
+    private boolean processProfiles(CloseableHttpClient client, Map<String, Integer> lastSizes) throws IOException {
+        boolean newPointsFound = false;
+        for (String userProfile : profiles) {
+            LOGGER.info("Processing profile: {}", userProfile);
+            if (uniquePointsByProfile.get(userProfile).size() < numPoints) {
+                processNextBatch(client, userProfile);
+                int currentSize = uniquePointsByProfile.get(userProfile).size();
+
+                if (currentSize > lastSizes.get(userProfile)) {
+                    newPointsFound = true;
+                    lastSizes.put(userProfile, currentSize);
+                }
+            }
+        }
+        return newPointsFound;
+    }
+
+    private void updateProgress(ProgressBar pb) {
+        int totalPoints = getTotalPoints();
+        pb.stepTo(totalPoints);
+        pb.setExtraMessage(formatProgressMessage());
+    }
+
+    private int getTotalPoints() {
+        return uniquePointsByProfile.values().stream()
+                .mapToInt(Set::size)
+                .sum();
+    }
+
+    private String formatProgressMessage() {
+        return uniquePointsByProfile.entrySet().stream()
+                .map(e -> String.format("%s: %d/%d", e.getKey(), e.getValue().size(), numPoints))
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("");
+    }
+
+    private boolean isGenerationComplete() {
+        return uniquePointsByProfile.values().stream()
+                .allMatch(points -> points.size() >= numPoints);
+    }
+
+    @Override
+    protected void initializeCollections() {
+        resultsByProfile.values().forEach(List::clear);
+        uniquePointsByProfile.values().forEach(Set::clear);
+    }
+
+    @Override
+    protected void processNextBatch(CloseableHttpClient client, String profile) throws IOException {
+        int remainingPoints = numPoints - uniquePointsByProfile.get(profile).size();
+        int currentBatchSize = Math.min(DEFAULT_BATCH_SIZE, remainingPoints);
+        List<double[]> rawPoints = randomCoordinatesInExtent(currentBatchSize);
+
+        String response = sendSnappingRequest(client, rawPoints, profile);
+        if (response != null) {
+            processSnappingResponse(response, profile);
+        }
+    }
+
+    private String sendSnappingRequest(CloseableHttpClient client, List<double[]> points, String profile)
+            throws IOException {
+        HttpPost request = createSnappingRequest(points, profile);
+        // Log request
+        LOGGER.info("Sending request to ORS: {}", request);
         return client.execute(request, this::processResponse);
     }
 
-    private HttpPost createSnappingRequest(List<double[]> points) throws IOException {
+    private HttpPost createSnappingRequest(List<double[]> points, String profile) throws IOException {
         Map<String, Object> payload = new HashMap<>();
         payload.put("locations", points);
         payload.put("radius", radius);
 
-        HttpPost request = new HttpPost(url);
+        HttpPost request = new HttpPost(baseUrl + "/v2/snap/" + profile);
         headers.forEach(request::addHeader);
         request.setEntity(new StringEntity(mapper.writeValueAsString(payload), ContentType.APPLICATION_JSON));
         return request;
     }
 
     @SuppressWarnings("unchecked")
-    private void processSnappingResponse(String response) throws IOException {
+    private void processSnappingResponse(String response, String profile) throws IOException {
         Map<String, Object> responseMap = mapper.readValue(response,
                 new TypeReference<Map<String, Object>>() {
                 });
@@ -166,13 +226,13 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         }
 
         for (Map<String, Object> location : locations) {
-            processLocation(location);
-            if (uniquePoints.size() >= numPoints)
+            processLocation(location, profile);
+            if (uniquePointsByProfile.get(profile).size() >= numPoints)
                 break;
         }
     }
 
-    private void processLocation(Map<String, Object> location) {
+    private void processLocation(Map<String, Object> location, String profile) {
         if (location == null)
             return;
 
@@ -181,8 +241,8 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         if (coords != null && coords.size() >= 2) {
             double[] point = new double[] { coords.get(0).doubleValue(), coords.get(1).doubleValue() };
             Point snappedPoint = new Point(point);
-            if (uniquePoints.add(snappedPoint)) {
-                result.add(point);
+            if (uniquePointsByProfile.get(profile).add(snappedPoint)) {
+                resultsByProfile.get(profile).add(point);
             }
         }
     }
@@ -190,9 +250,12 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     @Override
     protected void writeToCSV(String filePath) throws IOException {
         try (PrintWriter pw = new PrintWriter(filePath)) {
-            pw.println("longitude,latitude");
-            for (double[] point : result) {
-                pw.printf("%f,%f%n", point[0], point[1]);
+            pw.println("longitude,latitude,profile");
+            for (Map.Entry<String, List<double[]>> entry : resultsByProfile.entrySet()) {
+                String profile = entry.getKey();
+                for (double[] point : entry.getValue()) {
+                    pw.printf("%f,%f,%s%n", point[0], point[1], profile);
+                }
             }
         }
     }
@@ -200,7 +263,10 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     @SuppressWarnings("unchecked")
     @Override
     protected <T> List<T> getResult() {
-        return (List<T>) new ArrayList<>(result);
+        List<Object[]> combined = new ArrayList<>();
+        resultsByProfile.forEach((profile, points) -> points
+                .forEach(point -> combined.add(new Object[] { point[0], point[1], profile })));
+        return (List<T>) combined;
     }
 
     public static void main(String[] args) throws org.apache.commons.cli.ParseException {

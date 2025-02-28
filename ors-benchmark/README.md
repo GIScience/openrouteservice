@@ -59,19 +59,21 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
 
 ### Snapping Generator
 
-A command-line tool for generating coordinates and snapping them to the nearest road network points.
+A command-line tool for generating coordinates and snapping them to the nearest road network points. Supports generating points for multiple routing profiles simultaneously.
 
 #### Point Generator Usage
 
 Options:
 
-- `-n, --num-points <value>`: Number of points to generate (required)
+- `-n, --num-points <value>`: Number of points to generate per profile (required)
 - `-e, --extent <minLon> <minLat> <maxLon> <maxLat>`: Bounding box for coordinate generation (required)
-- `-p, --profile <value>`: Routing profile to use (e.g., driving-car) (required)
+- `-p, --profiles <values>`: Comma-separated list of routing profiles (e.g., driving-car,cycling-regular) (required)
 - `-r, --radius <value>`: Search radius in meters (default: 350)
 - `-u, --url <value>`: ORS API base URL (default: http://localhost:8080/ors)
 - `-o, --output <file>`: Output CSV file path (default: snapped_coordinates.csv)
 - `-h, --help`: Show help message
+
+The output CSV will contain a 'profile' column indicating which profile each coordinate was generated for.
 
 Example:
 
@@ -95,6 +97,20 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   --num-points 50 \
   --extent 8.681495 49.411721 8.695485 49.419365 \
   --profile driving-car \
+  --radius 250 \
+  --url http://localhost:8080/ors \
+  --output heidelberg_snapped.csv"
+```
+
+Example with multiple profiles:
+
+```bash
+mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+  -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorSnapping" \
+  -Dexec.args="\
+  --num-points 50 \
+  --extent 8.681495 49.411721 8.695485 49.419365 \
+  --profiles driving-car,cycling-regular \
   --radius 250 \
   --url http://localhost:8080/ors \
   --output heidelberg_snapped.csv"
