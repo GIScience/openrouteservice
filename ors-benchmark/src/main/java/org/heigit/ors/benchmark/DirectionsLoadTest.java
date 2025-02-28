@@ -1,15 +1,5 @@
 package org.heigit.ors.benchmark;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.gatling.javaapi.core.*;
-import io.gatling.javaapi.http.HttpProtocolBuilder;
-import io.gatling.javaapi.http.HttpRequestActionBuilder;
-import org.heigit.ors.benchmark.TestConfig.DirectionsModes;
-import org.heigit.ors.exceptions.RequestBodyCreationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -18,9 +8,28 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static io.gatling.javaapi.core.CoreDsl.*;
+import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
+import org.heigit.ors.exceptions.RequestBodyCreationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static io.gatling.javaapi.core.CoreDsl.StringBody;
+import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
+import static io.gatling.javaapi.core.CoreDsl.csv;
+import static io.gatling.javaapi.core.CoreDsl.group;
+import static io.gatling.javaapi.core.CoreDsl.scenario;
+import io.gatling.javaapi.core.FeederBuilder;
+import io.gatling.javaapi.core.PopulationBuilder;
+import io.gatling.javaapi.core.ScenarioBuilder;
+import io.gatling.javaapi.core.Session;
+import io.gatling.javaapi.core.Simulation;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
+import io.gatling.javaapi.http.HttpProtocolBuilder;
+import io.gatling.javaapi.http.HttpRequestActionBuilder;
 
 public class DirectionsLoadTest extends Simulation {
     private static final Logger logger = LoggerFactory.getLogger(DirectionsLoadTest.class);
@@ -32,7 +41,6 @@ public class DirectionsLoadTest extends Simulation {
             .contentTypeHeader("application/json; charset=utf-8")
             .userAgentHeader("Gatling")
             .header("Authorization", config.getApiKey());
-    ;
 
     public DirectionsLoadTest() {
         logger.info("Initializing DirectionsLoadTest:");

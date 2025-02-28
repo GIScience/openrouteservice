@@ -22,7 +22,7 @@ class CoordinateGeneratorSnappingTest extends AbstractCoordinateGeneratorTest {
 
     @Override
     @BeforeEach
-    void setUpBase() {
+    protected void setUpBase() {
         super.setUpBase();
         testGenerator = new TestCoordinateGeneratorSnapping(2, extent, 350, "driving-car", null);
     }

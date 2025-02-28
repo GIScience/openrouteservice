@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
-abstract class AbstractCoordinateGeneratorTest {
+public abstract class AbstractCoordinateGeneratorTest {
     protected double[] extent;
 
     @Mock
@@ -33,9 +33,9 @@ abstract class AbstractCoordinateGeneratorTest {
     protected ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor;
 
     @BeforeEach
-    void setUpBase() {
+    protected void setUpBase() {
         MockitoAnnotations.openMocks(this);
-        extent = new double[] { 8.6286, 49.3590, 8.7957, 49.4715 };
+        extent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
     }
 
     protected abstract AbstractCoordinateGenerator createTestGenerator();
