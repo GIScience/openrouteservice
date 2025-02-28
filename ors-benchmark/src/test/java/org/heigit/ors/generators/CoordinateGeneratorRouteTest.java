@@ -7,6 +7,11 @@ import java.util.stream.Stream;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,15 +24,16 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
     private TestCoordinateGeneratorRoute testGenerator;
 
-    @Override
     @BeforeEach
-    void setUpBase() {
+    @Override
+    protected void setUpBase() {
         super.setUpBase();
         testGenerator = new TestCoordinateGeneratorRoute(2, extent, "driving-car", null, 0);
     }
@@ -53,7 +59,14 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
                 }
                 """;
 
-        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
+        ClassicHttpResponse mockResponse = mock(ClassicHttpResponse.class);
+        when(mockResponse.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(mockResponse.getEntity()).thenReturn(new StringEntity(mockJsonResponse, ContentType.APPLICATION_JSON));
+
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenAnswer(invocation -> {
+            HttpClientResponseHandler<String> handler = invocation.getArgument(1);
+            return handler.handleResponse(mockResponse);
+        });
 
         testGenerator.setHttpClient(closeableHttpClient);
         testGenerator.generateRoutes();
@@ -206,12 +219,12 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
         private CloseableHttpClient testClient;
 
         public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl) {
-            super(numRoutes, extent, profile, baseUrl, 0); // Added default minDistance
+            super(numRoutes, extent, profile, baseUrl, 0);
         }
 
         public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl,
                 double minDistance) {
-            super(numRoutes, extent, profile, baseUrl, minDistance); // Added minDistance parameter
+            super(numRoutes, extent, profile, baseUrl, minDistance);
         }
 
         void setHttpClient(CloseableHttpClient client) {
@@ -220,7 +233,7 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
 
         @Override
         protected CloseableHttpClient createHttpClient() {
-            return testClient;
+            return testClient != null ? testClient : super.createHttpClient();
         }
     }
 }

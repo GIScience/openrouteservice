@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.heigit.ors.benchmark.BenchmarkEnums.RangeType;
 import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

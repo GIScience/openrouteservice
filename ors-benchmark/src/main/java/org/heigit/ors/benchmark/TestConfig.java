@@ -4,38 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.heigit.ors.benchmark.TestConfig.DirectionsModes.AVOID_HIGHWAY;
-import static org.heigit.ors.benchmark.TestConfig.DirectionsModes.BASIC_FASTEST;
+import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
+import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.AVOID_HIGHWAY;
+import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.BASIC_FASTEST;
+import org.heigit.ors.benchmark.BenchmarkEnums.TestUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestConfig {
-    public enum TestUnit {
-        DISTANCE,
-        TIME;
-
-        public static TestUnit fromString(String value) {
-            return switch (value.toLowerCase()) {
-                case "distance" -> DISTANCE;
-                case "time" -> TIME;
-                default -> throw new IllegalArgumentException("Invalid test unit: " + value);
-            };
-        }
-    }
-
-    public enum DirectionsModes {
-        BASIC_FASTEST,
-        AVOID_HIGHWAY;
-
-        public static DirectionsModes fromString(String value) {
-            return switch (value.toLowerCase()) {
-                case "basicfastest" -> BASIC_FASTEST;
-                case "avoidhighway" -> AVOID_HIGHWAY;
-                default -> throw new IllegalArgumentException("Invalid directions mode: " + value);
-            };
-        }
-    }
-
     private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
 
     private final String baseUrl;
@@ -181,10 +157,9 @@ public class TestConfig {
     }
 
     public List<String> getTargetProfiles(DirectionsModes mode) {
-        return System.getProperty("profile_override") != null ? parseCommaSeparatedStringToStrings(System.getProperty("profile_override")) : switch (mode) {
-            case BASIC_FASTEST -> List.of("driving-car", "driving-hgv", "cycling-regular", "cycling-road", "cycling-mountain", "cycling-electric", "foot-walking", "foot-hiking");
-            case AVOID_HIGHWAY -> List.of("driving-car", "driving-hgv");
-        };
+        return System.getProperty("profile_override") != null
+                ? parseCommaSeparatedStringToStrings(System.getProperty("profile_override"))
+                : mode.getDefaultProfiles();
     }
 
     public List<DirectionsModes> getDirectionsModes() {
@@ -193,10 +168,7 @@ public class TestConfig {
                 .toList();
     }
 
-    public Map<String,?> getAdditionalRequestParams(DirectionsModes mode) {
-        return switch (mode) {
-            case BASIC_FASTEST -> Map.of("preference", "fastest");
-            case AVOID_HIGHWAY -> Map.of("preference", "fastest", "options", Map.of("avoid_features", List.of("highways")));
-        };
+    public Map<String, Object> getAdditionalRequestParams(DirectionsModes mode) {
+        return mode.getRequestParams();
     }
 }
