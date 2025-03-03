@@ -8,8 +8,6 @@ Collection of tools for generating test coordinates and performing load tests us
 mvn clean compile
 ```
 
-### Point Generator
-
 ### Route Generator
 
 A command-line tool for generating pairs of coordinates suitable for route testing based on specified criteria.
@@ -20,10 +18,10 @@ Options:
 
 - `-n, --num-routes <value>`: Number of routes to generate (required)
 - `-e, --extent <minLon> <minLat> <maxLon> <maxLat>`: Bounding box for coordinate generation (required)
-- `-p, --profile <value>`: Routing profile to use (e.g., driving-car) (required)
+- `-p, --profiles <value>`: Comma-separated routing profiles (e.g., driving-car,cycling-regular) (required)
 - `-u, --url <value>`: ORS API base URL (default: http://localhost:8080/ors)
 - `-o, --output <file>`: Output CSV file path (default: route_coordinates.csv)
-- `-d, --min-distance <value>`: Minimum distance between coordinates in meters (default: 0)
+- `-d, --min-distance <value>`: Minimum distance between coordinates in meters (default: 1)
 - `-h, --help`: Show help message
 
 Example:
@@ -39,7 +37,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   -o routes.csv"
 ```
 
-Example with long parameters:
+Example with long parameters and multiple profiles:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
@@ -47,7 +45,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   -Dexec.args="\
   --num-routes 50 \
   --extent 8.681495 49.411721 8.695485 49.419365 \
-  --profile driving-car \
+  --profiles driving-car,cycling-regular \
   --url http://localhost:8080/ors \
   --min-distance 2000 \
   --output heidelberg_routes.csv"
@@ -57,7 +55,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
 
 A command-line tool for generating coordinates and snapping them to the nearest road network points. Supports generating points for multiple routing profiles simultaneously.
 
-#### Point Generator Usage
+#### Snapping Generator Usage
 
 Options:
 
@@ -68,8 +66,6 @@ Options:
 - `-u, --url <value>`: ORS API base URL (default: http://localhost:8080/ors)
 - `-o, --output <file>`: Output CSV file path (default: snapped_coordinates.csv)
 - `-h, --help`: Show help message
-
-The output CSV will contain a 'profile' column indicating which profile each coordinate was generated for.
 
 Example:
 
@@ -82,20 +78,6 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   -p driving-car \
   -r 500 \
   -o snapped.csv"
-```
-
-Example with long parameters:
-
-```bash
-mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorSnapping" \
-  -Dexec.args="\
-  --num-points 50 \
-  --extent 8.681495 49.411721 8.695485 49.419365 \
-  --profile driving-car \
-  --radius 250 \
-  --url http://localhost:8080/ors \
-  --output heidelberg_snapped.csv"
 ```
 
 Example with multiple profiles:
