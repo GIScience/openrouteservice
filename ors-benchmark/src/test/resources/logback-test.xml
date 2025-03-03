@@ -12,7 +12,7 @@
 	<!-- uncomment and set to TRACE to log all HTTP requests -->
     <logger name="io.gatling.http.engine.response" level="DEBUG" />
 
-	<root level="WARN">
+    <root level="INFO">
 		<appender-ref ref="CONSOLE" />
 	</root>
 
