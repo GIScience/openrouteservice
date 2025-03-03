@@ -156,6 +156,10 @@ public class TestConfig {
         return sourceFiles;
     }
 
+    public List<String> getTargetProfiles() {
+        return parseCommaSeparatedStringToStrings(targetProfile);
+    }
+
     public List<String> getTargetProfiles(DirectionsModes mode) {
         return System.getProperty("profile_override") != null
                 ? parseCommaSeparatedStringToStrings(System.getProperty("profile_override"))
@@ -163,9 +167,10 @@ public class TestConfig {
     }
 
     public List<DirectionsModes> getDirectionsModes() {
-        return modes.isEmpty() ? List.of(BASIC_FASTEST, AVOID_HIGHWAY) : modes.stream()
-                .map(DirectionsModes::fromString)
-                .toList();
+        return modes.isEmpty() ? List.of(BASIC_FASTEST, AVOID_HIGHWAY)
+                : modes.stream()
+                        .map(DirectionsModes::fromString)
+                        .toList();
     }
 
     public Map<String, Object> getAdditionalRequestParams(DirectionsModes mode) {

@@ -1,12 +1,8 @@
 # ORS Benchmark Tools
 
-Collection of tools for generating test coordinates using OpenRouteService APIs.
+Collection of tools for generating test coordinates and performing load tests using OpenRouteService APIs.
 
-## Coordinate Generator
-
-A tool to generate coordinate pairs within specified distance constraints using the ORS Matrix API.
-
-### Building
+## Building
 
 ```bash
 mvn clean compile
@@ -148,6 +144,7 @@ Example with batch processing:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
+  -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesLoadTest \
   -Dsource_files='heidelberg_points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
   -Dquery_sizes='1,2,4,8' \
@@ -161,6 +158,7 @@ Example with all parameters:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
+  -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesLoadTest \
   -Dsource_files='points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
   -Dprofile='cycling-regular' \
@@ -175,6 +173,7 @@ Example with sequential execution:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
+  -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesLoadTest \
   -Dsource_files='points.csv' \
   -Dquery_sizes='1,2,3,4,5' \
   -Dparallel_execution=false \
@@ -185,6 +184,7 @@ Example with multiple source files:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
+  -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesLoadTest \
   -Dsource_files='points1.csv,points2.csv' \
   -Dbase_url='http://localhost:8080/ors' \
   -Dquery_sizes='1,2,3,4,5' \
