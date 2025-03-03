@@ -24,6 +24,8 @@ import java.util.*;
 
 public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     private static final int DEFAULT_MATRIX_SIZE = 4;
+    private static final double DEFAULT_SNAP_RADIUS = 350; // 100 meters radius for snapping
+    private static final String LOCATION_KEY = "location";
 
     private final int numRoutes;
     private final double minDistance;
@@ -232,16 +234,119 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     @Override
     protected void processNextBatch(CloseableHttpClient client, String profile) throws IOException {
-        List<double[]> coordinates = randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE);
-        LOGGER.debug("Processing next batch for profile: {}", profile);
-        String response = sendMatrixRequest(client, coordinates, profile);
+        // Generate random coordinates first
+        List<double[]> randomCoordinates = randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE);
+        LOGGER.debug("Generated {} random coordinates for profile: {}", randomCoordinates.size(), profile);
+
+        // Snap the coordinates to the road network
+        List<double[]> snappedCoordinates = snapCoordinates(client, randomCoordinates, profile);
+        LOGGER.debug("Received {} snapped coordinates for profile: {}", snappedCoordinates.size(), profile);
+
+        // Only proceed if we have enough valid snapped coordinates
+        if (snappedCoordinates.size() < 2) {
+            LOGGER.debug("Not enough valid snapped coordinates to create matrix (minimum 2 needed)");
+            return;
+        }
+
+        // Use the snapped coordinates for the matrix request
+        String response = sendMatrixRequest(client, snappedCoordinates, profile);
         LOGGER.debug("Received matrix response for profile: {}", profile);
+
         if (response != null) {
             processMatrixResponse(response, profile);
         }
     }
 
-    private String sendMatrixRequest(CloseableHttpClient client, List<double[]> coordinates, String profile) throws IOException {
+    /**
+     * Sends a request to the snapping API to snap coordinates to the road network.
+     * 
+     * @param client      HTTP client to use
+     * @param coordinates Coordinates to snap
+     * @param profile     Profile to use for snapping
+     * @return List of snapped coordinates, may be smaller than input if some
+     *         coordinates couldn't be snapped
+     * @throws IOException If an error occurs during the request
+     */
+    private List<double[]> snapCoordinates(CloseableHttpClient client, List<double[]> coordinates, String profile)
+            throws IOException {
+        LOGGER.debug("Snapping {} coordinates for profile: {}", coordinates.size(), profile);
+
+        // Create the snap request
+        HttpPost request = createSnapRequest(coordinates, profile);
+
+        // Execute the request and get the response
+        String response = client.execute(request, this::processResponse);
+        if (response == null) {
+            LOGGER.debug("Received null response from snap API");
+            return Collections.emptyList();
+        }
+
+        // Parse and process the snap response
+        return processSnapResponse(response);
+    }
+
+    /**
+     * Creates an HTTP request for the snap API.
+     * 
+     * @param coordinates Coordinates to snap
+     * @param profile     Profile to use for snapping
+     * @return HttpPost object configured for the snap request
+     * @throws JsonProcessingException If the JSON serialization fails
+     */
+    private HttpPost createSnapRequest(List<double[]> coordinates, String profile) throws JsonProcessingException {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("locations", coordinates);
+        payload.put("radius", DEFAULT_SNAP_RADIUS);
+
+        HttpPost request = new HttpPost(baseUrl + "/v2/snap/" + profile);
+        headers.forEach(request::addHeader);
+        request.setEntity(new StringEntity(mapper.writeValueAsString(payload), ContentType.APPLICATION_JSON));
+        return request;
+    }
+
+    /**
+     * Processes the response from the snap API.
+     * 
+     * @param response JSON response string
+     * @return List of snapped coordinates
+     * @throws JsonProcessingException If the JSON parsing fails
+     */
+    @SuppressWarnings("unchecked")
+    private List<double[]> processSnapResponse(String response) throws JsonProcessingException {
+        List<double[]> snappedCoordinates = new ArrayList<>();
+
+        Map<String, Object> responseMap = mapper.readValue(response,
+                new TypeReference<Map<String, Object>>() {
+                });
+
+        Object locationsObj = responseMap.get("locations");
+        if (!(locationsObj instanceof List<?>)) {
+            LOGGER.debug("Snap response contained no valid locations array");
+            return snappedCoordinates;
+        }
+
+        List<Map<String, Object>> locations = (List<Map<String, Object>>) locationsObj;
+        for (Map<String, Object> location : locations) {
+            if (location == null) {
+                LOGGER.debug("Invalid location in snap response");
+                continue;
+            }
+            List<Number> coords = (List<Number>) location.get(LOCATION_KEY);
+            if (coords != null && coords.size() >= 2) {
+                double[] point = new double[] { coords.get(0).doubleValue(), coords.get(1).doubleValue() };
+                snappedCoordinates.add(point);
+                LOGGER.debug("Added snapped coordinate: [{}, {}]", point[0], point[1]);
+            } else {
+                LOGGER.debug("Invalid location in snap response");
+            }
+        }
+
+        return snappedCoordinates;
+
+    }
+
+    private String sendMatrixRequest(CloseableHttpClient client, List<double[]> coordinates, String profile)
+            throws IOException {
         HttpPost request = createMatrixRequest(coordinates, profile);
         return client.execute(request, this::processResponse);
     }
@@ -334,8 +439,8 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     @SuppressWarnings("unchecked")
     private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance, String profile) {
-        List<Number> startCoord = (List<Number>) start.get("location");
-        List<Number> endCoord = (List<Number>) end.get("location");
+        List<Number> startCoord = (List<Number>) start.get(LOCATION_KEY);
+        List<Number> endCoord = (List<Number>) end.get(LOCATION_KEY);
 
         if (startCoord != null && endCoord != null && startCoord.size() >= 2 && endCoord.size() >= 2) {
             double[] startPoint = new double[] { startCoord.get(0).doubleValue(), startCoord.get(1).doubleValue() };
@@ -373,7 +478,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     protected void writeToCSV(String filePath) throws FileNotFoundException {
         LOGGER.debug("Writing routes to CSV file: {}", filePath);
         try (PrintWriter pw = new PrintWriter(filePath)) {
-                    pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
+            pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
             for (Map.Entry<String, List<Route>> entry : resultsByProfile.entrySet()) {
                 entry.getValue().stream()
                         .limit(numRoutes)
