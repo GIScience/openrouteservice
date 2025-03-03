@@ -55,7 +55,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     }
 
     protected CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String[] profiles,
-                    String baseUrl) {
+            String baseUrl) {
         super(extent, profiles[0], baseUrl, "snap"); // Use first profile as default
         if (numPoints <= 0)
             throw new IllegalArgumentException("Number of points must be positive");
@@ -131,7 +131,6 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     private boolean processProfiles(CloseableHttpClient client, Map<String, Integer> lastSizes) throws IOException {
         boolean newPointsFound = false;
         for (String userProfile : profiles) {
-            LOGGER.info("Processing profile: {}", userProfile);
             if (uniquePointsByProfile.get(userProfile).size() < numPoints) {
                 processNextBatch(client, userProfile);
                 int currentSize = uniquePointsByProfile.get(userProfile).size();
@@ -190,8 +189,6 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     private String sendSnappingRequest(CloseableHttpClient client, List<double[]> points, String profile)
             throws IOException {
         HttpPost request = createSnappingRequest(points, profile);
-        // Log request
-        LOGGER.info("Sending request to ORS: {}", request);
         return client.execute(request, this::processResponse);
     }
 
