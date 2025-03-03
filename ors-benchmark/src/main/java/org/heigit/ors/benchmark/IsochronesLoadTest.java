@@ -3,15 +3,14 @@ package org.heigit.ors.benchmark;
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import org.heigit.ors.benchmark.BenchmarkEnums.RangeType;
 import org.heigit.ors.benchmark.util.IteratorUtils;
+import org.heigit.ors.benchmark.util.SourceUtils;
 import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,6 @@ import io.gatling.javaapi.http.HttpRequestActionBuilder;
 public class IsochronesLoadTest extends Simulation {
     private static final Logger logger = LoggerFactory.getLogger(IsochronesLoadTest.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final String PROFILE_COLUMN = "profile";
 
     private final TestConfig config = new TestConfig();
     private final HttpProtocolBuilder httpProtocol = createHttpProtocol();
@@ -62,76 +60,33 @@ public class IsochronesLoadTest extends Simulation {
                 parallelOrSequential, rangeType.getValue(), getFileNameWithoutExtension(sourceFile),
                         config.getNumConcurrentUsers(), config.getRanges());
 
-        // Read all records from CSV
-        List<Map<String, Object>> records = csv(sourceFile).readRecords();
-        logger.info("Read {} records from CSV file", records.size());
-
-        if (records.isEmpty()) {
-            logger.error("No records found in CSV file: {}", sourceFile);
-            return scenario(name);
-        }
-
-        // Sample log of first record for debugging
-        if (!records.isEmpty()) {
-            logger.info("Sample record structure: {}", records.get(0).keySet());
-        }
-
-        // Group records by profile if profile column exists, otherwise use all records
-        Map<String, List<Map<String, Object>>> recordsByProfile;
-        if (records.isEmpty() || !records.get(2).containsKey(PROFILE_COLUMN)) {
-            // If no profile column exists, put all records under a default key
-            recordsByProfile = Map.of("all", records);
-            logger.info("No profile column found in CSV, using all {} coordinates", records.size());
-        } else {
-            // Group records by profile
-            recordsByProfile = records.stream()
-                    .collect(java.util.stream.Collectors.groupingBy(
-                            coordinateRecord -> (String) coordinateRecord.getOrDefault(PROFILE_COLUMN,
-                                    config.getTargetProfile())));
-            logger.info("Found coordinates for profiles: {}", recordsByProfile.keySet());
-        }
-
         // Get records for target profile or all records if no profile column
-        List<Map<String, Object>> targetRecords = recordsByProfile.getOrDefault(
-                config.getTargetProfile(), recordsByProfile.get("all"));
 
-        if (targetRecords == null || targetRecords.isEmpty()) {
-            logger.error("No records found for profile '{}' in file {}", config.getTargetProfile(), sourceFile);
+        try {
+            List<Map<String, Object>> targetRecords = SourceUtils.getRecordsByProfile(sourceFile, config);
+
+            Iterator<Map<String, Object>> recordFeeder = SourceUtils.getRecordFeeder(targetRecords, config);
+
+            AtomicInteger remainingRecords = new AtomicInteger(targetRecords.size());
+
+            logger.info("Processing {} coordinates for profile {}", remainingRecords.get(),
+                    config.getTargetProfile());
+
+            return scenario(name)
+                    .asLongAs(session -> remainingRecords.get() >= 1)
+                    .on(
+                            feed(recordFeeder, locationCount)
+                                    .exec(session -> {
+                                        remainingRecords.getAndAdd(-locationCount);
+                                        return session;
+                                    })
+                                    .exec(
+                                            group(groupName).on(
+                                                    createIsochroneRequest(name, locationCount, config, rangeType))));
+        } catch (IllegalStateException e) {
+            logger.error(e.getMessage());
             return scenario(name);
         }
-
-        logger.info("Selected {} records for profile '{}'", targetRecords.size(), config.getTargetProfile());
-
-        // Transform records to coordinates and shuffle
-        List<Map<String, Object>> mappedRecords = targetRecords.stream()
-                .map(targetRecord -> Map.of(
-                        config.getFieldLon(), targetRecord.get(config.getFieldLon()),
-                        config.getFieldLat(), targetRecord.get(config.getFieldLat())))
-                .collect(Collectors.toList());
-        Collections.shuffle(mappedRecords);
-
-        // Create infinite circular iterator
-        Iterator<Map<String, Object>> recordFeeder = IteratorUtils.infiniteCircularIterator(mappedRecords);
-
-        logger.info("Created circular feeder with {} coordinates for profile {}",
-                mappedRecords.size(), config.getTargetProfile());
-
-        AtomicInteger remainingRecords = new AtomicInteger(targetRecords.size());
-
-        logger.info("Processing {} coordinates for profile {}", remainingRecords.get(),
-                config.getTargetProfile());
-
-        return scenario(name)
-                .asLongAs(session -> remainingRecords.get() >= 1)
-                .on(
-                        feed(recordFeeder, locationCount)
-                                .exec(session -> {
-                                    remainingRecords.getAndAdd(-locationCount);
-                                    return session;
-                                })
-                                .exec(
-                                        group(groupName).on(
-                                                createIsochroneRequest(name, locationCount, config, rangeType))));
     }
 
     private static HttpRequestActionBuilder createIsochroneRequest(String name, int locationCount, TestConfig config,
