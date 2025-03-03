@@ -29,7 +29,6 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     private final double radius;
     private final Map<String, List<double[]>> resultsByProfile;
     private final Map<String, Set<Point>> uniquePointsByProfile;
-    private final String[] profiles;
 
     protected static class Point {
         final double[] coordinates;
@@ -56,17 +55,14 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
 
     protected CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String[] profiles,
             String baseUrl) {
-        super(extent, profiles[0], baseUrl, "snap"); // Use first profile as default
+        super(extent, profiles, baseUrl, "snap"); // Use first profile as default
         if (numPoints <= 0)
             throw new IllegalArgumentException("Number of points must be positive");
         if (radius <= 0)
             throw new IllegalArgumentException("Radius must be positive");
-        if (profiles.length == 0)
-            throw new IllegalArgumentException("At least one profile must be specified");
 
         this.numPoints = numPoints;
         this.radius = radius;
-        this.profiles = profiles.clone();
         this.resultsByProfile = new HashMap<>();
         this.uniquePointsByProfile = new HashMap<>();
         for (String userProfile : profiles) {
@@ -266,7 +262,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         return (List<T>) combined;
     }
 
-    public static void main(String[] args) throws org.apache.commons.cli.ParseException {
+    public static void main(String[] args) {
         try {
             CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
 

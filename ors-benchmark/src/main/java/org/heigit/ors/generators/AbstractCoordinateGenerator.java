@@ -32,35 +32,29 @@ public abstract class AbstractCoordinateGenerator {
     protected final String baseUrl;
     protected final double[] extent;
     protected final String endpoint;
-    protected final String profile;
-    protected final String url;
+    protected final String[] profiles;
     protected final Map<String, String> headers;
     protected final Random random;
     protected final ObjectMapper mapper;
 
-    protected AbstractCoordinateGenerator(double[] extent, String profile, String baseUrl, String endpoint) {
+    protected AbstractCoordinateGenerator(double[] extent, String[] profiles, String baseUrl, String endpoint) {
         this.baseUrl = baseUrl != null ? baseUrl : DEFAULT_BASE_URL;
-        validateBaseInputParameters(extent, profile, endpoint);
+        validateBaseInputParameters(extent, profiles, endpoint);
         this.extent = extent;
-        this.profile = profile;
+        this.profiles = profiles.clone();
         this.endpoint = endpoint;
         this.random = new SecureRandom();
         this.mapper = new ObjectMapper();
         
         String apiKey = getApiKey();
-        this.url = buildUrl();
         this.headers = createHeaders(apiKey);
     }
 
-    private String buildUrl() {
-        return String.format("%s/v2/%s/%s", baseUrl, endpoint, profile);
-    }
-
-    private void validateBaseInputParameters(double[] extent, String profile, String endpoint) {
+    private void validateBaseInputParameters(double[] extent, String[] profiles, String endpoint) {
         if (extent == null || extent.length != 4)
             throw new IllegalArgumentException("Extent must contain 4 coordinates");
-        if (profile == null || profile.isBlank())
-            throw new IllegalArgumentException("Profile must not be empty");
+        if (profiles == null || profiles.length == 0)
+            throw new IllegalArgumentException("Profiles must not be empty");
         if (endpoint == null || endpoint.isBlank())
             throw new IllegalArgumentException("Endpoint must not be empty");
     }
