@@ -1,21 +1,20 @@
 package org.heigit.ors.generators;
 
-import org.apache.commons.cli.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
+import org.heigit.ors.exceptions.CommandLineParsingException;
 
-public class CoordinateGeneratorRouteCLI {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorRouteCLI.class);
-    private final Options options;
-    private final CommandLine cmd;
+public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI {
 
-    public CoordinateGeneratorRouteCLI(String[] args) throws ParseException {
-        options = new Options();
-        setupOptions();
-        cmd = new DefaultParser().parse(options, args);
+    public CoordinateGeneratorRouteCLI(String[] args) {
+        super(args);
     }
 
-    private void setupOptions() {
+    @Override
+    protected void setupOptions() {
         options.addOption(Option.builder("h")
                 .longOpt("help")
                 .desc("Show help message")
@@ -38,10 +37,10 @@ public class CoordinateGeneratorRouteCLI {
                 .build());
 
         options.addOption(Option.builder("p")
-                .longOpt("profile")
+                .longOpt("profiles")
                 .hasArg()
                 .required()
-                .desc("Routing profile (e.g., driving-car)")
+                .desc("Comma-separated routing profiles (e.g., driving-car,cycling-regular)")
                 .build());
 
         options.addOption(Option.builder("u")
@@ -64,9 +63,24 @@ public class CoordinateGeneratorRouteCLI {
                 .build());
     }
 
+    @Override
+    protected CommandLine parseCommandLine(String[] args) {
+        try {
+            return new DefaultParser().parse(options, args);
+        } catch (ParseException e) {
+            printHelp();
+            throw new CommandLineParsingException("Failed to parse command line arguments", e);
+        }
+    }
+
+    @Override
     public void printHelp() {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("CoordinateGeneratorRoute", options, true);
+        new HelpFormatter().printHelp("CoordinateGeneratorRoute", options, true);
+    }
+
+    @Override
+    protected String getDefaultOutputFile() {
+        return "route_coordinates.csv";
     }
 
     public CoordinateGeneratorRoute createGenerator() {
@@ -77,22 +91,16 @@ public class CoordinateGeneratorRouteCLI {
             extent[i] = Double.parseDouble(extentValues[i]);
         }
 
-        String profile = cmd.getOptionValue("p");
+        String[] profiles = parseProfiles(cmd.getOptionValue("p"));
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
         double minDistance = Double.parseDouble(cmd.getOptionValue("d", "1"));
 
-        LOGGER.info(
-                "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profile={}, baseUrl={}, minDistance={}",
-                numRoutes, extent, profile, baseUrl, minDistance);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(
+                    "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profiles={}, baseUrl={}, minDistance={}",
+                    numRoutes, extent, java.util.Arrays.toString(profiles), baseUrl, minDistance);
+        }
 
-        return new CoordinateGeneratorRoute(numRoutes, extent, profile, baseUrl, minDistance);
-    }
-
-    public String getOutputFile() {
-        return cmd.getOptionValue("o", "route_coordinates.csv");
-    }
-
-    public boolean hasHelp() {
-        return cmd.hasOption("h");
+        return new CoordinateGeneratorRoute(numRoutes, extent, profiles, baseUrl, minDistance);
     }
 }
