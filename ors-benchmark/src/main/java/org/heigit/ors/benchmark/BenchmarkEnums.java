@@ -19,21 +19,23 @@ public class BenchmarkEnums {
 
     public enum DirectionsModes {
         BASIC_FASTEST,
-        AVOID_HIGHWAY;
+        AVOID_HIGHWAY,
+        AVOID_AREA;
 
         public static DirectionsModes fromString(String value) {
             return switch (value.toLowerCase()) {
                 case "basicfastest" -> BASIC_FASTEST;
                 case "avoidhighway" -> AVOID_HIGHWAY;
+                case "avoidarea" -> AVOID_AREA;
                 default -> throw new IllegalArgumentException("Invalid directions mode: " + value);
             };
         }
 
-        public List<String> getDefaultProfiles() {
+        public List<String> getProfiles() {
             return switch (this) {
-                case BASIC_FASTEST -> List.of("driving-car", "driving-hgv", "cycling-regular", "cycling-road", 
-                    "cycling-mountain", "cycling-electric", "foot-walking", "foot-hiking");
+                case BASIC_FASTEST -> List.of("driving-car", "foot-walking");
                 case AVOID_HIGHWAY -> List.of("driving-car", "driving-hgv");
+                case AVOID_AREA -> List.of("driving-car", "driving-hgv");
             };
         }
 
@@ -42,6 +44,8 @@ public class BenchmarkEnums {
                 case BASIC_FASTEST -> Map.of("preference", "fastest");
                 case AVOID_HIGHWAY -> Map.of("preference", "fastest", 
                     "options", Map.of("avoid_features", List.of("highways")));
+                case AVOID_AREA -> Map.of("preference", "fastest",
+                        "options", Map.of("avoid_polygon", List.of("highways")));
             };
         }
     }
