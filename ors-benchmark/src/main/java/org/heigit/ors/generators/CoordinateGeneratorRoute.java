@@ -99,6 +99,8 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     @Override
     protected List<double[]> randomCoordinatesInExtent(int count) {
+        LOGGER.debug("Generating {} random coordinates within extent [{}, {}, {}, {}]",
+                count, extent[0], extent[1], extent[2], extent[3]);
         List<double[]> points = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             double x = random.nextDouble() * (extent[2] - extent[0]) + extent[0];
@@ -111,6 +113,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     @Override
     protected String processResponse(ClassicHttpResponse response) throws IOException {
         int status = response.getCode();
+        LOGGER.debug("Processing response with status code: {}", status);
         if (status >= HttpStatus.SC_REDIRECTION) {
             throw new ClientProtocolException(new StatusLine(response).toString());
         }
@@ -131,6 +134,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     @Override
     public void generate(int maxAttempts) {
+        LOGGER.debug("Starting route generation with max attempts: {}", maxAttempts);
         initializeCollections();
         int attempts = 0;
         Map<String, Integer> lastSizes = initializeLastSizes();
@@ -148,6 +152,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             pb.setExtraMessage("Starting...");
 
             while (!isGenerationComplete() && attempts < maxAttempts) {
+                LOGGER.debug("Generation iteration - Attempt {}/{}", attempts + 1, maxAttempts);
                 boolean newRoutesFound = processProfiles(client, lastSizes);
 
                 if (!newRoutesFound) {
@@ -166,7 +171,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             }
 
         } catch (Exception e) {
-            LOGGER.error("Error generating routes", e);
+            LOGGER.error("Error generating routes: ", e);
         }
     }
 
@@ -179,6 +184,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     }
 
     private boolean processProfiles(CloseableHttpClient client, Map<String, Integer> lastSizes) throws IOException {
+        LOGGER.debug("Processing profiles. Current sizes: {}", lastSizes);
         boolean newRoutesFound = false;
         for (String userProfile : profiles) {
             if (uniqueRoutesByProfile.get(userProfile).size() < numRoutes) {
@@ -227,7 +233,9 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     @Override
     protected void processNextBatch(CloseableHttpClient client, String profile) throws IOException {
         List<double[]> coordinates = randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE);
+        LOGGER.debug("Processing next batch for profile: {}", profile);
         String response = sendMatrixRequest(client, coordinates, profile);
+        LOGGER.debug("Received matrix response for profile: {}", profile);
         if (response != null) {
             processMatrixResponse(response, profile);
         }
@@ -250,6 +258,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     }
 
     private void processMatrixResponse(String response, String profile) throws JsonProcessingException {
+        LOGGER.debug("Processing matrix response for profile: {}", profile);
         Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {
         });
 
@@ -257,6 +266,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         List<Map<String, Object>> locations = extractLocations(responseMap, "destinations");
 
         if (distances == null || locations == null || locations.isEmpty()) {
+            LOGGER.debug("Invalid matrix response - missing distances or locations");
             return;
         }
 
@@ -283,16 +293,42 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     private void processMatrixResults(List<List<Double>> distances, List<Map<String, Object>> locations,
             String profile) {
+        LOGGER.debug("Processing matrix results for profile {} with {} locations", profile, locations.size());
         int size = locations.size();
+
         for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (i != j) {
-                    Double distance = distances.get(i).get(j);
-                    if (distance > 0) {
-                        addRouteIfUnique(locations.get(i), locations.get(j), distance, profile);
-                    }
-                }
-            }
+            if (locations.get(i) == null)
+                continue;
+
+            processLocationPairs(distances, locations, i, size, profile);
+        }
+    }
+
+    private void processLocationPairs(List<List<Double>> distances, List<Map<String, Object>> locations,
+            int sourceIndex, int size, String profile) {
+        for (int j = 0; j < size; j++) {
+            if (sourceIndex == j || locations.get(j) == null)
+                continue;
+
+            processDistanceIfValid(distances, locations, sourceIndex, j, profile);
+        }
+    }
+
+    private void processDistanceIfValid(List<List<Double>> distances, List<Map<String, Object>> locations,
+            int i, int j, String profile) {
+        // Check if the row exists
+        if (i >= distances.size() || distances.get(i) == null)
+            return;
+
+        List<Double> row = distances.get(i);
+
+        // Check if the distance value is valid
+        if (j >= row.size() || row.get(j) == null)
+            return;
+
+        Double distance = row.get(j);
+        if (distance > 0) {
+            addRouteIfUnique(locations.get(i), locations.get(j), distance, profile);
         }
     }
 
@@ -305,6 +341,9 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             double[] startPoint = new double[] { startCoord.get(0).doubleValue(), startCoord.get(1).doubleValue() };
             double[] endPoint = new double[] { endCoord.get(0).doubleValue(), endCoord.get(1).doubleValue() };
 
+            LOGGER.debug("Evaluating route: [{}, {}] -> [{}, {}], distance: {}, profile: {}",
+                    startPoint[0], startPoint[1], endPoint[0], endPoint[1], distance, profile);
+
             if (distance < minDistance) {
                 LOGGER.debug("Skipping route with distance {} < minimum {} meters", distance, minDistance);
                 return;
@@ -312,7 +351,10 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
             RoutePair routePair = new RoutePair(startPoint, endPoint);
             if (uniqueRoutesByProfile.get(profile).add(routePair)) {
+                LOGGER.debug("Added new unique route for profile: {}", profile);
                 resultsByProfile.get(profile).add(new Route(startPoint, endPoint, distance, profile));
+            } else {
+                LOGGER.debug("Skipped duplicate route for profile: {}", profile);
             }
         }
     }
@@ -329,6 +371,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     @Override
     protected void writeToCSV(String filePath) throws FileNotFoundException {
+        LOGGER.debug("Writing routes to CSV file: {}", filePath);
         try (PrintWriter pw = new PrintWriter(filePath)) {
                     pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
             for (Map.Entry<String, List<Route>> entry : resultsByProfile.entrySet()) {
