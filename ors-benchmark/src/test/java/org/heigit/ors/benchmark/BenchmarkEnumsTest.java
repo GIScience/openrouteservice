@@ -29,12 +29,12 @@ class BenchmarkEnumsTest {
 
     @Test
     void testDirectionsModesGetDefaultProfiles() {
-        List<String> basicProfiles = BenchmarkEnums.DirectionsModes.BASIC_FASTEST.getDefaultProfiles();
+        List<String> basicProfiles = BenchmarkEnums.DirectionsModes.BASIC_FASTEST.getProfiles();
         assertTrue(basicProfiles.contains("driving-car"));
         assertTrue(basicProfiles.contains("foot-walking"));
         assertEquals(8, basicProfiles.size());
 
-        List<String> avoidProfiles = BenchmarkEnums.DirectionsModes.AVOID_HIGHWAY.getDefaultProfiles();
+        List<String> avoidProfiles = BenchmarkEnums.DirectionsModes.AVOID_HIGHWAY.getProfiles();
         assertTrue(avoidProfiles.contains("driving-car"));
         assertTrue(avoidProfiles.contains("driving-hgv"));
         assertEquals(2, avoidProfiles.size());

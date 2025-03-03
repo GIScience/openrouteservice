@@ -2,7 +2,6 @@ package org.heigit.ors.benchmark;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
 import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.AVOID_HIGHWAY;
@@ -24,7 +23,6 @@ public class TestConfig {
     private final String fieldStartLat;
     private final String fieldEndLon;
     private final String fieldEndLat;
-    private final String sourceFilePrefix;
     private final int numConcurrentUsers;
     private final List<Integer> querySizes;
     private final boolean parallelExecution;
@@ -44,7 +42,6 @@ public class TestConfig {
         this.fieldStartLat = getSystemProperty("field_start_lat", "start_latitude");
         this.fieldEndLon = getSystemProperty("field_end_lon", "end_longitude");
         this.fieldEndLat = getSystemProperty("field_end_lat", "end_latitude");
-        this.sourceFilePrefix = getSystemProperty("source_file_prefix", "");
         this.numConcurrentUsers = Integer.parseInt(getSystemProperty("concurrent_users", "1"));
         this.querySizes = parseQuerySizes(getSystemProperty("query_sizes", "1"));
         this.parallelExecution = Boolean.parseBoolean(getSystemProperty("parallel_execution", "false"));
@@ -147,33 +144,10 @@ public class TestConfig {
         return ranges;
     }
 
-    public List<String> getSourceFiles(DirectionsModes mode) {
-        if (sourceFiles.isEmpty() && !sourceFilePrefix.isEmpty()) {
-            return getTargetProfiles(mode).stream()
-                    .map(profile -> sourceFilePrefix + profile + ".csv")
-                    .toList();
-        }
-        return sourceFiles;
-    }
-
-    public List<String> getTargetProfiles() {
-        return parseCommaSeparatedStringToStrings(targetProfile);
-    }
-
-    public List<String> getTargetProfiles(DirectionsModes mode) {
-        return System.getProperty("profile_override") != null
-                ? parseCommaSeparatedStringToStrings(System.getProperty("profile_override"))
-                : mode.getDefaultProfiles();
-    }
-
     public List<DirectionsModes> getDirectionsModes() {
-        return modes.isEmpty() ? List.of(BASIC_FASTEST, AVOID_HIGHWAY)
+        return modes.isEmpty() ? List.of(BASIC_FASTEST)
                 : modes.stream()
                         .map(DirectionsModes::fromString)
                         .toList();
-    }
-
-    public Map<String, Object> getAdditionalRequestParams(DirectionsModes mode) {
-        return mode.getRequestParams();
     }
 }

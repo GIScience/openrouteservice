@@ -30,6 +30,8 @@ import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.Simulation;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
+import static org.heigit.ors.benchmark.util.NameUtils.getFileNameWithoutExtension;
+
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
 
@@ -63,9 +65,9 @@ public class IsochronesLoadTest extends Simulation {
         // Get records for target profile or all records if no profile column
 
         try {
-            List<Map<String, Object>> targetRecords = SourceUtils.getRecordsByProfile(sourceFile, config);
+            List<Map<String, Object>> targetRecords = SourceUtils.getRecordsByProfile(sourceFile, config.getTargetProfile());
 
-            Iterator<Map<String, Object>> recordFeeder = SourceUtils.getRecordFeeder(targetRecords, config);
+            Iterator<Map<String, Object>> recordFeeder = SourceUtils.getRecordFeeder(targetRecords, config, config.getTargetProfile());
 
             AtomicInteger remainingRecords = new AtomicInteger(targetRecords.size());
 
@@ -169,14 +171,8 @@ public class IsochronesLoadTest extends Simulation {
         return locations;
     }
 
-    private static String getFileNameWithoutExtension(String filePath) {
-        String fileName = new File(filePath).getName();
-        int lastDotIndex = fileName.lastIndexOf('.');
-        return lastDotIndex > 0 ? fileName.substring(0, lastDotIndex) : fileName;
-    }
 
     private String formatScenarioName(String sourceFile, int querySize) {
-
         String fileName = getFileNameWithoutExtension(sourceFile);
         return String.format("Locations (%d) | %s", querySize, fileName);
     }
