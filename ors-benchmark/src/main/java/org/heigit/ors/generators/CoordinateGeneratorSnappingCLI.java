@@ -4,29 +4,17 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.heigit.ors.exceptions.CommandLineParsingException;
 
-public class CoordinateGeneratorSnappingCLI {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorSnappingCLI.class);
-    private final Options options;
-    private final CommandLine cmd;
+public class CoordinateGeneratorSnappingCLI extends AbstractCoordinateGeneratorCLI {
 
-    public CoordinateGeneratorSnappingCLI(String[] args) throws ParseException {
-        options = new Options();
-        setupOptions();
-        try {
-            cmd = new DefaultParser().parse(options, args);
-        } catch (ParseException e) {
-            printHelp();
-            throw e;
-        }
-
+    public CoordinateGeneratorSnappingCLI(String[] args) {
+        super(args);
     }
 
-    private void setupOptions() {
+    @Override
+    protected void setupOptions() {
         options.addOption(Option.builder("h")
                 .longOpt("help")
                 .desc("Show help message")
@@ -75,24 +63,24 @@ public class CoordinateGeneratorSnappingCLI {
                 .build());
     }
 
-    private String[] parseProfiles(String profilesInput) {
-        if (profilesInput == null || profilesInput.isBlank()) {
-            throw new IllegalArgumentException("Profiles must not be empty");
+    @Override
+    protected CommandLine parseCommandLine(String[] args) {
+        try {
+            return new DefaultParser().parse(options, args);
+        } catch (ParseException e) {
+            printHelp();
+            throw new CommandLineParsingException("Failed to parse command line arguments", e);
         }
-
-        // Split by both comma and space to support both formats
-        String[] profiles = profilesInput.split("[,\\s]+");
-
-        // Remove empty entries and trim whitespace
-        return java.util.Arrays.stream(profiles)
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toArray(String[]::new);
     }
 
-    public final void printHelp() {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("CoordinateGeneratorSnapping", options, true);
+    @Override
+    public void printHelp() {
+        new HelpFormatter().printHelp("CoordinateGeneratorSnapping", options, true);
+    }
+
+    @Override
+    protected String getDefaultOutputFile() {
+        return "snapped_coordinates.csv";
     }
 
     public CoordinateGeneratorSnapping createGenerator() {
@@ -112,15 +100,5 @@ public class CoordinateGeneratorSnappingCLI {
                 numPoints, extent, radius, profiles, baseUrl);
 
         return new CoordinateGeneratorSnapping(numPoints, extent, radius, profiles, baseUrl);
-    }
-
-    public String getOutputFile() {
-        return cmd.getOptionValue("o", "snapped_coordinates.csv");
-    }
-
-    public boolean hasHelp() {
-        boolean hasHelpOption = cmd.hasOption("h");
-        LOGGER.debug("hasHelp() called, returning: {}", hasHelpOption);
-        return hasHelpOption;
     }
 }

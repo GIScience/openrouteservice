@@ -17,7 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import me.tongfei.progressbar.*;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,18 +27,20 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     private final int numRoutes;
     private final double minDistance;
-    private final List<Route> result;
-    private final Set<RoutePair> uniqueRoutes;
+    private final Map<String, List<Route>> resultsByProfile;
+    private final Map<String, Set<RoutePair>> uniqueRoutesByProfile;
 
     protected static class Route {
         final double[] start;
         final double[] end;
         final double distance;
+        final String profile;
 
-        Route(double[] start, double[] end, double distance) {
+        Route(double[] start, double[] end, double distance, String profile) {
             this.start = start;
             this.end = end;
             this.distance = distance;
+            this.profile = profile;
         }
     }
 
@@ -77,9 +78,9 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         }
     }
 
-    protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl,
+    protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
             double minDistance) {
-        super(extent, profile, baseUrl, "matrix");
+        super(extent, profiles, baseUrl, "matrix"); // Use first profile as default
         if (numRoutes <= 0)
             throw new IllegalArgumentException("Number of routes must be positive");
         if (minDistance < 0)
@@ -87,8 +88,13 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
         this.numRoutes = numRoutes;
         this.minDistance = minDistance;
-        this.result = new ArrayList<>();
-        this.uniqueRoutes = new HashSet<>();
+        this.resultsByProfile = new HashMap<>();
+        this.uniqueRoutesByProfile = new HashMap<>();
+
+        for (String userProfile : profiles) {
+            resultsByProfile.put(userProfile, new ArrayList<>());
+            uniqueRoutesByProfile.put(userProfile, new HashSet<>());
+        }
     }
 
     @Override
@@ -119,7 +125,6 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         }
     }
 
-
     public void generateRoutes() {
         generate(DEFAULT_MAX_ATTEMPTS);
     }
@@ -128,13 +133,13 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     public void generate(int maxAttempts) {
         initializeCollections();
         int attempts = 0;
-        int lastSize = 0;
+        Map<String, Integer> lastSizes = initializeLastSizes();
 
         ProgressBarBuilder pbb = new ProgressBarBuilder()
                 .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
                 .setUpdateIntervalMillis(5000)
                 .setTaskName("Generating routes")
-                .setInitialMax(numRoutes)
+                .setInitialMax((long) numRoutes * profiles.length)
                 .setConsumer(new DelegatingProgressBarConsumer(ProgressBarLogger.getLogger()::info));
 
         try (CloseableHttpClient client = createHttpClient();
@@ -142,67 +147,109 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
             pb.setExtraMessage("Starting...");
 
-            while (uniqueRoutes.size() < numRoutes && attempts < maxAttempts) {
-                processNextBatch(client, "");
+            while (!isGenerationComplete() && attempts < maxAttempts) {
+                boolean newRoutesFound = processProfiles(client, lastSizes);
 
-                if (uniqueRoutes.size() == lastSize) {
+                if (!newRoutesFound) {
                     attempts++;
                     pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, maxAttempts));
-                    LOGGER.debug("No new routes found in attempt {}/{}", attempts, maxAttempts);
                 } else {
-                    pb.stepTo(Math.min(uniqueRoutes.size(), numRoutes));
-                    pb.setExtraMessage(
-                            String.format("Found %d unique routes", Math.min(uniqueRoutes.size(), numRoutes)));
+                    updateProgress(pb);
                     attempts = 0;
-                    lastSize = uniqueRoutes.size();
                 }
             }
 
-            pb.stepTo(Math.min(uniqueRoutes.size(), numRoutes));
-            if (attempts >= maxAttempts) {
-                LOGGER.info("\n");
-                pb.setExtraMessage(String.format("Stopped after %d attempts - Found at least %d/%d routes",
-                        maxAttempts, uniqueRoutes.size(), numRoutes));
-                LOGGER.warn("Stopped route generation after {} attempts. Found {}/{} routes",
-                        maxAttempts, uniqueRoutes.size(), numRoutes);
+            pb.stepTo(getTotalRoutes());
+            if (attempts >= maxAttempts && LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Stopped route generation after {} attempts. Routes per profile: {}",
+                        maxAttempts, formatProgressMessage());
             }
+
         } catch (Exception e) {
             LOGGER.error("Error generating routes", e);
         }
     }
 
+    private Map<String, Integer> initializeLastSizes() {
+        Map<String, Integer> lastSizes = new HashMap<>();
+        for (String userProfile : profiles) {
+            lastSizes.put(userProfile, 0);
+        }
+        return lastSizes;
+    }
+
+    private boolean processProfiles(CloseableHttpClient client, Map<String, Integer> lastSizes) throws IOException {
+        boolean newRoutesFound = false;
+        for (String userProfile : profiles) {
+            if (uniqueRoutesByProfile.get(userProfile).size() < numRoutes) {
+                processNextBatch(client, userProfile);
+                int currentSize = uniqueRoutesByProfile.get(userProfile).size();
+
+                if (currentSize > lastSizes.get(userProfile)) {
+                    newRoutesFound = true;
+                    lastSizes.put(userProfile, currentSize);
+                }
+            }
+        }
+        return newRoutesFound;
+    }
+
+    private void updateProgress(ProgressBar pb) {
+        int totalRoutes = getTotalRoutes();
+        pb.stepTo(totalRoutes);
+        pb.setExtraMessage(formatProgressMessage());
+    }
+
+    private int getTotalRoutes() {
+        return uniqueRoutesByProfile.values().stream()
+                .mapToInt(Set::size)
+                .sum();
+    }
+
+    private String formatProgressMessage() {
+        return uniqueRoutesByProfile.entrySet().stream()
+                .map(e -> String.format("%s: %d/%d", e.getKey(), e.getValue().size(), numRoutes))
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("");
+    }
+
+    private boolean isGenerationComplete() {
+        return uniqueRoutesByProfile.values().stream()
+                .allMatch(routes -> routes.size() >= numRoutes);
+    }
+
     @Override
     protected void initializeCollections() {
-        result.clear();
-        uniqueRoutes.clear();
+        resultsByProfile.values().forEach(List::clear);
+        uniqueRoutesByProfile.values().forEach(Set::clear);
     }
 
     @Override
     protected void processNextBatch(CloseableHttpClient client, String profile) throws IOException {
         List<double[]> coordinates = randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE);
-        String response = sendMatrixRequest(client, coordinates);
+        String response = sendMatrixRequest(client, coordinates, profile);
         if (response != null) {
-            processMatrixResponse(response);
+            processMatrixResponse(response, profile);
         }
     }
 
-    private String sendMatrixRequest(CloseableHttpClient client, List<double[]> coordinates) throws IOException {
-        HttpPost request = createMatrixRequest(coordinates);
+    private String sendMatrixRequest(CloseableHttpClient client, List<double[]> coordinates, String profile) throws IOException {
+        HttpPost request = createMatrixRequest(coordinates, profile);
         return client.execute(request, this::processResponse);
     }
 
-    private HttpPost createMatrixRequest(List<double[]> coordinates) throws JsonProcessingException {
+    private HttpPost createMatrixRequest(List<double[]> coordinates, String profile) throws JsonProcessingException {
         Map<String, Object> payload = new HashMap<>();
         payload.put("locations", coordinates);
         payload.put("metrics", new String[] { "distance" });
 
-        HttpPost request = new HttpPost(url);
+        HttpPost request = new HttpPost(baseUrl + "/v2/matrix/" + profile);
         headers.forEach(request::addHeader);
         request.setEntity(new StringEntity(mapper.writeValueAsString(payload), ContentType.APPLICATION_JSON));
         return request;
     }
 
-    private void processMatrixResponse(String response) throws JsonProcessingException {
+    private void processMatrixResponse(String response, String profile) throws JsonProcessingException {
         Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {
         });
 
@@ -213,7 +260,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             return;
         }
 
-        processMatrixResults(distances, locations);
+        processMatrixResults(distances, locations, profile);
     }
 
     @SuppressWarnings("unchecked")
@@ -234,14 +281,15 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         return Collections.emptyList();
     }
 
-    private void processMatrixResults(List<List<Double>> distances, List<Map<String, Object>> locations) {
+    private void processMatrixResults(List<List<Double>> distances, List<Map<String, Object>> locations,
+            String profile) {
         int size = locations.size();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i != j) {
                     Double distance = distances.get(i).get(j);
                     if (distance > 0) {
-                        addRouteIfUnique(locations.get(i), locations.get(j), distance);
+                        addRouteIfUnique(locations.get(i), locations.get(j), distance, profile);
                     }
                 }
             }
@@ -249,7 +297,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     }
 
     @SuppressWarnings("unchecked")
-    private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance) {
+    private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance, String profile) {
         List<Number> startCoord = (List<Number>) start.get("location");
         List<Number> endCoord = (List<Number>) end.get("location");
 
@@ -263,36 +311,39 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             }
 
             RoutePair routePair = new RoutePair(startPoint, endPoint);
-            if (uniqueRoutes.add(routePair)) {
-                result.add(new Route(startPoint, endPoint, distance));
+            if (uniqueRoutesByProfile.get(profile).add(routePair)) {
+                resultsByProfile.get(profile).add(new Route(startPoint, endPoint, distance, profile));
             }
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected <T> List<T> getResult() {
-        return (List<T>) result.subList(0, Math.min(numRoutes, result.size()));
+    protected List<Route> getResult() {
+        List<Route> combined = new ArrayList<>();
+        resultsByProfile.forEach((String userProfile, List<Route> routes) -> routes.stream()
+                .limit(numRoutes)
+                .forEach(combined::add));
+        return combined;
     }
 
     @Override
     protected void writeToCSV(String filePath) throws FileNotFoundException {
-        // Get cleaned up results
-        List<Route> cleanedRoutes = getResult();
-
-        File csvOutputFile = new File(filePath);
-        try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-            pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance");
-            for (Route route : cleanedRoutes) {
-                pw.printf("%f,%f,%f,%f,%.2f%n",
+        try (PrintWriter pw = new PrintWriter(filePath)) {
+                    pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
+            for (Map.Entry<String, List<Route>> entry : resultsByProfile.entrySet()) {
+                entry.getValue().stream()
+                        .limit(numRoutes)
+                        .forEach(route -> pw.printf("%f,%f,%f,%f,%.2f,%s%n",
                                 route.start[0], route.start[1],
-                        route.end[0], route.end[1],
-                        route.distance);
+                                route.end[0], route.end[1],
+                                route.distance,
+                                route.profile));
             }
         }
     }
 
-    public static void main(String[] args) throws org.apache.commons.cli.ParseException {
+    public static void main(String[] args) {
         try {
             CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
 
