@@ -12,6 +12,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.heigit.ors.generators.CoordinateGeneratorRoute.Route;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,18 +30,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
+    private static final String[] DEFAULT_PROFILES = new String[] { "driving-car" };
     private TestCoordinateGeneratorRoute testGenerator;
 
     @BeforeEach
     @Override
     protected void setUpBase() {
         super.setUpBase();
-        testGenerator = new TestCoordinateGeneratorRoute(2, extent, "driving-car", null, 0);
+        testGenerator = new TestCoordinateGeneratorRoute(2, extent, DEFAULT_PROFILES, null, 0);
     }
 
     @Override
     protected AbstractCoordinateGenerator createTestGenerator() {
-        return new TestCoordinateGeneratorRoute(2, extent, "driving-car", null, 0);
+        return new TestCoordinateGeneratorRoute(2, extent, DEFAULT_PROFILES, null, 0);
     }
 
     @Test
@@ -71,13 +73,51 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
         testGenerator.setHttpClient(closeableHttpClient);
         testGenerator.generateRoutes();
 
-        List<CoordinateGeneratorRoute.Route> result = testGenerator.getResult();
+        List<Route> result = testGenerator.getResult();
         assertEquals(2, result.size());
+        assertEquals("driving-car", result.get(0).profile);
         verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
     }
 
     @Test
+    void testMultipleProfiles() throws Exception {
+        String[] profiles = new String[] { "driving-car", "cycling-regular" };
+        testGenerator = new TestCoordinateGeneratorRoute(2, extent, profiles, null, 0);
+
+        String mockJsonResponse = """
+                {
+                    "distances": [[0,1500.2],[1500.3,0]],
+                    "destinations": [
+                        {"location": [8.666862, 49.413181]},
+                        {"location": [8.676105, 49.41853]}
+                    ],
+                    "sources": [
+                        {"location": [8.666862, 49.413181]},
+                        {"location": [8.676105, 49.41853]}
+                    ]
+                }
+                """;
+
+        ClassicHttpResponse mockResponse = mock(ClassicHttpResponse.class);
+        when(mockResponse.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(mockResponse.getEntity()).thenReturn(new StringEntity(mockJsonResponse, ContentType.APPLICATION_JSON));
+        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenAnswer(invocation -> {
+            HttpClientResponseHandler<String> handler = invocation.getArgument(1);
+            return handler.handleResponse(mockResponse);
+        });
+
+        testGenerator.setHttpClient(closeableHttpClient);
+        testGenerator.generateRoutes();
+
+        List<Route> result = testGenerator.getResult();
+        assertEquals(4, result.size()); // 2 routes * 2 profiles
+    }
+
+    @Test
     void testWriteCSVToFile(@TempDir Path tempDir) throws Exception {
+        String[] profiles = new String[] { "driving-car", "cycling-regular" };
+        testGenerator = new TestCoordinateGeneratorRoute(2, extent, profiles, null, 0);
+
         String mockJsonResponse = """
                 {
                     "distances": [[0,1500.3],[1500.1,0]],
@@ -103,9 +143,9 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
 
         assertTrue(Files.exists(filePath));
         List<String> lines = Files.readAllLines(filePath);
-        assertEquals("start_longitude,start_latitude,end_longitude,end_latitude,distance", lines.get(0)); // Updated
-                                                                                                          // header
-        assertEquals(3, lines.size()); // Header + 2 routes
+        assertEquals("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile", lines.get(0));
+        assertTrue(lines.stream().anyMatch(l -> l.endsWith("driving-car")));
+        assertTrue(lines.stream().anyMatch(l -> l.endsWith("cycling-regular")));
     }
 
     @Test
@@ -134,7 +174,7 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
 
         // Create generator with minimum distance of 1000 meters
         TestCoordinateGeneratorRoute generator = new TestCoordinateGeneratorRoute(
-                6, extent, "driving-car", null, 1000.0);
+                6, extent, new String[] { "driving-car" }, null, 1000.0);
         generator.setHttpClient(closeableHttpClient);
         generator.generateRoutes();
 
@@ -150,22 +190,32 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
     @SuppressWarnings("unused")
     private static Stream<Arguments> invalidConstructorParameters() {
         double[] validExtent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
+        String[] validProfiles = new String[] { "driving-car" };
+        String[] emptyProfiles = new String[] {};
         return Stream.of(
-                Arguments.of(0, validExtent, "driving-car", 0.0, "Number of routes must be positive"),
-                Arguments.of(1, null, "driving-car", 0.0, "Extent must contain 4 coordinates"),
-                Arguments.of(1, new double[3], "driving-car", 0.0, "Extent must contain 4 coordinates"),
-                Arguments.of(1, validExtent, "", 0.0, "Profile must not be empty"),
-                Arguments.of(1, validExtent, null, 0.0, "Profile must not be empty"),
-                Arguments.of(1, validExtent, "driving-car", -1.0, "Minimum distance must be non-negative"));
+                Arguments.of(0, validExtent, validProfiles, 0.0, IllegalArgumentException.class,
+                        "Number of routes must be positive"),
+                Arguments.of(1, null, validProfiles, 0.0, IllegalArgumentException.class,
+                        "Extent must contain 4 coordinates"),
+                Arguments.of(1, new double[3], validProfiles, 0.0, IllegalArgumentException.class,
+                        "Extent must contain 4 coordinates"),
+                Arguments.of(1, validExtent, emptyProfiles, 0.0,
+                        IllegalArgumentException.class,
+                        "Profiles must not be empty"),
+                Arguments.of(1, validExtent, null, 0.0,
+                        IllegalArgumentException.class,
+                        "Profiles must not be empty"),
+                Arguments.of(1, validExtent, validProfiles, -1.0, IllegalArgumentException.class,
+                        "Minimum distance must be non-negative"));
     }
 
     @ParameterizedTest
     @MethodSource("invalidConstructorParameters")
-    void testInvalidConstructorParameters(int numRoutes, double[] extent, String profile, double minDistance,
-            String expectedMessage) {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> new TestCoordinateGeneratorRoute(numRoutes, extent, profile, null, minDistance));
+    void testInvalidConstructorParameters(int numRoutes, double[] extent, String[] profiles, double minDistance,
+            Class<? extends Exception> expectedExceptionClass, String expectedMessage) {
+        Exception exception = assertThrows(
+                expectedExceptionClass,
+                () -> new TestCoordinateGeneratorRoute(numRoutes, extent, profiles, null, minDistance));
         assertEquals(expectedMessage, exception.getMessage());
     }
 
@@ -190,7 +240,7 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
         when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
 
         TestCoordinateGeneratorRoute generator = new TestCoordinateGeneratorRoute(
-                6, extent, "driving-car", null);
+                6, extent, new String[] { "driving-car" }, null);
         generator.setHttpClient(closeableHttpClient);
         generator.generateRoutes();
 
@@ -218,13 +268,13 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
     private class TestCoordinateGeneratorRoute extends CoordinateGeneratorRoute {
         private CloseableHttpClient testClient;
 
-        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl) {
-            super(numRoutes, extent, profile, baseUrl, 0);
+        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl) {
+            super(numRoutes, extent, profiles, baseUrl, 0);
         }
 
-        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String profile, String baseUrl,
+        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
                 double minDistance) {
-            super(numRoutes, extent, profile, baseUrl, minDistance);
+            super(numRoutes, extent, profiles, baseUrl, minDistance);
         }
 
         void setHttpClient(CloseableHttpClient client) {

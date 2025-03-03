@@ -1,7 +1,6 @@
 package org.heigit.ors.generators;
 
-import org.apache.commons.cli.MissingOptionException;
-import org.apache.commons.cli.ParseException;
+import org.heigit.ors.exceptions.CommandLineParsingException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,7 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class CoordinateGeneratorSnappingCLITest {
 
     @Test
-    void testValidCliArguments() throws ParseException {
+    void testValidCliArguments() {
         String[] args = {
             "-n", "100",
             "-e", "8.6", "49.3", "8.7", "49.4",
@@ -31,7 +30,7 @@ class CoordinateGeneratorSnappingCLITest {
     }
 
     @Test
-    void testCustomOutputFile() throws ParseException {
+    void testCustomOutputFile() {
         String[] args = {
             "-n", "100",
             "-e", "8.6", "49.3", "8.7", "49.4",
@@ -50,7 +49,7 @@ class CoordinateGeneratorSnappingCLITest {
         "driving-car, cycling-regular",
         "driving-car,cycling-regular,walking"
     })
-    void testProfileParsing(String profileInput) throws ParseException {
+    void testProfileParsing(String profileInput) {
         String[] args = {
             "-n", "100",
             "-e", "8.6", "49.3", "8.7", "49.4",
@@ -66,10 +65,12 @@ class CoordinateGeneratorSnappingCLITest {
     void testHelpFlag() {
         String[] args = { "-h" };
         // assert throws MissingOptionException
-        MissingOptionException exception = assertThrows(MissingOptionException.class,
+        CommandLineParsingException exception = assertThrows(
+                        CommandLineParsingException.class,
                 () -> new CoordinateGeneratorSnappingCLI(args));
         assertNotNull(exception);
-        assertEquals("org.apache.commons.cli.MissingOptionException: Missing required options: n, e, p", exception.toString());
+        assertEquals("org.heigit.ors.exceptions.CommandLineParsingException: Failed to parse command line arguments",
+                exception.toString());
     }
 
     @Test
@@ -80,12 +81,13 @@ class CoordinateGeneratorSnappingCLITest {
             // Missing required -p argument
         };
 
-        ParseException exception = assertThrows(ParseException.class, () -> new CoordinateGeneratorSnappingCLI(args));
+        CommandLineParsingException exception = assertThrows(
+                CommandLineParsingException.class, () -> new CoordinateGeneratorSnappingCLI(args));
         assertNotNull(exception);
     }
 
     @Test
-    void testInvalidNumberFormat() throws ParseException {
+    void testInvalidNumberFormat() {
         String[] args = {
             "-n", "invalid",
             "-e", "8.6", "49.3", "8.7", "49.4",
@@ -93,7 +95,7 @@ class CoordinateGeneratorSnappingCLITest {
         };
 
         CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
-        NumberFormatException exception = assertThrows(NumberFormatException.class, () -> cli.createGenerator());
+        NumberFormatException exception = assertThrows(NumberFormatException.class, cli::createGenerator);
         assertNotNull(exception);
     }
 
@@ -105,7 +107,8 @@ class CoordinateGeneratorSnappingCLITest {
             "-p", "driving-car"
         };
 
-        ParseException exception = assertThrows(ParseException.class, () -> new CoordinateGeneratorSnappingCLI(args));
+        CommandLineParsingException exception = assertThrows(
+                CommandLineParsingException.class, () -> new CoordinateGeneratorSnappingCLI(args));
         assertNotNull(exception);
     }
 
@@ -116,11 +119,9 @@ class CoordinateGeneratorSnappingCLITest {
             "-e", "8.6", "49.3", "8.7", "49.4",
             "-p", ""
         };
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
-            cli.createGenerator();
-        });
+        CoordinateGeneratorSnappingCLI coordinateGeneratorSnappingCLI = new CoordinateGeneratorSnappingCLI(args);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                coordinateGeneratorSnappingCLI::createGenerator);
         assertNotNull(exception);
     }
 }
