@@ -20,7 +20,6 @@ public class CoordinateGeneratorSnappingCLI {
         try {
             cmd = new DefaultParser().parse(options, args);
         } catch (ParseException e) {
-            LOGGER.error("Error parsing command line arguments: {}", e.getMessage());
             printHelp();
             throw e;
         }

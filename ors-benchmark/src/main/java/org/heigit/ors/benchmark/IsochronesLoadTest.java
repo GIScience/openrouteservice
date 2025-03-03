@@ -25,7 +25,6 @@ import static io.gatling.javaapi.core.CoreDsl.csv;
 import static io.gatling.javaapi.core.CoreDsl.feed;
 import static io.gatling.javaapi.core.CoreDsl.group;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
-import io.gatling.javaapi.core.FeederBuilder;
 import io.gatling.javaapi.core.PopulationBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Session;
@@ -34,7 +33,6 @@ import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
-import static io.gatling.javaapi.jdbc.JdbcDsl.jdbcFeeder;
 
 public class IsochronesLoadTest extends Simulation {
     private static final Logger logger = LoggerFactory.getLogger(IsochronesLoadTest.class);
@@ -158,8 +156,27 @@ public class IsochronesLoadTest extends Simulation {
             logger.debug("Created request body: {}", body);
             return body;
         } catch (JsonProcessingException e) {
-            logger.error("Failed to create request body: {}", e.getMessage());
             throw new RequestBodyCreationException("Failed to create request body", e);
+        }
+    }
+
+    private static void processCoordinates(List<List<Double>> locations, List<?> lons, List<?> lats, int size) {
+        for (int i = 0; i < size; i++) {
+            Object lon = lons.get(i);
+            Object lat = lats.get(i);
+
+            if (lon == null || lat == null) {
+                logger.warn("Null coordinate at index {}: lon={}, lat={}", i, lon, lat);
+                continue;
+            }
+
+            try {
+                double lonValue = Double.parseDouble(lon.toString());
+                double latValue = Double.parseDouble(lat.toString());
+                locations.add(List.of(lonValue, latValue));
+            } catch (NumberFormatException e) {
+                throw new RequestBodyCreationException("Failed to parse coordinate values", e);
+            }
         }
     }
 
@@ -183,42 +200,18 @@ public class IsochronesLoadTest extends Simulation {
             int size = Math.min(Math.min(locationCount, lons.size()), lats.size());
             logger.debug("Processing {} coordinates", size);
 
-            for (int i = 0; i < size; i++) {
-                Object lon = lons.get(i);
-                Object lat = lats.get(i);
-
-                if (lon == null || lat == null) {
-                    logger.warn("Null coordinate at index {}: lon={}, lat={}", i, lon, lat);
-                    continue;
-                }
-
-                try {
-                    double lonValue = Double.parseDouble(lon.toString());
-                    double latValue = Double.parseDouble(lat.toString());
-                    locations.add(List.of(lonValue, latValue));
-                } catch (NumberFormatException e) {
-                    logger.error("Failed to parse coordinate at index {}: lon='{}', lat='{}'", i, lon, lat);
-                    throw e;
-                }
-            }
+            processCoordinates(locations, lons, lats, size);
 
             logger.debug("Created location list with {} coordinate pairs", locations.size());
             if (!locations.isEmpty()) {
                 logger.debug("Sample coordinate: {}", locations.get(0));
             }
 
-        } catch (Exception e) {
-            logger.error("Error creating locations list: {}", e.getMessage(), e);
+        } catch (NumberFormatException e) {
             throw new RequestBodyCreationException("Error processing coordinates", e);
         }
 
         return locations;
-    }
-
-    private static FeederBuilder<String> initCsvFeeder(String sourceFile) {
-        logger.info("Initializing feeder with source file: {}", sourceFile);
-        jdbcFeeder("databaseUrl", "username", "password", "SELECT * FROM users");
-        return csv(sourceFile).circular();
     }
 
     private static String getFileNameWithoutExtension(String filePath) {

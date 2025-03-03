@@ -249,9 +249,9 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         try (PrintWriter pw = new PrintWriter(filePath)) {
             pw.println("longitude,latitude,profile");
             for (Map.Entry<String, List<double[]>> entry : resultsByProfile.entrySet()) {
-                String profile = entry.getKey();
+                String userProfile = entry.getKey();
                 for (double[] point : entry.getValue()) {
-                    pw.printf("%f,%f,%s%n", point[0], point[1], profile);
+                    pw.printf("%f,%f,%s%n", point[0], point[1], userProfile);
                 }
             }
         }
@@ -261,8 +261,8 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     @Override
     protected <T> List<T> getResult() {
         List<Object[]> combined = new ArrayList<>();
-        resultsByProfile.forEach((profile, points) -> points
-                .forEach(point -> combined.add(new Object[] { point[0], point[1], profile })));
+        resultsByProfile.forEach((userProfile, points) -> points
+                .forEach(point -> combined.add(new Object[] { point[0], point[1], userProfile })));
         return (List<T>) combined;
     }
 
