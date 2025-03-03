@@ -16,7 +16,7 @@ public class SourceUtils {
     private static final Logger logger = LoggerFactory.getLogger(SourceUtils.class);
     private static final String PROFILE_COLUMN = "profile";
 
-    public static List<Map<String, Object>> getRecordsByProfile(String sourceFile, TestConfig config) throws IllegalStateException {
+    public static List<Map<String, Object>> getRecordsByProfile(String sourceFile, String targetProfile) throws IllegalStateException {
         // Read all records from CSV
         List<Map<String, Object>> records = csv(sourceFile).readRecords();
         logger.info("Read {} records from CSV file", records.size());
@@ -26,7 +26,7 @@ public class SourceUtils {
         }
 
         // Sample log of first record for debugging
-        logger.debug("Sample record structure: {}", records.get(0).keySet());
+        logger.info("Sample record structure: {}", records.get(0).keySet());
 
         // Group records by profile if profile column exists, otherwise use all records
         Map<String, List<Map<String, Object>>> recordsByProfile;
@@ -39,31 +39,41 @@ public class SourceUtils {
             recordsByProfile = records.stream()
                     .collect(java.util.stream.Collectors.groupingBy(
                             coordinateRecord -> (String) coordinateRecord.getOrDefault(PROFILE_COLUMN,
-                                    config.getTargetProfile())));
+                                    targetProfile)));
             logger.info("Found coordinates for profiles: {}", recordsByProfile.keySet());
         }
 
-        List<Map<String, Object>> targetRecords = recordsByProfile.getOrDefault(config.getTargetProfile(), recordsByProfile.get("all"));
+        List<Map<String, Object>> targetRecords = recordsByProfile.getOrDefault(targetProfile, recordsByProfile.get("all"));
 
         if (targetRecords == null || targetRecords.isEmpty()) {
-            throw new IllegalStateException("No records found for profile '" + config.getTargetProfile() + "' in file " + sourceFile);
+            throw new IllegalStateException("No records found for profile '" + targetProfile + "' in file " + sourceFile);
         }
 
-        logger.info("Selected {} records for profile '{}'", targetRecords.size(), config.getTargetProfile());
+        logger.info("Selected {} records for profile '{}'", targetRecords.size(), targetProfile);
         return targetRecords;
     }
 
-    public static Iterator<Map<String, Object>> getRecordFeeder(List<Map<String, Object>> targetRecords, TestConfig config) {
+    public static Iterator<Map<String, Object>> getRecordFeeder(List<Map<String, Object>> targetRecords, TestConfig config, String targetProfile) {
         // Transform records to coordinates and shuffle
-        List<Map<String, Object>> mappedRecords = targetRecords.stream()
-                .map(targetRecord -> Map.of(
-                        config.getFieldLon(), targetRecord.get(config.getFieldLon()),
-                        config.getFieldLat(), targetRecord.get(config.getFieldLat())))
-                .collect(Collectors.toList());
+        List<Map<String, Object>> mappedRecords =
+                !targetRecords.isEmpty() && targetRecords.get(0).containsKey(config.getFieldLon()) && targetRecords.get(0).containsKey(config.getFieldLat()) ?
+                    targetRecords.stream()
+                    .map(targetRecord -> Map.of(
+                            config.getFieldLon(), targetRecord.get(config.getFieldLon()),
+                            config.getFieldLat(), targetRecord.get(config.getFieldLat())))
+                    .collect(Collectors.toList())
+                : targetRecords.stream()
+                        .map(targetRecord -> Map.of(
+                                config.getFieldStartLon(), targetRecord.get(config.getFieldStartLon()),
+                                config.getFieldStartLat(), targetRecord.get(config.getFieldStartLat()),
+                                config.getFieldEndLon(), targetRecord.get(config.getFieldEndLon()),
+                                config.getFieldEndLat(), targetRecord.get(config.getFieldEndLat())))
+                        .collect(Collectors.toList())
+                ;
         Collections.shuffle(mappedRecords);
 
         Iterator<Map<String, Object>> recordFeeder = IteratorUtils.infiniteCircularIterator(mappedRecords);
-        logger.info("Created circular feeder with {} coordinates for profile {}", mappedRecords.size(), config.getTargetProfile());
+        logger.info("Created circular feeder with {} coordinates for profile {}", mappedRecords.size(), targetProfile);
 
         return recordFeeder;
     }

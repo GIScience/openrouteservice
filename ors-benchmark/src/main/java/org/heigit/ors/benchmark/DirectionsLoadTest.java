@@ -2,13 +2,12 @@ package org.heigit.ors.benchmark;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
+import org.heigit.ors.benchmark.util.SourceUtils;
 import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,18 +15,17 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static io.gatling.javaapi.core.CoreDsl.StringBody;
-import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
-import static io.gatling.javaapi.core.CoreDsl.csv;
-import static io.gatling.javaapi.core.CoreDsl.group;
-import static io.gatling.javaapi.core.CoreDsl.scenario;
 import io.gatling.javaapi.core.FeederBuilder;
 import io.gatling.javaapi.core.PopulationBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.Simulation;
+
+import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
+import static org.heigit.ors.benchmark.util.NameUtils.getFileNameWithoutExtension;
+
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
 
@@ -46,7 +44,6 @@ public class DirectionsLoadTest extends Simulation {
         logger.info("Initializing DirectionsLoadTest:");
         logger.info("- Source files: {}", config.getSourceFiles());
         logger.info("- Concurrent users: {}", config.getNumConcurrentUsers());
-        logger.info("- Query sizes: {}", config.getQuerySizes());
         logger.info("- Execution mode: {}", config.isParallelExecution() ? "parallel" : "sequential");
 
         try {
@@ -87,8 +84,8 @@ public class DirectionsLoadTest extends Simulation {
 
     private Stream<PopulationBuilder> createScenarios(boolean isParallel) {
         return config.getDirectionsModes().stream()
-                .flatMap(mode -> config.getSourceFiles(mode).stream()
-                        .flatMap(sourceFile -> config.getTargetProfiles(mode).stream()
+                .flatMap(mode -> config.getSourceFiles().stream()
+                        .flatMap(sourceFile -> mode.getProfiles().stream()
                                 .map(profile -> createScenarioWithInjection(sourceFile, isParallel, mode, profile))));
     }
 
@@ -99,31 +96,41 @@ public class DirectionsLoadTest extends Simulation {
     }
 
     private String formatScenarioName(String sourceFile, DirectionsModes mode, String profile) {
-        String fileName = getFileNameWithoutExtension(sourceFile);
-        return String.format("%s - %s | %s", mode.name(), profile, fileName);
-    }
-
-    private static String getFileNameWithoutExtension(String filePath) {
-        String fileName = new File(filePath).getName();
-        int lastDotIndex = fileName.lastIndexOf('.');
-        return lastDotIndex > 0 ? fileName.substring(0, lastDotIndex) : fileName;
+        return String.format("%s - %s | %s", mode.name(), profile, getFileNameWithoutExtension(sourceFile));
     }
 
     private static ScenarioBuilder createDirectionScenario(String name, String sourceFile, TestConfig config,
                                                            boolean isParallel, DirectionsModes mode, String profile) {
         String parallelOrSequential = isParallel ? "parallel" : "sequential";
-        String groupName = String.format("Directions %s %s %s - %s - Users %s",
-                parallelOrSequential, mode.name(), profile, getFileNameWithoutExtension(sourceFile),
+        String groupName = String.format("Directions %s %s - %s - Users %s",
+                parallelOrSequential, mode.name(), getFileNameWithoutExtension(sourceFile),
                 config.getNumConcurrentUsers());
 
-        FeederBuilder<String> feeder = initCsvFeeder(sourceFile);
-        return scenario(name).feed(feeder).exec(group(groupName)
-                .on(createRequest(name, config, mode, profile)));
-    }
+        try {
+            List<Map<String, Object>> targetRecords = SourceUtils.getRecordsByProfile(sourceFile, profile);
 
-    private static FeederBuilder<String> initCsvFeeder(String sourceFile) {
-        logger.info("Initializing feeder with source file: {}", sourceFile);
-        return csv(sourceFile).circular();
+            Iterator<Map<String, Object>> recordFeeder = SourceUtils.getRecordFeeder(targetRecords, config, profile);
+
+            AtomicInteger remainingRecords = new AtomicInteger(targetRecords.size());
+
+            logger.info("Processing {} coordinates for profile {}", remainingRecords.get(), profile);
+
+            return scenario(name)
+                    .asLongAs(session -> remainingRecords.get() >= 1)
+                    .on(
+                            feed(recordFeeder, 1)
+                                    .exec(session -> {
+                                        remainingRecords.getAndAdd(-1);
+                                        return session;
+                                    })
+
+                                    .exec(group(groupName).on(createRequest(name, config, mode, profile))));
+
+        } catch (Exception e) {
+            logger.error("Error building scenario: ", e);
+            System.exit(1);
+            return null;
+        }
     }
 
     private static HttpRequestActionBuilder createRequest(String name, TestConfig config, DirectionsModes mode, String profile) {
@@ -139,7 +146,7 @@ public class DirectionsLoadTest extends Simulation {
             Map<String, Object> requestBody = new java.util.HashMap<>(Map.of(
                     "coordinates", createLocationsListFromArrays(session, config)
             ));
-            requestBody.putAll(config.getAdditionalRequestParams(mode));
+            requestBody.putAll(mode.getRequestParams());
             return objectMapper.writeValueAsString(requestBody);
         } catch (JsonProcessingException e) {
             throw new RequestBodyCreationException("Failed to create request body", e);
@@ -149,11 +156,11 @@ public class DirectionsLoadTest extends Simulation {
     static List<List<Double>> createLocationsListFromArrays(Session session, TestConfig config) {
         List<List<Double>> locations = new ArrayList<>();
         try {
-            Double startLon = Double.valueOf(Objects.requireNonNull(session.get(config.getFieldStartLon())));
-            Double startLat = Double.valueOf(Objects.requireNonNull(session.get(config.getFieldStartLat())));
+            Double startLon = Double.valueOf((String) session.getList(config.getFieldStartLon()).get(0));
+            Double startLat = Double.valueOf((String) session.getList(config.getFieldStartLat()).get(0));
             locations.add(List.of(startLon, startLat));
-            Double endLon = Double.valueOf(Objects.requireNonNull(session.get(config.getFieldEndLon())));
-            Double endLat = Double.valueOf(Objects.requireNonNull(session.get(config.getFieldEndLat())));
+            Double endLon = Double.valueOf((String) session.getList(config.getFieldEndLon()).get(0));
+            Double endLat = Double.valueOf((String) session.getList(config.getFieldEndLat()).get(0));
             locations.add(List.of(endLon, endLat));
         } catch (NumberFormatException e) {
             String errorMessage = String.format("Failed to parse coordinate values in locations list at index %d. Original value could not be converted to double", locations.size());
