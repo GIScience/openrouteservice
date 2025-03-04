@@ -33,8 +33,7 @@ public class BenchmarkEnums {
 
         public List<String> getProfiles() {
             return switch (this) {
-                case ALGO_CH, ALGO_CORE -> List.of("driving-car", "driving-hgv", "cycling-regular", "cycling-road", "cycling-mountain", "cycling-electric", "foot-walking", "foot-hiking");
-                case ALGO_LM_ASTAR ->  List.of("cycling-regular", "cycling-road", "cycling-mountain", "cycling-electric");
+                case ALGO_CH, ALGO_CORE, ALGO_LM_ASTAR -> List.of("driving-car", "driving-hgv", "cycling-regular", "cycling-road", "cycling-mountain", "cycling-electric", "foot-walking", "foot-hiking");
             };
         }
 
