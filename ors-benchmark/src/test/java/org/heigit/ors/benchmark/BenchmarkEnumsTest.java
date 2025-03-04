@@ -20,33 +20,29 @@ class BenchmarkEnumsTest {
 
     @Test
     void testDirectionsModesFromString() {
-        assertEquals(BenchmarkEnums.DirectionsModes.BASIC_FASTEST, BenchmarkEnums.DirectionsModes.fromString("basicfastest"));
-        assertEquals(BenchmarkEnums.DirectionsModes.AVOID_HIGHWAY, BenchmarkEnums.DirectionsModes.fromString("avoidhighway"));
-        
+        assertEquals(BenchmarkEnums.DirectionsModes.ALGO_CH, BenchmarkEnums.DirectionsModes.fromString("algoch"));
+        assertEquals(BenchmarkEnums.DirectionsModes.ALGO_CORE, BenchmarkEnums.DirectionsModes.fromString("algocore"));
+        assertEquals(BenchmarkEnums.DirectionsModes.ALGO_LM_ASTAR, BenchmarkEnums.DirectionsModes.fromString("algolmastar"));
+
         Throwable exception = assertThrows(IllegalArgumentException.class, () -> BenchmarkEnums.DirectionsModes.fromString("invalid"));
         assertTrue(exception instanceof IllegalArgumentException);
     }
 
     @Test
     void testDirectionsModesGetDefaultProfiles() {
-        List<String> basicProfiles = BenchmarkEnums.DirectionsModes.BASIC_FASTEST.getProfiles();
+        List<String> basicProfiles = BenchmarkEnums.DirectionsModes.ALGO_CH.getProfiles();
         assertTrue(basicProfiles.contains("driving-car"));
         assertTrue(basicProfiles.contains("foot-walking"));
         assertEquals(8, basicProfiles.size());
-
-        List<String> avoidProfiles = BenchmarkEnums.DirectionsModes.AVOID_HIGHWAY.getProfiles();
-        assertTrue(avoidProfiles.contains("driving-car"));
-        assertTrue(avoidProfiles.contains("driving-hgv"));
-        assertEquals(2, avoidProfiles.size());
     }
 
     @Test
     void testDirectionsModesGetRequestParams() {
-        Map<String, Object> basicParams = BenchmarkEnums.DirectionsModes.BASIC_FASTEST.getRequestParams();
+        Map<String, Object> basicParams = BenchmarkEnums.DirectionsModes.ALGO_CH.getRequestParams();
         assertEquals("fastest", basicParams.get("preference"));
         assertEquals(1, basicParams.size());
 
-        Map<String, Object> avoidParams = BenchmarkEnums.DirectionsModes.AVOID_HIGHWAY.getRequestParams();
+        Map<String, Object> avoidParams = BenchmarkEnums.DirectionsModes.ALGO_LM_ASTAR.getRequestParams();
         assertEquals("fastest", avoidParams.get("preference"));
         assertTrue(avoidParams.get("options") instanceof Map);
         @SuppressWarnings("unchecked")

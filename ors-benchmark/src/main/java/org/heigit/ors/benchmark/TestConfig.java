@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
-import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.AVOID_HIGHWAY;
-import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.BASIC_FASTEST;
 import org.heigit.ors.benchmark.BenchmarkEnums.TestUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.*;
 
 public class TestConfig {
     private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
@@ -145,7 +145,7 @@ public class TestConfig {
     }
 
     public List<DirectionsModes> getDirectionsModes() {
-        return modes.isEmpty() ? List.of(BASIC_FASTEST)
+        return modes.isEmpty() ? List.of(ALGO_CH, ALGO_CORE, ALGO_LM_ASTAR)
                 : modes.stream()
                         .map(DirectionsModes::fromString)
                         .toList();
