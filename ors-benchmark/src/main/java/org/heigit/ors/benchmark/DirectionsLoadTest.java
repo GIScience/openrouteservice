@@ -96,7 +96,7 @@ public class DirectionsLoadTest extends Simulation {
     }
 
     private String formatScenarioName(String sourceFile, DirectionsModes mode, String profile) {
-        return String.format("%s - %s | %s", mode.name(), profile, getFileNameWithoutExtension(sourceFile));
+        return String.format("%s - %s", mode.name(), profile);
     }
 
     private static ScenarioBuilder createDirectionScenario(String name, String sourceFile, TestConfig config,
