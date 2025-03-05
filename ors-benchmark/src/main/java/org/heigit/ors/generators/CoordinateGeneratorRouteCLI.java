@@ -12,6 +12,9 @@ import org.heigit.ors.exceptions.CommandLineParsingException;
 
 public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI {
 
+    private static final String OPT_THREADS = "threads";
+    private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
+
     public CoordinateGeneratorRouteCLI(String[] args) {
         super(args);
     }
@@ -70,6 +73,12 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
                 .hasArg()
                 .desc("Maximum distances between coordinates in meters, comma-separated in profile order (e.g., 5000,3000)")
                 .build());
+
+        options.addOption(Option.builder("t")
+                .longOpt(OPT_THREADS)
+                .hasArg()
+                .desc("Number of threads to use (default: " + DEFAULT_THREAD_COUNT + ")")
+                .build());
     }
 
     @Override
@@ -107,13 +116,17 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
         // Parse the max distances if provided
         Map<String, Double> maxDistanceByProfile = parseMaxDistances(cmd.getOptionValue("m"), profiles);
 
+        int numThreads = parseNumThreads(cmd.getOptionValue(OPT_THREADS, String.valueOf(DEFAULT_THREAD_COUNT)));
+
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(
-                    "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profiles={}, baseUrl={}, minDistance={}, maxDistances={}",
-                    numRoutes, extent, java.util.Arrays.toString(profiles), baseUrl, minDistance, maxDistanceByProfile);
+                    "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profiles={}, baseUrl={}, minDistance={}, maxDistances={}, numThreads={}",
+                    numRoutes, extent, java.util.Arrays.toString(profiles), baseUrl, minDistance, maxDistanceByProfile,
+                    numThreads);
         }
 
-        return new CoordinateGeneratorRoute(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile);
+        return new CoordinateGeneratorRoute(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile,
+                numThreads);
     }
 
     /**
@@ -151,5 +164,13 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
         }
 
         return maxDistanceByProfile;
+    }
+
+    private int parseNumThreads(String numThreads) {
+        try {
+            return Integer.parseInt(numThreads);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid number of threads: " + e.getMessage());
+        }
     }
 }
