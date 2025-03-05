@@ -47,7 +47,7 @@ public class CoordinateGeneratorHelper {
 
         // First check if center is within extent, otherwise it's impossible
         if (!isWithinExtent(center, extent)) {
-            LOGGER.warn("Center point is outside the specified extent - impossible to find a point");
+            LOGGER.debug("Center point is outside the specified extent - impossible to find a point");
             return new double[0];
         }
 
