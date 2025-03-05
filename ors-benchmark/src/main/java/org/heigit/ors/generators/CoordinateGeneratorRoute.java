@@ -12,9 +12,11 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.heigit.ors.util.ProgressBarLogger;
+import org.heigit.ors.util.CoordinateGeneratorHelper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import me.tongfei.progressbar.*;
 
 import java.io.FileNotFoundException;
@@ -22,13 +24,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
+import javax.swing.text.html.parser.Entity;
+
 public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
-    private static final int DEFAULT_MATRIX_SIZE = 4;
-    private static final double DEFAULT_SNAP_RADIUS = 350; // 100 meters radius for snapping
+    private static final int DEFAULT_MATRIX_SIZE = 2;
+    private static final double DEFAULT_SNAP_RADIUS = 350; // 350 meters radius for snapping
     private static final String LOCATION_KEY = "location";
+    private static final double EARTH_RADIUS_METERS = 6371000; // Earth's radius in meters
 
     private final int numRoutes;
     private final double minDistance;
+    private final Map<String, Double> maxDistanceByProfile; // New field for max distances by profile
     private final Map<String, List<Route>> resultsByProfile;
     private final Map<String, Set<RoutePair>> uniqueRoutesByProfile;
 
@@ -81,8 +87,8 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     }
 
     protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
-            double minDistance) {
-        super(extent, profiles, baseUrl, "matrix"); // Use first profile as default
+            double minDistance, Map<String, Double> maxDistanceByProfile) {
+        super(extent, profiles, baseUrl, "matrix");
         if (numRoutes <= 0)
             throw new IllegalArgumentException("Number of routes must be positive");
         if (minDistance < 0)
@@ -90,26 +96,24 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
         this.numRoutes = numRoutes;
         this.minDistance = minDistance;
+        this.maxDistanceByProfile = new HashMap<>(maxDistanceByProfile); // Copy to prevent external modification
         this.resultsByProfile = new HashMap<>();
         this.uniqueRoutesByProfile = new HashMap<>();
 
         for (String userProfile : profiles) {
             resultsByProfile.put(userProfile, new ArrayList<>());
             uniqueRoutesByProfile.put(userProfile, new HashSet<>());
+            // Ensure each profile has a max distance, even if not explicitly provided
+            this.maxDistanceByProfile.computeIfAbsent(userProfile, k -> {
+                LOGGER.debug("No maximum distance specified for profile {}, using unlimited", k);
+                return Double.MAX_VALUE;
+            });
         }
     }
 
     @Override
     protected List<double[]> randomCoordinatesInExtent(int count) {
-        LOGGER.debug("Generating {} random coordinates within extent [{}, {}, {}, {}]",
-                count, extent[0], extent[1], extent[2], extent[3]);
-        List<double[]> points = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            double x = random.nextDouble() * (extent[2] - extent[0]) + extent[0];
-            double y = random.nextDouble() * (extent[3] - extent[1]) + extent[1];
-            points.add(new double[] { x, y });
-        }
-        return points;
+        return CoordinateGeneratorHelper.randomCoordinatesInExtent(count, extent);
     }
 
     @Override
@@ -117,10 +121,16 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         int status = response.getCode();
         LOGGER.debug("Processing response with status code: {}", status);
         if (status >= HttpStatus.SC_REDIRECTION) {
-            throw new ClientProtocolException(new StatusLine(response).toString());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Received error response: {}", new StatusLine(response));
+            }
+            return null;
         }
         HttpEntity entity = response.getEntity();
         if (entity == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Received empty response entity");
+            }
             return null;
         }
         try {
@@ -234,9 +244,14 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     @Override
     protected void processNextBatch(CloseableHttpClient client, String profile) throws IOException {
-        // Generate random coordinates first
-        List<double[]> randomCoordinates = randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE);
-        LOGGER.debug("Generated {} random coordinates for profile: {}", randomCoordinates.size(), profile);
+        // Get max distance for this profile
+        Double maxDistance = maxDistanceByProfile.get(profile);
+        double effectiveMaxDistance = maxDistance != null ? maxDistance : Double.MAX_VALUE;
+        // Generate random coordinates with max distance constraint if applicable
+        List<double[]> randomCoordinates = CoordinateGeneratorHelper.randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE,
+                extent);
+        LOGGER.debug("Generated {} random coordinates for profile: {} with max distance: {}",
+                randomCoordinates.size(), profile, maxDistance != null ? maxDistance : "unlimited");
 
         // Snap the coordinates to the road network
         List<double[]> snappedCoordinates = snapCoordinates(client, randomCoordinates, profile);
@@ -248,12 +263,24 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             return;
         }
 
-        // Use the snapped coordinates for the matrix request
-        String response = sendMatrixRequest(client, snappedCoordinates, profile);
-        LOGGER.debug("Received matrix response for profile: {}", profile);
-
-        if (response != null) {
-            processMatrixResponse(response, profile);
+        // Find the second pair coordinates that are within the max distance and extent.
+        // Store both pairs and use set to avoid duplicates. Use
+        // randomCoordinateInRadiusAndExtent to generate the second pair.
+        for (int i = 0; i < snappedCoordinates.size(); i++) {
+            double[] start = snappedCoordinates.get(i);
+            double[] end = CoordinateGeneratorHelper.randomCoordinateInRadiusAndExtent(start, effectiveMaxDistance,
+                    extent);
+            if (end.length == 0) {
+                continue;
+            }
+            double distance = CoordinateGeneratorHelper.calculateHaversineDistance(start, end);
+            if (distance > effectiveMaxDistance) {
+                continue;
+            }
+            String response = sendMatrixRequest(client, List.of(start, end), profile);
+            if (response != null) {
+                processMatrixResponse(response, profile);
+            }
         }
     }
 
@@ -368,14 +395,28 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         });
 
         List<List<Double>> distances = extractDistances(responseMap);
-        List<Map<String, Object>> locations = extractLocations(responseMap, "destinations");
-
-        if (distances == null || locations == null || locations.isEmpty()) {
+        List<Map<String, Object>> destinationCoordinates = extractLocations(responseMap, "destinations");
+        List<Map<String, Object>> sourceCoordinates = extractLocations(responseMap, "sources");
+        if (distances == null || destinationCoordinates == null || destinationCoordinates.isEmpty()) {
             LOGGER.debug("Invalid matrix response - missing distances or locations");
             return;
         }
 
-        processMatrixResults(distances, locations, profile);
+        if (destinationCoordinates.size() != sourceCoordinates.size()) {
+            LOGGER.debug("Invalid matrix response - different number of source and destination coordinates");
+            return;
+        }
+
+        for (int i = 0; i < destinationCoordinates.size(); i++) {
+            if (sourceCoordinates.get(i) == null || destinationCoordinates.get(i) == null || distances.get(i) == null
+                    || distances.get(i).get(0) == null) {
+                LOGGER.debug("Invalid matrix response - source {}, destination {}, distance {}",
+                        sourceCoordinates.get(i), destinationCoordinates.get(i), distances.get(i));
+                continue;
+            }
+            addRouteIfUnique(sourceCoordinates.get(i), destinationCoordinates.get(i), distances.get(i).get(0), profile);
+        }
+        // processMatrixResults(distances, destinationCoordinates, profile);
     }
 
     @SuppressWarnings("unchecked")
