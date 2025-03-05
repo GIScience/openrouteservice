@@ -1,7 +1,6 @@
 package org.heigit.ors.generators;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -24,13 +23,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
-import javax.swing.text.html.parser.Entity;
-
 public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     private static final int DEFAULT_MATRIX_SIZE = 2;
     private static final double DEFAULT_SNAP_RADIUS = 350; // 350 meters radius for snapping
     private static final String LOCATION_KEY = "location";
-    private static final double EARTH_RADIUS_METERS = 6371000; // Earth's radius in meters
 
     private final int numRoutes;
     private final double minDistance;
@@ -270,18 +266,15 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             double[] start = snappedCoordinates.get(i);
             double[] end = CoordinateGeneratorHelper.randomCoordinateInRadiusAndExtent(start, effectiveMaxDistance,
                     extent);
-            if (end.length == 0) {
-                continue;
+            if (end.length > 0
+                    && CoordinateGeneratorHelper.calculateHaversineDistance(start, end) <= effectiveMaxDistance) {
+                String response = sendMatrixRequest(client, List.of(start, end), profile);
+                if (response != null) {
+                    processMatrixResponse(response, profile);
+                }
             }
-            double distance = CoordinateGeneratorHelper.calculateHaversineDistance(start, end);
-            if (distance > effectiveMaxDistance) {
-                continue;
+
             }
-            String response = sendMatrixRequest(client, List.of(start, end), profile);
-            if (response != null) {
-                processMatrixResponse(response, profile);
-            }
-        }
     }
 
     /**
@@ -322,7 +315,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
      */
     private HttpPost createSnapRequest(List<double[]> coordinates, String profile) throws JsonProcessingException {
         Map<String, Object> payload = new HashMap<>();
-        payload.put("locations", coordinates);
+        payload.put(LOCATION_KEY, coordinates);
         payload.put("radius", DEFAULT_SNAP_RADIUS);
 
         HttpPost request = new HttpPost(baseUrl + "/v2/snap/" + profile);
@@ -416,7 +409,6 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             }
             addRouteIfUnique(sourceCoordinates.get(i), destinationCoordinates.get(i), distances.get(i).get(0), profile);
         }
-        // processMatrixResults(distances, destinationCoordinates, profile);
     }
 
     @SuppressWarnings("unchecked")
@@ -435,47 +427,6 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             return (List<Map<String, Object>>) locationsObj;
         }
         return Collections.emptyList();
-    }
-
-    private void processMatrixResults(List<List<Double>> distances, List<Map<String, Object>> locations,
-            String profile) {
-        LOGGER.debug("Processing matrix results for profile {} with {} locations", profile, locations.size());
-        int size = locations.size();
-
-        for (int i = 0; i < size; i++) {
-            if (locations.get(i) == null)
-                continue;
-
-            processLocationPairs(distances, locations, i, size, profile);
-        }
-    }
-
-    private void processLocationPairs(List<List<Double>> distances, List<Map<String, Object>> locations,
-            int sourceIndex, int size, String profile) {
-        for (int j = 0; j < size; j++) {
-            if (sourceIndex == j || locations.get(j) == null)
-                continue;
-
-            processDistanceIfValid(distances, locations, sourceIndex, j, profile);
-        }
-    }
-
-    private void processDistanceIfValid(List<List<Double>> distances, List<Map<String, Object>> locations,
-            int i, int j, String profile) {
-        // Check if the row exists
-        if (i >= distances.size() || distances.get(i) == null)
-            return;
-
-        List<Double> row = distances.get(i);
-
-        // Check if the distance value is valid
-        if (j >= row.size() || row.get(j) == null)
-            return;
-
-        Double distance = row.get(j);
-        if (distance > 0) {
-            addRouteIfUnique(locations.get(i), locations.get(j), distance, profile);
-        }
     }
 
     @SuppressWarnings("unchecked")
