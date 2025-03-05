@@ -1,5 +1,8 @@
 package org.heigit.ors.generators;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -61,6 +64,12 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
                 .type(Number.class)
                 .desc("Minimum distance between coordinates in meters (default: 0)")
                 .build());
+
+        options.addOption(Option.builder("m")
+                .longOpt("max-distances")
+                .hasArg()
+                .desc("Maximum distances between coordinates in meters, comma-separated in profile order (e.g., 5000,3000)")
+                .build());
     }
 
     @Override
@@ -95,12 +104,52 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
         double minDistance = Double.parseDouble(cmd.getOptionValue("d", "1"));
 
+        // Parse the max distances if provided
+        Map<String, Double> maxDistanceByProfile = parseMaxDistances(cmd.getOptionValue("m"), profiles);
+
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(
-                    "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profiles={}, baseUrl={}, minDistance={}",
-                    numRoutes, extent, java.util.Arrays.toString(profiles), baseUrl, minDistance);
+                    "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profiles={}, baseUrl={}, minDistance={}, maxDistances={}",
+                    numRoutes, extent, java.util.Arrays.toString(profiles), baseUrl, minDistance, maxDistanceByProfile);
         }
 
-        return new CoordinateGeneratorRoute(numRoutes, extent, profiles, baseUrl, minDistance);
+        return new CoordinateGeneratorRoute(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile);
+    }
+
+    /**
+     * Parse max distances from comma-separated string and match them to profiles
+     * 
+     * @param maxDistancesStr Comma-separated string of maximum distances
+     * @param profiles        Array of profile names
+     * @return Map of profile to maximum distance
+     */
+    private Map<String, Double> parseMaxDistances(String maxDistancesStr, String[] profiles) {
+        Map<String, Double> maxDistanceByProfile = new HashMap<>();
+
+        if (maxDistancesStr != null && !maxDistancesStr.isBlank()) {
+            String[] maxDistances = maxDistancesStr.split(",");
+
+            // Assign max distances to profiles in order
+            for (int i = 0; i < Math.min(profiles.length, maxDistances.length); i++) {
+                try {
+                    double maxDistance = Double.parseDouble(maxDistances[i].trim());
+                    maxDistanceByProfile.put(profiles[i], maxDistance);
+                } catch (NumberFormatException e) {
+                    LOGGER.warn("Invalid max distance for profile {}: {}", profiles[i], maxDistances[i]);
+                }
+            }
+
+            // Log warning if counts don't match
+            if (maxDistances.length < profiles.length) {
+                LOGGER.warn(
+                        "Fewer max distances ({}) provided than profiles ({}). Some profiles will have no max distance.",
+                        maxDistances.length, profiles.length);
+            } else if (maxDistances.length > profiles.length) {
+                LOGGER.warn("More max distances ({}) provided than profiles ({}). Excess values will be ignored.",
+                        maxDistances.length, profiles.length);
+            }
+        }
+
+        return maxDistanceByProfile;
     }
 }

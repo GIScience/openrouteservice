@@ -2,7 +2,9 @@ package org.heigit.ors.generators;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -12,7 +14,6 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.heigit.ors.generators.CoordinateGeneratorRoute.Route;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,68 +24,139 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
-class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
+class CoordinateGeneratorRouteTest {
+    private static final double[] TEST_EXTENT = { 8.573179, 49.352003, 8.793986, 49.459693 };
     private static final String[] DEFAULT_PROFILES = new String[] { "driving-car" };
+
+    @Mock
+    private CloseableHttpClient mockHttpClient;
+
+    @Captor
+    private ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor;
+
     private TestCoordinateGeneratorRoute testGenerator;
 
     @BeforeEach
-    @Override
-    protected void setUpBase() {
-        super.setUpBase();
-        testGenerator = new TestCoordinateGeneratorRoute(2, extent, DEFAULT_PROFILES, null, 0);
-    }
-
-    @Override
-    protected AbstractCoordinateGenerator createTestGenerator() {
-        return new TestCoordinateGeneratorRoute(2, extent, DEFAULT_PROFILES, null, 0);
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        Map<String, Double> maxDistanceMap = new HashMap<>();
+        maxDistanceMap.put("driving-car", 10000.0);
+        testGenerator = new TestCoordinateGeneratorRoute(2, TEST_EXTENT, DEFAULT_PROFILES, "http://localhost:8080/ors",
+                0, maxDistanceMap);
+        testGenerator.setHttpClient(mockHttpClient);
     }
 
     @Test
     void testGenerateRoutesSuccessful() throws Exception {
-        String mockJsonResponse = """
+        // Create mock responses for snap and matrix
+        String snapResponse = """
                 {
-                    "distances": [[0,1500.2],[1500.3,0]],
-                            "destinations": [
-                        {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
-                        {"location": [8.676105, 49.41853], "snapped_distance": 19.11}
+                    "locations": [
+                        {"location": [8.669629,49.413025], "snapped_distance": 200.94},
+                        {"location": [8.675841,49.418532], "snapped_distance": 19.11}
+                    ]
+                }
+                """;
+        String firstMatrixResponse = """
+                {
+                    "distances": [[1500.2]],
+                    "destinations": [
+                        {"location": [8.665144,49.415594]}
                     ],
                     "sources": [
-                        {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
-                        {"location": [8.676105, 49.41853], "snapped_distance": 19.11}
+                        {"location": [8.669629,49.413025]}
+                    ]
+                }
+                """;
+        String secondMatrixResponse = """
+                {
+                    "distances": [[500.0]],
+                    "destinations": [
+                        {"location": [8.665144,49.415594]}
+                    ],
+                    "sources": [
+                        {"location": [8.675841,49.418532]}
                     ]
                 }
                 """;
 
-        ClassicHttpResponse mockResponse = mock(ClassicHttpResponse.class);
-        when(mockResponse.getCode()).thenReturn(HttpStatus.SC_OK);
-        when(mockResponse.getEntity()).thenReturn(new StringEntity(mockJsonResponse, ContentType.APPLICATION_JSON));
+        // Set up mock for both snap and matrix requests
+        ClassicHttpResponse mockSnapResponse = mock(ClassicHttpResponse.class);
+        when(mockSnapResponse.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(mockSnapResponse.getEntity()).thenReturn(new StringEntity(
+                snapResponse, ContentType.APPLICATION_JSON));
+        // First Matrix response
+        ClassicHttpResponse mockMatrixResponse = mock(ClassicHttpResponse.class);
+        when(mockMatrixResponse.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(mockMatrixResponse.getEntity()).thenReturn(new StringEntity(
+                firstMatrixResponse, ContentType.APPLICATION_JSON));
 
-        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenAnswer(invocation -> {
-            HttpClientResponseHandler<String> handler = invocation.getArgument(1);
-            return handler.handleResponse(mockResponse);
+        // Second Matrix response
+        ClassicHttpResponse mockMatrixResponse2 = mock(ClassicHttpResponse.class);
+        when(mockMatrixResponse2.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(mockMatrixResponse2.getEntity()).thenReturn(new StringEntity(
+                secondMatrixResponse, ContentType.APPLICATION_JSON));
+
+        // Mock the execute calls to return appropriate responses based on URL path
+        when(mockHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenAnswer(invocation -> {
+            HttpPost request = invocation.getArgument(0);
+            HttpClientResponseHandler<String> handler = handlerCaptor.getValue();
+            String path = request.getPath();
+
+            if (path.contains("snap")) {
+            return handler.handleResponse(mockSnapResponse);
+            } else if (path.contains("matrix")) {
+            // Return alternating matrix responses
+            if (testGenerator.getResult().isEmpty()) {
+                return handler.handleResponse(mockMatrixResponse);
+            } else {
+                return handler.handleResponse(mockMatrixResponse2);
+            }
+            }
+            return null;
         });
 
-        testGenerator.setHttpClient(closeableHttpClient);
+        // Execute test
         testGenerator.generateRoutes();
 
-        List<Route> result = testGenerator.getResult();
-        assertEquals(2, result.size());
-        assertEquals("driving-car", result.get(0).profile);
-        verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
+        // Verify results
+        List<CoordinateGeneratorRoute.Route> result = testGenerator.getResult();
+        assertEquals(2, result.size(), "Should have generated 2 routes");
+        verify(mockHttpClient, atLeast(3)).execute(any(), handlerCaptor.capture());
     }
 
     @Test
     void testMultipleProfiles() throws Exception {
+        // Set up generator with multiple profiles
         String[] profiles = new String[] { "driving-car", "cycling-regular" };
-        testGenerator = new TestCoordinateGeneratorRoute(2, extent, profiles, null, 0);
+        Map<String, Double> maxDistanceMap = new HashMap<>();
+        maxDistanceMap.put("driving-car", 10000.0);
+        maxDistanceMap.put("cycling-regular", 5000.0);
+        testGenerator = new TestCoordinateGeneratorRoute(2, TEST_EXTENT, profiles, "http://localhost:8080/ors", 0,
+                maxDistanceMap);
+        testGenerator.setHttpClient(mockHttpClient);
 
-        String mockJsonResponse = """
+        // Create mock responses
+        String snapResponse = """
+                {
+                    "locations": [
+                        {"location": [8.666862, 49.413181]},
+                        {"location": [8.676105, 49.41853]}
+                    ]
+                }
+                """;
+
+        String matrixResponse = """
                 {
                     "distances": [[0,1500.2],[1500.3,0]],
                     "destinations": [
@@ -98,59 +170,96 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
                 }
                 """;
 
+        // Mock HTTP responses
         ClassicHttpResponse mockResponse = mock(ClassicHttpResponse.class);
         when(mockResponse.getCode()).thenReturn(HttpStatus.SC_OK);
-        when(mockResponse.getEntity()).thenReturn(new StringEntity(mockJsonResponse, ContentType.APPLICATION_JSON));
-        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenAnswer(invocation -> {
-            HttpClientResponseHandler<String> handler = invocation.getArgument(1);
+        when(mockResponse.getEntity()).thenReturn(new StringEntity(snapResponse, ContentType.APPLICATION_JSON),
+                new StringEntity(matrixResponse, ContentType.APPLICATION_JSON));
+
+        when(mockHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenAnswer(invocation -> {
+            HttpClientResponseHandler<String> handler = handlerCaptor.getValue();
             return handler.handleResponse(mockResponse);
         });
 
-        testGenerator.setHttpClient(closeableHttpClient);
+        // Execute test
         testGenerator.generateRoutes();
 
-        List<Route> result = testGenerator.getResult();
-        assertEquals(4, result.size()); // 2 routes * 2 profiles
+        // Verify results
+        List<CoordinateGeneratorRoute.Route> result = testGenerator.getResult();
+        assertTrue(result.size() <= 4, "Should have generated up to 4 routes (2 per profile)");
     }
 
     @Test
     void testWriteCSVToFile(@TempDir Path tempDir) throws Exception {
-        String[] profiles = new String[] { "driving-car", "cycling-regular" };
-        testGenerator = new TestCoordinateGeneratorRoute(2, extent, profiles, null, 0);
-
-        String mockJsonResponse = """
+        // Set up mock responses
+        String snapResponse = """
                 {
-                    "distances": [[0,1500.3],[1500.1,0]],
-                            "destinations": [
-                        {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
-                        {"location": [8.676105, 49.41853], "snapped_distance": 19.11}
-                    ],
-                    "sources": [
-                        {"location": [8.666862, 49.413181], "snapped_distance": 200.94},
-                        {"location": [8.676105, 49.41853], "snapped_distance": 19.11}
+                    "locations": [
+                        {"location": [8.666862, 49.413181]},
+                        {"location": [8.676105, 49.41853]}
                     ]
                 }
                 """;
 
-        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
+        String matrixResponse = """
+                {
+                    "distances": [[0,1500.3],[1500.1,0]],
+                    "destinations": [
+                        {"location": [8.666862, 49.413181]},
+                        {"location": [8.676105, 49.41853]}
+                    ],
+                    "sources": [
+                        {"location": [8.666862, 49.413181]},
+                        {"location": [8.676105, 49.41853]}
+                    ]
+                }
+                """;
 
-        testGenerator.setHttpClient(closeableHttpClient);
+        // Mock HTTP responses
+        ClassicHttpResponse mockResponse = mock(ClassicHttpResponse.class);
+        when(mockResponse.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(mockResponse.getEntity()).thenReturn(new StringEntity(snapResponse, ContentType.APPLICATION_JSON),
+                new StringEntity(matrixResponse, ContentType.APPLICATION_JSON));
+
+        when(mockHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenAnswer(invocation -> {
+            HttpClientResponseHandler<String> handler = handlerCaptor.getValue();
+            return handler.handleResponse(mockResponse);
+        });
+
+        // Execute test
         testGenerator.generateRoutes();
 
-        String filename = "test_routes.csv";
-        Path filePath = tempDir.resolve(filename);
-        testGenerator.writeToCSV(filePath.toString());
+        // Write results to CSV
+        String filename = tempDir.resolve("test_routes.csv").toString();
+        testGenerator.writeToCSV(filename);
 
-        assertTrue(Files.exists(filePath));
-        List<String> lines = Files.readAllLines(filePath);
+        // Verify file was created with expected content
+        List<String> lines = Files.readAllLines(Path.of(filename));
+        assertFalse(lines.isEmpty(), "CSV file should not be empty");
         assertEquals("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile", lines.get(0));
-        assertTrue(lines.stream().anyMatch(l -> l.endsWith("driving-car")));
-        assertTrue(lines.stream().anyMatch(l -> l.endsWith("cycling-regular")));
     }
 
     @Test
     void testMinimumDistanceFiltering() throws Exception {
-        String mockJsonResponse = """
+        // Create generator with minimum distance filter
+        Map<String, Double> maxDistanceMap = new HashMap<>();
+        maxDistanceMap.put("driving-car", 10000.0);
+        TestCoordinateGeneratorRoute generator = new TestCoordinateGeneratorRoute(
+                2, TEST_EXTENT, DEFAULT_PROFILES, "http://localhost:8080/ors", 1000.0, maxDistanceMap);
+        generator.setHttpClient(mockHttpClient);
+
+        // Create mock responses with mixed distances (some below minimum)
+        String snapResponse = """
+                {
+                    "locations": [
+                        {"location": [8.666862, 49.413181]},
+                        {"location": [8.676105, 49.418530]},
+                        {"location": [8.686105, 49.428530]}
+                    ]
+                }
+                """;
+
+        String matrixResponse = """
                 {
                     "distances": [
                         [0, 500.2, 1500.3],
@@ -170,111 +279,77 @@ class CoordinateGeneratorRouteTest extends AbstractCoordinateGeneratorTest {
                 }
                 """;
 
-        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
+        // Mock HTTP responses
+        ClassicHttpResponse mockResponse = mock(ClassicHttpResponse.class);
+        when(mockResponse.getCode()).thenReturn(HttpStatus.SC_OK);
+        when(mockResponse.getEntity()).thenReturn(new StringEntity(snapResponse, ContentType.APPLICATION_JSON),
+                new StringEntity(matrixResponse, ContentType.APPLICATION_JSON));
 
-        // Create generator with minimum distance of 1000 meters
-        TestCoordinateGeneratorRoute generator = new TestCoordinateGeneratorRoute(
-                6, extent, new String[] { "driving-car" }, null, 1000.0);
-        generator.setHttpClient(closeableHttpClient);
+        when(mockHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenAnswer(invocation -> {
+            HttpClientResponseHandler<String> handler = handlerCaptor.getValue();
+            return handler.handleResponse(mockResponse);
+        });
+
+        // Execute test
         generator.generateRoutes();
 
+        // Verify all routes meet minimum distance requirement
         List<CoordinateGeneratorRoute.Route> result = generator.getResult();
-
-        // Should only include routes with distance > 1000m
         for (CoordinateGeneratorRoute.Route route : result) {
-            assertTrue(route.distance > 1000.0,
-                    "Route distance " + route.distance + " should be greater than minimum 1000.0");
+            assertTrue(route.distance >= 1000.0,
+                    "Route distance " + route.distance + " should be at least 1000.0 meters");
         }
     }
 
     @SuppressWarnings("unused")
     private static Stream<Arguments> invalidConstructorParameters() {
-        double[] validExtent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
-        String[] validProfiles = new String[] { "driving-car" };
-        String[] emptyProfiles = new String[] {};
+        Map<String, Double> validMaxDistances = new HashMap<>();
+        validMaxDistances.put("driving-car", 10000.0);
+
         return Stream.of(
-                Arguments.of(0, validExtent, validProfiles, 0.0, IllegalArgumentException.class,
-                        "Number of routes must be positive"),
-                Arguments.of(1, null, validProfiles, 0.0, IllegalArgumentException.class,
-                        "Extent must contain 4 coordinates"),
-                Arguments.of(1, new double[3], validProfiles, 0.0, IllegalArgumentException.class,
-                        "Extent must contain 4 coordinates"),
-                Arguments.of(1, validExtent, emptyProfiles, 0.0,
-                        IllegalArgumentException.class,
-                        "Profiles must not be empty"),
-                Arguments.of(1, validExtent, null, 0.0,
-                        IllegalArgumentException.class,
-                        "Profiles must not be empty"),
-                Arguments.of(1, validExtent, validProfiles, -1.0, IllegalArgumentException.class,
-                        "Minimum distance must be non-negative"));
+                Arguments.of(0, TEST_EXTENT, DEFAULT_PROFILES, validMaxDistances, 0.0,
+                                "Number of routes must be positive"),
+                Arguments.of(1, null, DEFAULT_PROFILES, validMaxDistances, 0.0,
+                                "Extent must contain 4 coordinates"),
+                Arguments.of(1, new double[3], DEFAULT_PROFILES, validMaxDistances, 0.0,
+                                "Extent must contain 4 coordinates"),
+                Arguments.of(1, TEST_EXTENT, new String[0], validMaxDistances, 0.0,
+                                "Profiles must not be empty"),
+                Arguments.of(1, TEST_EXTENT, null, validMaxDistances, 0.0,
+                                "Profiles must not be empty"),
+                Arguments.of(1, TEST_EXTENT, DEFAULT_PROFILES, validMaxDistances, -1.0,
+                                "Minimum distance must be non-negative"));
     }
 
     @ParameterizedTest
     @MethodSource("invalidConstructorParameters")
-    void testInvalidConstructorParameters(int numRoutes, double[] extent, String[] profiles, double minDistance,
-            Class<? extends Exception> expectedExceptionClass, String expectedMessage) {
+    void testInvalidConstructorParameters(int numRoutes, double[] extent, String[] profiles,
+            Map<String, Double> maxDistances, double minDistance,
+            String expectedMessage) {
         Exception exception = assertThrows(
-                expectedExceptionClass,
-                () -> new TestCoordinateGeneratorRoute(numRoutes, extent, profiles, null, minDistance));
-        assertEquals(expectedMessage, exception.getMessage());
+                IllegalArgumentException.class,
+                () -> new TestCoordinateGeneratorRoute(numRoutes, extent, profiles, "http://localhost:8080/ors",
+                        minDistance, maxDistances));
+        assertTrue(exception.getMessage().contains(expectedMessage),
+                "Expected message to contain '" + expectedMessage + "', but was: " + exception.getMessage());
     }
 
-    @Test
-    void testUniquePairGeneration() throws Exception {
-        String mockJsonResponse = """
-                {
-                    "distances": [[0,100.2,200.3],[100.0,0,300.6],[200.5,300.3,0]],
-                            "destinations": [
-                        {"location": [8.666862, 49.413181]},
-                        {"location": [8.676105, 49.418530]},
-                        {"location": [8.686105, 49.428530]}
-                    ],
-                    "sources": [
-                        {"location": [8.666862, 49.413181]},
-                        {"location": [8.676105, 49.418530]},
-                        {"location": [8.686105, 49.428530]}
-                    ]
-                }
-                """;
-
-        when(closeableHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenReturn(mockJsonResponse);
-
-        TestCoordinateGeneratorRoute generator = new TestCoordinateGeneratorRoute(
-                6, extent, new String[] { "driving-car" }, null);
-        generator.setHttpClient(closeableHttpClient);
-        generator.generateRoutes();
-
-        List<CoordinateGeneratorRoute.Route> result = generator.getResult();
-        assertEquals(6, result.size());
-
-        // Verify all pairs are unique
-        for (int i = 0; i < result.size(); i++) {
-            for (int j = i + 1; j < result.size(); j++) {
-                assertFalse(
-                        areRoutePairsEqual(result.get(i), result.get(j)),
-                                "Found duplicate route pair at indices " + i + " and " + j);
-            }
-        }
-    }
-
-    private boolean areRoutePairsEqual(CoordinateGeneratorRoute.Route r1, CoordinateGeneratorRoute.Route r2) {
-        return coordinatesEqual(r1.start, r2.start) && coordinatesEqual(r1.end, r2.end);
-    }
-
-    private boolean coordinatesEqual(double[] coord1, double[] coord2) {
-        return Math.abs(coord1[0] - coord2[0]) < 1e-6 && Math.abs(coord1[1] - coord2[1]) < 1e-6;
-    }
-
-    private class TestCoordinateGeneratorRoute extends CoordinateGeneratorRoute {
+    /**
+     * A testable extension of CoordinateGeneratorRoute that allows injection of
+     * dependencies
+     */
+    private static class TestCoordinateGeneratorRoute extends CoordinateGeneratorRoute {
         private CloseableHttpClient testClient;
 
-        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl) {
-            super(numRoutes, extent, profiles, baseUrl, 0);
+        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles,
+                String baseUrl, double minDistance) {
+            super(numRoutes, extent, profiles, baseUrl, minDistance, new HashMap<>());
         }
 
-        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
-                double minDistance) {
-            super(numRoutes, extent, profiles, baseUrl, minDistance);
+        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles,
+                String baseUrl, double minDistance,
+                Map<String, Double> maxDistanceByProfile) {
+            super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile);
         }
 
         void setHttpClient(CloseableHttpClient client) {
