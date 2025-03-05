@@ -16,6 +16,7 @@ class ProgressBarLoggerTest {
     private ch.qos.logback.classic.Logger logbackLogger;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         logger = ProgressBarLogger.getLogger();
         logbackLogger = (ch.qos.logback.classic.Logger) logger;

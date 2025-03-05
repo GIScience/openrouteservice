@@ -47,6 +47,7 @@ class CoordinateGeneratorRouteTest {
     private TestCoordinateGeneratorRoute testGenerator;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         MockitoAnnotations.openMocks(this);
         Map<String, Double> maxDistanceMap = new HashMap<>();

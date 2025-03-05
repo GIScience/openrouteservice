@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
@@ -174,7 +173,7 @@ class CoordinateGeneratorHelperTest {
         double distance = CoordinateGeneratorHelper.calculateHaversineDistance(northPole, result);
         assertTrue(distance <= 10000, "Distance should be less than or equal to the radius");
 
-        // Test near the antimeridian (180°/-180° longitude)
+        // Test near the anti meridian (180°/-180° longitude)
         double[] antiMeridian = { 179.9, 0.0 };
         result = CoordinateGeneratorHelper.randomCoordinateInRadius(antiMeridian, 10000);
         distance = CoordinateGeneratorHelper.calculateHaversineDistance(antiMeridian, result);
