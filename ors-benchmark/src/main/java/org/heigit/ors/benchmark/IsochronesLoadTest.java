@@ -1,6 +1,5 @@
 package org.heigit.ors.benchmark;
 
-import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.heigit.ors.benchmark.BenchmarkEnums.RangeType;
-import org.heigit.ors.benchmark.util.IteratorUtils;
+import static org.heigit.ors.benchmark.util.NameUtils.getFileNameWithoutExtension;
 import org.heigit.ors.benchmark.util.SourceUtils;
 import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
-import static io.gatling.javaapi.core.CoreDsl.csv;
 import static io.gatling.javaapi.core.CoreDsl.feed;
 import static io.gatling.javaapi.core.CoreDsl.group;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
@@ -30,8 +28,6 @@ import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.Simulation;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
-import static org.heigit.ors.benchmark.util.NameUtils.getFileNameWithoutExtension;
-
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
 
