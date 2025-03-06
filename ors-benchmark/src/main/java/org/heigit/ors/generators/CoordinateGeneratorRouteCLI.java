@@ -9,8 +9,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 import org.heigit.ors.exceptions.CommandLineParsingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorRouteCLI.class);
 
     private static final String OPT_THREADS = "threads";
     private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
