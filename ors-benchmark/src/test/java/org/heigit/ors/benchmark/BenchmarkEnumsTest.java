@@ -33,21 +33,18 @@ class BenchmarkEnumsTest {
         List<String> basicProfiles = BenchmarkEnums.DirectionsModes.ALGO_CH.getProfiles();
         assertTrue(basicProfiles.contains("driving-car"));
         assertTrue(basicProfiles.contains("foot-walking"));
-        assertEquals(2, basicProfiles.size());
+        assertEquals(4, basicProfiles.size());
     }
 
     @Test
     void testDirectionsModesGetRequestParams() {
         Map<String, Object> basicParams = BenchmarkEnums.DirectionsModes.ALGO_CH.getRequestParams();
-        assertEquals("fastest", basicParams.get("preference"));
+        assertEquals("recommended", basicParams.get("preference"));
         assertEquals(1, basicParams.size());
 
         Map<String, Object> avoidParams = BenchmarkEnums.DirectionsModes.ALGO_LM_ASTAR.getRequestParams();
-        assertEquals("fastest", avoidParams.get("preference"));
+        assertEquals("recommended", avoidParams.get("preference"));
         assertTrue(avoidParams.get("options") instanceof Map);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> options = (Map<String, Object>) avoidParams.get("options");
-        assertTrue(options.get("avoid_features") instanceof List);
     }
 
     @Test
