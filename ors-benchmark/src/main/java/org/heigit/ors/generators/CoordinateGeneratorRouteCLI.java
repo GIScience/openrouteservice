@@ -36,10 +36,9 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
 
         options.addOption(Option.builder("e")
                 .longOpt("extent")
-                .hasArgs()
-                .numberOfArgs(4)
+                .hasArg()
                 .required()
-                .desc("Bounding box (minLon minLat maxLon maxLat)")
+                .desc("Bounding box (minLon,minLat,maxLon,maxLat) or (minLon minLat maxLon maxLat)")
                 .build());
 
         options.addOption(Option.builder("p")
@@ -109,11 +108,9 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
 
     public CoordinateGeneratorRoute createGenerator() {
         int numRoutes = Integer.parseInt(cmd.getOptionValue("n"));
-        String[] extentValues = cmd.getOptionValues("e");
-        double[] extent = new double[4];
-        for (int i = 0; i < 4; i++) {
-            extent[i] = Double.parseDouble(extentValues[i]);
-        }
+
+        // Use the new extent parser
+        double[] extent = parseExtent(cmd.getOptionValue("e"));
 
         String[] profiles = parseProfiles(cmd.getOptionValue("p"));
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
@@ -133,6 +130,41 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
 
         return new CoordinateGeneratorRoute(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile,
                 numThreads);
+    }
+
+    /**
+     * Parse extent from string input, supporting both comma-separated and
+     * space-separated formats
+     * 
+     * @param extentStr String containing the extent coordinates
+     * @return Array of 4 doubles representing the extent [minLon, minLat, maxLon,
+     *         maxLat]
+     * @throws IllegalArgumentException if the extent cannot be parsed correctly
+     */
+    protected double[] parseExtent(String extentStr) {
+        if (extentStr == null || extentStr.isBlank()) {
+            throw new IllegalArgumentException("Extent must not be empty");
+        }
+
+        // Replace commas with spaces and split by any whitespace
+        String[] parts = extentStr.replace(',', ' ').trim().split("\\s+");
+
+        if (parts.length != 4) {
+            throw new IllegalArgumentException(
+                    String.format("Extent must contain exactly 4 coordinates, found %d", parts.length));
+        }
+
+        double[] extent = new double[4];
+        for (int i = 0; i < 4; i++) {
+            try {
+                extent[i] = Double.parseDouble(parts[i]);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(
+                        String.format("Invalid coordinate value at position %d: %s", i, parts[i]));
+            }
+        }
+
+        return extent;
     }
 
     /**
