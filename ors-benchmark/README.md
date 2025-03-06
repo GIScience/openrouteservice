@@ -19,7 +19,7 @@ Options:
 - `-n, --num-routes <value>`: Number of routes to generate (required)
 - `-e, --extent <value>`: Bounding box for coordinate generation (minLon,minLat,maxLon,maxLat) (required)
 - `-p, --profiles <value>`: Comma-separated routing profiles (e.g., driving-car,cycling-regular) (required)
-- `-u, --url <value>`: ORS API base URL (default: http://localhost:8080/ors)
+- `-u, --url <value>`: ORS API base URL (default: <http://localhost:8080/ors>)
 - `-o, --output <file>`: Output CSV file path (default: route_coordinates.csv)
 - `-d, --min-distance <value>`: Minimum distance between coordinates in meters (default: 1)
 - `-m, --max-distances <values>`: Maximum distances in meters, comma-separated per profile (e.g., 5000,3000)
@@ -81,7 +81,7 @@ Options:
 - `-e, --extent <value>`: Bounding box for coordinate generation (minLon,minLat,maxLon,maxLat) (required)
 - `-p, --profiles <values>`: Comma-separated list of routing profiles (e.g., driving-car,cycling-regular) (required)
 - `-r, --radius <value>`: Search radius in meters (default: 350)
-- `-u, --url <value>`: ORS API base URL (default: http://localhost:8080/ors)
+- `-u, --url <value>`: ORS API base URL (default: <http://localhost:8080/ors>)
 - `-o, --output <file>`: Output CSV file path (default: snapped_coordinates.csv)
 - `-h, --help`: Show help message
 
@@ -134,7 +134,7 @@ A Gatling-based load test for the ORS Isochrones API. The test supports batch pr
 Options:
 
 - `source_files`: Comma-separated list of CSV files containing coordinate pairs
-- `base_url`: ORS API base URL (default: http://localhost:8082/ors)
+- `base_url`: ORS API base URL (default: <http://localhost:8082/ors>)
 - `api_key`: API key for authentication
 - `profile`: Routing profile (default: driving-car)
 - `range`: Comma-separated list of isochrone ranges in meters (e.g., "300,600,900")
