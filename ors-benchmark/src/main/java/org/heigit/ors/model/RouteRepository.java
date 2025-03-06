@@ -11,10 +11,14 @@ import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RouteRepository {    
     private final Map<String, List<Route>> routesByProfile;
     private final Map<String, Set<Route>> uniqueRoutesByProfile;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    protected static final Logger LOGGER = LoggerFactory.getLogger(RouteRepository.class);
     
     public RouteRepository(Set<String> profiles) {
         routesByProfile = new HashMap<>();
@@ -35,6 +39,9 @@ public class RouteRepository {
                 routesByProfile.get(profile).add(route);
                 return true;
             }
+            return false;
+        } catch (Exception e) {
+            LOGGER.error("Error adding route: {}", e.getMessage());
             return false;
         } finally {
             lock.writeLock().unlock();

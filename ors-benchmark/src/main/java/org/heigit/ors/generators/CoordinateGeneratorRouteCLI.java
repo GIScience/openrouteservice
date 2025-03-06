@@ -86,8 +86,14 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
         try {
             return new DefaultParser().parse(options, args);
         } catch (ParseException e) {
-            printHelp();
-            throw new CommandLineParsingException("Failed to parse command line arguments", e);
+            // If help is within the arguments, print help message
+            if (args != null && args.length == 1 && (args[0].equals("-h") || args[0].equals("--help"))) {
+                printHelp();
+            } else {
+                printHelp();
+                throw new CommandLineParsingException("Failed to parse command line arguments", e);
+            }
+            return null;
         }
     }
 
