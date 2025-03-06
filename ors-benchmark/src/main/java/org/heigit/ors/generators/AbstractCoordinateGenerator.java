@@ -2,14 +2,11 @@ package org.heigit.ors.generators;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 
-import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -23,26 +20,36 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Abstract base class for coordinate generation implementations
+ */
 public abstract class AbstractCoordinateGenerator {
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractCoordinateGenerator.class);
     protected static final int DEFAULT_MAX_ATTEMPTS = 100;
     protected static final double COORDINATE_PRECISION = 1e-6;
     protected static final String DEFAULT_BASE_URL = "http://localhost:8082/ors";
 
+    // Common configuration
     protected final String baseUrl;
     protected final double[] extent;
-    protected final String endpoint;
     protected final String[] profiles;
     protected final Map<String, String> headers;
     protected final Random random;
     protected final ObjectMapper mapper;
 
+    /**
+     * Creates a new coordinate generator
+     * 
+     * @param extent   Bounding box [minX, minY, maxX, maxY]
+     * @param profiles List of routing profiles to use
+     * @param baseUrl  API base URL
+     * @param endpoint API endpoint name (for logging)
+     */
     protected AbstractCoordinateGenerator(double[] extent, String[] profiles, String baseUrl, String endpoint) {
         this.baseUrl = baseUrl != null ? baseUrl : DEFAULT_BASE_URL;
         validateBaseInputParameters(extent, profiles, endpoint);
         this.extent = extent;
         this.profiles = profiles.clone();
-        this.endpoint = endpoint;
         this.random = new SecureRandom();
         this.mapper = new ObjectMapper();
         
@@ -59,7 +66,10 @@ public abstract class AbstractCoordinateGenerator {
             throw new IllegalArgumentException("Endpoint must not be empty");
     }
 
-    protected final String getApiKey() {
+    /**
+     * Gets the API key from environment or system properties
+     */
+    protected String getApiKey() {
         if (!baseUrl.contains("openrouteservice.org")) {
             return "";
         }
@@ -74,37 +84,43 @@ public abstract class AbstractCoordinateGenerator {
         return apiKey;
     }
 
-    protected final Map<String, String> createHeaders(String apiKey) {
+    /**
+     * Creates HTTP request headers
+     */
+    protected Map<String, String> createHeaders(String apiKey) {
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("Accept", "application/json");
         requestHeaders.put("Content-Type", "application/json");
-        requestHeaders.put("Authorization", apiKey);
+        if (!apiKey.isEmpty()) {
+            requestHeaders.put("Authorization", apiKey);
+        }
         return requestHeaders;
     }
 
-    protected List<double[]> randomCoordinatesInExtent(int count) {
-        List<double[]> points = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            double x = random.nextDouble() * (extent[2] - extent[0]) + extent[0];
-            double y = random.nextDouble() * (extent[3] - extent[1]) + extent[1];
-            points.add(new double[] { x, y });
-        }
-        return points;
-    }
-
+    /**
+     * Creates a new HTTP client
+     */
     protected CloseableHttpClient createHttpClient() {
         return HttpClientBuilder.create().build();
     }
 
+    /**
+     * Processes an HTTP response
+     */
     protected String processResponse(ClassicHttpResponse response) throws IOException {
         int status = response.getCode();
         if (status >= HttpStatus.SC_REDIRECTION) {
-            throw new ClientProtocolException(new StatusLine(response).toString());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Received error response: {}", new StatusLine(response));
+            }
+            return null;
         }
+
         HttpEntity entity = response.getEntity();
         if (entity == null) {
             return null;
         }
+
         try {
             return EntityUtils.toString(entity);
         } catch (ParseException | IOException e) {
@@ -112,32 +128,30 @@ public abstract class AbstractCoordinateGenerator {
         }
     }
 
+    /**
+     * Writes generation results to a CSV file
+     */
     protected abstract void writeToCSV(String filePath) throws IOException;
+
+    /**
+     * Main generation method with specified maximum attempts
+     */
     protected abstract void generate(int maxAttempts);
+
+    /**
+     * Gets the generated results
+     */
     protected abstract <T> List<T> getResult();
+
+    /**
+     * Initializes or clears collections before generation
+     */
     protected abstract void initializeCollections();
 
-    protected abstract void processNextBatch(CloseableHttpClient client, String profile) throws IOException;
-
+    /**
+     * Main generation method with default maximum attempts
+     */
     protected void generate() {
         generate(DEFAULT_MAX_ATTEMPTS);
-    }
-
-    protected static class CoordinateHash {
-        private CoordinateHash() {
-            throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-        }
-
-        protected static int hash(double[] coord) {
-            return Objects.hash(
-                Math.round(coord[0] * 1e6) / 1e6,
-                Math.round(coord[1] * 1e6) / 1e6
-            );
-        }
-
-        protected static boolean equals(double[] coord1, double[] coord2) {
-            return Math.abs(coord1[0] - coord2[0]) < COORDINATE_PRECISION &&
-                   Math.abs(coord1[1] - coord2[1]) < COORDINATE_PRECISION;
-        }
     }
 }

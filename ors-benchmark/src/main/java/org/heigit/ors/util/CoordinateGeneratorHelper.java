@@ -51,24 +51,19 @@ public class CoordinateGeneratorHelper {
             return new double[0];
         }
 
-        int maxAttempts = 100;
-        for (int i = 0; i < maxAttempts; i++) {
-            // Generate a point within the extent
-            double[] candidate = generateRandomPoint(extent);
-
-            // Check if this point is also within the radius
-            double distance = calculateHaversineDistance(center, candidate);
-            if (distance <= radiusMeters) {
-                LOGGER.debug("Generated point within radius ({} meters) and extent after {} attempt(s)",
-                        distance, i + 1);
-                return candidate;
-            }
+        // Alternative approach: find a point within radius that is also within extent
+        double[] candidate = findPointWithinRadiusAndExtent(center, radiusMeters, extent);
+        if (candidate.length == 2) {
+            return candidate;
         }
 
-        LOGGER.debug("Failed to generate a point within both radius and extent after {} attempts", maxAttempts);
+        LOGGER.error("Could not find a point that satisfies both constraints");
+        // Return empty array if no point was found
+        return new double[0];
+    }
 
-        // Alternative approach for edge cases
-        // Try to generate points from the center outward and check extent constraint
+    private static double[] findPointWithinRadiusAndExtent(double[] center, double radiusMeters, double[] extent) {
+        int maxAttempts = 100;
         for (int i = 0; i < maxAttempts; i++) {
             double[] candidate = randomCoordinateInRadius(center, radiusMeters);
             if (isWithinExtent(candidate, extent)) {
@@ -76,9 +71,6 @@ public class CoordinateGeneratorHelper {
                 return candidate;
             }
         }
-
-        LOGGER.error("Could not find a point that satisfies both constraints");
-        // Return empty array if no point was found
         return new double[0];
     }
 
