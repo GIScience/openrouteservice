@@ -2,11 +2,8 @@ package org.heigit.ors.generators;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractCoordinateGeneratorCLI {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractCoordinateGeneratorCLI.class);
     protected final Options options;
     protected final CommandLine cmd;
 
