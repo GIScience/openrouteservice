@@ -207,6 +207,7 @@ class CoordinateGeneratorRouteCLITest {
                 "Exception message should mention matching profiles");
     }
 
+    @SuppressWarnings("java:S5976")
     @Test
     void testInvalidMaxDistance() {
         String[] args = {
