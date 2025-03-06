@@ -1,22 +1,26 @@
 package org.heigit.ors.benchmark.util;
 
-import org.heigit.ors.benchmark.TestConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import org.heigit.ors.benchmark.TestConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.gatling.javaapi.core.CoreDsl.csv;
 
 public class SourceUtils {
+    private SourceUtils() {
+        // Private constructor to hide implicit public one
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(SourceUtils.class);
     private static final String PROFILE_COLUMN = "profile";
 
-    public static List<Map<String, Object>> getRecordsByProfile(String sourceFile, String targetProfile) throws IllegalStateException {
+    public static List<Map<String, Object>> getRecordsByProfile(String sourceFile, String targetProfile)
+            throws IllegalStateException {
         // Read all records from CSV
         List<Map<String, Object>> records = csv(sourceFile).readRecords();
         logger.info("Read {} records from CSV file", records.size());
@@ -43,33 +47,36 @@ public class SourceUtils {
             logger.info("Found coordinates for profiles: {}", recordsByProfile.keySet());
         }
 
-        List<Map<String, Object>> targetRecords = recordsByProfile.getOrDefault(targetProfile, recordsByProfile.get("all"));
+        List<Map<String, Object>> targetRecords = recordsByProfile.getOrDefault(targetProfile,
+                recordsByProfile.get("all"));
 
         if (targetRecords == null || targetRecords.isEmpty()) {
-            throw new IllegalStateException("No records found for profile '" + targetProfile + "' in file " + sourceFile);
+            throw new IllegalStateException(
+                    "No records found for profile '" + targetProfile + "' in file " + sourceFile);
         }
 
         logger.info("Selected {} records for profile '{}'", targetRecords.size(), targetProfile);
         return targetRecords;
     }
 
-    public static Iterator<Map<String, Object>> getRecordFeeder(List<Map<String, Object>> targetRecords, TestConfig config, String targetProfile) {
+    public static Iterator<Map<String, Object>> getRecordFeeder(List<Map<String, Object>> targetRecords,
+            TestConfig config, String targetProfile) {
         // Transform records to coordinates and shuffle
-        List<Map<String, Object>> mappedRecords =
-                !targetRecords.isEmpty() && targetRecords.get(0).containsKey(config.getFieldLon()) && targetRecords.get(0).containsKey(config.getFieldLat()) ?
-                    targetRecords.stream()
-                    .map(targetRecord -> Map.of(
-                            config.getFieldLon(), targetRecord.get(config.getFieldLon()),
-                            config.getFieldLat(), targetRecord.get(config.getFieldLat())))
-                    .collect(Collectors.toList())
-                : targetRecords.stream()
-                        .map(targetRecord -> Map.of(
-                                config.getFieldStartLon(), targetRecord.get(config.getFieldStartLon()),
-                                config.getFieldStartLat(), targetRecord.get(config.getFieldStartLat()),
-                                config.getFieldEndLon(), targetRecord.get(config.getFieldEndLon()),
-                                config.getFieldEndLat(), targetRecord.get(config.getFieldEndLat())))
-                        .collect(Collectors.toList())
-                ;
+        List<Map<String, Object>> mappedRecords = !targetRecords.isEmpty()
+                && targetRecords.get(0).containsKey(config.getFieldLon())
+                && targetRecords.get(0).containsKey(config.getFieldLat())
+                        ? targetRecords.stream()
+                                .map(targetRecord -> Map.of(
+                                        config.getFieldLon(), targetRecord.get(config.getFieldLon()),
+                                        config.getFieldLat(), targetRecord.get(config.getFieldLat())))
+                                .toList()
+                        : targetRecords.stream()
+                                .map(targetRecord -> Map.of(
+                                        config.getFieldStartLon(), targetRecord.get(config.getFieldStartLon()),
+                                        config.getFieldStartLat(), targetRecord.get(config.getFieldStartLat()),
+                                        config.getFieldEndLon(), targetRecord.get(config.getFieldEndLon()),
+                                        config.getFieldEndLat(), targetRecord.get(config.getFieldEndLat())))
+                                .toList();
         Collections.shuffle(mappedRecords);
 
         Iterator<Map<String, Object>> recordFeeder = IteratorUtils.infiniteCircularIterator(mappedRecords);
