@@ -1,6 +1,8 @@
 package org.heigit.ors.generators;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,30 +11,37 @@ import java.util.Set;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
 
-class CoordinateGeneratorSnappingTest extends AbstractCoordinateGeneratorTest {
+class CoordinateGeneratorSnappingTest {
+
+    @Mock
+    protected CloseableHttpClient closeableHttpClient;
+
+    @Captor
+    protected ArgumentCaptor<HttpClientResponseHandler<String>> handlerCaptor;
+
     private TestCoordinateGeneratorSnapping testGenerator;
+    private double[] extent;
 
-    @Override
     @BeforeEach
-    protected void setUpBase() {
-        super.setUpBase();
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        extent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
         testGenerator = new TestCoordinateGeneratorSnapping(2, extent, 350,
-                new String[] { "driving-car", "cycling-regular" }, null);
-    }
-
-    @Override
-    protected AbstractCoordinateGenerator createTestGenerator() {
-        return new TestCoordinateGeneratorSnapping(2, extent, 350,
                 new String[] { "driving-car", "cycling-regular" }, null);
     }
 
@@ -72,7 +81,7 @@ class CoordinateGeneratorSnappingTest extends AbstractCoordinateGeneratorTest {
         testGenerator.setHttpClient(closeableHttpClient);
         testGenerator.generate();
 
-        List<double[]> result = testGenerator.getResult();
+        List<Object[]> result = testGenerator.getResult();
         assertTrue(result.isEmpty());
         verify(closeableHttpClient, atLeast(1)).execute(any(), handlerCaptor.capture());
     }
@@ -104,7 +113,7 @@ class CoordinateGeneratorSnappingTest extends AbstractCoordinateGeneratorTest {
                 8.666862,49.413181,cycling-regular
                 8.676105,49.418530,cycling-regular
                 """;
-        String result = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filePath)));
+        String result = new String(Files.readAllBytes(Paths.get(filePath)));
         assertEquals(expected, result);
     }
 

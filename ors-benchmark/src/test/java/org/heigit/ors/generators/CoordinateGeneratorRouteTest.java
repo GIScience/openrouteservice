@@ -14,6 +14,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.heigit.ors.model.Route;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -131,7 +132,7 @@ class CoordinateGeneratorRouteTest {
         testGenerator.generateRoutes();
 
         // Verify results
-        List<CoordinateGeneratorRoute.Route> result = testGenerator.getResult();
+        List<Route> result = testGenerator.getResult();
         assertEquals(2, result.size(), "Should have generated 2 routes");
         verify(mockHttpClient, atLeast(3)).execute(any(), handlerCaptor.capture());
     }
@@ -186,7 +187,7 @@ class CoordinateGeneratorRouteTest {
         testGenerator.generateRoutes();
 
         // Verify results
-        List<CoordinateGeneratorRoute.Route> result = testGenerator.getResult();
+        List<Route> result = testGenerator.getResult();
         assertTrue(result.size() <= 4, "Should have generated up to 4 routes (2 per profile)");
     }
 
@@ -295,10 +296,10 @@ class CoordinateGeneratorRouteTest {
         generator.generateRoutes();
 
         // Verify all routes meet minimum distance requirement
-        List<CoordinateGeneratorRoute.Route> result = generator.getResult();
-        for (CoordinateGeneratorRoute.Route route : result) {
-            assertTrue(route.distance >= 1000.0,
-                    "Route distance " + route.distance + " should be at least 1000.0 meters");
+        List<Route> result = generator.getResult();
+        for (Route route : result) {
+            assertTrue(route.getDistance() >= 1000.0,
+                    "Route distance " + route.getDistance() + " should be at least 1000.0 meters");
         }
     }
 
