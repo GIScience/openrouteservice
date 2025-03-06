@@ -1,0 +1,717 @@
+{
+  "info": {
+    "name": "OpenRouteService API",
+    "description": "A collection of requests for the OpenRouteService API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Directions",
+      "description": "The Directions Service calculates routes and directions between two or more locations for different modes of transportation.",
+      "item": [
+        {
+          "name": "Get Route (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/directions/driving-car?start=8.681495,49.41461&end=8.687872,49.420318",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "directions",
+                "driving-car"
+              ],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "8.681495,49.41461",
+                  "description": "Start coordinate (longitude,latitude)"
+                },
+                {
+                  "key": "end",
+                  "value": "8.687872,49.420318",
+                  "description": "End coordinate (longitude,latitude)"
+                }
+              ]
+            },
+            "description": "Simple GET request for directions between two points. Returns GeoJSON format."
+          }
+        },
+        {
+          "name": "Get Route JSON (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coordinates\": [\n    [8.681495, 49.41461],\n    [8.687872, 49.420318]\n  ],\n  \"instructions\": true,\n  \"preference\": \"fastest\",\n  \"units\": \"km\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/directions/driving-car/json",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "directions",
+                "driving-car",
+                "json"
+              ]
+            },
+            "description": "POST request for directions with JSON response format. Allows for more advanced options."
+          }
+        },
+        {
+          "name": "Get Route GeoJSON (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coordinates\": [\n    [8.681495, 49.41461],\n    [8.687872, 49.420318]\n  ],\n  \"instructions\": true,\n  \"preference\": \"fastest\",\n  \"units\": \"km\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/directions/driving-car/geojson",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "directions",
+                "driving-car",
+                "geojson"
+              ]
+            },
+            "description": "POST request for directions with GeoJSON response format. Useful for direct display on maps."
+          }
+        },
+        {
+          "name": "Get Route GPX (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coordinates\": [\n    [8.681495, 49.41461],\n    [8.687872, 49.420318]\n  ],\n  \"instructions\": true,\n  \"preference\": \"fastest\",\n  \"units\": \"km\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/directions/driving-car/gpx",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "directions",
+                "driving-car",
+                "gpx"
+              ]
+            },
+            "description": "POST request for directions with GPX response format. Useful for GPS devices and applications."
+          }
+        },
+        {
+          "name": "Get Route with Waypoints (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coordinates\": [\n    [8.681495, 49.41461],\n    [8.686507, 49.41943],\n    [8.687872, 49.420318]\n  ],\n  \"instructions\": true,\n  \"preference\": \"fastest\",\n  \"units\": \"km\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/directions/driving-car/json",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "directions",
+                "driving-car",
+                "json"
+              ]
+            },
+            "description": "POST request for directions with multiple waypoints. The route will pass through all specified points in order."
+          }
+        },
+        {
+          "name": "Get Route with Advanced Options (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coordinates\": [\n    [8.681495, 49.41461],\n    [8.687872, 49.420318]\n  ],\n  \"instructions\": true,\n  \"preference\": \"fastest\",\n  \"units\": \"km\",\n  \"language\": \"en\",\n  \"options\": {\n    \"avoid_features\": [\"highways\", \"tollways\"],\n    \"profile_params\": {\n      \"weightings\": {\n        \"steepness_difficulty\": 3\n      }\n    },\n    \"avoid_polygons\": {\n      \"type\": \"Polygon\",\n      \"coordinates\": [\n        [\n          [8.683533, 49.415123],\n          [8.684618, 49.415123],\n          [8.684618, 49.416266],\n          [8.683533, 49.416266],\n          [8.683533, 49.415123]\n        ]\n      ]\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/directions/cycling-regular/json",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "directions",
+                "cycling-regular",
+                "json"
+              ]
+            },
+            "description": "POST request for directions with advanced routing options including avoiding features, custom profile parameters, and avoiding specific areas."
+          }
+        },
+        {
+          "name": "Get Route with Extra Info (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coordinates\": [\n    [8.681495, 49.41461],\n    [8.687872, 49.420318]\n  ],\n  \"instructions\": true,\n  \"preference\": \"fastest\",\n  \"units\": \"km\",\n  \"language\": \"en\",\n  \"extra_info\": [\"steepness\", \"surface\", \"waytype\", \"suitability\"]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/directions/cycling-regular/json",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "directions",
+                "cycling-regular",
+                "json"
+              ]
+            },
+            "description": "POST request for directions with extra information about the route, such as steepness, surface type, way type, and suitability."
+          }
+        },
+        {
+          "name": "Get Route for Walking (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coordinates\": [\n    [8.681495, 49.41461],\n    [8.687872, 49.420318]\n  ],\n  \"instructions\": true,\n  \"preference\": \"recommended\",\n  \"units\": \"km\",\n  \"language\": \"en\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/directions/foot-walking/json",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "directions",
+                "foot-walking",
+                "json"
+              ]
+            },
+            "description": "POST request for walking directions. Uses the foot-walking profile which is optimized for pedestrian routes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Isochrones",
+      "description": "The Isochrone Service supports time and distance analyses for one single or multiple locations.",
+      "item": [
+        {
+          "name": "Get Single Location Isochrones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [[8.681495, 49.41461]],\n  \"range\": [300, 600, 900],\n  \"range_type\": \"time\",\n  \"attributes\": [\"area\", \"reachfactor\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/isochrones/driving-car",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "isochrones",
+                "driving-car"
+              ]
+            },
+            "description": "POST request for isochrones from a single location. Returns polygons representing areas reachable within specified time ranges (300, 600, and 900 seconds)."
+          }
+        },
+        {
+          "name": "Get Multiple Locations Isochrones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [\n    [8.681495, 49.41461],\n    [8.687872, 49.420318]\n  ],\n  \"range\": [600],\n  \"range_type\": \"time\",\n  \"attributes\": [\"area\", \"reachfactor\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/isochrones/driving-car",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "isochrones",
+                "driving-car"
+              ]
+            },
+            "description": "POST request for isochrones from multiple locations. Returns polygons representing areas reachable within 600 seconds from each location."
+          }
+        },
+        {
+          "name": "Get Distance-Based Isochrones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [[8.681495, 49.41461]],\n  \"range\": [1000, 2000, 3000],\n  \"range_type\": \"distance\",\n  \"attributes\": [\"area\", \"reachfactor\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/isochrones/driving-car",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "isochrones",
+                "driving-car"
+              ]
+            },
+            "description": "POST request for distance-based isochrones. Returns polygons representing areas reachable within specified distances (1000, 2000, and 3000 meters)."
+          }
+        },
+        {
+          "name": "Get Isochrones with Interval",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [[8.681495, 49.41461]],\n  \"range\": [900],\n  \"interval\": 300,\n  \"range_type\": \"time\",\n  \"attributes\": [\"area\", \"reachfactor\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/isochrones/driving-car",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "isochrones",
+                "driving-car"
+              ]
+            },
+            "description": "POST request for isochrones with interval. Returns polygons at regular intervals (300 seconds) up to the maximum range (900 seconds)."
+          }
+        },
+        {
+          "name": "Get Isochrones for Cycling",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [[8.681495, 49.41461]],\n  \"range\": [300, 600, 900],\n  \"range_type\": \"time\",\n  \"attributes\": [\"area\", \"reachfactor\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/isochrones/cycling-regular",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "isochrones",
+                "cycling-regular"
+              ]
+            },
+            "description": "POST request for cycling isochrones. Uses the cycling-regular profile which is optimized for bicycle routes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Matrix",
+      "description": "The Matrix Endpoint calculates profile specific distance and time matrices between multiple source and destination positions.",
+      "item": [
+        {
+          "name": "Get Duration Matrix",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [\n    [8.681495, 49.41461],\n    [8.686507, 49.41943],\n    [8.687872, 49.420318],\n    [8.684954, 49.421081]\n  ],\n  \"metrics\": [\"duration\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/matrix/driving-car",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "matrix",
+                "driving-car"
+              ]
+            },
+            "description": "POST request for a duration matrix between all locations. Returns travel times between each pair of locations."
+          }
+        },
+        {
+          "name": "Get Distance Matrix",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [\n    [8.681495, 49.41461],\n    [8.686507, 49.41943],\n    [8.687872, 49.420318],\n    [8.684954, 49.421081]\n  ],\n  \"metrics\": [\"distance\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/matrix/driving-car",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "matrix",
+                "driving-car"
+              ]
+            },
+            "description": "POST request for a distance matrix between all locations. Returns distances between each pair of locations."
+          }
+        },
+        {
+          "name": "Get Duration and Distance Matrix",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [\n    [8.681495, 49.41461],\n    [8.686507, 49.41943],\n    [8.687872, 49.420318],\n    [8.684954, 49.421081]\n  ],\n  \"metrics\": [\"duration\", \"distance\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/matrix/driving-car",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "matrix",
+                "driving-car"
+              ]
+            },
+            "description": "POST request for both duration and distance matrices between all locations. Returns both travel times and distances between each pair of locations."
+          }
+        },
+        {
+          "name": "Get Matrix with Specific Sources and Destinations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [\n    [8.681495, 49.41461],\n    [8.686507, 49.41943],\n    [8.687872, 49.420318],\n    [8.684954, 49.421081]\n  ],\n  \"sources\": [0, 1],\n  \"destinations\": [2, 3],\n  \"metrics\": [\"duration\", \"distance\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/matrix/driving-car",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "matrix",
+                "driving-car"
+              ]
+            },
+            "description": "POST request for matrices between specific sources and destinations. Returns travel times and distances from the first two locations to the last two locations."
+          }
+        },
+        {
+          "name": "Get Matrix for Walking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [\n    [8.681495, 49.41461],\n    [8.686507, 49.41943],\n    [8.687872, 49.420318],\n    [8.684954, 49.421081]\n  ],\n  \"metrics\": [\"duration\", \"distance\"],\n  \"units\": \"m\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/matrix/foot-walking",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "matrix",
+                "foot-walking"
+              ]
+            },
+            "description": "POST request for matrices using the foot-walking profile. Returns walking times and distances between all locations."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Utilities",
+      "description": "Additional utility endpoints for working with the OpenRouteService API.",
+      "item": [
+        {
+          "name": "Snap Coordinates",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"locations\": [\n    [8.681495, 49.41461],\n    [8.686507, 49.41943],\n    [8.687872, 49.420318]\n  ]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/snap/driving-car",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "snap",
+                "driving-car"
+              ]
+            },
+            "description": "POST request to snap coordinates to the road network. Returns the closest points on the road network for each input coordinate."
+          }
+        },
+        {
+          "name": "Export Graph",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/export/driving-car?bbox=8.678,49.413,8.687,49.421",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "export",
+                "driving-car"
+              ],
+              "query": [
+                {
+                  "key": "bbox",
+                  "value": "8.678,49.413,8.687,49.421",
+                  "description": "Bounding box (min_lon,min_lat,max_lon,max_lat)"
+                }
+              ]
+            },
+            "description": "GET request to export the base graph for a specific area. Returns the road network data within the specified bounding box."
+          }
+        }
+      ]
+    },
+    {
+      "name": "System",
+      "description": "Endpoints for checking the health and status of the OpenRouteService instance.",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "health"
+              ]
+            },
+            "description": "GET request to check the health of the OpenRouteService instance. Returns information about the service's health status."
+          }
+        },
+        {
+          "name": "Status Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/ors/v2/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "ors",
+                "v2",
+                "status"
+              ]
+            },
+            "description": "GET request to check the status of the OpenRouteService instance. Returns information about the service's current status and configuration."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/ors/v2",
+      "type": "string",
+      "description": "Base URL for the OpenRouteService API"
+    }
+  ]
+}
