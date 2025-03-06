@@ -59,6 +59,30 @@ class CoordinateGeneratorRouteTest {
     }
 
     @Test
+    void testCreateHeaders() {
+        Map<String, String> headers = testGenerator.createHeaders();
+        assertEquals(2, headers.size(), "Should have created 1 header");
+        assertTrue(headers.containsKey("Content-Type"), "Should have Content-Type header");
+        assertTrue(headers.containsKey("Accept"), "Should have Accept header");
+        assertFalse(headers.containsKey("Authorization"), "Should not have Authorization header");
+        assertEquals("application/json", headers.get("Content-Type"), "Content-Type should be 'application/json'");
+        assertEquals("application/json", headers.get("Accept"), "Accept should be 'application/json'");
+    }
+
+    @Test
+    void testCreateHeadersWithAuthorization() {
+        // Set properties for authorization
+        System.setProperty("ORS_API_KEY", "test-key");
+        TestCoordinateGeneratorRoute routeCoordinateGenerator = new TestCoordinateGeneratorRoute(2, TEST_EXTENT,
+                DEFAULT_PROFILES,
+                "https://openrouteservice.org/", 0, new HashMap<>());
+        Map<String, String> headers = routeCoordinateGenerator.createHeaders();
+        assertTrue(headers.containsKey("Authorization"), "Should have Authorization header");
+        assertEquals("test-key", headers.get("Authorization"),
+                "Authorization header should contain value from ORS_API_KEY");
+    }
+
+    @Test
     void testGenerateRoutesSuccessful() throws Exception {
         // Create mock responses for snap and matrix
         String snapResponse = """
