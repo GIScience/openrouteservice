@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class CoordinateGeneratorRouteCLITest {
@@ -50,16 +51,16 @@ class CoordinateGeneratorRouteCLITest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "driving-car cycling-regular",
-            "driving-car,cycling-regular",
-            "driving-car, cycling-regular",
-            "driving-car,cycling-regular,walking"
+    @CsvSource({
+            "driving-car,5000",
+            "'driving-car,cycling-regular','5000,3000'",
+            "'driving-car,cycling-regular,foot-walking','5000,3000,1000'"
     })
-    void testProfileParsing(String profileInput) {
+    void testProfileParsing(String profileInput, String maxDistances) {
         String[] args = {
                 "-n", "50",
                 "-e", "8.6", "49.3", "8.7", "49.4",
+                "-m", maxDistances,
                 "-p", profileInput
         };
 
@@ -73,7 +74,7 @@ class CoordinateGeneratorRouteCLITest {
         String[] args = { "-h" };
         CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
         assertTrue(cli.hasHelp());
-        
+
     }
 
     @Test
@@ -133,9 +134,10 @@ class CoordinateGeneratorRouteCLITest {
     void testMinDistanceParsing(String minDistance) {
         String[] args = {
                 "-n", "50",
-                        "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6", "49.3", "8.7", "49.4",
                 "-p", "driving-car",
-                "-d", minDistance
+                "-d", minDistance,
+                "-m", "5000"
         };
 
         CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
@@ -159,7 +161,7 @@ class CoordinateGeneratorRouteCLITest {
     void testMaxDistancesParsing(String maxDistances) {
         String[] args = {
                 "-n", "50",
-                        "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6", "49.3", "8.7", "49.4",
                 "-p", "driving-car,cycling-regular",
                 "-m", maxDistances
         };
@@ -187,7 +189,7 @@ class CoordinateGeneratorRouteCLITest {
     void testMismatchedMaxDistancesAndProfiles(String maxDistances) {
         String[] args = {
                 "-n", "50",
-                        "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6", "49.3", "8.7", "49.4",
                 "-p", "driving-car,cycling-regular", // 2 profiles
                 "-m", maxDistances
         };
@@ -222,6 +224,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-n", "50",
                 "-e", "8.6", "49.3", "8.7", "49.4",
                 "-p", "driving-car",
+                "-m", "5000",
                 "-t", "8"
         };
 
@@ -236,6 +239,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-n", "50",
                 "-e", "8.6", "49.3", "8.7", "49.4",
                 "-p", "driving-car",
+                "-m", "1000",
                 "-t", "invalid"
         };
 
