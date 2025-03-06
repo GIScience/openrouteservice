@@ -76,6 +76,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             }
         };
 
+        Map<String, String> headers = createHeaders();
         this.routeSnapper = new RouteSnapper(baseUrl, headers, mapper, requestExecutor);
         this.matrixCalculator = new MatrixCalculator(baseUrl, headers, mapper, requestExecutor);
     }

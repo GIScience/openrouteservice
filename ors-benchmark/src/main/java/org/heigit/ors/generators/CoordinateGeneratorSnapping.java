@@ -54,7 +54,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
                 return null;
             }
         };
-
+        Map<String, String> headers = createHeaders();
         this.routeSnapper = new RouteSnapper(baseUrl, headers, mapper, requestExecutor);
     }
 

@@ -33,9 +33,9 @@ public abstract class AbstractCoordinateGenerator {
     protected final String baseUrl;
     protected final double[] extent;
     protected final String[] profiles;
-    protected final Map<String, String> headers;
     protected final Random random;
     protected final ObjectMapper mapper;
+    protected final String apiKey;
 
     /**
      * Creates a new coordinate generator
@@ -52,9 +52,7 @@ public abstract class AbstractCoordinateGenerator {
         this.profiles = profiles.clone();
         this.random = new SecureRandom();
         this.mapper = new ObjectMapper();
-        
-        String apiKey = getApiKey();
-        this.headers = createHeaders(apiKey);
+        this.apiKey = getApiKey();
     }
 
     private void validateBaseInputParameters(double[] extent, String[] profiles, String endpoint) {
@@ -69,25 +67,25 @@ public abstract class AbstractCoordinateGenerator {
     /**
      * Gets the API key from environment or system properties
      */
-    protected final String getApiKey() {
+    private String getApiKey() {
         if (!baseUrl.contains("openrouteservice.org")) {
             return "";
         }
 
-        String apiKey = System.getenv("ORS_API_KEY");
-        if (apiKey == null) {
-            apiKey = System.getProperty("ORS_API_KEY");
+        String orsApiAccessKey = System.getenv("ORS_API_KEY");
+        if (orsApiAccessKey == null) {
+            orsApiAccessKey = System.getProperty("ORS_API_KEY");
         }
-        if (apiKey == null) {
+        if (orsApiAccessKey == null) {
             throw new IllegalStateException("ORS_API_KEY environment variable is not set.");
         }
-        return apiKey;
+        return orsApiAccessKey;
     }
 
     /**
      * Creates HTTP request headers
      */
-    protected final Map<String, String> createHeaders(String apiKey) {
+    public final Map<String, String> createHeaders() {
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("Accept", "application/json");
         requestHeaders.put("Content-Type", "application/json");
