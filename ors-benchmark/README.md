@@ -17,14 +17,16 @@ A command-line tool for generating pairs of coordinates suitable for route testi
 Options:
 
 - `-n, --num-routes <value>`: Number of routes to generate (required)
-- `-e, --extent <minLon> <minLat> <maxLon> <maxLat>`: Bounding box for coordinate generation (required)
+- `-e, --extent <value>`: Bounding box for coordinate generation (minLon,minLat,maxLon,maxLat) (required)
 - `-p, --profiles <value>`: Comma-separated routing profiles (e.g., driving-car,cycling-regular) (required)
 - `-u, --url <value>`: ORS API base URL (default: http://localhost:8080/ors)
 - `-o, --output <file>`: Output CSV file path (default: route_coordinates.csv)
 - `-d, --min-distance <value>`: Minimum distance between coordinates in meters (default: 1)
+- `-m, --max-distances <values>`: Maximum distances in meters, comma-separated per profile (e.g., 5000,3000)
+- `-t, --threads <value>`: Number of threads to use (default: number of available processors)
 - `-h, --help`: Show help message
 
-Example:
+Example with space-separated extent:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
@@ -37,18 +39,34 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   -o routes.csv"
 ```
 
-Example with long parameters and multiple profiles:
+Example with comma-separated extent:
+
+```bash
+mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+  -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorRoute" \
+  -Dexec.args="\
+  -n 100 \
+  -e 8.6,49.3,8.7,49.4 \
+  -p driving-car \
+  -d 1000 \
+  -t 4 \
+  -o routes.csv"
+```
+
+Example with multiple profiles and max distances:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorRoute" \
   -Dexec.args="\
   --num-routes 50 \
-  --extent 8.681495 49.411721 8.695485 49.419365 \
+  --extent 8.681495,49.411721,8.695485,49.419365 \
   --profiles driving-car,cycling-regular \
   --url http://localhost:8080/ors \
   --min-distance 2000 \
-  --output heidelberg_routes.csv"
+  --max-distances 5000,3000 \
+  --threads 4 \
+  --output routes.csv"
 ```
 
 ### Snapping Generator
@@ -60,14 +78,14 @@ A command-line tool for generating coordinates and snapping them to the nearest 
 Options:
 
 - `-n, --num-points <value>`: Number of points to generate per profile (required)
-- `-e, --extent <minLon> <minLat> <maxLon> <maxLat>`: Bounding box for coordinate generation (required)
+- `-e, --extent <value>`: Bounding box for coordinate generation (minLon,minLat,maxLon,maxLat) (required)
 - `-p, --profiles <values>`: Comma-separated list of routing profiles (e.g., driving-car,cycling-regular) (required)
 - `-r, --radius <value>`: Search radius in meters (default: 350)
 - `-u, --url <value>`: ORS API base URL (default: http://localhost:8080/ors)
 - `-o, --output <file>`: Output CSV file path (default: snapped_coordinates.csv)
 - `-h, --help`: Show help message
 
-Example:
+Example with space-separated extent:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
@@ -80,6 +98,19 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   -o snapped.csv"
 ```
 
+Example with comma-separated extent:
+
+```bash
+mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+  -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorSnapping" \
+  -Dexec.args="\
+  -n 100 \
+  -e 8.6,49.3,8.7,49.4 \
+  -p driving-car \
+  -r 500 \
+  -o snapped.csv"
+```
+
 Example with multiple profiles:
 
 ```bash
@@ -87,11 +118,11 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   -Dexec.mainClass="org.heigit.ors.generators.CoordinateGeneratorSnapping" \
   -Dexec.args="\
   --num-points 50 \
-  --extent 8.681495 49.411721 8.695485 49.419365 \
+  --extent 8.681495,49.411721,8.695485,49.419365 \
   --profiles driving-car,cycling-regular \
   --radius 250 \
   --url http://localhost:8080/ors \
-  --output heidelberg_snapped.csv"
+  --output snapped.csv"
 ```
 
 ### Isochrones Load Test
@@ -115,6 +146,7 @@ Options:
 - `parallel_execution`: Run scenarios in parallel or sequential (default: false)
 
 CSV File Format:
+
 ```csv
 longitude,latitude
 8.681495,49.41461
