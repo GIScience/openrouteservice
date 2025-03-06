@@ -69,7 +69,7 @@ public abstract class AbstractCoordinateGenerator {
     /**
      * Gets the API key from environment or system properties
      */
-    protected String getApiKey() {
+    protected final String getApiKey() {
         if (!baseUrl.contains("openrouteservice.org")) {
             return "";
         }
@@ -87,7 +87,7 @@ public abstract class AbstractCoordinateGenerator {
     /**
      * Creates HTTP request headers
      */
-    protected Map<String, String> createHeaders(String apiKey) {
+    protected final Map<String, String> createHeaders(String apiKey) {
         Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("Accept", "application/json");
         requestHeaders.put("Content-Type", "application/json");

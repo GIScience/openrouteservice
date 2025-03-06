@@ -46,7 +46,7 @@ public abstract class AbstractCoordinateGeneratorCLI {
     public abstract void printHelp();
 
     public boolean hasHelp() {
-        return cmd == null || !cmd.hasOption("h");
+        return cmd == null || cmd.hasOption("h");
 
     }
 

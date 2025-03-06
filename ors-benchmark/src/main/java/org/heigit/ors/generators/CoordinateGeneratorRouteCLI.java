@@ -141,15 +141,27 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
      * @param maxDistancesStr Comma-separated string of maximum distances
      * @param profiles        Array of profile names
      * @return Map of profile to maximum distance
+     * @throws IllegalArgumentException if the number of max distances doesn't match
+     *                                  the number of profiles
      */
     private Map<String, Double> parseMaxDistances(String maxDistancesStr, String[] profiles) {
         Map<String, Double> maxDistanceByProfile = new HashMap<>();
 
         if (maxDistancesStr != null && !maxDistancesStr.isBlank()) {
             String[] maxDistances = maxDistancesStr.split(",");
+            if (maxDistances == null) {
+                throw new IllegalArgumentException("Failed to split max distances string");
+            }
+
+            // Validate that counts match
+            if (maxDistances.length != profiles.length) {
+                throw new IllegalArgumentException(String.format(
+                        "Number of max distances (%d) must match number of profiles (%d)",
+                        maxDistances.length, profiles.length));
+            }
 
             // Assign max distances to profiles in order
-            for (int i = 0; i < Math.min(profiles.length, maxDistances.length); i++) {
+            for (int i = 0; i < profiles.length; i++) {
                 try {
                     double maxDistance = Double.parseDouble(maxDistances[i].trim());
                     maxDistanceByProfile.put(profiles[i], maxDistance);
@@ -157,16 +169,8 @@ public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI 
                     LOGGER.warn("Invalid max distance for profile {}: {}", profiles[i], maxDistances[i]);
                 }
             }
-
-            // Log warning if counts don't match
-            if (maxDistances.length < profiles.length) {
-                LOGGER.warn(
-                        "Fewer max distances ({}) provided than profiles ({}). Some profiles will have no max distance.",
-                        maxDistances.length, profiles.length);
-            } else if (maxDistances.length > profiles.length) {
-                LOGGER.warn("More max distances ({}) provided than profiles ({}). Excess values will be ignored.",
-                        maxDistances.length, profiles.length);
-            }
+        } else {
+            throw new IllegalArgumentException("Max distances must be provided");
         }
 
         return maxDistanceByProfile;
