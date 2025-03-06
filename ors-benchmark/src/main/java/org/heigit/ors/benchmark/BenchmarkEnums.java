@@ -4,6 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 public class BenchmarkEnums {
+
+    // Constant for preference
+    public static final String PREFERENCE = "recommended";
+    // Constant for recommended
+    public static final String RECOMMENDED = "recommended";
+
     public enum TestUnit {
         DISTANCE,
         TIME;
@@ -39,9 +45,15 @@ public class BenchmarkEnums {
 
         public Map<String, Object> getRequestParams() {
             return switch (this) {
-                case ALGO_CH -> Map.of("preference", "recommended");
-                case ALGO_CORE -> Map.of("preference", "recommended", "options", Map.of("avoid_features", List.of("ferries")));
-                case ALGO_LM_ASTAR -> Map.of("preference", "recommended", "options", Map.of("avoid_polygons", Map.of("type", "Polygon", "coordinates", List.of(List.of(List.of(100.0, 100.0), List.of(100.001, 100.0), List.of(100.001, 100.001), List.of(100.0, 100.001), List.of(100.0, 100.0))))));
+                case ALGO_CH -> Map.of(PREFERENCE, RECOMMENDED);
+                case ALGO_CORE -> Map.of(PREFERENCE,
+                        RECOMMENDED, "options", Map.of("avoid_features", List.of("ferries")));
+                case ALGO_LM_ASTAR -> Map.of(PREFERENCE, RECOMMENDED, "options",
+                        Map.of("avoid_polygons",
+                                Map.of("type", "Polygon", "coordinates",
+                                        List.of(List.of(List.of(100.0, 100.0), List.of(100.001, 100.0),
+                                                List.of(100.001, 100.001), List.of(100.0, 100.001),
+                                                List.of(100.0, 100.0))))));
             };
         }
     }
