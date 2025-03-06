@@ -38,6 +38,7 @@ class CoordinateGeneratorSnappingTest {
     private double[] extent;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         MockitoAnnotations.openMocks(this);
         extent = new double[] { 7.6286, 50.3590, 7.7957, 50.4715 };
