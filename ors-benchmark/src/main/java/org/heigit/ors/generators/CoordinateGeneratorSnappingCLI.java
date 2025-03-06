@@ -6,8 +6,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 import org.heigit.ors.exceptions.CommandLineParsingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CoordinateGeneratorSnappingCLI extends AbstractCoordinateGeneratorCLI {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorSnappingCLI.class);
 
     public CoordinateGeneratorSnappingCLI(String[] args) {
         super(args);
@@ -30,8 +33,7 @@ public class CoordinateGeneratorSnappingCLI extends AbstractCoordinateGeneratorC
 
         options.addOption(Option.builder("e")
                 .longOpt("extent")
-                .hasArgs()
-                .numberOfArgs(4)
+                .hasArg()
                 .required()
                 .desc("Bounding box (minLon minLat maxLon maxLat)")
                 .build());
@@ -85,14 +87,9 @@ public class CoordinateGeneratorSnappingCLI extends AbstractCoordinateGeneratorC
 
     public CoordinateGeneratorSnapping createGenerator() {
         int numPoints = Integer.parseInt(cmd.getOptionValue("n"));
-        String[] extentValues = cmd.getOptionValues("e");
-        double[] extent = new double[4];
-        for (int i = 0; i < 4; i++) {
-            extent[i] = Double.parseDouble(extentValues[i]);
-        }
-
-        double radius = Double.parseDouble(cmd.getOptionValue("r", "350"));
+        double[] extent = parseExtent(cmd.getOptionValue("e"));
         String[] profiles = parseProfiles(cmd.getOptionValue("p"));
+        double radius = Double.parseDouble(cmd.getOptionValue("r", "350"));
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
 
         LOGGER.info(
@@ -100,5 +97,40 @@ public class CoordinateGeneratorSnappingCLI extends AbstractCoordinateGeneratorC
                 numPoints, extent, radius, profiles, baseUrl);
 
         return new CoordinateGeneratorSnapping(numPoints, extent, radius, profiles, baseUrl);
+    }
+
+    /**
+     * Parses an extent string into an array of four doubles.
+     * Supports comma-separated, space-separated, or mixed formats.
+     * 
+     * @param extentStr The extent string to parse
+     * @return An array of four doubles representing min lon, min lat, max lon, max
+     *         lat
+     * @throws IllegalArgumentException if the extent cannot be parsed correctly
+     */
+    public double[] parseExtent(String extentStr) {
+        if (extentStr == null || extentStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("Extent string cannot be empty");
+        }
+
+        // Replace commas with spaces and split by whitespace
+        String normalized = extentStr.replace(',', ' ').trim();
+        String[] parts = normalized.split("\\s+");
+
+        if (parts.length != 4) {
+            throw new IllegalArgumentException(
+                    "Extent must contain exactly 4 values (minLon, minLat, maxLon, maxLat), but found " + parts.length);
+        }
+
+        double[] extent = new double[4];
+        try {
+            for (int i = 0; i < 4; i++) {
+                extent[i] = Double.parseDouble(parts[i]);
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid numerical value in extent: " + e.getMessage());
+        }
+
+        return extent;
     }
 }
