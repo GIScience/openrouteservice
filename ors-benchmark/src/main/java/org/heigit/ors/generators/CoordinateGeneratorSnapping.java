@@ -3,72 +3,59 @@ package org.heigit.ors.generators;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
+import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.heigit.ors.model.Point;
+import org.heigit.ors.service.RouteSnapper;
+import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
 
 import me.tongfei.progressbar.DelegatingProgressBarConsumer;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     private static final int DEFAULT_BATCH_SIZE = 100;
 
     private final int numPoints;
-    private final double radius;
+    private final RouteSnapper routeSnapper;
     private final Map<String, List<double[]>> resultsByProfile;
     private final Map<String, Set<Point>> uniquePointsByProfile;
 
-    protected static class Point {
-        final double[] coordinates;
-
-        Point(double[] coordinates) {
-            this.coordinates = coordinates;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            Point point = (Point) o;
-            return CoordinateHash.equals(coordinates, point.coordinates);
-        }
-
-        @Override
-        public int hashCode() {
-            return CoordinateHash.hash(coordinates);
-        }
-    }
-
-    protected CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String[] profiles,
+    public CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String[] profiles,
             String baseUrl) {
-        super(extent, profiles, baseUrl, "snap"); // Use first profile as default
+        super(extent, profiles, baseUrl, "snap");
         if (numPoints <= 0)
             throw new IllegalArgumentException("Number of points must be positive");
         if (radius <= 0)
             throw new IllegalArgumentException("Radius must be positive");
 
         this.numPoints = numPoints;
-        this.radius = radius;
         this.resultsByProfile = new HashMap<>();
         this.uniquePointsByProfile = new HashMap<>();
         for (String userProfile : profiles) {
             resultsByProfile.put(userProfile, new ArrayList<>());
             uniquePointsByProfile.put(userProfile, new HashSet<>());
         }
+
+        Function<HttpPost, String> requestExecutor = request -> {
+            try (CloseableHttpClient client = createHttpClient()) {
+                return client.execute(request, this::processResponse);
+            } catch (IOException e) {
+                LOGGER.error("Error executing request: {}", e.getMessage());
+                return null;
+            }
+        };
+
+        this.routeSnapper = new RouteSnapper(baseUrl, headers, mapper, requestExecutor);
     }
 
     @Override
@@ -83,11 +70,10 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
                 .setInitialMax((long) numPoints * profiles.length)
                 .setConsumer(new DelegatingProgressBarConsumer(ProgressBarLogger.getLogger()::info));
 
-        try (CloseableHttpClient client = createHttpClient();
-                ProgressBar pb = pbb.build()) {
+        try (ProgressBar pb = pbb.build()) {
 
             pb.setExtraMessage("Starting...");
-            generatePoints(client, pb, lastSizes, maxAttempts);
+            generatePoints(pb, lastSizes, maxAttempts);
 
         } catch (Exception e) {
             LOGGER.error("Error generating points", e);
@@ -102,11 +88,11 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         return lastSizes;
     }
 
-    private void generatePoints(CloseableHttpClient client, ProgressBar pb, Map<String, Integer> lastSizes,
-            int maxAttempts) throws IOException {
+    private void generatePoints(ProgressBar pb, Map<String, Integer> lastSizes,
+            int maxAttempts) {
         int attempts = 0;
         while (!isGenerationComplete() && attempts < maxAttempts) {
-            boolean newPointsFound = processProfiles(client, lastSizes);
+            boolean newPointsFound = processProfiles(lastSizes);
 
             if (!newPointsFound) {
                 attempts++;
@@ -124,11 +110,11 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         }
     }
 
-    private boolean processProfiles(CloseableHttpClient client, Map<String, Integer> lastSizes) throws IOException {
+    private boolean processProfiles(Map<String, Integer> lastSizes) {
         boolean newPointsFound = false;
         for (String userProfile : profiles) {
             if (uniquePointsByProfile.get(userProfile).size() < numPoints) {
-                processNextBatch(client, userProfile);
+                processNextBatch(userProfile);
                 int currentSize = uniquePointsByProfile.get(userProfile).size();
 
                 if (currentSize > lastSizes.get(userProfile)) {
@@ -170,72 +156,27 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         uniquePointsByProfile.values().forEach(Set::clear);
     }
 
-    @Override
-    protected void processNextBatch(CloseableHttpClient client, String profile) throws IOException {
+    protected void processNextBatch(String profile) {
         int remainingPoints = numPoints - uniquePointsByProfile.get(profile).size();
         int currentBatchSize = Math.min(DEFAULT_BATCH_SIZE, remainingPoints);
-        List<double[]> rawPoints = randomCoordinatesInExtent(currentBatchSize);
+        List<double[]> rawPoints = CoordinateGeneratorHelper.randomCoordinatesInExtent(currentBatchSize, extent);
 
-        String response = sendSnappingRequest(client, rawPoints, profile);
-        if (response != null) {
-            processSnappingResponse(response, profile);
-        }
+        List<double[]> snappedPoints = routeSnapper.snapCoordinates(rawPoints, profile);
+        processSnappedPoints(snappedPoints, profile);
     }
 
-    private String sendSnappingRequest(CloseableHttpClient client, List<double[]> points, String profile)
-            throws IOException {
-        HttpPost request = createSnappingRequest(points, profile);
-        return client.execute(request, this::processResponse);
-    }
-
-    private HttpPost createSnappingRequest(List<double[]> points, String profile) throws IOException {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("locations", points);
-        payload.put("radius", radius);
-
-        HttpPost request = new HttpPost(baseUrl + "/v2/snap/" + profile);
-        headers.forEach(request::addHeader);
-        request.setEntity(new StringEntity(mapper.writeValueAsString(payload), ContentType.APPLICATION_JSON));
-        return request;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void processSnappingResponse(String response, String profile) throws IOException {
-        Map<String, Object> responseMap = mapper.readValue(response,
-                new TypeReference<Map<String, Object>>() {
-                });
-
-        Object locationsObj = responseMap.get("locations");
-        List<Map<String, Object>> locations;
-
-        if (locationsObj instanceof List<?> list) {
-            locations = list.stream()
-                    .filter(item -> item instanceof Map<?, ?>)
-                    .map(item -> (Map<String, Object>) item)
-                    .toList();
-        } else {
-            locations = Collections.emptyList();
-            LOGGER.warn("Response contained no valid locations array");
-        }
-
-        for (Map<String, Object> location : locations) {
-            processLocation(location, profile);
-            if (uniquePointsByProfile.get(profile).size() >= numPoints)
-                break;
-        }
-    }
-
-    private void processLocation(Map<String, Object> location, String profile) {
-        if (location == null)
-            return;
-
-        @SuppressWarnings("unchecked")
-        List<Number> coords = (List<Number>) location.get("location");
-        if (coords != null && coords.size() >= 2) {
-            double[] point = new double[] { coords.get(0).doubleValue(), coords.get(1).doubleValue() };
-            Point snappedPoint = new Point(point);
+    private void processSnappedPoints(List<double[]> snappedPoints, String profile) {
+        for (double[] point : snappedPoints) {
+            Point snappedPoint = new Point(point, profile);
             if (uniquePointsByProfile.get(profile).add(snappedPoint)) {
                 resultsByProfile.get(profile).add(point);
+                LOGGER.debug("Added snapped point: [{}, {}] for profile {}", point[0], point[1], profile);
+            } else {
+                LOGGER.debug("Skipped duplicate point: [{}, {}] for profile {}", point[0], point[1], profile);
+            }
+
+            if (uniquePointsByProfile.get(profile).size() >= numPoints) {
+                break;
             }
         }
     }
@@ -246,9 +187,11 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
             pw.println("longitude,latitude,profile");
             for (Map.Entry<String, List<double[]>> entry : resultsByProfile.entrySet()) {
                 String userProfile = entry.getKey();
-                for (double[] point : entry.getValue()) {
-                    pw.printf("%f,%f,%s%n", point[0], point[1], userProfile);
-                }
+                List<double[]> points = entry.getValue();
+
+                points.stream()
+                        .limit(numPoints)
+                        .forEach(point -> pw.printf("%f,%f,%s%n", point[0], point[1], userProfile));
             }
         }
     }
@@ -257,7 +200,8 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     @Override
     protected <T> List<T> getResult() {
         List<Object[]> combined = new ArrayList<>();
-        resultsByProfile.forEach((userProfile, points) -> points
+        resultsByProfile.forEach((userProfile, points) -> points.stream()
+                .limit(numPoints)
                 .forEach(point -> combined.add(new Object[] { point[0], point[1], userProfile })));
         return (List<T>) combined;
     }
