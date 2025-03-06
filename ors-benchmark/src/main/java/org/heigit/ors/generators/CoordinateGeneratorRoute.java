@@ -1,95 +1,55 @@
 package org.heigit.ors.generators;
 
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.heigit.ors.util.ProgressBarLogger;
+import org.heigit.ors.model.Route;
+import org.heigit.ors.model.RouteRepository;
+import org.heigit.ors.service.MatrixCalculator;
+import org.heigit.ors.service.RouteSnapper;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
+import org.heigit.ors.util.ProgressBarLogger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-
-import me.tongfei.progressbar.*;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import me.tongfei.progressbar.DelegatingProgressBarConsumer;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
 
 public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     private static final int DEFAULT_MATRIX_SIZE = 2;
-    private static final double DEFAULT_SNAP_RADIUS = 350; // 350 meters radius for snapping
-    private static final String LOCATION_KEY = "location";
-    private static final String LOCATIONS_KEY = "locations";
     private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
+    private static final String LOCATION_KEY = "location";
 
     private final int numRoutes;
     private final double minDistance;
-    private final Map<String, Double> maxDistanceByProfile; // New field for max distances by profile
-    private final Map<String, List<Route>> resultsByProfile;
-    private final Map<String, Set<RoutePair>> uniqueRoutesByProfile;
-    private final ReadWriteLock resultsLock = new ReentrantReadWriteLock();
+    private final Map<String, Double> maxDistanceByProfile;
+    private final RouteRepository routeRepository;
+    private final RouteSnapper routeSnapper;
+    private final MatrixCalculator matrixCalculator;
     private final int numThreads;
-
-    protected static class Route {
-        final double[] start;
-        final double[] end;
-        final double distance;
-        final String profile;
-
-        Route(double[] start, double[] end, double distance, String profile) {
-            this.start = start;
-            this.end = end;
-            this.distance = distance;
-            this.profile = profile;
-        }
-    }
-
-    protected static class RoutePair {
-        final double[] start;
-        final double[] end;
-
-        RoutePair(double[] start, double[] end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            RoutePair that = (RoutePair) o;
-            return coordinatesEqual(start, that.start) && coordinatesEqual(end, that.end);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(
-                    Math.round(start[0] * 1e6) / 1e6,
-                    Math.round(start[1] * 1e6) / 1e6,
-                    Math.round(end[0] * 1e6) / 1e6,
-                    Math.round(end[1] * 1e6) / 1e6);
-        }
-
-        private boolean coordinatesEqual(double[] coord1, double[] coord2) {
-            return Math.abs(coord1[0] - coord2[0]) < COORDINATE_PRECISION &&
-                    Math.abs(coord1[1] - coord2[1]) < COORDINATE_PRECISION;
-        }
-    }
 
     protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
             double minDistance, Map<String, Double> maxDistanceByProfile) {
@@ -99,53 +59,60 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
             double minDistance, Map<String, Double> maxDistanceByProfile, int numThreads) {
         super(extent, profiles, baseUrl, "matrix");
+        validateInputs(numRoutes, minDistance, numThreads);
+
+        this.numRoutes = numRoutes;
+        this.minDistance = minDistance;
+        this.maxDistanceByProfile = normalizeMaxDistances(profiles, maxDistanceByProfile);
+        this.numThreads = numThreads;
+        this.routeRepository = new RouteRepository(Set.of(profiles));
+
+        Function<HttpPost, String> requestExecutor = request -> {
+            try (CloseableHttpClient client = createHttpClient()) {
+                return client.execute(request, this::processResponse);
+            } catch (IOException e) {
+                LOGGER.error("Error executing request: {}", e.getMessage());
+                return null;
+            }
+        };
+
+        this.routeSnapper = new RouteSnapper(baseUrl, headers, mapper, requestExecutor);
+        this.matrixCalculator = new MatrixCalculator(baseUrl, headers, mapper, requestExecutor);
+    }
+
+    private void validateInputs(int numRoutes, double minDistance, int numThreads) {
         if (numRoutes <= 0)
             throw new IllegalArgumentException("Number of routes must be positive");
         if (minDistance < 0)
             throw new IllegalArgumentException("Minimum distance must be non-negative");
         if (numThreads <= 0)
             throw new IllegalArgumentException("Number of threads must be positive");
-
-        this.numRoutes = numRoutes;
-        this.minDistance = minDistance;
-        this.maxDistanceByProfile = new HashMap<>(maxDistanceByProfile); // Copy to prevent external modification
-        this.resultsByProfile = new HashMap<>();
-        this.uniqueRoutesByProfile = new HashMap<>();
-        this.numThreads = numThreads;
-
-        for (String userProfile : profiles) {
-            resultsByProfile.put(userProfile, new ArrayList<>());
-            uniqueRoutesByProfile.put(userProfile, new HashSet<>());
-            // Ensure each profile has a max distance, even if not explicitly provided
-            this.maxDistanceByProfile.computeIfAbsent(userProfile, k -> {
-                LOGGER.debug("No maximum distance specified for profile {}, using unlimited", k);
-                return Double.MAX_VALUE;
-            });
-        }
     }
 
-    @Override
-    protected List<double[]> randomCoordinatesInExtent(int count) {
-        return CoordinateGeneratorHelper.randomCoordinatesInExtent(count, extent);
+    private Map<String, Double> normalizeMaxDistances(String[] profiles, Map<String, Double> maxDistanceByProfile) {
+        Map<String, Double> normalized = new HashMap<>();
+        for (String profile : profiles) {
+            normalized.put(profile, maxDistanceByProfile.getOrDefault(profile, Double.MAX_VALUE));
+        }
+        return normalized;
     }
 
     @Override
     protected String processResponse(ClassicHttpResponse response) throws IOException {
         int status = response.getCode();
-        LOGGER.debug("Processing response with status code: {}", status);
+
         if (status >= HttpStatus.SC_REDIRECTION) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Received error response: {}", new StatusLine(response));
             }
             return null;
         }
+
         HttpEntity entity = response.getEntity();
         if (entity == null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Received empty response entity");
-            }
             return null;
         }
+
         try {
             return EntityUtils.toString(entity);
         } catch (ParseException | IOException e) {
@@ -157,105 +124,39 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         generate(DEFAULT_MAX_ATTEMPTS);
     }
 
-    private class RouteWorker implements Callable<Boolean> {
-        private final String profile;
-        private final CloseableHttpClient client;
-        private final AtomicBoolean shouldContinue;
-
-        public RouteWorker(String profile, CloseableHttpClient client, AtomicBoolean shouldContinue) {
-            this.profile = profile;
-            this.client = client;
-            this.shouldContinue = shouldContinue;
-        }
-
-        @Override
-        public Boolean call() {
-            try {
-                boolean profileComplete;
-                resultsLock.readLock().lock();
-                try {
-                    profileComplete = uniqueRoutesByProfile.get(profile).size() >= numRoutes;
-                } finally {
-                    resultsLock.readLock().unlock();
-                }
-
-                if (profileComplete || !shouldContinue.get()) {
-                    return false;
-                }
-
-                processNextBatch(client, profile);
-
-                // Check if we found any new routes
-                resultsLock.readLock().lock();
-                try {
-                    return uniqueRoutesByProfile.get(profile).size() < numRoutes;
-                } finally {
-                    resultsLock.readLock().unlock();
-                }
-            } catch (IOException e) {
-                LOGGER.error("Error in worker thread for profile {}: {}", profile, e.getMessage());
-                return false;
-            }
-        }
-    }
-
     @Override
     public void generate(int maxAttempts) {
-        LOGGER.debug("Starting parallel route generation with max attempts: {} using {} threads",
-                maxAttempts, numThreads);
+        LOGGER.info("Starting route generation with {} threads and max attempts: {}", numThreads, maxAttempts);
         initializeCollections();
 
         ExecutorService executor = null;
         AtomicBoolean shouldContinue = new AtomicBoolean(true);
-        AtomicInteger attempts = new AtomicInteger(0);
+        AtomicInteger consecutiveFailedAttempts = new AtomicInteger(0);
 
-        ProgressBarBuilder pbb = new ProgressBarBuilder()
-                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
-                .setUpdateIntervalMillis(5000)
-                .setTaskName("Generating routes")
-                .setInitialMax((long) numRoutes * profiles.length)
-                .setConsumer(new DelegatingProgressBarConsumer(ProgressBarLogger.getLogger()::info));
-
-        try (CloseableHttpClient client = createHttpClient();
-                ProgressBar pb = pbb.build()) {
-
+        try {
             executor = Executors.newFixedThreadPool(numThreads);
-            pb.setExtraMessage("Starting with " + numThreads + " threads...");
+            executeRouteGeneration(executor, maxAttempts, shouldContinue, consecutiveFailedAttempts);
+        } catch (Exception e) {
+            LOGGER.error("Error generating routes: ", e);
+        } finally {
+            shutdownExecutor(executor);
+        }
+    }
 
-            while (!isGenerationComplete() && attempts.get() < maxAttempts && shouldContinue.get()) {
-                LOGGER.debug("Generation iteration - Attempt {}/{}", attempts.get() + 1, maxAttempts);
+    private void executeRouteGeneration(ExecutorService executor, int maxAttempts,
+            AtomicBoolean shouldContinue, AtomicInteger consecutiveFailedAttempts) {
+        try (ProgressBar pb = createProgressBar()) {
+            while (!routeRepository.areAllProfilesComplete(numRoutes) &&
+                    consecutiveFailedAttempts.get() < maxAttempts &&
+                    shouldContinue.get()) {
 
-                List<Future<Boolean>> futures = new ArrayList<>();
-
-                // Submit tasks for each profile that needs more routes
-                for (String profile : profiles) {
-                    resultsLock.readLock().lock();
-                    boolean profileNeedsMoreRoutes = false;
-                    try {
-                        profileNeedsMoreRoutes = uniqueRoutesByProfile.get(profile).size() < numRoutes;
-                    } finally {
-                        resultsLock.readLock().unlock();
-                    }
-
-                    if (profileNeedsMoreRoutes) {
-                        // Submit multiple worker tasks for each profile for better parallelism
-                        int tasksPerProfile = Math.max(1, numThreads / profiles.length);
-                        for (int i = 0; i < tasksPerProfile; i++) {
-                            futures.add(executor.submit(new RouteWorker(profile, client, shouldContinue)));
-                        }
-                    }
-                }
+                int initialTotalRoutes = routeRepository.getTotalRouteCount();
+                List<Future<Boolean>> futures = submitTasks(executor, shouldContinue);
 
                 // Wait for all tasks to complete
-                int newRoutesFound = 0;
-                int initialTotalRoutes = getTotalRoutes();
-
                 for (Future<Boolean> future : futures) {
                     try {
-                        Boolean hasMoreWork = future.get();
-                        if (Boolean.TRUE.equals(hasMoreWork)) {
-                            newRoutesFound++;
-                        }
+                        future.get();
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         shouldContinue.set(false);
@@ -265,352 +166,228 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
                     }
                 }
 
-                updateProgress(pb);
+                updateProgressBar(pb);
 
-                if (newRoutesFound == 0 || getTotalRoutes() == initialTotalRoutes) {
-                    attempts.incrementAndGet();
-                    pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts.get(), maxAttempts));
+                // Check if we made progress in this iteration
+                if (routeRepository.getTotalRouteCount() == initialTotalRoutes) {
+                    int attempts = consecutiveFailedAttempts.incrementAndGet();
+                    pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, maxAttempts));
                 } else {
-                    attempts.set(0);
+                    consecutiveFailedAttempts.set(0);
                 }
             }
 
-            pb.stepTo(getTotalRoutes());
-            if (attempts.get() >= maxAttempts && LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Stopped route generation after {} attempts. Routes per profile: {}",
-                        maxAttempts, formatProgressMessage());
-            }
+            finalizeProgress(pb, maxAttempts, consecutiveFailedAttempts.get());
+        }
+    }
 
-        } catch (Exception e) {
-            LOGGER.error("Error generating routes: ", e);
-        } finally {
-            if (executor != null) {
-                executor.shutdown(); // Initiate orderly shutdown
-                try {
-                    // Wait for tasks to complete, or force termination after timeout
-                    if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                        LOGGER.warn("Executor did not terminate in the specified time, forcing shutdown");
-                        executor.shutdownNow(); // Force shutdown
-                        if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                            LOGGER.error("Executor still did not terminate");
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    LOGGER.warn("Termination interrupted, forcing shutdown");
+    private ProgressBar createProgressBar() {
+        return new ProgressBarBuilder()
+                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
+                .setUpdateIntervalMillis(2000)
+                .setTaskName("Generating routes")
+                .setInitialMax((long) numRoutes * profiles.length)
+                .setConsumer(new DelegatingProgressBarConsumer(ProgressBarLogger.getLogger()::info))
+                .build();
+    }
+
+    private List<Future<Boolean>> submitTasks(ExecutorService executor, AtomicBoolean shouldContinue) {
+        List<Future<Boolean>> futures = new ArrayList<>();
+
+        for (String profile : profiles) {
+            if (!routeRepository.isProfileComplete(profile, numRoutes)) {
+                int tasksPerProfile = Math.max(1, numThreads / profiles.length);
+                for (int i = 0; i < tasksPerProfile && shouldContinue.get(); i++) {
+                    futures.add(executor.submit(new RouteGenerationTask(profile, shouldContinue)));
+                }
+            }
+        }
+
+        return futures;
+    }
+
+    private void updateProgressBar(ProgressBar pb) {
+        int totalRoutes = routeRepository.getTotalRouteCount();
+        pb.stepTo(totalRoutes);
+        pb.setExtraMessage(routeRepository.getProgressMessage());
+    }
+
+    private void finalizeProgress(ProgressBar pb, int maxAttempts, int attempts) {
+        pb.stepTo(routeRepository.getTotalRouteCount());
+        if (attempts >= maxAttempts) {
+            LOGGER.warn("Stopped route generation after {} attempts. Routes per profile: {}",
+                    maxAttempts, routeRepository.getProgressMessage());
+        }
+    }
+
+    private void shutdownExecutor(ExecutorService executor) {
+        if (executor != null) {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
                     executor.shutdownNow();
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                executor.shutdownNow();
+            }
+        }
+    }
+
+    private class RouteGenerationTask implements Callable<Boolean> {
+        private final String profile;
+        private final AtomicBoolean shouldContinue;
+
+        public RouteGenerationTask(String profile, AtomicBoolean shouldContinue) {
+            this.profile = profile;
+            this.shouldContinue = shouldContinue;
+        }
+
+        @Override
+        public Boolean call() {
+            if (!shouldContinue.get() || routeRepository.isProfileComplete(profile, numRoutes)) {
+                return false;
+            }
+
+            try {
+                return generateRoutesForProfile();
+            } catch (Exception e) {
+                LOGGER.error("Error generating routes for profile {}: {}", profile, e.getMessage());
+                return false;
             }
         }
 
-    }
+        private boolean generateRoutesForProfile() {
+            // Get max distance for this profile
+            double effectiveMaxDistance = maxDistanceByProfile.getOrDefault(profile, Double.MAX_VALUE);
 
-    private void updateProgress(ProgressBar pb) {
-        int totalRoutes = getTotalRoutes();
-        pb.stepTo(totalRoutes);
-        pb.setExtraMessage(formatProgressMessage());
-    }
+            // Generate random coordinates
+            List<double[]> randomCoordinates = CoordinateGeneratorHelper.randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE,
+                    extent);
 
-    private int getTotalRoutes() {
-        resultsLock.readLock().lock();
-        try {
-            return uniqueRoutesByProfile.values().stream()
-                    .mapToInt(Set::size)
-                    .sum();
-        } finally {
-            resultsLock.readLock().unlock();
+            // Snap the coordinates to the road network
+            List<double[]> snappedCoordinates = routeSnapper.snapCoordinates(randomCoordinates, profile);
+
+            if (snappedCoordinates.size() < 2) {
+                return false;
+            }
+
+            return processSnappedCoordinates(snappedCoordinates, effectiveMaxDistance);
         }
-    }
 
-    private String formatProgressMessage() {
-        resultsLock.readLock().lock();
-        try {
-            return uniqueRoutesByProfile.entrySet().stream()
-                    .map(e -> String.format("%s: %d/%d", e.getKey(), e.getValue().size(), numRoutes))
-                    .reduce((a, b) -> a + ", " + b)
-                    .orElse("");
-        } finally {
-            resultsLock.readLock().unlock();
+        private boolean processSnappedCoordinates(List<double[]> snappedCoordinates, double maxDistance) {
+            boolean addedNewRoute = false;
+            try {
+                addedNewRoute = processCoordinatePairs(snappedCoordinates, maxDistance);
+            } catch (Exception e) {
+                LOGGER.error("Error processing snapped coordinates: {}", e.getMessage());
+            }
+            return addedNewRoute;
         }
-    }
 
-    private boolean isGenerationComplete() {
-        resultsLock.readLock().lock();
-        try {
-            return uniqueRoutesByProfile.values().stream()
-                    .allMatch(routes -> routes.size() >= numRoutes);
-        } finally {
-            resultsLock.readLock().unlock();
+        private boolean processCoordinatePairs(List<double[]> snappedCoordinates, double maxDistance) {
+            boolean addedNewRoute = false;
+            // Process all pairs of coordinates
+            for (double[] start : snappedCoordinates) {
+                // Generate a destination point within max distance
+                double[] end = CoordinateGeneratorHelper.randomCoordinateInRadiusAndExtent(
+                        start, maxDistance, extent);
+
+                if (end.length > 0 &&
+                        CoordinateGeneratorHelper.calculateHaversineDistance(start, end) <= maxDistance) {
+
+                    Optional<MatrixCalculator.MatrixResult> matrixResultOpt = matrixCalculator.calculateMatrix(
+                            List.of(start, end), profile);
+
+                    if (matrixResultOpt.isPresent()) {
+                        addedNewRoute |= processMatrixResult(matrixResultOpt.get());
+                    }
+                }
+            }
+            return addedNewRoute;
+        }
+
+        private boolean processMatrixResult(MatrixCalculator.MatrixResult result) {
+
+            if (!result.isValid()) {
+                LOGGER.info("Matrix result is invalid, skipping processing");
+                return false;
+            }
+
+            List<Map<String, Object>> sources = result.getSources();
+            List<Map<String, Object>> destinations = result.getDestinations();
+            List<List<Double>> distances = result.getDistances();
+
+            boolean addedNewRoute = false;
+
+            for (int i = 0; i < destinations.size(); i++) {
+                if (sources.get(i) == null || destinations.get(i) == null ||
+                        distances.get(i) == null || distances.get(i).isEmpty()) {
+                    continue;
+                }
+
+                if (distances.get(i).get(0) != null) {
+                    boolean added = addRouteIfUnique(sources.get(i), destinations.get(i),
+                            distances.get(i).get(0), profile);
+
+                    if (added) {
+                        addedNewRoute = true;
+                    }
+                }
+            }
+            return addedNewRoute;
+        }
+
+        @SuppressWarnings("unchecked")
+        private boolean addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance,
+                String profile) {
+            try {
+                List<Number> startCoord = (List<Number>) start.get(LOCATION_KEY);
+                List<Number> endCoord = (List<Number>) end.get(LOCATION_KEY);
+
+                if (startCoord != null && endCoord != null && startCoord.size() >= 2 && endCoord.size() >= 2) {
+
+                    double[] startPoint = new double[] { startCoord.get(0).doubleValue(),
+                            startCoord.get(1).doubleValue() };
+                    double[] endPoint = new double[] { endCoord.get(0).doubleValue(), endCoord.get(1).doubleValue() };
+
+                    if (distance < minDistance) {
+                        LOGGER.debug("Skipping route with distance {} < minimum {} meters", distance, minDistance);
+                        return false;
+                    }
+
+                    Route route = new Route(startPoint, endPoint, distance, profile);
+                    boolean added = routeRepository.addRouteIfUnique(route);
+
+                    if (added) {
+                        LOGGER.debug("Added new unique route for profile: {}", profile);
+                    } else {
+                        LOGGER.debug("Skipped duplicate route for profile: {}", profile);
+                    }
+
+                    return added;
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error adding route: {}", e.getMessage());
+            }
+            return false;
         }
     }
 
     @Override
     protected void initializeCollections() {
-        resultsLock.writeLock().lock();
-        try {
-            resultsByProfile.values().forEach(List::clear);
-            uniqueRoutesByProfile.values().forEach(Set::clear);
-        } finally {
-            resultsLock.writeLock().unlock();
-        }
-    }
-
-    @Override
-    protected void processNextBatch(CloseableHttpClient client, String profile) throws IOException {
-        // Get max distance for this profile
-        Double maxDistance = maxDistanceByProfile.get(profile);
-        double effectiveMaxDistance = maxDistance != null ? maxDistance : Double.MAX_VALUE;
-        // Generate random coordinates with max distance constraint if applicable
-        List<double[]> randomCoordinates = CoordinateGeneratorHelper.randomCoordinatesInExtent(DEFAULT_MATRIX_SIZE,
-                extent);
-        LOGGER.debug("Generated {} random coordinates for profile: {} with max distance: {}",
-                randomCoordinates.size(), profile, maxDistance != null ? maxDistance : "unlimited");
-
-        // Snap the coordinates to the road network
-        List<double[]> snappedCoordinates = snapCoordinates(client, randomCoordinates, profile);
-        LOGGER.debug("Received {} snapped coordinates for profile: {}", snappedCoordinates.size(), profile);
-
-        // Only proceed if we have enough valid snapped coordinates
-        if (snappedCoordinates.size() < 2) {
-            LOGGER.debug("Not enough valid snapped coordinates to create matrix (minimum 2 needed)");
-            return;
-        }
-
-        // Find the second pair coordinates that are within the max distance and extent.
-        // Store both pairs and use set to avoid duplicates. Use
-        // randomCoordinateInRadiusAndExtent to generate the second pair.
-        for (int i = 0; i < snappedCoordinates.size(); i++) {
-            double[] start = snappedCoordinates.get(i);
-            double[] end = CoordinateGeneratorHelper.randomCoordinateInRadiusAndExtent(start, effectiveMaxDistance,
-                    extent);
-            if (end.length > 0
-                    && CoordinateGeneratorHelper.calculateHaversineDistance(start, end) <= effectiveMaxDistance) {
-                String response = sendMatrixRequest(client, List.of(start, end), profile);
-                if (response != null) {
-                    processMatrixResponse(response, profile);
-                }
-            }
-        }
-    }
-
-    /**
-     * Sends a request to the snapping API to snap coordinates to the road network.
-     * 
-     * @param client      HTTP client to use
-     * @param coordinates Coordinates to snap
-     * @param profile     Profile to use for snapping
-     * @return List of snapped coordinates, may be smaller than input if some
-     *         coordinates couldn't be snapped
-     * @throws IOException If an error occurs during the request
-     */
-    private List<double[]> snapCoordinates(CloseableHttpClient client, List<double[]> coordinates, String profile)
-            throws IOException {
-        LOGGER.debug("Snapping {} coordinates for profile: {}", coordinates.size(), profile);
-
-        // Create the snap request
-        HttpPost request = createSnapRequest(coordinates, profile);
-
-        // Execute the request and get the response
-        String response = client.execute(request, this::processResponse);
-        if (response == null) {
-            LOGGER.debug("Received null response from snap API");
-            return Collections.emptyList();
-        }
-
-        // Parse and process the snap response
-        return processSnapResponse(response);
-    }
-
-    /**
-     * Creates an HTTP request for the snap API.
-     * 
-     * @param coordinates Coordinates to snap
-     * @param profile     Profile to use for snapping
-     * @return HttpPost object configured for the snap request
-     * @throws JsonProcessingException If the JSON serialization fails
-     */
-    private HttpPost createSnapRequest(List<double[]> coordinates, String profile) throws JsonProcessingException {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put(LOCATIONS_KEY, coordinates);
-        payload.put("radius", DEFAULT_SNAP_RADIUS);
-
-        HttpPost request = new HttpPost(baseUrl + "/v2/snap/" + profile);
-        headers.forEach(request::addHeader);
-        request.setEntity(new StringEntity(mapper.writeValueAsString(payload), ContentType.APPLICATION_JSON));
-        return request;
-    }
-
-    /**
-     * Processes the response from the snap API.
-     * 
-     * @param response JSON response string
-     * @return List of snapped coordinates
-     * @throws JsonProcessingException If the JSON parsing fails
-     */
-    @SuppressWarnings("unchecked")
-    private List<double[]> processSnapResponse(String response) throws JsonProcessingException {
-        List<double[]> snappedCoordinates = new ArrayList<>();
-
-        Map<String, Object> responseMap = mapper.readValue(response,
-                new TypeReference<Map<String, Object>>() {
-                });
-
-        Object locationsObj = responseMap.get(LOCATIONS_KEY);
-        if (!(locationsObj instanceof List<?>)) {
-            LOGGER.debug("Snap response contained no valid locations array");
-            return snappedCoordinates;
-        }
-
-        List<Map<String, Object>> locations = (List<Map<String, Object>>) locationsObj;
-        for (Map<String, Object> location : locations) {
-            if (location == null) {
-                LOGGER.debug("Invalid location in snap response");
-                continue;
-            }
-            List<Number> coords = (List<Number>) location.get(LOCATION_KEY);
-            if (coords != null && coords.size() >= 2) {
-                double[] point = new double[] { coords.get(0).doubleValue(), coords.get(1).doubleValue() };
-                snappedCoordinates.add(point);
-                LOGGER.debug("Added snapped coordinate: [{}, {}]", point[0], point[1]);
-            } else {
-                LOGGER.debug("Invalid location in snap response");
-            }
-        }
-
-        return snappedCoordinates;
-
-    }
-
-    private String sendMatrixRequest(CloseableHttpClient client, List<double[]> coordinates, String profile)
-            throws IOException {
-        HttpPost request = createMatrixRequest(coordinates, profile);
-        return client.execute(request, this::processResponse);
-    }
-
-    private HttpPost createMatrixRequest(List<double[]> coordinates, String profile) throws JsonProcessingException {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put(LOCATIONS_KEY, coordinates);
-        payload.put("metrics", new String[] { "distance" });
-
-        HttpPost request = new HttpPost(baseUrl + "/v2/matrix/" + profile);
-        headers.forEach(request::addHeader);
-        request.setEntity(new StringEntity(mapper.writeValueAsString(payload), ContentType.APPLICATION_JSON));
-        return request;
-    }
-
-    private void processMatrixResponse(String response, String profile) throws JsonProcessingException {
-        LOGGER.debug("Processing matrix response for profile: {}", profile);
-        Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<Map<String, Object>>() {
-        });
-
-        List<List<Double>> distances = extractDistances(responseMap);
-        List<Map<String, Object>> destinationCoordinates = extractLocations(responseMap, "destinations");
-        List<Map<String, Object>> sourceCoordinates = extractLocations(responseMap, "sources");
-        if (distances == null || destinationCoordinates == null || destinationCoordinates.isEmpty()) {
-            LOGGER.debug("Invalid matrix response - missing distances or locations");
-            return;
-        }
-
-        if (destinationCoordinates.size() != sourceCoordinates.size()) {
-            LOGGER.debug("Invalid matrix response - different number of source and destination coordinates");
-            return;
-        }
-
-        for (int i = 0; i < destinationCoordinates.size(); i++) {
-            if (sourceCoordinates.get(i) == null || destinationCoordinates.get(i) == null || distances.get(i) == null
-                    || distances.get(i).get(0) == null) {
-                LOGGER.debug("Invalid matrix response - source {}, destination {}, distance {}",
-                        sourceCoordinates.get(i), destinationCoordinates.get(i), distances.get(i));
-                continue;
-            }
-            addRouteIfUnique(sourceCoordinates.get(i), destinationCoordinates.get(i), distances.get(i).get(0), profile);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<List<Double>> extractDistances(Map<String, Object> responseMap) {
-        Object distancesObj = responseMap.get("distances");
-        if (distancesObj instanceof List<?>) {
-            return (List<List<Double>>) distancesObj;
-        }
-        return Collections.emptyList();
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> extractLocations(Map<String, Object> responseMap, String key) {
-        Object locationsObj = responseMap.get(key);
-        if (locationsObj instanceof List<?>) {
-            return (List<Map<String, Object>>) locationsObj;
-        }
-        return Collections.emptyList();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void addRouteIfUnique(Map<String, Object> start, Map<String, Object> end, double distance, String profile) {
-        List<Number> startCoord = (List<Number>) start.get(LOCATION_KEY);
-        List<Number> endCoord = (List<Number>) end.get(LOCATION_KEY);
-
-        if (startCoord != null && endCoord != null && startCoord.size() >= 2 && endCoord.size() >= 2) {
-            double[] startPoint = new double[] { startCoord.get(0).doubleValue(), startCoord.get(1).doubleValue() };
-            double[] endPoint = new double[] { endCoord.get(0).doubleValue(), endCoord.get(1).doubleValue() };
-
-            LOGGER.debug("Evaluating route: [{}, {}] -> [{}, {}], distance: {}, profile: {}",
-                    startPoint[0], startPoint[1], endPoint[0], endPoint[1], distance, profile);
-
-            if (distance < minDistance) {
-                LOGGER.debug("Skipping route with distance {} < minimum {} meters", distance, minDistance);
-                return;
-            }
-
-            RoutePair routePair = new RoutePair(startPoint, endPoint);
-
-            resultsLock.writeLock().lock();
-            try {
-                if (uniqueRoutesByProfile.get(profile).add(routePair)) {
-                    LOGGER.debug("Added new unique route for profile: {}", profile);
-                    resultsByProfile.get(profile).add(new Route(startPoint, endPoint, distance, profile));
-                } else {
-                    LOGGER.debug("Skipped duplicate route for profile: {}", profile);
-                }
-            } finally {
-                resultsLock.writeLock().unlock();
-            }
-        }
+        routeRepository.clear();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected List<Route> getResult() {
-        resultsLock.readLock().lock();
-        try {
-            List<Route> combined = new ArrayList<>();
-            resultsByProfile.forEach((String userProfile, List<Route> routes) -> routes.stream()
-                    .limit(numRoutes)
-                    .forEach(combined::add));
-            return combined;
-        } finally {
-            resultsLock.readLock().unlock();
-        }
+        return routeRepository.getAllRoutes(numRoutes);
     }
 
     @Override
     protected void writeToCSV(String filePath) throws FileNotFoundException {
-        LOGGER.debug("Writing routes to CSV file: {}", filePath);
-        resultsLock.readLock().lock();
-        try (PrintWriter pw = new PrintWriter(filePath)) {
-            pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
-            for (Map.Entry<String, List<Route>> entry : resultsByProfile.entrySet()) {
-                entry.getValue().stream()
-                        .limit(numRoutes)
-                        .forEach(route -> pw.printf("%f,%f,%f,%f,%.2f,%s%n",
-                                route.start[0], route.start[1],
-                                route.end[0], route.end[1],
-                                route.distance,
-                                route.profile));
-            }
-        } finally {
-            resultsLock.readLock().unlock();
-        }
+        routeRepository.writeToCSV(filePath, numRoutes);
     }
 
     public static void main(String[] args) {
