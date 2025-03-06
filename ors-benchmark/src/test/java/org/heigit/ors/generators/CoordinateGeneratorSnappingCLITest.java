@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class CoordinateGeneratorSnappingCLITest {
@@ -15,8 +16,8 @@ class CoordinateGeneratorSnappingCLITest {
     void testValidCliArguments() {
         String[] args = {
             "-n", "100",
-            "-e", "8.6", "49.3", "8.7", "49.4",
-            "-p", "driving-car,cycling-regular",
+                "-e", "8.6,49.3,8.7,49.4",
+                    "-p", "driving-car,cycling-regular",
             "-r", "350",
             "-u", "http://localhost:8080/ors"
         };
@@ -33,8 +34,8 @@ class CoordinateGeneratorSnappingCLITest {
     void testCustomOutputFile() {
         String[] args = {
             "-n", "100",
-            "-e", "8.6", "49.3", "8.7", "49.4",
-            "-p", "driving-car",
+                "-e", "8.6,49.3,8.7,49.4",
+                    "-p", "driving-car",
             "-o", "custom_output.csv"
         };
 
@@ -52,8 +53,8 @@ class CoordinateGeneratorSnappingCLITest {
     void testProfileParsing(String profileInput) {
         String[] args = {
             "-n", "100",
-            "-e", "8.6", "49.3", "8.7", "49.4",
-            "-p", profileInput
+                "-e", "8.6,49.3,8.7,49.4",
+                    "-p", profileInput
         };
 
         CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
@@ -77,7 +78,7 @@ class CoordinateGeneratorSnappingCLITest {
     void testMissingRequiredArgument() {
         String[] args = {
             "-n", "100",
-            "-e", "8.6", "49.3", "8.7", "49.4"
+                "-e", "8.6,49.3,8.7,49.4"
             // Missing required -p argument
         };
 
@@ -90,8 +91,8 @@ class CoordinateGeneratorSnappingCLITest {
     void testInvalidNumberFormat() {
         String[] args = {
             "-n", "invalid",
-            "-e", "8.6", "49.3", "8.7", "49.4",
-            "-p", "driving-car"
+                "-e", "8.6,49.3,8.7,49.4",
+                    "-p", "driving-car"
         };
 
         CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
@@ -99,29 +100,86 @@ class CoordinateGeneratorSnappingCLITest {
         assertNotNull(exception);
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            // Format: extent string, expected values
+            "'8.6,49.3,8.7,49.4', 8.6, 49.3, 8.7, 49.4",
+            "'8.6 49.3 8.7 49.4', 8.6, 49.3, 8.7, 49.4",
+            "'8.6, 49.3, 8.7, 49.4', 8.6, 49.3, 8.7, 49.4"
+    })
+    void testExtentParsing(String extentInput, double minLon, double minLat, double maxLon, double maxLat) {
+        String[] args = {
+                "-n", "100",
+                "-e", extentInput,
+                "-p", "driving-car"
+        };
+        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        double[] extent = cli.parseExtent(extentInput);
+
+        assertEquals(minLon, extent[0], 0.001, "Min longitude should match");
+        assertEquals(minLat, extent[1], 0.001, "Min latitude should match");
+        assertEquals(maxLon, extent[2], 0.001, "Max longitude should match");
+        assertEquals(maxLat, extent[3], 0.001, "Max latitude should match");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "8.6,49.3,8.7", // Too few values
+            "8.6,49.3,8.7,49.4,8.8", // Too many values
+            "8.6,invalid,8.7,49.4", // Non-numeric value
+            "", // Empty string
+            "   " // Blank string
+    })
+    void testInvalidExtentParsing(String extentInput) {
+        String[] args = {
+                "-n", "100",
+                "-e", extentInput,
+                "-p", "driving-car"
+        };
+        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> cli.parseExtent(extentInput),
+                "Should throw exception for invalid extent format");
+        assertNotNull(exception);
+    }
+
     @Test
-    void testInvalidExtentValues() {
+    void testFlexibleExtentCommandLine() {
+        String[] args = {
+                "-n", "100",
+                "-e", "8.6,49.3,8.7,49.4", // comma-separated extent
+                "-p", "driving-car"
+        };
+
+        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        CoordinateGeneratorSnapping generator = cli.createGenerator();
+        assertNotNull(generator);
+    }
+
+    @Test
+    void testSpaceExtentCommandLine() {
         String[] args = {
             "-n", "100",
-            "-e", "8.6", "49.3", "8.7", // Missing one extent value
+                "-e", "8.6 49.3 8.7 49.4", // space-separated extent
             "-p", "driving-car"
         };
 
-        CommandLineParsingException exception = assertThrows(
-                CommandLineParsingException.class, () -> new CoordinateGeneratorSnappingCLI(args));
-        assertNotNull(exception);
+        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        CoordinateGeneratorSnapping generator = cli.createGenerator();
+        assertNotNull(generator);
     }
 
     @Test
     void testEmptyProfileList() {
         String[] args = {
             "-n", "100",
-            "-e", "8.6", "49.3", "8.7", "49.4",
-            "-p", ""
+                "-e", "8.6 49.3 8.7 49.4",
+                    "-p", ""
         };
-        CoordinateGeneratorSnappingCLI coordinateGeneratorSnappingCLI = new CoordinateGeneratorSnappingCLI(args);
+        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                coordinateGeneratorSnappingCLI::createGenerator);
+                cli::createGenerator);
         assertNotNull(exception);
     }
 }

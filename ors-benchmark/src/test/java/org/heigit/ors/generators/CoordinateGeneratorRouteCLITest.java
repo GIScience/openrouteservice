@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 import org.heigit.ors.exceptions.CommandLineParsingException;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -21,7 +22,7 @@ class CoordinateGeneratorRouteCLITest {
     void testValidCliArguments() {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-p", "driving-car,cycling-regular",
                 "-u", "http://localhost:8080/ors",
                 "-d", "100",
@@ -41,7 +42,7 @@ class CoordinateGeneratorRouteCLITest {
     void testCustomOutputFile() {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-p", "driving-car",
                 "-o", "custom_routes.csv"
         };
@@ -59,7 +60,7 @@ class CoordinateGeneratorRouteCLITest {
     void testProfileParsing(String profileInput, String maxDistances) {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-m", maxDistances,
                 "-p", profileInput
         };
@@ -94,7 +95,7 @@ class CoordinateGeneratorRouteCLITest {
     void testInvalidNumberFormat() {
         String[] args = {
                 "-n", "invalid",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-p", "driving-car"
         };
 
@@ -111,8 +112,10 @@ class CoordinateGeneratorRouteCLITest {
                 "-p", "driving-car"
         };
 
-        CommandLineParsingException exception = assertThrows(
-                CommandLineParsingException.class, () -> new CoordinateGeneratorRouteCLI(args));
+        CoordinateGeneratorRouteCLI coordinateGeneratorRouteCLI = new CoordinateGeneratorRouteCLI(args);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class, coordinateGeneratorRouteCLI::createGenerator);
         assertNotNull(exception);
     }
 
@@ -120,7 +123,7 @@ class CoordinateGeneratorRouteCLITest {
     void testEmptyProfileList() {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-p", ""
         };
         CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
@@ -134,8 +137,8 @@ class CoordinateGeneratorRouteCLITest {
     void testMinDistanceParsing(String minDistance) {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
-                "-p", "driving-car",
+                "-e", "8.6 49.3 8.7 49.4",
+                        "-p", "driving-car",
                 "-d", minDistance,
                 "-m", "5000"
         };
@@ -161,7 +164,7 @@ class CoordinateGeneratorRouteCLITest {
     void testMaxDistancesParsing(String maxDistances) {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-p", "driving-car,cycling-regular",
                 "-m", maxDistances
         };
@@ -189,7 +192,7 @@ class CoordinateGeneratorRouteCLITest {
     void testMismatchedMaxDistancesAndProfiles(String maxDistances) {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-p", "driving-car,cycling-regular", // 2 profiles
                 "-m", maxDistances
         };
@@ -208,7 +211,7 @@ class CoordinateGeneratorRouteCLITest {
     void testInvalidMaxDistance() {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-p", "driving-car",
                 "-m", "invalid"
         };
@@ -222,7 +225,7 @@ class CoordinateGeneratorRouteCLITest {
     void testThreadCount() {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-p", "driving-car",
                 "-m", "5000",
                 "-t", "8"
@@ -237,7 +240,7 @@ class CoordinateGeneratorRouteCLITest {
     void testInvalidThreadCount() {
         String[] args = {
                 "-n", "50",
-                "-e", "8.6", "49.3", "8.7", "49.4",
+                "-e", "8.6 49.3 8.7 49.4",
                 "-p", "driving-car",
                 "-m", "1000",
                 "-t", "invalid"
@@ -248,5 +251,80 @@ class CoordinateGeneratorRouteCLITest {
                 cli::createGenerator);
         assertNotNull(exception);
         assertTrue(exception.getMessage().contains("Invalid number of threads"));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            // Format: extent string, expected values
+            "'8.6,49.3,8.7,49.4', 8.6, 49.3, 8.7, 49.4",
+            "'8.6 49.3 8.7 49.4', 8.6, 49.3, 8.7, 49.4",
+            "'8.6, 49.3, 8.7, 49.4', 8.6, 49.3, 8.7, 49.4"
+    })
+    void testExtentParsing(String extentInput, double minLon, double minLat, double maxLon, double maxLat) {
+        String[] args = {
+                "-n", "50",
+                "-e", extentInput,
+                "-p", "driving-car",
+                "-m", "1000"
+        };
+        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        double[] extent = cli.parseExtent(extentInput);
+
+        assertArrayEquals(
+                new double[] { minLon, minLat, maxLon, maxLat },
+                extent,
+                0.001,
+                "Extent should be parsed correctly regardless of format");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "8.6,49.3,8.7", // Too few values
+            "8.6,49.3,8.7,49.4,8.8", // Too many values
+            "8.6,invalid,8.7,49.4", // Non-numeric value
+            "", // Empty string
+            "   " // Blank string
+    })
+    void testInvalidExtentParsing(String extentInput) {
+        String[] args = {
+                "-n", "50",
+                "-e", extentInput,
+                "-p", "driving-car",
+                "-m", "1000"
+        };
+        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> cli.parseExtent(extentInput),
+                "Should throw exception for invalid extent format");
+        assertNotNull(exception);
+    }
+
+    @Test
+    void testFlexibleExtentCommandLine() {
+        String[] args = {
+                "-n", "50",
+                "-e", "8.6,49.3,8.7,49.4", // comma-separated extent
+                "-p", "driving-car",
+                "-m", "5000"
+        };
+
+        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        CoordinateGeneratorRoute generator = cli.createGenerator();
+        assertNotNull(generator);
+    }
+
+    @Test
+    void testSpaceExtentCommandLine() {
+        String[] args = {
+                "-n", "50",
+                "-e", "8.6 49.3 8.7 49.4", // space-separated extent
+                "-p", "driving-car",
+                "-m", "5000"
+        };
+
+        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        CoordinateGeneratorRoute generator = cli.createGenerator();
+        assertNotNull(generator);
     }
 }
