@@ -33,7 +33,7 @@ class BenchmarkEnumsTest {
         List<String> basicProfiles = BenchmarkEnums.DirectionsModes.ALGO_CH.getProfiles();
         assertTrue(basicProfiles.contains("driving-car"));
         assertTrue(basicProfiles.contains("foot-walking"));
-        assertEquals(8, basicProfiles.size());
+        assertEquals(2, basicProfiles.size());
     }
 
     @Test
