@@ -354,6 +354,12 @@ class CoordinateGeneratorRouteTest {
             super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile);
         }
 
+        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles,
+                String baseUrl, double minDistance,
+                Map<String, Double> maxDistanceByProfile, int numThreads) {
+            super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, numThreads);
+        }
+
         void setHttpClient(CloseableHttpClient client) {
             this.testClient = client;
         }
