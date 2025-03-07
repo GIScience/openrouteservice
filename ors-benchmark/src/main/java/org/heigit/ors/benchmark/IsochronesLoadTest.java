@@ -6,16 +6,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.heigit.ors.benchmark.BenchmarkEnums.RangeType;
 import static org.heigit.ors.benchmark.util.NameUtils.getFileNameWithoutExtension;
 import org.heigit.ors.benchmark.util.SourceUtils;
 import org.heigit.ors.exceptions.RequestBodyCreationException;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
@@ -25,25 +24,64 @@ import static io.gatling.javaapi.core.CoreDsl.scenario;
 import io.gatling.javaapi.core.PopulationBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Session;
-import io.gatling.javaapi.core.Simulation;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
-import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
 
-public class IsochronesLoadTest extends Simulation {
-    private static final Logger logger = LoggerFactory.getLogger(IsochronesLoadTest.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+public class IsochronesLoadTest extends AbstractLoadTest {
 
-    private final TestConfig config = new TestConfig();
-    private final HttpProtocolBuilder httpProtocol = createHttpProtocol();
+    static {
+        logger = LoggerFactory.getLogger(IsochronesLoadTest.class);
+    }
 
-    private HttpProtocolBuilder createHttpProtocol() {
-        return http.baseUrl(config.getBaseUrl())
-                .acceptHeader("application/geo+json; charset=utf-8")
-                .contentTypeHeader("application/json; charset=utf-8")
-                .userAgentHeader("Gatling")
-                .header("Authorization", config.getApiKey());
+    public IsochronesLoadTest() {
+        super();
+    }
+
+    @Override
+    protected void logConfigInfo() {
+        logger.info("Initializing IsochronesLoadTest with configuration:");
+        logger.info("- Source files: {}", config.getSourceFiles());
+        logger.info("- Target profile: {}", config.getTargetProfile());
+        logger.info("- Concurrent users: {}", config.getNumConcurrentUsers());
+        logger.info("- Query sizes: {}", config.getQuerySizes());
+        logger.info("- Ranges: {}", config.getRanges());
+        logger.info("- Test unit: {}", config.getTestUnit());
+        logger.info("- Base URL: {}", config.getBaseUrl());
+        logger.info("- Execution mode: {}", config.isParallelExecution() ? "parallel" : "sequential");
+    }
+
+    @Override
+    protected void logTestTypeInfo() {
+        logger.info("Testing {} isochrones", config.getTestUnit());
+    }
+
+    @Override
+    protected Stream<PopulationBuilder> createScenarios(boolean isParallel) {
+        return createScenariosForTestUnit().stream()
+                .flatMap(rangeType -> config.getSourceFiles().stream()
+                        .flatMap(sourceFile -> config.getQuerySizes().stream()
+                                .map(querySize -> createScenarioWithInjection(sourceFile, querySize, isParallel,
+                                        rangeType))));
+    }
+
+    private List<RangeType> createScenariosForTestUnit() {
+        return switch (config.getTestUnit()) {
+            case DISTANCE -> List.of(RangeType.DISTANCE);
+            case TIME -> List.of(RangeType.TIME);
+        };
+    }
+
+    private PopulationBuilder createScenarioWithInjection(String sourceFile, int querySize, boolean isParallel,
+            RangeType rangeType) {
+        String scenarioName = formatScenarioName(sourceFile, querySize);
+        return createIsochroneScenario(scenarioName, querySize, sourceFile, config, rangeType, isParallel)
+                .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers()).during(Duration.ofSeconds(1)));
+    }
+
+    private String formatScenarioName(String sourceFile, int querySize) {
+        String fileName = getFileNameWithoutExtension(sourceFile);
+        return String.format("Locations (%d) | %s", querySize, fileName);
     }
 
     private static ScenarioBuilder createIsochroneScenario(String name, int locationCount, String sourceFile,
@@ -165,77 +203,5 @@ public class IsochronesLoadTest extends Simulation {
         }
 
         return locations;
-    }
-
-
-    private String formatScenarioName(String sourceFile, int querySize) {
-        String fileName = getFileNameWithoutExtension(sourceFile);
-        return String.format("Locations (%d) | %s", querySize, fileName);
-    }
-
-    private PopulationBuilder createScenarioWithInjection(String sourceFile, int querySize, boolean isParallel,
-            RangeType rangeType) {
-        String scenarioName = formatScenarioName(sourceFile, querySize);
-        return createIsochroneScenario(scenarioName, querySize, sourceFile, config, rangeType, isParallel)
-                .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers()).during(Duration.ofSeconds(1)));
-    }
-
-    private void executeParallelScenarios() {
-        List<PopulationBuilder> scenarios = createScenariosForTestUnit().stream()
-                .flatMap(rangeType -> config.getSourceFiles().stream()
-                        .flatMap(sourceFile -> config.getQuerySizes().stream()
-                                .map(querySize -> createScenarioWithInjection(sourceFile, querySize, true, rangeType))))
-                .toList();
-
-        setUp(scenarios.toArray(PopulationBuilder[]::new))
-                .protocols(httpProtocol);
-    }
-
-    private void executeSequentialScenarios() {
-        PopulationBuilder chainedScenario = createScenariosForTestUnit().stream()
-                .flatMap(rangeType -> config.getSourceFiles().stream()
-                        .flatMap(sourceFile -> config.getQuerySizes().stream()
-                                .map(querySize -> createScenarioWithInjection(sourceFile, querySize, false,
-                                        rangeType))))
-                .reduce(PopulationBuilder::andThen)
-                .orElseThrow(() -> new IllegalStateException("No scenarios to run"));
-
-        setUp(chainedScenario).protocols(httpProtocol);
-    }
-
-    private List<RangeType> createScenariosForTestUnit() {
-        return switch (config.getTestUnit()) {
-            case DISTANCE -> List.of(RangeType.DISTANCE);
-            case TIME -> List.of(RangeType.TIME);
-        };
-    }
-
-    public IsochronesLoadTest() {
-        logger.info("Initializing IsochronesLoadTest with configuration:");
-        logger.info("- Source files: {}", config.getSourceFiles());
-        logger.info("- Target profile: {}", config.getTargetProfile());
-        logger.info("- Concurrent users: {}", config.getNumConcurrentUsers());
-        logger.info("- Query sizes: {}", config.getQuerySizes());
-        logger.info("- Ranges: {}", config.getRanges());
-        logger.info("- Test unit: {}", config.getTestUnit());
-        logger.info("- Base URL: {}", config.getBaseUrl());
-        logger.info("- Execution mode: {}", config.isParallelExecution() ? "parallel" : "sequential");
-
-        if (config.isParallelExecution()) {
-            executeParallelScenarios();
-        } else {
-            executeSequentialScenarios();
-        }
-    }
-
-    @Override
-    public void before() {
-        logger.info("Starting Gatling simulation...");
-        logger.info("Testing {} isochrones", config.getTestUnit());
-    }
-
-    @Override
-    public void after() {
-        logger.info("Gatling simulation completed.");
     }
 }
