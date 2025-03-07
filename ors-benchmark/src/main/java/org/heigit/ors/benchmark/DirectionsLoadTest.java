@@ -12,11 +12,9 @@ import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
 import static org.heigit.ors.benchmark.util.NameUtils.getFileNameWithoutExtension;
 import org.heigit.ors.benchmark.util.SourceUtils;
 import org.heigit.ors.exceptions.RequestBodyCreationException;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
@@ -26,66 +24,35 @@ import static io.gatling.javaapi.core.CoreDsl.scenario;
 import io.gatling.javaapi.core.PopulationBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Session;
-import io.gatling.javaapi.core.Simulation;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
-import io.gatling.javaapi.http.HttpProtocolBuilder;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
 
-public class DirectionsLoadTest extends Simulation {
-    private static final Logger logger = LoggerFactory.getLogger(DirectionsLoadTest.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+public class DirectionsLoadTest extends AbstractLoadTest {
 
-    private final TestConfig config = new TestConfig();
-    private final HttpProtocolBuilder httpProtocol = http.baseUrl(config.getBaseUrl())
-            .acceptHeader("application/geo+json; charset=utf-8")
-            .contentTypeHeader("application/json; charset=utf-8")
-            .userAgentHeader("Gatling")
-            .header("Authorization", config.getApiKey());
+    static {
+        logger = LoggerFactory.getLogger(DirectionsLoadTest.class);
+    }
 
     public DirectionsLoadTest() {
+        super();
+    }
+
+    @Override
+    protected void logConfigInfo() {
         logger.info("Initializing DirectionsLoadTest:");
         logger.info("- Source files: {}", config.getSourceFiles());
         logger.info("- Concurrent users: {}", config.getNumConcurrentUsers());
         logger.info("- Execution mode: {}", config.isParallelExecution() ? "parallel" : "sequential");
-
-        try {
-            if (config.isParallelExecution()) {
-                executeParallelScenarios();
-            } else {
-                executeSequentialScenarios();
-            }
-        } catch (Exception e) {
-            logger.error("Failed to initialize Gatling simulation: {}", e.getMessage());
-            System.exit(1);
-        }
     }
 
     @Override
-    public void before() {
-        logger.info("Starting Gatling simulation...");
+    protected void logTestTypeInfo() {
         logger.info("Testing directions");
     }
 
     @Override
-    public void after() {
-        logger.info("Gatling simulation completed.");
-    }
-
-    private void executeParallelScenarios() {
-        List<PopulationBuilder> scenarios = createScenarios(true).toList();
-        if (scenarios.isEmpty()) throw new IllegalStateException("No scenarios to run");
-        setUp(scenarios.toArray(PopulationBuilder[]::new)).protocols(httpProtocol);
-    }
-
-    private void executeSequentialScenarios() {
-        PopulationBuilder chainedScenario = createScenarios(false)
-                .reduce(PopulationBuilder::andThen)
-                .orElseThrow(() -> new IllegalStateException("No scenarios to run"));
-        setUp(chainedScenario).protocols(httpProtocol);
-    }
-
-    private Stream<PopulationBuilder> createScenarios(boolean isParallel) {
+    protected Stream<PopulationBuilder> createScenarios(boolean isParallel) {
         return config.getDirectionsModes().stream()
                 .flatMap(mode -> config.getSourceFiles().stream()
                         .flatMap(sourceFile -> mode.getProfiles().stream()
@@ -93,12 +60,12 @@ public class DirectionsLoadTest extends Simulation {
     }
 
     private PopulationBuilder createScenarioWithInjection(String sourceFile, boolean isParallel, DirectionsModes mode, String profile) {
-        String scenarioName = formatScenarioName(sourceFile, mode, profile);
+        String scenarioName = formatScenarioName(mode, profile);
         return createDirectionScenario(scenarioName, sourceFile, config, isParallel, mode, profile)
                 .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers()).during(Duration.ofSeconds(1)));
     }
 
-    private String formatScenarioName(String sourceFile, DirectionsModes mode, String profile) {
+    private String formatScenarioName(DirectionsModes mode, String profile) {
         return String.format("%s - %s", mode.name(), profile);
     }
 
@@ -116,7 +83,8 @@ public class DirectionsLoadTest extends Simulation {
 
             AtomicInteger remainingRecords = new AtomicInteger(targetRecords.size());
 
-            logger.info("Processing {} coordinates for profile {}", remainingRecords.get(), profile);
+            logger.info("Scenario {}: Processing {} coordinates for profile {}", name, remainingRecords.get(),
+                    profile);
 
             return scenario(name)
                     .asLongAs(session -> remainingRecords.get() >= 1)
