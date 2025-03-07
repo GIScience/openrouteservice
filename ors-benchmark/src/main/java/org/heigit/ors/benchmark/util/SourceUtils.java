@@ -1,5 +1,6 @@
 package org.heigit.ors.benchmark.util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -23,28 +24,28 @@ public class SourceUtils {
             throws IllegalStateException {
         // Read all records from CSV
         List<Map<String, Object>> records = csv(sourceFile).readRecords();
-        logger.info("Read {} records from CSV file", records.size());
+        logger.debug("Read {} records from CSV file", records.size());
 
         if (records.isEmpty()) {
             throw new IllegalStateException("No records found in CSV file: " + sourceFile);
         }
 
         // Sample log of first record for debugging
-        logger.info("Sample record structure: {}", records.get(0).keySet());
+        logger.debug("Sample record structure: {}", records.get(0).keySet());
 
         // Group records by profile if profile column exists, otherwise use all records
         Map<String, List<Map<String, Object>>> recordsByProfile;
         if (records.isEmpty() || !records.get(2).containsKey(PROFILE_COLUMN)) {
             // If no profile column exists, put all records under a default key
             recordsByProfile = Map.of("all", records);
-            logger.info("No profile column found in CSV, using all {} coordinates", records.size());
+            logger.debug("No profile column found in CSV, using all {} coordinates", records.size());
         } else {
             // Group records by profile
             recordsByProfile = records.stream()
                     .collect(java.util.stream.Collectors.groupingBy(
                             coordinateRecord -> (String) coordinateRecord.getOrDefault(PROFILE_COLUMN,
                                     targetProfile)));
-            logger.info("Found coordinates for profiles: {}", recordsByProfile.keySet());
+            logger.debug("Found coordinates for profiles: {}", recordsByProfile.keySet());
         }
 
         List<Map<String, Object>> targetRecords = recordsByProfile.getOrDefault(targetProfile,
@@ -55,7 +56,7 @@ public class SourceUtils {
                     "No records found for profile '" + targetProfile + "' in file " + sourceFile);
         }
 
-        logger.info("Selected {} records for profile '{}'", targetRecords.size(), targetProfile);
+        logger.debug("Selected {} records for profile '{}'", targetRecords.size(), targetProfile);
         return targetRecords;
     }
 
@@ -77,10 +78,19 @@ public class SourceUtils {
                                         config.getFieldEndLon(), targetRecord.get(config.getFieldEndLon()),
                                         config.getFieldEndLat(), targetRecord.get(config.getFieldEndLat())))
                                 .toList();
-        Collections.shuffle(mappedRecords);
+        try {
+            // Shuffle the records
+            logger.debug("Shuffling records for profile {}", targetProfile);
+            List<Map<String, Object>> mutableRecords = new ArrayList<>(mappedRecords);
+            Collections.shuffle(mutableRecords);
+            mappedRecords = mutableRecords;
+            logger.debug("Shuffled {} records for profile {}", mappedRecords.size(), targetProfile);
+        } catch (UnsupportedOperationException e) {
+            throw new IllegalStateException("Failed to shuffle records", e);
+        }
 
         Iterator<Map<String, Object>> recordFeeder = IteratorUtils.infiniteCircularIterator(mappedRecords);
-        logger.info("Created circular feeder with {} coordinates for profile {}", mappedRecords.size(), targetProfile);
+        logger.debug("Created circular feeder with {} coordinates for profile {}", mappedRecords.size(), targetProfile);
 
         return recordFeeder;
     }
