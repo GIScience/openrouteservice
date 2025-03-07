@@ -6,7 +6,7 @@ import java.util.Map;
 public class BenchmarkEnums {
 
     // Constant for preference
-    public static final String PREFERENCE = "recommended";
+    public static final String PREFERENCE = "preference";
     // Constant for recommended
     public static final String RECOMMENDED = "recommended";
 
