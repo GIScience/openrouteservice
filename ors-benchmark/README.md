@@ -154,12 +154,16 @@ longitude,latitude
 ...
 ```
 
+Test files:
+
+- `germany_car-foot-bike-hgv_10000_points.csv`: 10,000 points per profile.
+
 Example with batch processing:
 
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesLoadTest \
-  -Dsource_files='heidelberg_points.csv' \
+  -Dsource_files='germany_car-foot-bike-hgv_10000_points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
   -Dquery_sizes='1,2,4,8' \
   -Drange='300,600,900' \
@@ -173,7 +177,7 @@ Example with all parameters:
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesLoadTest \
-  -Dsource_files='points.csv' \
+  -Dsource_files='germany_car-foot-bike-hgv_10000_points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
   -Dprofile='cycling-regular' \
   -Drange=500 \
@@ -188,7 +192,7 @@ Example with sequential execution:
 ```bash
 mvn -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesLoadTest \
-  -Dsource_files='points.csv' \
+  -Dsource_files='germany_car-foot-bike-hgv_10000_points.csv' \
   -Dquery_sizes='1,2,3,4,5' \
   -Dparallel_execution=false \
   -Drun_time=300
@@ -202,6 +206,73 @@ mvn -pl 'ors-benchmark' gatling:test \
   -Dsource_files='points1.csv,points2.csv' \
   -Dbase_url='http://localhost:8080/ors' \
   -Dquery_sizes='1,2,3,4,5' \
+  -Drun_time=300
+```
+
+The test will generate a Gatling report with detailed performance metrics after completion.
+
+### Directions Load Test
+
+A Gatling-based load test for the ORS Directions API. This test sends routing requests for coordinate pairs with configurable options including different profiles and routing modes.
+
+#### Directions Load Test Usage
+
+Options:
+
+- `source_files`: Comma-separated list of CSV files containing coordinate pairs (required). The CSV file is read either from `./` or from `resources` directory.
+- `base_url`: ORS API base URL (default: http://localhost:8080/ors)
+- `api_key`: API key for authentication
+- `modes`: Comma-separated routing modes: algoch, algocore, algolmastar (default: all)
+- `field_start_lon`: CSV field name for start longitude column (default: start_longitude)
+- `field_start_lat`: CSV field name for start latitude column (default: start_latitude)
+- `field_end_lon`: CSV field name for end longitude column (default: end_longitude)
+- `field_end_lat`: CSV field name for end latitude column (default: end_latitude)
+- `concurrent_users`: Number of concurrent users (default: 1)
+- `parallel_execution`: Run scenarios in parallel or sequential (default: false)
+
+CSV File Format:
+
+```csv
+start_longitude,start_latitude,end_longitude,end_latitude,profile
+8.681495,49.41461,8.686507,49.41943,driving-car
+8.686507,49.41943,8.691528,49.41567,driving-car
+...
+```
+
+Test files:
+
+- `germany_car600-bike10-foot5-hgv600_10000_routes.csv`: 10,000 routes per profile. The maximum distance between start and endpoint is 600 km for car, 10 km for bike, 5 km for foot, and 600 km for hgv profiles.
+
+Example with default parameters:
+
+```bash
+mvn -pl 'ors-benchmark' gatling:test \
+  -Dgatling.simulationClass=org.heigit.ors.benchmark.DirectionsLoadTest \
+  -Dsource_files='germany_car600-bike10-foot5-hgv600_10000_routes.csv' \
+  -Dbase_url='http://localhost:9082/ors'
+```
+
+Example with custom field names:
+
+```bash
+mvn -pl 'ors-benchmark' gatling:test \
+  -Dgatling.simulationClass=org.heigit.ors.benchmark.DirectionsLoadTest \
+  -Dsource_files='germany_car600-bike10-foot5-hgv600_10000_routes.csv' \
+  -Dfield_start_lon='from_lon' \
+  -Dfield_start_lat='from_lat' \
+  -Dfield_end_lon='to_lon' \
+  -Dfield_end_lat='to_lat' \
+  -Dmode='algolmastar'
+```
+
+Example with multiple modes:
+
+```bash
+mvn -pl 'ors-benchmark' gatling:test \
+  -Dgatling.simulationClass=org.heigit.ors.benchmark.DirectionsLoadTest \
+  -Dsource_files='germany_car600-bike10-foot5-hgv600_10000_routes.csv' \
+  -Dparallel_execution=false \
+  -Dmodes='algoch,algocore' \
   -Drun_time=300
 ```
 
