@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -119,7 +120,7 @@ public class RouteRepository {
             pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
             
             routesByProfile.forEach((profile, routes) -> 
-                routes.forEach(route -> pw.printf("%f,%f,%f,%f,%.2f,%s%n",
+                routes.forEach(route -> pw.printf(Locale.US, "%f,%f,%f,%f,%.2f,%s%n",
                     route.getStart()[0], route.getStart()[1],
                     route.getEnd()[0], route.getEnd()[1],
                     route.getDistance(),
@@ -137,7 +138,7 @@ public class RouteRepository {
             pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
             
             routesByProfile.forEach((profile, routes) -> 
-                routes.stream().limit(limit).forEach(route -> pw.printf("%f,%f,%f,%f,%.2f,%s%n",
+                routes.stream().limit(limit).forEach(route -> pw.printf(Locale.US, "%f,%f,%f,%f,%.2f,%s%n",
                     route.getStart()[0], route.getStart()[1],
                     route.getEnd()[0], route.getEnd()[1],
                     route.getDistance(),
