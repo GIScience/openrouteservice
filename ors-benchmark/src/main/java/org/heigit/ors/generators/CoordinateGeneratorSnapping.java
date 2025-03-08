@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -191,7 +192,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
 
                 points.stream()
                         .limit(numPoints)
-                        .forEach(point -> pw.printf("%f,%f,%s%n", point[0], point[1], userProfile));
+                        .forEach(point -> pw.printf(Locale.US, "%f,%f,%s%n", point[0], point[1], userProfile));
             }
         }
     }
