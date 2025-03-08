@@ -17,7 +17,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
+import static io.gatling.javaapi.core.CoreDsl.asLongAs;
 import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
+import static io.gatling.javaapi.core.CoreDsl.exec;
 import static io.gatling.javaapi.core.CoreDsl.feed;
 import static io.gatling.javaapi.core.CoreDsl.group;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
@@ -87,15 +89,10 @@ public class DirectionsLoadTest extends AbstractLoadTest {
                     profile);
 
             return scenario(name)
-                    .asLongAs(session -> remainingRecords.get() >= 1)
+                    .asLongAs(session -> remainingRecords.decrementAndGet() > 0)
                     .on(
                             feed(recordFeeder, 1)
-                                    .exec(session -> {
-                                        remainingRecords.getAndAdd(-1);
-                                        return session;
-                                    })
-
-                                    .exec(group(groupName).on(createRequest(name, config, mode, profile))));
+                                    .exec(createRequest(name, config, mode, profile)));
 
         } catch (IllegalStateException e) {
             logger.error("Error building scenario: ", e);
