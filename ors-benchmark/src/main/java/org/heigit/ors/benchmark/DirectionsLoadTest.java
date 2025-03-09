@@ -85,7 +85,8 @@ public class DirectionsLoadTest extends AbstractLoadTest {
 
             return scenario(name)
                     .feed(targetRecords.iterator(), 1)
-                    .exec(createRequest(name, config, mode, profile));
+                    .asLongAs(session -> remainingRecords.decrementAndGet() >= 0)
+                    .on(exec(createRequest(name, config, mode, profile)));
 
         } catch (IllegalStateException e) {
             logger.error("Error building scenario: ", e);
