@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
+import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
 import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
 import static io.gatling.javaapi.core.CoreDsl.feed;
 import static io.gatling.javaapi.core.CoreDsl.group;
@@ -76,7 +77,7 @@ public class IsochronesLoadTest extends AbstractLoadTest {
             RangeType rangeType) {
         String scenarioName = formatScenarioName(sourceFile, querySize);
         return createIsochroneScenario(scenarioName, querySize, sourceFile, config, rangeType, isParallel)
-                .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers()).during(Duration.ofSeconds(1)));
+                .injectOpen(atOnceUsers(config.getNumConcurrentUsers()));
     }
 
     private String formatScenarioName(String sourceFile, int querySize) {
@@ -101,7 +102,6 @@ public class IsochronesLoadTest extends AbstractLoadTest {
         try {
             List<Map<String, Object>> targetRecords = SourceUtils.getRecordsByProfile(sourceFile, config.getTargetProfile());
 
-            Iterator<Map<String, Object>> recordFeeder = SourceUtils.getRecordFeeder(targetRecords, config, config.getTargetProfile());
 
             AtomicInteger remainingRecords = new AtomicInteger(targetRecords.size());
 
@@ -109,16 +109,10 @@ public class IsochronesLoadTest extends AbstractLoadTest {
                     config.getTargetProfile());
 
             return scenario(name)
-                    .asLongAs(session -> remainingRecords.get() >= 1)
+                    .group(groupName)
                     .on(
-                            feed(recordFeeder, locationCount)
-                                    .exec(session -> {
-                                        remainingRecords.getAndAdd(-locationCount);
-                                        return session;
-                                    })
-                                    .exec(
-                                            group(groupName).on(
-                                                    createIsochroneRequest(name, locationCount, config, rangeType))));
+                            feed(targetRecords.iterator(), locationCount)
+                                    .exec(createIsochroneRequest(name, locationCount, config, rangeType)));
         } catch (IllegalStateException e) {
             logger.error(e.getMessage());
             return scenario(name);

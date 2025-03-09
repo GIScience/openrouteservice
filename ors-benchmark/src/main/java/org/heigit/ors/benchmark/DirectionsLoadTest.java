@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.asLongAs;
+import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
 import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
 import static io.gatling.javaapi.core.CoreDsl.exec;
 import static io.gatling.javaapi.core.CoreDsl.feed;
@@ -62,26 +63,20 @@ public class DirectionsLoadTest extends AbstractLoadTest {
     }
 
     private PopulationBuilder createScenarioWithInjection(String sourceFile, boolean isParallel, DirectionsModes mode, String profile) {
-        String scenarioName = formatScenarioName(mode, profile);
-        return createDirectionScenario(scenarioName, sourceFile, config, isParallel, mode, profile)
-                .injectClosed(constantConcurrentUsers(config.getNumConcurrentUsers()).during(Duration.ofSeconds(1)));
+        String scenarioName = formatScenarioName(mode, profile, isParallel);
+        return createDirectionScenario(scenarioName, sourceFile, config, mode, profile)
+                .injectOpen(atOnceUsers(config.getNumConcurrentUsers()));
     }
 
-    private String formatScenarioName(DirectionsModes mode, String profile) {
-        return String.format("%s - %s", mode.name(), profile);
+    private String formatScenarioName(DirectionsModes mode, String profile, boolean isParallel) {
+        return String.format("%s - %s - %s", isParallel ? "Parallel" : "Sequential", mode, profile);
     }
 
     private static ScenarioBuilder createDirectionScenario(String name, String sourceFile, TestConfig config,
-                                                           boolean isParallel, DirectionsModes mode, String profile) {
-        String parallelOrSequential = isParallel ? "parallel" : "sequential";
-        String groupName = String.format("Directions %s %s - %s - Users %s",
-                parallelOrSequential, mode.name(), getFileNameWithoutExtension(sourceFile),
-                config.getNumConcurrentUsers());
+            DirectionsModes mode, String profile) {
 
         try {
             List<Map<String, Object>> targetRecords = SourceUtils.getRecordsByProfile(sourceFile, profile);
-
-            Iterator<Map<String, Object>> recordFeeder = SourceUtils.getRecordFeeder(targetRecords, config, profile);
 
             AtomicInteger remainingRecords = new AtomicInteger(targetRecords.size());
 
@@ -89,10 +84,9 @@ public class DirectionsLoadTest extends AbstractLoadTest {
                     profile);
 
             return scenario(name)
-                    .asLongAs(session -> remainingRecords.decrementAndGet() > 0)
-                    .on(
-                            feed(recordFeeder, 1)
-                                    .exec(createRequest(name, config, mode, profile)));
+                    .feed(targetRecords.iterator(), 1)
+                    .asLongAs(session -> remainingRecords.decrementAndGet() >= 0)
+                    .on(exec(createRequest(name, config, mode, profile)));
 
         } catch (IllegalStateException e) {
             logger.error("Error building scenario: ", e);
