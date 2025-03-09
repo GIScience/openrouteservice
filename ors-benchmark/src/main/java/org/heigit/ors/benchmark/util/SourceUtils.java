@@ -57,6 +57,16 @@ public class SourceUtils {
         }
 
         logger.debug("Selected {} records for profile '{}'", targetRecords.size(), targetProfile);
+        try {
+            // Shuffle the records
+            logger.debug("Shuffling records for profile {}", targetProfile);
+            List<Map<String, Object>> mutableRecords = new ArrayList<>(targetRecords);
+            Collections.shuffle(mutableRecords);
+            targetRecords = mutableRecords;
+            logger.debug("Shuffled {} records for profile {}", targetRecords.size(), targetProfile);
+        } catch (UnsupportedOperationException e) {
+            throw new IllegalStateException("Failed to shuffle records", e);
+        }
         return targetRecords;
     }
 
