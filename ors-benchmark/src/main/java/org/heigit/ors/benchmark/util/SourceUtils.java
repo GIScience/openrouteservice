@@ -8,8 +8,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.gatling.javaapi.core.CoreDsl.csv;
-
 public class SourceUtils {
     private SourceUtils() {
         // Private constructor to hide implicit public one
@@ -18,14 +16,13 @@ public class SourceUtils {
     private static final Logger logger = LoggerFactory.getLogger(SourceUtils.class);
     private static final String PROFILE_COLUMN = "profile";
 
-    public static List<Map<String, Object>> getRecordsByProfile(String sourceFile, String targetProfile)
+    public static List<Map<String, Object>> getRecordsByProfile(List<Map<String, Object>> records, String targetProfile)
             throws IllegalStateException {
         // Read all records from CSV
-        List<Map<String, Object>> records = csv(sourceFile).readRecords();
         logger.debug("Read {} records from CSV file", records.size());
 
         if (records.isEmpty()) {
-            throw new IllegalStateException("No records found in CSV file: " + sourceFile);
+            throw new IllegalStateException("No records found in CSV file: " + records);
         }
 
         // Sample log of first record for debugging
@@ -51,7 +48,7 @@ public class SourceUtils {
 
         if (targetRecords == null || targetRecords.isEmpty()) {
             throw new IllegalStateException(
-                    "No records found for profile '" + targetProfile + "' in file " + sourceFile);
+                    "No records found for profile '" + targetProfile + "' in file " + records);
         }
 
         logger.debug("Selected {} records for profile '{}'", targetRecords.size(), targetProfile);

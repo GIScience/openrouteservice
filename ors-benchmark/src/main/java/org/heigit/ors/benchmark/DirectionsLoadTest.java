@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
+import static io.gatling.javaapi.core.CoreDsl.csv;
 import static io.gatling.javaapi.core.CoreDsl.exec;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import io.gatling.javaapi.core.PopulationBuilder;
@@ -69,7 +70,8 @@ public class DirectionsLoadTest extends AbstractLoadTest {
             DirectionsModes mode, String profile) {
 
         try {
-            List<Map<String, Object>> targetRecords = SourceUtils.getRecordsByProfile(sourceFile, profile);
+            List<Map<String, Object>> records = csv(sourceFile).readRecords();
+            List<Map<String, Object>> targetRecords = SourceUtils.getRecordsByProfile(records, profile);
 
             AtomicInteger remainingRecords = new AtomicInteger(targetRecords.size());
 
