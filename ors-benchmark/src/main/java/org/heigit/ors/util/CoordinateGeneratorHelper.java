@@ -1,8 +1,8 @@
 package org.heigit.ors.util;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ public class CoordinateGeneratorHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorHelper.class);
     private static final double EARTH_RADIUS_METERS = 6371000; // Earth's radius in meters
 
-    private static final Random random = new Random();
+    private static final SecureRandom random = new SecureRandom();
 
     /**
      * Private constructor to prevent instantiation of this utility class.
