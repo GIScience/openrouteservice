@@ -125,6 +125,7 @@ public abstract class ContainerInitializer {
                 .withFileFromPath("ors-engine/pom.xml", rootPath.resolve("ors-engine/pom.xml"))
                 .withFileFromPath("ors-report-aggregation/pom.xml", rootPath.resolve("ors-report-aggregation/pom.xml"))
                 .withFileFromPath("ors-test-scenarios/pom.xml", rootPath.resolve("ors-test-scenarios/pom.xml"))
+                .withFileFromPath("ors-benchmark/pom.xml", rootPath.resolve("ors-benchmark/pom.xml"))
                 .withFileFromPath("ors-engine/src/main", rootPath.resolve("ors-engine/src/main"))
                 .withFileFromPath("ors-api/src/main", rootPath.resolve("ors-api/src/main"))
                 .withFileFromPath("ors-api/src/test/files/heidelberg.test.pbf", rootPath.resolve("ors-api/src/test/files/heidelberg.test.pbf"))
