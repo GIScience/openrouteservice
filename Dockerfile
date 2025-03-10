@@ -12,15 +12,16 @@ COPY ors-engine/pom.xml /tmp/ors/ors-engine/pom.xml
 COPY pom.xml /tmp/ors/pom.xml
 COPY ors-report-aggregation/pom.xml /tmp/ors/ors-report-aggregation/pom.xml
 COPY ors-test-scenarios/pom.xml /tmp/ors/ors-test-scenarios/pom.xml
+COPY ors-benchmark/pom.xml /tmp/ors/ors-benchmark/pom.xml
 
 # Build the project
-RUN mvn -pl '!ors-test-scenarios,!ors-report-aggregation' -q dependency:go-offline
+RUN mvn -pl ':ors-api,:ors-engine' -q dependency:go-offline
 
 COPY ors-api /tmp/ors/ors-api
 COPY ors-engine /tmp/ors/ors-engine
 
 # Build the project
-RUN mvn -pl '!ors-test-scenarios,!ors-report-aggregation' \
+RUN mvn -pl ':ors-api,:ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
 FROM docker.io/maven:3.9.9-amazoncorretto-21-alpine AS build-go
