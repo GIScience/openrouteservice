@@ -2,11 +2,9 @@ package org.heigit.ors.benchmark.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.heigit.ors.benchmark.TestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,40 +66,5 @@ public class SourceUtils {
             throw new IllegalStateException("Failed to shuffle records", e);
         }
         return targetRecords;
-    }
-
-    public static Iterator<Map<String, Object>> getRecordFeeder(List<Map<String, Object>> targetRecords,
-            TestConfig config, String targetProfile) {
-        // Transform records to coordinates and shuffle
-        List<Map<String, Object>> mappedRecords = !targetRecords.isEmpty()
-                && targetRecords.get(0).containsKey(config.getFieldLon())
-                && targetRecords.get(0).containsKey(config.getFieldLat())
-                        ? targetRecords.stream()
-                                .map(targetRecord -> Map.of(
-                                        config.getFieldLon(), targetRecord.get(config.getFieldLon()),
-                                        config.getFieldLat(), targetRecord.get(config.getFieldLat())))
-                                .toList()
-                        : targetRecords.stream()
-                                .map(targetRecord -> Map.of(
-                                        config.getFieldStartLon(), targetRecord.get(config.getFieldStartLon()),
-                                        config.getFieldStartLat(), targetRecord.get(config.getFieldStartLat()),
-                                        config.getFieldEndLon(), targetRecord.get(config.getFieldEndLon()),
-                                        config.getFieldEndLat(), targetRecord.get(config.getFieldEndLat())))
-                                .toList();
-        try {
-            // Shuffle the records
-            logger.debug("Shuffling records for profile {}", targetProfile);
-            List<Map<String, Object>> mutableRecords = new ArrayList<>(mappedRecords);
-            Collections.shuffle(mutableRecords);
-            mappedRecords = mutableRecords;
-            logger.debug("Shuffled {} records for profile {}", mappedRecords.size(), targetProfile);
-        } catch (UnsupportedOperationException e) {
-            throw new IllegalStateException("Failed to shuffle records", e);
-        }
-
-        Iterator<Map<String, Object>> recordFeeder = IteratorUtils.infiniteCircularIterator(mappedRecords);
-        logger.debug("Created circular feeder with {} coordinates for profile {}", mappedRecords.size(), targetProfile);
-
-        return recordFeeder;
     }
 }
