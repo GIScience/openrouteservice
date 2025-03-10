@@ -25,7 +25,7 @@ class SourceUtilsTest {
     }
     
     @Test
-    void testGetRecordsByProfile_WithMatchingProfile() throws IllegalStateException {
+    void testGetRecordsByProfileWithMatchingProfile() throws IllegalStateException {
         List<Map<String, Object>> records = SourceUtils.getRecordsByProfile(multipleProfiles, "driving-car");
         assertNotNull(records);
         assertFalse(records.isEmpty());
@@ -40,7 +40,7 @@ class SourceUtilsTest {
 
 
     @Test
-    void testGetRecordsByProfile_WithoutMatchingProfile() {
+    void testGetRecordsByProfileWithoutMatchingProfile() {
         IllegalStateException exception = org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class, () -> {
             SourceUtils.getRecordsByProfile(multipleProfiles, "foo-bar");
         });
