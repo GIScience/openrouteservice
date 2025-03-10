@@ -1,15 +1,12 @@
 package org.heigit.ors.benchmark;
 
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
-import static org.heigit.ors.benchmark.util.NameUtils.getFileNameWithoutExtension;
 import org.heigit.ors.benchmark.util.SourceUtils;
 import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.slf4j.LoggerFactory;
@@ -17,12 +14,8 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
-import static io.gatling.javaapi.core.CoreDsl.asLongAs;
 import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
-import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
 import static io.gatling.javaapi.core.CoreDsl.exec;
-import static io.gatling.javaapi.core.CoreDsl.feed;
-import static io.gatling.javaapi.core.CoreDsl.group;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import io.gatling.javaapi.core.PopulationBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
