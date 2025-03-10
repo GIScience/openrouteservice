@@ -8,6 +8,7 @@
 !ors-api/src/main/
 !ors-report-aggregation/pom.xml
 !ors-test-scenarios/pom.xml
+!ors-benchmark/pom.xml
 # Special includes
 !ors-config.env
 !ors-config.yml
