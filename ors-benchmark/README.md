@@ -220,7 +220,7 @@ A Gatling-based load test for the ORS Directions API. This test sends routing re
 Options:
 
 - `source_files`: Comma-separated list of CSV files containing coordinate pairs (required). The CSV file is read either from `./` or from `resources` directory.
-- `base_url`: ORS API base URL (default: http://localhost:8080/ors)
+- `base_url`: ORS API base URL (default: <http://localhost:8080/ors>)
 - `api_key`: API key for authentication
 - `modes`: Comma-separated routing modes: algoch, algocore, algolmastar (default: all)
 - `field_start_lon`: CSV field name for start longitude column (default: start_longitude)
