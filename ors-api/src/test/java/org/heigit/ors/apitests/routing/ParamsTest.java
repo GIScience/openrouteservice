@@ -1799,4 +1799,39 @@ class ParamsTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .statusCode(200);
     }
+
+    @Test
+    void expectExtrainfoInRoundTrip() {
+        JSONObject body = new JSONObject();
+        JSONArray singleCoordinate = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.680916);
+        coord1.put(49.410973);
+        singleCoordinate.put(coord1);
+        body.put("coordinates", singleCoordinate);
+
+        JSONObject options = new JSONObject();
+        JSONObject roundTripOptions = new JSONObject();
+        roundTripOptions.put("length", 100);
+        options.put("round_trip", roundTripOptions);
+        body.put("options", options);
+
+        body.put("extra_info", getParameter("extra_info"));
+
+        given()
+                .headers(jsonContent)
+                .pathParam("profile", getParameter("profile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}/json")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].containsKey('geometry')", is(true))
+                .body("routes[0].containsKey('extras')", is(true))
+                .body("routes[0].extras.containsKey('surface')", is(true))
+                .body("routes[0].extras.containsKey('suitability')", is(true))
+                .body("routes[0].extras.containsKey('steepness')", is(true))
+                .statusCode(200);
+    }
 }
