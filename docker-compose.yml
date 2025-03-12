@@ -1,5 +1,6 @@
 # Docker Compose file for the openrouteservice (ORS) application
 # Documentation and examples can be found on https://giscience.github.io/openrouteservice/run-instance/running-with-docker
+version: '3.8'
 
 services:
   # ----------------- ORS application configuration ------------------- #
@@ -12,20 +13,21 @@ services:
     ports:
       - "8080:8082"  # Expose the ORS API on port 8080
       - "9001:9001"  # Expose additional port for monitoring (optional)
-    image: local/openrouteservice:latest
+    image: openrouteservice/openrouteservice:v8.0.0
     # Advanced option! If you different ids to 0:0 and 1000:1000, you have to rebuild the container with the build args UID,GID.
     # The user command is useful if you want easier bind mount access or better security.
     #user: "1000:1000" # Run "mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/files ors-docker/graphs ors-docker/logs && sudo chown -R 1000:1000 ors" before starting the container!
-    volumes: # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
+    volumes:  # Mount relative directories. ONLY for local container runtime. To switch to docker managed volumes see 'Docker Volumes configuration' section below.
       - ./ors-docker:/home/ors  # Mount the ORS application directory (for logs, graphs, elevation_cache, etc.) into its own directory
-      #- ./graphs:/home/ors/graphs  # Mount graphs directory individually
-      #- ./elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory individually
-      #- ./config:/home/ors/config  # Mount configuration directory individually
-      #- ./logs:/home/ors/logs  # Mount logs directory individually
-      #- ./files:/home/ors/files  # Mount files directory individually
+      - ./ors-docker/graphs:/home/ors/graphs  # Mount graphs directory individually
+      - ./ors-docker/elevation_cache:/home/ors/elevation_cache  # Mount elevation cache directory individually
+      - ./ors-docker/config:/home/ors/config  # Mount configuration directory individually
+      - ./ors-docker/logs:/home/ors/logs  # Mount logs directory individually
+      - ./ors-docker/files:/home/ors/files  # Mount files directory individually
     environment:
-      REBUILD_GRAPHS: False  # Set to True to rebuild graphs on container start.
+      REBUILD_GRAPHS: "True"  # Set to True to rebuild graphs on container start.
       CONTAINER_LOG_LEVEL: INFO  # Log level for the container. Possible values: DEBUG, INFO, WARNING, ERROR, CRITICAL
+      ors.engine.profile_default.build.source_file: /home/ors/files/chile-latest.osm.pbf
       # If you don't want the default ors-config.yml you can specify a custom file name, that should match the file in
       # your 'config' volume mount.
       #ORS_CONFIG_LOCATION: /home/ors/config/my-ors-config.yml  # Location of your ORS configuration file in the docker container
@@ -34,8 +36,8 @@ services:
       # Configure the memory settings for JAVA or pass additional opts
       # Fore more available ENV properties see Prepare CATALINA_OPTS and JAVA_OPTS
       # in https://github.com/GIScience/openrouteservice/blob/main/docker-entrypoint.sh
-      XMS: 1g  # start RAM assigned to java
-      XMX: 2g  # max RAM assigned to java. Rule of Thumb: <PBF-size> * <profiles> * 2
+      XMS: 4g  # start RAM assigned to java
+      XMX: 8g  # max RAM assigned to java. Rule of Thumb: <PBF-size> * <profiles> * 2
       # Example: 1.5 GB pbf size, two profiles (car and foot-walking)
       # -> 1.5 * 2 * 2 = 6. Set xmx to be AT LEAST `-Xmx6g`
       ADDITIONAL_JAVA_OPTS: ""  # further options you want to pass to the java command
@@ -47,11 +49,10 @@ services:
       # See the ors-config.env file for more options.
       # To have a configuration file-less container, uncomment at least the following properties.
       # The values are examples and provide the default configuration.
-      #ors.engine.profile_default.build.source_file: /home/ors/files/example-heidelberg.test.pbf
-      #ors.engine.profile_default.graph_path: /home/ors/graphs
+      #ors.engine.source_file: /home/ors/files/example-heidelberg.osm.gz
+      #ors.engine.graphs_root_path: /home/ors/graphs
       #ors.engine.elevation.cache_path: /home/ors/elevation_cache
       #ors.engine.profiles.car.enabled: true
-      #logging.level.org.heigit: INFO
 
     # ----------------- ENV file configuration ------------------- #
     # Too many variables for your 'environment:' section?

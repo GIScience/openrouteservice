@@ -26,8 +26,16 @@ Releasing is documented in RELEASE.md
 -->
 ## [unreleased]
 ### Added
+- Automatic OSM file download during Docker build process
+  - Added new ARG `OSM_URL` in Dockerfile for configurable map source
+  - Added wget installation in the final image
+  - Added automatic download of Chile's OSM file during build
+  - Created documentation for automatic OSM build process in `ai-docs/automatic-osm-build.md`
 
 ### Changed
+- Modified Dockerfile to include OSM download step
+- Updated configuration to use downloaded Chile OSM file
+- Improved memory settings in docker-compose.yml for Chile's map size
 
 ### Deprecated
 

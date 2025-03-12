@@ -36,12 +36,13 @@ ARG UID=1000
 ARG GID=1000
 ARG OSM_FILE=./ors-api/src/test/files/heidelberg.test.pbf
 ARG ORS_HOME=/home/ors
+ARG OSM_URL=https://download.geofabrik.de/south-america/chile-latest.osm.pbf
 
 # Set the default language
 ENV LANG='en_US' LANGUAGE='en_US' LC_ALL='en_US'
 
 # Setup the target system with the right user and folders.
-RUN apk update && apk add --no-cache bash=~5 jq=~1 openssl=~3 && \
+RUN apk update && apk add --no-cache bash=~5 jq=~1 openssl=~3 wget=~1.21 && \
     addgroup ors -g ${GID} && \
     mkdir -p ${ORS_HOME}/logs ${ORS_HOME}/files ${ORS_HOME}/graphs ${ORS_HOME}/elevation_cache  && \
     adduser -D -h ${ORS_HOME} -u ${UID} --system -G ors ors  && \
@@ -49,9 +50,13 @@ RUN apk update && apk add --no-cache bash=~5 jq=~1 openssl=~3 && \
     # Give all permissions to the user
     && chmod -R 777 ${ORS_HOME}
 
+# Download Chile OSM file and set up files
+RUN mkdir -p ${ORS_HOME}/files && \
+    wget -q ${OSM_URL} -O ${ORS_HOME}/files/chile-latest.osm.pbf && \
+    chown ors:ors ${ORS_HOME}/files/chile-latest.osm.pbf
+
 # Copy over the needed bits and pieces from the other stages.
 COPY --chown=ors:ors --from=build /tmp/ors/ors-api/target/ors.jar /ors.jar
-COPY --chown=ors:ors ./$OSM_FILE /heidelberg.test.pbf
 COPY --chown=ors:ors ./docker-entrypoint.sh /entrypoint.sh
 COPY --chown=ors:ors --from=build-go /root/go/bin/yq /bin/yq
 
@@ -61,9 +66,9 @@ COPY --chown=ors:ors ./ors-config.env /example-ors-config.env
 
 # Rewrite the example config to use the right files in the container
 RUN yq -i -p=props -o=props \
-    '.ors.engine.profile_default.build.source_file="/home/ors/files/example-heidelberg.test.pbf"' \
+    '.ors.engine.profile_default.build.source_file="/home/ors/files/chile-latest.osm.pbf"' \
     /example-ors-config.env && \
-    yq -i e '.ors.engine.profile_default.build.source_file = "/home/ors/files/example-heidelberg.test.pbf"' \
+    yq -i e '.ors.engine.profile_default.build.source_file = "/home/ors/files/chile-latest.osm.pbf"' \
     /example-ors-config.yml
 
 ENV BUILD_GRAPHS="False"
