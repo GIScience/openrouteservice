@@ -24,7 +24,9 @@ This is how a Changelog entry should look like:
 RELEASING:
 Releasing is documented in RELEASE.md
 -->
+
 ## [unreleased]
+
 ### Added
 
 ### Changed
@@ -34,9 +36,19 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
-- preparation_mode flag ([#1966](https://github.com/GIScience/openrouteservice/pull/1966))
 
 ### Security
+
+
+## [9.1.1] - 2025-03-13
+
+### Changed
+- move RELEASING section from CHANGELOG.md to new RELEASE.md ([#1972](https://github.com/GIScience/openrouteservice/pull/1972))
+- refactor: adapt value range of CsvGraphStorage ([#1969](https://github.com/GIScience/openrouteservice/pull/1969))
+
+### Fixed
+- preparation_mode flag ([#1966](https://github.com/GIScience/openrouteservice/pull/1966))
+- ORS_CONFIG_LOCATION doesn't log with wrong paths ([#1816](https://github.com/GIScience/openrouteservice/issues/1816))
 
 
 ## [9.1.0] - 2025-01-29
@@ -53,7 +65,6 @@ Releasing is documented in RELEASE.md
 - NPE in error handling ([#1925](https://github.com/GIScience/openrouteservice/pull/1925))
 - Add missing 'build' in documentation for profile properties ([#1947](https://github.com/GIScience/openrouteservice/issues//1947))
 - Allow vehicles on ferries without explicit access tags ([#1954](https://github.com/GIScience/openrouteservice/pull/1954))
-- ORS_CONFIG_LOCATION doesn't log with wrong paths ([#1816](https://github.com/GIScience/openrouteservice/issues/1816))
 
 ## [9.0.0] - 2024-12-02
 ### Added
@@ -851,8 +862,9 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.1.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.1.1...HEAD
 
+[9.1.0]: https://github.com/GIScience/openrouteservice/compare/v9.1.0...v9.1.1
 [9.1.0]: https://github.com/GIScience/openrouteservice/compare/v9.0.0...v9.1.0
 [9.0.0]: https://github.com/GIScience/openrouteservice/compare/v8.2.0...v9.0.0
 [8.2.0]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...v8.2.0
