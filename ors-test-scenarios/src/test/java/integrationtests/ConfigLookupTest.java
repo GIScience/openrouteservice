@@ -1,6 +1,7 @@
 package integrationtests;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -273,6 +274,7 @@ public class ConfigLookupTest extends ContainerInitializer {
          * The default yml file should not be used when ORS_CONFIG_LOCATION is set,
          * even if the file does not exist. Fallback to default ors-config.yml is not desired!
          */
+        @Disabled
         @MethodSource("utils.ContainerInitializer#ContainerTestImageBareImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)

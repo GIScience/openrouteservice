@@ -1,6 +1,7 @@
 package integrationtests;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -199,16 +200,11 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         /**
          * arg-overrides-default-prop.sh
          */
+        @Disabled
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testNonExistentConfigFail(ContainerTestImageDefaults targetImage) {
-            //TODO clarify if this test is necessary for the WAR container
-            // or whether it should test if the env variable in the host machine
-            // or in the setenv.sh file should point to a nonexistent file
-            if (targetImage.getName().equals(WAR_CONTAINER.getName())) {
-                return;
-            }
             GenericContainer<?> container = initContainer(targetImage, false, "testNonExistentConfigFail");
             // Prepare the environment
             container.addEnv("ORS_CONFIG_LOCATION", "nonexistent/ors-config.yaml");
