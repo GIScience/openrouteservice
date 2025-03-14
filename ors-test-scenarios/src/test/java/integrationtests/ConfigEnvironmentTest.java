@@ -1,7 +1,6 @@
 package integrationtests;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
@@ -24,8 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static utils.ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER;
-import static utils.TestContainersHelper.healthyWaitStrategyWithLogMessage;
-import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
+import static utils.TestContainersHelper.*;
 
 @ExtendWith(TestcontainersExtension.class)
 @Testcontainers(disabledWithoutDocker = true)
@@ -200,30 +197,31 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         /**
          * arg-overrides-default-prop.sh
          */
-        @Disabled
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testNonExistentConfigFail(ContainerTestImageDefaults targetImage) {
+            if (targetImage.equals(WAR_CONTAINER)) {
+                // This test is not applicable to the WAR container as Tomcat/war does not support command line or random environment variables that are not part of the application.properties.
+                // Tomcat encapsulates the environment variables and only passes spring-boot managed properties.
+                return;
+            }
             GenericContainer<?> container = initContainer(targetImage, false, "testNonExistentConfigFail");
             // Prepare the environment
             container.addEnv("ORS_CONFIG_LOCATION", "nonexistent/ors-config.yaml");
 
-            try {
-                container.start();
+            container.waitingFor(waitStrategyWithLogMessage(List.of(
+                    "ORS config file not found at: nonexistent/ors-config.yaml",
+                    "Config file 'nonexistent/ors-config.yaml' not found."
+                    ).toArray(new String[0]))
+            );
+            container.start();
 
-                String logs = container.getLogs();
-                Assertions.assertTrue(logs.contains("ORS config file not found at: nonexistent/ors-config.yaml"));
+            // Assert ors-config.yml not present for a sane test.
+            OrsContainerFileSystemCheck.assertFileExists(container, "nonexistent/ors-config.yaml", false);
 
-            } catch (ContainerLaunchException e) {
-                // Pass when throwing this exception since the container is supposed to fail when the config path is wrong.
-            } catch (Exception e) {
-                Assertions.fail("Container startup failed with exception: " + e.getMessage());
-            } finally {
-                if (container.isRunning()) {
-                    container.stop();
-                }
-            }
+            // Stop the container
+            container.stop();
         }
     }
 }
