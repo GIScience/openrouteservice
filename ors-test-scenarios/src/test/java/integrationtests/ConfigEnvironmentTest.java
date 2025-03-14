@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static utils.ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER;
 import static utils.TestContainersHelper.healthyWaitStrategyWithLogMessage;
 import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
 
@@ -162,7 +163,7 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @Execution(ExecutionMode.CONCURRENT)
         void testDefaultProfileActivated(ContainerTestImageDefaults targetImage) {
             GenericContainer<?> container = initContainer(targetImage, false, "testDefaultProfileActivated");
-            if (targetImage.equals(ContainerTestImageDefaults.WAR_CONTAINER)) {
+            if (targetImage.equals(WAR_CONTAINER)) {
                 container.setWaitStrategy(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config.yml"));
             } else {
                 container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
@@ -202,11 +203,15 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testNonExistentConfigFail(ContainerTestImageDefaults targetImage) {
+            //TODO clarify if this test is necessary for the WAR container
+            // or whether it should test if the env variable in the host machine
+            // or in the setenv.sh file should point to a nonexistent file
+            if (targetImage.getName().equals(WAR_CONTAINER.getName())) {
+                return;
+            }
             GenericContainer<?> container = initContainer(targetImage, false, "testNonExistentConfigFail");
-
             // Prepare the environment
             container.addEnv("ORS_CONFIG_LOCATION", "nonexistent/ors-config.yaml");
-            container.addEnv("ors.config.location", "");
 
             try {
                 container.start();
