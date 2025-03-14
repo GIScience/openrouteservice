@@ -25,7 +25,9 @@ import com.graphhopper.routing.weighting.AbstractAdjustedWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.*;
+import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
+import org.heigit.ors.util.ProgressPercentageLogger;
 
 import static com.graphhopper.routing.ch.CHParameters.CONTRACTED_NODES;
 import static com.graphhopper.util.Helper.getMemInfo;
@@ -145,6 +147,11 @@ public class PrepareCore extends PrepareContractionHierarchies {
             throw new IllegalArgumentException("Cannot initialize from given graph. The number of edges does not match: " +
                     graph.getEdges() + " vs. " + prepareGraph.getOriginalEdges());
         AllEdgesIterator iter = graph.getAllEdges();
+
+        Logger LOGGER = Logger.getLogger(PrepareCore.class.getName());
+        ProgressPercentageLogger progressPercentageLogger = new ProgressPercentageLogger(graph.getEdges(), "Building Core graph: ", LOGGER);
+
+        int i = 1;
         while (iter.next()) {
             double weightFwd = weighting.calcEdgeWeightWithAccess(iter, false);
             // use reverse iterator because restrictionFilter.accept in RestrictedEdgesWeighting cannot be queried in reverse direction
@@ -153,6 +160,8 @@ public class PrepareCore extends PrepareContractionHierarchies {
             int timeFwd = Double.isFinite(weightFwd) ? (int) weighting.calcEdgeMillis(iter, false) : Integer.MAX_VALUE;
             int timeBwd = Double.isFinite(weightBwd) ? (int) weighting.calcEdgeMillis(iter, true) : Integer.MAX_VALUE;
             prepareGraph.addEdge(iter.getBaseNode(), iter.getAdjNode(), iter.getEdge(), weightFwd, weightBwd, timeFwd, timeBwd);
+
+            progressPercentageLogger.update(i++);
         }
         prepareGraph.prepareForContraction();
     }
