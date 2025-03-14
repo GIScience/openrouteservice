@@ -864,7 +864,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 
 [unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.1.1...HEAD
 
-[9.1.0]: https://github.com/GIScience/openrouteservice/compare/v9.1.0...v9.1.1
+[9.1.1]: https://github.com/GIScience/openrouteservice/compare/v9.1.0...v9.1.1
 [9.1.0]: https://github.com/GIScience/openrouteservice/compare/v9.0.0...v9.1.0
 [9.0.0]: https://github.com/GIScience/openrouteservice/compare/v8.2.0...v9.0.0
 [8.2.0]: https://github.com/GIScience/openrouteservice/compare/v8.1.2...v8.2.0

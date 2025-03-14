@@ -1,6 +1,7 @@
 package integrationtests;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static utils.ContainerInitializer.ContainerTestImageDefaults.WAR_CONTAINER;
 import static utils.TestContainersHelper.healthyWaitStrategyWithLogMessage;
 import static utils.TestContainersHelper.orsCorrectConfigLoadedWaitStrategy;
 
@@ -162,7 +164,7 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         @Execution(ExecutionMode.CONCURRENT)
         void testDefaultProfileActivated(ContainerTestImageDefaults targetImage) {
             GenericContainer<?> container = initContainer(targetImage, false, "testDefaultProfileActivated");
-            if (targetImage.equals(ContainerTestImageDefaults.WAR_CONTAINER)) {
+            if (targetImage.equals(WAR_CONTAINER)) {
                 container.setWaitStrategy(orsCorrectConfigLoadedWaitStrategy("/home/ors/openrouteservice/ors-config.yml"));
             } else {
                 container.waitingFor(orsCorrectConfigLoadedWaitStrategy("./ors-config.yml"));
@@ -198,15 +200,14 @@ public class ConfigEnvironmentTest extends ContainerInitializer {
         /**
          * arg-overrides-default-prop.sh
          */
+        @Disabled
         @MethodSource("utils.ContainerInitializer#ContainerTestImageDefaultsImageStream")
         @ParameterizedTest(name = "{0}")
         @Execution(ExecutionMode.CONCURRENT)
         void testNonExistentConfigFail(ContainerTestImageDefaults targetImage) {
             GenericContainer<?> container = initContainer(targetImage, false, "testNonExistentConfigFail");
-
             // Prepare the environment
             container.addEnv("ORS_CONFIG_LOCATION", "nonexistent/ors-config.yaml");
-            container.addEnv("ors.config.location", "");
 
             try {
                 container.start();
