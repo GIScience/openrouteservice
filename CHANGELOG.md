@@ -36,6 +36,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- fix: Repair broken integration tests with by pining buildkit 0.15 ([#2003](https://github.com/GIScience/openrouteservice/pull/2003))
 
 ### Security
 

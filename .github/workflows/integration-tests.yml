@@ -53,6 +53,8 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          version: v0.15.0 # Fix to v0.15.0. Testcontainers has issues with the latest version.
       - name: Prepare the maven cache dependencies
         run: |
           echo "Sync the maven dependencies"
@@ -151,6 +153,8 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          version: v0.15.0 # Fix to v0.15.0. Testcontainers has issues with the latest version.
       - name: inject maven-build-cache into docker
         uses: reproducible-containers/buildkit-cache-dance@v3.1.2
         with:
@@ -194,5 +198,6 @@ jobs:
           docker image ls -a
           # Run only a subset for now
           mvn -pl ors-test-scenarios -Dtest=${{ matrix.test-class }} test \
+            -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4 \
             -Dcontainer.run.scenario=${{ matrix.test-scenario }} \
             -Dcontainer.builder.use_prebuild=true -q
