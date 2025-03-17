@@ -49,7 +49,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
         <!-- switch graphhopper versions to enable debugging -->
-        <graphhopper.version>v4.9.6</graphhopper.version>
+        <graphhopper.version>v4.9.7</graphhopper.version>
 <!--        <graphhopper.version>4.9-SNAPSHOT</graphhopper.version>-->
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
