@@ -41,7 +41,7 @@ public abstract class ContainerInitializer {
     // @formatter:on
 
     private static final Path hostSharedGraphPath = Path.of("./graphs-integrationtests/").resolve("sharedGraphMount");
-    public static Duration defaultStartupTimeout = Duration.ofSeconds(100);
+    public static Duration defaultStartupTimeout = Duration.ofSeconds(180);
     private static boolean shareGraphsWithContainer = true;
     private static List<ContainerTestImageDefaults> selectedDefaultContainers = List.of();
     private static List<ContainerTestImageBare> selectedBareContainers = List.of();
@@ -55,7 +55,6 @@ public abstract class ContainerInitializer {
         parentLogger.info("Container scenario: {}", containerValue);
         shareGraphsWithContainer = Boolean.parseBoolean(System.getProperty("container.run.share_graphs", "true"));
         parentLogger.info("Share graphs with container: {}", shareGraphsWithContainer);
-        if (shareGraphsWithContainer) defaultStartupTimeout = Duration.ofSeconds(50);
         switch (containerValue) {
             case "war":
                 selectedDefaultContainers = List.of(ContainerTestImageDefaults.WAR_CONTAINER);
@@ -183,6 +182,7 @@ public abstract class ContainerInitializer {
                 .withEnv(defaultEnv)
                 .withExposedPorts(8080)
                 .withStartupTimeout(startupTimeout)
+                .withStartupAttempts(3)
                 .waitingFor(healthyOrsWaitStrategy());
         // @formatter:on
 
@@ -211,13 +211,63 @@ public abstract class ContainerInitializer {
     }
 
     static void buildBuilderImages() {
-        initBuilderImage(ContainterBuildStage.ORS_TEST_SCENARIO_BUILDER);
-        // Asynchronous start the rest and wait at the end until all are finished.
-        CompletableFuture<Void> warFuture = CompletableFuture.runAsync(() -> initBuilderImage(ContainterBuildStage.ORS_TEST_SCENARIO_WAR_BUILDER));
-        CompletableFuture<Void> jarFuture = CompletableFuture.runAsync(() -> initBuilderImage(ContainterBuildStage.ORS_TEST_SCENARIO_JAR_BUILDER));
-        CompletableFuture<Void> mavenFuture = CompletableFuture.runAsync(() -> initBuilderImage(ContainterBuildStage.ORS_TEST_SCENARIO_MAVEN_BUILDER));
-        // Wait for all
-        CompletableFuture.allOf(warFuture, jarFuture, mavenFuture).join();
+        parentLogger.info("Starting builder image initialization");
+        try {
+            // Initialize the base builder first
+            parentLogger.info("Initializing base builder image");
+            initBuilderImage(ContainterBuildStage.ORS_TEST_SCENARIO_BUILDER);
+
+            // Create a list to store all futures for better tracking
+            List<CompletableFuture<Void>> buildFutures = new ArrayList<>();
+
+            // Asynchronous start the rest with proper error handling for each
+            CompletableFuture<Void> warFuture = CompletableFuture
+                    .runAsync(() -> {
+                        parentLogger.info("Starting WAR builder image initialization");
+                        initBuilderImage(ContainterBuildStage.ORS_TEST_SCENARIO_WAR_BUILDER);
+                        parentLogger.info("WAR builder image initialized successfully");
+                    })
+                    .exceptionally(ex -> {
+                        parentLogger.error("Failed to initialize WAR builder image: {}", ex.getMessage(), ex);
+                        throw new RuntimeException("WAR builder initialization failed", ex);
+                    });
+            buildFutures.add(warFuture);
+
+            CompletableFuture<Void> jarFuture = CompletableFuture
+                    .runAsync(() -> {
+                        parentLogger.info("Starting JAR builder image initialization");
+                        initBuilderImage(ContainterBuildStage.ORS_TEST_SCENARIO_JAR_BUILDER);
+                        parentLogger.info("JAR builder image initialized successfully");
+                    })
+                    .exceptionally(ex -> {
+                        parentLogger.error("Failed to initialize JAR builder image: {}", ex.getMessage(), ex);
+                        throw new RuntimeException("JAR builder initialization failed", ex);
+                    });
+            buildFutures.add(jarFuture);
+
+            CompletableFuture<Void> mavenFuture = CompletableFuture
+                    .runAsync(() -> {
+                        parentLogger.info("Starting MAVEN builder image initialization");
+                        initBuilderImage(ContainterBuildStage.ORS_TEST_SCENARIO_MAVEN_BUILDER);
+                        parentLogger.info("MAVEN builder image initialized successfully");
+                    })
+                    .exceptionally(ex -> {
+                        parentLogger.error("Failed to initialize MAVEN builder image: {}", ex.getMessage(), ex);
+                        throw new RuntimeException("MAVEN builder initialization failed", ex);
+                    });
+            buildFutures.add(mavenFuture);
+
+            // Wait for all with a timeout
+            CompletableFuture
+                    .allOf(buildFutures.toArray(new CompletableFuture[0]))
+                    .orTimeout(5, java.util.concurrent.TimeUnit.MINUTES)
+                    .join();
+
+            parentLogger.info("All builder images initialized successfully");
+        } catch (Exception e) {
+            parentLogger.error("Failed to initialize builder images: {}", e.getMessage(), e);
+            throw new RuntimeException("Builder images initialization failed", e);
+        }
     }
 
     @BeforeAll

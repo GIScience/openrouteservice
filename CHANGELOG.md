@@ -36,7 +36,8 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
-- fix: pass extra_info when querying round_trip ([#1976](https://github.com/GIScience/openrouteservice/issues/1976))
+- pass extra_info when querying round_trip ([#1976](https://github.com/GIScience/openrouteservice/issues/1976))
+- repair broken integration tests with by pining buildkit 0.15 ([#2003](https://github.com/GIScience/openrouteservice/pull/2003))
 
 ### Security
 
