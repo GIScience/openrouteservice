@@ -39,7 +39,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         }
 
         ElevationProperties elevationProps = engineConfig.getElevation();
-        if (elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
+        if (profile.getBuild().getElevation() && elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
             ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
             ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
             ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
