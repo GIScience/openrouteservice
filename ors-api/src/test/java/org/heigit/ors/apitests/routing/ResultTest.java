@@ -4509,6 +4509,36 @@ class ResultTest extends ServiceTest {
                 .statusCode(500);
     }
 
+    @Test
+    void testBarriersAccessPermit() {
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.674978);
+        coord1.put(49.406375);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.674979);
+        coord2.put(49.406078);
+        coordinates.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(33.0f))
+                .body("routes[0].summary.duration", is(11.9f))
+                .statusCode(200);
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");
