@@ -26,6 +26,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
     private List<CHProfile> coreProfiles = new ArrayList<>();
     private List<LMProfile> coreLMProfiles = new ArrayList<>();
     private List<Profile> fastisochroneProfiles = new ArrayList<>();
+    private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(ORSGraphHopperConfig.class.getName());
 
     public static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig, String graphLocation) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
@@ -39,6 +40,17 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         }
 
         ElevationProperties elevationProps = engineConfig.getElevation();
+
+        if (!profile.getBuild().getElevation()) {
+            LOGGER.warn("Elevation is set to false.");
+        }
+        if (elevationProps.getProvider() == null) {
+            LOGGER.warn("Elevation provider is null.");
+        }
+        if (elevationProps.getCachePath() == null) {
+            LOGGER.warn("Elevation cache path is null.");
+        }
+
         if (profile.getBuild().getElevation() && elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
             ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
             ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
