@@ -20,19 +20,19 @@ import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 
-public class DirectionsLoadTest extends AbstractLoadTest {
+public class RoutingAlgorithmLoadTest extends AbstractLoadTest {
 
     static {
-        logger = LoggerFactory.getLogger(DirectionsLoadTest.class);
+        logger = LoggerFactory.getLogger(RoutingAlgorithmLoadTest.class);
     }
 
-    public DirectionsLoadTest() {
+    public RoutingAlgorithmLoadTest() {
         super();
     }
 
     @Override
     protected void logConfigInfo() {
-        logger.info("Initializing DirectionsLoadTest:");
+        logger.info("Initializing RoutingAlgorithmLoadTest:");
         logger.info("- Source files: {}", config.getSourceFiles());
         logger.info("- Concurrent users: {}", config.getNumConcurrentUsers());
         logger.info("- Execution mode: {}", config.isParallelExecution() ? "parallel" : "sequential");

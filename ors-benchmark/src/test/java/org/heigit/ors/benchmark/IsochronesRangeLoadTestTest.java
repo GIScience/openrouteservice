@@ -43,7 +43,7 @@ class IsochronesLoadTestTest {
         Config config = new Config();
 
         // when
-        String result = IsochronesLoadTest.createRequestBody(mockSession, 1, config, RangeType.TIME);
+        String result = IsochronesRangeLoadTest.createRequestBody(mockSession, 1, config, RangeType.TIME);
 
         // then
         assertThat(result)
@@ -58,7 +58,7 @@ class IsochronesLoadTestTest {
         Config config = new Config();
 
         // when
-        String result = IsochronesLoadTest.createRequestBody(mockSession, 1, config, RangeType.DISTANCE);
+        String result = IsochronesRangeLoadTest.createRequestBody(mockSession, 1, config, RangeType.DISTANCE);
 
         // then
         assertThat(result)
@@ -73,7 +73,7 @@ class IsochronesLoadTestTest {
         Config config = new Config();
 
         // when
-        String result = IsochronesLoadTest.createRequestBody(mockSession, 2, config, RangeType.TIME);
+        String result = IsochronesRangeLoadTest.createRequestBody(mockSession, 2, config, RangeType.TIME);
 
         // then
         assertThat(result).contains("\"locations\":[[8.681495,49.41461],[8.681495,49.41461]]");
@@ -81,7 +81,7 @@ class IsochronesLoadTestTest {
 
     @Test
     void testCreateRequestBodySingleLocation() throws JsonProcessingException {
-        String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME);
+        String requestBody = IsochronesRangeLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
 
         assertEquals(1, json.get("locations").size());
@@ -97,7 +97,7 @@ class IsochronesLoadTestTest {
         when(mockSession.get("latitude")).thenReturn(Arrays.asList(49.41461, 49.41461, 49.41461));
         when(mockConfig.getRange()).thenReturn("500");
 
-        String requestBody = IsochronesLoadTest.createRequestBody(mockSession, 3, mockConfig, RangeType.TIME);
+        String requestBody = IsochronesRangeLoadTest.createRequestBody(mockSession, 3, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(requestBody);
 
         assertEquals(3, json.get("locations").size());
@@ -111,7 +111,7 @@ class IsochronesLoadTestTest {
     // Replace old testCreateLocationsList with new test
     @Test
     void testCreateLocationsListFromArrays() {
-        List<List<Double>> locations = IsochronesLoadTest.createLocationsListFromArrays(mockSession, 2, mockConfig);
+        List<List<Double>> locations = IsochronesRangeLoadTest.createLocationsListFromArrays(mockSession, 2, mockConfig);
 
         assertEquals(2, locations.size());
         locations.forEach(coord -> {
@@ -125,7 +125,7 @@ class IsochronesLoadTestTest {
         when(mockSession.get("longitude")).thenReturn(null);
         when(mockSession.get("latitude")).thenReturn(Arrays.asList(49.41461));
 
-        List<List<Double>> locations = IsochronesLoadTest.createLocationsListFromArrays(mockSession, 2, mockConfig);
+        List<List<Double>> locations = IsochronesRangeLoadTest.createLocationsListFromArrays(mockSession, 2, mockConfig);
 
         assertTrue(locations.isEmpty());
     }
@@ -136,7 +136,7 @@ class IsochronesLoadTestTest {
         when(mockConfig.getRanges()).thenReturn(Arrays.asList(300, 600, 900));
 
         // when
-        String result = IsochronesLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME);
+        String result = IsochronesRangeLoadTest.createRequestBody(mockSession, 1, mockConfig, RangeType.TIME);
         JsonNode json = objectMapper.readTree(result);
 
         // then

@@ -21,19 +21,19 @@ import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import static org.heigit.ors.util.NameUtils.getFileNameWithoutExtension;
 
-public class IsochronesLoadTest extends AbstractLoadTest {
+public class IsochronesRangeLoadTest extends AbstractLoadTest {
 
     static {
-        logger = LoggerFactory.getLogger(IsochronesLoadTest.class);
+        logger = LoggerFactory.getLogger(IsochronesRangeLoadTest.class);
     }
 
-    public IsochronesLoadTest() {
+    public IsochronesRangeLoadTest() {
         super();
     }
 
     @Override
     protected void logConfigInfo() {
-        logger.info("Initializing IsochronesLoadTest with configuration:");
+        logger.info("Initializing IsochronesRangeLoadTest with configuration:");
         logger.info("- Source files: {}", config.getSourceFiles());
         logger.info("- Target profile: {}", config.getTargetProfile());
         logger.info("- Concurrent users: {}", config.getNumConcurrentUsers());

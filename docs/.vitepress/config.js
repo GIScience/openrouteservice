@@ -292,6 +292,7 @@ export default withMermaid(defineVersionedConfig({
                                 {text: 'Graph Management', link: '/technical-details/graph-repo-client/'},
                                 {text: 'Integration Tests', link: '/technical-details/integration-tests'},
                                 {text: 'Coordinate Generators', link: '/technical-details/coordinate-generators'},
+                                {text: 'API Benchmarks', link: '/technical-details/api-benchmarks'},
                             ]
                         },
                         {text: 'FAQ', link: '/frequently-asked-questions'}
