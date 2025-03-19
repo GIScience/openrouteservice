@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
-public class CoordinateGeneratorRouteApp {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorRouteApp.class);
+public class RouteGeneratorApp {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RouteGeneratorApp.class);
 
     public static void main(String[] args) {
         try {

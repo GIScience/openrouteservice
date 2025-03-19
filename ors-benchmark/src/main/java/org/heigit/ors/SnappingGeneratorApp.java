@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class CoordinateGeneratorSnappingApp {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorSnappingApp.class);
+public class SnappingGeneratorApp {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnappingGeneratorApp.class);
 
     public static void main(String[] args) {
         try {
