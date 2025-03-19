@@ -12,6 +12,8 @@ import org.heigit.ors.service.MatrixCalculator;
 import org.heigit.ors.service.RouteSnapper;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,6 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
+    protected static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorRoute.class);
+
     private static final int DEFAULT_MATRIX_SIZE = 2;
     private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
     private static final String LOCATION_KEY = "location";
@@ -351,38 +355,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         routeRepository.writeToCSV(filePath, numRoutes);
     }
 
-    public static void main(String[] args) {
-        try {
-            CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
-
-            if (cli.hasHelp()) {
-                cli.printHelp();
-                return;
-            }
-
-            LOGGER.info("Creating coordinate generator for routes...");
-            CoordinateGeneratorRoute generator = cli.createGenerator();
-
-            LOGGER.info("Generating {} routes...", generator.numRoutes);
-            generator.generateRoutes();
-            LOGGER.info("\n");
-
-            List<Route> result = generator.getResult();
-            LOGGER.info("Writing {} routes to {}", result.size(), cli.getOutputFile());
-            generator.writeToCSV(cli.getOutputFile());
-
-            LOGGER.info("\n");
-            LOGGER.info("Successfully generated {} route{}",
-                    result.size(),
-                    result.size() != 1 ? "s" : "");
-            LOGGER.info("Results written to: {}", cli.getOutputFile());
-        } catch (NumberFormatException e) {
-            LOGGER.error("Error parsing numeric arguments: {}", e.getMessage());
-            System.exit(1);
-        } catch (IOException e) {
-            LOGGER.error("Error writing to output file: {}", e.getMessage());
-            System.exit(1);
-        }
-        System.exit(0);
+    public int getNumRoutes() {
+        return numRoutes;
     }
 }

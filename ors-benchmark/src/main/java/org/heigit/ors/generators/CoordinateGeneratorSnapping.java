@@ -1,29 +1,26 @@
 package org.heigit.ors.generators;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
+import me.tongfei.progressbar.DelegatingProgressBarConsumer;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.heigit.ors.model.Point;
 import org.heigit.ors.service.RouteSnapper;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import me.tongfei.progressbar.DelegatingProgressBarConsumer;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
-import me.tongfei.progressbar.ProgressBarStyle;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.function.Function;
 
 public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
+    protected static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorSnapping.class);
+
     private static final int DEFAULT_BATCH_SIZE = 100;
 
     private final int numPoints;
@@ -207,37 +204,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         return (List<T>) combined;
     }
 
-    public static void main(String[] args) {
-        try {
-            CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
-
-            if (cli.hasHelp()) {
-                cli.printHelp();
-                return;
-            }
-
-            LOGGER.info("Creating coordinate generator for snapping...");
-            CoordinateGeneratorSnapping generator = cli.createGenerator();
-
-            LOGGER.info("Generating and snapping {} points...", generator.numPoints);
-            generator.generate(DEFAULT_MAX_ATTEMPTS);
-
-            LOGGER.info("\n");
-            LOGGER.info("Writing {} snapped points to {}", generator.getResult().size(), cli.getOutputFile());
-            generator.writeToCSV(cli.getOutputFile());
-
-            LOGGER.info("Successfully snapped {} coordinate{}",
-                    generator.getResult().size(),
-                    generator.getResult().size() != 1 ? "s" : "");
-            LOGGER.info("Results written to: {}", cli.getOutputFile());
-
-        } catch (NumberFormatException e) {
-            LOGGER.error("Error parsing numeric arguments: {}", e.getMessage());
-            System.exit(1);
-        } catch (IOException e) {
-            LOGGER.error("Error writing to output file: {}", e.getMessage());
-            System.exit(1);
-        }
-        System.exit(0);
+    public int getNumPoints() {
+        return numPoints;
     }
 }
