@@ -346,12 +346,12 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected List<Route> getResult() {
+    public List<Route> getResult() {
         return routeRepository.getAllRoutes(numRoutes);
     }
 
     @Override
-    protected void writeToCSV(String filePath) throws FileNotFoundException {
+    public void writeToCSV(String filePath) throws FileNotFoundException {
         routeRepository.writeToCSV(filePath, numRoutes);
     }
 

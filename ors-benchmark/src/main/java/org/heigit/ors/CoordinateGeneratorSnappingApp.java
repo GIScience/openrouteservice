@@ -1,6 +1,7 @@
-package org.heigit.ors.generators;
+package org.heigit.ors;
 
 import org.heigit.ors.cli.SnappingCommandLineParser;
+import org.heigit.ors.generators.CoordinateGeneratorSnapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

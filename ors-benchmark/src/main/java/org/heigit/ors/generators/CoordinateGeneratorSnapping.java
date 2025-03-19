@@ -180,7 +180,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     }
 
     @Override
-    protected void writeToCSV(String filePath) throws IOException {
+    public void writeToCSV(String filePath) throws IOException {
         try (PrintWriter pw = new PrintWriter(filePath)) {
             pw.println("longitude,latitude,profile");
             for (Map.Entry<String, List<double[]>> entry : resultsByProfile.entrySet()) {
@@ -196,7 +196,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected <T> List<T> getResult() {
+    public <T> List<T> getResult() {
         List<Object[]> combined = new ArrayList<>();
         resultsByProfile.forEach((userProfile, points) -> points.stream()
                 .limit(numPoints)

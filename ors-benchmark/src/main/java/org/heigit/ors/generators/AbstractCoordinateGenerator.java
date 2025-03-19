@@ -1,12 +1,6 @@
 package org.heigit.ors.generators;
 
-import java.io.IOException;
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -18,7 +12,12 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Abstract base class for coordinate generation implementations
@@ -129,7 +128,7 @@ public abstract class AbstractCoordinateGenerator {
     /**
      * Writes generation results to a CSV file
      */
-    protected abstract void writeToCSV(String filePath) throws IOException;
+    public abstract void writeToCSV(String filePath) throws IOException;
 
     /**
      * Main generation method with specified maximum attempts
@@ -139,7 +138,7 @@ public abstract class AbstractCoordinateGenerator {
     /**
      * Gets the generated results
      */
-    protected abstract <T> List<T> getResult();
+    public abstract <T> List<T> getResult();
 
     /**
      * Initializes or clears collections before generation
@@ -149,7 +148,7 @@ public abstract class AbstractCoordinateGenerator {
     /**
      * Main generation method with default maximum attempts
      */
-    protected void generate() {
+    public void generate() {
         generate(DEFAULT_MAX_ATTEMPTS);
     }
 }
