@@ -30,7 +30,7 @@ Example with space-separated extent:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorRoute" \
+  -Dexec.mainClass="org.heigit.ors.coordinates_generator.RouteGeneratorApp" \
   -Dexec.args="\
   -n 100 \
   -e 8.6 49.3 8.7 49.4 \
@@ -43,7 +43,7 @@ Example with comma-separated extent:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorRoute" \
+  -Dexec.mainClass="org.heigit.ors.coordinates_generator.RouteGeneratorApp" \
   -Dexec.args="\
   -n 100 \
   -e 8.6,49.3,8.7,49.4 \
@@ -57,7 +57,7 @@ Example with multiple profiles and max distances:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorRoute" \
+  -Dexec.mainClass="org.heigit.ors.coordinates_generator.RouteGeneratorApp" \
   -Dexec.args="\
   --num-routes 50 \
   --extent 8.681495,49.411721,8.695485,49.419365 \
@@ -89,7 +89,7 @@ Example with space-separated extent:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorSnapping" \
+  -Dexec.mainClass="org.heigit.ors.coordinates_generator.SnappingGeneratorApp" \
   -Dexec.args="\
   -n 100 \
   -e 8.6 49.3 8.7 49.4 \
@@ -102,7 +102,7 @@ Example with comma-separated extent:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorSnapping" \
+  -Dexec.mainClass="org.heigit.ors.coordinates_generator.SnappingGeneratorApp" \
   -Dexec.args="\
   -n 100 \
   -e 8.6,49.3,8.7,49.4 \
@@ -115,7 +115,7 @@ Example with multiple profiles:
 
 ```bash
 mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
-  -Dexec.mainClass="org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorSnapping" \
+  -Dexec.mainClass="org.heigit.ors.coordinates_generator.SnappingGeneratorApp" \
   -Dexec.args="\
   --num-points 50 \
   --extent 8.681495,49.411721,8.695485,49.419365 \
