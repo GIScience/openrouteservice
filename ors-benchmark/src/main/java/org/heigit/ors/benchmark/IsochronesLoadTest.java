@@ -6,8 +6,7 @@ import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
 import org.heigit.ors.benchmark.BenchmarkEnums.RangeType;
-import org.heigit.ors.config.Config;
-import org.heigit.ors.exceptions.RequestBodyCreationException;
+import org.heigit.ors.benchmark.exceptions.RequestBodyCreationException;
 import org.heigit.ors.util.SourceUtils;
 import org.slf4j.LoggerFactory;
 

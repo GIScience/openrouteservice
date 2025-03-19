@@ -1,0 +1,129 @@
+package org.heigit.ors.coordinates_generator.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Function;
+
+public class MatrixCalculator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatrixCalculator.class);
+    private static final String LOCATIONS_KEY = "locations";
+    
+    private final String baseUrl;
+    private final Map<String, String> headers;
+    private final ObjectMapper mapper;
+    private final Function<HttpPost, String> requestExecutor;
+
+    public MatrixCalculator(String baseUrl, Map<String, String> headers, ObjectMapper mapper,
+                           Function<HttpPost, String> requestExecutor) {
+        this.baseUrl = baseUrl;
+        this.headers = headers;
+        this.mapper = mapper;
+        this.requestExecutor = requestExecutor;
+    }
+
+    public Optional<MatrixResult> calculateMatrix(List<double[]> coordinates, String profile) {
+        try {
+            HttpPost request = createMatrixRequest(coordinates, profile);
+            String response = requestExecutor.apply(request);
+            
+            if (response == null) {
+                LOGGER.debug("Received null response from matrix API");
+                return Optional.empty();
+            }
+            
+            return Optional.of(processMatrixResponse(response));
+        } catch (IOException e) {
+            LOGGER.error("Error calculating matrix: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
+    
+    public String calculateMatrixRaw(List<double[]> coordinates, String profile) {
+        try {
+            HttpPost request = createMatrixRequest(coordinates, profile);
+            return requestExecutor.apply(request);
+        } catch (IOException e) {
+            LOGGER.error("Error calculating matrix: {}", e.getMessage());
+            return null;
+        }
+    }
+    
+    private HttpPost createMatrixRequest(List<double[]> coordinates, String profile) throws JsonProcessingException {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(LOCATIONS_KEY, coordinates);
+        payload.put("metrics", new String[] { "distance" });
+
+        HttpPost request = new HttpPost(baseUrl + "/v2/matrix/" + profile);
+        headers.forEach(request::addHeader);
+        request.setEntity(new StringEntity(mapper.writeValueAsString(payload), ContentType.APPLICATION_JSON));
+        return request;
+    }
+    
+    private MatrixResult processMatrixResponse(String response) throws JsonProcessingException {
+        Map<String, Object> responseMap = mapper.readValue(response, 
+                new TypeReference<Map<String, Object>>() {});
+        
+        List<List<Double>> distances = extractDistances(responseMap);
+        List<Map<String, Object>> sources = extractLocations(responseMap, "sources");
+        List<Map<String, Object>> destinations = extractLocations(responseMap, "destinations");
+        
+        return new MatrixResult(sources, destinations, distances);
+    }
+    
+    @SuppressWarnings("unchecked")
+    private List<List<Double>> extractDistances(Map<String, Object> responseMap) {
+        Object distancesObj = responseMap.get("distances");
+        if (distancesObj instanceof List<?>) {
+            return (List<List<Double>>) distancesObj;
+        }
+        return Collections.emptyList();
+    }
+    
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> extractLocations(Map<String, Object> responseMap, String key) {
+        Object locationsObj = responseMap.get(key);
+        if (locationsObj instanceof List<?>) {
+            return (List<Map<String, Object>>) locationsObj;
+        }
+        return Collections.emptyList();
+    }
+    
+    public static class MatrixResult {
+        private final List<Map<String, Object>> sources;
+        private final List<Map<String, Object>> destinations;
+        private final List<List<Double>> distances;
+        
+        public MatrixResult(List<Map<String, Object>> sources, List<Map<String, Object>> destinations, 
+                           List<List<Double>> distances) {
+            this.sources = sources;
+            this.destinations = destinations;
+            this.distances = distances;
+        }
+        
+        public List<Map<String, Object>> getSources() {
+            return sources;
+        }
+        
+        public List<Map<String, Object>> getDestinations() {
+            return destinations;
+        }
+        
+        public List<List<Double>> getDistances() {
+            return distances;
+        }
+        
+        public boolean isValid() {
+            return !sources.isEmpty() && !destinations.isEmpty() && !distances.isEmpty() && 
+                   sources.size() == destinations.size();
+        }
+    }
+}

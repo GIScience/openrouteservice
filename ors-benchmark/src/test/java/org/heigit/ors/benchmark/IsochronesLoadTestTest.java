@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gatling.javaapi.core.Session;
 import org.heigit.ors.benchmark.BenchmarkEnums.RangeType;
-import org.heigit.ors.config.Config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
