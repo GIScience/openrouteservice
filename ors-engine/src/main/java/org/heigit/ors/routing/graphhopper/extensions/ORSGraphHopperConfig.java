@@ -43,23 +43,25 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
         ElevationProperties elevationProps = engineConfig.getElevation();
 
-        boolean addElevation = profile.getBuild().getElevation()
-                && elevationProps.getProvider() != null
-                && elevationProps.getCachePath() != null;
+        boolean addElevation = true;
 
-        if (!addElevation) {
-            if (Boolean.FALSE.equals(profile.getBuild().getElevation())) {
-                LOGGER.warn("Elevation is set to false.");
-            }
-            if (elevationProps.getProvider() == null) {
-                LOGGER.warn("Elevation provider is null.");
-            }
-            if (elevationProps.getCachePath() == null) {
-                LOGGER.warn("Elevation cache path is null.");
-            }
+    
+        if (!profile.getBuild().getElevation()) {
+            LOGGER.warn("Elevation is set to false.");
+            addElevation = false;
         }
-
-        if (Boolean.TRUE.equals(addElevation)) {
+        if (elevationProps.getProvider() == null) {
+            LOGGER.warn("Elevation provider is null.");
+            addElevation = false;
+        }
+        if (elevationProps.getCachePath() == null) {
+            LOGGER.warn("Elevation cache path is null.");
+            addElevation = false;
+        }
+        
+        if (!addElevation) {
+             LOGGER.warn("Elevation deactivated.");
+        } else {
             ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
             ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
             ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
