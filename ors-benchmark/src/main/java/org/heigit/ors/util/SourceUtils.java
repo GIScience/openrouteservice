@@ -1,12 +1,12 @@
-package org.heigit.ors.benchmark.util;
+package org.heigit.ors.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SourceUtils {
     private SourceUtils() {

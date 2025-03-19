@@ -1,4 +1,4 @@
-package org.heigit.ors.benchmark.util;
+package org.heigit.ors.util;
 
 import java.io.File;
 

@@ -1,29 +1,24 @@
 package org.heigit.ors.benchmark;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.gatling.javaapi.core.PopulationBuilder;
+import io.gatling.javaapi.core.ScenarioBuilder;
+import io.gatling.javaapi.core.Session;
+import io.gatling.javaapi.http.HttpRequestActionBuilder;
+import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
+import org.heigit.ors.exceptions.RequestBodyCreationException;
+import org.heigit.ors.util.SourceUtils;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
-import org.heigit.ors.benchmark.util.SourceUtils;
-import org.heigit.ors.exceptions.RequestBodyCreationException;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import static io.gatling.javaapi.core.CoreDsl.StringBody;
-import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
-import static io.gatling.javaapi.core.CoreDsl.csv;
-import static io.gatling.javaapi.core.CoreDsl.exec;
-import static io.gatling.javaapi.core.CoreDsl.scenario;
-import io.gatling.javaapi.core.PopulationBuilder;
-import io.gatling.javaapi.core.ScenarioBuilder;
-import io.gatling.javaapi.core.Session;
+import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
-import io.gatling.javaapi.http.HttpRequestActionBuilder;
 
 public class DirectionsLoadTest extends AbstractLoadTest {
 
