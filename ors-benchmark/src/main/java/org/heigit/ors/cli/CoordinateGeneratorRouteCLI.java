@@ -1,16 +1,13 @@
-package org.heigit.ors.generators;
+package org.heigit.ors.cli;
+
+import org.apache.commons.cli.*;
+import org.heigit.ors.exceptions.CommandLineParsingException;
+import org.heigit.ors.generators.CoordinateGeneratorRoute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
-import org.heigit.ors.exceptions.CommandLineParsingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorRouteCLI.class);

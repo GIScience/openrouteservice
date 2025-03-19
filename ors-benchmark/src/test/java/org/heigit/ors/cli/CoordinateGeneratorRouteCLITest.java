@@ -1,20 +1,16 @@
-package org.heigit.ors.generators;
-
-import java.lang.reflect.Field;
-import java.util.Map;
+package org.heigit.ors.cli;
 
 import org.heigit.ors.exceptions.CommandLineParsingException;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.heigit.ors.generators.CoordinateGeneratorRoute;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.lang.reflect.Field;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class CoordinateGeneratorRouteCLITest {
 

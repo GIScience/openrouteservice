@@ -43,8 +43,8 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         this(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, DEFAULT_THREAD_COUNT);
     }
 
-    protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
-            double minDistance, Map<String, Double> maxDistanceByProfile, int numThreads) {
+    public CoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
+                                    double minDistance, Map<String, Double> maxDistanceByProfile, int numThreads) {
         super(extent, profiles, baseUrl, "matrix");
         validateInputs(numRoutes, minDistance, numThreads);
 

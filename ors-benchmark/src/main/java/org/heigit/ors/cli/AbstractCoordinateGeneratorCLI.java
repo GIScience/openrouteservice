@@ -1,4 +1,4 @@
-package org.heigit.ors.generators;
+package org.heigit.ors.cli;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;

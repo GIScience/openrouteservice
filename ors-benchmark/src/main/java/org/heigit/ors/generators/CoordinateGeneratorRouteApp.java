@@ -1,5 +1,6 @@
 package org.heigit.ors.generators;
 
+import org.heigit.ors.cli.CoordinateGeneratorRouteCLI;
 import org.heigit.ors.model.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,11 +1,8 @@
-package org.heigit.ors.generators;
+package org.heigit.ors.cli;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 import org.heigit.ors.exceptions.CommandLineParsingException;
+import org.heigit.ors.generators.CoordinateGeneratorSnapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
