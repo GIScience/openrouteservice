@@ -1,31 +1,11 @@
 package org.heigit.ors.generators;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-
+import me.tongfei.progressbar.DelegatingProgressBarConsumer;
+import me.tongfei.progressbar.ProgressBar;
+import me.tongfei.progressbar.ProgressBarBuilder;
+import me.tongfei.progressbar.ProgressBarStyle;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.StatusLine;
 import org.heigit.ors.model.Route;
 import org.heigit.ors.model.RouteRepository;
 import org.heigit.ors.service.MatrixCalculator;
@@ -33,10 +13,13 @@ import org.heigit.ors.service.RouteSnapper;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
 
-import me.tongfei.progressbar.DelegatingProgressBarConsumer;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
-import me.tongfei.progressbar.ProgressBarStyle;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     private static final int DEFAULT_MATRIX_SIZE = 2;
@@ -96,29 +79,6 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
             normalized.put(profile, maxDistanceByProfile.getOrDefault(profile, Double.MAX_VALUE));
         }
         return normalized;
-    }
-
-    @Override
-    protected String processResponse(ClassicHttpResponse response) throws IOException {
-        int status = response.getCode();
-
-        if (status >= HttpStatus.SC_REDIRECTION) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Received error response: {}", new StatusLine(response));
-            }
-            return null;
-        }
-
-        HttpEntity entity = response.getEntity();
-        if (entity == null) {
-            return null;
-        }
-
-        try {
-            return EntityUtils.toString(entity);
-        } catch (ParseException | IOException e) {
-            throw new IOException("Failed to parse response entity", e);
-        }
     }
 
     public void generateRoutes() {
