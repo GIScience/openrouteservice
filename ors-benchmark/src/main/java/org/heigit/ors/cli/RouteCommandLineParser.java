@@ -9,13 +9,13 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CoordinateGeneratorRouteCLI extends AbstractCoordinateGeneratorCLI {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorRouteCLI.class);
+public class RouteCommandLineParser extends CommandLineParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RouteCommandLineParser.class);
 
     private static final String OPT_THREADS = "threads";
     private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
 
-    public CoordinateGeneratorRouteCLI(String[] args) {
+    public RouteCommandLineParser(String[] args) {
         super(args);
     }
 

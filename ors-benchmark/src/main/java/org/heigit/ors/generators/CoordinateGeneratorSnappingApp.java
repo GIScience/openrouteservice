@@ -1,6 +1,6 @@
 package org.heigit.ors.generators;
 
-import org.heigit.ors.cli.CoordinateGeneratorSnappingCLI;
+import org.heigit.ors.cli.SnappingCommandLineParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +11,7 @@ public class CoordinateGeneratorSnappingApp {
 
     public static void main(String[] args) {
         try {
-            CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+            SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
 
             if (cli.hasHelp()) {
                 cli.printHelp();

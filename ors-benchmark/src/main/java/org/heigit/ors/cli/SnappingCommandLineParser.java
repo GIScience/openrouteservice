@@ -6,10 +6,10 @@ import org.heigit.ors.generators.CoordinateGeneratorSnapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CoordinateGeneratorSnappingCLI extends AbstractCoordinateGeneratorCLI {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorSnappingCLI.class);
+public class SnappingCommandLineParser extends CommandLineParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnappingCommandLineParser.class);
 
-    public CoordinateGeneratorSnappingCLI(String[] args) {
+    public SnappingCommandLineParser(String[] args) {
         super(args);
     }
 

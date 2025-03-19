@@ -1,6 +1,6 @@
 package org.heigit.ors.generators;
 
-import org.heigit.ors.cli.CoordinateGeneratorRouteCLI;
+import org.heigit.ors.cli.RouteCommandLineParser;
 import org.heigit.ors.model.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ public class CoordinateGeneratorRouteApp {
 
     public static void main(String[] args) throws FileNotFoundException {
         try {
-            CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+            RouteCommandLineParser cli = new RouteCommandLineParser(args);
 
             if (cli.hasHelp()) {
                 cli.printHelp();

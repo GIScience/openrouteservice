@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CoordinateGeneratorRouteCLITest {
+class RouteCommandLineParserTest {
 
     @Test
     void testValidCliArguments() {
@@ -26,7 +26,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-t", "4"
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         CoordinateGeneratorRoute generator = cli.createGenerator();
 
         assertNotNull(generator);
@@ -43,7 +43,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-o", "custom_routes.csv"
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         assertEquals("custom_routes.csv", cli.getOutputFile());
     }
 
@@ -61,7 +61,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-p", profileInput
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         CoordinateGeneratorRoute generator = cli.createGenerator();
         assertNotNull(generator);
     }
@@ -69,7 +69,7 @@ class CoordinateGeneratorRouteCLITest {
     @Test
     void testHelpFlag() {
         String[] args = { "-h" };
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         assertTrue(cli.hasHelp());
 
     }
@@ -83,7 +83,7 @@ class CoordinateGeneratorRouteCLITest {
         };
 
         CommandLineParsingException exception = assertThrows(
-                CommandLineParsingException.class, () -> new CoordinateGeneratorRouteCLI(args));
+                CommandLineParsingException.class, () -> new RouteCommandLineParser(args));
         assertNotNull(exception);
     }
 
@@ -95,7 +95,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-p", "driving-car"
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         NumberFormatException exception = assertThrows(NumberFormatException.class, cli::createGenerator);
         assertNotNull(exception);
     }
@@ -108,10 +108,10 @@ class CoordinateGeneratorRouteCLITest {
                 "-p", "driving-car"
         };
 
-        CoordinateGeneratorRouteCLI coordinateGeneratorRouteCLI = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser routeCommandLineParser = new RouteCommandLineParser(args);
 
         IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class, coordinateGeneratorRouteCLI::createGenerator);
+                IllegalArgumentException.class, routeCommandLineParser::createGenerator);
         assertNotNull(exception);
     }
 
@@ -122,7 +122,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-e", "8.6 49.3 8.7 49.4",
                 "-p", ""
         };
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 cli::createGenerator);
         assertNotNull(exception);
@@ -139,7 +139,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-m", "5000"
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         CoordinateGeneratorRoute generator = cli.createGenerator();
         assertNotNull(generator);
         // Test minDistance using reflection
@@ -165,7 +165,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-m", maxDistances
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         CoordinateGeneratorRoute generator = cli.createGenerator();
 
         // Use reflection to access the maxDistanceByProfile field
@@ -193,7 +193,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-m", maxDistances
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, cli::createGenerator);
         assertNotNull(exception);
@@ -213,7 +213,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-m", "invalid"
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         CoordinateGeneratorRoute generator = cli.createGenerator();
         assertNotNull(generator); // Should still create generator but log warning
     }
@@ -228,7 +228,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-t", "8"
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         CoordinateGeneratorRoute generator = cli.createGenerator();
         assertNotNull(generator);
     }
@@ -243,7 +243,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-t", "invalid"
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 cli::createGenerator);
         assertNotNull(exception);
@@ -264,7 +264,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-p", "driving-car",
                 "-m", "1000"
         };
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         double[] extent = cli.parseExtent(extentInput);
 
         assertArrayEquals(
@@ -289,7 +289,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-p", "driving-car",
                 "-m", "1000"
         };
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> cli.parseExtent(extentInput),
@@ -306,7 +306,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-m", "5000"
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         CoordinateGeneratorRoute generator = cli.createGenerator();
         assertNotNull(generator);
     }
@@ -320,7 +320,7 @@ class CoordinateGeneratorRouteCLITest {
                 "-m", "5000"
         };
 
-        CoordinateGeneratorRouteCLI cli = new CoordinateGeneratorRouteCLI(args);
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
         CoordinateGeneratorRoute generator = cli.createGenerator();
         assertNotNull(generator);
     }

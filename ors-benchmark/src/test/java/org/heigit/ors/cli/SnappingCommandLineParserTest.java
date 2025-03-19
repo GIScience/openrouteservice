@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CoordinateGeneratorSnappingCLITest {
+class SnappingCommandLineParserTest {
 
     @Test
     void testValidCliArguments() {
@@ -21,7 +21,7 @@ class CoordinateGeneratorSnappingCLITest {
             "-u", "http://localhost:8080/ors"
         };
 
-        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
         CoordinateGeneratorSnapping generator = cli.createGenerator();
 
         assertNotNull(generator);
@@ -38,7 +38,7 @@ class CoordinateGeneratorSnappingCLITest {
             "-o", "custom_output.csv"
         };
 
-        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
         assertEquals("custom_output.csv", cli.getOutputFile());
     }
 
@@ -56,7 +56,7 @@ class CoordinateGeneratorSnappingCLITest {
                     "-p", profileInput
         };
 
-        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
         CoordinateGeneratorSnapping generator = cli.createGenerator();
         assertNotNull(generator);
     }
@@ -67,7 +67,7 @@ class CoordinateGeneratorSnappingCLITest {
         // assert throws MissingOptionException
         CommandLineParsingException exception = assertThrows(
                         CommandLineParsingException.class,
-                () -> new CoordinateGeneratorSnappingCLI(args));
+                () -> new SnappingCommandLineParser(args));
         assertNotNull(exception);
         assertEquals("org.heigit.ors.exceptions.CommandLineParsingException: Failed to parse command line arguments",
                 exception.toString());
@@ -82,7 +82,7 @@ class CoordinateGeneratorSnappingCLITest {
         };
 
         CommandLineParsingException exception = assertThrows(
-                CommandLineParsingException.class, () -> new CoordinateGeneratorSnappingCLI(args));
+                CommandLineParsingException.class, () -> new SnappingCommandLineParser(args));
         assertNotNull(exception);
     }
 
@@ -94,7 +94,7 @@ class CoordinateGeneratorSnappingCLITest {
                     "-p", "driving-car"
         };
 
-        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
         NumberFormatException exception = assertThrows(NumberFormatException.class, cli::createGenerator);
         assertNotNull(exception);
     }
@@ -112,7 +112,7 @@ class CoordinateGeneratorSnappingCLITest {
                 "-e", extentInput,
                 "-p", "driving-car"
         };
-        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
         double[] extent = cli.parseExtent(extentInput);
 
         assertEquals(minLon, extent[0], 0.001, "Min longitude should match");
@@ -135,7 +135,7 @@ class CoordinateGeneratorSnappingCLITest {
                 "-e", extentInput,
                 "-p", "driving-car"
         };
-        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> cli.parseExtent(extentInput),
@@ -151,7 +151,7 @@ class CoordinateGeneratorSnappingCLITest {
                 "-p", "driving-car"
         };
 
-        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
         CoordinateGeneratorSnapping generator = cli.createGenerator();
         assertNotNull(generator);
     }
@@ -164,7 +164,7 @@ class CoordinateGeneratorSnappingCLITest {
             "-p", "driving-car"
         };
 
-        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
         CoordinateGeneratorSnapping generator = cli.createGenerator();
         assertNotNull(generator);
     }
@@ -176,7 +176,7 @@ class CoordinateGeneratorSnappingCLITest {
                 "-e", "8.6 49.3 8.7 49.4",
                     "-p", ""
         };
-        CoordinateGeneratorSnappingCLI cli = new CoordinateGeneratorSnappingCLI(args);
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 cli::createGenerator);
         assertNotNull(exception);

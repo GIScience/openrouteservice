@@ -3,11 +3,11 @@ package org.heigit.ors.cli;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-public abstract class AbstractCoordinateGeneratorCLI {
+public abstract class CommandLineParser {
     protected final Options options;
     protected final CommandLine cmd;
 
-    protected AbstractCoordinateGeneratorCLI(String[] args) {
+    protected CommandLineParser(String[] args) {
         this.options = new Options();
         initOptions();
         this.cmd = initCommandLine(args);
