@@ -22,11 +22,13 @@ import org.heigit.ors.util.StringUtility;
 import java.nio.file.Path;
 import java.util.*;
 
+import org.apache.log4j.Logger;
+
 public class ORSGraphHopperConfig extends GraphHopperConfig {
     private List<CHProfile> coreProfiles = new ArrayList<>();
     private List<LMProfile> coreLMProfiles = new ArrayList<>();
     private List<Profile> fastisochroneProfiles = new ArrayList<>();
-    private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(ORSGraphHopperConfig.class.getName());
+    private static final Logger LOGGER = org.apache.log4j.Logger.getLogger(ORSGraphHopperConfig.class.getName());
 
     public static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig, String graphLocation) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
