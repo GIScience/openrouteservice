@@ -25,7 +25,6 @@ class ConfigTest {
         System.clearProperty("api_key");
         System.clearProperty("concurrent_users");
         System.clearProperty("query_sizes");
-        System.clearProperty("run_time");
     }
 
     @Test
@@ -55,7 +54,6 @@ class ConfigTest {
         System.setProperty("api_key", "test-key");
         System.setProperty("concurrent_users", "5");
         System.setProperty("query_sizes", "2,4");
-        System.setProperty("run_time", "120");
         System.setProperty("parallel_execution", "false");
 
         Config customConfig = new Config();

@@ -137,7 +137,7 @@ Options:
 - `base_url`: ORS API base URL (default: <http://localhost:8082/ors>)
 - `api_key`: API key for authentication
 - `profile`: Routing profile (default: driving-car)
-- `range`: Comma-separated list of isochrone ranges in meters (e.g., "300,600,900")
+- `range`: Comma-separated list of isochrone ranges in meters or seconds (e.g., "300,600,900")
 - `field_lon`: CSV field name for longitude column (default: longitude)
 - `field_lat`: CSV field name for latitude column (default: latitude)
 - `concurrent_users`: Number of concurrent users (default: 1)
@@ -183,7 +183,6 @@ mvn -pl 'ors-benchmark' gatling:test \
   -Drange=500 \
   -Dconcurrent_users=1 \
   -Dquery_sizes='1,2,4,6,8,10,12,15,20' \
-  -Drun_time=60 \
   -Dtest_unit='distance'
 ```
 
@@ -194,8 +193,7 @@ mvn -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesLoadTest \
   -Dsource_files='germany_car-foot-bike-hgv_10000_points.csv' \
   -Dquery_sizes='1,2,3,4,5' \
-  -Dparallel_execution=false \
-  -Drun_time=300
+  -Dparallel_execution=false
 ```
 
 Example with multiple source files:
@@ -205,8 +203,7 @@ mvn -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesLoadTest \
   -Dsource_files='points1.csv,points2.csv' \
   -Dbase_url='http://localhost:8080/ors' \
-  -Dquery_sizes='1,2,3,4,5' \
-  -Drun_time=300
+  -Dquery_sizes='1,2,3,4,5'
 ```
 
 The test will generate a Gatling report with detailed performance metrics after completion.
@@ -220,7 +217,7 @@ A Gatling-based load test for the ORS Directions API. This test sends routing re
 Options:
 
 - `source_files`: Comma-separated list of CSV files containing coordinate pairs (required). The CSV file is read either from `./` or from `resources` directory.
-- `base_url`: ORS API base URL (default: <http://localhost:8080/ors>)
+- `base_url`: ORS API base URL (default: <http://localhost:8082/ors>)
 - `api_key`: API key for authentication
 - `modes`: Comma-separated routing modes: algoch, algocore, algolmastar (default: all)
 - `field_start_lon`: CSV field name for start longitude column (default: start_longitude)
@@ -262,7 +259,7 @@ mvn -pl 'ors-benchmark' gatling:test \
   -Dfield_start_lat='from_lat' \
   -Dfield_end_lon='to_lon' \
   -Dfield_end_lat='to_lat' \
-  -Dmode='algolmastar'
+  -Dmodes='algolmastar'
 ```
 
 Example with multiple modes:
@@ -272,8 +269,7 @@ mvn -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.DirectionsLoadTest \
   -Dsource_files='germany_car600-bike10-foot5-hgv600_10000_routes.csv' \
   -Dparallel_execution=false \
-  -Dmodes='algoch,algocore' \
-  -Drun_time=300
+  -Dmodes='algoch,algocore'
 ```
 
 The test will generate a Gatling report with detailed performance metrics after completion.
