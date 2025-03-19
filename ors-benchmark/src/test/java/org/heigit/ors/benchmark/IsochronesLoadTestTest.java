@@ -1,34 +1,34 @@
 package org.heigit.ors.benchmark;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.gatling.javaapi.core.Session;
+import org.heigit.ors.benchmark.BenchmarkEnums.RangeType;
+import org.heigit.ors.config.Config;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.heigit.ors.benchmark.BenchmarkEnums.RangeType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.gatling.javaapi.core.Session;
 
 class IsochronesLoadTestTest {
     private ObjectMapper objectMapper;
     private Session mockSession;
-    private TestConfig mockConfig;
+    private Config mockConfig;
 
     @BeforeEach
     @SuppressWarnings("unused")
     void setUp() {
         objectMapper = new ObjectMapper();
         mockSession = mock(Session.class);
-        mockConfig = mock(TestConfig.class);
+        mockConfig = mock(Config.class);
 
         // Update mock setup to handle Lists
         when(mockSession.get("longitude")).thenReturn(Arrays.asList(8.681495, 8.681495));
@@ -41,7 +41,7 @@ class IsochronesLoadTestTest {
     @Test
     void createRequestBody_ShouldCreateValidJson() {
         // given
-        TestConfig config = new TestConfig();
+        Config config = new Config();
 
         // when
         String result = IsochronesLoadTest.createRequestBody(mockSession, 1, config, RangeType.TIME);
@@ -56,7 +56,7 @@ class IsochronesLoadTestTest {
     @Test
     void createRequestBody_ShouldCreateValidJsonForDistance() {
         // given
-        TestConfig config = new TestConfig();
+        Config config = new Config();
 
         // when
         String result = IsochronesLoadTest.createRequestBody(mockSession, 1, config, RangeType.DISTANCE);
@@ -71,7 +71,7 @@ class IsochronesLoadTestTest {
     @Test
     void createRequestBody_ShouldIncludeMultipleLocations() {
         // given
-        TestConfig config = new TestConfig();
+        Config config = new Config();
 
         // when
         String result = IsochronesLoadTest.createRequestBody(mockSession, 2, config, RangeType.TIME);

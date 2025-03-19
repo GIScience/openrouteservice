@@ -1,20 +1,21 @@
-package org.heigit.ors.benchmark;
+package org.heigit.ors.config;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
-class TestConfigTest {
-    private TestConfig config;
+class ConfigTest {
+    private Config config;
 
     @BeforeEach
     @SuppressWarnings("unused")
     void setUp() {
-        config = new TestConfig();
+        config = new Config();
     }
 
     @AfterEach
@@ -44,7 +45,7 @@ class TestConfigTest {
     @Test
     void testQuerySizesParsing() {
         System.setProperty("query_sizes", "1,3,2,5,4");
-        TestConfig customConfig = new TestConfig();
+        Config customConfig = new Config();
         assertEquals(List.of(1, 2, 3, 4, 5), customConfig.getQuerySizes());
     }
 
@@ -57,7 +58,7 @@ class TestConfigTest {
         System.setProperty("run_time", "120");
         System.setProperty("parallel_execution", "false");
 
-        TestConfig customConfig = new TestConfig();
+        Config customConfig = new Config();
         assertEquals("http://test.com", customConfig.getBaseUrl());
         assertEquals("test-key", customConfig.getApiKey());
         assertEquals(5, customConfig.getNumConcurrentUsers());

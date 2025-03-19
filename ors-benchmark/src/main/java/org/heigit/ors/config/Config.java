@@ -1,18 +1,17 @@
-package org.heigit.ors.benchmark;
-
-import java.util.Arrays;
-import java.util.List;
+package org.heigit.ors.config;
 
 import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
-import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.ALGO_CH;
-import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.ALGO_CORE;
-import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.ALGO_LM_ASTAR;
 import org.heigit.ors.benchmark.BenchmarkEnums.TestUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestConfig {
-    private static final Logger logger = LoggerFactory.getLogger(TestConfig.class);
+import java.util.Arrays;
+import java.util.List;
+
+import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.*;
+
+public class Config {
+    private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
     private final String baseUrl;
     private final String apiKey;
@@ -32,7 +31,7 @@ public class TestConfig {
     private final List<String> modes;
     private final List<Integer> ranges;
 
-    public TestConfig() {
+    public Config() {
         this.baseUrl = getSystemProperty("base_url", "http://localhost:8082/ors");
         this.apiKey = getSystemProperty("api_key", "API KEY");
         this.targetProfile = getSystemProperty("profile", "driving-car");

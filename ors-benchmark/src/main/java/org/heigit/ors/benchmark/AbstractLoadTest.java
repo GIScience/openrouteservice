@@ -1,23 +1,23 @@
 package org.heigit.ors.benchmark;
 
-import java.util.List;
-import java.util.stream.Stream;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.gatling.javaapi.core.PopulationBuilder;
+import io.gatling.javaapi.core.Simulation;
+import io.gatling.javaapi.http.HttpProtocolBuilder;
+import org.heigit.ors.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.stream.Stream;
 
-import io.gatling.javaapi.core.PopulationBuilder;
-import io.gatling.javaapi.core.Simulation;
 import static io.gatling.javaapi.http.HttpDsl.http;
-import io.gatling.javaapi.http.HttpProtocolBuilder;
 
 public abstract class AbstractLoadTest extends Simulation {
     protected static Logger logger = LoggerFactory.getLogger(AbstractLoadTest.class);
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
-    protected final TestConfig config = new TestConfig();
+    protected final Config config = new Config();
     protected final HttpProtocolBuilder httpProtocol;
 
     protected AbstractLoadTest() {

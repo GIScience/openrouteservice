@@ -6,6 +6,7 @@ import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
 import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
+import org.heigit.ors.config.Config;
 import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.heigit.ors.util.SourceUtils;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class DirectionsLoadTest extends AbstractLoadTest {
         return String.format("%s - %s - %s", isParallel ? "Parallel" : "Sequential", mode, profile);
     }
 
-    private static ScenarioBuilder createDirectionScenario(String name, String sourceFile, TestConfig config,
+    private static ScenarioBuilder createDirectionScenario(String name, String sourceFile, Config config,
             DirectionsModes mode, String profile) {
 
         try {
@@ -85,7 +86,7 @@ public class DirectionsLoadTest extends AbstractLoadTest {
         }
     }
 
-    private static HttpRequestActionBuilder createRequest(String name, TestConfig config, DirectionsModes mode, String profile) {
+    private static HttpRequestActionBuilder createRequest(String name, Config config, DirectionsModes mode, String profile) {
         return http(name)
                 .post("/v2/directions/" + profile)
                 .body(StringBody(session -> createRequestBody(session, config, mode)))
@@ -93,7 +94,7 @@ public class DirectionsLoadTest extends AbstractLoadTest {
                 .check(status().is(200));
     }
 
-    static String createRequestBody(Session session, TestConfig config, DirectionsModes mode) {
+    static String createRequestBody(Session session, Config config, DirectionsModes mode) {
         try {
             Map<String, Object> requestBody = new java.util.HashMap<>(Map.of(
                     "coordinates", createLocationsListFromArrays(session, config)
@@ -105,7 +106,7 @@ public class DirectionsLoadTest extends AbstractLoadTest {
         }
     }
 
-    static List<List<Double>> createLocationsListFromArrays(Session session, TestConfig config) {
+    static List<List<Double>> createLocationsListFromArrays(Session session, Config config) {
         List<List<Double>> locations = new ArrayList<>();
         try {
             Double startLon = Double.valueOf((String) session.getList(config.getFieldStartLon()).get(0));

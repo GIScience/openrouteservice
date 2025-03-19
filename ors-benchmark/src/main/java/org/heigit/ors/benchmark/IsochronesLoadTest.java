@@ -6,6 +6,7 @@ import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
 import org.heigit.ors.benchmark.BenchmarkEnums.RangeType;
+import org.heigit.ors.config.Config;
 import org.heigit.ors.exceptions.RequestBodyCreationException;
 import org.heigit.ors.util.SourceUtils;
 import org.slf4j.LoggerFactory;
@@ -78,7 +79,7 @@ public class IsochronesLoadTest extends AbstractLoadTest {
     }
 
     private static ScenarioBuilder createIsochroneScenario(String name, int locationCount, String sourceFile,
-            TestConfig config, RangeType rangeType, boolean isParallel) {
+                                                           Config config, RangeType rangeType, boolean isParallel) {
 
         logger.info(
                 "Creating scenario: name={}, locationCount={}, sourceFile={}, profile={}, rangeType={}, isParallel={}",
@@ -112,7 +113,7 @@ public class IsochronesLoadTest extends AbstractLoadTest {
         }
     }
 
-    private static HttpRequestActionBuilder createIsochroneRequest(String name, int locationCount, TestConfig config,
+    private static HttpRequestActionBuilder createIsochroneRequest(String name, int locationCount, Config config,
             RangeType rangeType) {
         return http(name)
                 .post("/v2/isochrones/" + config.getTargetProfile())
@@ -121,7 +122,7 @@ public class IsochronesLoadTest extends AbstractLoadTest {
                 .check(status().is(200));
     }
 
-    static String createRequestBody(Session session, int locationCount, TestConfig config, RangeType rangeType) {
+    static String createRequestBody(Session session, int locationCount, Config config, RangeType rangeType) {
         try {
             List<List<Double>> locations = createLocationsListFromArrays(session, locationCount, config);
 
@@ -158,7 +159,7 @@ public class IsochronesLoadTest extends AbstractLoadTest {
         }
     }
 
-    static List<List<Double>> createLocationsListFromArrays(Session session, int locationCount, TestConfig config) {
+    static List<List<Double>> createLocationsListFromArrays(Session session, int locationCount, Config config) {
         logger.debug("Creating locations list for batch size: {}", locationCount);
         List<List<Double>> locations = new ArrayList<>();
 
