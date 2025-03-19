@@ -291,6 +291,7 @@ export default withMermaid(defineVersionedConfig({
                                 {text: 'Tag Filtering', link: '/technical-details/tag-filtering'},
                                 {text: 'Graph Management', link: '/technical-details/graph-repo-client/'},
                                 {text: 'Integration Tests', link: '/technical-details/integration-tests'},
+                                {text: 'Coordinate Generators', link: '/technical-details/coordinate-generators'},
                             ]
                         },
                         {text: 'FAQ', link: '/frequently-asked-questions'}
