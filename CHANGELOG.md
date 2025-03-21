@@ -39,6 +39,7 @@ Releasing is documented in RELEASE.md
 - pass extra_info when querying round_trip ([#1976](https://github.com/GIScience/openrouteservice/issues/1976))
 - repair broken integration tests with by pining buildkit 0.15 ([#2003](https://github.com/GIScience/openrouteservice/pull/2003))
 - elevation set to false not taken into account ([#1967](https://github.com/GIScience/openrouteservice/issues/1967))
+- enable passing of barriers tagged with `access = permit` ([#2002](https://github.com/GIScience/openrouteservice/pull/2002))
 
 ### Security
 
