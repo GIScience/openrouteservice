@@ -17,10 +17,12 @@ package org.heigit.ors.api.responses.routing.gpx;
 
 import com.graphhopper.util.shapes.BBox;
 import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxBase;
 import org.heigit.ors.util.FormatUtility;
 
+@XmlRootElement
 public class GPXBounds extends BoundingBoxBase implements BoundingBox {
     public GPXBounds() {
         super();
@@ -31,25 +33,25 @@ public class GPXBounds extends BoundingBoxBase implements BoundingBox {
     }
 
     @Override
-    @XmlAttribute(name = "minLat")
+    @XmlAttribute(name = "minlat")
     public double getMinLat() {
         return FormatUtility.roundToDecimals(this.minLat, COORDINATE_DECIMAL_PLACES);
     }
 
     @Override
-    @XmlAttribute(name = "minLon")
+    @XmlAttribute(name = "minlon")
     public double getMinLon() {
         return FormatUtility.roundToDecimals(this.minLon, COORDINATE_DECIMAL_PLACES);
     }
 
     @Override
-    @XmlAttribute(name = "maxLat")
+    @XmlAttribute(name = "maxlat")
     public double getMaxLat() {
         return FormatUtility.roundToDecimals(this.maxLat, COORDINATE_DECIMAL_PLACES);
     }
 
     @Override
-    @XmlAttribute(name = "maxLon")
+    @XmlAttribute(name = "maxlon")
     public double getMaxLon() {
         return FormatUtility.roundToDecimals(this.maxLon, COORDINATE_DECIMAL_PLACES);
     }
