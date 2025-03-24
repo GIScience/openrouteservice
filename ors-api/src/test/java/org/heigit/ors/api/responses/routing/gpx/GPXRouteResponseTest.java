@@ -64,5 +64,7 @@ class GPXRouteResponseTest {
         assertEquals("openrouteservice", response.getGpxCreator());
 
         assertEquals("https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd", response.getXmlnsLink());
+
+        assertEquals("1.1", response.getGpxVersion());
     }
 }
