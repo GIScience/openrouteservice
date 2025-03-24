@@ -37,7 +37,7 @@ import java.util.List;
 public class GPXRouteResponse extends RouteResponse {
 
     @XmlAttribute(name = "version")
-    private static final String GPX_VERSION = "1.0";
+    private static final String GPX_VERSION = "1.1";
 
     @XmlAttribute(name = "creator")
     private static final String GPX_CREATOR = "openrouteservice";
