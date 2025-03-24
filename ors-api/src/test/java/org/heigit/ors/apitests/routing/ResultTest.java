@@ -1309,7 +1309,7 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].extras.containsKey('suitability')", is(true))
                 .body("routes[0].extras.containsKey('surface')", is(true))
                 .body("routes[0].extras.containsKey('waycategory')", is(true))
-                .body("routes[0].extras.containsKey('waytypes')", is(true))
+                .body("routes[0].extras.containsKey('waytype')", is(true))
                 .body("routes[0].extras.containsKey('traildifficulty')", is(true))
                 .body("routes[0].extras.containsKey('green')", is(true))
                 .body("routes[0].extras.containsKey('noise')", is(true))
