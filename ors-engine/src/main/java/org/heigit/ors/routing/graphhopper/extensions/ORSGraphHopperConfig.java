@@ -22,10 +22,13 @@ import org.heigit.ors.util.StringUtility;
 import java.nio.file.Path;
 import java.util.*;
 
+import org.apache.log4j.Logger;
+
 public class ORSGraphHopperConfig extends GraphHopperConfig {
     private List<CHProfile> coreProfiles = new ArrayList<>();
     private List<LMProfile> coreLMProfiles = new ArrayList<>();
     private List<Profile> fastisochroneProfiles = new ArrayList<>();
+    private static final Logger LOGGER = org.apache.log4j.Logger.getLogger(ORSGraphHopperConfig.class.getName());
 
     public static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig, String graphLocation) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
@@ -39,7 +42,26 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         }
 
         ElevationProperties elevationProps = engineConfig.getElevation();
-        if (elevationProps.getProvider() != null && elevationProps.getCachePath() != null) {
+
+        boolean addElevation = true;
+
+    
+        if (!profile.getBuild().getElevation()) {
+            LOGGER.warn("Elevation is set to false.");
+            addElevation = false;
+        }
+        if (elevationProps.getProvider() == null) {
+            LOGGER.warn("Elevation provider is null.");
+            addElevation = false;
+        }
+        if (elevationProps.getCachePath() == null) {
+            LOGGER.warn("Elevation cache path is null.");
+            addElevation = false;
+        }
+        
+        if (!addElevation) {
+             LOGGER.warn("Elevation deactivated.");
+        } else {
             ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
             ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
             ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
