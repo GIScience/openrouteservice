@@ -40,6 +40,7 @@ Releasing is documented in RELEASE.md
 - repair broken integration tests with by pining buildkit 0.15 ([#2003](https://github.com/GIScience/openrouteservice/pull/2003))
 - elevation set to false not taken into account ([#1967](https://github.com/GIScience/openrouteservice/issues/1967))
 - make gpx response adhere to standard and set version to 1.1 ([#2004](https://github.com/GIScience/openrouteservice/issues/2004))
+- return correct extra info label for 'waytype' ([#1579](https://github.com/GIScience/openrouteservice/issues/1579))
 
 ### Security
 
