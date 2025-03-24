@@ -596,10 +596,10 @@ class ResultTest extends ServiceTest {
                     <xs:complexType name="boundsType">
                         <xs:simpleContent>
                             <xs:extension base="xs:string">
-                                <xs:attribute type="xs:string" name="minLat"/>
-                                <xs:attribute type="xs:string" name="minLon"/>
-                                <xs:attribute type="xs:string" name="maxLat"/>
-                                <xs:attribute type="xs:string" name="maxLon"/>
+                                <xs:attribute type="xs:string" name="minlat"/>
+                                <xs:attribute type="xs:string" name="minlon"/>
+                                <xs:attribute type="xs:string" name="maxlat"/>
+                                <xs:attribute type="xs:string" name="maxlon"/>
                             </xs:extension>
                         </xs:simpleContent>
                     </xs:complexType>
