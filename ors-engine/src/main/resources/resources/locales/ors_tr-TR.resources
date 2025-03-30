@@ -43,7 +43,7 @@
                     "name": "{way_name} noktasına ulaştınız, sol tarafınızda"
                 },
                 "right": {
-                    "default": "Varış noktanıza ulaştınız, sağ tarafınızd",
+                    "default": "Varış noktanıza ulaştınız, sağ tarafınızda",
                     "name": "{way_name} noktasına ulaştınız, sağ tarafınızda"
                 },
                 "straight": {
@@ -53,7 +53,7 @@
             },
             "depart": {
                 "default": {
-                    "default": "{direction} yönüne ilrleyin",
+                    "default": "{direction} yönüne ilerleyin",
                     "name": "{way_name} üzerinde {direction} tarafına ilerleyin"
                 }
             },
