@@ -42,6 +42,7 @@ Releasing is documented in RELEASE.md
 - make gpx response adhere to standard and set version to 1.1 ([#2004](https://github.com/GIScience/openrouteservice/issues/2004))
 - return correct extra info label for 'waytype' ([#1579](https://github.com/GIScience/openrouteservice/issues/1579))
 - enable passing of barriers tagged with `access = permit` ([#2002](https://github.com/GIScience/openrouteservice/pull/2002))
+- typos in Turkish translation ([2016](https://github.com/GIScience/openrouteservice/pull/2016))
 
 ### Security
 
