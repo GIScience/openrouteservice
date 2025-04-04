@@ -60,6 +60,7 @@ public class AppInfo {
     public static final String BUILD_DATE;
     public static final boolean SNAPSHOT;
     public static final String GRAPH_VERSION;
+    public static String GRAPH_DATE;
 
     static {
         String version = "0.0";
@@ -119,6 +120,11 @@ public class AppInfo {
         json.put("version", VERSION);
         json.put("build_date", BUILD_DATE);
         json.put("graph_version", GRAPH_VERSION);
+
+        if (GRAPH_DATE != null){
+            json.put("graph_date", GRAPH_DATE);
+        }
+        
         return json;
     }
 }

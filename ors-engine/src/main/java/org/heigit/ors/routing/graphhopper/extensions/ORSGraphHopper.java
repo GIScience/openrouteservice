@@ -61,6 +61,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStor
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.routing.graphhopper.extensions.weighting.HgvAccessWeighting;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.CoordTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -172,6 +173,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
 
         ORSGraphHopper gh = (ORSGraphHopper) super.importOrLoad();
+        AppInfo.GRAPH_DATE = gh.getGraphHopperStorage().getProperties().get("datareader.import.date");
 
         writeOrsGraphBuildInfoFileIfNotExists(gh);
 
