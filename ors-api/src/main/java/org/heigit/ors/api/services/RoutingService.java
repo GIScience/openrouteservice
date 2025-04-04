@@ -7,6 +7,7 @@ import org.heigit.ors.api.config.ApiEngineProperties;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestRoundTripOptions;
+import org.heigit.ors.api.util.AppInfo;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;
@@ -46,6 +47,10 @@ public class RoutingService extends ApiService {
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to get an appropriate routing profile for the name " + profileName + ".");
 
         ProfileProperties profileProperties = rp.getProfileConfiguration();
+
+        try {
+            AppInfo.GRAPH_DATE = rp.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
+        } catch (Exception e){}
 
         if (profileProperties.getService().getMaximumDistance() != null
                 || dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null
