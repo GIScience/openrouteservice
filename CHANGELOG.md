@@ -45,7 +45,7 @@ Releasing is documented in RELEASE.md
 - typos in Turkish translation ([2016](https://github.com/GIScience/openrouteservice/pull/2016))
 
 ### Security
-
+- upgraded spring-boot-starter-parent to 3.4.4 due to [tomcat CVE](https://github.com/advisories/GHSA-83qj-6fr2-vhqg)
 
 ## [9.1.1] - 2025-03-13
 
