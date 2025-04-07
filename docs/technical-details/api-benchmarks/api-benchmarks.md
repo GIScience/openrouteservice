@@ -9,7 +9,7 @@ To use the API benchmarking tools, you need:
 - Java 17+
 - Maven
 - An active openrouteservice instance (local or remote)
-- CSV files with coordinates for testing (can be generated using the [Coordinate Generation Tools](/technical-details/coordinate-generators))
+- CSV files with coordinates for testing (can be generated using the [Coordinate Generation Tools](/technical-details/api-benchmarks/coordinate-generators.md))
 
 ## Overview
 
