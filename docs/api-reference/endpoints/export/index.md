@@ -243,7 +243,7 @@ optional parameter `geometry` accepting a boolean value (default is `true`) that
 edges is returned or a beeline representation omitting all in between nodes. The TopoJSON format can be directly loaded
 and visualized with various tools including [QGIS](https://qgis.org) or [geojson.io](http://geojson.io).
 
-![Development server usage](/public/topojson_qgis.png "Export result in QGIS"){ style="display: block; margin: 0 auto"}
+![Development server usage](/topojson_qgis.png "Export result in QGIS"){ style="display: block; margin: 0 auto"}
 
 To fully utilise this feature, your instance of openrouteservice needs to be configured so that the
 `OsmId` [external storage feature](/run-instance/configuration/engine/profiles/build#ext-storages) is enabled for the
