@@ -5,7 +5,8 @@
     - if major version release: release notes for announcement/blog is ready
 2. Select the new release number: We use a number consisting of the parts `<major>.<minor>.<patch>`, in the following abbreviated as `X.Y.Z`. We change the patch version, if the release only contains bugfixes. Releases with additions like new features or not mandatory additional API request parameters etc. are minor releases. If there are breaking changes with require changes e.g. in existing configuration files or API requests, the major version is incremented.
 3. Create a Release branch named `releases/vX.Y.Z` and
-   a. Update CHANGELOG.md as follows:
+   a. Update `version` property in [package.json](package.json) to new release number
+   b. Update CHANGELOG.md as follows:
     1. Change unreleased to new release number
     2. Add today's Date
     3. Change unreleased link to compare new release:
