@@ -44,6 +44,8 @@ Releasing is documented in RELEASE.md
 - enable passing of barriers tagged with `access = permit` ([#2002](https://github.com/GIScience/openrouteservice/pull/2002))
 - typos in Turkish translation ([#2016](https://github.com/GIScience/openrouteservice/pull/2016))
 - deployment of backend docs to GitHub pages ([#2022](https://github.com/GIScience/openrouteservice/pull/2022))
+- backend docs version number ([#2023](https://github.com/GIScience/openrouteservice/pull/2023))
+- backend docs warning for public folder asset links ([#2023](https://github.com/GIScience/openrouteservice/pull/2023))
 
 ### Security
 - upgraded spring-boot-starter-parent to 3.4.4 due to [tomcat CVE](https://github.com/advisories/GHSA-83qj-6fr2-vhqg)
