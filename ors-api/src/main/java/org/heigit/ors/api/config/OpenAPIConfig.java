@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.heigit.ors.api.util.AppInfo.VERSION;
+import static org.heigit.ors.util.AppInfo.VERSION;
 
 
 @Configuration
