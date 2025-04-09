@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.heigit.ors.api.util;
+package org.heigit.ors.util;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;

@@ -9,7 +9,7 @@ import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.snapping.SnappingApiRequest;
 import org.heigit.ors.api.responses.common.engineinfo.EngineInfo;
-import org.heigit.ors.api.util.AppInfo;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.api.util.SystemMessage;
 
 @Schema(description = "Information about the request")
