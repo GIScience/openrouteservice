@@ -813,7 +813,6 @@ class ResultTest extends ServiceTest {
             .body("info.engine.containsKey('version')", is(true))
             .body("info.engine.containsKey('build_date')", is(true))
             .body("info.engine.containsKey('graph_date')", is(true))
-            .body("info.engine.graph_date", is("bla"))
             .body("info.containsKey('timestamp')", is(true))
             .statusCode(404);
     }
