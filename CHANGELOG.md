@@ -36,6 +36,12 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+
+### Security
+
+## [9.1.2] - 2025-04-10
+
+### Fixed
 - pass extra_info when querying round_trip ([#1976](https://github.com/GIScience/openrouteservice/issues/1976))
 - repair broken integration tests with by pining buildkit 0.15 ([#2003](https://github.com/GIScience/openrouteservice/pull/2003))
 - elevation set to false not taken into account ([#1967](https://github.com/GIScience/openrouteservice/issues/1967))
@@ -44,8 +50,7 @@ Releasing is documented in RELEASE.md
 - enable passing of barriers tagged with `access = permit` ([#2002](https://github.com/GIScience/openrouteservice/pull/2002))
 - typos in Turkish translation ([#2016](https://github.com/GIScience/openrouteservice/pull/2016))
 - deployment of backend docs to GitHub pages ([#2022](https://github.com/GIScience/openrouteservice/pull/2022))
-- backend docs version number ([#2023](https://github.com/GIScience/openrouteservice/pull/2023))
-- backend docs warning for public folder asset links ([#2023](https://github.com/GIScience/openrouteservice/pull/2023))
+- backend docs version number and warning for public folder asset links ([#2023](https://github.com/GIScience/openrouteservice/pull/2023))
 
 ### Security
 - upgraded spring-boot-starter-parent to 3.4.4 due to [tomcat CVE](https://github.com/advisories/GHSA-83qj-6fr2-vhqg)
@@ -872,8 +877,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.1.1...HEAD
-
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.1.2...HEAD
+[9.1.2]: https://github.com/GIScience/openrouteservice/compare/v9.1.1...v9.1.2
 [9.1.1]: https://github.com/GIScience/openrouteservice/compare/v9.1.0...v9.1.1
 [9.1.0]: https://github.com/GIScience/openrouteservice/compare/v9.0.0...v9.1.0
 [9.0.0]: https://github.com/GIScience/openrouteservice/compare/v8.2.0...v9.0.0
