@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.api.config.ApiEngineProperties;
 import org.heigit.ors.api.services.GraphService;
 import org.heigit.ors.api.servlet.listeners.ORSInitContextListener;
-import org.heigit.ors.api.util.AppInfo;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.StringUtility;
 import org.springframework.boot.SpringApplication;

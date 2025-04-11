@@ -7,6 +7,7 @@ import org.heigit.ors.api.config.ApiEngineProperties;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.requests.routing.RouteRequestRoundTripOptions;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.common.StatusCode;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.exceptions.*;

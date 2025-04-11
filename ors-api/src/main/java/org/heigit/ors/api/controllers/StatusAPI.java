@@ -19,7 +19,7 @@ import com.graphhopper.routing.ev.EncodedValue;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.config.EndpointsProperties;
-import org.heigit.ors.api.util.AppInfo;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;

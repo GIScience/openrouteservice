@@ -180,6 +180,18 @@ class ResultTest extends ServiceTest {
         // 8.691891431808473, 49.41331858818114
 
 
+        JSONArray unreachableCoords = new JSONArray();
+        JSONArray unreachableCoord1 = new JSONArray();
+        unreachableCoord1.put(6.929281);
+        unreachableCoord1.put(45.707362);
+        unreachableCoords.put(unreachableCoord1);
+        JSONArray unreachableCoord2 = new JSONArray();
+        unreachableCoord2.put(6.92281);
+        unreachableCoord2.put(45.507362);
+        unreachableCoords.put(unreachableCoord2);
+        addParameter("unreachableCoords", unreachableCoords);
+
+
         JSONArray extraInfo = new JSONArray();
         extraInfo.put("surface");
         extraInfo.put("suitability");
@@ -779,6 +791,30 @@ class ResultTest extends ServiceTest {
                 .body("metadata.engine.containsKey('graph_date')", is(true))
                 .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
+    }
+
+    @Test
+    void testCompleteEngineInfoOnRouteNotFound() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("unreachableCoords"));
+        body.put("id", "request123");
+        given()
+            .headers(CommonHeaders.geoJsonContent)
+            .pathParam("profile", getParameter("carProfile"))
+            .body(body.toString())
+            .when()
+            .post(getEndPointPath() + "/{profile}/geojson")
+            .then()
+            .assertThat()
+            .body("any {it.key == 'info'}", is(true))
+            .body("any {it.key == 'error'}", is(true))
+            .body("error.containsKey('code')", is(true))
+            .body("error.containsKey('message')", is(true))
+            .body("info.engine.containsKey('version')", is(true))
+            .body("info.engine.containsKey('build_date')", is(true))
+            .body("info.engine.containsKey('graph_date')", is(true))
+            .body("info.containsKey('timestamp')", is(true))
+            .statusCode(404);
     }
 
     @Test
