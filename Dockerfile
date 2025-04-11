@@ -24,7 +24,7 @@ COPY ors-engine /tmp/ors/ors-engine
 RUN mvn -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
-FROM docker.io/golang:alpine3.21 AS build-go
+FROM docker.io/golang:1.24.2-alpine3.21 AS build-go
 # Setup the target system with the right user and folders.
 RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.45.1
 
