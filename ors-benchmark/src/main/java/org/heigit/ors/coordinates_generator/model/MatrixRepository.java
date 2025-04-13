@@ -107,39 +107,100 @@ public class MatrixRepository {
             lock.readLock().unlock();
         }
     }
-
-    //TODO Adapt to matrix
+    /**
+     * Writes all matrix objects grouped by profile to a CSV file.
+     * Each matrix is serialized as a single row, with all array fields
+     * converted to string representations. This method includes all
+     * matrices in the dataset.
+     *
+     * The CSV file will have the following header:
+     * coordinates,sources,destinations,distances,profile
+     *
+     * Example of a generated row:
+     * "[[8.667542, 49.440851], [8.668100, 49.440900], ....]","[0, 1, 2, 3]","[4, 5]","[[10.5, 20.7, ...], [15.2, 25.4, ...], ...]", "driving-car"
+     *
+     * Each field is enclosed in quotes to safely include commas inside arrays.
+     * - coordinates: 2D array of latitude and longitude pairs
+     * - sources: 1D array of source indices
+     * - destinations: 1D array of destination indices
+     * - distances: 2D array of distances (meters), one sub-array per source
+     * - profile: routing profile (e.g., "driving", "walking")
+     *
+     * @param filePath the file path to write the CSV output to
+     * @throws FileNotFoundException if the file cannot be created or opened
+     */
     public void writeToCSV(String filePath) throws FileNotFoundException {
         lock.readLock().lock();
         try (PrintWriter pw = new PrintWriter(filePath)) {
-            pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
-            
+            // CSV header
+            pw.println("coordinates,sources,destinations,distances,profile");
+
             matricesByProfile.forEach((profile, matrices) ->
-                    matrices.forEach(matrix -> pw.printf(Locale.US, "%f,%f,%f,%f,%.2f,%s%n",
-                    route.getStart()[0], route.getStart()[1],
-                    route.getEnd()[0], route.getEnd()[1],
-                    route.getDistance(),
-                    route.getProfile())
-                )
+                    matrices.forEach(matrix -> {
+                        String coordinatesStr = Arrays.deepToString(matrix.getCoordinates());
+                        String sourcesStr = Arrays.toString(matrix.getSources());
+                        String destinationsStr = Arrays.toString(matrix.getDestinations());
+                        String distancesStr = Arrays.deepToString(matrix.getDistances());
+                        String profileStr = matrix.getProfile();
+
+                        // Write CSV row with quoted strings to handle commas
+                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"%n",
+                                coordinatesStr,
+                                sourcesStr,
+                                destinationsStr,
+                                distancesStr,
+                                profileStr
+                        );
+                    })
             );
         } finally {
             lock.readLock().unlock();
         }
     }
 
-    //TODO Adapt to matrix
+    /**
+     * Writes all matrix objects grouped by profile to a CSV file.
+     * Each matrix is serialized as a single row, with all array fields
+     * converted to string representations. This method limits max number of written elements.
+     *
+     * The CSV file will have the following header:
+     * coordinates,sources,destinations,distances,profile
+     *
+     * Example of a generated row:
+     * "[[8.667542, 49.440851], [8.668100, 49.440900], ....]","[0, 1, 2, 3]","[4, 5]","[[10.5, 20.7, ...], [15.2, 25.4, ...], ...]", "driving-car"
+     *
+     * Each field is enclosed in quotes to safely include commas inside arrays.
+     * - coordinates: 2D array of latitude and longitude pairs
+     * - sources: 1D array of source indices
+     * - destinations: 1D array of destination indices
+     * - distances: 2D array of distances (meters), one sub-array per source
+     * - profile: routing profile (e.g., "driving", "walking")
+     *
+     * @param filePath the file path to write the CSV output to
+     * @throws FileNotFoundException if the file cannot be created or opened
+     */
     public void writeToCSV(String filePath, int limit) throws FileNotFoundException {
         lock.readLock().lock();
         try (PrintWriter pw = new PrintWriter(filePath)) {
-            pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
-            
-            matricesByProfile.forEach((profile, routes) ->
-                routes.stream().limit(limit).forEach(route -> pw.printf(Locale.US, "%f,%f,%f,%f,%.2f,%s%n",
-                    route.getStart()[0], route.getStart()[1],
-                    route.getEnd()[0], route.getEnd()[1],
-                    route.getDistance(),
-                    route.getProfile())
-                )
+            // CSV header
+            pw.println("coordinates,sources,destinations,distances,profile");
+
+            matricesByProfile.forEach((profile, matrices) ->
+                    matrices.stream().limit(limit).forEach(matrix -> {
+                        String coordinatesStr = Arrays.deepToString(matrix.getCoordinates());
+                        String sourcesStr = Arrays.toString(matrix.getSources());
+                        String destinationsStr = Arrays.toString(matrix.getDestinations());
+                        String distancesStr = Arrays.deepToString(matrix.getDistances());
+                        String profileStr = matrix.getProfile();
+
+                        pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"%n",
+                                coordinatesStr,
+                                sourcesStr,
+                                destinationsStr,
+                                distancesStr,
+                                profileStr
+                        );
+                    })
             );
         } finally {
             lock.readLock().unlock();
