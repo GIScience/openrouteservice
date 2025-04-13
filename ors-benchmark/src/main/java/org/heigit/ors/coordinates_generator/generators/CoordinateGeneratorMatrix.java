@@ -6,10 +6,11 @@ import me.tongfei.progressbar.ProgressBarBuilder;
 import me.tongfei.progressbar.ProgressBarStyle;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.heigit.ors.coordinates_generator.model.Matrix;
 import org.heigit.ors.coordinates_generator.model.MatrixRepository;
 import org.heigit.ors.coordinates_generator.model.Route;
 import org.heigit.ors.coordinates_generator.service.MatrixCalculator;
-import org.heigit.ors.coordinates_generator.service.RouteSnapper;
+import org.heigit.ors.coordinates_generator.service.CoordinateSnapper;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     private final int numRows;
     private final int numCols;
     private final MatrixRepository matrixRepository;
-    private final RouteSnapper routeSnapper;
+    private final CoordinateSnapper coordinateSnapper;
     private final MatrixCalculator matrixCalculator;
     private final int numThreads;
 
@@ -68,7 +69,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         };
 
         Map<String, String> headers = createHeaders();
-        this.routeSnapper = new RouteSnapper(baseUrl, headers, mapper, requestExecutor);
+        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor);
         this.matrixCalculator = new MatrixCalculator(baseUrl, headers, mapper, requestExecutor);
     }
 
@@ -113,13 +114,13 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     }
 
     private void executeRouteGeneration(ExecutorService executor, int maxAttempts,
-            AtomicBoolean shouldContinue, AtomicInteger consecutiveFailedAttempts) {
+                                        AtomicBoolean shouldContinue, AtomicInteger consecutiveFailedAttempts) {
         try (ProgressBar pb = createProgressBar()) {
             while (!matrixRepository.areAllProfilesComplete(numMatrices) &&
                     consecutiveFailedAttempts.get() < maxAttempts &&
                     shouldContinue.get()) {
 
-                int initialTotalRoutes = matrixRepository.getTotalRouteCount();
+                int initialTotalRoutes = matrixRepository.getTotalMatrixCount();
                 List<Future<Boolean>> futures = submitTasks(executor, shouldContinue);
 
                 // Wait for all tasks to complete
@@ -138,7 +139,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
                 updateProgressBar(pb);
 
                 // Check if we made progress in this iteration
-                if (matrixRepository.getTotalRouteCount() == initialTotalRoutes) {
+                if (matrixRepository.getTotalMatrixCount() == initialTotalRoutes) {
                     int attempts = consecutiveFailedAttempts.incrementAndGet();
                     pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, maxAttempts));
                 } else {
@@ -176,13 +177,13 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     }
 
     private void updateProgressBar(ProgressBar pb) {
-        int totalRoutes = matrixRepository.getTotalRouteCount();
+        int totalRoutes = matrixRepository.getTotalMatrixCount();
         pb.stepTo(totalRoutes);
         pb.setExtraMessage(matrixRepository.getProgressMessage());
     }
 
     private void finalizeProgress(ProgressBar pb, int maxAttempts, int attempts) {
-        pb.stepTo(matrixRepository.getTotalRouteCount());
+        pb.stepTo(matrixRepository.getTotalMatrixCount());
         if (attempts >= maxAttempts) {
             LOGGER.warn("Stopped route generation after {} attempts. Routes per profile: {}",
                     maxAttempts, matrixRepository.getProgressMessage());
@@ -263,7 +264,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         private boolean generateMatricesForProfile() {
             // Get max distance for this profile
             double effectiveMaxDistance = maxDistanceByProfile.getOrDefault(profile, Double.MAX_VALUE);
-            
+
             //We have a double statistics gate here
             //1. We need to find numRows + numCols snappable coordinates
             //2. We need to make sure that the chains as described above for these coordinates are reachable
@@ -279,7 +280,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
                         extent);
 
                 // Snap the coordinates to the road network
-                List<double[]> snappedCoordinate = routeSnapper.snapCoordinates(randomCoordinate, profile);
+                List<double[]> snappedCoordinate = coordinateSnapper.snapCoordinates(randomCoordinate, profile);
                 snappedCoordinates.addAll(snappedCoordinate);
             }
 
@@ -322,26 +323,20 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
             // We do not actually need the results
             // We route backwards
             for (int i = numRows; i > 0; i--) {
-                Optional<MatrixCalculator.MatrixResult> matrixResultOpt = matrixCalculator.calculateMatrix(
-                        List.of(row.get(i), row.get(i-1)), profile);
-                if (matrixResultOpt.isEmpty()) {
+                if (!isRouteable(col.get(i), col.get(i+1))) {
                     return false;
                 }
             }
 
             // Same process for column chain, but forward
             for (int i = 0; i < numCols - 1; i++) {
-                Optional<MatrixCalculator.MatrixResult> matrixResultOpt = matrixCalculator.calculateMatrix(
-                        List.of(col.get(i), col.get(i+1)), profile);
-                if (matrixResultOpt.isEmpty()) {
+                if (!isRouteable(col.get(i), col.get(i+1))) {
                     return false;
                 }
             }
 
             // Same process for connector col -> row
-            Optional<MatrixCalculator.MatrixResult> matrixResultOpt = matrixCalculator.calculateMatrix(
-                    List.of(row.get(0), col.get(0)), profile);
-            if (matrixResultOpt.isEmpty()) {
+            if (!isRouteable(row.get(0), col.get(0))) {
                 return false;
             }
 
@@ -354,79 +349,90 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
             boolean addedNewMatrix = false;
             if (fullMatrixResult.isPresent()) {
-                addedNewMatrix = processMatrixResult(matrixResultOpt.get());
+                addedNewMatrix = processMatrixResult(fullMatrixResult.get());
             }
 
             return addedNewMatrix;
         }
 
-
-        //TODO adapt from route to matrix
-        private boolean processMatrixResult(MatrixCalculator.MatrixResult result) {
-
-            if (!result.isValid()) {
-                LOGGER.info("Matrix result is invalid, skipping processing");
+        /**
+         * Check whether two points are connected in a forward way
+         * @param from coordinate pair from
+         * @param to coordinate pair to
+         * @return true if matrix was successfully calculated and points are routeable, false otherwise
+         */
+        private boolean isRouteable(double[] from, double[] to) {
+            Optional<MatrixCalculator.MatrixResult> matrixResultOpt = matrixCalculator.calculateMatrix(
+                    List.of(from, to), profile);
+            if (matrixResultOpt.isEmpty()) {
                 return false;
             }
-
-            List<Map<String, Object>> sources = result.getSources();
-            List<Map<String, Object>> destinations = result.getDestinations();
-            List<List<Double>> distances = result.getDistances();
-
-            boolean addedNewRoute = false;
-
-            for (int i = 0; i < destinations.size(); i++) {
-                if (sources.get(i) == null || destinations.get(i) == null ||
-                        distances.get(i) == null || distances.get(i).isEmpty()) {
-                    continue;
-                }
-
-                if (distances.get(i).get(0) != null) {
-                    boolean added = addMatrixIfUnique(sources.get(i), destinations.get(i),
-                            distances.get(i).get(0), profile);
-
-                    if (added) {
-                        addedNewRoute = true;
-                    }
-                }
-            }
-            return addedNewRoute;
+            MatrixCalculator.MatrixResult result = matrixResultOpt.get();
+            return result.getSources().get(0) != null && result.getDestinations().get(0) != null;
         }
 
-        //TODO adapt from route to matrix
-        @SuppressWarnings("unchecked")
-        private boolean addMatrixIfUnique(Map<String, Object> start, Map<String, Object> end, double distance,
-                                          String profile) {
-            try {
-                List<Number> startCoord = (List<Number>) start.get(LOCATION_KEY);
-                List<Number> endCoord = (List<Number>) end.get(LOCATION_KEY);
+        /**
+         * Processes a MatrixResult by transforming the source and destination locations
+         * into the required matrix format and attempting to add it to the matrix repository.
+         *
+         * <p>It flattens source and destination coordinates into a single coordinate array,
+         * generates index arrays for sources and destinations, converts distance data to a double[][],
+         * and constructs a Matrix object. If the matrix is unique, it is added to the repository.</p>
+         *
+         * @param result the result from the matrix calculation
+         * @return true if the matrix was successfully added (i.e. is unique), false otherwise
+         */
+        private boolean processMatrixResult(MatrixCalculator.MatrixResult result) {
+            List<Map<String, Object>> rawSources = result.getSources();
+            List<Map<String, Object>> rawDestinations = result.getDestinations();
+            List<List<Double>> rawDistances = result.getDistances();
 
-                if (startCoord != null && endCoord != null && startCoord.size() >= 2 && endCoord.size() >= 2) {
+            int sourceCount = rawSources.size();
+            int destCount = rawDestinations.size();
+            int totalCount = sourceCount + destCount;
 
-                    double[] startPoint = new double[] { startCoord.get(0).doubleValue(),
-                            startCoord.get(1).doubleValue() };
-                    double[] endPoint = new double[] { endCoord.get(0).doubleValue(), endCoord.get(1).doubleValue() };
+            double[][] coordinates = new double[totalCount][2];
+            int[] sourceIndices = new int[sourceCount];
+            int[] destinationIndices = new int[destCount];
 
-                    if (distance < minDistance) {
-                        LOGGER.debug("Skipping route with distance {} < minimum {} meters", distance, minDistance);
-                        return false;
-                    }
-
-                    Route route = new Route(startPoint, endPoint, distance, profile);
-                    boolean added = matrixRepository.addRouteIfUnique(route);
-
-                    if (added) {
-                        LOGGER.debug("Added new unique route for profile: {}", profile);
-                    } else {
-                        LOGGER.debug("Skipped duplicate route for profile: {}", profile);
-                    }
-
-                    return added;
-                }
-            } catch (Exception e) {
-                LOGGER.error("Error adding route: {}", e.getMessage());
+            // Populate source coordinates and indices
+            for (int i = 0; i < sourceCount; i++) {
+                List<Double> loc = (List<Double>) rawSources.get(i).get("location");
+                coordinates[i][0] = loc.get(0);
+                coordinates[i][1] = loc.get(1);
+                sourceIndices[i] = i;
             }
-            return false;
+
+            // Populate destination coordinates and indices
+            for (int i = 0; i < destCount; i++) {
+                List<Double> loc = (List<Double>) rawDestinations.get(i).get("location");
+                int index = sourceCount + i;
+                coordinates[index][0] = loc.get(0);
+                coordinates[index][1] = loc.get(1);
+                destinationIndices[i] = index;
+            }
+
+            // Convert distances list to 2D array
+            double[][] distances = rawDistances.stream()
+                    .map(row -> row.stream().mapToDouble(Double::doubleValue).toArray())
+                    .toArray(double[][]::new);
+
+            try {
+                Matrix matrix = new Matrix(coordinates, sourceIndices, destinationIndices, distances, profile);
+                boolean added = matrixRepository.addMatrixIfUnique(matrix);
+
+                if (added) {
+                    LOGGER.debug("Added new unique route for profile: {}", profile);
+                } else {
+                    LOGGER.debug("Skipped duplicate route for profile: {}", profile);
+                }
+
+                return added;
+
+            } catch (Exception e) {
+                LOGGER.error("Error adding route: {}", e.getMessage(), e);
+                return false;
+            }
         }
     }
 
@@ -437,8 +443,8 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Route> getResult() {
-        return matrixRepository.getAllRoutes(numMatrices);
+    public List<Matrix> getResult() {
+        return matrixRepository.getAllMatrices(numMatrices);
     }
 
     @Override

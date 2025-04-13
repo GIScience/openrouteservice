@@ -10,66 +10,66 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class MatrixRepository {
-    private final Map<String, List<Route>> routesByProfile;
-    private final Map<String, Set<Route>> uniqueRoutesByProfile;
+    private final Map<String, List<Matrix>> matricesByProfile;
+    private final Map<String, Set<Matrix>> uniqueMatricesByProfile;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     protected static final Logger LOGGER = LoggerFactory.getLogger(MatrixRepository.class);
 
     public MatrixRepository(Set<String> profiles) {
-        routesByProfile = new HashMap<>();
-        uniqueRoutesByProfile = new HashMap<>();
+        matricesByProfile = new HashMap<>();
+        uniqueMatricesByProfile = new HashMap<>();
         
         for (String profile : profiles) {
-            routesByProfile.put(profile, new ArrayList<>());
-            uniqueRoutesByProfile.put(profile, new HashSet<>());
+            matricesByProfile.put(profile, new ArrayList<>());
+            uniqueMatricesByProfile.put(profile, new HashSet<>());
         }
     }
     
-    public boolean addRoute(Route route) {
-        String profile = route.getProfile();
+    public boolean addMatrix(Matrix matrix) {
+        String profile = matrix.getProfile();
         
         lock.writeLock().lock();
         try {
-            if (uniqueRoutesByProfile.get(profile).add(route)) {
-                routesByProfile.get(profile).add(route);
+            if (uniqueMatricesByProfile.get(profile).add(matrix)) {
+                matricesByProfile.get(profile).add(matrix);
                 return true;
             }
             return false;
         } catch (Exception e) {
-            LOGGER.error("Error adding route: {}", e.getMessage());
+            LOGGER.error("Error adding matrix: {}", e.getMessage());
             return false;
         } finally {
             lock.writeLock().unlock();
         }
     }
     
-    public boolean addRouteIfUnique(Route route) {
-        return addRoute(route);
+    public boolean addMatrixIfUnique(Matrix matrix) {
+        return addMatrix(matrix);
     }
     
     public void clear() {
         lock.writeLock().lock();
         try {
-            routesByProfile.values().forEach(List::clear);
-            uniqueRoutesByProfile.values().forEach(Set::clear);
+            matricesByProfile.values().forEach(List::clear);
+            uniqueMatricesByProfile.values().forEach(Set::clear);
         } finally {
             lock.writeLock().unlock();
         }
     }
     
-    public int getRouteCount(String profile) {
+    public int getMatrixCount(String profile) {
         lock.readLock().lock();
         try {
-            return uniqueRoutesByProfile.get(profile).size();
+            return uniqueMatricesByProfile.get(profile).size();
         } finally {
             lock.readLock().unlock();
         }
     }
     
-    public int getTotalRouteCount() {
+    public int getTotalMatrixCount() {
         lock.readLock().lock();
         try {
-            return uniqueRoutesByProfile.values().stream()
+            return uniqueMatricesByProfile.values().stream()
                     .mapToInt(Set::size)
                     .sum();
         } finally {
@@ -77,44 +77,45 @@ public class MatrixRepository {
         }
     }
     
-    public boolean isProfileComplete(String profile, int requiredRoutes) {
+    public boolean isProfileComplete(String profile, int requiredMatrices) {
         lock.readLock().lock();
         try {
-            return uniqueRoutesByProfile.get(profile).size() >= requiredRoutes;
+            return uniqueMatricesByProfile.get(profile).size() >= requiredMatrices;
         } finally {
             lock.readLock().unlock();
         }
     }
     
-    public boolean areAllProfilesComplete(int requiredRoutes) {
+    public boolean areAllProfilesComplete(int requiredMatrices) {
         lock.readLock().lock();
         try {
-            return uniqueRoutesByProfile.values().stream()
-                    .allMatch(routes -> routes.size() >= requiredRoutes);
+            return uniqueMatricesByProfile.values().stream()
+                    .allMatch(matrices -> matrices.size() >= requiredMatrices);
         } finally {
             lock.readLock().unlock();
         }
     }
     
-    public List<Route> getAllRoutes(int limit) {
+    public List<Matrix> getAllMatrices(int limit) {
         lock.readLock().lock();
         try {
-            List<Route> allRoutes = new ArrayList<>();
-            routesByProfile.values().forEach(routes -> 
-                routes.stream().limit(limit).forEach(allRoutes::add));
-            return allRoutes;
+            List<Matrix> allMatrices = new ArrayList<>();
+            matricesByProfile.values().forEach(matrices ->
+                    matrices.stream().limit(limit).forEach(allMatrices::add));
+            return allMatrices;
         } finally {
             lock.readLock().unlock();
         }
     }
-    
+
+    //TODO Adapt to matrix
     public void writeToCSV(String filePath) throws FileNotFoundException {
         lock.readLock().lock();
         try (PrintWriter pw = new PrintWriter(filePath)) {
             pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
             
-            routesByProfile.forEach((profile, routes) -> 
-                routes.forEach(route -> pw.printf(Locale.US, "%f,%f,%f,%f,%.2f,%s%n",
+            matricesByProfile.forEach((profile, matrices) ->
+                    matrices.forEach(matrix -> pw.printf(Locale.US, "%f,%f,%f,%f,%.2f,%s%n",
                     route.getStart()[0], route.getStart()[1],
                     route.getEnd()[0], route.getEnd()[1],
                     route.getDistance(),
@@ -125,13 +126,14 @@ public class MatrixRepository {
             lock.readLock().unlock();
         }
     }
-    
+
+    //TODO Adapt to matrix
     public void writeToCSV(String filePath, int limit) throws FileNotFoundException {
         lock.readLock().lock();
         try (PrintWriter pw = new PrintWriter(filePath)) {
             pw.println("start_longitude,start_latitude,end_longitude,end_latitude,distance,profile");
             
-            routesByProfile.forEach((profile, routes) -> 
+            matricesByProfile.forEach((profile, routes) ->
                 routes.stream().limit(limit).forEach(route -> pw.printf(Locale.US, "%f,%f,%f,%f,%.2f,%s%n",
                     route.getStart()[0], route.getStart()[1],
                     route.getEnd()[0], route.getEnd()[1],
@@ -147,7 +149,7 @@ public class MatrixRepository {
     public String getProgressMessage() {
         lock.readLock().lock();
         try {
-            return uniqueRoutesByProfile.entrySet().stream()
+            return uniqueMatricesByProfile.entrySet().stream()
                 .map(e -> String.format("%s: %d", e.getKey(), e.getValue().size()))
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("");
