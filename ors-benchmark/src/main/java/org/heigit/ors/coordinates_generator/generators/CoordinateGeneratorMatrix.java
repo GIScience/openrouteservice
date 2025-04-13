@@ -302,57 +302,114 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
             return addedNewMatrix;
         }
 
+        /**
+         * Processes a set of snapped coordinates by verifying distance and routeability constraints,
+         * and optionally calculating and storing the resulting distance matrix.
+         * <p>
+         * The method checks for:
+         * <ul>
+         *   <li>Minimum allowed distance between row and column coordinates</li>
+         *   <li>Routeability in both forward and backward directions across rows and columns</li>
+         *   <li>Computes an asymmetric matrix if all conditions are satisfied</li>
+         * </ul>
+         *
+         * @param snappedCoordinates a list of coordinates, where the first {@code numRows} entries are treated as rows
+         *                           and the next {@code numCols} as columns
+         * @param maxDistance the minimum distance required between each row-column coordinate pair
+         * @return {@code true} if a matrix was successfully computed and processed; {@code false} otherwise
+         */
         private boolean processCoordinatePairs(List<double[]> snappedCoordinates, double maxDistance) {
-            //TODO Add reverse
-
-            // Get columns and rows from all (unstructured) coordinates
             List<double[]> row = snappedCoordinates.subList(0, numRows);
             List<double[]> col = snappedCoordinates.subList(numRows, numRows + numCols);
 
-            // We check distances first as this is cheaper, but we have to ensure for all coordinates
+            if (hasNearbyPoints(row, col, maxDistance)) return false;
+            if (!isForwardRouteable(row, col)) return false;
+            if (!isBackwardRouteable(row, col)) return false;
+
+            return computeAndProcessMatrix(snappedCoordinates);
+        }
+
+        /**
+         * Checks whether any pair of coordinates between rows and columns is within the specified maximum distance.
+         *
+         * @param row list of row coordinates
+         * @param col list of column coordinates
+         * @param maxDistance the maximum allowed proximity in meters
+         * @return {@code true} if any row-column coordinate pair is too close; {@code false} otherwise
+         */
+        private boolean hasNearbyPoints(List<double[]> row, List<double[]> col, double maxDistance) {
             for (double[] rowCoord : row) {
                 for (double[] colCoord : col) {
                     double distance = CoordinateGeneratorHelper.calculateHaversineDistance(rowCoord, colCoord);
-                    if (distance <= maxDistance) {
-                        return false;
-                    }
+                    if (distance <= maxDistance) return true;
                 }
             }
+            return false;
+        }
 
-            // We try building the row chain, if it fails, we cannot ensure routeability
-            // We do not actually need the results
-            // We route backwards
-            for (int i = numRows; i > 0; i--) {
-                if (!isRouteable(col.get(i), col.get(i+1))) {
-                    return false;
-                }
+        /**
+         * Verifies routeability between coordinates in the forward direction:
+         * <ul>
+         *   <li>Backward traversal through row coordinates (i.e., last to first)</li>
+         *   <li>Forward traversal through column coordinates</li>
+         *   <li>A connector route from the first row to the first column</li>
+         * </ul>
+         *
+         * @param row list of row coordinates
+         * @param col list of column coordinates
+         * @return {@code true} if all routeability conditions are satisfied in the forward direction
+         */
+        private boolean isForwardRouteable(List<double[]> row, List<double[]> col) {
+            for (int i = numRows - 1; i > 0; i--) {
+                if (!isRouteable(row.get(i), row.get(i - 1))) return false;
             }
 
-            // Same process for column chain, but forward
             for (int i = 0; i < numCols - 1; i++) {
-                if (!isRouteable(col.get(i), col.get(i+1))) {
-                    return false;
-                }
+                if (!isRouteable(col.get(i), col.get(i + 1))) return false;
             }
 
-            // Same process for connector col -> row
-            if (!isRouteable(row.get(0), col.get(0))) {
-                return false;
+            return isRouteable(row.get(0), col.get(0));
+        }
+
+        /**
+         * Verifies routeability between coordinates in the backward direction:
+         * <ul>
+         *   <li>Backward traversal through column coordinates</li>
+         *   <li>Forward traversal through row coordinates</li>
+         *   <li>A connector route from the first column to the first row</li>
+         * </ul>
+         *
+         * @param row list of row coordinates
+         * @param col list of column coordinates
+         * @return {@code true} if all routeability conditions are satisfied in the backward direction
+         */
+        private boolean isBackwardRouteable(List<double[]> row, List<double[]> col) {
+            for (int i = numCols - 1; i > 0; i--) {
+                if (!isRouteable(col.get(i), col.get(i - 1))) return false;
             }
 
-            // Calculate the actual matrix
+            for (int i = 0; i < numRows - 1; i++) {
+                if (!isRouteable(row.get(i), row.get(i + 1))) return false;
+            }
+
+            return isRouteable(col.get(0), row.get(0));
+        }
+
+        /**
+         * Calculates the asymmetric distance matrix using the provided coordinates,
+         * and processes the result if available.
+         *
+         * @param snappedCoordinates a combined list of row and column coordinates
+         * @return {@code true} if the matrix was successfully computed and passed to {@code processMatrixResult}; {@code false} otherwise
+         */
+        private boolean computeAndProcessMatrix(List<double[]> snappedCoordinates) {
             int[] sources = java.util.stream.IntStream.range(0, numRows).toArray();
             int[] destinations = java.util.stream.IntStream.range(0, numCols).toArray();
 
             Optional<MatrixCalculator.MatrixResult> fullMatrixResult = matrixCalculator.calculateAsymmetricMatrix(
                     snappedCoordinates, sources, destinations, profile);
 
-            boolean addedNewMatrix = false;
-            if (fullMatrixResult.isPresent()) {
-                addedNewMatrix = processMatrixResult(fullMatrixResult.get());
-            }
-
-            return addedNewMatrix;
+            return fullMatrixResult.map(this::processMatrixResult).orElse(false);
         }
 
         /**
