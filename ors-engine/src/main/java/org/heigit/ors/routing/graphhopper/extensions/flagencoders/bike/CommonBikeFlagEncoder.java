@@ -404,39 +404,44 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, EncodingManager.Access access) {
-        if (access.canSkip()) {
-            return edgeFlags;
-        }
-
-        Integer priorityFromRelationInt = routeMap.get(bikeRouteEnc.getEnum(false, edgeFlags));
-        int priorityFromRelation = priorityFromRelationInt == null ? 0 : priorityFromRelationInt;
-
-        double wayTypeSpeed = getSpeed(way);
-        if (!access.isFerry()) {
-            wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
-            handleSpeed(edgeFlags, way, wayTypeSpeed);
-            handleBikeRelated(edgeFlags, way, priorityFromRelation > UNCHANGED.getValue());
-            if (access.isConditional() && conditionalAccessEncoder != null)
-                conditionalAccessEncoder.setBool(false, edgeFlags, true);
-            boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
-            if (isRoundabout) {
-                roundaboutEnc.setBool(false, edgeFlags, true);
+        try {
+            if (access.canSkip()) {
+                return edgeFlags;
             }
-        } else {
-            double ferrySpeed = ferrySpeedCalc.getSpeed(way);
-            handleSpeed(edgeFlags, way, ferrySpeed);
-        }
 
-        int priority = handlePriority(way, wayTypeSpeed, priorityFromRelation);
-        if (DEBUG_OUTPUT) {
-            try {
-                logWriter.write("WayID %d RelationPrio %d FinalPrio %d %n".formatted(way.getId(), priorityFromRelation, priority));
-                logWriter.flush();
-            } catch (Exception ex) {
-                LOGGER.warn("Failed to write log file.");
+            Integer priorityFromRelationInt = routeMap.get(bikeRouteEnc.getEnum(false, edgeFlags));
+            int priorityFromRelation = priorityFromRelationInt == null ? 0 : priorityFromRelationInt;
+
+            double wayTypeSpeed = getSpeed(way);
+            if (!access.isFerry()) {
+                wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
+                handleSpeed(edgeFlags, way, wayTypeSpeed);
+                handleBikeRelated(edgeFlags, way, priorityFromRelation > UNCHANGED.getValue());
+                if (access.isConditional() && conditionalAccessEncoder != null)
+                    conditionalAccessEncoder.setBool(false, edgeFlags, true);
+                boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
+                if (isRoundabout) {
+                    roundaboutEnc.setBool(false, edgeFlags, true);
+                }
+            } else {
+                double ferrySpeed = ferrySpeedCalc.getSpeed(way);
+                handleSpeed(edgeFlags, way, ferrySpeed);
             }
+
+            int priority = handlePriority(way, wayTypeSpeed, priorityFromRelation);
+            if (DEBUG_OUTPUT) {
+                try {
+                    logWriter.write("WayID %d RelationPrio %d FinalPrio %d %n".formatted(way.getId(), priorityFromRelation, priority));
+                    logWriter.flush();
+                } catch (Exception ex) {
+                    LOGGER.warn("Failed to write log file.");
+                }
+            }
+            priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(priority));
+
+        } catch (Exception ex) {
+            LOGGER.error("Exception for way id" + way.getId() + ": " + ex.getMessage());
         }
-        priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(priority));
         return edgeFlags;
     }
 
