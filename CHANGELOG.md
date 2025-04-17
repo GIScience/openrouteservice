@@ -38,6 +38,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 - fix outdated dockerfile base images and add a more robust native golang base image ([#2027](https://github.com/GIScience/openrouteservice/pull/2027))
 - fix github action build default builder image failing ([#2032](https://github.com/GIScience/openrouteservice/issues/2032)) 
+- fix wrong example in docs of extra-info 'waycategory' ([#1797](https://github.com/GIScience/openrouteservice/issues/1797))
 
 ### Security
 
