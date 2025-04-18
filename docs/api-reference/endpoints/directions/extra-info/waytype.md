@@ -3,7 +3,7 @@
 Value list for the directions response values in
 
 ```jsonpath
-$.routes[*].extras.waytype.values
+$.routes[*].extras.waytypes.values
 ```
 
 This extra provides info about the type of the way of the corresponding parts of the route.
