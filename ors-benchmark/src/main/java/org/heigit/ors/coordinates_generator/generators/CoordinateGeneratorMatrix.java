@@ -8,7 +8,6 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.heigit.ors.coordinates_generator.model.Matrix;
 import org.heigit.ors.coordinates_generator.model.MatrixRepository;
-import org.heigit.ors.coordinates_generator.model.Route;
 import org.heigit.ors.coordinates_generator.service.MatrixCalculator;
 import org.heigit.ors.coordinates_generator.service.CoordinateSnapper;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
@@ -27,7 +26,6 @@ import java.util.function.Function;
 public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     protected static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorMatrix.class);
 
-    private static final int DEFAULT_MATRIX_SIZE = 2;
     private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
     private static final String LOCATION_KEY = "location";
 
@@ -41,21 +39,23 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     private final MatrixCalculator matrixCalculator;
     private final int numThreads;
 
-    protected CoordinateGeneratorMatrix(int numRoutes, double[] extent, String[] profiles, String baseUrl,
-                                        double minDistance, Map<String, Double> maxDistanceByProfile) {
-        this(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, DEFAULT_THREAD_COUNT);
+    protected CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
+                                        double minDistance, Map<String, Double> maxDistanceByProfile,
+                                        int numRows, int numCols) {
+        this(numMatrices, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, numRows, numCols, DEFAULT_THREAD_COUNT);
     }
 
     public CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
-                                     double minDistance, Map<String, Double> maxDistanceByProfile, int numThreads) {
+                                     double minDistance, Map<String, Double> maxDistanceByProfile,
+                                     int numRows, int numCols, int numThreads) {
         super(extent, profiles, baseUrl, "matrix");
         validateInputs(numMatrices, minDistance, numThreads);
 
         this.numMatrices = numMatrices;
         this.minDistance = minDistance;
         this.maxDistanceByProfile = normalizeMaxDistances(profiles, maxDistanceByProfile);
-        this.numRows = 5; //TODO
-        this.numCols = 5; //TODO
+        this.numRows = numRows;
+        this.numCols = numRows;
         this.numThreads = numThreads;
         this.matrixRepository = new MatrixRepository(Set.of(profiles));
 
@@ -90,7 +90,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         return normalized;
     }
 
-    public void generateRoutes() {
+    public void generateMatrices() {
         generate(DEFAULT_MAX_ATTEMPTS);
     }
 
@@ -105,7 +105,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
         try {
             executor = Executors.newFixedThreadPool(numThreads);
-            executeRouteGeneration(executor, maxAttempts, shouldContinue, consecutiveFailedAttempts);
+            executeMatrixGeneration(executor, maxAttempts, shouldContinue, consecutiveFailedAttempts);
         } catch (Exception e) {
             LOGGER.error("Error generating routes: ", e);
         } finally {
@@ -113,14 +113,14 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         }
     }
 
-    private void executeRouteGeneration(ExecutorService executor, int maxAttempts,
-                                        AtomicBoolean shouldContinue, AtomicInteger consecutiveFailedAttempts) {
+    private void executeMatrixGeneration(ExecutorService executor, int maxAttempts,
+                                         AtomicBoolean shouldContinue, AtomicInteger consecutiveFailedAttempts) {
         try (ProgressBar pb = createProgressBar()) {
             while (!matrixRepository.areAllProfilesComplete(numMatrices) &&
                     consecutiveFailedAttempts.get() < maxAttempts &&
                     shouldContinue.get()) {
 
-                int initialTotalRoutes = matrixRepository.getTotalMatrixCount();
+                int initialTotalMatrices = matrixRepository.getTotalMatrixCount();
                 List<Future<Boolean>> futures = submitTasks(executor, shouldContinue);
 
                 // Wait for all tasks to complete
@@ -139,7 +139,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
                 updateProgressBar(pb);
 
                 // Check if we made progress in this iteration
-                if (matrixRepository.getTotalMatrixCount() == initialTotalRoutes) {
+                if (matrixRepository.getTotalMatrixCount() == initialTotalMatrices) {
                     int attempts = consecutiveFailedAttempts.incrementAndGet();
                     pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, maxAttempts));
                 } else {
@@ -232,7 +232,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
      *  then we ensure all combinations have at least one connection by transitivity.
      *  This guarantees full bidirectional connectivity across the matrix with linear effort,
      *  leveraging structure over exhaustive search.
-     *  For the backwards case, we invert the chains.
+     *  For the backwards case, we just connect last column to last row item.
      */
     private class MatrixGenerationTask implements Callable<Boolean> {
         private final String profile;
@@ -268,10 +268,10 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
             //We have a double statistics gate here
             //1. We need to find numRows + numCols snappable coordinates
             //2. We need to make sure that the chains as described above for these coordinates are reachable
-            //We solve problem 1 here, and we leave problem 2 to the repeated execution of the task
+            //We solve problem 1 here within one task, and we leave problem 2 to the repeated execution of the task
 
             int targetNum = numCols + numRows;
-            int maxRetries = 10 * targetNum; //TODO this is randomly chosen
+            int maxRetries = 20 * targetNum; // This is a random limit; Could use improvement
             int currRetry = 0;
             List<double[]> snappedCoordinates = new ArrayList<>();
 
@@ -282,6 +282,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
                 // Snap the coordinates to the road network
                 List<double[]> snappedCoordinate = coordinateSnapper.snapCoordinates(randomCoordinate, profile);
                 snappedCoordinates.addAll(snappedCoordinate);
+                currRetry++;
             }
 
             if (snappedCoordinates.size() < targetNum) {
@@ -308,8 +309,9 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
          * <p>
          * The method checks for:
          * <ul>
-         *   <li>Minimum allowed distance between row and column coordinates</li>
-         *   <li>Routeability in both forward and backward directions across rows and columns</li>
+         *   <li>Maximum allowed distance between row and column coordinates</li>
+         *   <li>Routeability in in forward direction between row elements, and column elements</li>
+         *   <li>Connectors between row and column to create circular routeability</li>
          *   <li>Computes an asymmetric matrix if all conditions are satisfied</li>
          * </ul>
          *
@@ -322,9 +324,10 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
             List<double[]> row = snappedCoordinates.subList(0, numRows);
             List<double[]> col = snappedCoordinates.subList(numRows, numRows + numCols);
 
-            if (hasNearbyPoints(row, col, maxDistance)) return false;
-            if (!isForwardRouteable(row, col)) return false;
-            if (!isBackwardRouteable(row, col)) return false;
+            if (!hasNearbyPoints(row, col, maxDistance)) return false;
+            if (!rowsColsRouteable(row, col)) return false;
+            if (!isRouteable(row.get(0), col.get(0))) return false;
+            if (!isRouteable(row.get(numRows - 1), col.get(numCols - 1))) return false;
 
             return computeAndProcessMatrix(snappedCoordinates);
         }
@@ -348,18 +351,17 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         }
 
         /**
-         * Verifies routeability between coordinates in the forward direction:
+         * Verifies routeability between row elements and column elements in the forward direction:
          * <ul>
          *   <li>Backward traversal through row coordinates (i.e., last to first)</li>
          *   <li>Forward traversal through column coordinates</li>
-         *   <li>A connector route from the first row to the first column</li>
          * </ul>
          *
          * @param row list of row coordinates
          * @param col list of column coordinates
          * @return {@code true} if all routeability conditions are satisfied in the forward direction
          */
-        private boolean isForwardRouteable(List<double[]> row, List<double[]> col) {
+        private boolean rowsColsRouteable(List<double[]> row, List<double[]> col) {
             for (int i = numRows - 1; i > 0; i--) {
                 if (!isRouteable(row.get(i), row.get(i - 1))) return false;
             }
@@ -368,32 +370,9 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
                 if (!isRouteable(col.get(i), col.get(i + 1))) return false;
             }
 
-            return isRouteable(row.get(0), col.get(0));
+            return true;
         }
 
-        /**
-         * Verifies routeability between coordinates in the backward direction:
-         * <ul>
-         *   <li>Backward traversal through column coordinates</li>
-         *   <li>Forward traversal through row coordinates</li>
-         *   <li>A connector route from the first column to the first row</li>
-         * </ul>
-         *
-         * @param row list of row coordinates
-         * @param col list of column coordinates
-         * @return {@code true} if all routeability conditions are satisfied in the backward direction
-         */
-        private boolean isBackwardRouteable(List<double[]> row, List<double[]> col) {
-            for (int i = numCols - 1; i > 0; i--) {
-                if (!isRouteable(col.get(i), col.get(i - 1))) return false;
-            }
-
-            for (int i = 0; i < numRows - 1; i++) {
-                if (!isRouteable(row.get(i), row.get(i + 1))) return false;
-            }
-
-            return isRouteable(col.get(0), row.get(0));
-        }
 
         /**
          * Calculates the asymmetric distance matrix using the provided coordinates,
