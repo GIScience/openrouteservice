@@ -72,10 +72,4 @@ public class RouteResponseInfo {
 
         this.systemMessage = SystemMessage.getSystemMessage(request, systemMessageProperties);
     }
-
-    @JsonIgnore
-    public void setGraphDate(String graphDate) {
-        engineInfo.setGraphDate(graphDate);
-    }
-
 }

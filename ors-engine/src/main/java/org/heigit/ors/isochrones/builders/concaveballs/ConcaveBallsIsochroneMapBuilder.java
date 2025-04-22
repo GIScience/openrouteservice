@@ -65,8 +65,6 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
 
         IsochroneMap isochroneMap = new IsochroneMap(parameters.getTravellerId(), loc);
 
-        isochroneMap.setGraphDate(graphdate);
-
         if (LOGGER.isDebugEnabled()) {
             sw.stop();
 
