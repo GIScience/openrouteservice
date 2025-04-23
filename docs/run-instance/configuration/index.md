@@ -13,3 +13,8 @@ But it is crucial to know and understand the different configuration mechanisms
 in order to operate openrouteservice with the desired configuration.
 In Chapter [How to configure](how-to-configure.md)
 we handle the different dimensions of the configuration topic. 
+
+::: tip
+Use a dedicated YAML editor (e.g., [yamlchecker.com](https://yamlchecker.com)) to edit configurations.
+Regular text editors often overlook syntax errors.
+:::
