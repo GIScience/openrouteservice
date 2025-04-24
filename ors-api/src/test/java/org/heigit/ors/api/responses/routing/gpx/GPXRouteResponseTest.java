@@ -20,15 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("unittest")
 class GPXRouteResponseTest {
 
     @Autowired
-    private EndpointsProperties endpointsProperties;
+    private final EndpointsProperties endpointsProperties = new EndpointsProperties();
 
     @Autowired
-    private SystemMessageProperties systemMessageProperties;
+    private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
 
     @Test
     void TestGetGpxRouteElements() throws Exception {
@@ -61,10 +63,10 @@ class GPXRouteResponseTest {
         assertTrue(xmlBounds.contains("minlon="), "minlon should appear with correct capitalization.");
         assertTrue(xmlBounds.contains("maxlon="), "maxlon should appear with correct capitalization.");
 
-        assertEquals("openrouteservice", response.getGpxCreator());
+        assertEquals("openrouteservice", GPXRouteResponse.getGpxCreator());
 
-        assertEquals("https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd", response.getXmlnsLink());
+        assertEquals("https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd", GPXRouteResponse.getXmlnsLink());
 
-        assertEquals("1.1", response.getGpxVersion());
+        assertEquals("1.1", GPXRouteResponse.getGpxVersion());
     }
 }
