@@ -97,15 +97,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Download maven dependencies
-        run: mvn package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+        run: ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
       - name: Build JAR
         run: |
-          mvn -q clean package -DskipTests
+          ./mvnw -q clean package -DskipTests
           # Copy the JAR to the root directory
           cp ors-api/target/ors.jar ors.jar
       - name: Build WAR
         run: |
-          mvn -q clean package -DskipTests -PbuildWar
+          ./mvnw -q clean package -DskipTests -PbuildWar
           # Copy the WAR to the root directory
           cp ors-api/target/ors.war ors.war
       - name: Get the release tag

@@ -58,9 +58,9 @@ jobs:
       - name: Prepare the maven cache dependencies
         run: |
           echo "Sync the maven dependencies"
-          mvn package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
-          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
-          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
+          ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+          # Replace all RUN ./mvnw with RUN --mount=type=cache,target=/root/.m2 ./mvnw
+          sed -i 's/RUN \.\/mvnw /RUN --mount=type=cache,target=\/root\/.m2 \.\/mvnw /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
       - name: inject maven-build-cache into docker
         uses: reproducible-containers/buildkit-cache-dance@v3.1.2
         with:
@@ -114,7 +114,7 @@ jobs:
         if: steps.cache_graph.outputs.cache-hit != 'true'
         run: |
           # Build the shared graph
-          mvn -pl ors-test-scenarios -q -Dtest=integrationtests.OneShotGraphBuilderTest\#oneShotGraphBuilder test \
+          ./mvnw -pl ors-test-scenarios -q -Dtest=integrationtests.OneShotGraphBuilderTest\#oneShotGraphBuilder test \
             -Dcontainer.builder.use_prebuild=true \
             -Dcontainer.run.scenario=jar
         env:
@@ -164,8 +164,8 @@ jobs:
             }
       - name: Prepare the maven cache dependencies
         run: |
-          # Replace all RUN mvn with RUN --mount=type=cache,target=/root/.m2 mvn
-          sed -i 's/RUN mvn /RUN --mount=type=cache,target=\/root\/.m2 mvn /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
+          # Replace all RUN ./mvnw with RUN --mount=type=cache,target=/root/.m2 ./mvnw
+          sed -i 's/RUN \.\/mvnw /RUN --mount=type=cache,target=\/root\/.m2 \.\/mvnw /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
       - name: Restore cached graph
         id: restore-cached-image
         uses: actions/cache/restore@v4
@@ -197,7 +197,7 @@ jobs:
           # List the cached images
           docker image ls -a
           # Run only a subset for now
-          mvn -pl ors-test-scenarios -Dtest=${{ matrix.test-class }} test \
+          ./mvnw -pl ors-test-scenarios -Dtest=${{ matrix.test-class }} test \
             -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4 \
             -Dcontainer.run.scenario=${{ matrix.test-scenario }} \
             -Dcontainer.builder.use_prebuild=true -q
