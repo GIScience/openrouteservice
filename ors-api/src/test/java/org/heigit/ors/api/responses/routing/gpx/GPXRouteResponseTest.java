@@ -28,7 +28,7 @@ class GPXRouteResponseTest {
     private EndpointsProperties endpointsProperties;
 
     @Autowired
-    private SystemMessageProperties systemMessageProperties;
+    private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
 
     @Test
     void TestGetGpxRouteElements() throws Exception {
