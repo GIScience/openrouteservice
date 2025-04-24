@@ -27,7 +27,7 @@ import org.springframework.test.context.ActiveProfiles;
 class GPXRouteResponseTest {
 
     @Autowired
-    private EndpointsProperties endpointsProperties;
+    private final EndpointsProperties endpointsProperties = new EndpointsProperties();
 
     @Autowired
     private final SystemMessageProperties systemMessageProperties = new SystemMessageProperties();
