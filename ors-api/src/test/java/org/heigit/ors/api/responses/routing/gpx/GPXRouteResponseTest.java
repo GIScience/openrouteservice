@@ -63,10 +63,10 @@ class GPXRouteResponseTest {
         assertTrue(xmlBounds.contains("minlon="), "minlon should appear with correct capitalization.");
         assertTrue(xmlBounds.contains("maxlon="), "maxlon should appear with correct capitalization.");
 
-        assertEquals("openrouteservice", response.getGpxCreator());
+        assertEquals("openrouteservice", GPXRouteResponse.getGpxCreator());
 
-        assertEquals("https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd", response.getXmlnsLink());
+        assertEquals("https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd", GPXRouteResponse.getXmlnsLink());
 
-        assertEquals("1.1", response.getGpxVersion());
+        assertEquals("1.1", GPXRouteResponse.getGpxVersion());
     }
 }
