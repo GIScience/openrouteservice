@@ -29,6 +29,7 @@ Releasing is documented in RELEASE.md
 
 ### Added
 - add hint to use yaml editor in docs ([#1836](https://github.com/GIScience/openrouteservice/issues/1836))
+- adding maven wrapper to project ([#1973](https://github.com/GIScience/openrouteservice/issues/1973))
 
 ### Changed
 
