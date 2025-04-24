@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- add hint to use yaml editor in docs ([#1836](https://github.com/GIScience/openrouteservice/issues/1836))
 
 ### Changed
 
