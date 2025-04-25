@@ -41,6 +41,7 @@ Releasing is documented in RELEASE.md
 - fix github action build default builder image failing ([#2032](https://github.com/GIScience/openrouteservice/issues/2032)) 
 - fix wrong example in docs of extra-info 'waycategory' ([#1797](https://github.com/GIScience/openrouteservice/issues/1797))
 - fix population data link in docs ([#1624](https://github.com/GIScience/openrouteservice/issues/1624))
+- accept upper and lower case booleans for REBUILD_GRAPHS within the docker setup ([#2028](https://github.com/GIScience/openrouteservice/pull/2028))
 
 ### Security
 
