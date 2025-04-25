@@ -61,6 +61,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         restrictedValues.add("customers");
         restrictedValues.add("emergency");
         restrictedValues.add("permissive");
+        restrictedValues.add("permit");
 
         permissiveValues.add("yes");
         permissiveValues.add("designated");
@@ -230,6 +231,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
                 case "permissive" -> res |= AccessRestrictionType.PERMISSIVE;
                 case "delivery" -> res |= AccessRestrictionType.DELIVERY;
                 case "customers" -> res |= AccessRestrictionType.CUSTOMERS;
+                case "permit" -> res |= AccessRestrictionType.PERMIT;
                 default -> {
                 }
             }

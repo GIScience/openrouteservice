@@ -24,6 +24,7 @@ public abstract class AccessRestrictionType {
     public static final int DELIVERY = 8;
     public static final int PRIVATE = 16;
     public static final int PERMISSIVE = 32;
+    public static final int PERMIT = 64;
 
     private AccessRestrictionType() {
     }
