@@ -261,3 +261,16 @@ Below are some examples of custom models that illustrate how the `custom_model` 
     ]
 }
 ```
+
+#### Prefer staying on hiking routes
+
+```json
+{
+    "priority": [
+        {
+            "if": "foot_network == MISSING",
+            "multiply_by": 0.2
+        }
+    ]
+}
+```
