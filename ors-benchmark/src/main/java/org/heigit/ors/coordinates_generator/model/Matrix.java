@@ -1,7 +1,6 @@
 package org.heigit.ors.coordinates_generator.model;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class Matrix {
     private final double[][] coordinates;

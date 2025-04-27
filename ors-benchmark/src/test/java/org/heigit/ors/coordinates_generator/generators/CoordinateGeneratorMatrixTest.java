@@ -11,9 +11,7 @@ import org.heigit.ors.coordinates_generator.model.Matrix;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -54,7 +52,7 @@ class CoordinateGeneratorMatrixTest {
         Map<String, Double> maxDistanceMap = new HashMap<>();
         maxDistanceMap.put("driving-car", 10000.0);
         testGenerator = new TestCoordinateGeneratorMatrix(NUM_MATRICES, TEST_EXTENT, DEFAULT_PROFILES, "http://localhost:8080/ors",
-                0, maxDistanceMap, NUM_ROWS, NUM_COLS);
+                maxDistanceMap, new CoordinateGeneratorMatrix.MatrixDimensions(NUM_ROWS, NUM_COLS));
         testGenerator.setHttpClient(mockHttpClient);
     }
 
@@ -75,7 +73,7 @@ class CoordinateGeneratorMatrixTest {
         System.setProperty("ORS_API_KEY", "test-key");
         TestCoordinateGeneratorMatrix routeCoordinateGenerator = new TestCoordinateGeneratorMatrix(4, TEST_EXTENT,
                 DEFAULT_PROFILES,
-                "https://openrouteservice.org/", 0, new HashMap<>(), NUM_ROWS, NUM_COLS);
+                "https://openrouteservice.org/", new HashMap<>(), new CoordinateGeneratorMatrix.MatrixDimensions(NUM_ROWS, NUM_COLS));
         Map<String, String> headers = routeCoordinateGenerator.createHeaders();
         assertTrue(headers.containsKey("Authorization"), "Should have Authorization header");
         assertEquals("test-key", headers.get("Authorization"),
@@ -188,6 +186,8 @@ class CoordinateGeneratorMatrixTest {
                         return handler.handleResponse(mockMatrixResponse3);
                     case 3:
                         return handler.handleResponse(mockMatrixResponse4);
+                    default:
+                        return handler.handleResponse(mockMatrixResponse);
                 }
             }
             return null;
@@ -209,8 +209,8 @@ class CoordinateGeneratorMatrixTest {
         Map<String, Double> maxDistanceMap = new HashMap<>();
         maxDistanceMap.put("driving-car", 10000.0);
         maxDistanceMap.put("cycling-regular", 5000.0);
-        testGenerator = new TestCoordinateGeneratorMatrix(NUM_MATRICES, TEST_EXTENT, profiles, "http://localhost:8080/ors", 0,
-                maxDistanceMap, NUM_ROWS, NUM_COLS);
+        testGenerator = new TestCoordinateGeneratorMatrix(NUM_MATRICES, TEST_EXTENT, profiles, "http://localhost:8080/ors",
+                maxDistanceMap, new CoordinateGeneratorMatrix.MatrixDimensions(NUM_ROWS, NUM_COLS));
         testGenerator.setHttpClient(mockHttpClient);
 
         // Create mock responses
@@ -306,73 +306,6 @@ class CoordinateGeneratorMatrixTest {
         assertEquals("coordinates,sources,destinations,distances,profile", lines.get(0));
     }
 
-    @Test
-    void testMinimumDistanceFiltering() throws Exception {
-        // Create generator with minimum distance filter
-        Map<String, Double> maxDistanceMap = new HashMap<>();
-        maxDistanceMap.put("driving-car", 10000.0);
-        TestCoordinateGeneratorMatrix generator = new TestCoordinateGeneratorMatrix(
-                NUM_MATRICES, TEST_EXTENT, DEFAULT_PROFILES, "http://localhost:8080/ors", 1000.0, maxDistanceMap, NUM_ROWS, NUM_COLS);
-        generator.setHttpClient(mockHttpClient);
-
-        // Create mock responses with mixed distances (some below minimum)
-        String snapResponse = """
-                {
-                    "locations": [
-                        {"location": [8.666862, 49.413181]},
-                        {"location": [8.676105, 49.418530]},
-                        {"location": [8.686105, 49.428530]}
-                    ]
-                }
-                """;
-
-        String matrixResponse = """
-                {
-                    "distances": [
-                        [0, 500.2, 1500.3],
-                        [500.0, 0, 2000.6],
-                        [1500.5, 2000.3, 0]
-                    ],
-                    "destinations": [
-                        {"location": [8.666862, 49.413181]},
-                        {"location": [8.676105, 49.418530]},
-                        {"location": [8.686105, 49.428530]}
-                    ],
-                    "sources": [
-                        {"location": [8.666862, 49.413181]},
-                        {"location": [8.676105, 49.418530]},
-                        {"location": [8.686105, 49.428530]}
-                    ]
-                }
-                """;
-
-        // Mock HTTP responses
-        ClassicHttpResponse mockResponse = mock(ClassicHttpResponse.class);
-        when(mockResponse.getCode()).thenReturn(HttpStatus.SC_OK);
-        when(mockResponse.getEntity()).thenReturn(new StringEntity(snapResponse, ContentType.APPLICATION_JSON),
-                new StringEntity(matrixResponse, ContentType.APPLICATION_JSON));
-
-        when(mockHttpClient.execute(any(HttpPost.class), handlerCaptor.capture())).thenAnswer(invocation -> {
-            HttpClientResponseHandler<String> handler = handlerCaptor.getValue();
-            return handler.handleResponse(mockResponse);
-        });
-
-        // Execute test
-        generator.generateMatrices();
-
-        // Verify all routes meet minimum distance requirement
-        List<Matrix> result = generator.getResult();
-        for (Matrix matrix : result) {
-            double[][] distances = matrix.getDistances();
-            for (int i = 0; i < distances.length; i++) {
-                for (int j = 0; j < distances[i].length; j++) {
-                    assertTrue(distances[i][j] >= 1000.0,
-                            "Matrix distance at [" + i + "][" + j + "] is " + distances[i][j] + " and should be at least 1000.0 meters");
-                }
-            }
-        }
-    }
-
     @SuppressWarnings("unused")
     private static Stream<Arguments> invalidConstructorParameters() {
         Map<String, Double> validMaxDistances = new HashMap<>();
@@ -380,17 +313,17 @@ class CoordinateGeneratorMatrixTest {
 
         return Stream.of(
                 Arguments.of(0, TEST_EXTENT, DEFAULT_PROFILES, validMaxDistances, 0.0,
-                                "Number of routes must be positive"),
+                        "Number of routes must be positive"),
                 Arguments.of(1, null, DEFAULT_PROFILES, validMaxDistances, 0.0,
-                                "Extent must contain 4 coordinates"),
+                        "Extent must contain 4 coordinates"),
                 Arguments.of(1, new double[3], DEFAULT_PROFILES, validMaxDistances, 0.0,
-                                "Extent must contain 4 coordinates"),
+                        "Extent must contain 4 coordinates"),
                 Arguments.of(1, TEST_EXTENT, new String[0], validMaxDistances, 0.0,
-                                "Profiles must not be empty"),
+                        "Profiles must not be empty"),
                 Arguments.of(1, TEST_EXTENT, null, validMaxDistances, 0.0,
-                                "Profiles must not be empty"),
+                        "Profiles must not be empty"),
                 Arguments.of(1, TEST_EXTENT, DEFAULT_PROFILES, validMaxDistances, -1.0,
-                                "Minimum distance must be non-negative"));
+                        "Minimum distance must be non-negative"));
     }
 
     /**
@@ -401,20 +334,18 @@ class CoordinateGeneratorMatrixTest {
         private CloseableHttpClient testClient;
 
         public TestCoordinateGeneratorMatrix(int numRoutes, double[] extent, String[] profiles,
-                                             String baseUrl, double minDistance, int numRows, int numCols) {
-            super(numRoutes, extent, profiles, baseUrl, minDistance, new HashMap<>(), numRows, numCols);
+                                             String baseUrl, MatrixDimensions matrixDimensions) {
+            super(numRoutes, extent, profiles, baseUrl, new HashMap<>(), matrixDimensions);
         }
 
         public TestCoordinateGeneratorMatrix(int numRoutes, double[] extent, String[] profiles,
-                                             String baseUrl, double minDistance,
-                                             Map<String, Double> maxDistanceByProfile, int numRows, int numCols) {
-            super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, numRows, numCols);
+                                             String baseUrl, Map<String, Double> maxDistanceByProfile, MatrixDimensions matrixDimensions) {
+            super(numRoutes, extent, profiles, baseUrl, maxDistanceByProfile, matrixDimensions);
         }
 
         public TestCoordinateGeneratorMatrix(int numRoutes, double[] extent, String[] profiles,
-                                             String baseUrl, double minDistance,
-                                             Map<String, Double> maxDistanceByProfile, int numRows, int numCols, int numThreads) {
-            super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, numRows, numCols, numThreads);
+                                             String baseUrl, Map<String, Double> maxDistanceByProfile, MatrixDimensions matrixDimensions, int numThreads) {
+            super(numRoutes, extent, profiles, baseUrl, maxDistanceByProfile, matrixDimensions, numThreads);
         }
 
         void setHttpClient(CloseableHttpClient client) {

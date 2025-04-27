@@ -24,13 +24,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
+    public record MatrixDimensions(int numRows, int numCols) {
+    }
     protected static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorMatrix.class);
 
     private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
     private static final String LOCATION_KEY = "location";
 
     private final int numMatrices;
-    private final double minDistance;
     private final Map<String, Double> maxDistanceByProfile;
     private final int numRows;
     private final int numCols;
@@ -40,22 +41,21 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     private final int numThreads;
 
     protected CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
-                                        double minDistance, Map<String, Double> maxDistanceByProfile,
-                                        int numRows, int numCols) {
-        this(numMatrices, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, numRows, numCols, DEFAULT_THREAD_COUNT);
+                                         Map<String, Double> maxDistanceByProfile,
+                                        MatrixDimensions matrixDimensions) {
+        this(numMatrices, extent, profiles, baseUrl, maxDistanceByProfile, matrixDimensions, DEFAULT_THREAD_COUNT);
     }
 
     public CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
-                                     double minDistance, Map<String, Double> maxDistanceByProfile,
-                                     int numRows, int numCols, int numThreads) {
+                                      Map<String, Double> maxDistanceByProfile,
+                                     MatrixDimensions matrixDimensions, int numThreads) {
         super(extent, profiles, baseUrl, "matrix");
-        validateInputs(numMatrices, minDistance, numThreads);
+        validateInputs(numMatrices, numThreads);
 
         this.numMatrices = numMatrices;
-        this.minDistance = minDistance;
         this.maxDistanceByProfile = normalizeMaxDistances(profiles, maxDistanceByProfile);
-        this.numRows = numRows;
-        this.numCols = numRows;
+        this.numRows = matrixDimensions.numRows;
+        this.numCols = matrixDimensions.numCols;
         this.numThreads = numThreads;
         this.matrixRepository = new MatrixRepository(Set.of(profiles));
 
@@ -73,11 +73,9 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         this.matrixCalculator = new MatrixCalculator(baseUrl, headers, mapper, requestExecutor);
     }
 
-    private void validateInputs(int numRoutes, double minDistance, int numThreads) {
+    private void validateInputs(int numRoutes, int numThreads) {
         if (numRoutes <= 0)
             throw new IllegalArgumentException("Number of routes must be positive");
-        if (minDistance < 0)
-            throw new IllegalArgumentException("Minimum distance must be non-negative");
         if (numThreads <= 0)
             throw new IllegalArgumentException("Number of threads must be positive");
     }
@@ -433,7 +431,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
             // Populate source coordinates and indices
             for (int i = 0; i < sourceCount; i++) {
-                List<Double> loc = (List<Double>) rawSources.get(i).get("location");
+                List<Double> loc = (List<Double>) rawSources.get(i).get(LOCATION_KEY);
                 coordinates[i][0] = loc.get(0);
                 coordinates[i][1] = loc.get(1);
                 sourceIndices[i] = i;
@@ -441,7 +439,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
             // Populate destination coordinates and indices
             for (int i = 0; i < destCount; i++) {
-                List<Double> loc = (List<Double>) rawDestinations.get(i).get("location");
+                List<Double> loc = (List<Double>) rawDestinations.get(i).get(LOCATION_KEY);
                 int index = sourceCount + i;
                 coordinates[index][0] = loc.get(0);
                 coordinates[index][1] = loc.get(1);
