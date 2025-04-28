@@ -44,6 +44,7 @@ Releasing is documented in RELEASE.md
 - fix population data link in docs ([#1624](https://github.com/GIScience/openrouteservice/issues/1624))
 - accept upper and lower case booleans for REBUILD_GRAPHS within the docker setup ([#2028](https://github.com/GIScience/openrouteservice/pull/2028))
 - correct available features in custom-model docs ([#2033](https://github.com/GIScience/openrouteservice/issues/2033))
+- prevent ferry speed derived from the OSM maxspeed tag from exceeding the maximum possible encoder value ([#2030](https://github.com/GIScience/openrouteservice/issues/2030)) 
 
 ### Security
 
