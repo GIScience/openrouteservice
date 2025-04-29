@@ -16,7 +16,10 @@ import java.util.function.Function;
 public class MatrixCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MatrixCalculator.class);
     private static final String LOCATIONS_KEY = "locations";
-    
+    private static final String SOURCES_KEY = "sources";
+    private static final String DESTINATIONS_KEY = "destinations";
+    private static final String ERROR_CALCULATING_MATRIX = "Error calculating matrix: {}";
+
     private final String baseUrl;
     private final Map<String, String> headers;
     private final ObjectMapper mapper;
@@ -42,7 +45,7 @@ public class MatrixCalculator {
             
             return Optional.of(processMatrixResponse(response));
         } catch (IOException e) {
-            LOGGER.error("Error calculating matrix: {}", e.getMessage());
+            LOGGER.error(ERROR_CALCULATING_MATRIX, e.getMessage());
             return Optional.empty();
         }
     }
@@ -52,14 +55,51 @@ public class MatrixCalculator {
             HttpPost request = createMatrixRequest(coordinates, profile);
             return requestExecutor.apply(request);
         } catch (IOException e) {
-            LOGGER.error("Error calculating matrix: {}", e.getMessage());
+            LOGGER.error(ERROR_CALCULATING_MATRIX, e.getMessage());
             return null;
         }
     }
-    
+
+    public Optional<MatrixResult> calculateAsymmetricMatrix(List<double[]> coordinates, int[] sources, int[] destinations, String profile) {
+        try {
+            HttpPost request = createAsymmetricMatrixRequest(coordinates, sources, destinations, profile);
+            String response = requestExecutor.apply(request);
+
+            if (response == null) {
+                LOGGER.debug("Received null response from matrix API");
+                return Optional.empty();
+            }
+
+            return Optional.of(processMatrixResponse(response));
+        } catch (IOException e) {
+            LOGGER.error(ERROR_CALCULATING_MATRIX, e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Create a matrix request where all coordinates are treated as both sources as destinations
+     */
     private HttpPost createMatrixRequest(List<double[]> coordinates, String profile) throws JsonProcessingException {
         Map<String, Object> payload = new HashMap<>();
         payload.put(LOCATIONS_KEY, coordinates);
+        payload.put("metrics", new String[] { "distance" });
+
+        HttpPost request = new HttpPost(baseUrl + "/v2/matrix/" + profile);
+        headers.forEach(request::addHeader);
+        request.setEntity(new StringEntity(mapper.writeValueAsString(payload), ContentType.APPLICATION_JSON));
+        return request;
+    }
+
+    /**
+     * Create a matrix request with specified sources and destinations
+     * Sources and destinations are interpreted as indices into the list of coordinates
+     */
+    private HttpPost createAsymmetricMatrixRequest(List<double[]> coordinates, int[] sources, int[] destinations, String profile) throws JsonProcessingException {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put(LOCATIONS_KEY, coordinates);
+        payload.put(SOURCES_KEY, sources);
+        payload.put(DESTINATIONS_KEY, destinations);
         payload.put("metrics", new String[] { "distance" });
 
         HttpPost request = new HttpPost(baseUrl + "/v2/matrix/" + profile);
@@ -73,8 +113,8 @@ public class MatrixCalculator {
                 new TypeReference<Map<String, Object>>() {});
         
         List<List<Double>> distances = extractDistances(responseMap);
-        List<Map<String, Object>> sources = extractLocations(responseMap, "sources");
-        List<Map<String, Object>> destinations = extractLocations(responseMap, "destinations");
+        List<Map<String, Object>> sources = extractLocations(responseMap, SOURCES_KEY);
+        List<Map<String, Object>> destinations = extractLocations(responseMap, DESTINATIONS_KEY);
         
         return new MatrixResult(sources, destinations, distances);
     }
