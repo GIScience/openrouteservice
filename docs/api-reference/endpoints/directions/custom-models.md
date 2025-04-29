@@ -137,7 +137,7 @@ The `condition_value` can be a string or boolean value. If it is a string, it ca
 `in_[AREA_NAME]` (see [section below](#areas) for details) OR describe a logical statement that can evaluate as true or
 false. The logical statement can be a simple comparison of a variable and a value, e.g. `road_class == MOTORWAY`, or a
 more complex statement using Java boolean operators, e.g.
-`max_width <= 2.2 && (road_environment == TUNNEL || roundabout)`.
+`max_speed <= 30 && (road_environment == TUNNEL || roundabout)`.
 
 The variables that can be used in those statements are called `encoded values`, and different ones are available for
 different profiles. The available `encoded values` can be found in the response to the [status endpoint](/api-reference/endpoints/status/), in the array
@@ -149,14 +149,12 @@ available. Note that this list is incomplete and the available variables depend 
 | `road_class`       | Enum      | MOTORWAY, TRUNK, PRIMARY, SECONDARY, TRACK, STEPS, CYCLEWAY, FOOTWAY, ... |
 | `road_environment` | Enum      | ROAD, FERRY, BRIDGE, TUNNEL, ...                                          |
 | `road_access`      | Enum      | DESTINATION, DELIVERY, PRIVATE, NO, ...                                   |
-| `surface`          | Enum      | PAVED, DIRT, SAND, GRAVEL, ...                                            |
 | `smoothness`       | Enum      | EXCELLENT, GOOD, INTERMEDIATE, ...                                        |
-| `toll`             | Enum      | NO, ALL, HGV                                                              |
 | `roundabout`       | Boolean   | Whether edge is part of a roundabout                                      |
 | `get_off_bike`     | Boolean   | Whether edge is marked as "requiring to get off bike"                     |
 | `max_speed`        | Numerical | Max speed in km/h                                                         |
-| `max_height`       | Numerical | Max height in m                                                           |
-| `max_width`        | Numerical | Max width in m                                                            |
+| `bike_network`     | Enum      | MISSING, INTERNATIONAL, NATIONAL, REGIONAL, LOCAL, OTHER                  |
+| `foot_network`     | Enum      | MISSING, INTERNATIONAL, NATIONAL, REGIONAL, LOCAL, OTHER                  |
 
 Enum type encoded values can be used with the `==` and `!=` operators, while numerical encoded values can be used with
 the
@@ -259,6 +257,19 @@ Below are some examples of custom models that illustrate how the `custom_model` 
         {
             "if": "get_off_bike",
             "multiply_by": 0
+        }
+    ]
+}
+```
+
+#### Prefer staying on hiking routes
+
+```json
+{
+    "priority": [
+        {
+            "if": "foot_network == MISSING",
+            "multiply_by": 0.2
         }
     ]
 }

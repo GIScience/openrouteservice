@@ -29,6 +29,8 @@ Releasing is documented in RELEASE.md
 
 ### Added
 - add hint to use yaml editor in docs ([#1836](https://github.com/GIScience/openrouteservice/issues/1836))
+- access = permit as known access restriction type ([#2013](https://github.com/GIScience/openrouteservice/issues/2013))
+- add matrix generator for performance benchmarking ([#2038](https://github.com/GIScience/openrouteservice/pull/2038))
 - adding maven wrapper to project ([#1973](https://github.com/GIScience/openrouteservice/issues/1973))
 
 ### Changed
@@ -42,6 +44,9 @@ Releasing is documented in RELEASE.md
 - fix github action build default builder image failing ([#2032](https://github.com/GIScience/openrouteservice/issues/2032)) 
 - fix wrong example in docs of extra-info 'waycategory' ([#1797](https://github.com/GIScience/openrouteservice/issues/1797))
 - fix population data link in docs ([#1624](https://github.com/GIScience/openrouteservice/issues/1624))
+- accept upper and lower case booleans for REBUILD_GRAPHS within the docker setup ([#2028](https://github.com/GIScience/openrouteservice/pull/2028))
+- correct available features in custom-model docs ([#2033](https://github.com/GIScience/openrouteservice/issues/2033))
+- prevent ferry speed derived from the OSM maxspeed tag from exceeding the maximum possible encoder value ([#2030](https://github.com/GIScience/openrouteservice/issues/2030)) 
 
 ### Security
 

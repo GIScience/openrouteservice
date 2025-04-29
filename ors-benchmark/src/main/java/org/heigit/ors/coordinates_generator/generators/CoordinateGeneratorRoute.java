@@ -9,7 +9,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.heigit.ors.coordinates_generator.model.Route;
 import org.heigit.ors.coordinates_generator.model.RouteRepository;
 import org.heigit.ors.coordinates_generator.service.MatrixCalculator;
-import org.heigit.ors.coordinates_generator.service.RouteSnapper;
+import org.heigit.ors.coordinates_generator.service.CoordinateSnapper;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     private final double minDistance;
     private final Map<String, Double> maxDistanceByProfile;
     private final RouteRepository routeRepository;
-    private final RouteSnapper routeSnapper;
+    private final CoordinateSnapper coordinateSnapper;
     private final MatrixCalculator matrixCalculator;
     private final int numThreads;
 
@@ -64,7 +64,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         };
 
         Map<String, String> headers = createHeaders();
-        this.routeSnapper = new RouteSnapper(baseUrl, headers, mapper, requestExecutor);
+        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor);
         this.matrixCalculator = new MatrixCalculator(baseUrl, headers, mapper, requestExecutor);
     }
 
@@ -231,7 +231,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
                     extent);
 
             // Snap the coordinates to the road network
-            List<double[]> snappedCoordinates = routeSnapper.snapCoordinates(randomCoordinates, profile);
+            List<double[]> snappedCoordinates = coordinateSnapper.snapCoordinates(randomCoordinates, profile);
 
             if (snappedCoordinates.size() < 2) {
                 return false;

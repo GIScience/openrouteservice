@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 
-public class RouteSnapper {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RouteSnapper.class);
+public class CoordinateSnapper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateSnapper.class);
     private static final double DEFAULT_SNAP_RADIUS = 350; // 350 meters radius for snapping
     private static final String LOCATIONS_KEY = "locations";
     private static final String LOCATION_KEY = "location";
@@ -24,8 +24,8 @@ public class RouteSnapper {
     private final ObjectMapper mapper;
     private final Function<HttpPost, String> requestExecutor;
 
-    public RouteSnapper(String baseUrl, Map<String, String> headers, ObjectMapper mapper, 
-            Function<HttpPost, String> requestExecutor) {
+    public CoordinateSnapper(String baseUrl, Map<String, String> headers, ObjectMapper mapper,
+                             Function<HttpPost, String> requestExecutor) {
         this.baseUrl = baseUrl;
         this.headers = headers;
         this.mapper = mapper;

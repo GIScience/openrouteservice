@@ -7,7 +7,7 @@ import me.tongfei.progressbar.ProgressBarStyle;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.heigit.ors.coordinates_generator.model.Point;
-import org.heigit.ors.coordinates_generator.service.RouteSnapper;
+import org.heigit.ors.coordinates_generator.service.CoordinateSnapper;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     private static final int DEFAULT_BATCH_SIZE = 100;
 
     private final int numPoints;
-    private final RouteSnapper routeSnapper;
+    private final CoordinateSnapper coordinateSnapper;
     private final Map<String, List<double[]>> resultsByProfile;
     private final Map<String, Set<Point>> uniquePointsByProfile;
 
@@ -53,7 +53,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
             }
         };
         Map<String, String> headers = createHeaders();
-        this.routeSnapper = new RouteSnapper(baseUrl, headers, mapper, requestExecutor);
+        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         int currentBatchSize = Math.min(DEFAULT_BATCH_SIZE, remainingPoints);
         List<double[]> rawPoints = CoordinateGeneratorHelper.randomCoordinatesInExtent(currentBatchSize, extent);
 
-        List<double[]> snappedPoints = routeSnapper.snapCoordinates(rawPoints, profile);
+        List<double[]> snappedPoints = coordinateSnapper.snapCoordinates(rawPoints, profile);
         processSnappedPoints(snappedPoints, profile);
     }
 
