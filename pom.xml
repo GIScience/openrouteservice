@@ -95,7 +95,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spotless.version>2.27.2</spotless.version>
         <surefire.version>3.5.2</surefire.version>
-        <httpclient5.version>5.4.2</httpclient5.version>
+        <httpclient5.version>5.4.3</httpclient5.version>
         <gatling.version>3.13.4</gatling.version>
         <gatling-maven-plugin.version>4.13.0</gatling-maven-plugin.version>
         <commons-cli.version>1.5.0</commons-cli.version>
