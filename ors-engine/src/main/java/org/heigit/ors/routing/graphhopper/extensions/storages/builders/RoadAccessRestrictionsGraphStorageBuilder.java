@@ -78,9 +78,9 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
      * @return The RoadAccessRestrictionStorage object created as part of the initialisation
      * @throws Exception
      */
-    public GraphExtension init(GraphHopper graphhopper, int profileType) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper, int profileType) throws IllegalStateException {
         if (storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
 
         ExtendedStorageProperties parameters;
         parameters = this.parameters;
@@ -102,9 +102,9 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
      * @return The RoadAccessRestrictionStorage object created as part of the initialisation
      * @throws Exception
      */
-    public GraphExtension init(GraphHopper graphhopper) throws Exception {
+    public GraphExtension init(GraphHopper graphhopper) throws IllegalStateException {
         if (storage != null)
-            throw new Exception("GraphStorageBuilder has been already initialized.");
+            throw new IllegalStateException("GraphStorageBuilder has been already initialized.");
 
         ExtendedStorageProperties parameters;
         parameters = this.parameters;
