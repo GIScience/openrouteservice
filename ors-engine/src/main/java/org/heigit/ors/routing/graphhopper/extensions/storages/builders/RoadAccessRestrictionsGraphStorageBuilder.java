@@ -168,6 +168,8 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
                 restrictions = isAccessAllowed(way, VAL_BICYCLE) ? 0 : getRestrictionType(way, VAL_BICYCLE);
             if (RoutingProfileType.isPedestrian(profileType))
                 restrictions = isAccessAllowed(way, "foot") ? 0 : getRestrictionType(way, "foot");
+            if (profileType == RoutingProfileType.UNKNOWN)
+                restrictions = getRestrictionType(way, VAL_ACCESS);
         }
     }
 
