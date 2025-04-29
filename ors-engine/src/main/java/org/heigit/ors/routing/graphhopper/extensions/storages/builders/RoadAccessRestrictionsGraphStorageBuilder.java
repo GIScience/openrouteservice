@@ -61,6 +61,7 @@ public class RoadAccessRestrictionsGraphStorageBuilder extends AbstractGraphStor
         restrictedValues.add("customers");
         restrictedValues.add("emergency");
         restrictedValues.add("permissive");
+        restrictedValues.add("delivery");
         restrictedValues.add("permit");
 
         permissiveValues.add("yes");
