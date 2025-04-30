@@ -51,9 +51,6 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             sw.start();
         }
 
-        GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
-        String graphdate = graph.getProperties().get("datareader.import.date");
-
         double maxSpeed = determineMaxSpeed();
         double meanSpeed = determineMeanSpeed(maxSpeed);
 

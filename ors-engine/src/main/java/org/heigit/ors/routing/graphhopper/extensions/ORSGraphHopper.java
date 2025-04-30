@@ -173,7 +173,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         }
 
         ORSGraphHopper gh = (ORSGraphHopper) super.importOrLoad();
-        AppInfo.GRAPH_DATE = gh.getGraphHopperStorage().getProperties().get("datareader.import.date");
+        AppInfo.setGraphDate(gh.getGraphHopperStorage().getProperties().get("datareader.import.date"));
 
         writeOrsGraphBuildInfoFileIfNotExists(gh);
 
