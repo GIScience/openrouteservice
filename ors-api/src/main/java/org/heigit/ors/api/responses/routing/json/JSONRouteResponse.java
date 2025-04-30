@@ -43,7 +43,6 @@ public class JSONRouteResponse extends RouteResponse {
         for (RouteResult result : routeResults) {
             this.routeResults.add(new JSONIndividualRouteResponse(result, request));
             bboxes.add(result.getSummary().getBBox());
-            responseInformation.setGraphDate(result.getGraphDate());
         }
 
         BBox bounding = GeomUtility.generateBoundingFromMultiple(bboxes.toArray(new BBox[0]));

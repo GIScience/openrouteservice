@@ -19,18 +19,18 @@ public class EngineInfo {
     public EngineInfo(JSONObject infoIn) {
         version = infoIn.getString("version");
         buildDate = infoIn.getString("build_date");
-        graphDate = "0000-00-00T00:00:00Z";
+
+        if (infoIn.has("graph_date")) {
+            graphDate = infoIn.getString("graph_date");
+        } else {
+            graphDate = "0000-00-00T00:00:00Z";
+        }
     }
 
     public String getVersion() {
         return version;
     }
-
     public String getBuildDate() {
         return buildDate;
-    }
-
-    public void setGraphDate(String graphDate) {
-        this.graphDate = graphDate;
     }
 }

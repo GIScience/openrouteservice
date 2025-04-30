@@ -69,6 +69,5 @@ public class GeoJSONSnappingResponse extends SnappingResponse {
         }
 
         responseInformation = new SnappingResponseInfo(request, systemMessageProperties, endpointsProperties);
-        responseInformation.setGraphDate(result.getGraphDate());
     }
 }
