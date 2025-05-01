@@ -48,7 +48,9 @@ class ORSGraphManagerTest {
             "FileSystemGraphRepoClient, /absolute/path",
             "FileSystemGraphRepoClient, /absolute/path.txt",
             "FileSystemGraphRepoClient, ~/absolute/path",
-            "FileSystemGraphRepoClient, ~/absolute/path.txt"
+            "FileSystemGraphRepoClient, ~/absolute/path.txt",
+            "MinioGraphRepoClient, minio:http://my.domain.com",
+            "MinioGraphRepoClient, minio:https://my.domain.com/",
     })
     void getOrsGraphRepoClient(String className, String repoUri) {
         GraphManagementRuntimeProperties managementProps = GraphManagementRuntimeProperties.Builder.empty()

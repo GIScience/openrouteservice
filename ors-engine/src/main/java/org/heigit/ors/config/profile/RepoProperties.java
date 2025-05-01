@@ -11,6 +11,8 @@ public class RepoProperties {
     private String repositoryName;
     private String repositoryProfileGroup;
     private String graphExtent;
+    private String repositoryUser;
+    private String repositoryPass;
 
     public RepoProperties() {
     }

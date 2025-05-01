@@ -35,6 +35,9 @@ public class GraphManagementRuntimeProperties {
     private String repoName;
     private String repoProfileGroup;
     private String repoCoverage;
+
+    private String repoUser;
+    private String repoPass;
     private int maxNumberOfGraphBackups = 0;
 
     private GraphRepoType derivedRepoType = GraphRepoType.NULL;
@@ -55,6 +58,8 @@ public class GraphManagementRuntimeProperties {
         private String repoName;
         private String repoProfileGroup;
         private String repoCoverage;
+        private String repoUser;
+        private String repoPass;
         private int maxNumberOfGraphBackups = 0;
 
         public static Builder empty() {
@@ -76,6 +81,11 @@ public class GraphManagementRuntimeProperties {
 
             builder.repoProfileGroup = ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryProfileGroup).orElseGet(() ->
                     ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryProfileGroup).orElse(null));
+
+            builder.repoUser = ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUser).orElseGet(() ->
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUser).orElse(null));
+            builder.repoPass = ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryPass).orElseGet(() ->
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryPass).orElse(null));
 
             builder.maxNumberOfGraphBackups = ofNullable(engineProperties).map(EngineProperties::getGraphManagement).map(GraphManagementProperties::getMaxBackups).orElse(0);
             builder.graphVersion = graphVersion;
@@ -134,6 +144,16 @@ public class GraphManagementRuntimeProperties {
             return this;
         }
 
+        public Builder withRepoUser(String repoUser) {
+            this.repoUser = repoUser;
+            return this;
+        }
+
+        public Builder withRepoPass(String repoPass) {
+            this.repoPass = repoPass;
+            return this;
+        }
+
         public Builder withMaxNumberOfGraphBackups(int maxNumberOfGraphBackups) {
             this.maxNumberOfGraphBackups = maxNumberOfGraphBackups;
             return this;
@@ -149,6 +169,8 @@ public class GraphManagementRuntimeProperties {
             properties.repoName = this.repoName;
             properties.repoProfileGroup = this.repoProfileGroup;
             properties.repoCoverage = this.repoCoverage;
+            properties.repoUser = this.repoUser;
+            properties.repoPass = this.repoPass;
             properties.encoderName = this.encoderName;
             properties.maxNumberOfGraphBackups = this.maxNumberOfGraphBackups;
 
@@ -159,7 +181,7 @@ public class GraphManagementRuntimeProperties {
     }
 
     public enum GraphRepoType {
-        HTTP, FILESYSTEM, NULL
+        HTTP, FILESYSTEM, MINIO, NULL
     }
 
     private void deriveData() {
@@ -172,6 +194,9 @@ public class GraphManagementRuntimeProperties {
                 } else if (isSupportedFileScheme(uri)) {
                     derivedRepoPath = Path.of(uri);
                     derivedRepoType = GraphRepoType.FILESYSTEM;
+                } else if (isSupportedMinioScheme(uri)) {
+                    derivedRepoBaseUrl = toURL(uri);
+                    derivedRepoType = GraphRepoType.MINIO;
                 } else {
                     derivedRepoPath = Path.of(repoBaseUri);
                     derivedRepoType = GraphRepoType.FILESYSTEM;
@@ -194,12 +219,17 @@ public class GraphManagementRuntimeProperties {
         return Objects.equals("file", uri.getScheme());
     }
 
+    private boolean isSupportedMinioScheme(URI uri) {
+        if (uri == null) return false;
+        return Objects.equals("minio", uri.getScheme());
+    }
+
     private URI toUri(String string) {
         if (StringUtils.isBlank(string))
             return null;
 
         URI uri = URI.create(string);
-        if (isSupportedUrlScheme(uri) || isSupportedFileScheme(uri)) {
+        if (isSupportedUrlScheme(uri) || isSupportedFileScheme(uri) || isSupportedMinioScheme(uri)) {
             return uri;
         }
 

@@ -59,6 +59,10 @@ public class ORSGraphManager {
                 LOGGER.debug("Using FileSystemGraphRepoClient for repoUri %s".formatted(managementProps.getDerivedRepoPath()));
                 orsGraphRepoClient = new FileSystemGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
             }
+            case MINIO -> {
+                LOGGER.debug("Using MinioGraphRepoClient for repoUrl %s".formatted(managementProps.getDerivedRepoBaseUrl()));
+                orsGraphRepoClient = new MinioGraphRepoClient(managementProps, orsGraphRepoStrategy, orsGraphFileManager);
+            }
             case NULL -> {
                 LOGGER.debug("No valid repositoryUri configured, using NullGraphRepoClient.");
                 orsGraphRepoClient = new NullGraphRepoClient();
