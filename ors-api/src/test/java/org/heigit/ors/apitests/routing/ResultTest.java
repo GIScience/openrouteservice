@@ -180,6 +180,18 @@ class ResultTest extends ServiceTest {
         // 8.691891431808473, 49.41331858818114
 
 
+        JSONArray unreachableCoords = new JSONArray();
+        JSONArray unreachableCoord1 = new JSONArray();
+        unreachableCoord1.put(6.929281);
+        unreachableCoord1.put(45.707362);
+        unreachableCoords.put(unreachableCoord1);
+        JSONArray unreachableCoord2 = new JSONArray();
+        unreachableCoord2.put(6.92281);
+        unreachableCoord2.put(45.507362);
+        unreachableCoords.put(unreachableCoord2);
+        addParameter("unreachableCoords", unreachableCoords);
+
+
         JSONArray extraInfo = new JSONArray();
         extraInfo.put("surface");
         extraInfo.put("suitability");
@@ -779,6 +791,30 @@ class ResultTest extends ServiceTest {
                 .body("metadata.engine.containsKey('graph_date')", is(true))
                 .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
+    }
+
+    @Test
+    void testCompleteEngineInfoOnRouteNotFound() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", getParameter("unreachableCoords"));
+        body.put("id", "request123");
+        given()
+            .headers(CommonHeaders.geoJsonContent)
+            .pathParam("profile", getParameter("carProfile"))
+            .body(body.toString())
+            .when()
+            .post(getEndPointPath() + "/{profile}/geojson")
+            .then()
+            .assertThat()
+            .body("any {it.key == 'info'}", is(true))
+            .body("any {it.key == 'error'}", is(true))
+            .body("error.containsKey('code')", is(true))
+            .body("error.containsKey('message')", is(true))
+            .body("info.engine.containsKey('version')", is(true))
+            .body("info.engine.containsKey('build_date')", is(true))
+            .body("info.engine.containsKey('graph_date')", is(true))
+            .body("info.containsKey('timestamp')", is(true))
+            .statusCode(404);
     }
 
     @Test
@@ -4507,6 +4543,36 @@ class ResultTest extends ServiceTest {
                 .body("error.code", is(2018))
                 .body("error.message", is("Cannot compile expression: in 'priority' entry,  invalid expression \"äöü this is not a valid condition expression.\""))
                 .statusCode(500);
+    }
+
+    @Test
+    void testBarriersAccessPermit() {
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+        coord1.put(8.674978);
+        coord1.put(49.406375);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+        coord2.put(8.674979);
+        coord2.put(49.406078);
+        coordinates.put(coord2);
+
+        JSONObject body = new JSONObject();
+        body.put("coordinates", coordinates);
+        body.put("preference", getParameter("preference"));
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(33.0f))
+                .body("routes[0].summary.duration", is(11.9f))
+                .statusCode(200);
     }
 
     private JSONArray constructBearings(String coordString) {

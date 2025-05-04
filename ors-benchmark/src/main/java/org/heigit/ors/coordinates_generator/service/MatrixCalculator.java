@@ -18,6 +18,7 @@ public class MatrixCalculator {
     private static final String LOCATIONS_KEY = "locations";
     private static final String SOURCES_KEY = "sources";
     private static final String DESTINATIONS_KEY = "destinations";
+    private static final String ERROR_CALCULATING_MATRIX = "Error calculating matrix: {}";
 
     private final String baseUrl;
     private final Map<String, String> headers;
@@ -44,7 +45,7 @@ public class MatrixCalculator {
             
             return Optional.of(processMatrixResponse(response));
         } catch (IOException e) {
-            LOGGER.error("Error calculating matrix: {}", e.getMessage());
+            LOGGER.error(ERROR_CALCULATING_MATRIX, e.getMessage());
             return Optional.empty();
         }
     }
@@ -54,7 +55,7 @@ public class MatrixCalculator {
             HttpPost request = createMatrixRequest(coordinates, profile);
             return requestExecutor.apply(request);
         } catch (IOException e) {
-            LOGGER.error("Error calculating matrix: {}", e.getMessage());
+            LOGGER.error(ERROR_CALCULATING_MATRIX, e.getMessage());
             return null;
         }
     }
@@ -71,7 +72,7 @@ public class MatrixCalculator {
 
             return Optional.of(processMatrixResponse(response));
         } catch (IOException e) {
-            LOGGER.error("Error calculating matrix: {}", e.getMessage());
+            LOGGER.error(ERROR_CALCULATING_MATRIX, e.getMessage());
             return Optional.empty();
         }
     }
@@ -112,8 +113,8 @@ public class MatrixCalculator {
                 new TypeReference<Map<String, Object>>() {});
         
         List<List<Double>> distances = extractDistances(responseMap);
-        List<Map<String, Object>> sources = extractLocations(responseMap, "sources");
-        List<Map<String, Object>> destinations = extractLocations(responseMap, "destinations");
+        List<Map<String, Object>> sources = extractLocations(responseMap, SOURCES_KEY);
+        List<Map<String, Object>> destinations = extractLocations(responseMap, DESTINATIONS_KEY);
         
         return new MatrixResult(sources, destinations, distances);
     }

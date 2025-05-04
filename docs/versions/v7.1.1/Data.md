@@ -8,7 +8,7 @@ The base data used for the road network and related information (road type, acce
 The data used for elevation are [SRTM](http://srtm.csi.cgiar.org/) and GMTED.  
 
 ## Population
-When requesting isochrones, you can also request to get population data for the isochrone areas. The data used for this is the [Global Human Settlement Layer (GHSL)](https://data.jrc.ec.europa.eu/dataset/jrc-ghsl-ghs_pop_gpw4_globe_r2015a) from the European Commission. openrouteservice uses the 2015 data at a resolution of 250m.
+When requesting isochrones, you can also request to get population data for the isochrone areas. The data used for this is the [Global Human Settlement Layer (GHSL)](https://human-settlement.emergency.copernicus.eu/ghs_pop2023.php) from the European Commission. openrouteservice uses the 2020 data at a resolution of 100m (data set year: 2023).
 
 ## Borders
 Data relating to the avoid borders features is derived from administrative boundaries features in OpenStreetMap. Information about open borders is obtained from [Wikipedia](https://en.wikipedia.org/wiki/Open_border).

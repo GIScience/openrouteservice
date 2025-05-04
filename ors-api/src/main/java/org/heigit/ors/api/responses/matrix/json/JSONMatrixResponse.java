@@ -29,7 +29,6 @@ import org.heigit.ors.matrix.MatrixResult;
 public class JSONMatrixResponse extends MatrixResponse {
     public JSONMatrixResponse(MatrixResult result, MatrixRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) {
         super(result, request, systemMessageProperties, endpointsProperties);
-        responseInformation.setGraphDate(result.getGraphDate());
     }
 
     @JsonProperty("matrix")

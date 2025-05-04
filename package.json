@@ -1,8 +1,9 @@
 {
   "type": "module",
+  "version": "9.1.2",
   "devDependencies": {
-    "mermaid": "^11.5.0",
-    "vitepress": "^1.5.0",
+    "mermaid": "^11.6.0",
+    "vitepress": "^1.6.3",
     "vitepress-plugin-mermaid": "^2.0.17"
   },
   "scripts": {
@@ -12,7 +13,7 @@
     "build-preview": "vitepress build docs && vitepress preview docs"
   },
   "dependencies": {
-    "vitepress-plugin-codeblocks-fold": "^1.2.28",
-    "vitepress-versioning-plugin": "git+https://github.com/GIScience/vitepress-versioning-plugin.git#fix-sidebar-rewrites"
+    "vitepress-plugin-codeblocks-fold": "^1.2.35",
+    "vitepress-versioning-plugin": "^1.3.0"
   }
 }

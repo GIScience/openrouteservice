@@ -31,6 +31,43 @@ class RoadAccessRestrictionsGraphStorageBuilderTest {
     }
 
     @Test
+    void testAccessTypes() throws Exception {
+        initBuilder(RoutingProfileType.UNKNOWN);
+
+        ReaderWay way = new ReaderWay(1);
+        builder.processWay(way);
+        assertEquals(AccessRestrictionType.NONE, builder.getRestrictions());
+
+        way.setTag("access", "no");
+        builder.processWay(way);
+        assertEquals(AccessRestrictionType.NO, builder.getRestrictions());
+
+        way.setTag("access", "customers");
+        builder.processWay(way);
+        assertEquals(AccessRestrictionType.CUSTOMERS, builder.getRestrictions());
+
+        way.setTag("access", "destination");
+        builder.processWay(way);
+        assertEquals(AccessRestrictionType.DESTINATION, builder.getRestrictions());
+
+        way.setTag("access", "delivery");
+        builder.processWay(way);
+        assertEquals(AccessRestrictionType.DELIVERY, builder.getRestrictions());
+
+        way.setTag("access", "private");
+        builder.processWay(way);
+        assertEquals(AccessRestrictionType.PRIVATE, builder.getRestrictions());
+
+        way.setTag("access", "permissive");
+        builder.processWay(way);
+        assertEquals(AccessRestrictionType.PERMISSIVE, builder.getRestrictions());
+
+        way.setTag("access", "permit");
+        builder.processWay(way);
+        assertEquals(AccessRestrictionType.PERMIT, builder.getRestrictions());
+    }
+
+    @Test
     void testCarWayCreation() throws Exception {
         initBuilder(RoutingProfileType.DRIVING_CAR);
         ReaderWay way = new ReaderWay(1);

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.1</version>
+        <version>3.4.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -50,7 +50,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
         <!-- switch graphhopper versions to enable debugging -->
-        <graphhopper.version>v4.9.7</graphhopper.version>
+        <graphhopper.version>v4.9.8</graphhopper.version>
 <!--        <graphhopper.version>4.9-SNAPSHOT</graphhopper.version>-->
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
@@ -87,7 +87,7 @@
 
         <jupiter.version>5.11.4</jupiter.version>
         <mockito.version>5.12.0</mockito.version>
-        <rest-assured.version>5.5.0</rest-assured.version>
+        <rest-assured.version>5.5.1</rest-assured.version>
         <testcontainers.version>1.20.6</testcontainers.version>
         <mockito-core-version>3.12.4</mockito-core-version>
         <javax.ws.rs-api-version>2.1.1</javax.ws.rs-api-version>
@@ -95,7 +95,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spotless.version>2.27.2</spotless.version>
         <surefire.version>3.5.2</surefire.version>
-        <httpclient5.version>5.4.2</httpclient5.version>
+        <httpclient5.version>5.4.4</httpclient5.version>
         <gatling.version>3.13.4</gatling.version>
         <gatling-maven-plugin.version>4.13.0</gatling-maven-plugin.version>
         <commons-cli.version>1.5.0</commons-cli.version>
@@ -496,6 +496,17 @@
                 <groupId>io.rest-assured</groupId>
                 <artifactId>rest-assured</artifactId>
                 <version>${rest-assured.version}</version>
+                <exclusions>
+                    <!-- Conflicts with httpclient5 which has a higher patch version. -->
+                    <exclusion>
+                        <groupId>org.apache.httpcomponents</groupId>
+                        <artifactId>httpclient</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.httpcomponents</groupId>
+                        <artifactId>httpcore</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

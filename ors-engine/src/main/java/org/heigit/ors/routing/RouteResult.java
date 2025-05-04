@@ -31,7 +31,6 @@ public class RouteResult {
     private final List<RouteLeg> legs;
     private List<RouteExtraInfo> extraInfo;
     private PointList pointlist;
-    private String graphDate = "";
     private final List<Integer> wayPointsIndices;
     private final List<RouteWarning> routeWarnings;
     private final RouteSummary summary;
@@ -190,14 +189,6 @@ public class RouteResult {
             if (path.getFare() != null)
                 summary.setFare(path.getFare().intValue());
         }
-    }
-
-    public String getGraphDate() {
-        return graphDate;
-    }
-
-    public void setGraphDate(String graphDate) {
-        this.graphDate = graphDate;
     }
 
     public boolean hasDepartureAndArrival() {

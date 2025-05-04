@@ -107,6 +107,7 @@ set_log_level
 jar_file=/ors.jar
 BUILD_GRAPHS=${BUILD_GRAPHS:-"false"}
 REBUILD_GRAPHS=${REBUILD_GRAPHS:-"false"}
+REBUILD_GRAPHS=$(echo "$REBUILD_GRAPHS" | tr '[:upper:]' '[:lower:]') # Convert to lowercase
 # If BUILD_GRAPHS is set to true, we need to set ors_rebuild_graphs to true and print an info about migration to REBUILD_GRAPHS
 if [ "${BUILD_GRAPHS}" = "true" ]; then
   ors_rebuild_graphs="true"

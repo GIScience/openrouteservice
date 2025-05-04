@@ -18,7 +18,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.heigit.ors.api.util;
+package org.heigit.ors.util;
 
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -60,6 +60,8 @@ public class AppInfo {
     public static final String BUILD_DATE;
     public static final boolean SNAPSHOT;
     public static final String GRAPH_VERSION;
+
+    private static String graphDate;
 
     static {
         String version = "0.0";
@@ -119,6 +121,15 @@ public class AppInfo {
         json.put("version", VERSION);
         json.put("build_date", BUILD_DATE);
         json.put("graph_version", GRAPH_VERSION);
+
+        if (graphDate != null){
+            json.put("graph_date", graphDate);
+        }
+        
         return json;
+    }
+
+    public static void setGraphDate(String graphDate) {
+        AppInfo.graphDate = graphDate;
     }
 }

@@ -53,7 +53,6 @@ public class GeoJSONIsochronesResponse extends IsochronesResponse {
         this.isochroneResults = new ArrayList<>();
         for (IsochroneMap isoMap : isoMaps.getIsochroneMaps()) {
             this.isochroneResults.addAll(new GeoJSONIsochronesMap(isoMap).buildGeoJSONIsochrones());
-            responseInformation.setGraphDate(isoMap.getGraphDate());
         }
 
         if (request.hasIntersections() && request.getIntersections()) {
