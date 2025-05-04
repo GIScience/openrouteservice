@@ -125,21 +125,22 @@ public class MatrixCommandLineParser extends CommandLineParser {
         double[] extent = parseExtent(cmd.getOptionValue(OPT_EXTENT, "8.67,49.39,8.71,49.42"));
         String[] profiles = parseProfiles(cmd.getOptionValue(OPT_PROFILES, "driving-car"));
         String baseUrl = cmd.getOptionValue(OPT_BASE_URL, "http://localhost:8080/ors");
-        Map<String, Double> maxDistanceByProfile = parseMaxDistanceMap(cmd.getOptionValue(OPT_MAX_DISTANCE, ""), profiles);
-        
+        Map<String, Double> maxDistanceByProfile = parseMaxDistanceMap(cmd.getOptionValue(OPT_MAX_DISTANCE, ""),
+                profiles);
+
         int rows = Integer.parseInt(cmd.getOptionValue(OPT_MATRIX_ROWS, "2"));
         int cols = Integer.parseInt(cmd.getOptionValue(OPT_MATRIX_COLS, "2"));
         MatrixDimensions dimensions = new MatrixDimensions(rows, cols);
-        
-        int numThreads = Integer.parseInt(cmd.getOptionValue(OPT_THREADS, 
-            String.valueOf(Runtime.getRuntime().availableProcessors())));
+
+        int numThreads = Integer.parseInt(cmd.getOptionValue(OPT_THREADS,
+                String.valueOf(Runtime.getRuntime().availableProcessors())));
 
         return new CoordinateGeneratorMatrix(
-                numMatrices, 
-                extent, 
-                profiles, 
+                numMatrices,
+                extent,
+                profiles,
                 baseUrl,
-                maxDistanceByProfile, 
+                maxDistanceByProfile,
                 dimensions,
                 numThreads);
     }
@@ -154,12 +155,12 @@ public class MatrixCommandLineParser extends CommandLineParser {
 
     private Map<String, Double> parseMaxDistanceMap(String maxDistanceStr, String[] profiles) {
         Map<String, Double> maxDistanceByProfile = new HashMap<>();
-        
+
         // Set default values
         for (String profile : profiles) {
             maxDistanceByProfile.put(profile, 50000.0); // Default 50km
         }
-        
+
         if (maxDistanceStr != null && !maxDistanceStr.isEmpty()) {
             String[] entries = maxDistanceStr.split(",");
             for (String entry : entries) {
@@ -170,7 +171,7 @@ public class MatrixCommandLineParser extends CommandLineParser {
                 maxDistanceByProfile.put(parts[0], Double.parseDouble(parts[1]));
             }
         }
-        
+
         return maxDistanceByProfile;
     }
 }
