@@ -1,6 +1,7 @@
 package org.heigit.ors.coordinates_generator.cli;
 
 import org.apache.commons.cli.*;
+import org.heigit.ors.benchmark.exceptions.CommandLineParsingException;
 import org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorMatrix;
 import org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorMatrix.MatrixDimensions;
 
@@ -43,6 +44,7 @@ public class MatrixCommandLineParser extends CommandLineParser {
         options.addOption(Option.builder(OPT_EXTENT)
                 .longOpt("extent")
                 .hasArg()
+                .required()
                 .argName("minLon,minLat,maxLon,maxLat")
                 .desc("Geographic extent for coordinate generation (default: 8.67,49.39,8.71,49.42)")
                 .build());
@@ -50,6 +52,7 @@ public class MatrixCommandLineParser extends CommandLineParser {
         options.addOption(Option.builder(OPT_PROFILES)
                 .longOpt("profiles")
                 .hasArg()
+                .required()
                 .argName("PROFILE[,PROFILE...]")
                 .desc("Comma-separated list of profiles (default: driving-car)")
                 .build());
@@ -102,7 +105,14 @@ public class MatrixCommandLineParser extends CommandLineParser {
         try {
             return new DefaultParser().parse(options, args);
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Error parsing command line arguments: " + e.getMessage(), e);
+            // If help is within the arguments, print help message
+            if (args != null && args.length == 1 && (args[0].equals("-h") || args[0].equals("--help"))) {
+                printHelp();
+            } else {
+                printHelp();
+                throw new CommandLineParsingException("Failed to parse command line arguments", e);
+            }
+            return null;
         }
     }
 
@@ -122,8 +132,8 @@ public class MatrixCommandLineParser extends CommandLineParser {
 
     public CoordinateGeneratorMatrix createGenerator() {
         int numMatrices = Integer.parseInt(cmd.getOptionValue(OPT_NUM_MATRICES, "100"));
-        double[] extent = parseExtent(cmd.getOptionValue(OPT_EXTENT, "8.67,49.39,8.71,49.42"));
-        String[] profiles = parseProfiles(cmd.getOptionValue(OPT_PROFILES, "driving-car"));
+        double[] extent = parseExtent(cmd.getOptionValue(OPT_EXTENT));
+        String[] profiles = parseProfiles(cmd.getOptionValue(OPT_PROFILES));
         String baseUrl = cmd.getOptionValue(OPT_BASE_URL, "http://localhost:8080/ors");
         Map<String, Double> maxDistanceByProfile = parseMaxDistanceMap(cmd.getOptionValue(OPT_MAX_DISTANCE, ""),
                 profiles);
