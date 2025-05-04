@@ -11,7 +11,8 @@ import java.util.List;
 
 /**
  * Command-line application for generating matrix test coordinates.
- * This generates coordinates for matrix API testing, similar to how RouteGeneratorApp
+ * This generates coordinates for matrix API testing, similar to how
+ * RouteGeneratorApp
  * creates coordinates for directions API testing.
  */
 public class MatrixGeneratorApp {
