@@ -24,8 +24,8 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class MinioGraphRepoClient extends AbstractGraphRepoClient implements ORSGraphRepoClient {
 
-    private static final Logger LOGGER = Logger.getLogger(FileSystemGraphRepoClient.class.getName());
-    private GraphManagementRuntimeProperties managementProps;
+    private static final Logger LOGGER = Logger.getLogger(MinioGraphRepoClient.class.getName());
+    private final GraphManagementRuntimeProperties managementProps;
     private final ORSGraphFileManager orsGraphFileManager;
     private final ORSGraphRepoStrategy orsGraphRepoStrategy;
     private MinioClient minioClient;
