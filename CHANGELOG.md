@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- add minio option to graph repo client ([#2050](https://github.com/GIScience/openrouteservice/pull/2050))
 - add hint to use yaml editor in docs ([#1836](https://github.com/GIScience/openrouteservice/issues/1836))
 - access = permit as known access restriction type ([#2013](https://github.com/GIScience/openrouteservice/issues/2013))
 - add matrix generator for performance benchmarking ([#2038](https://github.com/GIScience/openrouteservice/pull/2038))
