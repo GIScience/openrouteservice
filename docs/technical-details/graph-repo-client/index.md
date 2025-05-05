@@ -162,20 +162,23 @@ There are two different repository types supported:
 * **HTTP Repo:** The repo is served by a web server and is accessed via HTTP
 * **File System Repo:** The repo is a tree structure in the file system. The structure is exact the same as in the HTTP
   Repo. A file system repo could e.g. be a local mirror of a HTTP Repo.
+* **MinIO Repo:** The repo is served by a MinIO server and is accessed via S3 API over HTTP or HTTPS
 
 The value in the configuration property `ors.engine.profiles.<profileName>.repo.repository_uri`
 determines the repository type:
 
-| Value                      | Repository Type |
-|----------------------------|-----------------|
-| `http://some.domain.ors`   | Http            |
-| `https://some.domain.ors/` | Http            |
-| `file:///absolute/path`    | File System     |
-| `/absolute/path`           | File System     |
-| `~/absolute/path`          | File System     |
-| `relative/path`            | File System     |
-| `file:relative/path`       | _Error_         |
-| `file://relative/path`     | _Error_         |
+| Value                                  | Repository Type |
+|----------------------------------------|-----------------|
+| `http://some.domain.ors`               | Http            |
+| `https://some.domain.ors/`             | Http            |
+| `file:///absolute/path`                | File System     |
+| `/absolute/path`                       | File System     |
+| `~/absolute/path`                      | File System     |
+| `relative/path`                        | File System     |
+| `file:relative/path`                   | _Error_         |
+| `file://relative/path`                 | _Error_         |
+| `minio:http://minio.some.domain.ors`   | Http            |
+| `minio:https://minio.some.domain.ors/` | Http            |
 
 ::: tip Note
 In a docker setup, the paths are evaluated inside the container!
@@ -348,6 +351,8 @@ the [repository structure](#repository-structure) are used
 | _Repository Extent_        | `ors.engine.profiles.<profileName>.repo.graph_extent`                                 |
 | _Graph Version_            | _The graph version is determined by openrouteservice in use and cannot be configured_ |
 | _Encoder Name_             | `ors.engine.profiles.<profileName>.encoder_name`                                      |
+| _Repository user_          | `ors.engine.profiles.<profileName>.repository_user`                                   |
+| _Repository password_      | `ors.engine.profiles.<profileName>.repository_password`                               |
 
 Only the _Graph Version_ cannot be configured, it depends on the version of openrouteservice.
 
