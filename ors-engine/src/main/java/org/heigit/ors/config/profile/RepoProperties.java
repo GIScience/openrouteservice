@@ -12,7 +12,7 @@ public class RepoProperties {
     private String repositoryProfileGroup;
     private String graphExtent;
     private String repositoryUser;
-    private String repositoryPass;
+    private String repositoryPassword;
 
     public RepoProperties() {
     }

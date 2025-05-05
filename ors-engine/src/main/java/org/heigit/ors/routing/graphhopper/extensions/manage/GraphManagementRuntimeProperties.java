@@ -84,8 +84,8 @@ public class GraphManagementRuntimeProperties {
 
             builder.repoUser = ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUser).orElseGet(() ->
                     ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryUser).orElse(null));
-            builder.repoPass = ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryPass).orElseGet(() ->
-                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryPass).orElse(null));
+            builder.repoPass = ofNullable(profileProperties).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryPassword).orElseGet(() ->
+                    ofNullable(engineProperties).map(EngineProperties::getProfileDefault).map(ProfileProperties::getRepo).map(RepoProperties::getRepositoryPassword).orElse(null));
 
             builder.maxNumberOfGraphBackups = ofNullable(engineProperties).map(EngineProperties::getGraphManagement).map(GraphManagementProperties::getMaxBackups).orElse(0);
             builder.graphVersion = graphVersion;
