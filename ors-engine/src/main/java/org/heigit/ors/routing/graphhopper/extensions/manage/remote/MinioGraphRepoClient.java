@@ -97,7 +97,7 @@ public class MinioGraphRepoClient extends AbstractGraphRepoClient implements ORS
             if (Files.deleteIfExists(file.toPath()))
                 LOGGER.debug("[%s] Deleted old downloaded graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
         } catch (IOException e) {
-            LOGGER.error("[%s] Could not delete old downloaded graphBuildInfo file: %s".formatted(e.getMessage()));
+            LOGGER.error("[%s] Could not delete old downloaded graphBuildInfo file: %s".formatted(getProfileDescriptiveName(), file.getAbsolutePath()));
         }
     }
 
