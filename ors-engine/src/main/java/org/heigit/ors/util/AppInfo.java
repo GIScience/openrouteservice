@@ -62,6 +62,7 @@ public class AppInfo {
     public static final String GRAPH_VERSION;
 
     private static String graphDate;
+    private static String osmDate;
 
     static {
         String version = "0.0";
@@ -125,11 +126,19 @@ public class AppInfo {
         if (graphDate != null){
             json.put("graph_date", graphDate);
         }
+
+        if(osmDate != null){
+            json.put("osm_date", osmDate);
+        }
         
         return json;
     }
 
     public static void setGraphDate(String graphDate) {
         AppInfo.graphDate = graphDate;
+    }
+
+    public static void setOsmDate(String osmDate) {
+        AppInfo.osmDate = osmDate;
     }
 }
