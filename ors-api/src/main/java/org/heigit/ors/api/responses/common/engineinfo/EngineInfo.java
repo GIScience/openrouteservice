@@ -16,6 +16,7 @@ public class EngineInfo {
     @Schema(description = "The date that the graph data was last updated", example = "2019-02-07T14:28:11Z")
     @JsonProperty("graph_date")
     private String graphDate = DEFAULT_DATE;
+    @Schema(description = "Timestamp of the OSM data the graph was built from", example = "2019-02-07T14:28:11Z")
     @JsonProperty("osm_date")
     private String osmDate = DEFAULT_DATE;
 
