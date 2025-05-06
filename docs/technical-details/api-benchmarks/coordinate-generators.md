@@ -51,7 +51,7 @@ The tool generates random coordinates within a specified bounding box and then u
 Generate 100 routes for the driving-car profile with a minimum distance of 1000m:
 
 ```bash
-mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+./mvnw clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.coordinates_generator.RouteGeneratorApp" \
   -Dexec.args="\
   -n 100 \
@@ -67,7 +67,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
 Generate 50 routes for both driving-car and cycling-regular profiles with different maximum distances:
 
 ```bash
-mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+./mvnw clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.coordinates_generator.RouteGeneratorApp" \
   -Dexec.args="\
   --num-routes 50 \
@@ -108,7 +108,7 @@ The tool generates random coordinates within a specified bounding box and then u
 Generate 100 snapped points for the driving-car profile with a search radius of 500m:
 
 ```bash
-mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+./mvnw clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.coordinates_generator.SnappingGeneratorApp" \
   -Dexec.args="\
   -n 100 \
@@ -124,7 +124,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
 Generate 50 snapped points for both driving-car and cycling-regular profiles:
 
 ```bash
-mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+./mvnw clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.coordinates_generator.SnappingGeneratorApp" \
   -Dexec.args="\
   --num-points 50 \

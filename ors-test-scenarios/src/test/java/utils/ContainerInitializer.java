@@ -357,7 +357,7 @@ public abstract class ContainerInitializer {
                     command.add("ors.jar");
                     break;
                 case MAVEN_CONTAINER_BARE:
-                    command.add("mvn");
+                    command.add("./mvnw");
                     command.add("spring-boot:run");
                     command.add("-o");
                     command.add("-pl");

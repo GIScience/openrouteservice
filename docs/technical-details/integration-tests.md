@@ -50,9 +50,9 @@ ors-test-scenarios/
 
 ```shell
 # Execute all tests from the repo root with testcontainers.
-mvn -pl ors-test-scenarios test -P integrationTests  
+./mvnw -pl ors-test-scenarios test -P integrationTests  
 # Execute only war tests
-mvn -pl ors-test-scenarios test -P integrationTests -Dcontainer.run.scenario=war
+./mvnw -pl ors-test-scenarios test -P integrationTests -Dcontainer.run.scenario=war
 ```
 
 ## Advanced test runs
@@ -81,14 +81,14 @@ This is mainly used in the workflows or for heavy local testing.
 Run tests against the war/tomcat setup with builder images controlled by `testcontainers` and shared graphs.
 
 ```shell
-mvn -pl ors-test-scenarios test -P integrationTests -Dcontainer.run.scenario=war
+./mvnw -pl ors-test-scenarios test -P integrationTests -Dcontainer.run.scenario=war
 ```
 
 Build and run the tests with the custom builder images and maven setup
 
 ```shell
 docker buildx build --target ors-test-scenarios-maven-builder -t ors-test-scenarios-maven-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
-mvn -pl ors-test-scenarios test -P integrationTests \
+./mvnw -pl ors-test-scenarios test -P integrationTests \
 -Dcontainer.run.scenario=maven \
 -Dcontainer.builder.use_prebuild=true
 ```
@@ -118,7 +118,7 @@ Execute the jar test scenario with a custom builder image:
 export TEST_SCENARIO=jar
 # Execute the jar setup with a custom builder image
 docker buildx build --target ors-test-scenarios-${TEST_SCENARIO}-builder -t ors-test-scenarios-${TEST_SCENARIO}-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
-mvn -pl ors-test-scenarios test -P integrationTests \
+./mvnw -pl ors-test-scenarios test -P integrationTests \
   -Dcontainer.run.scenario=${TEST_SCENARIO} \
   -Dcontainer.builder.use_prebuild=true
 ```
@@ -131,7 +131,7 @@ docker buildx build --target ors-test-scenarios-jar-builder -t ors-test-scenario
 docker buildx build --target ors-test-scenarios-war-builder -t ors-test-scenarios-war-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
 docker buildx build --target ors-test-scenarios-maven-builder -t ors-test-scenarios-maven-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
 
-mvn -pl ors-test-scenarios test -P integrationTests \
+./mvnw -pl ors-test-scenarios test -P integrationTests \
   -Dcontainer.run.scenario=all \
   -Dcontainer.builder.use_prebuild=true
 ```
@@ -179,7 +179,7 @@ docker buildx build --target ors-test-scenarios-war-builder -t ors-test-scenario
 docker buildx build --target ors-test-scenarios-war -t ors-test-scenarios-war:latest -f ors-test-scenarios/src/test/resources/war.Dockerfile .
 
 # Build the custom war file
-mvn clean package -DskipTests -PbuildWar
+./mvnw clean package -DskipTests -PbuildWar
 
 # Run the container with the custom war file
 docker run --rm -it --name ors-test-scenarios-war -p 8080:8080 \
@@ -196,7 +196,7 @@ docker buildx build --target ors-test-scenarios-jar-builder -t ors-test-scenario
 docker buildx build --target ors-test-scenarios-jar -t ors-test-scenarios-jar:latest -f ors-test-scenarios/src/test/resources/jar.Dockerfile .
 
 # Build the custom jar file
-mvn clean package -DskipTests
+./mvnw clean package -DskipTests
 
 # Run the container with the custom jar file
 docker run --rm -it --name ors-test-scenarios-jar -p 8080:8080 \
@@ -212,7 +212,7 @@ Side load a custom maven setup for testing:
 docker buildx build --target ors-test-scenarios-maven-builder -t ors-test-scenarios-maven-builder:latest -f ors-test-scenarios/src/test/resources/Builder.Dockerfile .
 docker buildx build --target ors-test-scenarios-maven -t ors-test-scenarios-maven:latest -f ors-test-scenarios/src/test/resources/maven.Dockerfile .
 
-mvn clean package -DskipTests
+./mvnw clean package -DskipTests
 
 # Run the container with the custom maven setup
 docker run --rm -it --name ors-test-scenarios-maven -p 8080:8080 \

@@ -13,15 +13,17 @@ COPY pom.xml /tmp/ors/pom.xml
 COPY ors-report-aggregation/pom.xml /tmp/ors/ors-report-aggregation/pom.xml
 COPY ors-test-scenarios/pom.xml /tmp/ors/ors-test-scenarios/pom.xml
 COPY ors-benchmark/pom.xml /tmp/ors/ors-benchmark/pom.xml
+COPY mvnw /tmp/ors/mvnw
+COPY .mvn /tmp/ors/.mvn
 
 # Build the project
-RUN mvn -pl 'ors-api,ors-engine' -q dependency:go-offline
+RUN ./mvnw -pl 'ors-api,ors-engine' -q dependency:go-offline
 
 COPY ors-api /tmp/ors/ors-api
 COPY ors-engine /tmp/ors/ors-engine
 
 # Build the project
-RUN mvn -pl 'ors-api,ors-engine' \
+RUN ./mvnw -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
 FROM docker.io/golang:1.24.2-alpine3.21 AS build-go

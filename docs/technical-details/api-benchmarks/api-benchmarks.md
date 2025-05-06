@@ -69,7 +69,7 @@ longitude,latitude,profile
 Generate 10,000 points across Germany for various profiles:
 
 ```bash
-mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+./mvnw clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.coordinates_generator.SnappingGeneratorApp" \
   -Dexec.args="\
   -n 2500 \
@@ -85,7 +85,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
 Test the Isochrones API with the default parameters:
 
 ```bash
-mvn -pl 'ors-benchmark' gatling:test \
+./mvnw -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesRangeLoadTest \
   -Dsource_files='germany_car-foot-bike-hgv_10000_points.csv' \
   -Dbase_url='http://localhost:8080/ors'
@@ -96,7 +96,7 @@ mvn -pl 'ors-benchmark' gatling:test \
 Test the Isochrones API with varying batch sizes, processing 1, 2, 4, and 8 locations per request:
 
 ```bash
-mvn -pl 'ors-benchmark' gatling:test \
+./mvnw -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesRangeLoadTest \
   -Dsource_files='germany_car-foot-bike-hgv_10000_points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
@@ -110,7 +110,7 @@ mvn -pl 'ors-benchmark' gatling:test \
 Generate points specific to cycling-regular profile:
 
 ```bash
-mvn -pl 'ors-benchmark' gatling:test \
+./mvnw -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.IsochronesRangeLoadTest \
   -Dsource_files='germany_car-foot-bike-hgv_10000_points.csv' \
   -Dbase_url='http://localhost:8080/ors' \
@@ -162,7 +162,7 @@ start_longitude,start_latitude,end_longitude,end_latitude,profile
 Generate 10,000 routes with different distance constraints per profile:
 
 ```bash
-mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+./mvnw clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.coordinates_generator.RouteGeneratorApp" \
   -Dexec.args="\
   -n 2500 \
@@ -180,7 +180,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
 Test the Directions API with the default parameters:
 
 ```bash
-mvn -pl 'ors-benchmark' gatling:test \
+./mvnw -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.RoutingAlgorithmLoadTest \
   -Dsource_files='germany_car600-bike10-foot5-hgv600_10000_routes.csv' \
   -Dbase_url='http://localhost:9082/ors'
@@ -191,7 +191,7 @@ mvn -pl 'ors-benchmark' gatling:test \
 Generate routes with custom column names:
 
 ```bash
-mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
+./mvnw clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark' \
   -Dexec.mainClass="org.heigit.ors.coordinates_generator.RouteGeneratorApp" \
   -Dexec.args="\
   -n 10000 \
@@ -207,7 +207,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
 Test the Directions API with custom field names:
 
 ```bash
-mvn -pl 'ors-benchmark' gatling:test \
+./mvnw -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.RoutingAlgorithmLoadTest \
   -Dsource_files='germany_car600-bike10-foot5-hgv600_10000_routes.csv' \
   -Dfield_start_lon='from_lon' \
@@ -222,7 +222,7 @@ mvn -pl 'ors-benchmark' gatling:test \
 Test the Directions API with multiple routing algorithms:
 
 ```bash
-mvn -pl 'ors-benchmark' gatling:test \
+./mvnw -pl 'ors-benchmark' gatling:test \
   -Dgatling.simulationClass=org.heigit.ors.benchmark.RoutingAlgorithmLoadTest \
   -Dsource_files='germany_car600-bike10-foot5-hgv600_10000_routes.csv' \
   -Dparallel_execution=false \

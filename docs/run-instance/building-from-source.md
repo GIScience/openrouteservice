@@ -12,6 +12,8 @@ The following documentation assumes you are running an Ubuntu 20.04 system (also
 * [maven](https://maven.apache.org/) should be installed on your system.
 * [git](https://github.com/git-guides/install-git) should be available on your system if you want to download the source code conveniently.
 
+Note, that we use [maven wrapper](https://maven.apache.org/wrapper/) to use a common maven version everywhere. 
+
 ## Download source code
 
 If you have git installed, the easiest way to download the source code is to clone the repository with the following command:
@@ -30,7 +32,7 @@ If you do not have git installed on your system, you can also download the packe
 You should be able to run the application directly with  
 
 ```shell
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 or in your IDE (see below). This will start openrouteservice on port `8082` with the default configuration `ors-config.yml` in the project root directory
@@ -63,23 +65,23 @@ It is very convenient to run unit tests (all or just one or some) in the IDE.
 You can also run tests with maven on the command line. Here are some examples, checkout the maven documentation for more options.
 
 ```shell
-mvn clean test                   # runs unit tests in all modules
-mvn clean test -pl :ors-api      # runs unit tests in ors-api
-mvn clean test -pl :ors-api -Dtest="APIEnumsTest" # run tests in a single test class
-mvn clean test -pl :ors-api -Dtest="APIEnumsTest#testLanguagesEnumCreation" # or a single test method only
+./mvnw clean test                   # runs unit tests in all modules
+./mvnw clean test -pl :ors-api      # runs unit tests in ors-api
+./mvnw clean test -pl :ors-api -Dtest="APIEnumsTest" # run tests in a single test class
+./mvnw clean test -pl :ors-api -Dtest="APIEnumsTest#testLanguagesEnumCreation" # or a single test method only
 ```
 
 The api tests (in `ors-api/src/test/java/org/heigit/ors/apitests`) are excluded by default. 
 To include them, add the option `-Papitests`, e.g.:
 
 ```shell
-mvn clean verify -Papitests
+./mvnw clean verify -Papitests
 ```
 
 If you want to run maven tasks without tests, add the option`-DskipTests`, e.g.:
 
 ```shell
-mvn clean package -DskipTests
+./mvnw clean package -DskipTests
 ```
 
 
@@ -98,7 +100,7 @@ If you need to make adjustments to our forked and edited [GraphHopper repository
 2. Build the project to create the local snapshot.
 
    ```shell
-    mvn package
+    ./mvnw package
    ```
 
 3. Change the `ors-engine/pom.xml`:
@@ -193,13 +195,13 @@ If you need to make adjustments to our forked and edited [GraphHopper repository
 When your source code is set up, you can generate a runnable openrouteservice fat JAR:
 
 ```shell
-mvn clean package -PbuildFatJar
+./mvnw clean package -PbuildFatJar
 ```
 
 Because JAR is the default, you can also run the command without `-PbuildFatJar`:
 
 ```shell
-mvn clean package
+./mvnw clean package
 ```
 
 You will find the fat JAR file in `ors-api/target/ors.jar`
@@ -212,7 +214,7 @@ The chapter on [JAR](running-jar.md) artifact explains how to configure and run 
 When your source code is set up, you can generate a deployable openrouteservice WAR:
 
 ```shell
-mvn clean package -PbuildWar
+./mvnw clean package -PbuildWar
 ```
 
 You will find the WAR file in `ors-api/target/ors.war`

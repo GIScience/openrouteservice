@@ -24,9 +24,11 @@ COPY ors-engine/pom.xml $CONTAINER_BUILD_DIR/ors-engine/pom.xml
 COPY ors-report-aggregation/pom.xml $CONTAINER_BUILD_DIR/ors-report-aggregation/pom.xml
 COPY ors-test-scenarios/pom.xml $CONTAINER_BUILD_DIR/ors-test-scenarios/pom.xml
 COPY ors-benchmark/pom.xml $CONTAINER_BUILD_DIR/ors-benchmark/pom.xml
+COPY mvnw $CONTAINER_BUILD_DIR/mvnw
+COPY .mvn $CONTAINER_BUILD_DIR/.mvn
 
 # Cache the dependencies to speed up the build process
-RUN mvn dependency:go-offline -B -q
+RUN ./mvnw dependency:go-offline -B -q
 
 # Copy project files
 COPY ors-api "$CONTAINER_BUILD_DIR"/ors-api
@@ -34,9 +36,9 @@ COPY ors-engine "$CONTAINER_BUILD_DIR"/ors-engine
 COPY ors-report-aggregation "$CONTAINER_BUILD_DIR"/ors-report-aggregation
 
 # Build the projects war and jar files
-RUN mvn clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -pl \
+RUN ./mvnw clean package -q -DskipTests -Dmaven.test.skip=true -PbuildWar -pl \
     '!:ors-test-scenarios,!:ors-report-aggregation,!:ors-benchmark' && \
-    mvn package install -q -DskipTests -Dmaven.test.skip=true -PbuildJar -pl \
+    ./mvnw package install -q -DskipTests -Dmaven.test.skip=true -PbuildJar -pl \
     '!:ors-test-scenarios,!:ors-report-aggregation,!:ors-benchmark'
 
 # Prepare the config file
@@ -88,7 +90,7 @@ COPY --from=ors-test-scenarios-builder $CONTAINER_BUILD_DIR "$CONTAINER_WORK_DIR
 COPY ors-api/src/test/files/heidelberg.test.pbf "$CONTAINER_WORK_DIR"/files/heidelberg.test.pbf
 COPY ors-api/src/test/files/vrn_gtfs_cut.zip "$CONTAINER_WORK_DIR"/files/vrn_gtfs_cut.zip
 
-RUN mvn install -q -DskipTests -Dmaven.test.skip=true -PbuildJar -pl \
+RUN ./mvnw install -q -DskipTests -Dmaven.test.skip=true -PbuildJar -pl \
     '!:ors-test-scenarios,!:ors-report-aggregation,!:ors-benchmark' && \
     cp -r /root/.m2 $CONTAINER_WORK_DIR/.m2
 # Needed step for CI to persist cache layer

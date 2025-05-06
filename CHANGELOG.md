@@ -32,6 +32,8 @@ Releasing is documented in RELEASE.md
 - add hint to use yaml editor in docs ([#1836](https://github.com/GIScience/openrouteservice/issues/1836))
 - access = permit as known access restriction type ([#2013](https://github.com/GIScience/openrouteservice/issues/2013))
 - add matrix generator for performance benchmarking ([#2038](https://github.com/GIScience/openrouteservice/pull/2038))
+- adding maven wrapper to project ([#1973](https://github.com/GIScience/openrouteservice/issues/1973))
+
 ### Changed
 
 ### Deprecated
