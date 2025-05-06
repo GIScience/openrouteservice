@@ -63,6 +63,22 @@ class GPXRouteResponseTest {
         assertTrue(xmlBounds.contains("minlon="), "minlon should appear with correct capitalization.");
         assertTrue(xmlBounds.contains("maxlon="), "maxlon should appear with correct capitalization.");
 
+
+        JAXBContext engineInfoContext = JAXBContext.newInstance(GPXExtensions.class);
+        Marshaller engineInfoMarshaller = engineInfoContext.createMarshaller();
+        engineInfoMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter engineInfoWriter = new StringWriter();
+        engineInfoMarshaller.marshal(response.getExtensions(), engineInfoWriter);
+        String xmlEngineInfo = engineInfoWriter.toString();
+
+        assertTrue(xmlEngineInfo.contains("<attribution>"), "attribution should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<engine>"), "engine should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<build_date>"), "build_date should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<graph_date>"), "graph_date should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<osm_date>"), "osm_date should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<profile>"), "profile should appear in engine info.");
+
         assertEquals("openrouteservice", GPXRouteResponse.getGpxCreator());
 
         assertEquals("https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd", GPXRouteResponse.getXmlnsLink());
