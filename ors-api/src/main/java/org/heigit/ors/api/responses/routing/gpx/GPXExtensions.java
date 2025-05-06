@@ -19,8 +19,10 @@ import com.graphhopper.util.Helper;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.api.responses.common.engineinfo.EngineInfo;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.api.APIEnums;
+import org.json.JSONObject;
 
 @XmlRootElement
 public class GPXExtensions {
@@ -30,6 +32,10 @@ public class GPXExtensions {
     private String engine;
     @XmlElement(name = "build_date")
     private String buildDate;
+    @XmlElement(name = "graph_date")
+    private String graphDate;
+    @XmlElement(name = "osm_date")
+    private String osmDate;
     @XmlElement(name = "profile")
     private String profile;
     @XmlElement(name = "preference")
@@ -50,8 +56,21 @@ public class GPXExtensions {
         if (!Helper.isEmpty(attribution))
             this.attribution = attribution;
 
-        engine = AppInfo.getEngineInfo().getString("version");
-        buildDate = AppInfo.getEngineInfo().getString("build_date");
+        JSONObject engineInfo = AppInfo.getEngineInfo();
+        engine = engineInfo.getString("version");
+        buildDate = engineInfo.getString("build_date");
+
+
+        if (engineInfo.has("graph_date"))
+            graphDate = engineInfo.getString("graph_date");
+        else
+            graphDate = EngineInfo.DEFAULT_DATE;
+
+        if (engineInfo.has("osm_date"))
+            osmDate = engineInfo.getString("osm_date");
+        else
+            osmDate = EngineInfo.DEFAULT_DATE;
+
         profile = request.getProfile().toString();
         if (request.hasRoutePreference())
             preference = request.getRoutePreference().toString();
