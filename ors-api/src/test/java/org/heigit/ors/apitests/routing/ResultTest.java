@@ -789,6 +789,7 @@ class ResultTest extends ServiceTest {
                 .body("metadata.engine.containsKey('version')", is(true))
                 .body("metadata.engine.containsKey('build_date')", is(true))
                 .body("metadata.engine.containsKey('graph_date')", is(true))
+                .body("metadata.engine.containsKey('osm_date')", is(true))
                 .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
     }
@@ -813,6 +814,7 @@ class ResultTest extends ServiceTest {
             .body("info.engine.containsKey('version')", is(true))
             .body("info.engine.containsKey('build_date')", is(true))
             .body("info.engine.containsKey('graph_date')", is(true))
+            .body("info.engine.containsKey('osm_date')", is(true))
             .body("info.containsKey('timestamp')", is(true))
             .statusCode(404);
     }
