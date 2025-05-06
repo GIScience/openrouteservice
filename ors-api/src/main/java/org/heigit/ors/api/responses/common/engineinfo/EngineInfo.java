@@ -32,11 +32,4 @@ public class EngineInfo {
             osmDate = infoIn.getString("osm_date");
         }
     }
-
-    public String getVersion() {
-        return version;
-    }
-    public String getBuildDate() {
-        return buildDate;
-    }
 }
