@@ -28,7 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
-
+- include OSM data version (`osm_date`) in the API response ([#1192](https://github.com/GIScience/openrouteservice/issues/1192))
 ### Changed
 
 ### Deprecated
