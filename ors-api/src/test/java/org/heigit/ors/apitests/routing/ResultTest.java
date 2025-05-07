@@ -584,6 +584,8 @@ class ResultTest extends ServiceTest {
                             <xs:element type="xs:string" name="attribution" minOccurs="0"/>
                             <xs:element type="xs:string" name="engine" minOccurs="0"/>
                             <xs:element type="xs:string" name="build_date" minOccurs="0"/>
+                            <xs:element type="xs:string" name="graph_date" minOccurs="0"/>
+                            <xs:element type="xs:string" name="osm_date" minOccurs="0"/>
                             <xs:element type="xs:string" name="profile" minOccurs="0"/>
                             <xs:element type="xs:string" name="preference" minOccurs="0"/>
                             <xs:element type="xs:string" name="language" minOccurs="0"/>
