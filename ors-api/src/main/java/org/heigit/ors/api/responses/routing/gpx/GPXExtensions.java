@@ -19,7 +19,6 @@ import com.graphhopper.util.Helper;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.responses.common.engineinfo.EngineInfo;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.api.APIEnums;
 import org.json.JSONObject;
@@ -63,13 +62,9 @@ public class GPXExtensions {
 
         if (engineInfo.has("graph_date"))
             graphDate = engineInfo.getString("graph_date");
-        else
-            graphDate = EngineInfo.DEFAULT_DATE;
 
         if (engineInfo.has("osm_date"))
             osmDate = engineInfo.getString("osm_date");
-        else
-            osmDate = EngineInfo.DEFAULT_DATE;
 
         profile = request.getProfile().toString();
         if (request.hasRoutePreference())

@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 @Schema(description = "Information about the openrouteservice engine used")
 public class EngineInfo {
-    public static final String DEFAULT_DATE = "0000-00-00T00:00:00Z";
+    private static final String DEFAULT_DATE = "0000-00-00T00:00:00Z";
     @Schema(description = "The backend version of the openrouteservice that was queried", example = "8.0")
     @JsonProperty("version")
     private final String version;

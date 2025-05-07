@@ -8,6 +8,7 @@ import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.mockuputil.RouteResultMockup;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +35,8 @@ class GPXRouteResponseTest {
 
     @Test
     void TestGetGpxRouteElements() throws Exception {
+        AppInfo.setOsmDate("2023-10-01T00:00:00Z");
+        AppInfo.setGraphDate("2023-10-01T00:00:00Z");
 
         RouteResult[] result = RouteResultMockup.create(RouteResultMockup.routeResultProfile.STANDARD_HEIDELBERG);
         List<List<Double>> coordinates = List.of(
