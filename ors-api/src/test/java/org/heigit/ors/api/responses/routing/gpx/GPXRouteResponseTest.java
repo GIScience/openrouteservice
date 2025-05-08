@@ -8,6 +8,7 @@ import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.routing.RouteResult;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.mockuputil.RouteResultMockup;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +35,8 @@ class GPXRouteResponseTest {
 
     @Test
     void TestGetGpxRouteElements() throws Exception {
+        AppInfo.setOsmDate("2023-10-01T00:00:00Z");
+        AppInfo.setGraphDate("2023-10-01T00:00:00Z");
 
         RouteResult[] result = RouteResultMockup.create(RouteResultMockup.routeResultProfile.STANDARD_HEIDELBERG);
         List<List<Double>> coordinates = List.of(
@@ -62,6 +65,22 @@ class GPXRouteResponseTest {
         assertTrue(xmlBounds.contains("maxlat="), "maxlat should appear with correct capitalization.");
         assertTrue(xmlBounds.contains("minlon="), "minlon should appear with correct capitalization.");
         assertTrue(xmlBounds.contains("maxlon="), "maxlon should appear with correct capitalization.");
+
+
+        JAXBContext engineInfoContext = JAXBContext.newInstance(GPXExtensions.class);
+        Marshaller engineInfoMarshaller = engineInfoContext.createMarshaller();
+        engineInfoMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        StringWriter engineInfoWriter = new StringWriter();
+        engineInfoMarshaller.marshal(response.getExtensions(), engineInfoWriter);
+        String xmlEngineInfo = engineInfoWriter.toString();
+
+        assertTrue(xmlEngineInfo.contains("<attribution>"), "attribution should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<engine>"), "engine should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<build_date>"), "build_date should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<graph_date>"), "graph_date should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<osm_date>"), "osm_date should appear in engine info.");
+        assertTrue(xmlEngineInfo.contains("<profile>"), "profile should appear in engine info.");
 
         assertEquals("openrouteservice", GPXRouteResponse.getGpxCreator());
 
