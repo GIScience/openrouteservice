@@ -88,7 +88,7 @@ ors:
 #      u_turn_costs: -1
 #    isochrones:
 #      enabled: true
-#      attribution: openrouteservice.org, OpenStreetMap contributors
+#      attribution: openrouteservice.org, OpenStreetMap contributors, GHS-POP data by European Commission, Joint Research Centre (JRC)
 #      maximum_locations: 2
 #      maximum_intervals: 1
 #      allow_compute_area: true
