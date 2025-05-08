@@ -29,6 +29,7 @@ Releasing is documented in RELEASE.md
 
 ### Added
 - include OSM data version (`osm_date`) in the API response ([#1192](https://github.com/GIScience/openrouteservice/issues/1192))
+- added documentation and attribution information for isochrone attributes ([#846](https://github.com/GIScience/openrouteservice/issues/846))
 ### Changed
 
 ### Deprecated
