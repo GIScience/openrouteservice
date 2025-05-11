@@ -37,7 +37,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
-
+- fix http pooling for matrix generation requests
 ### Security
 
 
