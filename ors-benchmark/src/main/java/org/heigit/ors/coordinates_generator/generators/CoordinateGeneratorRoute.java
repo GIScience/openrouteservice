@@ -61,7 +61,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
                 LOGGER.debug("RequestExecutor: Raw response: {}", response);
                 return response;
             } catch (IOException e) {
-                LOGGER.error("Error executing request: {}", e.getMessage());
+                LOGGER.debug("Error executing request: {}", e.getMessage());
                 return null;
             }
         };
