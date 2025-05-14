@@ -148,7 +148,7 @@ class CoordinateGeneratorRouteTest {
         });
 
         // Execute test
-        testGenerator.generateRoutes();
+        testGenerator.generate();
 
         // Verify results
         List<Route> result = testGenerator.getResult();
@@ -203,7 +203,7 @@ class CoordinateGeneratorRouteTest {
         });
 
         // Execute test
-        testGenerator.generateRoutes();
+        testGenerator.generate();
 
         // Verify results
         List<Route> result = testGenerator.getResult();
@@ -248,7 +248,7 @@ class CoordinateGeneratorRouteTest {
         });
 
         // Execute test
-        testGenerator.generateRoutes();
+        testGenerator.generate();
 
         // Write results to CSV
         String filename = tempDir.resolve("test_routes.csv").toString();
@@ -312,7 +312,7 @@ class CoordinateGeneratorRouteTest {
         });
 
         // Execute test
-        generator.generateRoutes();
+        generator.generate();
 
         // Verify all routes meet minimum distance requirement
         List<Route> result = generator.getResult();
@@ -365,7 +365,7 @@ class CoordinateGeneratorRouteTest {
         public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles,
                 String baseUrl, double minDistance,
                 Map<String, Double> maxDistanceByProfile) {
-            super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, 1, 1);
+            super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, 1, 1, 1);
         }
 
         void setHttpClient(CloseableHttpClient client) {

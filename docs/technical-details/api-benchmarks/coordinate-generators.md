@@ -44,6 +44,7 @@ The tool generates random coordinates within a specified bounding box and then u
 | `-m, --max-distances` | Maximum distances in meters **per profile** between the start and endpoint. | (none) |
 | `-t, --threads` | Number of threads to use. | Available processors |
 | `-sr, --snap-radius` | Search radius in meters for coordinate snapping. | 1000 |
+| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation. | 1000 |
 
 ### Route Generator Examples
 
@@ -78,6 +79,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   --max-distances 5000,3000 \
   --threads 4 \
   --snap-radius 1500 \
+  --max-attempts 1500 \
   --url http://localhost:8080/ors \
   --output routes.csv"
 ```
@@ -102,6 +104,7 @@ The tool generates random coordinates within a specified bounding box and then u
 | `-r, --radius` | Search radius in meters. | 350 |
 | `-u, --url` | ORS API base URL. | <http://localhost:8080/ors> |
 | `-o, --output` | Output CSV file path. | snapped_coordinates.csv |
+| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation. | 1000 |
 
 ### Snapping Generator Examples
 
@@ -133,6 +136,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   --extent 8.681495,49.411721,8.695485,49.419365 \
   --profiles driving-car,cycling-regular \
   --radius 250 \
+  --max-attempts 1500 \
   --url http://localhost:8080/ors \
   --output snapped.csv"
 ```

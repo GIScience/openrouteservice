@@ -181,4 +181,23 @@ class SnappingCommandLineParserTest {
                 cli::createGenerator);
         assertNotNull(exception);
     }
+
+    @Test
+    void testMaxAttempts() {
+        String[] args = {
+                "-n", "100",
+                "-e", "8.6 49.3 8.7 49.4",
+                "-p", "driving-car",
+                "-ma", "2000"
+        };
+
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
+        CoordinateGeneratorSnapping generator = cli.createGenerator();
+        assertNotNull(generator);
+
+        // No direct way to test maxAttempts after generation, as it's just a parameter
+        // passed to generate()
+        // We're verifying that the CLI parser correctly reads the value and the
+        // generator is created successfully
+    }
 }
