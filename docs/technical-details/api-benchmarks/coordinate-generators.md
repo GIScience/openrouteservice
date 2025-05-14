@@ -43,6 +43,7 @@ The tool generates random coordinates within a specified bounding box and then u
 | `-d, --min-distance` | Minimum distance between start and endpoint in an a-to-b routing pair in meters. This is valid for all profiles. | 1 |
 | `-m, --max-distances` | Maximum distances in meters **per profile** between the start and endpoint. | (none) |
 | `-t, --threads` | Number of threads to use. | Available processors |
+| `-sr, --snap-radius` | Search radius in meters for coordinate snapping. | 1000 |
 
 ### Route Generator Examples
 
@@ -76,6 +77,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   --min-distance 2000 \
   --max-distances 5000,3000 \
   --threads 4 \
+  --snap-radius 1500 \
   --url http://localhost:8080/ors \
   --output routes.csv"
 ```

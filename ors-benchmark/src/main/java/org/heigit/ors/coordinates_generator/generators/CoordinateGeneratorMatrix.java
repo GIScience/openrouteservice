@@ -28,7 +28,6 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     }
     protected static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorMatrix.class);
 
-    private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
     private static final String LOCATION_KEY = "location";
 
     private final int numMatrices;
@@ -40,15 +39,9 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     private final MatrixCalculator matrixCalculator;
     private final int numThreads;
 
-    protected CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
-                                         Map<String, Double> maxDistanceByProfile,
-                                        MatrixDimensions matrixDimensions) {
-        this(numMatrices, extent, profiles, baseUrl, maxDistanceByProfile, matrixDimensions, DEFAULT_THREAD_COUNT);
-    }
-
     public CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
                                       Map<String, Double> maxDistanceByProfile,
-                                     MatrixDimensions matrixDimensions, int numThreads) {
+            MatrixDimensions matrixDimensions, int numThreads, double snapRadius) {
         super(extent, profiles, baseUrl, "matrix");
         validateInputs(numMatrices, numThreads);
 
@@ -69,7 +62,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         };
 
         Map<String, String> headers = createHeaders();
-        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor);
+        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor, snapRadius);
         this.matrixCalculator = new MatrixCalculator(baseUrl, headers, mapper, requestExecutor);
     }
 
