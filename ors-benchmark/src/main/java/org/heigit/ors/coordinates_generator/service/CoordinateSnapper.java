@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 public class CoordinateSnapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateSnapper.class);
-    private static final double DEFAULT_SNAP_RADIUS = 350; // 350 meters radius for snapping
+    private static final double DEFAULT_SNAP_RADIUS = 1000; // 350 meters radius for snapping
     private static final String LOCATIONS_KEY = "locations";
     private static final String LOCATION_KEY = "location";
 
