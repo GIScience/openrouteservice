@@ -1,6 +1,7 @@
 # Coordinate Generation Tools
 
-The openrouteservice provides tools for generating test coordinates that can be used for benchmarking, testing, and development purposes. These tools allow you to create realistic coordinates that are compatible with the openrouteservice API and suited for different routing profiles.
+The openroutes| `-r, --snap-radius` | Search radius in meters for coordinate snapping. | 350 |
+| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation. | 100 |vice provides tools for generating test coordinates that can be used for benchmarking, testing, and development purposes. These tools allow you to create realistic coordinates that are compatible with the openrouteservice API and suited for different routing profiles.
 
 ## Prerequisites
 
@@ -43,8 +44,8 @@ The tool generates random coordinates within a specified bounding box and then u
 | `-d, --min-distance` | Minimum distance between start and endpoint in an a-to-b routing pair in meters. This is valid for all profiles. | 1 |
 | `-m, --max-distances` | Maximum distances in meters **per profile** between the start and endpoint. | (none) |
 | `-t, --threads` | Number of threads to use. | Available processors |
-| `-sr, --snap-radius` | Search radius in meters for coordinate snapping. | 1000 |
-| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation. | 1000 |
+| `-sr, --snap-radius` | Search radius in meters for coordinate snapping. | 350 |
+| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation. | 100 |
 
 ### Route Generator Examples
 
@@ -101,10 +102,10 @@ The tool generates random coordinates within a specified bounding box and then u
 | `-n, --num-points` | Number of points to generate per profile. | (required) |
 | `-e, --extent` | Bounding box (minLon,minLat,maxLon,maxLat). | (required) |
 | `-p, --profiles` | Comma-separated list of routing profiles. | (required) |
-| `-r, --radius` | Search radius in meters. | 350 |
+| `-sr, --snap-radius` | Search radius in meters for coordinate snapping. | 350 |
 | `-u, --url` | ORS API base URL. | <http://localhost:8080/ors> |
 | `-o, --output` | Output CSV file path. | snapped_coordinates.csv |
-| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation. | 1000 |
+| `-ma, --max-attempts` | Maximum number of attempts for coordinate generation. | 100 |
 
 ### Snapping Generator Examples
 
@@ -119,7 +120,7 @@ mvn clean compile exec:java -Dexec.cleanupDaemonThreads=false -pl 'ors-benchmark
   -n 100 \
   -e 8.6,49.3,8.7,49.4 \
   -p driving-car \
-  -r 500 \
+  -sr 500 \
   -u http://localhost:8080/ors \
   -o snapped.csv"
 ```
