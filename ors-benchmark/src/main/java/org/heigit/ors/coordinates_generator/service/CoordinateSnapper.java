@@ -37,7 +37,11 @@ public class CoordinateSnapper {
         
         try {
             HttpPost request = createSnapRequest(coordinates, profile);
+            LOGGER.debug("Snap Request URI: {}", request.getRequestUri());
+            // Payload is logged in createSnapRequest
+
             String response = requestExecutor.apply(request);
+            LOGGER.debug("Snap Raw Response: {}", response);
             
             if (response == null) {
                 LOGGER.debug("Received null response from snap API");
@@ -55,6 +59,7 @@ public class CoordinateSnapper {
         Map<String, Object> payload = new HashMap<>();
         payload.put(LOCATIONS_KEY, coordinates);
         payload.put("radius", DEFAULT_SNAP_RADIUS);
+        LOGGER.debug("Snap Request Payload: {}", payload); // Log payload here
 
         HttpPost request = new HttpPost(baseUrl + "/v2/snap/" + profile);
         headers.forEach(request::addHeader);
