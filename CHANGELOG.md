@@ -28,10 +28,9 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
-- add hint to use yaml editor in docs ([#1836](https://github.com/GIScience/openrouteservice/issues/1836))
-- access = permit as known access restriction type ([#2013](https://github.com/GIScience/openrouteservice/issues/2013))
-- add matrix generator for performance benchmarking ([#2038](https://github.com/GIScience/openrouteservice/pull/2038))
-- adding maven wrapper to project ([#1973](https://github.com/GIScience/openrouteservice/issues/1973))
+- maven wrapper to project ([#1973](https://github.com/GIScience/openrouteservice/issues/1973))
+- include OSM data version (`osm_date`) in the API response ([#1192](https://github.com/GIScience/openrouteservice/issues/1192))
+- include `graph_date` and `osm_date` in the GPX response ([#2055](https://github.com/GIScience/openrouteservice/issues/2055))
 
 ### Changed
 
@@ -40,13 +39,27 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
-- fix outdated dockerfile base images and add a more robust native golang base image ([#2027](https://github.com/GIScience/openrouteservice/pull/2027))
-- fix github action build default builder image failing ([#2032](https://github.com/GIScience/openrouteservice/issues/2032)) 
-- fix wrong example in docs of extra-info 'waycategory' ([#1797](https://github.com/GIScience/openrouteservice/issues/1797))
-- fix population data link in docs ([#1624](https://github.com/GIScience/openrouteservice/issues/1624))
+
+### Security
+
+
+## [9.2.0] - 2025-05-06
+
+### Added
+- minio option to graph repo client ([#2050](https://github.com/GIScience/openrouteservice/pull/2050))
+- hint to use yaml editor in docs ([#1836](https://github.com/GIScience/openrouteservice/issues/1836))
+- `access = permit` OSM tag as known access restriction type ([#2013](https://github.com/GIScience/openrouteservice/issues/2013))
+- matrix generator for performance benchmarking ([#2038](https://github.com/GIScience/openrouteservice/pull/2038))
+
+### Fixed
+- update outdated dockerfile base images and add a more robust native golang base image ([#2027](https://github.com/GIScience/openrouteservice/pull/2027))
+- graph build date missing in case route is not found ([#2020](https://github.com/GIScience/openrouteservice/pull/2020))
+- github action build default builder image failing ([#2032](https://github.com/GIScience/openrouteservice/issues/2032)) 
+- wrong example in docs of extra-info 'waycategory' ([#1797](https://github.com/GIScience/openrouteservice/issues/1797))
+- population data link in docs ([#1624](https://github.com/GIScience/openrouteservice/issues/1624))
 - accept upper and lower case booleans for REBUILD_GRAPHS within the docker setup ([#2028](https://github.com/GIScience/openrouteservice/pull/2028))
 - correct available features in custom-model docs ([#2033](https://github.com/GIScience/openrouteservice/issues/2033))
-- prevent ferry speed derived from the OSM maxspeed tag from exceeding the maximum possible encoder value ([#2030](https://github.com/GIScience/openrouteservice/issues/2030)) 
+- prevent ferry speed derived from the maxspeed OSM tag from exceeding the maximum possible encoder value ([#2030](https://github.com/GIScience/openrouteservice/issues/2030)) 
 
 ### Security
 
@@ -888,7 +901,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.1.2...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.2.0...HEAD
+[9.2.0]: https://github.com/GIScience/openrouteservice/compare/v9.1.2...v9.2.0
 [9.1.2]: https://github.com/GIScience/openrouteservice/compare/v9.1.1...v9.1.2
 [9.1.1]: https://github.com/GIScience/openrouteservice/compare/v9.1.0...v9.1.1
 [9.1.0]: https://github.com/GIScience/openrouteservice/compare/v9.0.0...v9.1.0

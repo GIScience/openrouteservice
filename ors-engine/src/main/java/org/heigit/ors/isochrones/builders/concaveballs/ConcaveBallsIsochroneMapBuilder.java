@@ -51,9 +51,6 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
             sw.start();
         }
 
-        GraphHopperStorage graph = searchContext.getGraphHopper().getGraphHopperStorage();
-        String graphdate = graph.getProperties().get("datareader.import.date");
-
         double maxSpeed = determineMaxSpeed();
         double meanSpeed = determineMeanSpeed(maxSpeed);
 
@@ -64,8 +61,6 @@ public class ConcaveBallsIsochroneMapBuilder extends AbstractIsochroneMapBuilder
         Coordinate loc = (point == null) ? parameters.getLocation() : new Coordinate(point.lon, point.lat);
 
         IsochroneMap isochroneMap = new IsochroneMap(parameters.getTravellerId(), loc);
-
-        isochroneMap.setGraphDate(graphdate);
 
         if (LOGGER.isDebugEnabled()) {
             sw.stop();

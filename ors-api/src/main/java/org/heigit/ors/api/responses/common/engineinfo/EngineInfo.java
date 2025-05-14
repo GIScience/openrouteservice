@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 @Schema(description = "Information about the openrouteservice engine used")
 public class EngineInfo {
+    private static final String DEFAULT_DATE = "0000-00-00T00:00:00Z";
     @Schema(description = "The backend version of the openrouteservice that was queried", example = "8.0")
     @JsonProperty("version")
     private final String version;
@@ -14,23 +15,21 @@ public class EngineInfo {
     private final String buildDate;
     @Schema(description = "The date that the graph data was last updated", example = "2019-02-07T14:28:11Z")
     @JsonProperty("graph_date")
-    private String graphDate;
+    private String graphDate = DEFAULT_DATE;
+    @Schema(description = "Timestamp of the OSM data the graph was built from", example = "2019-02-07T14:28:11Z")
+    @JsonProperty("osm_date")
+    private String osmDate = DEFAULT_DATE;
 
     public EngineInfo(JSONObject infoIn) {
         version = infoIn.getString("version");
         buildDate = infoIn.getString("build_date");
-        graphDate = "0000-00-00T00:00:00Z";
-    }
 
-    public String getVersion() {
-        return version;
-    }
+        if (infoIn.has("graph_date")) {
+            graphDate = infoIn.getString("graph_date");
+        }
 
-    public String getBuildDate() {
-        return buildDate;
-    }
-
-    public void setGraphDate(String graphDate) {
-        this.graphDate = graphDate;
+        if (infoIn.has("osm_date")) {
+            osmDate = infoIn.getString("osm_date");
+        }
     }
 }

@@ -104,9 +104,6 @@ public class RPHASTMatrixAlgorithm extends AbstractMatrixAlgorithm {
 
         MatrixResult mtxResult = new MatrixResult(srcData.getLocations(), dstData.getLocations());
 
-        if (graphHopper != null)
-            mtxResult.setGraphDate(graphHopper.getGraphHopperStorage().getProperties().get("datareader.import.date"));
-
         if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DURATION))
             mtxResult.setTable(MatrixMetricsType.DURATION, times);
         if (MatrixMetricsType.isSet(metrics, MatrixMetricsType.DISTANCE))

@@ -26,7 +26,7 @@ import lombok.AllArgsConstructor;
 import org.apache.juli.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.heigit.ors.api.services.GraphService;
-import org.heigit.ors.api.util.AppInfo;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.isochrones.statistics.StatisticsProviderFactory;
 import org.heigit.ors.routing.RoutingProfile;
