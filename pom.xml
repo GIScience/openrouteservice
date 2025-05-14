@@ -35,11 +35,6 @@
     </modules>
 
     <properties>
-        <!--
-            A default for packagingValue is needed, if profiles other than buildWar or buildFatJar are used, e.g. apitests.
-            The value is set/overridden in the profiles buildWar and buildFatJar, e.g.
-                mvn clean package -PbuildWar
-         -->
         <packagingValue>jar</packagingValue>
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>

@@ -5,6 +5,7 @@
 **/.m2/
 *.code-workspace
 .vscode
+!.mvn/wrapper/maven-wrapper.jar
 graphs/
 graph-repo/
 graphs-*/

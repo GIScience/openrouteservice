@@ -28,8 +28,10 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- maven wrapper to project ([#1973](https://github.com/GIScience/openrouteservice/issues/1973))
 - include OSM data version (`osm_date`) in the API response ([#1192](https://github.com/GIScience/openrouteservice/issues/1192))
 - include `graph_date` and `osm_date` in the GPX response ([#2055](https://github.com/GIScience/openrouteservice/issues/2055))
+
 ### Changed
 
 ### Deprecated
