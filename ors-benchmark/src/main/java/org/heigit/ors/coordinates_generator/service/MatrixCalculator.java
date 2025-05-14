@@ -36,7 +36,10 @@ public class MatrixCalculator {
     public Optional<MatrixResult> calculateMatrix(List<double[]> coordinates, String profile) {
         try {
             HttpPost request = createMatrixRequest(coordinates, profile);
+            LOGGER.debug("Matrix Request URI: {}", request.getRequestUri());
+            // Payload is logged in createMatrixRequest
             String response = requestExecutor.apply(request);
+            LOGGER.debug("Matrix Raw Response: {}", response);
             
             if (response == null) {
                 LOGGER.debug("Received null response from matrix API");
@@ -53,7 +56,11 @@ public class MatrixCalculator {
     public String calculateMatrixRaw(List<double[]> coordinates, String profile) {
         try {
             HttpPost request = createMatrixRequest(coordinates, profile);
-            return requestExecutor.apply(request);
+            LOGGER.debug("Matrix Raw Request URI: {}", request.getRequestUri());
+            // Payload is logged in createMatrixRequest
+            String response = requestExecutor.apply(request);
+            LOGGER.debug("Matrix Raw Response (from calculateMatrixRaw): {}", response);
+            return response;
         } catch (IOException e) {
             LOGGER.error(ERROR_CALCULATING_MATRIX, e.getMessage());
             return null;
@@ -63,7 +70,10 @@ public class MatrixCalculator {
     public Optional<MatrixResult> calculateAsymmetricMatrix(List<double[]> coordinates, int[] sources, int[] destinations, String profile) {
         try {
             HttpPost request = createAsymmetricMatrixRequest(coordinates, sources, destinations, profile);
+            LOGGER.debug("Asymmetric Matrix Request URI: {}", request.getRequestUri());
+            // Payload is logged in createAsymmetricMatrixRequest
             String response = requestExecutor.apply(request);
+            LOGGER.debug("Asymmetric Matrix Raw Response: {}", response);
 
             if (response == null) {
                 LOGGER.debug("Received null response from matrix API");
@@ -84,6 +94,7 @@ public class MatrixCalculator {
         Map<String, Object> payload = new HashMap<>();
         payload.put(LOCATIONS_KEY, coordinates);
         payload.put("metrics", new String[] { "distance" });
+        LOGGER.debug("Matrix Request Payload: {}", payload);
 
         HttpPost request = new HttpPost(baseUrl + "/v2/matrix/" + profile);
         headers.forEach(request::addHeader);
@@ -101,6 +112,7 @@ public class MatrixCalculator {
         payload.put(SOURCES_KEY, sources);
         payload.put(DESTINATIONS_KEY, destinations);
         payload.put("metrics", new String[] { "distance" });
+        LOGGER.debug("Asymmetric Matrix Request Payload: {}", payload);
 
         HttpPost request = new HttpPost(baseUrl + "/v2/matrix/" + profile);
         headers.forEach(request::addHeader);

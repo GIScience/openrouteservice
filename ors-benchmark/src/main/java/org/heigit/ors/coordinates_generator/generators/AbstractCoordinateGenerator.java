@@ -115,6 +115,9 @@ public abstract class AbstractCoordinateGenerator {
 
         HttpEntity entity = response.getEntity();
         if (entity == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Received empty response");
+            }
             return null;
         }
 
