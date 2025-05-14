@@ -421,8 +421,8 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
                             added, profile);
 
                     if (added) {
-                        LOGGER.info("Added new route for profile {}: {} -> {} ({}m)", profile,
-                                Arrays.toString(startPoint), Arrays.toString(endPoint), distance);
+                        LOGGER.debug("Added new route for profile {}: {} -> {} ({}m)", profile,
+                                        Arrays.toString(startPoint), Arrays.toString(endPoint), distance);
                         return true;
                     } else {
                         LOGGER.debug("Route already exists or not added for profile {}: {} -> {} ({}m)", profile,
