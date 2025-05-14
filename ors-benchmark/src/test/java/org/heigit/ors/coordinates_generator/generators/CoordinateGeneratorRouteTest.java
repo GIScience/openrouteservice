@@ -363,20 +363,9 @@ class CoordinateGeneratorRouteTest {
         private CloseableHttpClient testClient;
 
         public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles,
-                String baseUrl, double minDistance) {
-            super(numRoutes, extent, profiles, baseUrl, minDistance, new HashMap<>());
-        }
-
-        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles,
                 String baseUrl, double minDistance,
                 Map<String, Double> maxDistanceByProfile) {
-            super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile);
-        }
-
-        public TestCoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles,
-                String baseUrl, double minDistance,
-                Map<String, Double> maxDistanceByProfile, int numThreads) {
-            super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, numThreads);
+            super(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, 1, 1);
         }
 
         void setHttpClient(CloseableHttpClient client) {

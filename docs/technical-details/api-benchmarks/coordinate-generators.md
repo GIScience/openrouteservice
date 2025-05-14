@@ -33,16 +33,17 @@ The tool generates random coordinates within a specified bounding box and then u
 
 ### Route Generator Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-n, --num-routes` | Number of routes to generate. | (required) |
-| `-e, --extent` | Bounding box (minLon,minLat,maxLon,maxLat).  Use <https://boundingbox.klokantech.com/> to generate your extents. | (required). |
-| `-p, --profiles` | Comma-separated routing profiles. | (required) |
-| `-u, --url` | ORS API base URL. | <http://localhost:8080/ors> |
-| `-o, --output` | Output CSV file path. | route_coordinates.csv |
-| `-d, --min-distance` | Minimum distance between start and endpoint in an a-to-b routing pair in meters. This is valid for all profiles. | 1 |
-| `-m, --max-distances` | Maximum distances in meters **per profile** between the start and endpoint. | (none) |
-| `-t, --threads` | Number of threads to use. | Available processors |
+| Option                | Description                                                                                                      | Default                     |
+|-----------------------|------------------------------------------------------------------------------------------------------------------|-----------------------------|
+| `-n, --num-routes`    | Number of routes to generate.                                                                                    | (required)                  |
+| `-e, --extent`        | Bounding box (minLon,minLat,maxLon,maxLat).  Use <https://boundingbox.klokantech.com/> to generate your extents. | (required).                 |
+| `-p, --profiles`      | Comma-separated routing profiles.                                                                                | (required)                  |
+| `-u, --url`           | ORS API base URL.                                                                                                | <http://localhost:8080/ors> |
+| `-o, --output`        | Output CSV file path.                                                                                            | route_coordinates.csv       |
+| `-d, --min-distance`  | Minimum distance between start and endpoint in an a-to-b routing pair in meters. This is valid for all profiles. | 1                           |
+| `-m, --max-distances` | Maximum distances in meters **per profile** between the start and endpoint.                                      | (none)                      |
+| `-t, --threads`       | Number of threads to use.                                                                                        | Available processors        |
+| `-sr, --snap-radius`  | Search radius in meters for coordinate snapping.                                                                 | 1000                        |
 
 ### Route Generator Examples
 
@@ -76,6 +77,7 @@ Generate 50 routes for both driving-car and cycling-regular profiles with differ
   --min-distance 2000 \
   --max-distances 5000,3000 \
   --threads 4 \
+  --snap-radius 1500 \
   --url http://localhost:8080/ors \
   --output routes.csv"
 ```

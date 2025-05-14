@@ -8,8 +8,8 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.heigit.ors.coordinates_generator.model.Route;
 import org.heigit.ors.coordinates_generator.model.RouteRepository;
-import org.heigit.ors.coordinates_generator.service.MatrixCalculator;
 import org.heigit.ors.coordinates_generator.service.CoordinateSnapper;
+import org.heigit.ors.coordinates_generator.service.MatrixCalculator;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
 import org.slf4j.Logger;
@@ -27,7 +27,6 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     protected static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorRoute.class);
 
     private static final int DEFAULT_MATRIX_SIZE = 2;
-    private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
     private static final String LOCATION_KEY = "location";
 
     private final int numRoutes;
@@ -38,13 +37,10 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
     private final MatrixCalculator matrixCalculator;
     private final int numThreads;
 
-    protected CoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
-            double minDistance, Map<String, Double> maxDistanceByProfile) {
-        this(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile, DEFAULT_THREAD_COUNT);
-    }
 
     public CoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
-                                    double minDistance, Map<String, Double> maxDistanceByProfile, int numThreads) {
+                                    double minDistance, Map<String, Double> maxDistanceByProfile, int numThreads,
+                                    double snapRadius) {
         super(extent, profiles, baseUrl, "matrix");
         validateInputs(numRoutes, minDistance, numThreads);
 
@@ -67,7 +63,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         };
 
         Map<String, String> headers = createHeaders();
-        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor);
+        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor, snapRadius);
         this.matrixCalculator = new MatrixCalculator(baseUrl, headers, mapper, requestExecutor);
     }
 

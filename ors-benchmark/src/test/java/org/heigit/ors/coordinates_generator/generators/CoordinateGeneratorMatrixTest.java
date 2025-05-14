@@ -334,18 +334,8 @@ class CoordinateGeneratorMatrixTest {
         private CloseableHttpClient testClient;
 
         public TestCoordinateGeneratorMatrix(int numRoutes, double[] extent, String[] profiles,
-                                             String baseUrl, MatrixDimensions matrixDimensions) {
-            super(numRoutes, extent, profiles, baseUrl, new HashMap<>(), matrixDimensions);
-        }
-
-        public TestCoordinateGeneratorMatrix(int numRoutes, double[] extent, String[] profiles,
                                              String baseUrl, Map<String, Double> maxDistanceByProfile, MatrixDimensions matrixDimensions) {
-            super(numRoutes, extent, profiles, baseUrl, maxDistanceByProfile, matrixDimensions);
-        }
-
-        public TestCoordinateGeneratorMatrix(int numRoutes, double[] extent, String[] profiles,
-                                             String baseUrl, Map<String, Double> maxDistanceByProfile, MatrixDimensions matrixDimensions, int numThreads) {
-            super(numRoutes, extent, profiles, baseUrl, maxDistanceByProfile, matrixDimensions, numThreads);
+            super(numRoutes, extent, profiles, baseUrl, maxDistanceByProfile, matrixDimensions, 1, 1);
         }
 
         void setHttpClient(CloseableHttpClient client) {

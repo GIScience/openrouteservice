@@ -15,7 +15,6 @@ import java.util.function.Function;
 
 public class CoordinateSnapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoordinateSnapper.class);
-    private static final double DEFAULT_SNAP_RADIUS = 1000; // 350 meters radius for snapping
     private static final String LOCATIONS_KEY = "locations";
     private static final String LOCATION_KEY = "location";
 
@@ -23,13 +22,15 @@ public class CoordinateSnapper {
     private final Map<String, String> headers;
     private final ObjectMapper mapper;
     private final Function<HttpPost, String> requestExecutor;
+    private final double snapRadius;
 
     public CoordinateSnapper(String baseUrl, Map<String, String> headers, ObjectMapper mapper,
-                             Function<HttpPost, String> requestExecutor) {
+                             Function<HttpPost, String> requestExecutor, double snapRadius) {
         this.baseUrl = baseUrl;
         this.headers = headers;
         this.mapper = mapper;
         this.requestExecutor = requestExecutor;
+        this.snapRadius = snapRadius;
     }
     
     public List<double[]> snapCoordinates(List<double[]> coordinates, String profile) {
@@ -58,7 +59,7 @@ public class CoordinateSnapper {
     private HttpPost createSnapRequest(List<double[]> coordinates, String profile) throws JsonProcessingException {
         Map<String, Object> payload = new HashMap<>();
         payload.put(LOCATIONS_KEY, coordinates);
-        payload.put("radius", DEFAULT_SNAP_RADIUS);
+        payload.put("radius", snapRadius);
         LOGGER.debug("Snap Request Payload: {}", payload); // Log payload here
 
         HttpPost request = new HttpPost(baseUrl + "/v2/snap/" + profile);

@@ -13,8 +13,8 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.core5.util.Timeout;
 import org.heigit.ors.coordinates_generator.model.Matrix;
 import org.heigit.ors.coordinates_generator.model.MatrixRepository;
-import org.heigit.ors.coordinates_generator.service.MatrixCalculator;
 import org.heigit.ors.coordinates_generator.service.CoordinateSnapper;
+import org.heigit.ors.coordinates_generator.service.MatrixCalculator;
 import org.heigit.ors.util.CoordinateGeneratorHelper;
 import org.heigit.ors.util.ProgressBarLogger;
 import org.slf4j.Logger;
@@ -34,7 +34,6 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(CoordinateGeneratorMatrix.class);
 
-    private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
     private static final String LOCATION_KEY = "location";
 
     private final int numMatrices;
@@ -47,15 +46,9 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     private final int numThreads;
     private final CloseableHttpClient httpClient;
 
-    protected CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
-            Map<String, Double> maxDistanceByProfile,
-            MatrixDimensions matrixDimensions) {
-        this(numMatrices, extent, profiles, baseUrl, maxDistanceByProfile, matrixDimensions, DEFAULT_THREAD_COUNT);
-    }
-
     public CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
-            Map<String, Double> maxDistanceByProfile,
-            MatrixDimensions matrixDimensions, int numThreads) {
+                                     Map<String, Double> maxDistanceByProfile,
+                                     MatrixDimensions matrixDimensions, int numThreads, double snapRadius) {
         super(extent, profiles, baseUrl, "matrix");
         validateInputs(numMatrices, numThreads);
 
@@ -77,7 +70,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         };
 
         Map<String, String> headers = createHeaders();
-        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor);
+        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor, snapRadius);
         this.matrixCalculator = new MatrixCalculator(baseUrl, headers, mapper, requestExecutor);
     }
 
@@ -310,7 +303,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
         /**
          * Main method generating a number of matrices
-         * 
+         *
          * @return Whether a matrix was successfully added to the repository
          */
         private boolean generateMatricesForProfile() {
@@ -463,7 +456,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
         /**
          * Check whether two points are connected in a forward way
-         * 
+         *
          * @param from coordinate pair from
          * @param to   coordinate pair to
          * @return true if matrix was successfully calculated and points are routeable,

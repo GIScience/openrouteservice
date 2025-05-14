@@ -13,6 +13,7 @@ public class RouteCommandLineParser extends CommandLineParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(RouteCommandLineParser.class);
 
     private static final String OPT_THREADS = "threads";
+    private static final String OPT_SNAP_RADIUS = "snap-radius";
     private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
 
     public RouteCommandLineParser(String[] args) {
@@ -78,6 +79,13 @@ public class RouteCommandLineParser extends CommandLineParser {
                 .hasArg()
                 .desc("Number of threads to use (default: " + DEFAULT_THREAD_COUNT + ")")
                 .build());
+
+        options.addOption(Option.builder("sr")
+                .longOpt(OPT_SNAP_RADIUS)
+                .hasArg()
+                .type(Number.class)
+                .desc("Search radius in meters for coordinate snapping (default: 1000)")
+                .build());
     }
 
     @Override
@@ -115,6 +123,7 @@ public class RouteCommandLineParser extends CommandLineParser {
         String[] profiles = parseProfiles(cmd.getOptionValue("p"));
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
         double minDistance = Double.parseDouble(cmd.getOptionValue("d", "1"));
+        double snapRadius = Double.parseDouble(cmd.getOptionValue(OPT_SNAP_RADIUS, "1000"));
 
         // Parse the max distances if provided
         Map<String, Double> maxDistanceByProfile = parseMaxDistances(cmd.getOptionValue("m"), profiles);
@@ -123,13 +132,13 @@ public class RouteCommandLineParser extends CommandLineParser {
 
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(
-                    "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profiles={}, baseUrl={}, minDistance={}, maxDistances={}, numThreads={}",
+                    "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profiles={}, baseUrl={}, minDistance={}, maxDistances={}, numThreads={}, snapRadius={}",
                     numRoutes, extent, java.util.Arrays.toString(profiles), baseUrl, minDistance, maxDistanceByProfile,
-                    numThreads);
+                    numThreads, snapRadius);
         }
 
         return new CoordinateGeneratorRoute(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile,
-                numThreads);
+                numThreads, snapRadius);
     }
 
     /**

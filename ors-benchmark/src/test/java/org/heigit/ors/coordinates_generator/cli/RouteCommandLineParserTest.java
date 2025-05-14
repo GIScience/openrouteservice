@@ -2,6 +2,7 @@ package org.heigit.ors.coordinates_generator.cli;
 
 import org.heigit.ors.benchmark.exceptions.CommandLineParsingException;
 import org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorRoute;
+import org.heigit.ors.coordinates_generator.service.CoordinateSnapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -323,5 +324,31 @@ class RouteCommandLineParserTest {
         RouteCommandLineParser cli = new RouteCommandLineParser(args);
         CoordinateGeneratorRoute generator = cli.createGenerator();
         assertNotNull(generator);
+    }
+
+    @Test
+    void testSnapRadius() {
+        String[] args = {
+                "-n", "50",
+                "-e", "8.6 49.3 8.7 49.4",
+                "-p", "driving-car",
+                "-m", "5000",
+                "-sr", "3000"
+        };
+
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
+        CoordinateGeneratorRoute generator = cli.createGenerator();
+        assertNotNull(generator);
+
+        // Test snapRadius using reflection
+        assertDoesNotThrow(() -> {
+            Field coordinateSnapperField = CoordinateGeneratorRoute.class.getDeclaredField("coordinateSnapper");
+            coordinateSnapperField.setAccessible(true);
+            CoordinateSnapper snapper = (CoordinateSnapper) coordinateSnapperField.get(generator);
+
+            Field snapRadiusField = CoordinateSnapper.class.getDeclaredField("snapRadius");
+            snapRadiusField.setAccessible(true);
+            assertEquals(3000.0, snapRadiusField.getDouble(snapper), 0.001);
+        });
     }
 }

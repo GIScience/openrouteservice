@@ -53,7 +53,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
             }
         };
         Map<String, String> headers = createHeaders();
-        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor);
+        this.coordinateSnapper = new CoordinateSnapper(baseUrl, headers, mapper, requestExecutor, radius);
     }
 
     @Override
