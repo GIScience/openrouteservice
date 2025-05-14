@@ -24,7 +24,7 @@ import java.util.Random;
  */
 public abstract class AbstractCoordinateGenerator {
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractCoordinateGenerator.class);
-    protected static final int DEFAULT_MAX_ATTEMPTS = 100;
+    protected static final int DEFAULT_MAX_ATTEMPTS = 10000;
     protected static final double COORDINATE_PRECISION = 1e-6;
     protected static final String DEFAULT_BASE_URL = "http://localhost:8082/ors";
 
