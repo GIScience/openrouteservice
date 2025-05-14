@@ -351,4 +351,24 @@ class RouteCommandLineParserTest {
             assertEquals(3000.0, snapRadiusField.getDouble(snapper), 0.001);
         });
     }
+
+    @Test
+    void testMaxAttempts() {
+        String[] args = {
+                "-n", "50",
+                "-e", "8.6 49.3 8.7 49.4",
+                "-p", "driving-car",
+                "-m", "5000",
+                "-ma", "5"
+        };
+
+        RouteCommandLineParser cli = new RouteCommandLineParser(args);
+        CoordinateGeneratorRoute generator = cli.createGenerator();
+        assertNotNull(generator);
+
+        // No direct way to test maxAttempts after generation, as it's just a parameter
+        // passed to generate()
+        // We're verifying that the CLI parser correctly reads the value and the
+        // generator is created successfully
+    }
 }

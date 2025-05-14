@@ -48,8 +48,8 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
     public CoordinateGeneratorMatrix(int numMatrices, double[] extent, String[] profiles, String baseUrl,
                                      Map<String, Double> maxDistanceByProfile,
-                                     MatrixDimensions matrixDimensions, int numThreads, double snapRadius) {
-        super(extent, profiles, baseUrl, "matrix");
+                                     MatrixDimensions matrixDimensions, int numThreads, double snapRadius, int maxAttempts) {
+        super(extent, profiles, baseUrl, "matrix", maxAttempts);
         validateInputs(numMatrices, numThreads);
 
         this.numMatrices = numMatrices;
@@ -111,12 +111,12 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     }
 
     public void generateMatrices() {
-        generate(DEFAULT_MAX_ATTEMPTS);
+        generate();
     }
 
     @Override
-    public void generate(int maxAttempts) {
-        LOGGER.info("Starting route generation with {} threads and max attempts: {}", numThreads, maxAttempts);
+    public void generate() {
+        LOGGER.info("Starting route generation with {} threads and max attempts: {}", numThreads, this.maxAttempts);
         initializeCollections();
 
         ExecutorService executor = null;
@@ -125,7 +125,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
 
         try {
             executor = Executors.newFixedThreadPool(numThreads);
-            executeMatrixGeneration(executor, maxAttempts, shouldContinue, consecutiveFailedAttempts);
+            executeMatrixGeneration(executor, shouldContinue, consecutiveFailedAttempts);
         } catch (Exception e) {
             LOGGER.error("Error generating routes: ", e);
         } finally {
@@ -133,11 +133,11 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         }
     }
 
-    private void executeMatrixGeneration(ExecutorService executor, int maxAttempts,
+    private void executeMatrixGeneration(ExecutorService executor,
             AtomicBoolean shouldContinue, AtomicInteger consecutiveFailedAttempts) {
         try (ProgressBar pb = createProgressBar()) {
             while (!matrixRepository.areAllProfilesComplete(numMatrices) &&
-                    consecutiveFailedAttempts.get() < maxAttempts &&
+                    consecutiveFailedAttempts.get() < this.maxAttempts &&
                     shouldContinue.get()) {
 
                 int initialTotalMatrices = matrixRepository.getTotalMatrixCount();
@@ -161,13 +161,13 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
                 // Check if we made progress in this iteration
                 if (matrixRepository.getTotalMatrixCount() == initialTotalMatrices) {
                     int attempts = consecutiveFailedAttempts.incrementAndGet();
-                    pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, maxAttempts));
+                    pb.setExtraMessage(String.format("Attempt %d/%d - No new routes", attempts, this.maxAttempts));
                 } else {
                     consecutiveFailedAttempts.set(0);
                 }
             }
 
-            finalizeProgress(pb, maxAttempts, consecutiveFailedAttempts.get());
+            finalizeProgress(pb, consecutiveFailedAttempts.get());
         }
     }
 
@@ -202,11 +202,11 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
         pb.setExtraMessage(matrixRepository.getProgressMessage());
     }
 
-    private void finalizeProgress(ProgressBar pb, int maxAttempts, int attempts) {
+    private void finalizeProgress(ProgressBar pb, int attempts) {
         pb.stepTo(matrixRepository.getTotalMatrixCount());
-        if (attempts >= maxAttempts) {
+        if (attempts >= this.maxAttempts) {
             LOGGER.warn("Stopped route generation after {} attempts. Routes per profile: {}",
-                    maxAttempts, matrixRepository.getProgressMessage());
+                    this.maxAttempts, matrixRepository.getProgressMessage());
         }
     }
 

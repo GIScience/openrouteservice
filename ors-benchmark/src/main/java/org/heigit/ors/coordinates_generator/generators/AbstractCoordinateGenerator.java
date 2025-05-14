@@ -24,7 +24,6 @@ import java.util.Random;
  */
 public abstract class AbstractCoordinateGenerator {
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractCoordinateGenerator.class);
-    protected static final int DEFAULT_MAX_ATTEMPTS = 10000;
     protected static final double COORDINATE_PRECISION = 1e-6;
     protected static final String DEFAULT_BASE_URL = "http://localhost:8082/ors";
 
@@ -35,6 +34,7 @@ public abstract class AbstractCoordinateGenerator {
     protected final Random random;
     protected final ObjectMapper mapper;
     protected final String apiKey;
+    protected final int maxAttempts;
 
     /**
      * Creates a new coordinate generator
@@ -44,7 +44,8 @@ public abstract class AbstractCoordinateGenerator {
      * @param baseUrl  API base URL
      * @param endpoint API endpoint name (for logging)
      */
-    protected AbstractCoordinateGenerator(double[] extent, String[] profiles, String baseUrl, String endpoint) {
+    protected AbstractCoordinateGenerator(double[] extent, String[] profiles, String baseUrl, String endpoint,
+                                          int maxAttempts) {
         this.baseUrl = baseUrl != null ? baseUrl : DEFAULT_BASE_URL;
         validateBaseInputParameters(extent, profiles, endpoint);
         this.extent = extent;
@@ -52,6 +53,7 @@ public abstract class AbstractCoordinateGenerator {
         this.random = new SecureRandom();
         this.mapper = new ObjectMapper();
         this.apiKey = getApiKey();
+        this.maxAttempts = maxAttempts;
     }
 
     private void validateBaseInputParameters(double[] extent, String[] profiles, String endpoint) {
@@ -131,11 +133,6 @@ public abstract class AbstractCoordinateGenerator {
     public abstract void writeToCSV(String filePath) throws IOException;
 
     /**
-     * Main generation method with specified maximum attempts
-     */
-    protected abstract void generate(int maxAttempts);
-
-    /**
      * Gets the generated results
      */
     public abstract <T> List<T> getResult();
@@ -146,9 +143,8 @@ public abstract class AbstractCoordinateGenerator {
     protected abstract void initializeCollections();
 
     /**
-     * Main generation method with default maximum attempts
+     * Main generation method
      */
-    public void generate() {
-        generate(DEFAULT_MAX_ATTEMPTS);
-    }
+    protected abstract void generate();
+
 }

@@ -14,6 +14,7 @@ public class RouteCommandLineParser extends CommandLineParser {
 
     private static final String OPT_THREADS = "threads";
     private static final String OPT_SNAP_RADIUS = "snap-radius";
+    private static final String OPT_MAX_ATTEMPTS = "max-attempts";
     private static final int DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors();
 
     public RouteCommandLineParser(String[] args) {
@@ -73,7 +74,6 @@ public class RouteCommandLineParser extends CommandLineParser {
                 .hasArg()
                 .desc("Maximum distances between coordinates in meters, comma-separated in profile order (e.g., 5000,3000)")
                 .build());
-
         options.addOption(Option.builder("t")
                 .longOpt(OPT_THREADS)
                 .hasArg()
@@ -85,6 +85,13 @@ public class RouteCommandLineParser extends CommandLineParser {
                 .hasArg()
                 .type(Number.class)
                 .desc("Search radius in meters for coordinate snapping (default: 1000)")
+                .build());
+
+        options.addOption(Option.builder("ma")
+                .longOpt(OPT_MAX_ATTEMPTS)
+                .hasArg()
+                .type(Number.class)
+                .desc("Maximum number of attempts for coordinate generation (default: 1000)")
                 .build());
     }
 
@@ -124,6 +131,7 @@ public class RouteCommandLineParser extends CommandLineParser {
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
         double minDistance = Double.parseDouble(cmd.getOptionValue("d", "1"));
         double snapRadius = Double.parseDouble(cmd.getOptionValue(OPT_SNAP_RADIUS, "1000"));
+        int maxAttempts = Integer.parseInt(cmd.getOptionValue(OPT_MAX_ATTEMPTS, String.valueOf(100)));
 
         // Parse the max distances if provided
         Map<String, Double> maxDistanceByProfile = parseMaxDistances(cmd.getOptionValue("m"), profiles);
@@ -132,13 +140,15 @@ public class RouteCommandLineParser extends CommandLineParser {
 
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(
-                    "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profiles={}, baseUrl={}, minDistance={}, maxDistances={}, numThreads={}, snapRadius={}",
+                    "Creating CoordinateGeneratorRoute with numRoutes={}, extent={}, profiles={}, baseUrl={}, minDistance={}, maxDistances={}, numThreads={}, snapRadius={}, maxAttempts={}",
                     numRoutes, extent, java.util.Arrays.toString(profiles), baseUrl, minDistance, maxDistanceByProfile,
-                    numThreads, snapRadius);
+                    numThreads, snapRadius, maxAttempts);
         }
 
-        return new CoordinateGeneratorRoute(numRoutes, extent, profiles, baseUrl, minDistance, maxDistanceByProfile,
-                numThreads, snapRadius);
+        CoordinateGeneratorRoute generator = new CoordinateGeneratorRoute(numRoutes, extent, profiles, baseUrl,
+                minDistance, maxDistanceByProfile, numThreads, snapRadius, maxAttempts);
+        generator.generate();
+        return generator;
     }
 
     /**

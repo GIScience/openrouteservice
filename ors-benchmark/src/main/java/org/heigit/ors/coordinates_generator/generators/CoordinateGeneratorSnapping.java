@@ -29,8 +29,8 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     private final Map<String, Set<Point>> uniquePointsByProfile;
 
     public CoordinateGeneratorSnapping(int numPoints, double[] extent, double radius, String[] profiles,
-            String baseUrl) {
-        super(extent, profiles, baseUrl, "snap");
+                                       String baseUrl, int maxAttempts) {
+        super(extent, profiles, baseUrl, "snap", maxAttempts);
         if (numPoints <= 0)
             throw new IllegalArgumentException("Number of points must be positive");
         if (radius <= 0)
@@ -57,7 +57,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
     }
 
     @Override
-    protected void generate(int maxAttempts) {
+    public void generate() {
         initializeCollections();
         Map<String, Integer> lastSizes = initializeLastSizes();
 
@@ -71,7 +71,7 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         try (ProgressBar pb = pbb.build()) {
 
             pb.setExtraMessage("Starting...");
-            generatePoints(pb, lastSizes, maxAttempts);
+            generatePoints(pb, lastSizes);
 
         } catch (Exception e) {
             LOGGER.error("Error generating points", e);
@@ -86,15 +86,14 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         return lastSizes;
     }
 
-    private void generatePoints(ProgressBar pb, Map<String, Integer> lastSizes,
-            int maxAttempts) {
+    private void generatePoints(ProgressBar pb, Map<String, Integer> lastSizes) {
         int attempts = 0;
-        while (!isGenerationComplete() && attempts < maxAttempts) {
+        while (!isGenerationComplete() && attempts < this.maxAttempts) {
             boolean newPointsFound = processProfiles(lastSizes);
 
             if (!newPointsFound) {
                 attempts++;
-                pb.setExtraMessage(String.format("Attempt %d/%d - No new points", attempts, maxAttempts));
+                pb.setExtraMessage(String.format("Attempt %d/%d - No new points", attempts, this.maxAttempts));
             } else {
                 updateProgress(pb);
                 attempts = 0;
@@ -102,9 +101,9 @@ public class CoordinateGeneratorSnapping extends AbstractCoordinateGenerator {
         }
 
         pb.stepTo(getTotalPoints());
-        if (attempts >= maxAttempts && LOGGER.isWarnEnabled()) {
+        if (attempts >= this.maxAttempts && LOGGER.isWarnEnabled()) {
             LOGGER.warn("Stopped point generation after {} attempts. Points per profile: {}",
-                    maxAttempts, formatProgressMessage());
+                    this.maxAttempts, formatProgressMessage());
         }
     }
 

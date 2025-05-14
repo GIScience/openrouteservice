@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class SnappingCommandLineParser extends CommandLineParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SnappingCommandLineParser.class);
+    private static final String OPT_MAX_ATTEMPTS = "max-attempts";
 
     public SnappingCommandLineParser(String[] args) {
         super(args);
@@ -60,6 +61,13 @@ public class SnappingCommandLineParser extends CommandLineParser {
                 .hasArg()
                 .desc("Output CSV file path")
                 .build());
+
+        options.addOption(Option.builder("ma")
+                .longOpt(OPT_MAX_ATTEMPTS)
+                .hasArg()
+                .type(Number.class)
+                .desc("Maximum number of attempts for coordinate generation (default: 1000)")
+                .build());
     }
 
     @Override
@@ -88,12 +96,17 @@ public class SnappingCommandLineParser extends CommandLineParser {
         String[] profiles = parseProfiles(cmd.getOptionValue("p"));
         double radius = Double.parseDouble(cmd.getOptionValue("r", "350"));
         String baseUrl = cmd.getOptionValue("u", "http://localhost:8080/ors");
+        int maxAttempts = Integer.parseInt(
+                cmd.getOptionValue(OPT_MAX_ATTEMPTS, "100"));
 
         LOGGER.info(
-                "Creating CoordinateGeneratorSnapping with numPoints={}, extent={}, radius={}, profiles={}, baseUrl={}",
-                numPoints, extent, radius, profiles, baseUrl);
+                "Creating CoordinateGeneratorSnapping with numPoints={}, extent={}, radius={}, profiles={}, baseUrl={}, maxAttempts={}",
+                numPoints, extent, radius, profiles, baseUrl, maxAttempts);
 
-        return new CoordinateGeneratorSnapping(numPoints, extent, radius, profiles, baseUrl);
+        CoordinateGeneratorSnapping generator = new CoordinateGeneratorSnapping(numPoints, extent, radius, profiles,
+                baseUrl, maxAttempts);
+        generator.generate();
+        return generator;
     }
 
     /**

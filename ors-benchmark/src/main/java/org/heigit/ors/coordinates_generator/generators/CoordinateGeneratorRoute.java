@@ -40,8 +40,8 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
     public CoordinateGeneratorRoute(int numRoutes, double[] extent, String[] profiles, String baseUrl,
                                     double minDistance, Map<String, Double> maxDistanceByProfile, int numThreads,
-                                    double snapRadius) {
-        super(extent, profiles, baseUrl, "matrix");
+                                    double snapRadius, int maxAttempts) {
+        super(extent, profiles, baseUrl, "matrix", maxAttempts);
         validateInputs(numRoutes, minDistance, numThreads);
 
         this.numRoutes = numRoutes;
@@ -84,13 +84,9 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         return normalized;
     }
 
-    public void generateRoutes() {
-        generate(DEFAULT_MAX_ATTEMPTS);
-    }
-
     @Override
-    public void generate(int maxAttempts) {
-        LOGGER.info("Starting route generation with {} threads and max attempts: {}", numThreads, maxAttempts);
+    public void generate() {
+        LOGGER.info("Starting route generation with {} threads and max attempts: {}", numThreads, this.maxAttempts);
         initializeCollections();
         LOGGER.debug("Collections initialized.");
 
@@ -100,7 +96,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
 
         try {
             executor = Executors.newFixedThreadPool(numThreads);
-            executeRouteGeneration(executor, maxAttempts, shouldContinue, consecutiveFailedAttempts);
+            executeRouteGeneration(executor, shouldContinue, consecutiveFailedAttempts);
         } catch (Exception e) {
             LOGGER.error("Error generating routes: ", e);
         } finally {
@@ -108,13 +104,13 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         }
     }
 
-    private void executeRouteGeneration(ExecutorService executor, int maxAttempts,
-            AtomicBoolean shouldContinue, AtomicInteger consecutiveFailedAttempts) {
+    private void executeRouteGeneration(ExecutorService executor, AtomicBoolean shouldContinue,
+                                        AtomicInteger consecutiveFailedAttempts) {
         LOGGER.debug("executeRouteGeneration: Starting. Max attempts: {}, Should continue: {}, Consecutive Fails: {}",
-                maxAttempts, shouldContinue.get(), consecutiveFailedAttempts.get());
+                this.maxAttempts, shouldContinue.get(), consecutiveFailedAttempts.get());
         try (ProgressBar pb = createProgressBar()) {
             while (!routeRepository.areAllProfilesComplete(numRoutes) &&
-                    consecutiveFailedAttempts.get() < maxAttempts &&
+                    consecutiveFailedAttempts.get() < this.maxAttempts &&
                     shouldContinue.get()) {
                 LOGGER.debug(
                         "executeRouteGeneration: Loop iteration. Profiles complete: {}, Consecutive Fails: {}, Should continue: {}",
@@ -154,7 +150,7 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
                 }
             }
 
-            finalizeProgress(pb, maxAttempts, consecutiveFailedAttempts.get());
+            finalizeProgress(pb, consecutiveFailedAttempts.get());
             LOGGER.debug("executeRouteGeneration: Finalized progress.");
         }
     }
@@ -194,11 +190,11 @@ public class CoordinateGeneratorRoute extends AbstractCoordinateGenerator {
         pb.setExtraMessage(routeRepository.getProgressMessage());
     }
 
-    private void finalizeProgress(ProgressBar pb, int maxAttempts, int attempts) {
+    private void finalizeProgress(ProgressBar pb, int attempts) {
         pb.stepTo(routeRepository.getTotalRouteCount());
-        if (attempts >= maxAttempts) {
+        if (attempts >= this.maxAttempts) {
             LOGGER.warn("Stopped route generation after {} attempts. Routes per profile: {}",
-                    maxAttempts, routeRepository.getProgressMessage());
+                    this.maxAttempts, routeRepository.getProgressMessage());
         }
     }
 
