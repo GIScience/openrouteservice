@@ -71,7 +71,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
             try {
                 return httpClient.execute(request, this::processResponse);
             } catch (IOException e) {
-                LOGGER.error("Error executing request: {}", e.getMessage());
+                LOGGER.debug("Error executing request: {}", e.getMessage());
                 return null;
             }
         };
