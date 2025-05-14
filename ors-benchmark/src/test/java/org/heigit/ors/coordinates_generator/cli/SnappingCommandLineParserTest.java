@@ -2,10 +2,13 @@ package org.heigit.ors.coordinates_generator.cli;
 
 import org.heigit.ors.benchmark.exceptions.CommandLineParsingException;
 import org.heigit.ors.coordinates_generator.generators.CoordinateGeneratorSnapping;
+import org.heigit.ors.coordinates_generator.service.CoordinateSnapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,8 +20,8 @@ class SnappingCommandLineParserTest {
             "-n", "100",
                 "-e", "8.6,49.3,8.7,49.4",
                     "-p", "driving-car,cycling-regular",
-            "-r", "350",
-            "-u", "http://localhost:8080/ors"
+                "-sr", "350",
+                "-u", "http://localhost:8080/ors"
         };
 
         SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
@@ -199,5 +202,56 @@ class SnappingCommandLineParserTest {
         // passed to generate()
         // We're verifying that the CLI parser correctly reads the value and the
         // generator is created successfully
+    }
+
+    @Test
+    void testSnapRadius() {
+        String[] args = {
+                "-n", "100",
+                "-e", "8.6 49.3 8.7 49.4",
+                "-p", "driving-car",
+                "-sr", "500"
+        };
+
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
+        CoordinateGeneratorSnapping generator = cli.createGenerator();
+        assertNotNull(generator);
+
+        // Test snapRadius using reflection to verify it was correctly passed to the
+        // coordinate snapper
+        assertDoesNotThrow(() -> {
+            Field coordinateSnapperField = CoordinateGeneratorSnapping.class.getDeclaredField("coordinateSnapper");
+            coordinateSnapperField.setAccessible(true);
+            CoordinateSnapper snapper = (CoordinateSnapper) coordinateSnapperField.get(generator);
+
+            Field snapRadiusField = CoordinateSnapper.class.getDeclaredField("snapRadius");
+            snapRadiusField.setAccessible(true);
+            assertEquals(500.0, snapRadiusField.getDouble(snapper), 0.001, "Snap radius should be set correctly");
+        });
+    }
+
+    @Test
+    void testDefaultSnapRadius() {
+        String[] args = {
+                "-n", "100",
+                "-e", "8.6 49.3 8.7 49.4",
+                "-p", "driving-car"
+                // No -sr parameter, should use default value
+        };
+
+        SnappingCommandLineParser cli = new SnappingCommandLineParser(args);
+        CoordinateGeneratorSnapping generator = cli.createGenerator();
+        assertNotNull(generator);
+
+        // Test snapRadius using reflection to verify the default value was used
+        assertDoesNotThrow(() -> {
+            Field coordinateSnapperField = CoordinateGeneratorSnapping.class.getDeclaredField("coordinateSnapper");
+            coordinateSnapperField.setAccessible(true);
+            CoordinateSnapper snapper = (CoordinateSnapper) coordinateSnapperField.get(generator);
+
+            Field snapRadiusField = CoordinateSnapper.class.getDeclaredField("snapRadius");
+            snapRadiusField.setAccessible(true);
+            assertEquals(350.0, snapRadiusField.getDouble(snapper), 0.001, "Default snap radius should be 350");
+        });
     }
 }
