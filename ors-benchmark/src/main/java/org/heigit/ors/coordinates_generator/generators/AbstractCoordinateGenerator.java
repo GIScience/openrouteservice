@@ -105,19 +105,16 @@ public abstract class AbstractCoordinateGenerator {
      * Processes an HTTP response
      */
     protected String processResponse(ClassicHttpResponse response) throws IOException {
+        LOGGER.debug("Received response: {}", new StatusLine(response));
         int status = response.getCode();
         if (status >= HttpStatus.SC_REDIRECTION) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Received error response: {}", new StatusLine(response));
-            }
+            LOGGER.debug("Received error response: {}", new StatusLine(response));
             return null;
         }
 
         HttpEntity entity = response.getEntity();
         if (entity == null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Received empty response");
-            }
+            LOGGER.debug("Received empty response");
             return null;
         }
 
