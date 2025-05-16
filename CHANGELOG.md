@@ -40,6 +40,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- avoid routing on roads with access reserved to customers ([#2060](https://github.com/GIScience/openrouteservice/pull/2060))
 
 ### Security
 
