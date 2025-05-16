@@ -31,15 +31,19 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
     public static double VEHICLE_DESTINATION_FACTOR = 10;
     public static double DEFAULT_PRIVATE_FACTOR = 1.2;
     public static double VEHICLE_PRIVATE_FACTOR = 10;
+    public static double DEFAULT_CUSTOMERS_FACTOR = 1.2;
+    public static double VEHICLE_CUSTOMERS_FACTOR = 1.5;
 
     static double MIN_DESTINATION_FACTOR = 1;
     static double MAX_DESTINATION_FACTOR = 10;
     static double MIN_PRIVATE_FACTOR = 1;
     static double MAX_PRIVATE_FACTOR = 10;
+    static double MIN_CUSTOMERS_FACTOR = 1;
+    static double MAX_CUSTOMERS_FACTOR = 10;
 
     private final EnumEncodedValue<RoadAccess> roadAccessEnc;
     // this factor puts a penalty on roads with a "destination"-only or private access, see GH#733 and GH#1936
-    private final double destinationPenalty, privatePenalty;
+    private final double destinationPenalty, privatePenalty, customersPenalty;
 
     public LimitedAccessWeighting(Weighting superWeighting, PMap map) {
         super(superWeighting);
@@ -52,7 +56,9 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
         destinationPenalty = checkBounds("road_access_destination_factor", map.getDouble("road_access_destination_factor", defaultDestinationFactor), MIN_DESTINATION_FACTOR, MAX_DESTINATION_FACTOR);
         double defaultPrivateFactor = encoder.getTransportationMode().isMotorVehicle() ? VEHICLE_PRIVATE_FACTOR : DEFAULT_PRIVATE_FACTOR;
         privatePenalty = checkBounds("road_access_private_factor", map.getDouble("road_access_private_factor", defaultPrivateFactor), MIN_PRIVATE_FACTOR, MAX_PRIVATE_FACTOR);
-        roadAccessEnc = destinationPenalty > 1 || privatePenalty > 1 ? encoder.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class) : null;
+        double defaultCustomersFactor = encoder.getTransportationMode().isMotorVehicle() ? VEHICLE_CUSTOMERS_FACTOR : DEFAULT_CUSTOMERS_FACTOR;
+        customersPenalty = checkBounds("road_access_customers_factor", map.getDouble("road_access_customers_factor", defaultCustomersFactor), MIN_CUSTOMERS_FACTOR, MAX_CUSTOMERS_FACTOR);
+        roadAccessEnc = destinationPenalty > 1 || privatePenalty > 1 || customersPenalty > 1 ? encoder.getEnumEncodedValue(RoadAccess.KEY, RoadAccess.class) : null;
     }
 
     static double checkBounds(String key, double val, double from, double to) {
@@ -87,6 +93,8 @@ public class LimitedAccessWeighting extends AbstractAdjustedWeighting {
                 weight *= destinationPenalty;
             else if (access == RoadAccess.PRIVATE)
                 weight *= privatePenalty;
+            else if (access == RoadAccess.CUSTOMERS)
+                weight *= customersPenalty;
         }
         return weight;
     }
