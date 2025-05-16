@@ -4579,6 +4579,45 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    void testCustomersAccess() {
+        JSONArray coord1 = new JSONArray().put(8.682474).put(49.433011);
+        JSONArray coord2 = new JSONArray().put(8.682742).put(49.433153);
+        JSONArray coordinates = new JSONArray().put(coord1).put(coord2);
+
+        JSONObject body = new JSONObject()
+                .put("coordinates", coordinates)
+                .put("preference", "shortest");
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(35.6f))
+                .statusCode(200);
+
+        coord2 = new JSONArray().put(8.682718).put(49.433239);
+        coordinates = new JSONArray().put(coord1).put(coord2);
+        body.put("coordinates", coordinates);
+
+        given()
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(60.3f))
+                .statusCode(200);
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");
