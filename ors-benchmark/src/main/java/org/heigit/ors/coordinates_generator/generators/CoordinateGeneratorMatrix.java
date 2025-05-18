@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator implements AutoCloseable {
+public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     public record MatrixDimensions(int numRows, int numCols) {
     }
 
@@ -350,7 +350,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator imple
          * The method checks for:
          * <ul>
          * <li>Maximum allowed distance between row and column coordinates</li>
-         * <li>Routeability in in forward direction between row elements, and column
+         * <li>Routeability in forward direction between row elements, and column
          * elements</li>
          * <li>Connectors between row and column to create circular routeability</li>
          * <li>Computes an asymmetric matrix if all conditions are satisfied</li>
@@ -554,16 +554,5 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator imple
 
     public int getNumMatrices() {
         return numMatrices;
-    }
-
-    @Override
-    public void close() {
-        try {
-            if (httpClient != null) {
-                httpClient.close();
-            }
-        } catch (IOException e) {
-            LOGGER.error("Error closing HTTP client", e);
-        }
     }
 }
