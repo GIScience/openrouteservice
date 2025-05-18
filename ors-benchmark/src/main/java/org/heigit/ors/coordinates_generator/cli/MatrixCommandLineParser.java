@@ -22,6 +22,7 @@ public class MatrixCommandLineParser extends CommandLineParser {
     private static final String OPT_OUTPUT = "o";
     private static final String OPT_THREADS = "t";
     private static final String OPT_BASE_URL = "u";
+    private static final String NUMBER = "NUMBER";
 
     public MatrixCommandLineParser(String[] args) {
         super(args);
@@ -37,7 +38,7 @@ public class MatrixCommandLineParser extends CommandLineParser {
         options.addOption(Option.builder(OPT_NUM_MATRICES)
                 .longOpt("num")
                 .hasArg()
-                .argName("NUMBER")
+                .argName(NUMBER)
                 .desc("Number of matrices to generate (default: 100)")
                 .build());
 
@@ -67,14 +68,14 @@ public class MatrixCommandLineParser extends CommandLineParser {
         options.addOption(Option.builder(OPT_MATRIX_ROWS)
                 .longOpt("rows")
                 .hasArg()
-                .argName("NUMBER")
+                .argName(NUMBER)
                 .desc("Number of rows in the matrix (default: 2)")
                 .build());
 
         options.addOption(Option.builder(OPT_MATRIX_COLS)
                 .longOpt("cols")
                 .hasArg()
-                .argName("NUMBER")
+                .argName(NUMBER)
                 .desc("Number of columns in the matrix (default: 2)")
                 .build());
 
@@ -88,7 +89,7 @@ public class MatrixCommandLineParser extends CommandLineParser {
         options.addOption(Option.builder(OPT_THREADS)
                 .longOpt("threads")
                 .hasArg()
-                .argName("NUMBER")
+                .argName(NUMBER)
                 .desc("Number of threads for coordinate generation (default: available processors)")
                 .build());
 
