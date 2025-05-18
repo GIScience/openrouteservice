@@ -16,7 +16,7 @@
     5. Double check issue links are valid
     6. Add [unreleased] section with all subsections as above
        b. Update version numbers in POM using
-       `mvn versions:set -DnewVersion=X.Y.Z`
+       `./mvnw versions:set -DnewVersion=X.Y.Z`
        or setting it manually in the main and all child POMs
        c. Commit changes as chore or build, and push
        d. Open and merge PR as
@@ -56,5 +56,5 @@
     - git push origin tag latest
     - git push origin tag vX
 7. Update version in POMs to X.Y.Z-SNAPSHOT using
-   mvn versions:set -DnewVersion=X.Y.Z-SNAPSHOT
+   ./mvnw versions:set -DnewVersion=X.Y.Z-SNAPSHOT
 8. Check whether outreach, announcement, … is necessary and do so.

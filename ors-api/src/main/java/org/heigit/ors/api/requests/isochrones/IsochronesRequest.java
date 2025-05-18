@@ -135,7 +135,15 @@ public class IsochronesRequest extends APIRequest {
     @JsonIgnore
     private boolean hasIntersections = false;
 
-    @Schema(name = PARAM_ATTRIBUTES, description = "List of isochrones attributes",
+    @Schema(name = PARAM_ATTRIBUTES, description = """
+            List of isochrones attributes
+            - `area` - area of the isochrone polygon
+            - `reachfactor` - reachability score between 0 and 1
+            This factor is calculated as the ratio between the area of a circle with a radius based on the average speed and the area of the isochrone polygon.
+            - `total_pop` - total population within the polygon
+            The data used for this is the [Global Human Settlement Layer (GHSL)](https://ghsl.jrc.ec.europa.eu/ghs_pop2023.php) from the European Commission. \
+            Note that while the dataset was published in 2023, the most recent data contained is from 2020. This is used by the openrouteservice at a resolution of 100m. \
+            """,
             example = "[\"area\"]")
     @JsonProperty(PARAM_ATTRIBUTES)
     private IsochronesRequestEnums.Attributes[] attributes;

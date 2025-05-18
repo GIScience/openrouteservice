@@ -18,3 +18,5 @@
 !ors-api/src/test/files/elevation/srtm_38_03.gh
 !ors-api/src/test/files/vrn_gtfs_cut.zip
 !ors-api/src/main/resources/ors-config-sample.json
+!mvnw
+!.mvn/wrapper/maven-wrapper.properties
