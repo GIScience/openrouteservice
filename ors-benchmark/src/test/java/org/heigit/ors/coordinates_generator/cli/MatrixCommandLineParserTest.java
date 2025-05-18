@@ -273,7 +273,8 @@ class MatrixCommandLineParserTest {
         @ParameterizedTest
         @CsvSource({
                         // Format: extent string, expected values
-                        "'8.6, 49.3, 8.7, 49.4', 8.6, 49.3, 8.7, 49.4"
+                        "'8.6, 49.3, 8.7, 49.4', 8.6, 49.3, 8.7, 49.4",
+                        "'8.6,49.3,8.7,49.4', 8.6, 49.3, 8.7, 49.4",
         })
         void testExtentParsing(String extentInput, double minLon, double minLat, double maxLon, double maxLat) {
                 // Instead of using reflection to test the private parseExtent method,
@@ -331,33 +332,5 @@ class MatrixCommandLineParserTest {
                 assertTrue(exception instanceof IllegalArgumentException ||
                                 (exception.getCause() != null
                                                 && exception.getCause() instanceof IllegalArgumentException));
-        }
-
-        @Test
-        void testFlexibleExtentCommandLine() {
-                String[] args = {
-                                "-n", "50",
-                                "-e", "8.6,49.3,8.7,49.4", // comma-separated extent
-                                "-p", "driving-car",
-                                "-m", "driving-car:5000"
-                };
-
-                MatrixCommandLineParser cli = new MatrixCommandLineParser(args);
-                CoordinateGeneratorMatrix generator = cli.createGenerator();
-                assertNotNull(generator);
-        }
-
-        @Test
-        void testSpaceExtentCommandLine() {
-                String[] args = {
-                                "-n", "50",
-                                "-e", "8.6, 49.3, 8.7, 49.4", // space-separated extent
-                                "-p", "driving-car",
-                                "-m", "driving-car:5000"
-                };
-
-                MatrixCommandLineParser cli = new MatrixCommandLineParser(args);
-                CoordinateGeneratorMatrix generator = cli.createGenerator();
-                assertNotNull(generator);
         }
 }

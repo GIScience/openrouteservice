@@ -243,19 +243,19 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator imple
      * meaning all (X/Y) pairs are reachable forwards and backwards.
      * Exemplary table below.
      *
-     * A B C D
+     *     A           B           C           D
      * +-----------+-----------+-----------+-----------+
-     * 1 | 1->A | 1->B | 1->C | 1->D |
-     * | A->1 | B->1 | C->1 | D->1 |
+     * 1 | 1->A      | 1->B      | 1->C      | 1->D      |
+     *   | A->1      | B->1      | C->1      | D->1      |
      * +-----------+-----------+-----------+-----------+
-     * 2 | 2->A | 2->B | 2->C | 2->D |
-     * | A->2 | B->2 | C->2 | D->2 |
+     * 2 | 2->A      | 2->B      | 2->C      | 2->D      |
+     *   | A->2      | B->2      | C->2      | D->2      |
      * +-----------+-----------+-----------+-----------+
-     * 3 | 3->A | 3->B | 3->C | 3->D |
-     * | A->3 | B->3 | C->3 | D->3 |
+     * 3 | 3->A      | 3->B      | 3->C      | 3->D      |
+     *   | A->3      | B->3      | C->3      | D->3      |
      * +-----------+-----------+-----------+-----------+
-     * 4 | 4->A | 4->B | 4->C | 4->D |
-     * | A->4 | B->4 | C->4 | D->4 |
+     * 4 | 4->A      | 4->B      | 4->C      | 4->D      |
+     *   | A->4      | B->4      | C->4      | D->4      |
      * +-----------+-----------+-----------+-----------+
      *
      * In a brute force approach, this would mean O(2 * X * Y) routing checks.
