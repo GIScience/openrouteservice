@@ -128,7 +128,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
                             List<CHProfile> chProfiles = new ArrayList<>();
                             String chWeightingsString = StringUtility.trimQuotes(chOpts.getWeightings());
                             for (String weighting : chWeightingsString.split(","))
-                                chProfiles.add(new CHProfile(ProfileTools.makeProfileName(vehicle, weighting, false)));
+                                chProfiles.add(new CHProfile(ProfileTools.makeProfileName(vehicle, weighting, hasTurnCosts)));
                             ghConfig.setCHProfiles(chProfiles);
                         }
                     }

@@ -925,7 +925,7 @@ public class RoutingRequest extends ServiceRequest {
 
         ORSGraphHopper gh = profile().getGraphhopper();
 
-        useCH = useCH && gh.isCHAvailable(profileNameCH);
+        useCH = useCH && gh.isCHAvailable(requestProfileName);
         useCore = useCore && !useCH && (gh.isCoreAvailable(requestProfileName) || gh.isCoreAvailable(profileNameNoTC));
         useALT = useALT && !useCH && !useCore && gh.isLMAvailable(requestProfileName);
 
@@ -934,8 +934,8 @@ public class RoutingRequest extends ServiceRequest {
         req.getHints().putObject(ProfileTools.KEY_LM_DISABLE, !useALT);
 
         if (useCH) {
-            req.setAlgorithm(Parameters.Algorithms.DIJKSTRA_BI);
-            req.setProfile(profileNameCH);
+            // either Dijkstra or AStar is selected downstream depending on whether node- or egde-based CH is being used
+            req.setAlgorithm("");
         }
         if (useCore && !gh.isCoreAvailable(requestProfileName) && gh.isCoreAvailable(profileNameNoTC))
             // fallback to a core profile without turn costs if one is available
