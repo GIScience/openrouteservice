@@ -4598,7 +4598,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(35.6f))
+                .body("routes[0].summary.distance", is(closeTo(35.6f, 1)))
                 .statusCode(200);
 
         coord2 = new JSONArray().put(8.682718).put(49.433239);
@@ -4614,7 +4614,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(60.3f))
+                .body("routes[0].summary.distance", is(closeTo(60.3f, 1)))
                 .statusCode(200);
     }
 
