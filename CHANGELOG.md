@@ -41,6 +41,8 @@ Releasing is documented in RELEASE.md
 
 ### Fixed
 - fix http pooling for matrix generation requests
+- bump deprecated CodeQL and failing Grype scan GitHub actions to their current versions
+
 ### Security
 
 
