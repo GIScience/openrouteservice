@@ -4590,6 +4590,7 @@ class ResultTest extends ServiceTest {
                 .put("preference", "shortest");
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
@@ -4598,7 +4599,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(35.6f, 1)))
+                .body("routes[0].summary.distance", is(closeTo(35.6, 1)))
                 .statusCode(200);
 
         coord2 = new JSONArray().put(8.682718).put(49.433239);
@@ -4606,6 +4607,7 @@ class ResultTest extends ServiceTest {
         body.put("coordinates", coordinates);
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
                 .body(body.toString())
@@ -4614,7 +4616,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(60.3f, 1)))
+                .body("routes[0].summary.distance", is(closeTo(60.3, 1)))
                 .statusCode(200);
     }
 
