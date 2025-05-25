@@ -241,34 +241,49 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
     /**
      * We want a generated matrix to be fully connected,
      * meaning all (X/Y) pairs are reachable forwards and backwards.
-     * Exemplary table below.
+     * Exemplary table below:
      *
-     *     A           B           C           D
-     * +-----------+-----------+-----------+-----------+
-     * 1 | 1->A      | 1->B      | 1->C      | 1->D      |
-     *   | A->1      | B->1      | C->1      | D->1      |
-     * +-----------+-----------+-----------+-----------+
-     * 2 | 2->A      | 2->B      | 2->C      | 2->D      |
-     *   | A->2      | B->2      | C->2      | D->2      |
-     * +-----------+-----------+-----------+-----------+
-     * 3 | 3->A      | 3->B      | 3->C      | 3->D      |
-     *   | A->3      | B->3      | C->3      | D->3      |
-     * +-----------+-----------+-----------+-----------+
-     * 4 | 4->A      | 4->B      | 4->C      | 4->D      |
-     *   | A->4      | B->4      | C->4      | D->4      |
-     * +-----------+-----------+-----------+-----------+
+     * <table border="1" cellpadding="4">
+     *   <tr>
+     *     <th></th><th>A</th><th>B</th><th>C</th><th>D</th>
+     *   </tr>
+     *   <tr>
+     *     <th>1</th>
+     *     <td>1-&gt;A<br/>A-&gt;1</td>
+     *     <td>1-&gt;B<br/>B-&gt;1</td>
+     *     <td>1-&gt;C<br/>C-&gt;1</td>
+     *     <td>1-&gt;D<br/>D-&gt;1</td>
+     *   </tr>
+     *   <tr>
+     *     <th>2</th>
+     *     <td>2-&gt;A<br/>A-&gt;2</td>
+     *     <td>2-&gt;B<br/>B-&gt;2</td>
+     *     <td>2-&gt;C<br/>C-&gt;2</td>
+     *     <td>2-&gt;D<br/>D-&gt;2</td>
+     *   </tr>
+     *   <tr>
+     *     <th>3</th>
+     *     <td>3-&gt;A<br/>A-&gt;3</td>
+     *     <td>3-&gt;B<br/>B-&gt;3</td>
+     *     <td>3-&gt;C<br/>C-&gt;3</td>
+     *     <td>3-&gt;D<br/>D-&gt;3</td>
+     *   </tr>
+     *   <tr>
+     *     <th>4</th>
+     *     <td>4-&gt;A<br/>A-&gt;4</td>
+     *     <td>4-&gt;B<br/>B-&gt;4</td>
+     *     <td>4-&gt;C<br/>C-&gt;4</td>
+     *     <td>4-&gt;D<br/>D-&gt;4</td>
+     *   </tr>
+     * </table>
      *
      * In a brute force approach, this would mean O(2 * X * Y) routing checks.
-     * We use a chaining approach instead, which can reduce complexity to O(2 * (X +
-     * Y) + 2):
-     * If all column points are reachable (A->B->C->D)
-     * and all row points are reachable in reverse (4->3->2->1)
-     * and we find a connection (1->A)
-     * then we ensure all combinations have at least one connection by transitivity.
-     * This guarantees full bidirectional connectivity across the matrix with linear
-     * effort,
-     * leveraging structure over exhaustive search.
-     * For the backwards case, we just connect last column to last row item.
+     * We use a chaining approach instead, which can reduce complexity to O(X + Y):
+     * If all column points are reachable (A-&gt;B-&gt;C-&gt;D)
+     * and all row points are reachable in reverse (4-&gt;3-&gt;2-&gt;1)
+     * and we find a connection (1-&gt;A),
+     * then by transitivity every combination is covered.
+     * For the backwards case, we just connect the last column to the last row item.
      */
     private class MatrixGenerationTask implements Callable<Boolean> {
         private final String profile;
