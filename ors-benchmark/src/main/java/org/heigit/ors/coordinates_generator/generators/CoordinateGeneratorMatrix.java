@@ -389,7 +389,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
                 return false;
             if (!isRouteable(row.get(0), col.get(0)))
                 return false;
-            if (!isRouteable(row.get(numRows - 1), col.get(numCols - 1)))
+            if (!isRouteable(col.get(numCols - 1), row.get(numRows - 1)))
                 return false;
 
             return computeAndProcessMatrix(snappedCoordinates);
