@@ -319,7 +319,7 @@ public class RouteSearchParameters {
                 || hasAvoidCountries()
                 || getConsiderTurnRestrictions()
                 || hasNonDefaultVehicleType()
-                || isProfileTypeDriving() && hasParameters(VehicleParameters.class)
+                || isProfileTypeDriving() && hasParameters(VehicleParameters.class) && ((VehicleParameters)profileParams).hasAttributes()
                 || hasMaximumSpeed()
                 || hasFlexibleMode();
     }
