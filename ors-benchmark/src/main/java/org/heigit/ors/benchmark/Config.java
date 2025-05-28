@@ -1,6 +1,7 @@
 package org.heigit.ors.benchmark;
 
 import org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes;
+import org.heigit.ors.benchmark.BenchmarkEnums.MatrixModes;
 import org.heigit.ors.benchmark.BenchmarkEnums.TestUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.heigit.ors.benchmark.BenchmarkEnums.DirectionsModes.*;
+import static org.heigit.ors.benchmark.BenchmarkEnums.MatrixModes.*;
 
 public class Config {
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
@@ -28,7 +30,8 @@ public class Config {
     private final boolean parallelExecution;
     private final TestUnit testUnit;
     private final List<String> sourceFiles;
-    private final List<String> modes;
+    private final List<String> directionsModes;
+    private final List<String> matrixModes;
     private final List<Integer> ranges;
 
     public Config() {
@@ -48,8 +51,8 @@ public class Config {
         this.testUnit = TestUnit.fromString(getSystemProperty("test_unit", "distance"));
         this.sourceFiles = parseCommaSeparatedStringToStrings(getSystemProperty("source_files", ""));
         this.ranges = parseCommaSeparatedStringToInts(this.range);
-        this.modes = parseCommaSeparatedStringToStrings(getSystemProperty("modes", ""));
-    }
+        this.directionsModes = parseCommaSeparatedStringToStrings(getSystemProperty("modes", ""));
+        this.matrixModes = parseCommaSeparatedStringToStrings(getSystemProperty("matrix_modes", ""));}
 
     private String getSystemProperty(String key, String defaultValue) {
         String value = System.getProperty(key) != null ? System.getProperty(key) : defaultValue;
@@ -145,9 +148,16 @@ public class Config {
     }
 
     public List<DirectionsModes> getDirectionsModes() {
-        return modes.isEmpty() ? List.of(ALGO_CH, ALGO_CORE, ALGO_LM_ASTAR)
-                : modes.stream()
+        return directionsModes.isEmpty() ? List.of(ALGO_CH, ALGO_CORE, ALGO_LM_ASTAR)
+                : directionsModes.stream()
                         .map(DirectionsModes::fromString)
                         .toList();
+    }
+
+    public List<MatrixModes> getMatrixModes() {
+        return matrixModes.isEmpty() ? List.of(ALGO_DIJKSTRA_MATRIX, ALGO_CORE_MATRIX, ALGO_RPHAST_MATRIX)
+                : directionsModes.stream()
+                .map(MatrixModes::fromString)
+                .toList();
     }
 }
