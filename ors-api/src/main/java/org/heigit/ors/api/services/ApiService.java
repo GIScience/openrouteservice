@@ -223,12 +223,9 @@ public class ApiService {
         }
 
         if (options.getProfileParams().hasRestrictions()) {
-
             RequestProfileParamsRestrictions restrictions = options.getProfileParams().getRestrictions();
-            APIEnums.VehicleType vehicleType = options.getVehicleType();
-
             validateRestrictionsForProfile(restrictions, profileType);
-            params = convertSpecificProfileParameters(profileType, restrictions, vehicleType);
+            params = convertSpecificProfileParameters(profileType, restrictions);
         }
 
         if (options.getProfileParams().hasWeightings()) {
@@ -247,28 +244,26 @@ public class ApiService {
         return params;
     }
 
-    protected ProfileParameters convertSpecificProfileParameters(int profileType, RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
+    protected ProfileParameters convertSpecificProfileParameters(int profileType, RequestProfileParamsRestrictions restrictions) {
         ProfileParameters params = new ProfileParameters();
         if (RoutingProfileType.isHeavyVehicle(profileType))
-            params = convertHeavyVehicleParameters(restrictions, vehicleType);
+            params = convertHeavyVehicleParameters(restrictions);
         if (RoutingProfileType.isWheelchair(profileType))
             params = convertWheelchairParamRestrictions(restrictions);
         return params;
     }
 
-    private VehicleParameters convertHeavyVehicleParameters(RequestProfileParamsRestrictions restrictions, APIEnums.VehicleType vehicleType) {
+    private VehicleParameters convertHeavyVehicleParameters(RequestProfileParamsRestrictions restrictions) {
 
         VehicleParameters params = new VehicleParameters();
 
-        if (vehicleType != null && vehicleType != APIEnums.VehicleType.UNKNOWN) {
-            setLengthParam(restrictions, params);
-            setWidthParam(restrictions, params);
-            setHeightParam(restrictions, params);
-            setWeightParam(restrictions, params);
-            setAxleLoadParam(restrictions, params);
+        setLengthParam(restrictions, params);
+        setWidthParam(restrictions, params);
+        setHeightParam(restrictions, params);
+        setWeightParam(restrictions, params);
+        setAxleLoadParam(restrictions, params);
 
-            setLoadCharacteristicsParam(restrictions, params);
-        }
+        setLoadCharacteristicsParam(restrictions, params);
 
         return params;
     }
