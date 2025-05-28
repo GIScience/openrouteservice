@@ -34,6 +34,7 @@ Releasing is documented in RELEASE.md
 - include `graph_date` and `osm_date` in the GPX response ([#2055](https://github.com/GIScience/openrouteservice/issues/2055))
 
 ### Changed
+- refactor: core node ID map using DataAccess ([#2074](https://github.com/GIScience/openrouteservice/pull/2074))
 
 ### Deprecated
 

@@ -22,8 +22,6 @@ import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilterSequence;
 
-import java.util.Map;
-
 /**
  * This class does the preprocessing for the ALT algorithm (A* , landmark, triangle inequality) in the core.
  * <p>
@@ -37,11 +35,9 @@ import java.util.Map;
 public class PrepareCoreLandmarks extends PrepareLandmarks {
     private final LMEdgeFilterSequence landmarksFilter;
 
-    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, CoreLMConfig lmConfig, int landmarks, Map<Integer, Integer> coreNodeIdMap) {
+    public PrepareCoreLandmarks(Directory dir, GraphHopperStorage graph, CoreLMConfig lmConfig, int landmarks) {
         super(dir, graph, lmConfig, landmarks);
         this.landmarksFilter = lmConfig.getEdgeFilter();
-        CoreLandmarkStorage coreLandmarkStorage = (CoreLandmarkStorage) getLandmarkStorage();
-        coreLandmarkStorage.setCoreNodeIdMap(coreNodeIdMap);
     }
 
     @Override
