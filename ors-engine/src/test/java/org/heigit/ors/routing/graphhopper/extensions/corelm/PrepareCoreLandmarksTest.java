@@ -42,12 +42,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 import static com.graphhopper.util.GHUtility.updateDistancesFor;
 import static com.graphhopper.util.Parameters.Algorithms.ASTAR;
 import static com.graphhopper.util.Parameters.Algorithms.ASTAR_BI;
-import static org.heigit.ors.routing.graphhopper.extensions.core.CoreLMPreparationHandler.createCoreNodeIdMap;
 import static org.heigit.ors.routing.graphhopper.extensions.core.PrepareCoreTest.contractGraph;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -107,7 +109,6 @@ class PrepareCoreLandmarksTest
         }
 
         RoutingCHGraph core = contractGraph(graph, chConfig, new AllCoreEdgeFilter());
-        HashMap<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
         Directory dir = new RAMDirectory();
         LocationIndexTree index = new LocationIndexTree(graph, dir);
         index.prepareIndex();
@@ -116,7 +117,6 @@ class PrepareCoreLandmarksTest
         Weighting weighting = new FastestWeighting(encoder);
         CoreLMConfig coreLMConfig = new CoreLMConfig("car", weighting).setEdgeFilter(new LMEdgeFilterSequence());
         CoreLandmarkStorage store = new CoreLandmarkStorage(dir, graph, core, coreLMConfig, lm);
-        store.setCoreNodeIdMap(coreNodeIdMap);
         store.setMinimumNodes(2);
         store.createLandmarks();
 
@@ -152,7 +152,7 @@ class PrepareCoreLandmarksTest
         // TODO should better select 0 and 224?
         assertEquals(Arrays.asList(224, 70), list);
 
-        PrepareLandmarks prepare = new PrepareCoreLandmarks(new RAMDirectory(), graph, coreLMConfig, 4, coreNodeIdMap);
+        PrepareLandmarks prepare = new PrepareCoreLandmarks(new RAMDirectory(), graph, coreLMConfig, 4);
         prepare.setMinimumNodes(2);
         prepare.doWork();
 
@@ -205,12 +205,11 @@ class PrepareCoreLandmarksTest
         CoreTestEdgeFilter restrictedEdges = new CoreTestEdgeFilter();
         restrictedEdges.add(0);
         restrictedEdges.add(1);
-        RoutingCHGraph core = contractGraph(graph, chConfig, restrictedEdges);
-        Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
+        contractGraph(graph, chConfig, restrictedEdges);
 
         Directory dir = new RAMDirectory(fileStr, true).create();
         CoreLMConfig coreLMConfig = new CoreLMConfig("car", weighting).setEdgeFilter(new LMEdgeFilterSequence());
-        PrepareCoreLandmarks plm = new PrepareCoreLandmarks(dir, graph, coreLMConfig, 2, coreNodeIdMap);
+        PrepareCoreLandmarks plm = new PrepareCoreLandmarks(dir, graph, coreLMConfig, 2);
         plm.setMinimumNodes(2);
         plm.doWork();
 
@@ -222,7 +221,7 @@ class PrepareCoreLandmarksTest
         assertEquals(4800, Math.round(plm.getLandmarkStorage().getFromWeight(0, 1) * expectedFactor));
 
         dir = new RAMDirectory(fileStr, true);
-        plm = new PrepareCoreLandmarks(dir, graph, coreLMConfig, 2, coreNodeIdMap);
+        plm = new PrepareCoreLandmarks(dir, graph, coreLMConfig, 2);
         assertTrue(plm.loadExisting());
         assertEquals(expectedFactor, plm.getLandmarkStorage().getFactor(), 1e-6);
         assertEquals(Arrays.toString(new int[]{

@@ -28,7 +28,6 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLand
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class implements the A*, landmark and triangulation (ALT) decorator for Core.
@@ -73,10 +72,6 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
 
             String lmConfigName = coreLMConfig.getSuperName();
 
-            RoutingCHGraph core = ((ORSGraphHopperStorage) ghStorage).getCoreGraph(lmConfigName);
-            Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
-            logger.info("Created core node ID map for " + coreLMConfig.getName() + " of size " + coreNodeIdMap.size());
-
             Double maximumWeight = getMaximumWeights().get(lmConfigName);
             if (maximumWeight == null)
                 throw new IllegalStateException("""
@@ -85,7 +80,7 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
                         """ + lmConfigName + " in " + getMaximumWeights());
 
             PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
-                    coreLMConfig, getLandmarks(), coreNodeIdMap).
+                    coreLMConfig, getLandmarks()).
                     setLandmarkSuggestions(lmSuggestions).
                     setMaximumWeight(maximumWeight).
                     setLogDetails(getLogDetails());
