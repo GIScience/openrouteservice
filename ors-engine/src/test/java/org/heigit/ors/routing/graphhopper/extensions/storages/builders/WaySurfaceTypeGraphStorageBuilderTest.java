@@ -25,7 +25,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
     void TestProcessSeparateWay() {
         ReaderWay way = constructWay("");
         builder.processWay(way);
-        var waySurfaceDescription = builder.getWaySurfaceDescription();
+        var waySurfaceDescription = builder.getStoredValue(way);
         assertEquals(WayType.STREET, waySurfaceDescription.getWayType());
         assertEquals(STREET_SURFACE, waySurfaceDescription.getSurfaceType());
     }
@@ -36,12 +36,12 @@ class WaySurfaceTypeGraphStorageBuilderTest {
         ReaderWay way = constructWay(side);
 
         builder.processWay(way);
-        var waySurfaceDescription = builder.getWaySurfaceDescription();
+        var waySurfaceDescription = builder.getStoredValue(way);
         assertEquals(STREET_SURFACE, waySurfaceDescription.getSurfaceType());
 
         builder.setUseSidewalks(true);
         builder.processWay(way);
-        waySurfaceDescription = builder.getWaySurfaceDescription();
+        waySurfaceDescription = builder.getStoredValue(way);
         assertEquals(SIDEWALK_SURFACE, waySurfaceDescription.getSurfaceType());
     }
 
@@ -53,6 +53,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
         if (!side.isEmpty()) {
             way.setTag("sidewalk", side);
             way.setTag("sidewalk:" + side + ":surface", "paving_stones");
+            way.setTag("ors-sidewalk-side", side.equals("left") ? side : "right");
         }
 
         return way;

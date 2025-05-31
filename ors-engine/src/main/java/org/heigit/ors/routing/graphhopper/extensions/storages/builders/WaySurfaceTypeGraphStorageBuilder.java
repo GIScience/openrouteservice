@@ -25,19 +25,21 @@ import org.heigit.ors.routing.graphhopper.extensions.WayType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public static final String TAG_HIGHWAY = "highway";
     public static final String TAG_SURFACE = "surface";
     public static final String TAG_ROUTE = "route";
+    public static final String SW_VAL_RIGHT = "right";
+    public static final String SW_VAL_LEFT = "left";
+
     private WaySurfaceTypeGraphStorage storage;
     protected final HashSet<String> ferries;
 
-    @Getter
     private final WaySurfaceDescription waySurfaceDescription = new WaySurfaceDescription();
+    private SurfaceType sidewalkLeftSurface = SurfaceType.UNKNOWN;
+    private SurfaceType sidewalkRightSurface = SurfaceType.UNKNOWN;
 
     @Getter
     @Setter
@@ -63,6 +65,8 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 
     public void processWay(ReaderWay way) {
         waySurfaceDescription.reset();
+        sidewalkLeftSurface = SurfaceType.UNKNOWN;
+        sidewalkRightSurface = SurfaceType.UNKNOWN;
 
         int wayType;
         if (way.hasTag(TAG_ROUTE, ferries)) {
@@ -74,25 +78,52 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
         }
         waySurfaceDescription.setWayType(wayType);
 
-        SurfaceType surfaceType = way.hasTag(TAG_SURFACE) ? SurfaceType.getFromString(way.getTag(TAG_SURFACE)) : SurfaceType.UNKNOWN;
+        SurfaceType waySurface = way.hasTag(TAG_SURFACE) ? SurfaceType.getFromString(way.getTag(TAG_SURFACE)) : SurfaceType.UNKNOWN;
+        waySurfaceDescription.setSurfaceType(waySurface);
 
-        //TODO: replace with side-aware processing as in WheelchairGraphStorageBuilder
-        if (useSidewalks && way.hasTag("sidewalk")) {
-            List<String> surfaceTags = new ArrayList<>();
-            surfaceTags.add("sidewalk:surface");
-            surfaceTags.add("sidewalk:both:surface");
-            surfaceTags.add("sidewalk:left:surface");
-            surfaceTags.add("sidewalk:right:surface");
-            for (String tag : surfaceTags) {
-                surfaceType = way.hasTag(tag) ? SurfaceType.getFromString(way.getTag(tag)) : surfaceType;
+        if (useSidewalks) {
+            // obtain default surface type for sidewalks
+            SurfaceType sidewalkSurface = way.hasTag("sidewalk:surface") ?
+                    SurfaceType.getFromString(way.getTag("sidewalk:surface")) : waySurface;
+            sidewalkSurface = way.hasTag("sidewalk:both:surface") ?
+                    SurfaceType.getFromString(way.getTag("sidewalk:both:surface")) : sidewalkSurface;
+
+            sidewalkLeftSurface = way.hasTag("sidewalk:left:surface") ?
+                    SurfaceType.getFromString(way.getTag("sidewalk:left:surface")) : sidewalkSurface;
+
+            sidewalkRightSurface = way.hasTag("sidewalk:right:surface") ?
+                    SurfaceType.getFromString(way.getTag("sidewalk:right:surface")) : sidewalkSurface;
+        }
+    }
+
+    /**
+     * Process an individual edge which has been derived from the way and then store it in the storage.
+     *
+     * @param way  The parent way feature
+     * @param edge The specific edge to be processed
+     */
+    @Override
+    public void processEdge(ReaderWay way, EdgeIteratorState edge) {
+        storage.setEdgeValue(edge.getEdge(), getStoredValue(way));
+    }
+
+    public WaySurfaceDescription getStoredValue(ReaderWay way) {
+        var value = new WaySurfaceDescription();
+
+        value.setWayType(waySurfaceDescription.getWayType());
+        value.setSurfaceType(waySurfaceDescription.getSurfaceType());
+
+        if (useSidewalks && way.hasTag("ors-sidewalk-side")) {
+            String side = way.getTag("ors-sidewalk-side");
+            if (side.equals(SW_VAL_LEFT)) {
+                value.setSurfaceType(sidewalkLeftSurface);
+            }
+            else if (side.equals(SW_VAL_RIGHT)) {
+                value.setSurfaceType(sidewalkRightSurface);
             }
         }
 
-        waySurfaceDescription.setSurfaceType(surfaceType);
-    }
-
-    public void processEdge(ReaderWay way, EdgeIteratorState edge) {
-        storage.setEdgeValue(edge.getEdge(), waySurfaceDescription);
+        return value;
     }
 
     @Override
