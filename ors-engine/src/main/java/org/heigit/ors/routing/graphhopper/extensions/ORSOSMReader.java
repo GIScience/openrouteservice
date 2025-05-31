@@ -73,7 +73,6 @@ public class ORSOSMReader extends OSMReader {
             }
 
             if (b instanceof WheelchairGraphStorageBuilder) {
-                filtersToApply.add(new WheelchairWayFilter());
                 this.processNodeTags = true;
                 this.detachSidewalksFromRoad = true;
                 this.processSimpleGeom = true;
@@ -97,6 +96,14 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("motorcar");
                 extraTagKeys.add("motorcycle");
             }
+
+            if (b instanceof WaySurfaceTypeGraphStorageBuilder bb) {
+                this.detachSidewalksFromRoad = bb.isUseSidewalks();
+            }
+        }
+
+        if (detachSidewalksFromRoad) {
+            filtersToApply.add(new WheelchairWayFilter());//TODO: have a specialized filter for sidewalk surface only
         }
     }
 
