@@ -21,21 +21,20 @@ import static org.mockito.Mockito.when;
 class MatrixAlgorithmLoadTestTest {
     private ObjectMapper objectMapper;
     private Session mockSession;
-    private Config mockConfig;
     private MatrixModes mockMode;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
         mockSession = mock(Session.class);
-        mockConfig = mock(Config.class);
         mockMode = mock(MatrixModes.class);
 
-        // Mock CSV data as it would appear in the session
+        // Mock CSV data as it would appear in the session after CSV feeder
+        // Each CSV column becomes a List<String> in the session
         when(mockSession.get("coordinates"))
-                .thenReturn("[[8.695556, 49.392701], [8.684623, 49.398284], [8.705916, 49.406309]]");
-        when(mockSession.get("sources")).thenReturn("[0, 1]");
-        when(mockSession.get("destinations")).thenReturn("[2]");
+                .thenReturn(Arrays.asList("[[8.695556, 49.392701], [8.684623, 49.398284], [8.705916, 49.406309]]"));
+        when(mockSession.get("sources")).thenReturn(Arrays.asList("[0, 1]"));
+        when(mockSession.get("destinations")).thenReturn(Arrays.asList("[2]"));
         when(mockMode.getRequestParams()).thenReturn(Map.of("preference", "recommended"));
     }
 
@@ -88,121 +87,93 @@ class MatrixAlgorithmLoadTestTest {
     }
 
     @Test
-    void parseCoordinatesFromString_ShouldParseValidCoordinates() {
+    void createRequestBody_ShouldThrowExceptionForMissingCoordinates() {
         // given
-        String coordinatesStr = "[[8.695556, 49.392701], [8.684623, 49.398284]]";
-
-        // when
-        List<List<Double>> result = MatrixAlgorithmLoadTest.parseCoordinatesFromString(coordinatesStr);
-
-        // then
-        assertEquals(2, result.size());
-        assertEquals(8.695556, result.get(0).get(0), 0.000001);
-        assertEquals(49.392701, result.get(0).get(1), 0.000001);
-        assertEquals(8.684623, result.get(1).get(0), 0.000001);
-        assertEquals(49.398284, result.get(1).get(1), 0.000001);
-    }
-
-    @Test
-    void parseCoordinatesFromString_ShouldHandleQuotedStrings() {
-        // given
-        String coordinatesStr = "\"[[8.695556, 49.392701], [8.684623, 49.398284]]\"";
-
-        // when
-        List<List<Double>> result = MatrixAlgorithmLoadTest.parseCoordinatesFromString(coordinatesStr);
-
-        // then
-        assertEquals(2, result.size());
-        assertEquals(8.695556, result.get(0).get(0), 0.000001);
-        assertEquals(49.392701, result.get(0).get(1), 0.000001);
-    }
-
-    @Test
-    void parseCoordinatesFromString_ShouldThrowExceptionForNullInput() {
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.parseCoordinatesFromString(null));
-    }
-
-    @Test
-    void parseCoordinatesFromString_ShouldThrowExceptionForEmptyInput() {
-        // when & then
-        assertThrows(RequestBodyCreationException.class, () -> MatrixAlgorithmLoadTest.parseCoordinatesFromString(""));
-    }
-
-    @Test
-    void parseCoordinatesFromString_ShouldThrowExceptionForInvalidCoordinatePair() {
-        // given
-        String invalidCoordinates = "[[8.695556], [8.684623, 49.398284]]";
+        when(mockSession.get("coordinates")).thenReturn(null);
 
         // when & then
         assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.parseCoordinatesFromString(invalidCoordinates));
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
     }
 
     @Test
-    void parseIntegerArrayFromString_ShouldParseValidArray() {
+    void createRequestBody_ShouldThrowExceptionForEmptyCoordinatesList() {
         // given
-        String arrayStr = "[0, 1, 2]";
-
-        // when
-        List<Integer> result = MatrixAlgorithmLoadTest.parseIntegerArrayFromString(arrayStr);
-
-        // then
-        assertEquals(3, result.size());
-        assertEquals(0, result.get(0));
-        assertEquals(1, result.get(1));
-        assertEquals(2, result.get(2));
-    }
-
-    @Test
-    void parseIntegerArrayFromString_ShouldHandleQuotedStrings() {
-        // given
-        String arrayStr = "\"[0, 1, 2]\"";
-
-        // when
-        List<Integer> result = MatrixAlgorithmLoadTest.parseIntegerArrayFromString(arrayStr);
-
-        // then
-        assertEquals(3, result.size());
-        assertEquals(0, result.get(0));
-        assertEquals(1, result.get(1));
-        assertEquals(2, result.get(2));
-    }
-
-    @Test
-    void parseIntegerArrayFromString_ShouldReturnEmptyListForEmptyArray() {
-        // given
-        String arrayStr = "[]";
-
-        // when
-        List<Integer> result = MatrixAlgorithmLoadTest.parseIntegerArrayFromString(arrayStr);
-
-        // then
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void parseIntegerArrayFromString_ShouldThrowExceptionForNullInput() {
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.parseIntegerArrayFromString(null));
-    }
-
-    @Test
-    void parseIntegerArrayFromString_ShouldThrowExceptionForEmptyInput() {
-        // when & then
-        assertThrows(RequestBodyCreationException.class, () -> MatrixAlgorithmLoadTest.parseIntegerArrayFromString(""));
-    }
-
-    @Test
-    void parseIntegerArrayFromString_ShouldThrowExceptionForInvalidInteger() {
-        // given
-        String invalidArray = "[0, invalid, 2]";
+        when(mockSession.get("coordinates")).thenReturn(Arrays.asList());
 
         // when & then
         assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.parseIntegerArrayFromString(invalidArray));
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
+    }
+
+    @Test
+    void createRequestBody_ShouldThrowExceptionForMissingSources() {
+        // given
+        when(mockSession.get("sources")).thenReturn(null);
+
+        // when & then
+        assertThrows(RequestBodyCreationException.class,
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
+    }
+
+    @Test
+    void createRequestBody_ShouldThrowExceptionForEmptySourcesList() {
+        // given
+        when(mockSession.get("sources")).thenReturn(Arrays.asList());
+
+        // when & then
+        assertThrows(RequestBodyCreationException.class,
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
+    }
+
+    @Test
+    void createRequestBody_ShouldThrowExceptionForMissingDestinations() {
+        // given
+        when(mockSession.get("destinations")).thenReturn(null);
+
+        // when & then
+        assertThrows(RequestBodyCreationException.class,
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
+    }
+
+    @Test
+    void createRequestBody_ShouldThrowExceptionForEmptyDestinationsList() {
+        // given
+        when(mockSession.get("destinations")).thenReturn(Arrays.asList());
+
+        // when & then
+        assertThrows(RequestBodyCreationException.class,
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
+    }
+
+    @Test
+    void createRequestBody_ShouldThrowExceptionForInvalidCoordinatesJson() {
+        // given
+        when(mockSession.get("coordinates")).thenReturn(Arrays.asList("invalid json"));
+
+        // when & then
+        assertThrows(RequestBodyCreationException.class,
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
+    }
+
+    @Test
+    void createRequestBody_ShouldThrowExceptionForInvalidSourcesJson() {
+        // given
+        when(mockSession.get("sources")).thenReturn(Arrays.asList("invalid json"));
+
+        // when & then
+        assertThrows(RequestBodyCreationException.class,
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
+    }
+
+    @Test
+    void createRequestBody_ShouldThrowExceptionForInvalidDestinationsJson() {
+        // given
+        when(mockSession.get("destinations")).thenReturn(Arrays.asList("invalid json"));
+
+        // when & then
+        assertThrows(RequestBodyCreationException.class,
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
     }
 
     @Test
@@ -224,8 +195,8 @@ class MatrixAlgorithmLoadTestTest {
     @Test
     void createRequestBody_ShouldHandleComplexSourcesAndDestinations() throws JsonProcessingException {
         // given
-        when(mockSession.get("sources")).thenReturn("[0, 1, 2, 3]");
-        when(mockSession.get("destinations")).thenReturn("[4, 5, 6, 7, 8]");
+        when(mockSession.get("sources")).thenReturn(Arrays.asList("[0, 1, 2, 3]"));
+        when(mockSession.get("destinations")).thenReturn(Arrays.asList("[4, 5, 6, 7, 8]"));
 
         // when
         String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
@@ -246,9 +217,9 @@ class MatrixAlgorithmLoadTestTest {
     @Test
     void createRequestBody_ShouldHandleSingleCoordinate() throws JsonProcessingException {
         // given
-        when(mockSession.get("coordinates")).thenReturn("[[8.695556, 49.392701]]");
-        when(mockSession.get("sources")).thenReturn("[0]");
-        when(mockSession.get("destinations")).thenReturn("[0]");
+        when(mockSession.get("coordinates")).thenReturn(Arrays.asList("[[8.695556, 49.392701]]"));
+        when(mockSession.get("sources")).thenReturn(Arrays.asList("[0]"));
+        when(mockSession.get("destinations")).thenReturn(Arrays.asList("[0]"));
 
         // when
         String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
@@ -262,18 +233,84 @@ class MatrixAlgorithmLoadTestTest {
     }
 
     @Test
-    void parseCoordinatesFromString_ShouldHandleLargeCoordinateArray() {
+    void createRequestBody_ShouldHandleLargeCoordinateArray() throws JsonProcessingException {
         // given
-        String coordinatesStr = "[[8.695556, 49.392701], [8.684623, 49.398284], [8.705916, 49.406309], [8.689981, 49.394522], [8.681502, 49.394791]]";
+        when(mockSession.get("coordinates")).thenReturn(Arrays.asList(
+                "[[8.695556, 49.392701], [8.684623, 49.398284], [8.705916, 49.406309], [8.689981, 49.394522], [8.681502, 49.394791]]"));
+        when(mockSession.get("sources")).thenReturn(Arrays.asList("[0, 1, 2]"));
+        when(mockSession.get("destinations")).thenReturn(Arrays.asList("[3, 4]"));
 
         // when
-        List<List<Double>> result = MatrixAlgorithmLoadTest.parseCoordinatesFromString(coordinatesStr);
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
+        JsonNode json = objectMapper.readTree(result);
 
         // then
-        assertEquals(5, result.size());
-        assertEquals(8.695556, result.get(0).get(0), 0.000001);
-        assertEquals(49.392701, result.get(0).get(1), 0.000001);
-        assertEquals(8.681502, result.get(4).get(0), 0.000001);
-        assertEquals(49.394791, result.get(4).get(1), 0.000001);
+        JsonNode locations = json.get("locations");
+        assertEquals(5, locations.size());
+        assertEquals(8.695556, locations.get(0).get(0).asDouble(), 0.000001);
+        assertEquals(49.392701, locations.get(0).get(1).asDouble(), 0.000001);
+        assertEquals(8.681502, locations.get(4).get(0).asDouble(), 0.000001);
+        assertEquals(49.394791, locations.get(4).get(1).asDouble(), 0.000001);
+    }
+
+    @Test
+    void createRequestBody_ShouldHandleEmptyArrays() throws JsonProcessingException {
+        // given
+        when(mockSession.get("coordinates")).thenReturn(Arrays.asList("[]"));
+        when(mockSession.get("sources")).thenReturn(Arrays.asList("[]"));
+        when(mockSession.get("destinations")).thenReturn(Arrays.asList("[]"));
+
+        // when
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
+        JsonNode json = objectMapper.readTree(result);
+
+        // then
+        JsonNode locations = json.get("locations");
+        JsonNode sources = json.get("sources");
+        JsonNode destinations = json.get("destinations");
+
+        assertEquals(0, locations.size());
+        assertEquals(0, sources.size());
+        assertEquals(0, destinations.size());
+    }
+
+    @Test
+    void createRequestBody_ShouldMergeMatrixModeParameters() throws JsonProcessingException {
+        // given
+        when(mockMode.getRequestParams()).thenReturn(Map.of(
+                "preference", "recommended",
+                "units", "m",
+                "metrics", Arrays.asList("distance", "duration")));
+
+        // when
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
+        JsonNode json = objectMapper.readTree(result);
+
+        // then
+        assertEquals("recommended", json.get("preference").asText());
+        assertEquals("m", json.get("units").asText());
+        assertThat(json.get("metrics")).isNotNull();
+        assertEquals(2, json.get("metrics").size());
+        assertEquals("distance", json.get("metrics").get(0).asText());
+        assertEquals("duration", json.get("metrics").get(1).asText());
+    }
+
+    @Test
+    void createRequestBody_ShouldHandleNestedCoordinates() throws JsonProcessingException {
+        // given - coordinates with high precision
+        when(mockSession.get("coordinates")).thenReturn(Arrays.asList(
+                "[[8.695556789, 49.392701123], [8.684623456, 49.398284789]]"));
+
+        // when
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
+        JsonNode json = objectMapper.readTree(result);
+
+        // then
+        JsonNode locations = json.get("locations");
+        assertEquals(2, locations.size());
+        assertEquals(8.695556789, locations.get(0).get(0).asDouble(), 0.000000001);
+        assertEquals(49.392701123, locations.get(0).get(1).asDouble(), 0.000000001);
+        assertEquals(8.684623456, locations.get(1).get(0).asDouble(), 0.000000001);
+        assertEquals(49.398284789, locations.get(1).get(1).asDouble(), 0.000000001);
     }
 }

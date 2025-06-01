@@ -7,6 +7,8 @@ public class BenchmarkEnums {
 
     // Constant for preference
     public static final String PREFERENCE = "preference";
+    public static final String METRICS = "metrics";
+    public static final String DURATION = "duration";
     // Constant for recommended
     public static final String RECOMMENDED = "recommended";
     public static final String OPTIONS = "options";
@@ -95,7 +97,7 @@ public class BenchmarkEnums {
 
         public List<String> getProfiles() {
             return switch (this) {
-                case ALGO_DIJKSTRA_MATRIX, ALGO_CORE_MATRIX, ALGO_RPHAST_MATRIX -> List.of("driving-car", "driving-hgv", "cycling-regular", "foot-walking");
+                case ALGO_DIJKSTRA_MATRIX, ALGO_CORE_MATRIX, ALGO_RPHAST_MATRIX -> List.of("driving-car");//, "driving-hgv", "cycling-regular", "foot-walking");
             };
         }
         /**
@@ -109,11 +111,11 @@ public class BenchmarkEnums {
          */
         public Map<String, Object> getRequestParams() {
             return switch (this) {
-                case ALGO_RPHAST_MATRIX -> Map.of(PREFERENCE, RECOMMENDED);
-                case ALGO_CORE_MATRIX -> Map.of(PREFERENCE,
-                        RECOMMENDED, OPTIONS, Map.of("dynamic_speeds", "true"));
-                case ALGO_DIJKSTRA_MATRIX -> Map.of(PREFERENCE,
-                        RECOMMENDED, OPTIONS, List.of(Map.of("dynamic_speeds", "false"), Map.of("avoid_features", List.of("ferries"))));
+                case ALGO_RPHAST_MATRIX -> Map.of(METRICS, List.of(DURATION));
+                case ALGO_CORE_MATRIX -> Map.of(METRICS,
+                        List.of(DURATION), OPTIONS, Map.of("dynamic_speeds", "true"));
+                case ALGO_DIJKSTRA_MATRIX -> Map.of(METRICS,
+                        List.of(DURATION), OPTIONS, Map.of("dynamic_speeds", "false", "avoid_features", List.of("ferries")));
 
             };
         }

@@ -156,7 +156,7 @@ public class Config {
 
     public List<MatrixModes> getMatrixModes() {
         return matrixModes.isEmpty() ? List.of(ALGO_DIJKSTRA_MATRIX, ALGO_CORE_MATRIX, ALGO_RPHAST_MATRIX)
-                : directionsModes.stream()
+                : matrixModes.stream()
                 .map(MatrixModes::fromString)
                 .toList();
     }
