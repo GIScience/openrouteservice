@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Andrzej Oles
  */
 public class CoreLandmarkStorage extends LandmarkStorage {
-    private static final long CORE_MAP_ROW_LENGTH = 4L; // 4 bytes for the core node id
+    private static final long CORE_MAP_ROW_LENGTH = Integer.BYTES; // 4 bytes for the core node id
 
     private static final Logger logger = Logger.getLogger(CoreLandmarkStorage.class);
     private final RoutingCHGraphImpl core;
