@@ -481,7 +481,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
     @Override
     public void close() {
-        super.flush();
+        super.close();
         coreNodeIdDA.close();
     }
 }
