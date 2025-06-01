@@ -19,7 +19,6 @@ import com.graphhopper.routing.lm.LandmarkSuggestion;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
-import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
@@ -39,8 +38,6 @@ import java.util.List;
  * @author Andrzej Oles
  */
 public class CoreLMPreparationHandler extends LMPreparationHandler {
-    private static final Logger logger = Logger.getLogger(CoreLandmarkStorage.class);
-
     private final CoreLMOptions coreLMOptions = new CoreLMOptions();
 
     public CoreLMPreparationHandler() {
