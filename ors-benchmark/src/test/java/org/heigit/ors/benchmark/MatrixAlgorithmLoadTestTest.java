@@ -42,7 +42,7 @@ class MatrixAlgorithmLoadTestTest {
     @Test
     void createRequestBody_ShouldCreateValidJson() throws JsonProcessingException {
         // when
-        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockConfig, mockMode);
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
 
         // then
         JsonNode json = objectMapper.readTree(result);
@@ -55,7 +55,7 @@ class MatrixAlgorithmLoadTestTest {
     @Test
     void createRequestBody_ShouldIncludeCorrectLocations() throws JsonProcessingException {
         // when
-        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockConfig, mockMode);
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
         JsonNode json = objectMapper.readTree(result);
 
         // then
@@ -72,7 +72,7 @@ class MatrixAlgorithmLoadTestTest {
     @Test
     void createRequestBody_ShouldIncludeCorrectSourcesAndDestinations() throws JsonProcessingException {
         // when
-        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockConfig, mockMode);
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
         JsonNode json = objectMapper.readTree(result);
 
         // then
@@ -213,7 +213,7 @@ class MatrixAlgorithmLoadTestTest {
                 "options", Map.of("avoid_features", Arrays.asList("highways"))));
 
         // when
-        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockConfig, mockMode);
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
         JsonNode json = objectMapper.readTree(result);
 
         // then
@@ -228,7 +228,7 @@ class MatrixAlgorithmLoadTestTest {
         when(mockSession.get("destinations")).thenReturn("[4, 5, 6, 7, 8]");
 
         // when
-        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockConfig, mockMode);
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
         JsonNode json = objectMapper.readTree(result);
 
         // then
@@ -251,7 +251,7 @@ class MatrixAlgorithmLoadTestTest {
         when(mockSession.get("destinations")).thenReturn("[0]");
 
         // when
-        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockConfig, mockMode);
+        String result = MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode);
         JsonNode json = objectMapper.readTree(result);
 
         // then

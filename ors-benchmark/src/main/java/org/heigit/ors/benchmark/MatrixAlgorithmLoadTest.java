@@ -95,7 +95,7 @@ public class MatrixAlgorithmLoadTest extends AbstractLoadTest {
     private PopulationBuilder createScenarioWithInjection(String sourceFile, boolean isParallel, MatrixModes mode,
             String profile) {
         String scenarioName = formatScenarioName(mode, profile, isParallel);
-        return createMatrixScenario(scenarioName, sourceFile, config, mode, profile)
+        return createMatrixScenario(scenarioName, sourceFile, mode, profile)
                 .injectOpen(atOnceUsers(config.getNumConcurrentUsers()));
     }
 
@@ -121,7 +121,7 @@ public class MatrixAlgorithmLoadTest extends AbstractLoadTest {
      * @param profile    routing profile to test
      * @return ScenarioBuilder configured for matrix testing
      */
-    private static ScenarioBuilder createMatrixScenario(String name, String sourceFile, Config config,
+    private static ScenarioBuilder createMatrixScenario(String name, String sourceFile,
             MatrixModes mode, String profile) {
         try {
             List<Map<String, Object>> records = csv(sourceFile).readRecords();
@@ -135,7 +135,7 @@ public class MatrixAlgorithmLoadTest extends AbstractLoadTest {
             return scenario(name)
                     .feed(targetRecords.iterator(), 1)
                     .asLongAs(session -> remainingRecords.decrementAndGet() >= 0)
-                    .on(exec(createRequest(name, config, mode, profile)));
+                    .on(exec(createRequest(name, mode, profile)));
 
         } catch (IllegalStateException e) {
             logger.error("Error building scenario: ", e);
@@ -148,16 +148,15 @@ public class MatrixAlgorithmLoadTest extends AbstractLoadTest {
      * Creates an HTTP request action for the matrix API endpoint.
      * 
      * @param name    request name for identification in test results
-     * @param config  test configuration
      * @param mode    matrix calculation mode
      * @param profile routing profile
      * @return HttpRequestActionBuilder configured for matrix API calls
      */
-    private static HttpRequestActionBuilder createRequest(String name, Config config, MatrixModes mode,
+    private static HttpRequestActionBuilder createRequest(String name, MatrixModes mode,
             String profile) {
         return http(name)
                 .post("/v2/matrix/" + profile)
-                .body(StringBody(session -> createRequestBody(session, config, mode)))
+                .body(StringBody(session -> createRequestBody(session, mode)))
                 .asJson()
                 .check(status().is(200));
     }
@@ -166,12 +165,11 @@ public class MatrixAlgorithmLoadTest extends AbstractLoadTest {
      * Creates the JSON request body for matrix API calls from CSV session data.
      * 
      * @param session Gatling session containing CSV row data
-     * @param config  test configuration
      * @param mode    matrix calculation mode providing additional parameters
      * @return JSON string representation of the request body
      * @throws RequestBodyCreationException if JSON serialization fails
      */
-    static String createRequestBody(Session session, Config config, MatrixModes mode) {
+    static String createRequestBody(Session session, MatrixModes mode) {
         try {
             // Get the data from the CSV row
             String coordinatesStr = (String) session.get("coordinates");
