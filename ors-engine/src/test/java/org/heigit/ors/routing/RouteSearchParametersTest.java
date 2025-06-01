@@ -1,6 +1,7 @@
 package org.heigit.ors.routing;
 
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
+import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.junit.jupiter.api.Test;
@@ -229,6 +230,13 @@ class RouteSearchParametersTest {
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
         routeSearchParameters.setProfileParams(new VehicleParameters());
+        assertFalse(routeSearchParameters.requiresDynamicPreprocessedWeights(), "profile param");
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
+        VehicleParameters vehicleParams = new VehicleParameters();
+        vehicleParams.setLoadCharacteristics(VehicleLoadCharacteristicsFlags.HAZMAT);
+        routeSearchParameters.setProfileParams(vehicleParams);
         assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "profile param");
     }
 }

@@ -43,6 +43,7 @@ Releasing is documented in RELEASE.md
 - fix http pooling for matrix generation requests ([#2059](https://github.com/GIScience/openrouteservice/pull/2059))
 - bump deprecated CodeQL and failing Grype scan GitHub actions to their current versions ([#2061](https://github.com/GIScience/openrouteservice/pull/2061))
 - avoid routing on roads with access reserved to customers ([#2060](https://github.com/GIScience/openrouteservice/pull/2060))
+- required dynamic weights for driving-hgv with `hazmat` `false` or other default Vehicle init values ([#2071](https://github.com/GIScience/openrouteservice/pull/2071))
 
 ### Security
 
