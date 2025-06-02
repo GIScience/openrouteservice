@@ -193,7 +193,7 @@ class APIServiceTest {
     void convertSpecificProfileParameters() {
         RequestProfileParamsRestrictions restrictions = new RequestProfileParamsRestrictions();
         restrictions.setHeight(10.0f);
-        ProfileParameters params = apiService.convertSpecificProfileParameters(2, restrictions, APIEnums.VehicleType.HGV);
+        ProfileParameters params = apiService.convertSpecificProfileParameters(2, restrictions);
         assertTrue(params instanceof VehicleParameters);
         assertEquals(10.0f, ((VehicleParameters) params).getHeight(), 0.0);
     }

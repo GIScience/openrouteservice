@@ -1217,7 +1217,6 @@ class ResultTest extends ServiceTest {
         params.put("restrictions", restrictions);
         JSONObject options = new JSONObject();
         options.put("profile_params", params);
-        options.put("vehicle_type", "hgv");
         body.put("options", options);
         body.put("continue_straight", false);
 
@@ -1676,7 +1675,6 @@ class ResultTest extends ServiceTest {
         body.put("units", "m");
 
         JSONObject options = new JSONObject();
-        options.put("vehicle_type", "hgv");
         body.put("options", options);
 
         // Test that buses are not allowed on Neue Schlossstraße (https://www.openstreetmap.org/way/150549948)
@@ -1718,7 +1716,6 @@ class ResultTest extends ServiceTest {
         body.put("units", "m");
 
         JSONObject options = new JSONObject();
-        options.put("vehicle_type", "hgv");
         body.put("options", options);
 
         given()
@@ -1763,7 +1760,6 @@ class ResultTest extends ServiceTest {
         params.put("restrictions", restrictions);
         JSONObject options = new JSONObject();
         options.put("profile_params", params);
-        options.put("vehicle_type", "hgv");
         body.put("options", options);
 
         given()
@@ -1786,7 +1782,6 @@ class ResultTest extends ServiceTest {
         params.put("restrictions", restrictions);
         options = new JSONObject();
         options.put("profile_params", params);
-        options.put("vehicle_type", "hgv");
         body.put("options", options);
 
         given()
@@ -1818,7 +1813,6 @@ class ResultTest extends ServiceTest {
         params.put("restrictions", restrictions);
         JSONObject options = new JSONObject();
         options.put("profile_params", params);
-        options.put("vehicle_type", "hgv");
         body.put("options", options);
 
         given()
@@ -1841,7 +1835,6 @@ class ResultTest extends ServiceTest {
         params.put("restrictions", restrictions);
         options = new JSONObject();
         options.put("profile_params", params);
-        options.put("vehicle_type", "hgv");
         body.put("options", options);
 
         given()
@@ -1873,7 +1866,6 @@ class ResultTest extends ServiceTest {
         params.put("restrictions", restrictions);
         JSONObject options = new JSONObject();
         options.put("profile_params", params);
-        options.put("vehicle_type", "hgv");
         body.put("options", options);
 
         given()
