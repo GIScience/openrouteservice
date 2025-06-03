@@ -87,11 +87,8 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         coreNodeIdDA.create(maxBytes);
         coreNodeIdDA.ensureCapacity(maxBytes);
 
-        int index = 0;
-        for (int i = 0; i < maxNode; i++) {
-            boolean isCoreNode = core.getLevel(i) >= maxNode;
-            coreNodeIdDA.setInt(i * CORE_MAP_ROW_LENGTH, isCoreNode ? index : 0);
-            if (isCoreNode) index++;
+        for (int index = 0, i = 0; i < maxNode; i++) {
+            coreNodeIdDA.setInt(i * CORE_MAP_ROW_LENGTH, core.getLevel(i) >= maxNode ? index++ : 0);
         }
     }
 
