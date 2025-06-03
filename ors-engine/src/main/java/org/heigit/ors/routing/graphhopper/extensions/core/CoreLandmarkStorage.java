@@ -54,10 +54,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Andrzej Oles
  */
 public class CoreLandmarkStorage extends LandmarkStorage {
+    private static final long CORE_MAP_ROW_LENGTH = Integer.BYTES; // 4 bytes for the core node id
+
     private static final Logger logger = Logger.getLogger(CoreLandmarkStorage.class);
     private final RoutingCHGraphImpl core;
     private final LMEdgeFilterSequence landmarksFilter;
-    private Map<Integer, Integer> coreNodeIdMap;
+    private final DataAccess coreNodeIdDA;
     private final ORSGraphHopperStorage graph;
     private final CoreLMConfig lmConfig;
     private IntHashSet subnetworkNodes;
@@ -74,10 +76,30 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         this.core = (RoutingCHGraphImpl) core;
         this.landmarksFilter = lmConfig.getEdgeFilter();
         setMinimumNodes(Math.min(getBaseNodes() / 2, 10000));
+        this.coreNodeIdDA = dir.create(getLandmarksFileName() + lmConfig.getName() + "_core_node_ids");
     }
 
-    public void setCoreNodeIdMap(Map<Integer, Integer> coreNodeIdMap) {
-        this.coreNodeIdMap = coreNodeIdMap;
+    public void createCoreNodeIdDA() {
+        int maxNode = GraphUtils.getBaseGraph(core).getNodes();
+
+        // initialize the DataAccess with enough space to store all core node ids
+        long maxBytes = maxNode * CORE_MAP_ROW_LENGTH;
+        coreNodeIdDA.create(maxBytes);
+        coreNodeIdDA.ensureCapacity(maxBytes);
+
+        for (int index = 0, i = 0; i < maxNode; i++) {
+            coreNodeIdDA.setInt(i * CORE_MAP_ROW_LENGTH, core.getLevel(i) >= maxNode ? index++ : 0);
+        }
+    }
+
+    @Override
+    public boolean loadExisting() {
+        if (super.loadExisting()) {
+            if (!coreNodeIdDA.loadExisting())
+                throw new IllegalStateException("landmark weights loaded but not the node ID map, this is unexpected.");
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -148,6 +170,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
         if (logDetails)
             logger.debug(configName() + "Calculated " + graphComponents.size() + " subnetworks via tarjan in " + sw.stop().getSeconds() + "s, " + Helper.getMemInfo());
 
+        createCoreNodeIdDA();
         String additionalInfo = "";
         // guess the factor
         if (getFactor() <= 0) {
@@ -229,7 +252,7 @@ public class CoreLandmarkStorage extends LandmarkStorage {
 
     @Override
     public int getIndex(int node) {
-        return coreNodeIdMap.get(node);
+        return coreNodeIdDA.getInt(node * CORE_MAP_ROW_LENGTH);
     }
 
     @Override
@@ -440,5 +463,17 @@ public class CoreLandmarkStorage extends LandmarkStorage {
             return expandEdge(iter1) + expandEdge(iter2);
         }
 
+    }
+
+    @Override
+    public void flush() {
+        super.flush();
+        coreNodeIdDA.flush();
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        coreNodeIdDA.close();
     }
 }
