@@ -18,6 +18,7 @@ import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopper;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphBuildInfo;
 import org.heigit.ors.routing.graphhopper.extensions.manage.GraphManagementRuntimeProperties;
 import org.heigit.ors.routing.graphhopper.extensions.manage.PersistedGraphBuildInfo;
+import org.heigit.ors.util.AppInfo;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -353,6 +354,7 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         }
         PersistedGraphBuildInfo persistedGraphBuildInfo = PersistedGraphBuildInfo.withOsmDate(getDateFromGhProperty(gh, "datareader.data.date"));
         persistedGraphBuildInfo.setGraphBuildDate(getDateFromGhProperty(gh, "datareader.import.date"));
+        persistedGraphBuildInfo.setGraphVersion(AppInfo.GRAPH_VERSION);
         persistedGraphBuildInfo.setProfileProperties(profileProperties);
 
         ORSGraphFileManager.writeOrsGraphBuildInfo(persistedGraphBuildInfo, activeGraphBuildInfoFile);
