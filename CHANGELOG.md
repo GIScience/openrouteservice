@@ -32,6 +32,7 @@ Releasing is documented in RELEASE.md
 - include OSM data version (`osm_date`) in the API response ([#1192](https://github.com/GIScience/openrouteservice/issues/1192))
 - added documentation for isochrone attributes ([#846](https://github.com/GIScience/openrouteservice/issues/846))
 - include `graph_date` and `osm_date` in the GPX response ([#2055](https://github.com/GIScience/openrouteservice/issues/2055))
+- use country information from an enriched OSM file containing nodes tagged with country IDs ([1753](https://github.com/GIScience/openrouteservice/pull/1753)))
 
 ### Changed
 - refactor: core node ID map using DataAccess ([#2074](https://github.com/GIScience/openrouteservice/pull/2074))
