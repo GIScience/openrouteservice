@@ -28,7 +28,7 @@ ors:
     profile_default:
       graph_path: graphs-apitests
       build:
-        source_file: ./src/test/files/heidelberg.ors.pbf
+        source_file: ./src/test/files/heidelberg.test.pbf
         elevation: true
         elevation_smoothing: true
         encoder_flags_size: 4
