@@ -1923,7 +1923,7 @@ class ResultTest extends ServiceTest {
     // test fitness params bike..
 
     @Test
-    void testBordersAvoid() {
+    void testAvoidBorderControl() {
         JSONObject body = new JSONObject();
         body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
@@ -1949,11 +1949,23 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].summary.distance", is(closeTo(1156, 1)))
                 .statusCode(200);
 
-        options = new JSONObject();
+        // Test that avoiding borders with a profile that does not rely on OSM country tags provides different results
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(1404, 1)))
+                .statusCode(200);
+
         options.put("avoid_borders", "all");
         body.put("options", options);
 
-        // Option 1 signifies that the route should not cross any borders
         given()
                 .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
