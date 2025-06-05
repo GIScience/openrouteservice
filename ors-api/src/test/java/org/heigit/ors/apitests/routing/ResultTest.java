@@ -1923,17 +1923,16 @@ class ResultTest extends ServiceTest {
     // test fitness params bike..
 
     @Test
-    void testAvoidBorderControl() {
+    void testBordersAvoid() {
         JSONObject body = new JSONObject();
         body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
         body.put("instructions", false);
-        body.put("optimized", false);
         body.put("units", "m");
 
         JSONObject options = new JSONObject();
-        options.put("avoid_borders", "controlled");
         body.put("options", options);
+        options.put("avoid_borders", "controlled");
 
         // Test that providing border control in avoid_features works
         given()
@@ -1964,8 +1963,6 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
 
         options.put("avoid_borders", "all");
-        body.put("options", options);
-
         given()
                 .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
@@ -1985,12 +1982,11 @@ class ResultTest extends ServiceTest {
         body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
         body.put("instructions", false);
-        body.put("optimized", false);
         body.put("units", "m");
 
         JSONObject options = new JSONObject();
-        options.put("avoid_countries", constructFromPipedList("3"));
         body.put("options", options);
+        options.put("avoid_countries", constructFromPipedList("3"));
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
@@ -2004,10 +2000,8 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(1156, 1)))
                 .statusCode(200);
-        options = new JSONObject();
-        options.put("avoid_countries", constructFromPipedList("1|3"));
-        body.put("options", options);
 
+        options.put("avoid_countries", constructFromPipedList("1|3"));
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
@@ -2050,7 +2044,6 @@ class ResultTest extends ServiceTest {
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(3159, 3)))
                 .statusCode(200);
-
     }
 
     @Test
