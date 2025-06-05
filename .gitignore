@@ -37,3 +37,4 @@ docs/.vitepress/cache
 /.integration-scenarios/debian-12-jar-mvn/tmp/
 
 gatling-results/**
+data/South America Latest.osm.pbf
