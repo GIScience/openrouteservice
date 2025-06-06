@@ -428,16 +428,18 @@ class ExtendedStoragePropertiesTest {
 
     // Same for borders
     @ParameterizedTest
-    @CsvSource({"'', '', ''", // All paths null
-            "'/custom/path.csv', '', ''", // Only boundaries set
-            "'', '/custom/path.csv', ''", // Only ids set
-            "'', '', '/custom/path.csv'", // Only openborders set
-            "'/custom/path.csv', '/custom/path.csv', ''", // boundaries and ids set
-            "'/custom/path.csv', '', '/custom/path.csv'", // boundaries and openborders set
-            "'', '/custom/path.csv', '/custom/path.csv'", // ids and openborders set
-            "'/custom/path.csv', '/custom/path.csv', '/custom/path.csv'" // All paths set -> Enabled!
+    @CsvSource({"'','', '', '', ''", // All paths null
+            "'','/custom/path.csv', '', ''", // Only boundaries set
+            "'','', '/custom/path.csv', ''", // Only ids set
+            "'','', '', '/custom/path.csv'", // Only openborders set
+            "'','/custom/path.csv', '/custom/path.csv', ''", // boundaries and ids set
+            "'','/custom/path.csv', '', '/custom/path.csv'", // boundaries and openborders set
+            "'','', '/custom/path.csv', '/custom/path.csv'", // ids and openborders set
+            "'true','', '/custom/path.csv', '/custom/path.csv'",
+            "'','/custom/path.csv', '/custom/path.csv', '/custom/path.csv'", // All paths set -> Enabled!
+            "'true','/custom/path.csv', '/custom/path.csv', '/custom/path.csv'"
     })
-    void assertSetBordersPathLogic(String boundaries, String ids, String openborders) {
+    void assertSetBordersPathLogic(String preprocessed, String boundaries, String ids, String openborders) {
         ExtendedStorageProperties storage;
         // Test null values
         storage = new ExtendedStorageProperties();
@@ -446,13 +448,15 @@ class ExtendedStoragePropertiesTest {
 
         // Create JSON string based on parameters
         storage = new ExtendedStorageProperties();
+        var isPreprocessed = Boolean.parseBoolean(preprocessed);
+        storage.setPreprocessed(isPreprocessed);
         storage.setBoundaries(Path.of(boundaries));
         storage.setIds(Path.of(ids));
         storage.setOpenborders(Path.of(openborders));
         storage.initialize(ExtendedStorageName.BORDERS);
 
         // Check if storage is enabled or disabled based on paths
-        boolean shouldBeEnabled = !boundaries.isEmpty() && !ids.isEmpty() && !openborders.isEmpty();
+        boolean shouldBeEnabled = (isPreprocessed || !boundaries.isEmpty()) && !ids.isEmpty() && !openborders.isEmpty();
         assertEquals(shouldBeEnabled, storage.getEnabled(), "initialize should disable storage if one of the paths is null");
 
         // Check paths
@@ -478,6 +482,7 @@ class ExtendedStoragePropertiesTest {
         // Assert everything else was set to null
         testStorageObjectIsEmpty(storage, new ArrayList<>() {{
             add("enabled");
+            add("preprocessed");
             add("boundaries");
             add("ids");
             add("openborders");
