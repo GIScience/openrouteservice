@@ -47,6 +47,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
     private static final String PARAM_KEY_IDS = "ids";
     private static final String PARAM_KEY_BOUNDARIES = "boundaries";
     private static final String PARAM_KEY_OPEN_BORDERS = "openborders";
+    private static final String TAG_KEY_COUNTRY = "country";
     private static final String TAG_KEY_COUNTRY1 = "country1";
     private static final String TAG_KEY_COUNTRY2 = "country2";
     private static final int EMPTY_NODE = -1;
@@ -168,7 +169,7 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         nodeTags.forEach((internalNodeId, tagPairs) -> {
             int nodeId = convertTowerNodeId(internalNodeId);
             if (nodeId != EMPTY_NODE) {
-                wayNodeTags.put(nodeId, tagPairs.get("country"));
+                wayNodeTags.put(nodeId, tagPairs.get(TAG_KEY_COUNTRY));
             }
         });
     }
