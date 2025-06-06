@@ -157,11 +157,12 @@ Properties beneath `ors.engine.profiles.<PROFILE-NAME>.build.ext_storages.Border
 routes to not cross
 country borders, compatible with any profile type.
 
-| key         | type   | description                                                                                         | example value            |
-|-------------|--------|-----------------------------------------------------------------------------------------------------|--------------------------|
-| boundaries  | string | The path to a geojson file containing polygons representing country borders                         | `borders.geojson.tar.gz` |
-| ids         | string | Path to a csv file containing a unique id for each country, its local name and its English name     | `ids.csv`                |
-| openborders | string | Path to a csv file containing pairs of countries where the borders are open (i.e. Schengen borders) | `openborders.csv`        |
+| key          | type    | description                                                                                                                                                                                                                             | example value            |
+|--------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|
+| boundaries   | string  | The path to a geojson file containing polygons representing country borders. Ignored if `preprocessed = true` is set.                                                                                                                   | `borders.geojson.tar.gz` |
+| preprocessed | boolean | Indicates whether the source OSM file has been enriched with country data. If set to `true` then country codes are read from `country` node tags rather than being resolved at build time based on geometries provided in `boundaries`. | `true`                    |
+| ids          | string  | Path to a csv file containing a unique id for each country, its local name and its English name                                                                                                                                         | `ids.csv`                |
+| openborders  | string  | Path to a csv file containing pairs of countries where the borders are open (i.e. Schengen borders)                                                                                                                                     | `openborders.csv`        |
 
 ### `HeavyVehicle`
 

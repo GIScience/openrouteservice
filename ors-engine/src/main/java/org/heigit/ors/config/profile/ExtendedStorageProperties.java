@@ -60,6 +60,8 @@ public class ExtendedStorageProperties {
     private Path ids;
     @JsonIgnore
     private Path openborders;
+    @JsonIgnore
+    private Boolean preprocessed = false;
 
     // Relevant for RoadAccessRestrictions
     @JsonProperty("use_for_warnings")

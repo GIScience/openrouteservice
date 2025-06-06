@@ -1928,12 +1928,11 @@ class ResultTest extends ServiceTest {
         body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
         body.put("instructions", false);
-        body.put("optimized", false);
         body.put("units", "m");
 
         JSONObject options = new JSONObject();
-        options.put("avoid_borders", "controlled");
         body.put("options", options);
+        options.put("avoid_borders", "controlled");
 
         // Test that providing border control in avoid_features works
         given()
@@ -1946,14 +1945,24 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(1156, 1)))
+                .statusCode(200);
+
+        // Test that avoiding borders with a profile that does not rely on OSM country tags provides different results
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", "driving-hgv")
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(closeTo(1404, 1)))
                 .statusCode(200);
 
-        options = new JSONObject();
         options.put("avoid_borders", "all");
-        body.put("options", options);
-
-        // Option 1 signifies that the route should not cross any borders
         given()
                 .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", getParameter("carProfile"))
@@ -1973,12 +1982,11 @@ class ResultTest extends ServiceTest {
         body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
         body.put("preference", "shortest");
         body.put("instructions", false);
-        body.put("optimized", false);
         body.put("units", "m");
 
         JSONObject options = new JSONObject();
-        options.put("avoid_countries", constructFromPipedList("3"));
         body.put("options", options);
+        options.put("avoid_countries", constructFromPipedList("3"));
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
@@ -1990,12 +1998,10 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(1156.6, 1)))
+                .body("routes[0].summary.distance", is(closeTo(1156, 1)))
                 .statusCode(200);
-        options = new JSONObject();
-        options.put("avoid_countries", constructFromPipedList("1|3"));
-        body.put("options", options);
 
+        options.put("avoid_countries", constructFromPipedList("1|3"));
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
@@ -2006,11 +2012,11 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(3172.4, 3)))
+                .body("routes[0].summary.distance", is(closeTo(3159, 3)))
                 .statusCode(200);
 
         // Test avoid_countries with ISO 3166-1 Alpha-2 parameters
-        options.put("avoid_countries", constructFromPipedList("AT|FR"));
+        options.put("avoid_countries", constructFromPipedList("XA|XC"));
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
@@ -2021,11 +2027,11 @@ class ResultTest extends ServiceTest {
                 .then().log().ifValidationFails()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(3172.4, 3)))
+                .body("routes[0].summary.distance", is(closeTo(3159, 3)))
                 .statusCode(200);
 
         // Test avoid_countries with ISO 3166-1 Alpha-3 parameters
-        options.put("avoid_countries", constructFromPipedList("AUT|FRA"));
+        options.put("avoid_countries", constructFromPipedList("XXA|XXC"));
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
@@ -2036,9 +2042,8 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(3172.4f, 3)))
+                .body("routes[0].summary.distance", is(closeTo(3159, 3)))
                 .statusCode(200);
-
     }
 
     @Test
@@ -2244,7 +2249,7 @@ class ResultTest extends ServiceTest {
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
                 .body("routes[0].summary.distance", is(74.1f))
-                .body("routes[0].summary.duration", is(57.9f))
+                .body("routes[0].summary.duration", is(49.2f))
                 .statusCode(200);
 
         restrictions = new JSONObject();
@@ -3232,7 +3237,7 @@ class ResultTest extends ServiceTest {
         // Close to a border crossing
         given()
                 .headers(CommonHeaders.jsonContent)
-                .pathParam("profile", getParameter("carProfile"))
+                .pathParam("profile", "driving-hgv")
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/json")
