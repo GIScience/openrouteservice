@@ -61,7 +61,7 @@ public class ExtendedStorageProperties {
     @JsonIgnore
     private Path openborders;
     @JsonIgnore
-    private Boolean preprocessed = false;
+    private Boolean preprocessed;
 
     // Relevant for RoadAccessRestrictions
     @JsonProperty("use_for_warnings")
@@ -98,6 +98,7 @@ public class ExtendedStorageProperties {
         outputLog = ofNullable(this.outputLog).orElse(other.outputLog);
         logLocation = ofNullable(this.logLocation).orElse(other.logLocation);
         maximumSlope = ofNullable(this.maximumSlope).orElse(other.maximumSlope);
+        preprocessed = ofNullable(this.preprocessed).orElse(other.preprocessed);
         boundaries = ofNullable(this.boundaries).orElse(other.boundaries);
         ids = ofNullable(this.ids).orElse(other.ids);
         openborders = ofNullable(this.openborders).orElse(other.openborders);
@@ -134,6 +135,9 @@ public class ExtendedStorageProperties {
         }
         if (!excludedProperties.contains("maximum_slope")) {
             this.maximumSlope = null;
+        }
+        if (!excludedProperties.contains("preprocessed")) {
+            this.preprocessed = null;
         }
         if (!excludedProperties.contains("boundaries")) {
             this.boundaries = null;
@@ -230,9 +234,14 @@ public class ExtendedStorageProperties {
 
     private void initializeBorders(ArrayList<String> nonNullableProperties, ExtendedStorageName storageName) {
         final Path emptyPath = Path.of("");
+        if (preprocessed == null) {
+            this.preprocessed = false;
+        }
         if (boundaries == null || boundaries.equals(emptyPath)) {
-            LOGGER.warn("Storage %s is missing boundaries. Disabling storage.".formatted(storageName));
-            enabled = false;
+            if (!preprocessed) {
+                LOGGER.warn("Storage %s is missing boundaries. Disabling storage.".formatted(storageName));
+                enabled = false;
+            }
             boundaries = Path.of("");
         } else {
             boundaries = boundaries.toAbsolutePath();
@@ -251,6 +260,7 @@ public class ExtendedStorageProperties {
         } else {
             openborders = openborders.toAbsolutePath();
         }
+        nonNullableProperties.add("preprocessed");
         nonNullableProperties.add("boundaries");
         nonNullableProperties.add("ids");
         nonNullableProperties.add("openborders");
