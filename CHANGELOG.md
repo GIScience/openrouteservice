@@ -28,6 +28,21 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+
+## [9.3.0] - 2025-06-06
+
+### Added
 - maven wrapper to project ([#1973](https://github.com/GIScience/openrouteservice/issues/1973))
 - include OSM data version (`osm_date`) in the API response ([#1192](https://github.com/GIScience/openrouteservice/issues/1192))
 - added documentation for isochrone attributes ([#846](https://github.com/GIScience/openrouteservice/issues/846))
@@ -37,18 +52,12 @@ Releasing is documented in RELEASE.md
 ### Changed
 - refactor: core node ID map using DataAccess ([#2074](https://github.com/GIScience/openrouteservice/pull/2074))
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 - fix http pooling for matrix generation requests ([#2059](https://github.com/GIScience/openrouteservice/pull/2059))
 - bump deprecated CodeQL and failing Grype scan GitHub actions to their current versions ([#2061](https://github.com/GIScience/openrouteservice/pull/2061))
 - avoid routing on roads with access reserved to customers ([#2060](https://github.com/GIScience/openrouteservice/pull/2060))
 - required dynamic weights for driving-hgv with `hazmat` `false` or other default Vehicle init values ([#2071](https://github.com/GIScience/openrouteservice/pull/2071))
 - enable setting vehicle parameters without the need of specifying vehicle type ([#2073](https://github.com/GIScience/openrouteservice/pull/2073))
-
-### Security
 
 
 ## [9.2.0] - 2025-05-06
@@ -69,7 +78,6 @@ Releasing is documented in RELEASE.md
 - correct available features in custom-model docs ([#2033](https://github.com/GIScience/openrouteservice/issues/2033))
 - prevent ferry speed derived from the maxspeed OSM tag from exceeding the maximum possible encoder value ([#2030](https://github.com/GIScience/openrouteservice/issues/2030)) 
 
-### Security
 
 ## [9.1.2] - 2025-04-10
 
@@ -909,7 +917,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.2.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.3.0...HEAD
+[9.3.0]: https://github.com/GIScience/openrouteservice/compare/v9.2.0...v9.3.0
 [9.2.0]: https://github.com/GIScience/openrouteservice/compare/v9.1.2...v9.2.0
 [9.1.2]: https://github.com/GIScience/openrouteservice/compare/v9.1.1...v9.1.2
 [9.1.1]: https://github.com/GIScience/openrouteservice/compare/v9.1.0...v9.1.1
