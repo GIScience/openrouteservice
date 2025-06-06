@@ -70,6 +70,11 @@ class ExtendedStoragePropertiesTest {
         } else {
             assertNotNull(storage.getMaximumSlope(), "maximum_slope should not be null");
         }
+        if (!nonNullFields.contains("preprocessed")) {
+            assertNull(storage.getPreprocessed(), "preprocessed should be null");
+        } else {
+            assertNotNull(storage.getPreprocessed(), "preprocessed should not be null");
+        }
         if (!nonNullFields.contains("boundaries")) {
             assertNull(storage.getBoundaries(), "boundaries should be null");
         } else {
@@ -134,6 +139,8 @@ class ExtendedStoragePropertiesTest {
         storage.setBoundaries(Paths.get(""));
         assertEquals(Path.of(""), storage.getBoundaries());
     }
+
+
 
     @Test
     void testSetIds() {
