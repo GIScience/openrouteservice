@@ -78,7 +78,7 @@ ors:
             Tollways:
             OsmId:
             Borders:
-              boundaries: ./src/test/files/borders/borders.geojson
+              preprocessed: true
               ids: ./src/test/files/borders/ids.csv
               openborders: ./src/test/files/borders/openborders.csv
             RoadAccessRestrictions:

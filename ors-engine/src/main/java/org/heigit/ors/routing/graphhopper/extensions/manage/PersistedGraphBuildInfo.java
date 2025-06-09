@@ -22,6 +22,9 @@ public class PersistedGraphBuildInfo {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ")
     private Date osmDate;
 
+    @JsonProperty("graph_version")
+    private String graphVersion;
+
     @JsonProperty("profile_properties")
     private ProfileProperties profileProperties;
 

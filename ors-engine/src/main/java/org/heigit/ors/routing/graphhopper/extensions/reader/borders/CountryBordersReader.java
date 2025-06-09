@@ -33,18 +33,17 @@ public class CountryBordersReader implements Serializable {
     public static final String INTERNATIONAL_NAME = "INTERNATIONAL";
     public static final String INTERNATIONAL_ID = "-1";
     public static final String KEY_PROPERTIES = "properties";
+    private static final String NAME_FIELD = "name";
+    private static final String HIERARCHY_ID_FIELD = "hierarchy";
 
     private final String borderFile;
-    private final String nameField;
-    private final String hierarchyIdField;
-
     private final String idsPath;
     private final String openPath;
 
     private final HashMap<String, CountryInfo> ids = new HashMap<>();
     private final HashMap<String, ArrayList<String>> openBorders = new HashMap<>();
-    private final HashMap<String, Integer> isoCodes = new HashMap<>();
-
+    private final Map<String, Short> isoCodes = new HashMap<>();
+    private Map<Short, String> names = new HashMap<>();
     private final HashMap<Long, CountryBordersHierarchy> hierarchies = new HashMap<>();
 
     // Package scoped for testing purposes
@@ -55,8 +54,6 @@ public class CountryBordersReader implements Serializable {
      */
     public CountryBordersReader() {
         borderFile = "";
-        nameField = "name";
-        hierarchyIdField = "hierarchy";
         idsPath = "";
         openPath = "";
 
@@ -72,17 +69,16 @@ public class CountryBordersReader implements Serializable {
      */
     public CountryBordersReader(String filepath, String idsPath, String openPath) throws IOException {
         borderFile = filepath;
-        nameField = "name";
-        hierarchyIdField = "hierarchy";
-
         this.idsPath = idsPath;
         this.openPath = openPath;
 
         try {
-            JSONObject data = readBordersData();
-            LOGGER.info("Border geometries read");
+            if (!"".equals(borderFile)) {
+                JSONObject data = readBordersData();
+                LOGGER.info("Border geometries read");
 
-            createGeometries(data);
+                createGeometries(data);
+            }
 
             readIds();
             LOGGER.info("Border ids data read");
@@ -108,8 +104,8 @@ public class CountryBordersReader implements Serializable {
     public void addId(String id, String localName, String englishName, String cca2, String cca3) {
         if (!ids.containsKey(localName)) {
             ids.put(localName, new CountryInfo(id, localName, englishName));
-            isoCodes.put(cca2.trim().toUpperCase(), Integer.parseInt(id));
-            isoCodes.put(cca3.trim().toUpperCase(), Integer.parseInt(id));
+            isoCodes.put(cca2.trim().toUpperCase(), Short.parseShort(id));
+            isoCodes.put(cca3.trim().toUpperCase(), Short.parseShort(id));
         }
     }
 
@@ -228,13 +224,13 @@ public class CountryBordersReader implements Serializable {
                 Geometry geom = GeometryJSON.parse(obj.getJSONObject("geometry"));
 
                 // Also need the id of the country and its hierarchy id
-                String id = obj.getJSONObject(KEY_PROPERTIES).getString(nameField);
+                String id = obj.getJSONObject(KEY_PROPERTIES).getString(NAME_FIELD);
 
                 Long hId = -1L;
 
                 // If there is no hierarchy info, then we set the id of the hierarchy to be a default of 1
-                if (obj.getJSONObject(KEY_PROPERTIES).has(hierarchyIdField))
-                    hId = obj.getJSONObject(KEY_PROPERTIES).getLong(hierarchyIdField);
+                if (obj.getJSONObject(KEY_PROPERTIES).has(HIERARCHY_ID_FIELD))
+                    hId = obj.getJSONObject(KEY_PROPERTIES).getLong(HIERARCHY_ID_FIELD);
 
                 // Create the borders object
                 CountryBordersPolygon c = new CountryBordersPolygon(id, geom);
@@ -346,6 +342,10 @@ public class CountryBordersReader implements Serializable {
             return "";
     }
 
+    public String getName(short id) {
+        return names.get(id);
+    }
+
     /**
      * Get whether a border between two specified countries is open or closed
      *
@@ -370,8 +370,8 @@ public class CountryBordersReader implements Serializable {
      * @param code The code to look up
      * @return The ID of the country or 0 if not found
      */
-    public static int getCountryIdByISOCode(String code) {
-        return currentInstance != null ? currentInstance.isoCodes.getOrDefault(code.toUpperCase(), 0) : 0;
+    public static short getCountryIdByISOCode(String code) {
+        return currentInstance != null ? currentInstance.isoCodes.getOrDefault(code.toUpperCase(), (short) 0) : 0;
     }
 
     /**
@@ -388,23 +388,24 @@ public class CountryBordersReader implements Serializable {
         int isoCCA2 = 0;
         int isoCCA3 = 0;
         for (List<String> col : data) {
-            if (col.size() >= 3) {
-                ids.put(col.get(1), new CountryInfo(col.get(0), col.get(1), col.get(2)));
-                countries++;
-            }
-            int intID = 0;
+            short shortID = 0;
             try {
-                intID = Integer.parseInt(col.get(0));
+                shortID = Short.parseShort(col.get(0));
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid country ID " + col.get(0));
                 continue;
             }
+            if (col.size() >= 3) {
+                ids.put(col.get(1), new CountryInfo(col.get(0), col.get(1), col.get(2)));
+                names.put(shortID, col.get(2));
+                countries++;
+            }
             if (col.size() >= 4 && !col.get(3).trim().isEmpty()) {
-                isoCodes.put(col.get(3).trim().toUpperCase(), intID);
+                isoCodes.put(col.get(3).trim().toUpperCase(), shortID);
                 isoCCA2++;
             }
             if (col.size() == 5 && !col.get(4).trim().isEmpty()) {
-                isoCodes.put(col.get(4).trim().toUpperCase(), intID);
+                isoCodes.put(col.get(4).trim().toUpperCase(), shortID);
                 isoCCA3++;
             }
         }

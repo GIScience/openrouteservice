@@ -19,7 +19,6 @@ import com.graphhopper.routing.lm.LandmarkSuggestion;
 import com.graphhopper.routing.lm.PrepareLandmarks;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHGraph;
-import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperConfig;
 import org.heigit.ors.routing.graphhopper.extensions.ORSGraphHopperStorage;
 import org.heigit.ors.routing.graphhopper.extensions.util.GraphUtils;
@@ -28,7 +27,6 @@ import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters.CoreLand
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class implements the A*, landmark and triangulation (ALT) decorator for Core.
@@ -40,8 +38,6 @@ import java.util.Map;
  * @author Andrzej Oles
  */
 public class CoreLMPreparationHandler extends LMPreparationHandler {
-    private static final Logger logger = Logger.getLogger(CoreLandmarkStorage.class);
-
     private final CoreLMOptions coreLMOptions = new CoreLMOptions();
 
     public CoreLMPreparationHandler() {
@@ -73,10 +69,6 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
 
             String lmConfigName = coreLMConfig.getSuperName();
 
-            RoutingCHGraph core = ((ORSGraphHopperStorage) ghStorage).getCoreGraph(lmConfigName);
-            Map<Integer, Integer> coreNodeIdMap = createCoreNodeIdMap(core);
-            logger.info("Created core node ID map for " + coreLMConfig.getName() + " of size " + coreNodeIdMap.size());
-
             Double maximumWeight = getMaximumWeights().get(lmConfigName);
             if (maximumWeight == null)
                 throw new IllegalStateException("""
@@ -85,7 +77,7 @@ public class CoreLMPreparationHandler extends LMPreparationHandler {
                         """ + lmConfigName + " in " + getMaximumWeights());
 
             PrepareLandmarks tmpPrepareLM = new PrepareCoreLandmarks(ghStorage.getDirectory(), ghStorage,
-                    coreLMConfig, getLandmarks(), coreNodeIdMap).
+                    coreLMConfig, getLandmarks()).
                     setLandmarkSuggestions(lmSuggestions).
                     setMaximumWeight(maximumWeight).
                     setLogDetails(getLogDetails());
