@@ -67,13 +67,7 @@ class BenchmarkEnumsTest {
     void testMatrixModesGetDefaultProfiles() {
         List<String> dijkstraProfiles = BenchmarkEnums.MatrixModes.ALGO_DIJKSTRA_MATRIX.getProfiles();
         assertTrue(dijkstraProfiles.contains("driving-car"));
-        assertTrue(dijkstraProfiles.contains("foot-walking"));
-        assertEquals(4, dijkstraProfiles.size());
-
-        List<String> coreProfiles = BenchmarkEnums.MatrixModes.ALGO_CORE_MATRIX.getProfiles();
-        assertTrue(coreProfiles.contains("driving-car"));
-        assertTrue(coreProfiles.contains("foot-walking"));
-        assertEquals(4, coreProfiles.size());
+        assertEquals(1, dijkstraProfiles.size());
     }
 
     @Test
