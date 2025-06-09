@@ -8,6 +8,8 @@ import org.heigit.ors.benchmark.BenchmarkEnums.MatrixModes;
 import org.heigit.ors.benchmark.exceptions.RequestBodyCreationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +24,14 @@ class MatrixAlgorithmLoadTestTest {
     private ObjectMapper objectMapper;
     private Session mockSession;
     private MatrixModes mockMode;
+    private static final List<String> VALID_COORDINATES =
+            Arrays.asList(
+                    "[[8.695556, 49.392701], [8.684623, 49.398284], [8.705916, 49.406309]]"
+            );
+    private static final List<String> VALID_SOURCES =
+            Arrays.asList("[0, 1]");
+    private static final List<String> VALID_DESTINATIONS =
+            Arrays.asList("[2]");
 
     @BeforeEach
     void setUp() {
@@ -32,9 +42,9 @@ class MatrixAlgorithmLoadTestTest {
         // Mock CSV data as it would appear in the session after CSV feeder
         // Each CSV column becomes a List<String> in the session
         when(mockSession.get("coordinates"))
-                .thenReturn(Arrays.asList("[[8.695556, 49.392701], [8.684623, 49.398284], [8.705916, 49.406309]]"));
-        when(mockSession.get("sources")).thenReturn(Arrays.asList("[0, 1]"));
-        when(mockSession.get("destinations")).thenReturn(Arrays.asList("[2]"));
+                .thenReturn(VALID_COORDINATES);
+        when(mockSession.get("sources")).thenReturn(VALID_SOURCES);
+        when(mockSession.get("destinations")).thenReturn(VALID_DESTINATIONS);
         when(mockMode.getRequestParams()).thenReturn(Map.of("preference", "recommended"));
     }
 
@@ -86,94 +96,37 @@ class MatrixAlgorithmLoadTestTest {
         assertEquals(2, destinations.get(0).asInt());
     }
 
-    @Test
-    void createRequestBody_ShouldThrowExceptionForMissingCoordinates() {
-        // given
-        when(mockSession.get("coordinates")).thenReturn(null);
+    @ParameterizedTest(name = "createRequestBody throws if '{0}' list is empty")
+    @ValueSource(strings = { "coordinates", "sources", "destinations" })
+    void createRequestBody_ShouldThrowExceptionForEmptyList(String emptyKey) {
+        // only override the one under test to be empty
+        when(mockSession.get(emptyKey)).thenReturn(List.of());
 
-        // when & then
+        // verify that empty‐list triggers the exception
+        assertThrows(
+                RequestBodyCreationException.class,
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode)
+        );
+    }
+
+    @ParameterizedTest(name = "createRequestBody should throw when '{0}' is missing")
+    @ValueSource(strings = { "coordinates", "sources", "destinations" })
+    void createRequestBody_ShouldThrowExceptionForMissingRequiredSessionAttributes(String missingAttribute) {
+        when(mockSession.get(missingAttribute)).thenReturn(null);
         assertThrows(RequestBodyCreationException.class,
                 () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
     }
 
-    @Test
-    void createRequestBody_ShouldThrowExceptionForEmptyCoordinatesList() {
-        // given
-        when(mockSession.get("coordinates")).thenReturn(Arrays.asList());
+    @ParameterizedTest(name = "createRequestBody throws when '{0}' contains invalid JSON")
+    @ValueSource(strings = { "coordinates", "sources", "destinations" })
+    void createRequestBody_ShouldThrowExceptionForInvalidJson(String invalidKey) {
+        // override the one under test to invalid JSON
+        when(mockSession.get(invalidKey)).thenReturn(List.of("invalid json"));
 
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
-    }
-
-    @Test
-    void createRequestBody_ShouldThrowExceptionForMissingSources() {
-        // given
-        when(mockSession.get("sources")).thenReturn(null);
-
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
-    }
-
-    @Test
-    void createRequestBody_ShouldThrowExceptionForEmptySourcesList() {
-        // given
-        when(mockSession.get("sources")).thenReturn(Arrays.asList());
-
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
-    }
-
-    @Test
-    void createRequestBody_ShouldThrowExceptionForMissingDestinations() {
-        // given
-        when(mockSession.get("destinations")).thenReturn(null);
-
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
-    }
-
-    @Test
-    void createRequestBody_ShouldThrowExceptionForEmptyDestinationsList() {
-        // given
-        when(mockSession.get("destinations")).thenReturn(Arrays.asList());
-
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
-    }
-
-    @Test
-    void createRequestBody_ShouldThrowExceptionForInvalidCoordinatesJson() {
-        // given
-        when(mockSession.get("coordinates")).thenReturn(Arrays.asList("invalid json"));
-
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
-    }
-
-    @Test
-    void createRequestBody_ShouldThrowExceptionForInvalidSourcesJson() {
-        // given
-        when(mockSession.get("sources")).thenReturn(Arrays.asList("invalid json"));
-
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
-    }
-
-    @Test
-    void createRequestBody_ShouldThrowExceptionForInvalidDestinationsJson() {
-        // given
-        when(mockSession.get("destinations")).thenReturn(Arrays.asList("invalid json"));
-
-        // when & then
-        assertThrows(RequestBodyCreationException.class,
-                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode));
+        assertThrows(
+                RequestBodyCreationException.class,
+                () -> MatrixAlgorithmLoadTest.createRequestBody(mockSession, mockMode)
+        );
     }
 
     @Test

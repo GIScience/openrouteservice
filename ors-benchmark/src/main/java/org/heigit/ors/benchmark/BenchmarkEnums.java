@@ -97,7 +97,7 @@ public class BenchmarkEnums {
 
         public List<String> getProfiles() {
             return switch (this) {
-                case ALGO_DIJKSTRA_MATRIX, ALGO_CORE_MATRIX, ALGO_RPHAST_MATRIX -> List.of("driving-car");//, "driving-hgv", "cycling-regular", "foot-walking");
+                case ALGO_DIJKSTRA_MATRIX, ALGO_CORE_MATRIX, ALGO_RPHAST_MATRIX -> List.of("driving-car");
             };
         }
         /**
