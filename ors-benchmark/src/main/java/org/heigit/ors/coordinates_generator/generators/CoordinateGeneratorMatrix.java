@@ -329,12 +329,15 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
             int currRetry = 0;
             List<double[]> snappedCoordinates = new ArrayList<>();
 
+            //First, generate a center coordinate for a matrix extent
+            double[] randomCoordinate = CoordinateGeneratorHelper.generateRandomPoint(extent);
+            double[] localExtent = createExtentAroundPoint(randomCoordinate, effectiveMaxDistance);
             while (snappedCoordinates.size() < targetNum && currRetry < maxRetries) {
-                List<double[]> randomCoordinate = CoordinateGeneratorHelper.randomCoordinatesInExtent(1,
-                        extent);
+                List<double[]> matrixCoordinate = CoordinateGeneratorHelper.randomCoordinatesInExtent(1,
+                        localExtent);
 
                 // Snap the coordinates to the road network
-                List<double[]> snappedCoordinate = coordinateSnapper.snapCoordinates(randomCoordinate, profile);
+                List<double[]> snappedCoordinate = coordinateSnapper.snapCoordinates(matrixCoordinate, profile);
                 snappedCoordinates.addAll(snappedCoordinate);
                 currRetry++;
             }
@@ -345,6 +348,30 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
             }
 
             return processSnappedCoordinates(snappedCoordinates, effectiveMaxDistance);
+        }
+
+        public static double[] createExtentAroundPoint(double[] coord, double maxExtentMeters) {
+            // Mean Earth radius in meters
+            final double R = 6_371_008.8;
+
+            // Half the desired side length
+            double halfSide = maxExtentMeters / 2.0;
+
+            // Convert center latitude to radians for the longitude calculation
+            double latRad = Math.toRadians(coord[1]);
+
+            // Δ latitude in degrees: (distance / radius) × (180/π)
+            double deltaLat = Math.toDegrees(halfSide / R);
+
+            // Δ longitude in degrees: (distance / (radius × cos(lat))) × (180/π)
+            double deltaLon = Math.toDegrees(halfSide / (R * Math.cos(latRad)));
+
+            double minLat = coord[1] - deltaLat;
+            double maxLat = coord[1] + deltaLat;
+            double minLon = coord[0] - deltaLon;
+            double maxLon = coord[0] + deltaLon;
+
+            return new double[] { minLon, minLat, maxLon, maxLat };
         }
 
         private boolean processSnappedCoordinates(List<double[]> snappedCoordinates, double maxDistance) {
@@ -409,11 +436,11 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
             for (double[] rowCoord : row) {
                 for (double[] colCoord : col) {
                     double distance = CoordinateGeneratorHelper.calculateHaversineDistance(rowCoord, colCoord);
-                    if (distance <= maxDistance)
-                        return true;
+                    if (distance > maxDistance)
+                        return false;
                 }
             }
-            return false;
+            return true;
         }
 
         /**
