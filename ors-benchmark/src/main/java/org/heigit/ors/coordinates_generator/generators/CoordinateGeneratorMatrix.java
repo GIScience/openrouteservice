@@ -480,7 +480,7 @@ public class CoordinateGeneratorMatrix extends AbstractCoordinateGenerator {
          */
         private boolean computeAndProcessMatrix(List<double[]> snappedCoordinates) {
             int[] sources = java.util.stream.IntStream.range(0, numRows).toArray();
-            int[] destinations = java.util.stream.IntStream.range(0, numCols).toArray();
+            int[] destinations = java.util.stream.IntStream.range(numRows, numRows + numCols).toArray();
 
             Optional<MatrixCalculator.MatrixResult> fullMatrixResult = matrixCalculator.calculateAsymmetricMatrix(
                     snappedCoordinates, sources, destinations, profile);
