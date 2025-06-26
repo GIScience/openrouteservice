@@ -84,7 +84,8 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
         if (useSidewalks) {
             // obtain default surface type for sidewalks
             SurfaceType sidewalkSurface = way.hasTag("sidewalk:surface") ?
-                    SurfaceType.getFromString(way.getTag("sidewalk:surface")) : waySurface;
+                    SurfaceType.getFromString(way.getTag("sidewalk:surface")) : SurfaceType.UNKNOWN;
+
             sidewalkSurface = way.hasTag("sidewalk:both:surface") ?
                     SurfaceType.getFromString(way.getTag("sidewalk:both:surface")) : sidewalkSurface;
 
