@@ -27,12 +27,12 @@ import org.heigit.ors.routing.util.WaySurfaceDescription;
 
 import java.util.HashSet;
 
+import static org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor.*;
+
 public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuilder {
     public static final String TAG_HIGHWAY = "highway";
     public static final String TAG_SURFACE = "surface";
     public static final String TAG_ROUTE = "route";
-    public static final String SW_VAL_RIGHT = "right";
-    public static final String SW_VAL_LEFT = "left";
 
     private WaySurfaceTypeGraphStorage storage;
     protected final HashSet<String> ferries;
@@ -114,12 +114,13 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
         value.setWayType(waySurfaceDescription.getWayType());
         value.setSurfaceType(waySurfaceDescription.getSurfaceType());
 
-        if (useSidewalks && way.hasTag("ors-sidewalk-side")) {
-            String side = way.getTag("ors-sidewalk-side");
-            if (side.equals(SW_VAL_LEFT)) {
+        if (useSidewalks && way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
+            value.setWayType(WayType.FOOTWAY);
+            String side = way.getTag(KEY_ORS_SIDEWALK_SIDE);
+            if (side.equals(VAL_LEFT)) {
                 value.setSurfaceType(sidewalkLeftSurface);
             }
-            else if (side.equals(SW_VAL_RIGHT)) {
+            else if (side.equals(VAL_RIGHT)) {
                 value.setSurfaceType(sidewalkRightSurface);
             }
         }
