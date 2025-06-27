@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class WaySurfaceTypeGraphStorageBuilderTest {
     private final static SurfaceType STREET_SURFACE = SurfaceType.ASPHALT;
     private final static SurfaceType SIDEWALK_SURFACE = SurfaceType.PAVING_STONE;
+    private final static SurfaceType SIDEWALK_SURFACE_OTHER = SurfaceType.CONCRETE;
 
     private WaySurfaceTypeGraphStorageBuilder builder;
 
@@ -23,7 +24,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
     }
 
     @Test
-    void TestProcessWayWithNoSidewalksSpecified() {
+    void TestWayWithNoSidewalksSpecified() {
         ReaderWay way = constructWay();
         builder.processWay(way);
         var waySurfaceDescription = builder.getStoredValue(way);
@@ -33,7 +34,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
 
     @ValueSource(strings = {"left", "right", "both"})
     @ParameterizedTest
-    void TestProcessWayWithSidewalkAttached(String side) {
+    void TestWayWithSidewalkAttached(String side) {
         ReaderWay way = constructWay();
         attachSidewalk(way, side, "paving_stones");
 
@@ -52,6 +53,31 @@ class WaySurfaceTypeGraphStorageBuilderTest {
             assertEquals(WayType.FOOTWAY, waySurfaceDescription.getWayType());
             assertEquals(SIDEWALK_SURFACE, waySurfaceDescription.getSurfaceType());
         }
+    }
+
+    @Test
+    void TestWayWithDifferentSidewalkSurfaces() {
+        ReaderWay way = constructWay();
+        way.setTag("sidewalk:left:surface", "paving_stones");
+        way.setTag("sidewalk:right:surface", "concrete");
+
+        builder.processWay(way);
+        var waySurfaceDescription = builder.getStoredValue(way);
+        assertEquals(WayType.STREET, waySurfaceDescription.getWayType());
+        assertEquals(STREET_SURFACE, waySurfaceDescription.getSurfaceType());
+
+        builder.setUseSidewalks(true);
+        builder.processWay(way);
+
+        way.setTag(KEY_ORS_SIDEWALK_SIDE, "right");
+        waySurfaceDescription = builder.getStoredValue(way);
+        assertEquals(WayType.FOOTWAY, waySurfaceDescription.getWayType());
+        assertEquals(SIDEWALK_SURFACE_OTHER, waySurfaceDescription.getSurfaceType());
+
+        way.setTag(KEY_ORS_SIDEWALK_SIDE, "left");
+        waySurfaceDescription = builder.getStoredValue(way);
+        assertEquals(WayType.FOOTWAY, waySurfaceDescription.getWayType());
+        assertEquals(SIDEWALK_SURFACE, waySurfaceDescription.getSurfaceType());
     }
 
     private ReaderWay constructWay() {
