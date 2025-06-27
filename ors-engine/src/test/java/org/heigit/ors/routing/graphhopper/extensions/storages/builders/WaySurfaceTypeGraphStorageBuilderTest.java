@@ -32,7 +32,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
         assertEquals(STREET_SURFACE, waySurfaceDescription.getSurfaceType());
     }
 
-    @ValueSource(strings = {"left", "right", "both"})
+    @ValueSource(strings = {"left", "right", "both", ""})
     @ParameterizedTest
     void TestWayWithSidewalkAttached(String side) {
         ReaderWay way = constructWay();
@@ -45,7 +45,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
 
         builder.setUseSidewalks(true);
         builder.processWay(way);
-        String[] sides = "both".equals(side) ? new String[]{"left", "right"} : new String[]{side};
+        String[] sides = "both".equals(side) || side.isEmpty() ? new String[]{"left", "right"} : new String[]{side};
 
         for (String s : sides) {
             way.setTag(KEY_ORS_SIDEWALK_SIDE, s);
