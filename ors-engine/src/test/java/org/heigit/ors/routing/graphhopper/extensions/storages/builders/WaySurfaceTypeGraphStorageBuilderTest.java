@@ -12,9 +12,9 @@ import static org.heigit.ors.routing.graphhopper.extensions.reader.osmfeaturepro
 import static org.junit.jupiter.api.Assertions.*;
 
 class WaySurfaceTypeGraphStorageBuilderTest {
-    private final static SurfaceType STREET_SURFACE = SurfaceType.ASPHALT;
-    private final static SurfaceType SIDEWALK_SURFACE = SurfaceType.PAVING_STONE;
-    private final static SurfaceType SIDEWALK_SURFACE_OTHER = SurfaceType.CONCRETE;
+    private static final SurfaceType STREET_SURFACE = SurfaceType.ASPHALT;
+    private static final SurfaceType SIDEWALK_SURFACE = SurfaceType.PAVING_STONE;
+    private static final SurfaceType SIDEWALK_SURFACE_OTHER = SurfaceType.CONCRETE;
 
     private WaySurfaceTypeGraphStorageBuilder builder;
 
@@ -24,7 +24,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
     }
 
     @Test
-    void TestWayWithNoSidewalksSpecified() {
+    void TestWayWithNoSidewalkSpecified() {
         ReaderWay way = constructWay();
         builder.processWay(way);
         var waySurfaceDescription = builder.getStoredValue(way);
@@ -32,11 +32,11 @@ class WaySurfaceTypeGraphStorageBuilderTest {
         assertEquals(STREET_SURFACE, waySurfaceDescription.getSurfaceType());
     }
 
-    @ValueSource(strings = {"left", "right", "both", ""})
+    @ValueSource(strings = {"left", "right", "both"})
     @ParameterizedTest
-    void TestWayWithSidewalkAttached(String side) {
+    void TestWayWithSidewalkSideAndSurfaceSpecified(String side) {
         ReaderWay way = constructWay();
-        attachSidewalk(way, side, "paving_stones");
+        attachSidewalk(way, side, "paving_stones", true);
 
         builder.processWay(way);
         var waySurfaceDescription = builder.getStoredValue(way);
@@ -55,11 +55,57 @@ class WaySurfaceTypeGraphStorageBuilderTest {
         }
     }
 
+    @ValueSource(strings = {"left", "right", "both", ""})
+    @ParameterizedTest
+    void TestWayWithSidewalkSurfaceSpecified(String side) {
+        ReaderWay way = constructWay();
+        attachSidewalk(way, side, "paving_stones", false);
+
+        builder.processWay(way);
+        var waySurfaceDescription = builder.getStoredValue(way);
+        assertEquals(WayType.STREET, waySurfaceDescription.getWayType());
+        assertEquals(STREET_SURFACE, waySurfaceDescription.getSurfaceType());
+
+        builder.setUseSidewalks(true);
+        builder.processWay(way);
+        String[] sides = "both".equals(side) || side.isEmpty() ? new String[]{"left", "right"} : new String[]{side};
+
+        for (String s : sides) {
+            way.setTag(KEY_ORS_SIDEWALK_SIDE, s);
+            waySurfaceDescription = builder.getStoredValue(way);
+            assertEquals(WayType.FOOTWAY, waySurfaceDescription.getWayType());
+            assertEquals(SIDEWALK_SURFACE, waySurfaceDescription.getSurfaceType());
+        }
+    }
+
+    @ValueSource(strings = {"left", "right", "both"})
+    @ParameterizedTest
+    void TestWayWithSidewalkSideButNoSurfaceSpecified(String side) {
+        ReaderWay way = constructWay();
+        attachSidewalk(way, side, "", true);
+
+        builder.processWay(way);
+        var waySurfaceDescription = builder.getStoredValue(way);
+        assertEquals(WayType.STREET, waySurfaceDescription.getWayType());
+        assertEquals(STREET_SURFACE, waySurfaceDescription.getSurfaceType());
+
+        builder.setUseSidewalks(true);
+        builder.processWay(way);
+        String[] sides = "both".equals(side) || side.isEmpty() ? new String[]{"left", "right"} : new String[]{side};
+
+        for (String s : sides) {
+            way.setTag(KEY_ORS_SIDEWALK_SIDE, s);
+            waySurfaceDescription = builder.getStoredValue(way);
+            assertEquals(WayType.FOOTWAY, waySurfaceDescription.getWayType());
+            assertEquals(SurfaceType.UNKNOWN, waySurfaceDescription.getSurfaceType());
+        }
+    }
+
     @Test
     void TestWayWithDifferentSidewalkSurfaces() {
         ReaderWay way = constructWay();
-        way.setTag("sidewalk:left:surface", "paving_stones");
-        way.setTag("sidewalk:right:surface", "concrete");
+        attachSidewalk(way, "left", "paving_stones", false);
+        attachSidewalk(way, "right", "concrete", false);
 
         builder.processWay(way);
         var waySurfaceDescription = builder.getStoredValue(way);
@@ -87,12 +133,13 @@ class WaySurfaceTypeGraphStorageBuilderTest {
         return way;
     }
 
-    private void attachSidewalk(ReaderWay way, String side, String surface) {
-        if (side.isEmpty()) {
-            way.setTag("sidewalk:surface", surface);
-        } else {
+    private void attachSidewalk(ReaderWay way, String side, String surface, boolean setSide) {
+        if (!side.isEmpty() && setSide) {
             way.setTag("sidewalk", side);
-            way.setTag("sidewalk:" + side + ":surface", surface);
+        }
+        if (!surface.isEmpty()) {
+            String tag = side.isEmpty() ? "sidewalk:surface" : "sidewalk:" + side + ":surface";
+            way.setTag(tag, surface);
         }
     }
 }
