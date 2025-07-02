@@ -23,7 +23,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
-import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.PedestrianWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
 import org.locationtech.jts.geom.Coordinate;
 
@@ -105,7 +105,7 @@ public class ORSOSMReader extends OSMReader {
         }
 
         if (detachSidewalksFromRoad) {
-            filtersToApply.add(new WheelchairWayFilter());//TODO: have a specialized filter for sidewalk surface only
+            filtersToApply.add(new PedestrianWayFilter());
         }
     }
 

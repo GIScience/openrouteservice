@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class WheelchairSeparateWayTest {
-    WheelchairSeparateWay way;
+class PedestrianSeparateWayTest {
+    PedestrianSeparateWay way;
 
     @BeforeEach
     void reset() {
         ReaderWay readerWay = new ReaderWay(1);
-        way = new WheelchairSeparateWay(readerWay);
+        way = new PedestrianSeparateWay(readerWay);
     }
 
     @Test
