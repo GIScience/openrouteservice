@@ -15,18 +15,11 @@ class PedestrianWayFilterTest {
     }
 
     @Test
-    void TestPedestrianisedWaysAreAccepted() {
+    void TestPedestrianisedWaysAreAccepted() throws InvalidObjectException {
         ReaderWay way = createSidewalkedWay(1);
 
-        try {
-            filter.assignFeatureForFiltering(way);
-
-            assertTrue(filter.accept());
-
-
-        } catch (InvalidObjectException ignored) {
-
-        }
+        filter.assignFeatureForFiltering(way);
+        assertTrue(filter.accept());
     }
 
     private ReaderWay createSidewalkedWay(int id) {
