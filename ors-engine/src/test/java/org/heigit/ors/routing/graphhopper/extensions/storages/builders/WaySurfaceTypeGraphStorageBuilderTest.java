@@ -24,7 +24,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
     }
 
     @Test
-    void TestWayWithNoSidewalk() {
+    void testWayWithNoSidewalk() {
         ReaderWay way = constructWay();
         builder.processWay(way);
         var waySurfaceDescription = builder.getStoredValue(way);
@@ -38,7 +38,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
             "left,true,false", "right,true,false", "both,true,false",
             "left,false,true", "right,false,true", "both,false,true", ",false,true"
     })
-    void TestWayWithSidewalk(String side, boolean setSide, boolean setSurface) {
+    void testWayWithSidewalk(String side, boolean setSide, boolean setSurface) {
         ReaderWay way = constructWay();
         side = side == null ? "" : side;
         String surface = setSurface ? SIDEWALK_SURFACE.name().toLowerCase() : "";
@@ -62,7 +62,7 @@ class WaySurfaceTypeGraphStorageBuilderTest {
     }
 
     @Test
-    void TestWayWithSidewalkSurfaceDifferentBetweenSides() {
+    void testWayWithSidewalkSurfaceDifferentBetweenSides() {
         ReaderWay way = constructWay();
         attachSidewalk(way, "left", "paving_stones", false);
         attachSidewalk(way, "right", "concrete", false);

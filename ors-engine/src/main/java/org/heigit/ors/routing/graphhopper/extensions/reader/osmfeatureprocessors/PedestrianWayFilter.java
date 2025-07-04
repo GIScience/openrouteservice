@@ -25,7 +25,7 @@ public class PedestrianWayFilter implements OSMFeatureFilter {
                 this.osmWay = new PedestrianSeparateWay(way);
             }
         } else {
-            throw new InvalidObjectException("Wheelchair Filtering can only be applied to ways");
+            throw new InvalidObjectException("Pedestrian filtering can only be applied to ways");
         }
     }
 
