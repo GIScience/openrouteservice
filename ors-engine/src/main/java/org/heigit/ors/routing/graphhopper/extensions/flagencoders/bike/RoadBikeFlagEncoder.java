@@ -116,7 +116,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setSurfaceSpeed("sand", PUSHING_SECTION_SPEED / 2);
         setSurfaceSpeed("wood", PUSHING_SECTION_SPEED / 2);
 
-        setHighwaySpeed("cycleway", 18);
+        setHighwaySpeed(KEY_CYCLEWAY, 18);
         setHighwaySpeed("path", 8);
         setHighwaySpeed("footway", 6);
         setHighwaySpeed("pedestrian", 6);
@@ -173,6 +173,8 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
             } else if (trackType == null || trackType.startsWith("grade")) {
                 weightToPrioMap.put(110d, AVOID_AT_ALL_COSTS.getValue());
             }
+        } else if (way.hasTag("foot", intendedValues)) {
+            weightToPrioMap.put(110d, AVOID_IF_POSSIBLE.getValue());
         }
     }
 
