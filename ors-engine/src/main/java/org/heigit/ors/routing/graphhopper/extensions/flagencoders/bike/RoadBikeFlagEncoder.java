@@ -45,6 +45,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     public static final String VAL_SERVICE = "service";
     public static final String VAL_UNCLASSIFIED = "unclassified";
     public static final String VAL_HIGHWAY = "highway";
+    public static final String VAL_ROAD = "road";
 
     public RoadBikeFlagEncoder() {
         // MARQ24 MOD START
@@ -75,7 +76,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     public RoadBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts, boolean considerElevation) {
         super(speedBits, speedFactor, maxTurnCosts, considerElevation);
         // MARQ24 MOD END
-        preferHighwayTags.add("road");
+        preferHighwayTags.add(VAL_ROAD);
         preferHighwayTags.add(VAL_SECONDARY);
         preferHighwayTags.add(VAL_SECONDARY_LINK);
         preferHighwayTags.add(VAL_TERTIARY);
@@ -119,7 +120,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setHighwaySpeed("path", 8);
         setHighwaySpeed("footway", 6);
         setHighwaySpeed("pedestrian", 6);
-        setHighwaySpeed("road", 12);
+        setHighwaySpeed(VAL_ROAD, 20);
         setHighwaySpeed(VAL_TRACK, PUSHING_SECTION_SPEED / 2); // assume unpaved
         setHighwaySpeed(VAL_SERVICE, 12);
         setHighwaySpeed(VAL_UNCLASSIFIED, 20);
