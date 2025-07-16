@@ -117,6 +117,7 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setSurfaceSpeed("wood", PUSHING_SECTION_SPEED / 2);
 
         setHighwaySpeed(KEY_CYCLEWAY, 18);
+        setHighwaySpeed("living_street", 10);
         setHighwaySpeed("path", 8);
         setHighwaySpeed("footway", 6);
         setHighwaySpeed("pedestrian", 6);
