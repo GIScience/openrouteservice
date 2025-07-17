@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+JDK update to secure java builds
 
 ### Deprecated
 
