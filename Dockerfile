@@ -31,7 +31,7 @@ FROM docker.io/golang:1.24.2-alpine3.21 AS build-go
 RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.45.1
 
 # build final image, just copying stuff inside
-FROM docker.io/amazoncorretto:21.0.9-alpine3.21 AS publish
+FROM docker.io/amazoncorretto:21.0.8-alpine3.21 AS publish
 
 # Build ARGS
 ARG UID=1000
