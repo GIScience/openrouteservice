@@ -1,5 +1,5 @@
 # Image is reused in the workflow builds for master and the latest version
-FROM docker.io/maven:3.9.9-amazoncorretto-21-alpine AS build
+FROM docker.io/maven:3.9.10-amazoncorretto-21-alpine AS build
 ARG DEBIAN_FRONTEND=noninteractive
 
 # hadolint ignore=DL3002
@@ -31,7 +31,7 @@ FROM docker.io/golang:1.24.2-alpine3.21 AS build-go
 RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.45.1
 
 # build final image, just copying stuff inside
-FROM docker.io/amazoncorretto:21.0.6-alpine3.21 AS publish
+FROM docker.io/amazoncorretto:21.0.9-alpine3.21 AS publish
 
 # Build ARGS
 ARG UID=1000
