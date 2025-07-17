@@ -38,6 +38,7 @@ Releasing is documented in RELEASE.md
 ### Fixed
 
 ### Security
+- update OpenJDK to 21.0.8 due to [CVE-2025-30749](https://nvd.nist.gov/vuln/detail/CVE-2025-30749), [CVE-2025-30754](https://nvd.nist.gov/vuln/detail/CVE-2025-30754), [CVE-2025-50059](https://nvd.nist.gov/vuln/detail/CVE-2025-50059), [CVE-2025-50106](https://nvd.nist.gov/vuln/detail/CVE-2025-50106), [CVE-2025-21587](https://nvd.nist.gov/vuln/detail/CVE-2025-21587), [CVE-2025-30691](https://nvd.nist.gov/vuln/detail/CVE-2025-30691), [CVE-2025-30698](https://nvd.nist.gov/vuln/detail/CVE-2025-30698)
 
 
 ## [9.3.0] - 2025-06-06
