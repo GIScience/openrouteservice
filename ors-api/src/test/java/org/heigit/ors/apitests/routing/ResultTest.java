@@ -1493,7 +1493,7 @@ class ResultTest extends ServiceTest {
         body.put("coordinates", HelperFunctions.constructCoords("8.688694,49.399374|8.686495,49.40349"));
         body.put("preference", getParameter("preference"));
         body.put("geometry", true);
-        body.put("bearings", constructBearings("25,30|90,20"));
+        body.put("bearings", constructBearings("25,30|270,20"));
 
         given()
                 .config(JSON_CONFIG_DOUBLE_NUMBERS)
@@ -1505,7 +1505,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(804.9, 1)))
+                .body("routes[0].summary.distance", is(closeTo(647.2f, 1)))
                 .statusCode(200);
     }
 
@@ -1518,6 +1518,7 @@ class ResultTest extends ServiceTest {
         body.put("bearings", constructBearings("25,30"));
 
         given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
                 .headers(CommonHeaders.jsonContent)
                 .pathParam("profile", "cycling-road")
                 .body(body.toString())
@@ -1526,7 +1527,7 @@ class ResultTest extends ServiceTest {
                 .then()
                 .assertThat()
                 .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(647.2f))
+                .body("routes[0].summary.distance", is(closeTo(804.7f, 1)))
                 .statusCode(200);
     }
 
