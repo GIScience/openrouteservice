@@ -36,6 +36,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- correct way type and surface extra info metadata for pedestrian routes that involve sidewalks attached to streets ([#2075](https://github.com/GIScience/openrouteservice/pull/2075))
 
 ### Security
 - update OpenJDK to 21.0.8 due to [CVE-2025-30749](https://nvd.nist.gov/vuln/detail/CVE-2025-30749), [CVE-2025-30754](https://nvd.nist.gov/vuln/detail/CVE-2025-30754), [CVE-2025-50059](https://nvd.nist.gov/vuln/detail/CVE-2025-50059), [CVE-2025-50106](https://nvd.nist.gov/vuln/detail/CVE-2025-50106), [CVE-2025-21587](https://nvd.nist.gov/vuln/detail/CVE-2025-21587), [CVE-2025-30691](https://nvd.nist.gov/vuln/detail/CVE-2025-30691), [CVE-2025-30698](https://nvd.nist.gov/vuln/detail/CVE-2025-30698)
@@ -48,7 +49,7 @@ Releasing is documented in RELEASE.md
 - include OSM data version (`osm_date`) in the API response ([#1192](https://github.com/GIScience/openrouteservice/issues/1192))
 - added documentation for isochrone attributes ([#846](https://github.com/GIScience/openrouteservice/issues/846))
 - include `graph_date` and `osm_date` in the GPX response ([#2055](https://github.com/GIScience/openrouteservice/issues/2055))
-- use country information from an enriched OSM file containing nodes tagged with country IDs ([1753](https://github.com/GIScience/openrouteservice/pull/1753))
+- use country information from an enriched OSM file containing nodes tagged with country IDs ([#1753](https://github.com/GIScience/openrouteservice/pull/1753))
 
 ### Changed
 - refactor: core node ID map using DataAccess ([#2074](https://github.com/GIScience/openrouteservice/pull/2074))

@@ -5,12 +5,12 @@ import com.graphhopper.reader.ReaderWay;
 
 import java.io.InvalidObjectException;
 
-public class WheelchairWayFilter implements OSMFeatureFilter {
+public class PedestrianWayFilter implements OSMFeatureFilter {
     private final OSMAttachedSidewalkProcessor osmAttachedSidewalkProcessor;
 
     private Way osmWay;
 
-    public WheelchairWayFilter() {
+    public PedestrianWayFilter() {
         super();
         osmAttachedSidewalkProcessor = new OSMAttachedSidewalkProcessor();
     }
@@ -20,12 +20,12 @@ public class WheelchairWayFilter implements OSMFeatureFilter {
         if (element instanceof ReaderWay way) {
 
             if (osmAttachedSidewalkProcessor.hasSidewalkInfo(way)) {
-                this.osmWay = new WheelchairSidewalkWay(way);
+                this.osmWay = new PedestrianSidewalkWay(way);
             } else {
-                this.osmWay = new WheelchairSeparateWay(way);
+                this.osmWay = new PedestrianSeparateWay(way);
             }
         } else {
-            throw new InvalidObjectException("Wheelchair Filtering can only be applied to ways");
+            throw new InvalidObjectException("Pedestrian filtering can only be applied to ways");
         }
     }
 

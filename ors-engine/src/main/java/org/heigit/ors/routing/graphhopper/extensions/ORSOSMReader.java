@@ -23,7 +23,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.shapes.GHPoint;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMFeatureFilter;
-import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.WheelchairWayFilter;
+import org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.PedestrianWayFilter;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.*;
 import org.locationtech.jts.geom.Coordinate;
 
@@ -75,7 +75,6 @@ public class ORSOSMReader extends OSMReader {
             }
 
             if (b instanceof WheelchairGraphStorageBuilder) {
-                filtersToApply.add(new WheelchairWayFilter());
                 this.processNodeTags = true;
                 this.detachSidewalksFromRoad = true;
                 this.processSimpleGeom = true;
@@ -99,6 +98,14 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("motorcar");
                 extraTagKeys.add("motorcycle");
             }
+
+            if (b instanceof WaySurfaceTypeGraphStorageBuilder bb) {
+                this.detachSidewalksFromRoad = bb.isUseSidewalks();
+            }
+        }
+
+        if (detachSidewalksFromRoad) {
+            filtersToApply.add(new PedestrianWayFilter());
         }
     }
 

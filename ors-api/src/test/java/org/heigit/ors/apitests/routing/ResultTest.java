@@ -4617,6 +4617,33 @@ class ResultTest extends ServiceTest {
                 .statusCode(200);
     }
 
+    @Test
+    void testSidewalkSurface() {
+        JSONObject body = new JSONObject()
+                .put("coordinates",HelperFunctions.constructCoords("8.69840,49.408406|8.69816,49.408937"))
+                .put("preference", "shortest")
+                .put("extra_info", constructExtras("waytype|surface"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("footProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].extras.containsKey('waytype')", is(true))
+                .body("routes[0].extras.waytype.summary[0].value", is(7.0))
+                .body("routes[0].extras.waytype.summary[0].amount", is(100.0))
+                .body("routes[0].extras.containsKey('surface')", is(true))
+                .body("routes[0].extras.surface.summary[0].value", is(14.0))
+                .body("routes[0].extras.surface.summary[0].amount", is(100.0))
+
+                .statusCode(200);
+    }
+
     private JSONArray constructBearings(String coordString) {
         JSONArray coordinates = new JSONArray();
         String[] coordPairs = coordString.split("\\|");

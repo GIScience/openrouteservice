@@ -29,7 +29,7 @@ public enum SurfaceType {
     DIRT(11),
     GROUND(12),
     ICE(13),
-    PAVING_STONE(14),
+    PAVING_STONES(14),
     SAND(15),
     GRASS(17),
     GRASS_PAVER(18);
@@ -62,7 +62,7 @@ public enum SurfaceType {
             case "unpaved", "woodchips", "rock", "rocks", "stone", "shells", "salt" -> SurfaceType.UNPAVED;
             case "asphalt", "chipseal", "bitmac", "tarmac" -> SurfaceType.ASPHALT;
             case "concrete", "cement" -> SurfaceType.CONCRETE;
-            case "paving_stones", "paved_stones", "sett", "cobblestone", "unhewn_cobblestone", "bricks", "brick" -> SurfaceType.PAVING_STONE;
+            case "paving_stones", "paved_stones", "sett", "cobblestone", "unhewn_cobblestone", "bricks", "brick" -> SurfaceType.PAVING_STONES;
             case "metal" -> SurfaceType.METAL;
             case "wood" -> SurfaceType.WOOD;
             case "compacted", "pebblestone" -> SurfaceType.COMPACTED_GRAVEL;
