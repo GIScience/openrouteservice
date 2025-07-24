@@ -13,7 +13,9 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
+import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
+import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersHierarchy;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
@@ -21,8 +23,10 @@ import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.io.IOException;
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class BordersGraphStorageBuilderTest {
     private final BordersGraphStorageBuilder _builder;
@@ -87,12 +91,48 @@ class BordersGraphStorageBuilderTest {
         _cbr.addHierarchy(1L, h);
         _cbr.addHierarchy(2L, h2);
         _builder.setBordersBuilder(_cbr);
+    }
 
-        try {
-            _builder.init(null);
-        } catch (Exception ignored) {
+    /*
+     * Test that the builder successfully initializes with a valid boundaries file and throws an exception
+     * if the boundaries file is invalid.
+     */
+    @Test
+    void TestInit() {
+        BordersGraphStorageBuilder builder = new BordersGraphStorageBuilder();
+        ExtendedStorageProperties parameters = new ExtendedStorageProperties();
+        builder.setParameters(parameters);
+        parameters.setIds(Path.of("../ors-api/src/test/files/borders/ids.csv"));
+        parameters.setOpenborders(Path.of("../ors-api/src/test/files/borders/openborders.csv"));
 
-        }
+        parameters.setBoundaries(Path.of("foo.bar"));
+        assertThrows(IOException.class, () -> {
+            builder.init(new GraphHopper());
+        });
+
+        parameters.setBoundaries(Path.of("../ors-api/src/test/files/borders/borders.geojson"));
+        assertDoesNotThrow(() -> {
+            builder.init(new GraphHopper());
+        });
+    }
+
+    /*
+     * Test that the builder successfully initializes for preprocessed OSM data in case of invalid boundaries file,
+     * as it is not needed for already annotated data.
+     */
+    @Test
+    void TestInitPreprocessed() {
+        BordersGraphStorageBuilder builder = new BordersGraphStorageBuilder();
+        ExtendedStorageProperties parameters = new ExtendedStorageProperties();
+        parameters.setPreprocessed(true);
+        parameters.setBoundaries(Path.of("foo.bar"));
+        parameters.setIds(Path.of("../ors-api/src/test/files/borders/ids.csv"));
+        parameters.setOpenborders(Path.of("../ors-api/src/test/files/borders/openborders.csv"));
+        builder.setParameters(parameters);
+
+        assertDoesNotThrow(() -> {
+            builder.init(new GraphHopper());
+        });
     }
 
     /**
