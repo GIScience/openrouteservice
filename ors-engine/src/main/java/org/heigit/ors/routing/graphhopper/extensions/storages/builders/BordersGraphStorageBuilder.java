@@ -91,14 +91,16 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             String countryIdsFile = "";
             String openBordersFile = "";
 
-            preprocessed = parameters.getPreprocessed();
+            preprocessed = Boolean.TRUE.equals(parameters.getPreprocessed());
 
-            if (parameters.getBoundaries() != null)
-                bordersFile = parameters.getBoundaries().toString();
-            else if (!preprocessed) {
-                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
-                // We cannot continue without the information
-                throw new MissingResourceException("An OSM file enriched with country tags or a boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
+            if (!preprocessed) {
+                if (parameters.getBoundaries() != null) {
+                    bordersFile = parameters.getBoundaries().toString();
+                } else {
+                    ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
+                    // We cannot continue without the information
+                    throw new MissingResourceException("An OSM file enriched with country tags or a boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
+                }
             }
 
             if (parameters.getIds() != null)
@@ -119,8 +121,8 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
             cbReader = CountryBordersReader.deserialize(expectedStorageFileLocation2);
         }
         storage = new BordersGraphStorage();
-        return storage;
 
+        return storage;
     }
 
     /**
