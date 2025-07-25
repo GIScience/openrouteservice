@@ -2,10 +2,10 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessor
 
 import com.graphhopper.reader.ReaderWay;
 
-public class WheelchairSeparateWay extends PedestrianWay {
+public class PedestrianSeparateWay extends PedestrianWay {
     boolean hasBeenProcessed = false;
 
-    public WheelchairSeparateWay(ReaderWay way) {
+    public PedestrianSeparateWay(ReaderWay way) {
         super(way);
     }
 

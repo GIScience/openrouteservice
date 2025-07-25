@@ -5,16 +5,16 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class WheelchairSidewalkWayTest {
+class PedestrianSidewalkWayTest {
     @Test
     void TestShowAsPedestrian() {
-        WheelchairSidewalkWay way = new WheelchairSidewalkWay(new ReaderWay(1));
+        PedestrianSidewalkWay way = new PedestrianSidewalkWay(new ReaderWay(1));
         assertTrue(way.isPedestrianised());
     }
 
     @Test
     void TestInitiallyProcessedIfNoSidewalk() {
-        WheelchairSidewalkWay way = new WheelchairSidewalkWay(new ReaderWay(1));
+        PedestrianSidewalkWay way = new PedestrianSidewalkWay(new ReaderWay(1));
         assertTrue(way.hasWayBeenFullyProcessed());
     }
 
@@ -22,7 +22,7 @@ class WheelchairSidewalkWayTest {
     void TestInitiallyNotProcessedIfSidewalk() {
         ReaderWay readerWay = new ReaderWay(1);
         readerWay.setTag("sidewalk", "left");
-        WheelchairSidewalkWay way = new WheelchairSidewalkWay(readerWay);
+        PedestrianSidewalkWay way = new PedestrianSidewalkWay(readerWay);
         assertFalse(way.hasWayBeenFullyProcessed());
     }
 
@@ -30,7 +30,7 @@ class WheelchairSidewalkWayTest {
     void TestThatBothSidesGetProcessed() {
         ReaderWay readerWay = new ReaderWay(1);
         readerWay.setTag("sidewalk", "both");
-        WheelchairSidewalkWay way = new WheelchairSidewalkWay(readerWay);
+        PedestrianSidewalkWay way = new PedestrianSidewalkWay(readerWay);
 
         int count = 0;
 

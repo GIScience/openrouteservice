@@ -3,12 +3,12 @@ package org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessor
 import com.graphhopper.reader.ReaderWay;
 
 
-public class WheelchairSidewalkWay extends PedestrianWay {
+public class PedestrianSidewalkWay extends PedestrianWay {
     private final OSMAttachedSidewalkProcessor sidewalkProcessor;
     private final OSMAttachedSidewalkProcessor.Side side;
     private OSMAttachedSidewalkProcessor.Side lastPrepared = OSMAttachedSidewalkProcessor.Side.NONE;
 
-    public WheelchairSidewalkWay(ReaderWay way) {
+    public PedestrianSidewalkWay(ReaderWay way) {
         super(way);
 
         sidewalkProcessor = new OSMAttachedSidewalkProcessor();
