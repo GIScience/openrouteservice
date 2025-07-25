@@ -30,6 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- improved road bike average speed to be faster on cycleways and slower on bad road surface or certain road types such as footways.
 
 ### Deprecated
 
