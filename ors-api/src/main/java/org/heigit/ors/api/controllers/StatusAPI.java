@@ -75,6 +75,8 @@ public class StatusAPI {
                     list.add("matrix");
                 if (endpointsProperties.getSnap().isEnabled())
                     list.add("snap");
+                if (endpointsProperties.getMatch().isEnabled())
+                    list.add("match");
                 jInfo.put("services", list);
                 jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
 
