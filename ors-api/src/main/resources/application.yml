@@ -105,6 +105,9 @@ ors:
       enabled: true
       attribution: openrouteservice.org, OpenStreetMap contributors
       maximum_locations: 5000
+    match:
+      enabled: true
+      attribution: openrouteservice.org, OpenStreetMap contributors
 
   ##### ORS engine settings #####
   engine:
