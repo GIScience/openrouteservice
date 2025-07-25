@@ -18,7 +18,6 @@ import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.GraphExtension;
 import com.graphhopper.util.EdgeIteratorState;
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPolygon;
 import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
@@ -28,6 +27,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,52 +79,54 @@ public class BordersGraphStorageBuilder extends AbstractGraphStorageBuilder {
         if (storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        ExtendedStorageProperties parameters;
-        parameters = this.parameters;
-
         File expectedStorageFileLocation1 = Path.of(graphhopper.getGraphHopperLocation() + "/ext_borders").toFile();
         File expectedStorageFileLocation2 = Path.of(graphhopper.getGraphHopperLocation() + "/ext_borders_cbr").toFile();
+
         if (this.cbReader == null && (!expectedStorageFileLocation1.exists() || !expectedStorageFileLocation2.exists())) {
-            // Read the border shapes from the file
-            // First check if parameters are present
-            String bordersFile = "";
-            String countryIdsFile = "";
-            String openBordersFile = "";
-
-            preprocessed = parameters.getPreprocessed();
-
-            if (parameters.getBoundaries() != null)
-                bordersFile = parameters.getBoundaries().toString();
-            else if (!preprocessed) {
-                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
-                // We cannot continue without the information
-                throw new MissingResourceException("An OSM file enriched with country tags or a boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
-            }
-
-            if (parameters.getIds() != null)
-                countryIdsFile = parameters.getIds().toString();
-            else
-                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_IDS);
-
-            if (parameters.getOpenborders() != null)
-                openBordersFile = parameters.getOpenborders().toString();
-            else
-                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_OPEN_BORDERS);
-
-            // Read the file containing all of the country border polygons
-            cbReader = new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
+            cbReader = createCountryBordersReader();
             cbReader.serialize(expectedStorageFileLocation2);
         }
         if (cbReader == null && expectedStorageFileLocation2.exists()) {
             cbReader = CountryBordersReader.deserialize(expectedStorageFileLocation2);
         }
         storage = new BordersGraphStorage();
-        return storage;
 
+        return storage;
+    }
+
+    private CountryBordersReader createCountryBordersReader() throws IOException {
+        String bordersFile = "";
+        String countryIdsFile = "";
+        String openBordersFile = "";
+
+        preprocessed = Boolean.TRUE.equals(parameters.getPreprocessed());
+
+        if (!preprocessed) {
+            if (parameters.getBoundaries() != null) {
+                bordersFile = parameters.getBoundaries().toString();
+            } else {
+                ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_BOUNDARIES);
+                // We cannot continue without the information
+                throw new MissingResourceException("An OSM file enriched with country tags or a boundary geometry file is needed to use the borders extended storage!", BordersGraphStorage.class.getName(), PARAM_KEY_BOUNDARIES);
+            }
+        }
+
+        if (parameters.getIds() != null)
+            countryIdsFile = parameters.getIds().toString();
+        else
+            ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_IDS);
+
+        if (parameters.getOpenborders() != null)
+            openBordersFile = parameters.getOpenborders().toString();
+        else
+            ErrorLoggingUtility.logMissingConfigParameter(BordersGraphStorageBuilder.class, PARAM_KEY_OPEN_BORDERS);
+
+        // Read the file containing all the country border polygons
+        return new CountryBordersReader(bordersFile, countryIdsFile, openBordersFile);
     }
 
     /**
-     * COverwrite the current reader with a custom built CountryBordersReader.
+     * Overwrite the current reader with a custom-built CountryBordersReader.
      *
      * @param cbr The CountryBordersReader object to be used
      */
