@@ -21,6 +21,7 @@ public class EndpointsProperties {
     private EndpointMatrixProperties matrix;
     private EndpointIsochronesProperties isochrones;
     private EndpointSnapProperties snap;
+    private EndpointSnapProperties match;
     private String swaggerDocumentationUrl;
 
     @Getter
