@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.config.SystemMessageProperties;
