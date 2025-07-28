@@ -27,7 +27,7 @@ import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.matching.MatchingApiRequest;
-import org.heigit.ors.api.responses.snapping.json.JsonSnappingResponse;
+import org.heigit.ors.api.responses.matching.MatchingResponse;
 import org.heigit.ors.api.services.MatchingService;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.exceptions.MissingParameterException;
@@ -35,7 +35,6 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matching.MatchingErrorCodes;
 import org.heigit.ors.matching.MatchingResult;
-import org.heigit.ors.snapping.SnappingErrorCodes;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -47,7 +46,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Matching service", description = "Match geometries to graph edges")
 @RequestMapping("/v2/match")
 public class MatchingAPI {
-    static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(SnappingErrorCodes.BASE);
+    static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(MatchingErrorCodes.BASE);
 
     private final EndpointsProperties endpointsProperties;
     private final SystemMessageProperties systemMessageProperties;
@@ -76,7 +75,7 @@ public class MatchingAPI {
     @PostMapping(value = "/{profile}/*")
     @Operation(hidden = true)
     public void getInvalidResponseType() throws StatusCodeException {
-        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, SnappingErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
+        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, MatchingErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
     }
 
     // Functional request methods
@@ -92,7 +91,7 @@ public class MatchingAPI {
             description = "Standard response for successfully processed requests. Returns JSON.",
             content = {@Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = JsonSnappingResponse.class)
+                    schema = @Schema(implementation = MatchingResponse.class)
             )
             })
     public ResponseEntity<?> getMatching(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
@@ -110,6 +109,10 @@ public class MatchingAPI {
         return new ResponseEntity<>(jsonResponse.toJSONString(), headers, HttpStatus.OK);
     }
 
+    @ExceptionHandler(StatusCodeException.class)
+    public ResponseEntity<Object> handleException(final StatusCodeException e) {
+        return errorHandler.handleStatusCodeException(e);
+    }
     private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
         EncoderNameEnum encoderForProfile = matchingService.getEncoderForProfile(profile);
         return APIEnums.Profile.forValue(encoderForProfile.getEncoderName());
