@@ -99,12 +99,12 @@ public class MatchingAPI {
         request.setProfile(getProfileEnum(profile));
         request.setProfileName(profile);
 
-        MatchingResult result = matchingService.generateSnappingFromRequest(request);
+        MatchingResult result = matchingService.generateMatchingFromRequest(request);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         JSONObject jsonResponse = new JSONObject();
-        jsonResponse.put("graphDate", result.getGraphDate());
+        jsonResponse.put("graph_date", result.getGraphDate());
 
         return new ResponseEntity<>(jsonResponse.toJSONString(), headers, HttpStatus.OK);
     }
