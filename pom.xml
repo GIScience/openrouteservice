@@ -61,7 +61,7 @@
         <commons-compress.version>1.27.1</commons-compress.version>
         <commons-compiler.version>3.1.12</commons-compiler.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
-        <jts.version>1.19.0</jts.version>
+        <jts.version>1.20.0</jts.version>
         <org-json.version>20240303</org-json.version>
         <postgresql.version>42.7.3</postgresql.version>
         <progressbar.version>0.10.0</progressbar.version>
@@ -399,6 +399,12 @@
             <dependency>
                 <groupId>org.locationtech.jts</groupId>
                 <artifactId>jts-core</artifactId>
+                <version>${jts.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.locationtech.jts.io</groupId>
+                <artifactId>jts-io-common</artifactId>
                 <version>${jts.version}</version>
             </dependency>
 

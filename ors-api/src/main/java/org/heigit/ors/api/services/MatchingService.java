@@ -9,11 +9,14 @@ import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.PointNotFoundException;
 import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.matching.MatchingErrorCodes;
 import org.heigit.ors.matching.MatchingRequest;
 import org.heigit.ors.matching.MatchingResult;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.snapping.SnappingErrorCodes;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,14 +36,14 @@ public class MatchingService extends ApiService {
         try {
             RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(matchingRequest.getProfileName());
             if (rp == null)
-                throw new InternalServerException(SnappingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+                throw new InternalServerException(MatchingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
             return matchingRequest.computeResult(rp);
         } catch (PointNotFoundException e) {
-            throw new StatusCodeException(StatusCode.NOT_FOUND, SnappingErrorCodes.POINT_NOT_FOUND, e.getMessage());
+            throw new StatusCodeException(StatusCode.NOT_FOUND, MatchingErrorCodes.POINT_NOT_FOUND, e.getMessage());
         } catch (StatusCodeException e) {
             throw e;
         } catch (Exception e) {
-            throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, SnappingErrorCodes.UNKNOWN);
+            throw new StatusCodeException(StatusCode.INTERNAL_SERVER_ERROR, MatchingErrorCodes.UNKNOWN);
         }
     }
 
@@ -49,12 +52,30 @@ public class MatchingService extends ApiService {
         try {
             profileType = convertRouteProfileType(matchingApiRequest.getProfile());
         } catch (Exception e) {
-            throw new ParameterValueException(SnappingErrorCodes.INVALID_PARAMETER_VALUE, SnappingApiRequest.PARAM_PROFILE);
+            throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_PROFILE);
         }
 
         MatchingRequest matchingRequest = new MatchingRequest(profileType);
+        if (matchingApiRequest.getProfileName() == null || matchingApiRequest.getProfileName().isEmpty()) {
+            throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_PROFILE);
+        }
         matchingRequest.setProfileName(matchingApiRequest.getProfileName());
-
+        if (matchingApiRequest.getKey() == null || matchingApiRequest.getKey().isEmpty()) {
+            throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_KEY);
+        }
+        matchingRequest.setKey(matchingApiRequest.getKey());
+        if (matchingApiRequest.getFeatures() == null || matchingApiRequest.getFeatures().isEmpty()) {
+            throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_FEATURES);
+        }
+        GeoJsonReader reader = new GeoJsonReader();
+        try {
+            Geometry geometry = reader.read(matchingApiRequest.getFeatures().toJSONString());
+            System.out.println("Geometry type: " + geometry.getGeometryType());
+            System.out.println("Coordinates: " + geometry);
+            matchingRequest.setGeometry(geometry);
+        } catch (Exception e) {
+            throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_FEATURES);
+        }
         return matchingRequest;
     }
 
