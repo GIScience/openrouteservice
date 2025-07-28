@@ -176,7 +176,140 @@ class ParamsTest extends ServiceTest {
             "  }\n" +
             "}\n" +
             "  ";
-
+    private static final String geoJSONSingleGeometry = "{\n" +
+            "  \"coordinates\": [\n" +
+            "    [\n" +
+            "      8.676513391112195,\n" +
+            "      49.4169131706428\n" +
+            "    ],\n" +
+            "    [\n" +
+            "      8.676561249583898,\n" +
+            "      49.41905360928652\n" +
+            "    ],\n" +
+            "    [\n" +
+            "      8.676465532639412,\n" +
+            "      49.4209526839596\n" +
+            "    ],\n" +
+            "    [\n" +
+            "      8.676920188125592,\n" +
+            "      49.42175432047108\n" +
+            "    ],\n" +
+            "    [\n" +
+            "      8.678260225347856,\n" +
+            "      49.42271938006394\n" +
+            "    ]\n" +
+            "  ],\n" +
+            "  \"type\": \"LineString\"\n" +
+            "}";
+    private static final String geoJSONMissingProperties = "{\n" +
+            "  \"type\": \"FeatureCollection\",\n" +
+            "  \"features\": [\n" +
+            "    {\n" +
+            "      \"type\": \"Feature\",\n" +
+            "      \"properties\": {\n" +
+            "        \"type\": 1,\n" +
+            "        \"constraints\": 2\n" +
+            "      },\n" +
+            "      \"geometry\": {\n" +
+            "        \"coordinates\": [\n" +
+            "          8.680647166648555,\n" +
+            "          49.42176599469272\n" +
+            "        ],\n" +
+            "        \"type\": \"Point\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"type\": \"Feature\",\n" +
+            "      \"geometry\": {\n" +
+            "        \"coordinates\": [\n" +
+            "          [\n" +
+            "            8.676513391112195,\n" +
+            "            49.4169131706428\n" +
+            "          ],\n" +
+            "          [\n" +
+            "            8.676561249583898,\n" +
+            "            49.41905360928652\n" +
+            "          ],\n" +
+            "          [\n" +
+            "            8.676465532639412,\n" +
+            "            49.4209526839596\n" +
+            "          ],\n" +
+            "          [\n" +
+            "            8.676920188125592,\n" +
+            "            49.42175432047108\n" +
+            "          ],\n" +
+            "          [\n" +
+            "            8.678260225347856,\n" +
+            "            49.42271938006394\n" +
+            "          ]\n" +
+            "        ],\n" +
+            "        \"type\": \"LineString\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"type\": \"Feature\",\n" +
+            "      \"properties\": {\n" +
+            "        \"type\": 1,\n" +
+            "        \"constraints\": 0\n" +
+            "      },\n" +
+            "      \"geometry\": {\n" +
+            "        \"coordinates\": [\n" +
+            "          [\n" +
+            "            [\n" +
+            "              8.68236408933791,\n" +
+            "              49.420614124800636\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.68266320478918,\n" +
+            "              49.41815852811973\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.68326741800152,\n" +
+            "              49.4172050541369\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.68477495987537,\n" +
+            "              49.41715835289463\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.686132944024052,\n" +
+            "              49.41723229650793\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.686617511055516,\n" +
+            "              49.418329762301454\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.68653974103853,\n" +
+            "              49.41927153962135\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.686276519441378,\n" +
+            "              49.419567300670565\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.68604919169826,\n" +
+            "              49.420699737682185\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.685738111628325,\n" +
+            "              49.42101105599241\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.682752939424859,\n" +
+            "              49.42080869931536\n" +
+            "            ],\n" +
+            "            [\n" +
+            "              8.68236408933791,\n" +
+            "              49.420614124800636\n" +
+            "            ]\n" +
+            "          ]\n" +
+            "        ],\n" +
+            "        \"type\": \"Polygon\"\n" +
+            "      }\n" +
+            "    } \n" +
+            "  ]\n" +
+            "}";
 
     private static JSONObject validBody() {
         return new JSONObject().put("key", "logie").put("features", new JSONObject(geoJSON));
@@ -215,7 +348,15 @@ class ParamsTest extends ServiceTest {
                 Arguments.of(BAD_REQUEST, profile_hgv, new JSONObject().put("key", "logie").put("features", new JSONObject().put("type", "not geoJSON")), Map.of(
                         "error.code", is(INVALID_PARAMETER_VALUE)
                 )), // Invalid 'features' parameter
-                Arguments.of(OK, profile_hgv, new JSONObject().put("key", "logie").put("features", new JSONObject(geoJSONSingleFeature)), defaultValidations()) // Single Feature GeoJSON
+                Arguments.of(BAD_REQUEST, profile_car, new JSONObject().put("key", "logie").put("features", new JSONObject(geoJSONSingleFeature)), Map.of(
+                        "error.code", is(INVALID_PARAMETER_VALUE)
+                )), // Single Feature GeoJSON
+                Arguments.of(BAD_REQUEST, profile_car, new JSONObject().put("key", "logie").put("features", new JSONObject(geoJSONSingleGeometry)), Map.of(
+                        "error.code", is(INVALID_PARAMETER_VALUE)
+                )), // Single Geometry GeoJSON
+                Arguments.of(BAD_REQUEST, profile_car, new JSONObject().put("key", "logie").put("features", new JSONObject(geoJSONMissingProperties)), Map.of(
+                        "error.code", is(INVALID_PARAMETER_VALUE)
+                )) // GeoJSON missing properties
         );
     }
 

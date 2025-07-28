@@ -15,10 +15,16 @@ import org.heigit.ors.matching.MatchingResult;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.snapping.SnappingErrorCodes;
+import org.json.simple.JSONObject;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class MatchingService extends ApiService {
@@ -60,21 +66,43 @@ public class MatchingService extends ApiService {
             throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_PROFILE);
         }
         matchingRequest.setProfileName(matchingApiRequest.getProfileName());
+
         if (matchingApiRequest.getKey() == null || matchingApiRequest.getKey().isEmpty()) {
             throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_KEY);
         }
         matchingRequest.setKey(matchingApiRequest.getKey());
-        if (matchingApiRequest.getFeatures() == null || matchingApiRequest.getFeatures().isEmpty()) {
+
+        JSONObject features = matchingApiRequest.getFeatures();
+        if (features == null || features.isEmpty()) {
             throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_FEATURES);
         }
+        if (features.get("type") == null || !features.get("type").equals("FeatureCollection")) {
+            throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_FEATURES, "invalid GeoJSON type");
+        }
+        List<Map<String, String>> properties = new ArrayList<>();
+        for (Object feature : (Iterable<?>) features.get("features")) {
+            Map featureObj = (Map) feature;
+            if (featureObj.get("properties") != null) {
+                properties.add((Map<String, String>) featureObj.get("properties"));
+            }
+        }
+        matchingRequest.setProperties(properties);
+
         GeoJsonReader reader = new GeoJsonReader();
         try {
-            Geometry geometry = reader.read(matchingApiRequest.getFeatures().toJSONString());
-            System.out.println("Geometry type: " + geometry.getGeometryType());
-            System.out.println("Coordinates: " + geometry);
+            Geometry geometry = reader.read(features.toJSONString());
+            if (geometry == null || geometry.isEmpty()) {
+                throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_FEATURES, "geometry is null or empty");
+            }
+            if (!geometry.isValid()) {
+                throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_FEATURES, "invalid geometry");
+            }
+            if (geometry.getNumGeometries() != properties.size()) {
+                throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_FEATURES, "mismatching number of features and geometries");
+            }
             matchingRequest.setGeometry(geometry);
         } catch (Exception e) {
-            throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_FEATURES);
+            throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_FEATURES, "invalid GeoJSON format", e.getMessage());
         }
         return matchingRequest;
     }
