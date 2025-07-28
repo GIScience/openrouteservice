@@ -36,6 +36,13 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+
+### Security
+
+
+## [9.3.1] - 2025-07-28
+
+### Fixed
 - correct way type and surface extra info metadata for pedestrian routes that involve sidewalks attached to streets ([#2075](https://github.com/GIScience/openrouteservice/pull/2075))
 - country borders storage initialization ([#2095](https://github.com/GIScience/openrouteservice/pull/2095))
 
@@ -920,7 +927,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.3.0...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.3.1...HEAD
+[9.3.1]: https://github.com/GIScience/openrouteservice/compare/v9.3.0...v9.3.1
 [9.3.0]: https://github.com/GIScience/openrouteservice/compare/v9.2.0...v9.3.0
 [9.2.0]: https://github.com/GIScience/openrouteservice/compare/v9.1.2...v9.2.0
 [9.1.2]: https://github.com/GIScience/openrouteservice/compare/v9.1.1...v9.1.2
