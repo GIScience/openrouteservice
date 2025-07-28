@@ -26,7 +26,7 @@ public class MatchingService extends ApiService {
         this.apiEngineProperties = apiEngineProperties;
     }
 
-    public MatchingResult generateSnappingFromRequest(MatchingApiRequest matchingApiRequest) throws StatusCodeException {
+    public MatchingResult generateMatchingFromRequest(MatchingApiRequest matchingApiRequest) throws StatusCodeException {
         MatchingRequest matchingRequest = this.convertMatchingRequest(matchingApiRequest);
         validateAgainstConfig(matchingRequest);
 
@@ -53,6 +53,7 @@ public class MatchingService extends ApiService {
         }
 
         MatchingRequest matchingRequest = new MatchingRequest(profileType);
+        matchingRequest.setProfileName(matchingApiRequest.getProfileName());
 
         return matchingRequest;
     }

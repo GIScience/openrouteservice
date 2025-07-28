@@ -1,6 +1,5 @@
 package org.heigit.ors.apitests.matching;
 
-import io.restassured.response.ValidatableResponse;
 import org.hamcrest.Matchers;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
@@ -25,10 +24,6 @@ class ParamsTest extends ServiceTest {
     private static JSONObject validBody() {
         return new JSONObject().put("foo", "bar");
     }
-    private static void validateJsonResponse(ValidatableResponse result) {
-        result.body("any { it.key == 'graph_date' }", is(true));
-    }
-
 
     @Test
     void testMissingPathParameterProfile() {
@@ -43,5 +38,18 @@ class ParamsTest extends ServiceTest {
                 .assertThat()
                 .body("error.code", Matchers.is(MISSING_PARAMETER))
                 .statusCode(BAD_REQUEST);
+    }
+
+    @Test
+    void testValidPathParameterProfile() {
+        given()
+                .headers(jsonContent)
+                .body(validBody().toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath() + "/driving-car")
+                .then()
+                .log().ifValidationFails()
+                .statusCode(200).body("any { it.key == 'graph_date' }", is(true));
     }
 }
