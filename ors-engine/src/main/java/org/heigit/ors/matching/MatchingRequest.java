@@ -8,6 +8,9 @@ import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.routing.RoutingProfile;
 import org.locationtech.jts.geom.Geometry;
 
+import java.util.List;
+import java.util.Map;
+
 public class MatchingRequest extends ServiceRequest {
     @Setter
     @Getter
@@ -23,6 +26,10 @@ public class MatchingRequest extends ServiceRequest {
     @Getter
     @Setter
     private Geometry geometry;
+
+    @Getter
+    @Setter
+    List<Map<String, String>> properties;
 
     public MatchingRequest(int profileType) {
         this.profileType = profileType;
