@@ -106,6 +106,7 @@ public class MatchingAPI {
         headers.setContentType(MediaType.APPLICATION_JSON);
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("graph_date", result.getGraphDate());
+        jsonResponse.put("matched", result.getMatched());
 
         return new ResponseEntity<>(jsonResponse.toJSONString(), headers, HttpStatus.OK);
     }
