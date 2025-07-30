@@ -2,6 +2,7 @@ package org.heigit.ors.matching;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ev.Subnetwork;
+import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.weighting.Weighting;
@@ -10,12 +11,15 @@ import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
+import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.shapes.BBox;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.heigit.ors.common.ServiceRequest;
+import org.heigit.ors.mapmatching.GhMapMatcher;
+import org.heigit.ors.mapmatching.RouteSegmentInfo;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
@@ -66,6 +70,8 @@ public class MatchingRequest extends ServiceRequest {
         Weighting weighting = new ORSWeightingFactory(ghStorage, gh.getEncodingManager()).createWeighting(gh.getProfile(localProfileName), hintsMap, false);
         LocationIndex locIndex = gh.getLocationIndex();
         EdgeFilter snapFilter = new DefaultSnapFilter(weighting, ghStorage.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
+        var mapMatcher = new GhMapMatcher(gh, localProfileName);
+
 
         Map<Integer, Map> matched = new HashMap();
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
@@ -87,7 +93,20 @@ public class MatchingRequest extends ServiceRequest {
                     }
                     break;
                 case "LineString":
-                    LOGGER.warn("LineString matching is not implemented yet.");
+                    RouteSegmentInfo[] match = mapMatcher.match(geometry.getCoordinates(), false);
+                    for (RouteSegmentInfo segment : match) {
+                        for (EdgeIteratorState edge : segment.getEdgesStates()) {
+                            int originalEdgeKey;
+                            if (edge instanceof VirtualEdgeIteratorState iteratorState) {
+                                originalEdgeKey = iteratorState.getOriginalEdgeKey();
+                            } else {
+                                originalEdgeKey = edge.getEdgeKey();
+                            }
+                            int edgeId = GHUtility.getEdgeFromEdgeKey(originalEdgeKey);
+                            matched.put(edgeId, properties.get(i));
+                            LOGGER.trace("Matched edge: " + edgeId + " with geometry: " + ghStorage.getEdgeIteratorState(edgeId, Integer.MIN_VALUE).fetchWayGeometry(FetchMode.ALL).toLineString(false));
+                        }
+                    }
                     break;
                 case "Polygon":
                 case "MultiPolygon":
@@ -104,7 +123,6 @@ public class MatchingRequest extends ServiceRequest {
                         }
 
                     });
-                    LOGGER.warn("Polygon matching is not implemented yet.");
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported geometry type: " + geom.getGeometryType());
