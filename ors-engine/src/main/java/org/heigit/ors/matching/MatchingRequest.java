@@ -8,7 +8,10 @@ import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
+import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.PMap;
+import com.graphhopper.util.shapes.BBox;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
@@ -88,6 +91,19 @@ public class MatchingRequest extends ServiceRequest {
                     break;
                 case "Polygon":
                 case "MultiPolygon":
+                    var envelope = geom.getEnvelopeInternal();
+                    var bbox = new BBox(envelope.getMinX(), envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY());
+
+                    int finalI = i;
+                    locIndex.query(bbox, edgeId -> {
+                        EdgeIteratorState edge = ghStorage.getEdgeIteratorState(edgeId, Integer.MIN_VALUE);
+                        var lineString = edge.fetchWayGeometry(FetchMode.ALL).toLineString(false);
+                        if (geom.intersects(lineString)) {
+                            matched.put(edgeId, properties.get(finalI));
+                            LOGGER.trace("Matched edge: " + edgeId);
+                        }
+
+                    });
                     LOGGER.warn("Polygon matching is not implemented yet.");
                     break;
                 default:
