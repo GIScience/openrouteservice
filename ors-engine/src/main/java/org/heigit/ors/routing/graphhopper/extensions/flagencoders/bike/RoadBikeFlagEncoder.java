@@ -204,4 +204,24 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     protected double getDownhillMaxSpeed() {
         return 60;
     }
+
+    @Override
+    protected void handlePushingSectionPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
+        int pushingSectionPrio = AVOID_IF_POSSIBLE.getValue();
+        if (way.hasTag("foot", "yes")) {
+            pushingSectionPrio = Math.max(pushingSectionPrio - 1, WORST.getValue());
+        }
+        weightToPrioMap.put(100d, pushingSectionPrio);
+    }
+
+    @Override
+    protected void handleDesignatedCyclingPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap, String highway) {
+        // do nothing
+    }
+
+    @Override
+    protected boolean isPartOfCycleRelation(int priorityFromRelation) {
+        return false;
+    }
+
 }

@@ -100,12 +100,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     private static final boolean DEBUG_OUTPUT = false;
     FileWriter logWriter;
 
-    // MARQ24 MOD START
-    // MARQ24 ADDON in the case of the RoadBike Encoder we want to skip some
-    // conditions...
-    private final boolean isRoadBikeEncoder = this instanceof RoadBikeFlagEncoder; // TODO: design: parent class should not need to know of child
     protected static final Logger LOGGER = Logger.getLogger(CommonBikeFlagEncoder.class.getName());
-    // MARQ24 MOD END
 
     // MARQ24 MOD START
     protected CommonBikeFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
@@ -415,7 +410,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         if (!access.isFerry()) {
             wayTypeSpeed = applyMaxSpeed(way, wayTypeSpeed);
             handleSpeed(edgeFlags, way, wayTypeSpeed);
-            handleBikeRelated(edgeFlags, way, priorityFromRelation > UNCHANGED.getValue());
+            handleBikeRelated(edgeFlags, way, isPartOfCycleRelation(priorityFromRelation));
             if (access.isConditional() && conditionalAccessEncoder != null)
                 conditionalAccessEncoder.setBool(false, edgeFlags, true);
             boolean isRoundabout = way.hasTag(KEY_JUNCTION, "roundabout") || way.hasTag(KEY_JUNCTION, "circular");
@@ -438,6 +433,10 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         }
         priorityWayEncoder.setDecimal(false, edgeFlags, PriorityCode.getFactor(priority));
         return edgeFlags;
+    }
+
+    protected boolean isPartOfCycleRelation(int priorityFromRelation) {
+        return priorityFromRelation > UNCHANGED.getValue();
     }
 
     int getSpeed(ReaderWay way) {
@@ -639,28 +638,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
     void collect(ReaderWay way, double wayTypeSpeed, TreeMap<Double, Integer> weightToPrioMap) {
         String service = way.getTag(KEY_SERVICE);
         String highway = way.getTag(KEY_HIGHWAY);
-        // MARQ24 MOD START
-        if (!isRoadBikeEncoder) {
-            // MARQ24 MOD END
-            // MARQ24 MOD START
-            if (way.hasTag(KEY_BICYCLE, KEY_DESIGNATED) || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL) || way.hasTag(KEY_BICYCLE_ROAD, "yes")) {
-                // MARQ24 MOD END
-                if ("path".equals(highway)) {
-                    weightToPrioMap.put(100d, VERY_NICE.getValue());
-                } else {
-                    weightToPrioMap.put(100d, PREFER.getValue());
-                }
-            }
-            if (KEY_CYCLEWAY.equals(highway)) {
-                if (way.hasTag("foot", intendedValues) && !way.hasTag(KEY_SEGREGATED, "yes")) {
-                    weightToPrioMap.put(100d, PREFER.getValue());
-                } else {
-                    weightToPrioMap.put(100d, VERY_NICE.getValue());
-                }
-            }
-            // MARQ24 MOD START
-        }
-        // MARQ24 MOD END
+        handleDesignatedCyclingPriority(way, weightToPrioMap, highway);
 
         double maxSpeed = getMaxSpeed(way);
         if (preferHighwayTags.contains(highway) || this.isValidSpeed(maxSpeed) && maxSpeed <= 30) {
@@ -679,27 +657,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
 
         if (pushingSectionsHighways.contains(highway)
                 || "parking_aisle".equals(service)) {
-            int pushingSectionPrio = AVOID_IF_POSSIBLE.getValue();
-            // MARQ24 MOD START
-            if (!isRoadBikeEncoder) {
-                // MARQ24 MOD END
-                if (way.hasTag(KEY_BICYCLE, "use_sidepath") || way.hasTag(KEY_BICYCLE, "yes") || way.hasTag(KEY_BICYCLE, "permissive")) {
-                    pushingSectionPrio = PREFER.getValue();
-                }
-                if (way.hasTag(KEY_BICYCLE, KEY_DESIGNATED) || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)) {
-                    pushingSectionPrio = VERY_NICE.getValue();
-                }
-                // MARQ24 MOD START
-            }
-            // MARQ24 MOD END
-
-            if (way.hasTag("foot", "yes")) {
-                pushingSectionPrio = Math.max(pushingSectionPrio - 1, WORST.getValue());
-                if (!isRoadBikeEncoder && way.hasTag(KEY_SEGREGATED, "yes")) {
-                    pushingSectionPrio = Math.min(pushingSectionPrio + 1, BEST.getValue());
-                }
-            }
-            weightToPrioMap.put(100d, pushingSectionPrio);
+            handlePushingSectionPriority(way, weightToPrioMap);
         }
 
         if (way.hasTag(KEY_RAILWAY, "tram")) {
@@ -721,6 +679,40 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
         if ((way.hasTag("scenic", "yes") || (maxSpeed > 0 && maxSpeed < wayTypeSpeed)) && weightToPrioMap.lastEntry().getValue() < BEST.getValue()) {
             // Increase the prio by one step
             weightToPrioMap.put(110d, weightToPrioMap.lastEntry().getValue() + 1);
+        }
+    }
+
+    protected void handlePushingSectionPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap) {
+        int pushingSectionPrio = AVOID_IF_POSSIBLE.getValue();
+        if (way.hasTag(KEY_BICYCLE, "use_sidepath") || way.hasTag(KEY_BICYCLE, "yes") || way.hasTag(KEY_BICYCLE, "permissive")) {
+            pushingSectionPrio = PREFER.getValue();
+        }
+        if (way.hasTag(KEY_BICYCLE, KEY_DESIGNATED) || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL)) {
+            pushingSectionPrio = VERY_NICE.getValue();
+        }
+        if (way.hasTag("foot", "yes")) {
+            pushingSectionPrio = Math.max(pushingSectionPrio - 1, WORST.getValue());
+            if (way.hasTag(KEY_SEGREGATED, "yes")) {
+                pushingSectionPrio = Math.min(pushingSectionPrio + 1, BEST.getValue());
+            }
+        }
+        weightToPrioMap.put(100d, pushingSectionPrio);
+    }
+
+    protected void handleDesignatedCyclingPriority(ReaderWay way, TreeMap<Double, Integer> weightToPrioMap, String highway) {
+        if (way.hasTag(KEY_BICYCLE, KEY_DESIGNATED) || way.hasTag(KEY_BICYCLE, KEY_OFFICIAL) || way.hasTag(KEY_BICYCLE_ROAD, "yes")) {
+            if ("path".equals(highway)) {
+                weightToPrioMap.put(100d, VERY_NICE.getValue());
+            } else {
+                weightToPrioMap.put(100d, PREFER.getValue());
+            }
+        }
+        if (KEY_CYCLEWAY.equals(highway)) {
+            if (way.hasTag("foot", intendedValues) && !way.hasTag(KEY_SEGREGATED, "yes")) {
+                weightToPrioMap.put(100d, PREFER.getValue());
+            } else {
+                weightToPrioMap.put(100d, VERY_NICE.getValue());
+            }
         }
     }
 
@@ -751,7 +743,7 @@ public abstract class CommonBikeFlagEncoder extends BikeCommonFlagEncoder {
             wayType = WayType.PUSHING_SECTION;
         } else {
             // boost "none identified" partOfCycleRelation
-            if (!isRoadBikeEncoder && partOfCycleRelation) {
+            if (partOfCycleRelation) {
                 wayType = WayType.CYCLEWAY;
             }
 
