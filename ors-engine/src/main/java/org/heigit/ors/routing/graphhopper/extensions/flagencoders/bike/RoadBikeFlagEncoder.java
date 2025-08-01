@@ -23,7 +23,6 @@ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNam
 
 import java.util.TreeMap;
 
-import static com.graphhopper.routing.ev.RouteNetwork.LOCAL;
 import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
 
 /**
@@ -35,6 +34,7 @@ import static org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode.*;
  */
 public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
     private static final int MEAN_SPEED = 25;
+    protected static final int PAVED_WAY_SPEED = 20;
     public static final String VAL_SECONDARY = "secondary";
     public static final String VAL_SECONDARY_LINK = "secondary_link";
     public static final String VAL_TERTIARY = "tertiary";
@@ -83,22 +83,23 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         preferHighwayTags.add(VAL_TERTIARY_LINK);
         preferHighwayTags.add(VAL_UNCLASSIFIED);
 
-        setTrackTypeSpeed(VAL_GRADE_1, 20); // paved
+        setTrackTypeSpeed(VAL_GRADE_1, PAVED_WAY_SPEED); // paved
         setTrackTypeSpeed("grade2", 10); // now unpaved ...
         setTrackTypeSpeed("grade3", PUSHING_SECTION_SPEED);
         setTrackTypeSpeed("grade4", PUSHING_SECTION_SPEED);
         setTrackTypeSpeed("grade5", PUSHING_SECTION_SPEED);
 
-        setSurfaceSpeed("paved", 26, UpdateType.DOWNGRADE_ONLY);
-        setSurfaceSpeed("asphalt", 26, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("paved", PAVED_WAY_SPEED, UpdateType.UPGRADE_ONLY);
+        setSurfaceSpeed("asphalt", PAVED_WAY_SPEED, UpdateType.UPGRADE_ONLY);
+        setSurfaceSpeed("concrete", PAVED_WAY_SPEED, UpdateType.UPGRADE_ONLY);
+
         setSurfaceSpeed("cobblestone", 10, UpdateType.DOWNGRADE_ONLY);
         setSurfaceSpeed("cobblestone:flattened", 10, UpdateType.DOWNGRADE_ONLY);
         setSurfaceSpeed("sett", 10, UpdateType.DOWNGRADE_ONLY);
-        setSurfaceSpeed("concrete", 26, UpdateType.DOWNGRADE_ONLY);
         setSurfaceSpeed("concrete:lanes", 16, UpdateType.DOWNGRADE_ONLY);
         setSurfaceSpeed("concrete:plates", 16, UpdateType.DOWNGRADE_ONLY);
-        setSurfaceSpeed("paving_stones", 10, UpdateType.DOWNGRADE_ONLY);
-        setSurfaceSpeed("paving_stones:30", 10, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("paving_stones", 12, UpdateType.DOWNGRADE_ONLY);
+        setSurfaceSpeed("paving_stones:30", 12, UpdateType.DOWNGRADE_ONLY);
         setSurfaceSpeed("unpaved", PUSHING_SECTION_SPEED / 2);
         setSurfaceSpeed("compacted", PUSHING_SECTION_SPEED / 2);
         setSurfaceSpeed("dirt", PUSHING_SECTION_SPEED / 2);
@@ -116,16 +117,16 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         setSurfaceSpeed("sand", PUSHING_SECTION_SPEED / 2);
         setSurfaceSpeed("wood", PUSHING_SECTION_SPEED / 2);
 
-        setHighwaySpeed(KEY_CYCLEWAY, 18);
+        setHighwaySpeed(KEY_CYCLEWAY, new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
         setHighwaySpeed("living_street", 10);
         setHighwaySpeed("path", 8);
         setHighwaySpeed("footway", 6);
         setHighwaySpeed("pedestrian", 6);
-        setHighwaySpeed(VAL_ROAD, 20);
+        setHighwaySpeed(VAL_ROAD, PAVED_WAY_SPEED);
         setHighwaySpeed(VAL_TRACK, PUSHING_SECTION_SPEED / 2); // assume unpaved
         setHighwaySpeed(VAL_SERVICE, 12);
-        setHighwaySpeed(VAL_UNCLASSIFIED, 20);
-        setHighwaySpeed(VAL_RESIDENTIAL, 18);
+        setHighwaySpeed(VAL_UNCLASSIFIED, PAVED_WAY_SPEED);
+        setHighwaySpeed(VAL_RESIDENTIAL, new SpeedValue(18, UpdateType.DOWNGRADE_ONLY));
 
         setHighwaySpeed("trunk", 20);
         setHighwaySpeed("trunk_link", 20);
@@ -142,18 +143,10 @@ public class RoadBikeFlagEncoder extends CommonBikeFlagEncoder {
         addPushingSection("steps");
         addPushingSection(KEY_BRIDLEWAY);
 
-        routeMap.put(LOCAL, UNCHANGED.getValue());
-
         blockByDefaultBarriers.add("kissing_gate");
 
         setAvoidSpeedLimit(81);
         setSpecificClassBicycle("roadcycling");
-
-        // HSW - asphalt cycleway vs asphalt roundabout
-        // http://localhost:3035/directions?n1=51.965101&n2=8.24595&n3=18&a=51.965555,8.243968,51.964878,8.245057&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
-
-        // Aschloh roundabout vs cycleway (cycle relation) & service shortcut
-        // http://localhost:3035/directions?n1=52.064701&n2=8.386386&n3=19&a=52.065407,8.386171,52.064821,8.386833&b=1c&c=0&g1=-1&g2=0&h2=3&k1=en-US&k2=km
     }
 
     public double getMeanSpeed() {
