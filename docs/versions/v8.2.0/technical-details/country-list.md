@@ -141,7 +141,6 @@ see [routing options](../api-reference/endpoints/directions/routing-options.md#o
 |    134     |                Maroc ⵍⵎⵖⵔⵉⴱ المغرب                 |                    Morocco                    |
 |    135     |                     Moçambique                     |                  Mozambique                   |
 |    136     |                       မြန်မာ                       |                    Myanmar                    |
-|    137     |                        name                        |                    name:en                    |
 |    138     |                      Namibia                       |                    Namibia                    |
 |    139     |                       Naoero                       |                     Nauru                     |
 |    140     |                       नेपाल                        |                     Nepal                     |
