@@ -93,7 +93,7 @@ public class MatchingRequest extends ServiceRequest {
                     }
                     break;
                 case "LineString":
-                    RouteSegmentInfo[] match = mapMatcher.match(geometry.getCoordinates(), false);
+                    RouteSegmentInfo[] match = mapMatcher.match(geom.getCoordinates(), false);
                     for (RouteSegmentInfo segment : match) {
                         for (EdgeIteratorState edge : segment.getEdgesStates()) {
                             int originalEdgeKey;

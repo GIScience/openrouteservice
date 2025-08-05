@@ -251,7 +251,7 @@ class ParamsTest extends ServiceTest {
     private static Map<String, Matcher> defaultValidations() {
         return Map.of(
                 "any { it.key == 'graph_date' }", is(true),
-                "matched", is(11)
+                "matched", is(9)
         );
     }
 
