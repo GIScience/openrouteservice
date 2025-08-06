@@ -5,13 +5,16 @@ import com.graphhopper.routing.Path;
 import com.graphhopper.routing.RoutingAlgorithm;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.util.CarFlagEncoder;
-import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.TraversalMode;
 import com.graphhopper.routing.weighting.ShortestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
-import com.graphhopper.storage.*;
+import com.graphhopper.storage.CHConfig;
+import com.graphhopper.storage.GraphBuilder;
+import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.EdgeIteratorState;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.BooleanEncodedValueEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.ev.DynamicData;
 import org.heigit.ors.util.ToyGraphCreationUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,15 +71,6 @@ class DynamicDataTest {
 
     private RoutingAlgorithm createRoutingAlgorithm() {
         return new Dijkstra(g, weighting, TraversalMode.NODE_BASED)
-                .setEdgeFilter(new DynamicDataEdgeFilter());
-    }
-
-    class DynamicDataEdgeFilter implements EdgeFilter {
-        BooleanEncodedValue dynamicDataEnc = encodingManager.getBooleanEncodedValue(DynamicData.KEY);
-
-        @Override
-        public boolean accept(EdgeIteratorState edgeState) {
-            return !dynamicDataEnc.getBool(false, edgeState.getFlags());
-        }
+                .setEdgeFilter(new BooleanEncodedValueEdgeFilter(encodingManager.getBooleanEncodedValue(DynamicData.KEY)));
     }
 }
