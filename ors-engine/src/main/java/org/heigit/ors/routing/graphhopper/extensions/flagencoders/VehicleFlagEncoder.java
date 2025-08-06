@@ -26,6 +26,7 @@ import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.BitUtil;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import org.heigit.ors.routing.graphhopper.extensions.ev.DynamicData;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -193,7 +194,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             registerNewEncodedValue.add(conditionalAccessEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.ACCESS), true));
         if (hasConditionalSpeed)
             registerNewEncodedValue.add(conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, ConditionalEdges.SPEED), false));
-
+        registerNewEncodedValue.add(new SimpleBooleanEncodedValue(getKey(prefix, DynamicData.KEY)));
     }
 
     @Override

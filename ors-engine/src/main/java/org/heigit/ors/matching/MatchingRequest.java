@@ -1,17 +1,19 @@
 package org.heigit.ors.matching;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
+import com.graphhopper.storage.IntsRef;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
-import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.shapes.BBox;
 import lombok.Getter;
@@ -24,6 +26,7 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
+import org.heigit.ors.routing.graphhopper.extensions.ev.DynamicData;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -73,7 +76,8 @@ public class MatchingRequest extends ServiceRequest {
         var mapMatcher = new GhMapMatcher(gh, localProfileName);
 
 
-        Map<Integer, Map> matched = new HashMap();
+        Map<Integer, Map> edgeProperties = new HashMap<>();
+        Map<Integer, EdgeIteratorState> matchedEdges = new HashMap<>();
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
             Geometry geom = geometry.getGeometryN(i);
             LOGGER.debug("Matching geometry at index " + i + ": " + geom);
@@ -86,8 +90,11 @@ public class MatchingRequest extends ServiceRequest {
                     // TODO: improve snapping to consider the type of the point (border, bridge, etc.)
                     Snap snappedPoint = locIndex.findClosest(p.y, p.x, snapFilter);
                     if (snappedPoint.isValid()) {
-                        LOGGER.trace("Snap: " + snappedPoint.getClosestEdge().getEdge());
-                        matched.put(snappedPoint.getClosestEdge().getEdge(), properties.get(i));
+                        var edge = snappedPoint.getClosestEdge();
+                        var edgeId = edge.getEdge();
+                        edgeProperties.put(edgeId, properties.get(i));
+                        matchedEdges.put(edgeId, edge);
+                        LOGGER.trace("Snap: " + edgeId);
                     } else {
                         LOGGER.warn("No valid snap found for point: " + p);
                     }
@@ -99,12 +106,15 @@ public class MatchingRequest extends ServiceRequest {
                             int originalEdgeKey;
                             if (edge instanceof VirtualEdgeIteratorState iteratorState) {
                                 originalEdgeKey = iteratorState.getOriginalEdgeKey();
-                            } else {
-                                originalEdgeKey = edge.getEdgeKey();
+                                LOGGER.trace("Matched virtual edge: " + edge.getEdge() + " with geometry: " + iteratorState.fetchWayGeometry(FetchMode.ALL).toLineString(false));
+                                edge = ghStorage.getEdgeIteratorStateForKey(originalEdgeKey);
                             }
-                            int edgeId = GHUtility.getEdgeFromEdgeKey(originalEdgeKey);
-                            matched.put(edgeId, properties.get(i));
-                            LOGGER.trace("Matched edge: " + edgeId + " with geometry: " + ghStorage.getEdgeIteratorState(edgeId, Integer.MIN_VALUE).fetchWayGeometry(FetchMode.ALL).toLineString(false));
+                            else {
+                                LOGGER.trace("Matched edge: " + edge.getEdge() + " with geometry: " + edge.fetchWayGeometry(FetchMode.ALL).toLineString(false));
+                            }
+                            var edgeId = edge.getEdge();
+                            edgeProperties.put(edgeId, properties.get(i));
+                            matchedEdges.put(edgeId, edge);
                         }
                     }
                     break;
@@ -118,18 +128,29 @@ public class MatchingRequest extends ServiceRequest {
                         EdgeIteratorState edge = ghStorage.getEdgeIteratorState(edgeId, Integer.MIN_VALUE);
                         var lineString = edge.fetchWayGeometry(FetchMode.ALL).toLineString(false);
                         if (geom.intersects(lineString)) {
-                            matched.put(edgeId, properties.get(finalI));
+                            edgeProperties.put(edgeId, properties.get(finalI));
+                            matchedEdges.put(edgeId, edge);
                             LOGGER.trace("Matched edge: " + edgeId);
                         }
-
                     });
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported geometry type: " + geom.getGeometryType());
             }
         }
-        LOGGER.debug(matched.size() + " edges matched");
+
+        BooleanEncodedValue dynamicData = gh.getEncodingManager().getBooleanEncodedValue(EncodingManager.getKey(encoderName, DynamicData.KEY));
+        if (dynamicData == null) {
+            throw new IllegalStateException("Dynamic data is not available for the profile: " + localProfileName);
+        }
+        for (var edgeToUpdate: matchedEdges.values()) {
+            IntsRef edgeFlags = edgeToUpdate.getFlags();
+            dynamicData.setBool(false, edgeFlags, true);
+            edgeToUpdate.setFlags(edgeFlags);
+        }
+
+        LOGGER.debug(edgeProperties.size() + " edges matched");
         String graphDate = ghStorage.getProperties().get("datareader.import.date");
-        return new MatchingResult(graphDate, matched.size());
+        return new MatchingResult(graphDate, edgeProperties.size());
     }
 }
