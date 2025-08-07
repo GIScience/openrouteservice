@@ -117,6 +117,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         this.processContext = processContext;
         this.engineProperties = engineProperties;
         this.profileProperties = profileProperties;
+        setEncodedValueFactory(new OrsEncodedValueFactory());
+        setTagParserFactory(new OrsTagParserFactory());
     }
 
     public ORSGraphHopper() {

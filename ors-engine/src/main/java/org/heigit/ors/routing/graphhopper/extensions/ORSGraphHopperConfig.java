@@ -72,6 +72,8 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
                 ghConfig.putObject("graph.elevation.smoothing", true);
         }
 
+        addGraphLevelEncodedValues(ghConfig);
+
         boolean prepareCH = false;
         boolean prepareLM = false;
         boolean prepareCore = false;
@@ -254,6 +256,11 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
+    }
+
+    private static void addGraphLevelEncodedValues(ORSGraphHopperConfig ghConfig) {
+        // TODO: add graph-level encoded values here:
+        //ghConfig.putObject("graph.encoded_values", MyNewEncodedValue.KEY);
     }
 
     public List<CHProfile> getCoreProfiles() {
