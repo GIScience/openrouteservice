@@ -31,6 +31,7 @@ import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,9 +77,11 @@ public class MatchingRequest extends ServiceRequest {
         var mapMatcher = new GhMapMatcher(gh, localProfileName);
 
 
-        Map<Integer, Map> edgeProperties = new HashMap<>();
-        Map<Integer, EdgeIteratorState> matchedEdges = new HashMap<>();
+        List<Map<Integer, Map>> edgePropertiesList = new ArrayList<>();
+        List<Map<Integer, EdgeIteratorState>> matchedEdgesList = new ArrayList<>();
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
+            Map<Integer, Map> edgeProperties = new HashMap<>();
+            Map<Integer, EdgeIteratorState> matchedEdges = new HashMap<>();
             Geometry geom = geometry.getGeometryN(i);
             LOGGER.debug("Matching geometry at index " + i + ": " + geom);
             if (geom.isEmpty()) {
@@ -137,20 +140,23 @@ public class MatchingRequest extends ServiceRequest {
                 default:
                     throw new IllegalArgumentException("Unsupported geometry type: " + geom.getGeometryType());
             }
+            edgePropertiesList.add(edgeProperties);
+            matchedEdgesList.add(matchedEdges);
         }
 
         BooleanEncodedValue dynamicData = gh.getEncodingManager().getBooleanEncodedValue(EncodingManager.getKey(encoderName, DynamicData.KEY));
         if (dynamicData == null) {
             throw new IllegalStateException("Dynamic data is not available for the profile: " + localProfileName);
         }
-        for (var edgeToUpdate: matchedEdges.values()) {
-            IntsRef edgeFlags = edgeToUpdate.getFlags();
-            dynamicData.setBool(false, edgeFlags, true);
-            edgeToUpdate.setFlags(edgeFlags);
-        }
+        for (Map<Integer, EdgeIteratorState> matchedEdges : matchedEdgesList) {
+            for (EdgeIteratorState edge : matchedEdges.values()) {
+                IntsRef edgeFlags = edge.getFlags();
+                dynamicData.setBool(false, edgeFlags, true);
+                edge.setFlags(edgeFlags);
+            }
 
-        LOGGER.debug(edgeProperties.size() + " edges matched");
+        }
         String graphDate = ghStorage.getProperties().get("datareader.import.date");
-        return new MatchingResult(graphDate, edgeProperties.size());
+        return new MatchingResult(graphDate, matchedEdgesList.stream().map(Map::size).toList());
     }
 }
