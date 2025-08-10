@@ -3,14 +3,15 @@ package org.heigit.ors.matching;
 
 import lombok.Getter;
 
+import java.util.List;
+
+@Getter
 public class MatchingResult {
-    @Getter
     private String graphDate = "empty";
 
-    @Getter
-    private int matched = 0;
+    private final List<Integer> matched;
 
-    public MatchingResult(String graphDate, int matched) {
+    public MatchingResult(String graphDate, List<Integer> matched) {
         this.graphDate = graphDate;
         this.matched = matched;
     }
