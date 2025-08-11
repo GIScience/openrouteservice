@@ -4049,6 +4049,50 @@ class ResultTest extends ServiceTest {
                 .statusCode(404);
     }
 
+
+    @Test
+    void testCustomProfileSurfaceType() {
+        JSONObject body = new JSONObject();
+        JSONArray coordinates = new JSONArray();
+        JSONArray coord1 = new JSONArray();
+
+        coord1.put(8.692134);
+        coord1.put(49.414866);
+        coordinates.put(coord1);
+        JSONArray coord2 = new JSONArray();
+
+        coord2.put(8.688996);
+        coord2.put(49.414351);
+        coordinates.put(coord2);
+
+        body.put("coordinates", coordinates);
+
+        body.put("preference", getParameter("preference"));
+        body.put("instructions", true);
+        body.put("elevation", true);
+
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "surface == PAVING_STONES");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then().log().ifValidationFails()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(661f, 6f))) // 248m without blocking surface
+                .statusCode(200);
+    }
+
+
     @Test
     void testCustomProfileBlockTunnels() {
         JSONObject body = new JSONObject();
