@@ -1977,6 +1977,42 @@ class ResultTest extends ServiceTest {
     }
 
     @Test
+    void testBordersAvoidCustomProfile() {
+        JSONObject body = new JSONObject();
+        body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
+        body.put("preference", "shortest");
+        body.put("instructions", false);
+        body.put("units", "m");
+
+//        JSONObject options = new JSONObject();
+//        body.put("options", options);
+//        options.put("avoid_borders", "controlled");
+
+        JSONObject customModel = new JSONObject();
+        JSONObject priority = new JSONObject();
+        priority.put("if", "border == CONTROLLED");
+        priority.put("multiply_by", 0);
+        customModel.put("priority", new JSONArray().put(priority));
+        body.put("custom_model", customModel);
+
+
+        // Test that providing border control in avoid_features works
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carCustomProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(1156, 1)))
+                .statusCode(200);
+    }
+
+
+    @Test
     void testCountryExclusion() {
         JSONObject body = new JSONObject();
         body.put("coordinates", HelperFunctions.constructCoords("8.684682,49.401961|8.690518,49.405326"));
