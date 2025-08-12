@@ -34,6 +34,8 @@ public enum SurfaceType {
     GRASS(17),
     GRASS_PAVER(18);
 
+    public static final String KEY = "surface_type";
+
     private final byte value;
 
     private static final SurfaceType[] values = values();

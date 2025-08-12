@@ -4,6 +4,9 @@ import com.graphhopper.routing.util.parsers.DefaultTagParserFactory;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.TagParserFactory;
 import com.graphhopper.util.PMap;
+import com.graphhopper.routing.ev.OrsSurface;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.OrsSurfaceTagParser;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.SurfaceTypeTagParser;
 
 public class OrsTagParserFactory implements TagParserFactory {
     DefaultTagParserFactory defaultTagParserFactory = new DefaultTagParserFactory();
@@ -13,12 +16,11 @@ public class OrsTagParserFactory implements TagParserFactory {
         try {
             return defaultTagParserFactory.create(name, configuration);
         } catch (IllegalArgumentException e) {
-// TODO: add a new tag parser for each new encoded value here:
-//            return switch (name) {
-//                case MyNewEncodedValue.KEY -> new MyNewTagParserTagParser();
-//                default -> throw e;
-//            };
-          throw e;
+            return switch (name) {
+                case SurfaceType.KEY -> new SurfaceTypeTagParser();
+                case OrsSurface.KEY -> new OrsSurfaceTagParser();
+                default -> throw e;
+            };
         }
     }
 }
