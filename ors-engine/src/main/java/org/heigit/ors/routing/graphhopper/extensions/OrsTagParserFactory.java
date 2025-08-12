@@ -5,7 +5,7 @@ import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.TagParserFactory;
 import com.graphhopper.util.PMap;
 import com.graphhopper.routing.ev.OrsSurface;
-import org.heigit.ors.routing.graphhopper.extensions.util.parsers.OrsSurfaceTagParser;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.OrsSurfaceParser;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.SurfaceTypeTagParser;
 
 public class OrsTagParserFactory implements TagParserFactory {
@@ -18,7 +18,7 @@ public class OrsTagParserFactory implements TagParserFactory {
         } catch (IllegalArgumentException e) {
             return switch (name) {
                 case SurfaceType.KEY -> new SurfaceTypeTagParser();
-                case OrsSurface.KEY -> new OrsSurfaceTagParser();
+                case OrsSurface.KEY -> new OrsSurfaceParser();
                 default -> throw e;
             };
         }
