@@ -28,8 +28,8 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
-- Full support for EncodedValues ([#2106](https://github.com/GIScience/openrouteservice/issues/2106))
-- Enable encoded value OrsSurface ([#2106](https://github.com/GIScience/openrouteservice/issues/2106))
+- full support for encoded values ([#2108](https://github.com/GIScience/openrouteservice/issues/2108))
+- enable encoded value "ors_surface" ([#2110](https://github.com/GIScience/openrouteservice/issues/2110))
 
 ### Changed
 - remove spurious entry for an unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))
