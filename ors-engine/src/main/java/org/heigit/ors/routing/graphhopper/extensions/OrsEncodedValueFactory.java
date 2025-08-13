@@ -19,13 +19,17 @@ public class OrsEncodedValueFactory implements EncodedValueFactory {
         if (Helper.isEmpty(encodedValueString))
             throw new IllegalArgumentException("No string provided to load EncodedValue");
 
+        final EncodedValue enc;
         String name = encodedValueString.split("\\|")[0];
         if (name.isEmpty())
             throw new IllegalArgumentException("To load EncodedValue a name is required. " + encodedValueString);
 
-        return switch (name) {
-            case DynamicData.KEY -> DynamicData.create();
-            default -> defaultEncodedValueFactory.create(encodedValueString); // Fallback to GraphHopper's EncodedValues
-        };
+        if (DynamicData.KEY.equals(name)) {
+            enc = DynamicData.create();
+        } else {
+            // Fallback to GraphHopper's EncodedValues
+            enc = defaultEncodedValueFactory.create(encodedValueString);
+        }
+        return enc;
     }
 }
