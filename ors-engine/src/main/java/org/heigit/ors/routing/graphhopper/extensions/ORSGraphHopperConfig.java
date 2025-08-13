@@ -4,7 +4,7 @@ import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
-import com.graphhopper.routing.ev.Surface;
+import com.graphhopper.routing.ev.OrsSurface;
 import com.graphhopper.routing.weighting.custom.CustomProfile;
 import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.Helper;
@@ -260,7 +260,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
     }
 
     private static void addGraphLevelEncodedValues(ORSGraphHopperConfig ghConfig) {
-        ghConfig.putObject("graph.encoded_values", Surface.KEY);
+        ghConfig.putObject("graph.encoded_values", OrsSurface.KEY);
     }
 
     public List<CHProfile> getCoreProfiles() {
