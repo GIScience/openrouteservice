@@ -109,11 +109,13 @@
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-core</artifactId>
+            <version>${graphhopper.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.GIScience.graphhopper</groupId>
             <artifactId>graphhopper-web-api</artifactId>
+            <version>${graphhopper.version}</version>
         </dependency>
 
         <dependency>
