@@ -7,7 +7,7 @@ import com.graphhopper.storage.IntsRef;
 
 import java.util.List;
 
-import static org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor.*;
+import static org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor.KEY_ORS_SIDEWALK_SIDE;
 
 
 public class OrsSurfaceParser implements TagParser {

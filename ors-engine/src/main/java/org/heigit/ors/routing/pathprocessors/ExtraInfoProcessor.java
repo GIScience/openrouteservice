@@ -445,7 +445,7 @@ public class ExtraInfoProcessor implements PathProcessor {
             WaySurfaceDescription wsd = extWaySurface.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 
             if (surfaceInfoBuilder != null) {
-                OrsSurface orsSurface = encoder.getEnumEncodedValue("ors_surface", OrsSurface.class).getEnum(false, edge.getFlags());
+                OrsSurface orsSurface = encoder.getEnumEncodedValue(OrsSurface.KEY, OrsSurface.class).getEnum(false, edge.getFlags());
                 surfaceInfoBuilder.addSegment(orsSurface.value(), orsSurface.value(), geom, dist);
             }
 
