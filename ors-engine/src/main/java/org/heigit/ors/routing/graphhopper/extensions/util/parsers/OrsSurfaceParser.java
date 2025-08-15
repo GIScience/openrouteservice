@@ -7,6 +7,9 @@ import com.graphhopper.storage.IntsRef;
 
 import java.util.List;
 
+import static org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor.KEY_ORS_SIDEWALK_SIDE;
+
+
 public class OrsSurfaceParser implements TagParser {
     private EnumEncodedValue<OrsSurface> surfaceEnc;
 
@@ -25,10 +28,22 @@ public class OrsSurfaceParser implements TagParser {
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay readerWay, boolean b, IntsRef relationFlags) {
-        String surfaceTag = readerWay.getTag("surface");
+        String surfaceTag = getSurfaceTag(readerWay);
         OrsSurface surface = getFromString(surfaceTag);
         surfaceEnc.setEnum(false, edgeFlags, surface);
         return edgeFlags;
+    }
+
+    private String getSurfaceTag(ReaderWay readerWay) {
+        if (readerWay.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
+            String side = readerWay.getTag(KEY_ORS_SIDEWALK_SIDE);
+            return readerWay.getTag("sidewalk:" + side + ":surface",
+                    readerWay.getTag("sidewalk:both:surface",
+                            readerWay.getTag("sidewalk:surface")
+                    )
+            );
+        }
+        return readerWay.getTag("surface");
     }
 
     private static OrsSurface getFromString(String surface) {

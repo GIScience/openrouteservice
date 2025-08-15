@@ -32,13 +32,14 @@ Releasing is documented in RELEASE.md
 - enable encoded value "ors_surface" ([#2110](https://github.com/GIScience/openrouteservice/issues/2110))
 
 ### Changed
-- remove spurious entry for an unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))
+- transition from extended storage to encoded value for storing way surface information ([#2113](https://github.com/GIScience/openrouteservice/pull/2113))
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+- remove spurious entry for an unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))
 
 ### Security
 
