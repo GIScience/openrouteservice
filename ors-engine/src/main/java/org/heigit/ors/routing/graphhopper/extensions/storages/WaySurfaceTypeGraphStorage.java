@@ -102,7 +102,7 @@ public class WaySurfaceTypeGraphStorage implements GraphExtension {
 
         // add entry
         long edgePointer = (long) edgeId * edgeEntryBytes;
-        byteValues[0] = (byte) ((wayDesc.getWayType() << 4) | wayDesc.getSurfaceType().ordinal() & 0xff);
+        byteValues[0] = (byte) ((wayDesc.getWayType().value() << 4) | wayDesc.getSurfaceType().ordinal() & 0xff);
         orsEdges.setBytes(edgePointer + efWaytype, byteValues, 1);
     }
 

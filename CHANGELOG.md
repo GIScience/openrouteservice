@@ -29,10 +29,11 @@ Releasing is documented in RELEASE.md
 
 ### Added
 - full support for encoded values ([#2108](https://github.com/GIScience/openrouteservice/issues/2108))
-- enable encoded value "ors_surface" ([#2110](https://github.com/GIScience/openrouteservice/issues/2110))
+- enable `ors_surface` encoded value ([#2110](https://github.com/GIScience/openrouteservice/issues/2110))
+- enable `way_type` encoded value ([#2115](https://github.com/GIScience/openrouteservice/issues/2115))
 
 ### Changed
-- transition from extended storage to encoded value for storing way surface information ([#2113](https://github.com/GIScience/openrouteservice/pull/2113))
+- transition from extended storage to encoded values for storing way type and surface ([#2113](https://github.com/GIScience/openrouteservice/pull/2113), [#2115](https://github.com/GIScience/openrouteservice/pull/2115))
 
 ### Deprecated
 

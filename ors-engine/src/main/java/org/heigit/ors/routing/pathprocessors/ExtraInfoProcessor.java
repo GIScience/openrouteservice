@@ -14,6 +14,7 @@
 package org.heigit.ors.routing.pathprocessors;
 
 import com.graphhopper.routing.ev.OrsSurface;
+import com.graphhopper.routing.ev.WayType;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
@@ -33,7 +34,6 @@ import org.heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBorde
 import org.heigit.ors.routing.graphhopper.extensions.storages.*;
 import org.heigit.ors.routing.graphhopper.extensions.util.PriorityCode;
 import org.heigit.ors.routing.parameters.ProfileParameters;
-import org.heigit.ors.routing.util.WaySurfaceDescription;
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableRouteExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.AppendableSteepnessExtraInfoBuilder;
 import org.heigit.ors.routing.util.extrainfobuilders.RouteExtraInfoBuilder;
@@ -442,15 +442,14 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (extWaySurface != null && wayTypeInfo != null || surfaceInfo != null) {
-            WaySurfaceDescription wsd = extWaySurface.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
-
             if (surfaceInfoBuilder != null) {
                 OrsSurface orsSurface = encoder.getEnumEncodedValue(OrsSurface.KEY, OrsSurface.class).getEnum(false, edge.getFlags());
                 surfaceInfoBuilder.addSegment(orsSurface.value(), orsSurface.value(), geom, dist);
             }
-
-            if (wayTypeInfo != null)
-                wayTypeInfoBuilder.addSegment(wsd.getWayType(), wsd.getWayType(), geom, dist);
+            if (wayTypeInfo != null){
+                WayType wayType = encoder.getEnumEncodedValue(WayType.KEY, WayType.class).getEnum(false, edge.getFlags());
+                wayTypeInfoBuilder.addSegment(wayType.value(), wayType.value(), geom, dist);
+            }
         }
 
         if (wayCategoryInfoBuilder != null) {
