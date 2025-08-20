@@ -2,7 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.storages.builders;
 
 import com.graphhopper.reader.ReaderWay;
 import org.heigit.ors.routing.graphhopper.extensions.SurfaceType;
-import org.heigit.ors.routing.graphhopper.extensions.WayType;
+import com.graphhopper.routing.ev.WayType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

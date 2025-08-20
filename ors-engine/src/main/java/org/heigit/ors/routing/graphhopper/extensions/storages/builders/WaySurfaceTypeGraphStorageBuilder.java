@@ -21,8 +21,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.routing.graphhopper.extensions.SurfaceType;
-import org.heigit.ors.routing.graphhopper.extensions.WayType;
+import com.graphhopper.routing.ev.WayType;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WaySurfaceTypeGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.WayTypeParser;
 import org.heigit.ors.routing.util.WaySurfaceDescription;
 
 import java.util.HashSet;
@@ -70,9 +71,9 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
 
         int wayType;
         if (way.hasTag(TAG_ROUTE, ferries)) {
-            wayType = WayType.FERRY;
+            wayType = WayType.FERRY.value();
         } else if (way.hasTag(TAG_HIGHWAY)) {
-            wayType = WayType.getFromString(way.getTag(TAG_HIGHWAY));
+            wayType = WayTypeParser.getFromString(way.getTag(TAG_HIGHWAY)).value();
         } else {
             return;
         }
@@ -115,7 +116,7 @@ public class WaySurfaceTypeGraphStorageBuilder extends AbstractGraphStorageBuild
         value.setSurfaceType(waySurfaceDescription.getSurfaceType());
 
         if (useSidewalks && way.hasTag(KEY_ORS_SIDEWALK_SIDE)) {
-            value.setWayType(WayType.FOOTWAY);
+            value.setWayType(WayType.FOOTWAY.value());
             String side = way.getTag(KEY_ORS_SIDEWALK_SIDE);
             if (side.equals(VAL_LEFT)) {
                 value.setSurfaceType(sidewalkLeftSurface);
