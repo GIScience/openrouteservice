@@ -46,7 +46,6 @@ import java.util.List;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class ExtraInfoProcessor implements PathProcessor {
-    private WaySurfaceTypeGraphStorage extWaySurface;
     private WayCategoryGraphStorage extWayCategory;
     private GreenIndexGraphStorage extGreenIndex;
     private NoiseIndexGraphStorage extNoiseIndex;
@@ -157,20 +156,14 @@ public class ExtraInfoProcessor implements PathProcessor {
                 }
             }
 
-            if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE) || includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_TYPE)) {
-                extWaySurface = GraphStorageUtils.getGraphExtension(graphHopperStorage, WaySurfaceTypeGraphStorage.class);
-                if (extWaySurface != null) {
-                    if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
-                        surfaceInfo = new RouteExtraInfo("surface");
-                        surfaceInfoBuilder = new AppendableRouteExtraInfoBuilder(surfaceInfo);
-                    }
-                    if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_TYPE)) {
-                        wayTypeInfo = new RouteExtraInfo("waytype");
-                        wayTypeInfoBuilder = new AppendableRouteExtraInfoBuilder(wayTypeInfo);
-                    }
-                } else {
-                    skippedExtras.add("surface/waytype");
-                }
+            if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
+                surfaceInfo = new RouteExtraInfo("surface");
+                surfaceInfoBuilder = new AppendableRouteExtraInfoBuilder(surfaceInfo);
+            }
+
+            if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_TYPE)) {
+                wayTypeInfo = new RouteExtraInfo("waytype");
+                wayTypeInfoBuilder = new AppendableRouteExtraInfoBuilder(wayTypeInfo);
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.STEEPNESS)) {
@@ -441,15 +434,14 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
         }
 
-        if (extWaySurface != null && wayTypeInfo != null || surfaceInfo != null) {
-            if (surfaceInfoBuilder != null) {
-                OrsSurface orsSurface = encoder.getEnumEncodedValue(OrsSurface.KEY, OrsSurface.class).getEnum(false, edge.getFlags());
-                surfaceInfoBuilder.addSegment(orsSurface.value(), orsSurface.value(), geom, dist);
-            }
-            if (wayTypeInfo != null){
-                WayType wayType = encoder.getEnumEncodedValue(WayType.KEY, WayType.class).getEnum(false, edge.getFlags());
-                wayTypeInfoBuilder.addSegment(wayType.value(), wayType.value(), geom, dist);
-            }
+        if (surfaceInfoBuilder != null) {
+            OrsSurface orsSurface = encoder.getEnumEncodedValue(OrsSurface.KEY, OrsSurface.class).getEnum(false, edge.getFlags());
+            surfaceInfoBuilder.addSegment(orsSurface.value(), orsSurface.value(), geom, dist);
+        }
+
+        if (wayTypeInfo != null){
+            WayType wayType = encoder.getEnumEncodedValue(WayType.KEY, WayType.class).getEnum(false, edge.getFlags());
+            wayTypeInfoBuilder.addSegment(wayType.value(), wayType.value(), geom, dist);
         }
 
         if (wayCategoryInfoBuilder != null) {
