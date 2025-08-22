@@ -12,10 +12,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.config.ElevationProperties;
 import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.config.profile.BuildProperties;
-import org.heigit.ors.config.profile.ExecutionProperties;
-import org.heigit.ors.config.profile.PreparationProperties;
-import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.config.profile.*;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.ProfileTools;
@@ -43,35 +40,10 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
             ghConfig.putObject("instructions", false);
         }
 
-        ElevationProperties elevationProps = engineConfig.getElevation();
+        setElevationProperties(profile.getBuild(), engineConfig, ghConfig);
 
-        boolean addElevation = true;
-
-    
-        if (!profile.getBuild().getElevation()) {
-            LOGGER.warn("Elevation is set to false.");
-            addElevation = false;
-        }
-        if (elevationProps.getProvider() == null) {
-            LOGGER.warn("Elevation provider is null.");
-            addElevation = false;
-        }
-        if (elevationProps.getCachePath() == null) {
-            LOGGER.warn("Elevation cache path is null.");
-            addElevation = false;
-        }
-        
-        if (!addElevation) {
-             LOGGER.warn("Elevation deactivated.");
-        } else {
-            ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
-            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
-            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
-            ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
-            if (Boolean.TRUE.equals(profile.getBuild().getInterpolateBridgesAndTunnels()))
-                ghConfig.putObject("graph.encoded_values", "road_environment");
-            if (Boolean.TRUE.equals(profile.getBuild().getElevationSmoothing()))
-                ghConfig.putObject("graph.elevation.smoothing", true);
+        if (Boolean.TRUE.equals(profile.getBuild().getInterpolateBridgesAndTunnels())) {
+            ghConfig.putObject("graph.encoded_values", "road_environment");
         }
 
         addGraphLevelEncodedValues(ghConfig);
@@ -258,6 +230,36 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
+    }
+
+    private static void setElevationProperties(BuildProperties buildProperties, EngineProperties engineConfig, ORSGraphHopperConfig ghConfig) {
+        ElevationProperties elevationProps = engineConfig.getElevation();
+
+        boolean addElevation = true;
+
+        if (!buildProperties.getElevation()) {
+            LOGGER.warn("Elevation is set to false.");
+            addElevation = false;
+        }
+        if (elevationProps.getProvider() == null) {
+            LOGGER.warn("Elevation provider is null.");
+            addElevation = false;
+        }
+        if (elevationProps.getCachePath() == null) {
+            LOGGER.warn("Elevation cache path is null.");
+            addElevation = false;
+        }
+
+        if (!addElevation) {
+            LOGGER.warn("Elevation deactivated.");
+        } else {
+            ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
+            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
+            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
+            ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
+            if (Boolean.TRUE.equals(buildProperties.getElevationSmoothing()))
+                ghConfig.putObject("graph.elevation.smoothing", true);
+        }
     }
 
     private static void addGraphLevelEncodedValues(ORSGraphHopperConfig ghConfig) {
