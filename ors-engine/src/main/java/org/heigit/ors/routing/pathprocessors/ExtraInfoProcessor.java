@@ -13,7 +13,7 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
-import com.graphhopper.routing.ev.OrsSurface;
+import com.graphhopper.routing.ev.WaySurface;
 import com.graphhopper.routing.ev.WayType;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
@@ -435,8 +435,8 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (surfaceInfoBuilder != null) {
-            OrsSurface orsSurface = encoder.getEnumEncodedValue(OrsSurface.KEY, OrsSurface.class).getEnum(false, edge.getFlags());
-            surfaceInfoBuilder.addSegment(orsSurface.value(), orsSurface.value(), geom, dist);
+            WaySurface waySurface = encoder.getEnumEncodedValue(WaySurface.KEY, WaySurface.class).getEnum(false, edge.getFlags());
+            surfaceInfoBuilder.addSegment(waySurface.value(), waySurface.value(), geom, dist);
         }
 
         if (wayTypeInfo != null){

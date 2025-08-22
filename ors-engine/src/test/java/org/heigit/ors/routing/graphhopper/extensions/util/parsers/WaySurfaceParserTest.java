@@ -2,7 +2,7 @@ package org.heigit.ors.routing.graphhopper.extensions.util.parsers;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.EnumEncodedValue;
-import com.graphhopper.routing.ev.OrsSurface;
+import com.graphhopper.routing.ev.WaySurface;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,21 +13,21 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.heigit.ors.routing.graphhopper.extensions.reader.osmfeatureprocessors.OSMAttachedSidewalkProcessor.KEY_ORS_SIDEWALK_SIDE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class OrsSurfaceParserTest {
-    private static final OrsSurface STREET_SURFACE = OrsSurface.ASPHALT;
-    private static final OrsSurface SIDEWALK_SURFACE = OrsSurface.PAVING_STONES;
-    private static final OrsSurface SIDEWALK_SURFACE_OTHER = OrsSurface.CONCRETE;
+class WaySurfaceParserTest {
+    private static final WaySurface STREET_SURFACE = WaySurface.ASPHALT;
+    private static final WaySurface SIDEWALK_SURFACE = WaySurface.PAVING_STONES;
+    private static final WaySurface SIDEWALK_SURFACE_OTHER = WaySurface.CONCRETE;
 
     private EncodingManager em;
-    private EnumEncodedValue<OrsSurface> surfaceEnc;
-    private OrsSurfaceParser parser;
+    private EnumEncodedValue<WaySurface> surfaceEnc;
+    private WaySurfaceParser parser;
     private IntsRef intsRef, relFlags;
 
     @BeforeEach
     void setUp() {
-        parser = new OrsSurfaceParser();
+        parser = new WaySurfaceParser();
         em = new EncodingManager.Builder().add(parser).build();
-        surfaceEnc = em.getEnumEncodedValue(OrsSurface.KEY, OrsSurface.class);
+        surfaceEnc = em.getEnumEncodedValue(WaySurface.KEY, WaySurface.class);
         relFlags = em.createRelationFlags();
         intsRef = em.createEdgeFlags();
     }
@@ -38,15 +38,15 @@ class OrsSurfaceParserTest {
 
         way.setTag("highway", "primary");
         parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(OrsSurface.UNKNOWN, surfaceEnc.getEnum(false, intsRef));
+        assertEquals(WaySurface.UNKNOWN, surfaceEnc.getEnum(false, intsRef));
 
         way.setTag("surface", "paved");
         parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(OrsSurface.PAVED, surfaceEnc.getEnum(false, intsRef));
+        assertEquals(WaySurface.PAVED, surfaceEnc.getEnum(false, intsRef));
 
         way.setTag("surface", "earth");
         parser.handleWayTags(intsRef, way, false, relFlags);
-        assertEquals(OrsSurface.DIRT, surfaceEnc.getEnum(false, intsRef));
+        assertEquals(WaySurface.DIRT, surfaceEnc.getEnum(false, intsRef));
     }
 
     @Test
@@ -75,7 +75,7 @@ class OrsSurfaceParserTest {
         for (String s : sides) {
             way.setTag(KEY_ORS_SIDEWALK_SIDE, s);
             parser.handleWayTags(intsRef, way, false, relFlags);
-            assertEquals(setSurface ? SIDEWALK_SURFACE : OrsSurface.UNKNOWN, surfaceEnc.getEnum(false, intsRef));
+            assertEquals(setSurface ? SIDEWALK_SURFACE : WaySurface.UNKNOWN, surfaceEnc.getEnum(false, intsRef));
         }
     }
 
