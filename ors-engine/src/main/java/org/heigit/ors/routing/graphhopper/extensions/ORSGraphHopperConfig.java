@@ -31,18 +31,19 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
     public static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig, String graphLocation) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
+        BuildProperties buildProperties = profile.getBuild();
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess().toString());
         ghConfig.putObject("datareader.file", Optional.ofNullable(profile).map(ProfileProperties::getBuild).map(BuildProperties::getSourceFile).map(Path::toString).orElse(null));
-        ghConfig.putObject("graph.bytes_for_flags", profile.getBuild().getEncoderFlagsSize());
+        ghConfig.putObject("graph.bytes_for_flags", buildProperties.getEncoderFlagsSize());
         ghConfig.putObject("graph.location", graphLocation);
 
-        if (Boolean.FALSE.equals(profile.getBuild().getInstructions())) {
+        if (Boolean.FALSE.equals(buildProperties.getInstructions())) {
             ghConfig.putObject("instructions", false);
         }
 
-        setElevationProperties(profile.getBuild(), engineConfig, ghConfig);
+        setElevationProperties(buildProperties, engineConfig, ghConfig);
 
-        if (Boolean.TRUE.equals(profile.getBuild().getInterpolateBridgesAndTunnels())) {
+        if (Boolean.TRUE.equals(buildProperties.getInterpolateBridgesAndTunnels())) {
             ghConfig.putObject("graph.encoded_values", "road_environment");
         }
 
@@ -65,7 +66,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
         String vehicle = RoutingProfileType.getEncoderName(profilesTypes[0]);
 
-        boolean hasTurnCosts = Boolean.TRUE.equals(profile.getBuild().getEncoderOptions().getTurnCosts());
+        boolean hasTurnCosts = Boolean.TRUE.equals(buildProperties.getEncoderOptions().getTurnCosts());
 
         // TODO Future improvement : make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {ProfileTools.VAL_FASTEST, ProfileTools.VAL_SHORTEST, ProfileTools.VAL_RECOMMENDED};
@@ -78,7 +79,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
             profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(false));
         }
 
-        if (Boolean.TRUE == profile.getBuild().getEncoderOptions().getEnableCustomModels()) {
+        if (Boolean.TRUE == buildProperties.getEncoderOptions().getEnableCustomModels()) {
             if (hasTurnCosts) {
                 profiles.put(vehicle + "_custom_with_turn_costs", new CustomProfile(vehicle + "_custom_with_turn_costs").setCustomModel(new CustomModel().setDistanceInfluence(0)).setVehicle(vehicle).setTurnCosts(true));
             }
@@ -86,8 +87,8 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         }
 
         ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
-        if (profile.getBuild().getPreparation() != null) {
-            PreparationProperties preparations = profile.getBuild().getPreparation();
+        if (buildProperties.getPreparation() != null) {
+            PreparationProperties preparations = buildProperties.getPreparation();
 
 
             if (preparations.getMinNetworkSize() != null)
@@ -213,20 +214,20 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
                 ghConfig.putObject("routing.lm.active_landmarks", execution.getMethods().getLm().getActiveLandmarks());
         }
 
-        if (Boolean.TRUE.equals(profile.getBuild().getOptimize()) && !prepareCH)
+        if (Boolean.TRUE.equals(buildProperties.getOptimize()) && !prepareCH)
             ghConfig.putObject("graph.do_sort", true);
 
         // Check if getGTFSFile exists
-        if (profile.getBuild().getGtfsFile() != null && !profile.getBuild().getGtfsFile().toString().isEmpty())
-            ghConfig.putObject("gtfs.file", profile.getBuild().getGtfsFile().toAbsolutePath().toString());
+        if (buildProperties.getGtfsFile() != null && !buildProperties.getGtfsFile().toString().isEmpty())
+            ghConfig.putObject("gtfs.file", buildProperties.getGtfsFile().toAbsolutePath().toString());
 
         String flagEncoder = vehicle;
-        if (!Helper.isEmpty(profile.getBuild().getEncoderOptionsString()))
-            flagEncoder += "|" + profile.getBuild().getEncoderOptionsString();
+        if (!Helper.isEmpty(buildProperties.getEncoderOptionsString()))
+            flagEncoder += "|" + buildProperties.getEncoderOptionsString();
 
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
-        ghConfig.putObject("index.high_resolution", profile.getBuild().getLocationIndexResolution());
-        ghConfig.putObject("index.max_region_search", profile.getBuild().getLocationIndexSearchIterations());
+        ghConfig.putObject("index.high_resolution", buildProperties.getLocationIndexResolution());
+        ghConfig.putObject("index.max_region_search", buildProperties.getLocationIndexSearchIterations());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
