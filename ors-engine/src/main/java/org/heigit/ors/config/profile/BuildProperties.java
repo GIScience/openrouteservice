@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.nio.file.Path;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -43,6 +44,8 @@ public class BuildProperties {
     private PreparationProperties preparation = new PreparationProperties();
     @JsonProperty("ext_storages")
     private Map<String, ExtendedStorageProperties> extStorages = new LinkedHashMap<>();
+    @JsonProperty("encoded_values")
+    private EncodedValuesProperties encodedValues = new EncodedValuesProperties();
     @JsonProperty("maximum_speed_lower_bound")
     private Double maximumSpeedLowerBound;
 
@@ -73,6 +76,7 @@ public class BuildProperties {
                 extStorages.put(entry.getKey(), entry.getValue());
             }
         }
+        encodedValues.merge(other.encodedValues);
         // Fix paths
         sourceFile = ofNullable(sourceFile).orElse(other.sourceFile);
         gtfsFile = ofNullable(gtfsFile).orElse(other.gtfsFile);
@@ -83,12 +87,23 @@ public class BuildProperties {
 
     public void initExtStorages() {
         if (extStorages != null) {
-            extStorages.forEach((key, storage) -> {
+            Iterator<Map.Entry<String, ExtendedStorageProperties>> iterator = extStorages.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, ExtendedStorageProperties> entry = iterator.next();
+                String key = entry.getKey();
+                ExtendedStorageProperties storage = entry.getValue();
                 if (storage != null) {
-                    storage.initialize(ExtendedStorageName.getEnum(key));
-                    this.extStorages.put(key, storage);
+                    ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
+                    if (extendedStorageName == ExtendedStorageName.WAY_SURFACE_TYPE) {
+                        encodedValues.setWaySurface(true);
+                        encodedValues.setWayType(true);
+                        iterator.remove();
+                    } else {
+                        storage.initialize(extendedStorageName);
+                        this.extStorages.put(key, storage);
+                    }
                 }
-            });
+            }
         }
     }
 
@@ -98,4 +113,8 @@ public class BuildProperties {
         return encoderOptions.toString();
     }
 
+    @JsonIgnore
+    public String getEncodedValuesString() {
+        return encodedValues == null ? "" : encodedValues.toString();
+    }
 }

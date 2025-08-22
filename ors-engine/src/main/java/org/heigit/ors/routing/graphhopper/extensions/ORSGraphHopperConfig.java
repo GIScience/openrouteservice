@@ -5,6 +5,7 @@ import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.routing.ev.WaySurface;
+import com.graphhopper.routing.ev.RoadEnvironment;
 import com.graphhopper.routing.ev.WayType;
 import com.graphhopper.routing.weighting.custom.CustomProfile;
 import com.graphhopper.util.CustomModel;
@@ -43,11 +44,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
         setElevationProperties(buildProperties, engineConfig, ghConfig);
 
-        if (Boolean.TRUE.equals(buildProperties.getInterpolateBridgesAndTunnels())) {
-            ghConfig.putObject("graph.encoded_values", "road_environment");
-        }
-
-        addGraphLevelEncodedValues(ghConfig);
+        setGraphLevelEncodedValues(buildProperties, ghConfig);
 
         boolean prepareCH = false;
         boolean prepareLM = false;
@@ -89,7 +86,6 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
         if (buildProperties.getPreparation() != null) {
             PreparationProperties preparations = buildProperties.getPreparation();
-
 
             if (preparations.getMinNetworkSize() != null)
                 ghConfig.putObject("prepare.min_network_size", preparations.getMinNetworkSize());
@@ -263,8 +259,15 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         }
     }
 
-    private static void addGraphLevelEncodedValues(ORSGraphHopperConfig ghConfig) {
-        ghConfig.putObject("graph.encoded_values", WaySurface.KEY + "," + WayType.KEY);
+    private static void setGraphLevelEncodedValues(BuildProperties buildProperties, ORSGraphHopperConfig ghConfig) {
+        List<String> encodedValues = new ArrayList<>();
+
+        encodedValues.add(buildProperties.getEncodedValuesString());
+
+        if (Boolean.TRUE.equals(buildProperties.getInterpolateBridgesAndTunnels()))
+            encodedValues.add(RoadEnvironment.KEY);
+
+        ghConfig.putObject("graph.encoded_values", String.join(",", encodedValues));
     }
 
     public List<CHProfile> getCoreProfiles() {
