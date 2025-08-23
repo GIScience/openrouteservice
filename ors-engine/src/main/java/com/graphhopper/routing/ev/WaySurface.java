@@ -13,7 +13,7 @@
  */
 package com.graphhopper.routing.ev;
 
-public enum OrsSurface {
+public enum WaySurface {
     // Keep in sync with documentation: surface.md
     UNKNOWN(0),
     PAVED(1),
@@ -34,7 +34,7 @@ public enum OrsSurface {
 
     private final byte value;
 
-    private OrsSurface(int value) {
+    private WaySurface(int value) {
         this.value = (byte) value;
     }
 
@@ -42,5 +42,5 @@ public enum OrsSurface {
         return value;
     }
 
-    public static final String KEY = "ors_surface";
+    public static final String KEY = "way_surface";
 }

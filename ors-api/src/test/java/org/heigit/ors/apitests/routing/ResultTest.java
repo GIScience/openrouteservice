@@ -4073,7 +4073,7 @@ class ResultTest extends ServiceTest {
 
         JSONObject customModel = new JSONObject();
         JSONObject priority = new JSONObject();
-        priority.put("if", "ors_surface == PAVING_STONES");
+        priority.put("if", "way_surface == PAVING_STONES");
         priority.put("multiply_by", 0);
         customModel.put("priority", new JSONArray().put(priority));
         body.put("custom_model", customModel);

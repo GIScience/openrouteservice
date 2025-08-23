@@ -76,7 +76,6 @@ public class ORSOSMReader extends OSMReader {
 
             if (b instanceof WheelchairGraphStorageBuilder) {
                 this.processNodeTags = true;
-                this.detachSidewalksFromRoad = true;
                 this.processSimpleGeom = true;
                 extraTagKeys.add("kerb");
                 extraTagKeys.add("kerb:both");
@@ -98,13 +97,10 @@ public class ORSOSMReader extends OSMReader {
                 extraTagKeys.add("motorcar");
                 extraTagKeys.add("motorcycle");
             }
-
-            if (b instanceof WaySurfaceTypeGraphStorageBuilder bb) {
-                this.detachSidewalksFromRoad = bb.isUseSidewalks();
-            }
         }
 
-        if (detachSidewalksFromRoad) {
+        if (procCntx.isUseSidewalks()) {
+            detachSidewalksFromRoad = true;
             filtersToApply.add(new PedestrianWayFilter());
         }
     }
@@ -140,7 +136,7 @@ public class ORSOSMReader extends OSMReader {
     @Override
     protected void processWay(ReaderWay way) {
         // As a first step we need to check to see if we should try to split the way
-        if (this.detachSidewalksFromRoad) {
+        if (detachSidewalksFromRoad) {
             // If we are requesting to split sidewalks, then we need to create multiple ways from a single road
             // For example, if a road way has been tagged as having sidewalks on both sides (sidewalk=both), then we
             // need to create two ways - one for the left sidewalk and one for the right. The Graph Builder would then
