@@ -234,7 +234,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
         boolean addElevation = true;
 
-        if (!buildProperties.getElevation()) {
+        if (Boolean.FALSE.equals(buildProperties.getElevation())) {
             LOGGER.warn("Elevation is set to false.");
             addElevation = false;
         }

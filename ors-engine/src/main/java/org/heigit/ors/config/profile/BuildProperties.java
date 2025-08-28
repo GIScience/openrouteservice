@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -86,27 +85,30 @@ public class BuildProperties {
     }
 
     public void initExtStorages() {
-        if (extStorages != null) {
-            Iterator<Map.Entry<String, ExtendedStorageProperties>> iterator = extStorages.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, ExtendedStorageProperties> entry = iterator.next();
-                String key = entry.getKey();
-                ExtendedStorageProperties storage = entry.getValue();
-                if (storage != null) {
-                    ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
-                    if (extendedStorageName == ExtendedStorageName.WAY_SURFACE_TYPE) {
-                        if (encodedValues.getWaySurface() == null) {
-                            encodedValues.setWaySurface(true);
-                        }
-                        if (encodedValues.getWayType() == null) {
-                            encodedValues.setWayType(true);
-                        }
-                    } else {
-                        storage.initialize(extendedStorageName);
-                        this.extStorages.put(key, storage);
-                    }
+        if (extStorages == null) {
+            return;
+        }
+        for (Map.Entry<String, ExtendedStorageProperties> entry : extStorages.entrySet()) {
+            String key = entry.getKey();
+            ExtendedStorageProperties storage = entry.getValue();
+            if (storage != null) {
+                ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
+                if (extendedStorageName == ExtendedStorageName.WAY_SURFACE_TYPE) {
+                    handleWaySurfaceType();
+                } else {
+                    storage.initialize(extendedStorageName);
+                    this.extStorages.put(key, storage);
                 }
             }
+        }
+    }
+
+    private void handleWaySurfaceType() {
+        if (encodedValues.getWaySurface() == null) {
+            encodedValues.setWaySurface(true);
+        }
+        if (encodedValues.getWayType() == null) {
+            encodedValues.setWayType(true);
         }
     }
 

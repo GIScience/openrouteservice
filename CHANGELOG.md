@@ -38,6 +38,7 @@ Releasing is documented in RELEASE.md
 ### Deprecated
 
 ### Removed
+- replace `WaySurfaceType` external storage by corresponding encoded values ([#2116](https://github.com/GIScience/openrouteservice/pull/2116))
 
 ### Fixed
 - remove spurious entry for an unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))

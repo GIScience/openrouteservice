@@ -2,8 +2,6 @@ package org.heigit.ors.config.profile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.graphhopper.routing.ev.WaySurface;
-import com.graphhopper.routing.ev.WayType;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
