@@ -38,10 +38,10 @@ public class EncodedValuesProperties {
     @JsonIgnore
     public String toString() {
         List<String> out = new ArrayList<>();
-        if (waySurface != null) {
+        if (Boolean.TRUE.equals(waySurface)) {
             out.add(WaySurface.KEY);
         }
-        if (wayType != null) {
+        if (Boolean.TRUE.equals(wayType)) {
             out.add(WayType.KEY);
         }
         return String.join(",", out);

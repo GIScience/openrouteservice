@@ -95,9 +95,12 @@ public class BuildProperties {
                 if (storage != null) {
                     ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
                     if (extendedStorageName == ExtendedStorageName.WAY_SURFACE_TYPE) {
-                        encodedValues.setWaySurface(true);
-                        encodedValues.setWayType(true);
-                        iterator.remove();
+                        if (encodedValues.getWaySurface() == null) {
+                            encodedValues.setWaySurface(true);
+                        }
+                        if (encodedValues.getWayType() == null) {
+                            encodedValues.setWayType(true);
+                        }
                     } else {
                         storage.initialize(extendedStorageName);
                         this.extStorages.put(key, storage);
