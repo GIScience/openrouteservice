@@ -2,6 +2,8 @@ package org.heigit.ors.config.profile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.graphhopper.routing.ev.WaySurface;
+import com.graphhopper.routing.ev.WayType;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -76,6 +78,7 @@ class ProfilePropertiesTest {
         profile.getBuild().getEncoderOptions().setPreferredSpeedFactor(0.8);
         profile.getBuild().getPreparation().getMethods().getCore().setEnabled(true);
         profile.getBuild().getExtStorages().put("WayCategory", new ExtendedStorageProperties());
+        profile.getBuild().getEncodedValues().setWayType(true);
 
         ProfileProperties defaultProfile = new ProfileProperties();
         defaultProfile.setGraphPath(Path.of("/path/to/graphs/cannot/be/null"));
@@ -87,6 +90,7 @@ class ProfilePropertiesTest {
         defaultProfile.getService().getExecution().getMethods().getAstar().setApproximation("Beeline");
         defaultProfile.getBuild().getPreparation().getMethods().getLm().setEnabled(true);
         defaultProfile.getBuild().getExtStorages().put("HeavyVehicle", new ExtendedStorageProperties());
+        profile.getBuild().getEncodedValues().setWaySurface(true);
 
         profile.mergeDefaults(defaultProfile, "profName");
 
@@ -108,6 +112,9 @@ class ProfilePropertiesTest {
         assertEquals(2, profile.getBuild().getExtStorages().size(), "extStrorages should be merged");
         assertTrue(profile.getBuild().getExtStorages().containsKey("WayCategory"), "extStrorages should be merged");
         assertTrue(profile.getBuild().getExtStorages().containsKey("HeavyVehicle"), "extStrorages should be merged");
+
+        assertTrue(profile.getBuild().getEncodedValues().getWayType(), "way_type should not be overwritten");
+        assertTrue(profile.getBuild().getEncodedValues().getWaySurface(), "way_surface should be merged");
     }
 
     @Test
@@ -123,6 +130,7 @@ class ProfilePropertiesTest {
         profile.getBuild().getPreparation().getMethods().getLm().setEnabled(true);
         profile.getBuild().getPreparation().getMethods().getCore().setEnabled(true);
         profile.getBuild().getExtStorages().put("WayCategory", new ExtendedStorageProperties());
+        profile.getBuild().getEncodedValues().setWayType(true);
 
         ProfileProperties loadedProfile = new ProfileProperties();
         loadedProfile.setEncoderName(EncoderNameEnum.DRIVING_CAR);
@@ -134,6 +142,7 @@ class ProfilePropertiesTest {
         loadedProfile.getBuild().getPreparation().getMethods().getCh().setEnabled(true);
         loadedProfile.getBuild().getPreparation().getMethods().getLm().setEnabled(false);
         loadedProfile.getBuild().getExtStorages().put("HeavyVehicle", new ExtendedStorageProperties());
+        loadedProfile.getBuild().getEncodedValues().setWaySurface(true);
 
         profile.mergeLoaded(loadedProfile);
 
@@ -149,5 +158,7 @@ class ProfilePropertiesTest {
         assertEquals(false, profile.getBuild().getPreparation().getMethods().getLm().getEnabled(), "LM should be overwritten");
         assertNull(profile.getBuild().getPreparation().getMethods().getCore().getEnabled(), "Core should be null");
         assertTrue(profile.getBuild().getExtStorages().size() == 1 && profile.getBuild().getExtStorages().containsKey("HeavyVehicle"), "extStrorages should be replaced");
+        assertNull(profile.getBuild().getEncodedValues().getWayType(), "way_type should be null");
+        assertTrue(profile.getBuild().getEncodedValues().getWaySurface(), "way_surface should be overwritten");
     }
 }
