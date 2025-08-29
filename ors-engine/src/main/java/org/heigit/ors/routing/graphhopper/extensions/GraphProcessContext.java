@@ -15,7 +15,6 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
-import lombok.Getter;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
@@ -38,7 +37,6 @@ public class GraphProcessContext {
     private final double maximumSpeedLowerBound;
     private boolean getElevationFromPreprocessedData;
 
-    @Getter
     private boolean useSidewalks;
 
     public GraphProcessContext(ProfileProperties profile) throws Exception {
@@ -144,5 +142,9 @@ public class GraphProcessContext {
 
     public boolean getElevationFromPreprocessedData() {
         return getElevationFromPreprocessedData;
+    }
+
+    public boolean isUseSidewalks() {
+        return useSidewalks;
     }
 }
