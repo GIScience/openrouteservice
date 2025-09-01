@@ -91,6 +91,8 @@ ors:
               radius: 150
               output_log: false
               log_location: ors/traffic_log
+          encoded_values:
+            logie_borders: true
         service:
           execution:
             methods:

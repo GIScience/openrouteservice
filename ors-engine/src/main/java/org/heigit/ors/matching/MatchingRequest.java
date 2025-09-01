@@ -2,6 +2,8 @@ package org.heigit.ors.matching;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.EnumEncodedValue;
+import com.graphhopper.routing.ev.LogieBorders;
 import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.DefaultSnapFilter;
@@ -77,10 +79,10 @@ public class MatchingRequest extends ServiceRequest {
         var mapMatcher = new GhMapMatcher(gh, localProfileName);
 
 
-        List<Map<Integer, Map>> edgePropertiesList = new ArrayList<>();
+        List<Map<Integer, Map<String, String>>> edgePropertiesList = new ArrayList<>();
         List<Map<Integer, EdgeIteratorState>> matchedEdgesList = new ArrayList<>();
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
-            Map<Integer, Map> edgeProperties = new HashMap<>();
+            Map<Integer, Map<String, String>> edgeProperties = new HashMap<>();
             Map<Integer, EdgeIteratorState> matchedEdges = new HashMap<>();
             Geometry geom = geometry.getGeometryN(i);
             LOGGER.debug("Matching geometry at index " + i + ": " + geom);
@@ -144,17 +146,39 @@ public class MatchingRequest extends ServiceRequest {
             matchedEdgesList.add(matchedEdges);
         }
 
-        BooleanEncodedValue dynamicData = gh.getEncodingManager().getBooleanEncodedValue(EncodingManager.getKey(encoderName, DynamicData.KEY));
-        if (dynamicData == null) {
-            throw new IllegalStateException("Dynamic data is not available for the profile: " + localProfileName);
+        switch (key) {
+            case LogieBorders.KEY:
+                EnumEncodedValue<LogieBorders> bordersEnc = gh.getEncodingManager().getEnumEncodedValue(LogieBorders.KEY, LogieBorders.class);
+                if (bordersEnc == null) {
+                    throw new IllegalStateException("Dynamic data '" + LogieBorders.KEY + "' is not available for the profile: " + localProfileName);
+                }
+                for (int i = 0; i < matchedEdgesList.size(); i++) {
+                    Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
+                    for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
+                        IntsRef edgeFlags = edge.getValue().getFlags();
+                        try {
+                            LogieBorders borderState = LogieBorders.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
+                            bordersEnc.setEnum(false, edgeFlags, borderState);
+                            edge.getValue().setFlags(edgeFlags);
+                        } catch (IllegalArgumentException | NullPointerException e) {
+                            // do nothing
+                        }
+                    }
+                }
         }
-        for (Map<Integer, EdgeIteratorState> matchedEdges : matchedEdgesList) {
-            for (EdgeIteratorState edge : matchedEdges.values()) {
-                IntsRef edgeFlags = edge.getFlags();
-                dynamicData.setBool(false, edgeFlags, true);
-                edge.setFlags(edgeFlags);
+        { // TODO: remove this code block when not needed as reference any more
+            BooleanEncodedValue dynamicData = gh.getEncodingManager().getBooleanEncodedValue(EncodingManager.getKey(encoderName, DynamicData.KEY));
+            if (dynamicData == null) {
+                throw new IllegalStateException("Dynamic data is not available for the profile: " + localProfileName);
             }
+            for (Map<Integer, EdgeIteratorState> matchedEdges : matchedEdgesList) {
+                for (EdgeIteratorState edge : matchedEdges.values()) {
+                    IntsRef edgeFlags = edge.getFlags();
+                    dynamicData.setBool(false, edgeFlags, true);
+                    edge.setFlags(edgeFlags);
+                }
 
+            }
         }
         String graphDate = ghStorage.getProperties().get("datareader.import.date");
         return new MatchingResult(graphDate, matchedEdgesList.stream().map(Map::size).toList());
