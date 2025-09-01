@@ -44,7 +44,14 @@ Releasing is documented in RELEASE.md
 - remove spurious entry for an unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))
 
 ### Security
-
+- update spring-boot-starter to 3.4.9 fixes 
+  [CVE-2025-48989](https://www.cve.org/CVERecord?id=CVE-2025-48989),
+  [CVE-2025-41242](https://www.cve.org/CVERecord?id=CVE-2025-41242),
+  [CVE-2025-48988](https://www.cve.org/CVERecord?id=CVE-2025-48988),
+  [CVE-2025-53506](https://www.cve.org/CVERecord?id=CVE-2025-53506),
+  [CVE-2025-52520](https://www.cve.org/CVERecord?id=CVE-2025-52520) and more
+- update apache commons-lang3 to 3.18.0 fixes 
+  [CVE-2025-48924](https://www.cve.org/CVERecord?id=CVE-2025-48924),
 
 ## [9.3.1] - 2025-07-28
 
