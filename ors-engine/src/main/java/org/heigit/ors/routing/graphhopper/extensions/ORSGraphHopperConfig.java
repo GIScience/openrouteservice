@@ -4,7 +4,8 @@ import com.graphhopper.GraphHopperConfig;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.LMProfile;
 import com.graphhopper.config.Profile;
-import com.graphhopper.routing.ev.OrsSurface;
+import com.graphhopper.routing.ev.WaySurface;
+import com.graphhopper.routing.ev.RoadEnvironment;
 import com.graphhopper.routing.ev.WayType;
 import com.graphhopper.routing.weighting.custom.CustomProfile;
 import com.graphhopper.util.CustomModel;
@@ -12,10 +13,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.config.ElevationProperties;
 import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.config.profile.BuildProperties;
-import org.heigit.ors.config.profile.ExecutionProperties;
-import org.heigit.ors.config.profile.PreparationProperties;
-import org.heigit.ors.config.profile.ProfileProperties;
+import org.heigit.ors.config.profile.*;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.graphhopper.extensions.util.ORSParameters;
 import org.heigit.ors.util.ProfileTools;
@@ -34,47 +32,19 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
     public static ORSGraphHopperConfig createGHSettings(ProfileProperties profile, EngineProperties engineConfig, String graphLocation) {
         ORSGraphHopperConfig ghConfig = new ORSGraphHopperConfig();
+        BuildProperties buildProperties = profile.getBuild();
         ghConfig.putObject("graph.dataaccess", engineConfig.getGraphsDataAccess().toString());
         ghConfig.putObject("datareader.file", Optional.ofNullable(profile).map(ProfileProperties::getBuild).map(BuildProperties::getSourceFile).map(Path::toString).orElse(null));
-        ghConfig.putObject("graph.bytes_for_flags", profile.getBuild().getEncoderFlagsSize());
+        ghConfig.putObject("graph.bytes_for_flags", buildProperties.getEncoderFlagsSize());
         ghConfig.putObject("graph.location", graphLocation);
 
-        if (Boolean.FALSE.equals(profile.getBuild().getInstructions())) {
+        if (Boolean.FALSE.equals(buildProperties.getInstructions())) {
             ghConfig.putObject("instructions", false);
         }
 
-        ElevationProperties elevationProps = engineConfig.getElevation();
+        setElevationProperties(buildProperties, engineConfig, ghConfig);
 
-        boolean addElevation = true;
-
-    
-        if (!profile.getBuild().getElevation()) {
-            LOGGER.warn("Elevation is set to false.");
-            addElevation = false;
-        }
-        if (elevationProps.getProvider() == null) {
-            LOGGER.warn("Elevation provider is null.");
-            addElevation = false;
-        }
-        if (elevationProps.getCachePath() == null) {
-            LOGGER.warn("Elevation cache path is null.");
-            addElevation = false;
-        }
-        
-        if (!addElevation) {
-             LOGGER.warn("Elevation deactivated.");
-        } else {
-            ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
-            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
-            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
-            ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
-            if (Boolean.TRUE.equals(profile.getBuild().getInterpolateBridgesAndTunnels()))
-                ghConfig.putObject("graph.encoded_values", "road_environment");
-            if (Boolean.TRUE.equals(profile.getBuild().getElevationSmoothing()))
-                ghConfig.putObject("graph.elevation.smoothing", true);
-        }
-
-        addGraphLevelEncodedValues(ghConfig);
+        setGraphLevelEncodedValues(buildProperties, ghConfig);
 
         boolean prepareCH = false;
         boolean prepareLM = false;
@@ -93,7 +63,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
 
         String vehicle = RoutingProfileType.getEncoderName(profilesTypes[0]);
 
-        boolean hasTurnCosts = Boolean.TRUE.equals(profile.getBuild().getEncoderOptions().getTurnCosts());
+        boolean hasTurnCosts = Boolean.TRUE.equals(buildProperties.getEncoderOptions().getTurnCosts());
 
         // TODO Future improvement : make this list of weightings configurable for each vehicle as in GH
         String[] weightings = {ProfileTools.VAL_FASTEST, ProfileTools.VAL_SHORTEST, ProfileTools.VAL_RECOMMENDED};
@@ -106,7 +76,7 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
             profiles.put(profileName, new Profile(profileName).setVehicle(vehicle).setWeighting(weighting).setTurnCosts(false));
         }
 
-        if (Boolean.TRUE == profile.getBuild().getEncoderOptions().getEnableCustomModels()) {
+        if (Boolean.TRUE == buildProperties.getEncoderOptions().getEnableCustomModels()) {
             if (hasTurnCosts) {
                 profiles.put(vehicle + "_custom_with_turn_costs", new CustomProfile(vehicle + "_custom_with_turn_costs").setCustomModel(new CustomModel().setDistanceInfluence(0)).setVehicle(vehicle).setTurnCosts(true));
             }
@@ -114,9 +84,8 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
         }
 
         ghConfig.putObject(ProfileTools.KEY_PREPARE_CORE_WEIGHTINGS, "no");
-        if (profile.getBuild().getPreparation() != null) {
-            PreparationProperties preparations = profile.getBuild().getPreparation();
-
+        if (buildProperties.getPreparation() != null) {
+            PreparationProperties preparations = buildProperties.getPreparation();
 
             if (preparations.getMinNetworkSize() != null)
                 ghConfig.putObject("prepare.min_network_size", preparations.getMinNetworkSize());
@@ -241,27 +210,64 @@ public class ORSGraphHopperConfig extends GraphHopperConfig {
                 ghConfig.putObject("routing.lm.active_landmarks", execution.getMethods().getLm().getActiveLandmarks());
         }
 
-        if (Boolean.TRUE.equals(profile.getBuild().getOptimize()) && !prepareCH)
+        if (Boolean.TRUE.equals(buildProperties.getOptimize()) && !prepareCH)
             ghConfig.putObject("graph.do_sort", true);
 
         // Check if getGTFSFile exists
-        if (profile.getBuild().getGtfsFile() != null && !profile.getBuild().getGtfsFile().toString().isEmpty())
-            ghConfig.putObject("gtfs.file", profile.getBuild().getGtfsFile().toAbsolutePath().toString());
+        if (buildProperties.getGtfsFile() != null && !buildProperties.getGtfsFile().toString().isEmpty())
+            ghConfig.putObject("gtfs.file", buildProperties.getGtfsFile().toAbsolutePath().toString());
 
         String flagEncoder = vehicle;
-        if (!Helper.isEmpty(profile.getBuild().getEncoderOptionsString()))
-            flagEncoder += "|" + profile.getBuild().getEncoderOptionsString();
+        if (!Helper.isEmpty(buildProperties.getEncoderOptionsString()))
+            flagEncoder += "|" + buildProperties.getEncoderOptionsString();
 
         ghConfig.putObject("graph.flag_encoders", flagEncoder.toLowerCase());
-        ghConfig.putObject("index.high_resolution", profile.getBuild().getLocationIndexResolution());
-        ghConfig.putObject("index.max_region_search", profile.getBuild().getLocationIndexSearchIterations());
+        ghConfig.putObject("index.high_resolution", buildProperties.getLocationIndexResolution());
+        ghConfig.putObject("index.max_region_search", buildProperties.getLocationIndexSearchIterations());
         ghConfig.setProfiles(new ArrayList<>(profiles.values()));
 
         return ghConfig;
     }
 
-    private static void addGraphLevelEncodedValues(ORSGraphHopperConfig ghConfig) {
-        ghConfig.putObject("graph.encoded_values", OrsSurface.KEY + "," + WayType.KEY);
+    private static void setElevationProperties(BuildProperties buildProperties, EngineProperties engineConfig, ORSGraphHopperConfig ghConfig) {
+        ElevationProperties elevationProps = engineConfig.getElevation();
+
+        boolean addElevation = true;
+
+        if (Boolean.FALSE.equals(buildProperties.getElevation())) {
+            LOGGER.warn("Elevation is set to false.");
+            addElevation = false;
+        }
+        if (elevationProps.getProvider() == null) {
+            LOGGER.warn("Elevation provider is null.");
+            addElevation = false;
+        }
+        if (elevationProps.getCachePath() == null) {
+            LOGGER.warn("Elevation cache path is null.");
+            addElevation = false;
+        }
+
+        if (!addElevation) {
+            LOGGER.warn("Elevation deactivated.");
+        } else {
+            ghConfig.putObject("graph.elevation.provider", StringUtility.trimQuotes(elevationProps.getProvider()));
+            ghConfig.putObject("graph.elevation.cache_dir", StringUtility.trimQuotes(elevationProps.getCachePath().toString()));
+            ghConfig.putObject("graph.elevation.dataaccess", StringUtility.trimQuotes(elevationProps.getDataAccess().toString()));
+            ghConfig.putObject("graph.elevation.clear", elevationProps.getCacheClear());
+            if (Boolean.TRUE.equals(buildProperties.getElevationSmoothing()))
+                ghConfig.putObject("graph.elevation.smoothing", true);
+        }
+    }
+
+    private static void setGraphLevelEncodedValues(BuildProperties buildProperties, ORSGraphHopperConfig ghConfig) {
+        List<String> encodedValues = new ArrayList<>();
+
+        encodedValues.add(buildProperties.getEncodedValuesString());
+
+        if (Boolean.TRUE.equals(buildProperties.getInterpolateBridgesAndTunnels()))
+            encodedValues.add(RoadEnvironment.KEY);
+
+        ghConfig.putObject("graph.encoded_values", String.join(",", encodedValues));
     }
 
     public List<CHProfile> getCoreProfiles() {

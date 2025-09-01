@@ -43,6 +43,8 @@ public class BuildProperties {
     private PreparationProperties preparation = new PreparationProperties();
     @JsonProperty("ext_storages")
     private Map<String, ExtendedStorageProperties> extStorages = new LinkedHashMap<>();
+    @JsonProperty("encoded_values")
+    private EncodedValuesProperties encodedValues = new EncodedValuesProperties();
     @JsonProperty("maximum_speed_lower_bound")
     private Double maximumSpeedLowerBound;
 
@@ -73,6 +75,7 @@ public class BuildProperties {
                 extStorages.put(entry.getKey(), entry.getValue());
             }
         }
+        encodedValues.merge(other.encodedValues);
         // Fix paths
         sourceFile = ofNullable(sourceFile).orElse(other.sourceFile);
         gtfsFile = ofNullable(gtfsFile).orElse(other.gtfsFile);
@@ -82,13 +85,30 @@ public class BuildProperties {
     }
 
     public void initExtStorages() {
-        if (extStorages != null) {
-            extStorages.forEach((key, storage) -> {
-                if (storage != null) {
-                    storage.initialize(ExtendedStorageName.getEnum(key));
+        if (extStorages == null) {
+            return;
+        }
+        for (Map.Entry<String, ExtendedStorageProperties> entry : extStorages.entrySet()) {
+            String key = entry.getKey();
+            ExtendedStorageProperties storage = entry.getValue();
+            if (storage != null) {
+                ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
+                if (extendedStorageName == ExtendedStorageName.WAY_SURFACE_TYPE) {
+                    handleWaySurfaceType();
+                } else {
+                    storage.initialize(extendedStorageName);
                     this.extStorages.put(key, storage);
                 }
-            });
+            }
+        }
+    }
+
+    private void handleWaySurfaceType() {
+        if (encodedValues.getWaySurface() == null) {
+            encodedValues.setWaySurface(true);
+        }
+        if (encodedValues.getWayType() == null) {
+            encodedValues.setWayType(true);
         }
     }
 
@@ -98,4 +118,8 @@ public class BuildProperties {
         return encoderOptions.toString();
     }
 
+    @JsonIgnore
+    public String getEncodedValuesString() {
+        return encodedValues == null ? "" : encodedValues.toString();
+    }
 }

@@ -15,6 +15,7 @@ package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.util.EdgeIteratorState;
+import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.config.profile.ExtendedStorageProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.plugins.PluginManager;
@@ -33,10 +34,10 @@ public class GraphProcessContext {
     private List<GraphStorageBuilder> storageBuilders;
     private GraphStorageBuilder[] arrStorageBuilders;
     private int trafficArrStorageBuilderLocation = -1;
-
     private final double maximumSpeedLowerBound;
-
     private boolean getElevationFromPreprocessedData;
+
+    private boolean useSidewalks;
 
     public GraphProcessContext(ProfileProperties profile) throws Exception {
         PluginManager<GraphStorageBuilder> mgrGraphStorageBuilders = PluginManager.getPluginManager(GraphStorageBuilder.class);
@@ -53,6 +54,7 @@ public class GraphProcessContext {
             storageBuilders = mgrGraphStorageBuilders.createInstances(profile.getBuild().getExtStorages());
         }
         maximumSpeedLowerBound = profile.getBuild().getMaximumSpeedLowerBound() == null ? 80 : profile.getBuild().getMaximumSpeedLowerBound();
+        useSidewalks = EncoderNameEnum.isPedestrian(profile.getEncoderName().getValue());
     }
 
     public void initArrays() {
@@ -140,5 +142,9 @@ public class GraphProcessContext {
 
     public boolean getElevationFromPreprocessedData() {
         return getElevationFromPreprocessedData;
+    }
+
+    public boolean isUseSidewalks() {
+        return useSidewalks;
     }
 }
