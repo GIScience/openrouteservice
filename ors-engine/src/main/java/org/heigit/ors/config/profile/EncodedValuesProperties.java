@@ -4,10 +4,7 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.graphhopper.routing.ev.LogieBorders;
-import com.graphhopper.routing.ev.LogieBridges;
-import com.graphhopper.routing.ev.WaySurface;
-import com.graphhopper.routing.ev.WayType;
+import com.graphhopper.routing.ev.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +25,8 @@ public class EncodedValuesProperties {
     private Boolean logieBorders;
     @JsonProperty("logie_bridges")
     private Boolean logieBridges;
+    @JsonProperty("logie_roads")
+    private Boolean logieRoads;
 
     public EncodedValuesProperties() {
     }
@@ -55,6 +54,9 @@ public class EncodedValuesProperties {
         }
         if (Boolean.TRUE.equals(logieBridges)) {
             out.add(LogieBridges.KEY);
+        }
+        if (Boolean.TRUE.equals(logieRoads)) {
+            out.add(LogieRoads.KEY);
         }
         return String.join(",", out);
     }

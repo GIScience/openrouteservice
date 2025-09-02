@@ -143,6 +143,9 @@ public class MatchingRequest extends ServiceRequest {
             matchedEdgesList.add(matchedEdges);
         }
 
+        // TODO: refactor: the branches of this switch statements contain almost identical code.
+        // TODO:   Unfortunately it is not obvious how to refactor this due to EnumEncodedValue<E>
+        // TODO:   depending on an enum E.
         switch (key) {
             case LogieBorders.KEY:
                 EnumEncodedValue<LogieBorders> bordersEnc = gh.getEncodingManager().getEnumEncodedValue(LogieBorders.KEY, LogieBorders.class);
@@ -175,6 +178,25 @@ public class MatchingRequest extends ServiceRequest {
                         try {
                             LogieBridges bridgesState = LogieBridges.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
                             bridgesEnc.setEnum(false, edgeFlags, bridgesState);
+                            edge.getValue().setFlags(edgeFlags);
+                        } catch (IllegalArgumentException | NullPointerException e) {
+                            // do nothing
+                        }
+                    }
+                }
+                break;
+            case LogieRoads.KEY:
+                EnumEncodedValue<LogieRoads> roadsEnc = gh.getEncodingManager().getEnumEncodedValue(LogieRoads.KEY, LogieRoads.class);
+                if (roadsEnc == null) {
+                    throw new IllegalStateException("Dynamic data '" + LogieBorders.KEY + "' is not available for the profile: " + localProfileName);
+                }
+                for (int i = 0; i < matchedEdgesList.size(); i++) {
+                    Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
+                    for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
+                        IntsRef edgeFlags = edge.getValue().getFlags();
+                        try {
+                            LogieRoads roadsState = LogieRoads.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
+                            roadsEnc.setEnum(false, edgeFlags, roadsState);
                             edge.getValue().setFlags(edgeFlags);
                         } catch (IllegalArgumentException | NullPointerException e) {
                             // do nothing
