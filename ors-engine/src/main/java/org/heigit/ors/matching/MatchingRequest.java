@@ -1,10 +1,7 @@
 package org.heigit.ors.matching;
 
 import com.graphhopper.GraphHopper;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.EnumEncodedValue;
-import com.graphhopper.routing.ev.LogieBorders;
-import com.graphhopper.routing.ev.Subnetwork;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
@@ -165,6 +162,29 @@ public class MatchingRequest extends ServiceRequest {
                         }
                     }
                 }
+                break;
+            case LogieBridges.KEY:
+                EnumEncodedValue<LogieBridges> bridgesEnc = gh.getEncodingManager().getEnumEncodedValue(LogieBridges.KEY, LogieBridges.class);
+                if (bridgesEnc == null) {
+                    throw new IllegalStateException("Dynamic data '" + LogieBorders.KEY + "' is not available for the profile: " + localProfileName);
+                }
+                for (int i = 0; i < matchedEdgesList.size(); i++) {
+                    Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
+                    for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
+                        IntsRef edgeFlags = edge.getValue().getFlags();
+                        try {
+                            LogieBridges bridgesState = LogieBridges.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
+                            bridgesEnc.setEnum(false, edgeFlags, bridgesState);
+                            edge.getValue().setFlags(edgeFlags);
+                        } catch (IllegalArgumentException | NullPointerException e) {
+                            // do nothing
+                        }
+                    }
+                }
+                break;
+            default:
+                // do nothing
+                break;
         }
         { // TODO: remove this code block when not needed as reference any more
             BooleanEncodedValue dynamicData = gh.getEncodingManager().getBooleanEncodedValue(EncodingManager.getKey(encoderName, DynamicData.KEY));

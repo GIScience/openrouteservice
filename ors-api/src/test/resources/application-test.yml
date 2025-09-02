@@ -93,6 +93,7 @@ ors:
               log_location: ors/traffic_log
           encoded_values:
             logie_borders: true
+            logie_bridges: true
         service:
           execution:
             methods:

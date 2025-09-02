@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.routing.ev.LogieBorders;
+import com.graphhopper.routing.ev.LogieBridges;
 import com.graphhopper.routing.ev.WaySurface;
 import com.graphhopper.routing.ev.WayType;
 import lombok.Getter;
@@ -25,6 +26,8 @@ public class EncodedValuesProperties {
     private Boolean wayType;
     @JsonProperty("logie_borders")
     private Boolean logieBorders;
+    @JsonProperty("logie_bridges")
+    private Boolean logieBridges;
 
     public EncodedValuesProperties() {
     }
@@ -35,7 +38,7 @@ public class EncodedValuesProperties {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return waySurface == null && wayType == null && logieBorders == null;
+        return waySurface == null && wayType == null && logieBorders == null && logieBridges;
     }
 
     @JsonIgnore
@@ -49,6 +52,9 @@ public class EncodedValuesProperties {
         }
         if (Boolean.TRUE.equals(logieBorders)) {
             out.add(LogieBorders.KEY);
+        }
+        if (Boolean.TRUE.equals(logieBridges)) {
+            out.add(LogieBridges.KEY);
         }
         return String.join(",", out);
     }

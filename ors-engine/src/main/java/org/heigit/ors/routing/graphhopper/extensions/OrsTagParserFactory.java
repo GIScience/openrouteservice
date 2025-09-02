@@ -1,6 +1,7 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
 import com.graphhopper.routing.ev.LogieBorders;
+import com.graphhopper.routing.ev.LogieBridges;
 import com.graphhopper.routing.ev.WaySurface;
 import com.graphhopper.routing.ev.WayType;
 import com.graphhopper.routing.util.parsers.DefaultTagParserFactory;
@@ -8,6 +9,7 @@ import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.TagParserFactory;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.LogieBordersParser;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.LogieBridgesParser;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.WaySurfaceParser;
 import org.heigit.ors.routing.graphhopper.extensions.util.parsers.WayTypeParser;
 
@@ -23,6 +25,7 @@ public class OrsTagParserFactory implements TagParserFactory {
                 case WaySurface.KEY -> new WaySurfaceParser();
                 case WayType.KEY -> new WayTypeParser();
                 case LogieBorders.KEY -> new LogieBordersParser();
+                case LogieBridges.KEY -> new LogieBridgesParser();
                 default -> throw e;
             };
         }
