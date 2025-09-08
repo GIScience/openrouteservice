@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class MatchingRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfile.class);
@@ -143,63 +144,20 @@ public class MatchingRequest extends ServiceRequest {
             matchedEdgesList.add(matchedEdges);
         }
 
-        // TODO: refactor: the branches of this switch statements contain almost identical code.
-        // TODO:   Unfortunately it is not obvious how to refactor this due to EnumEncodedValue<E>
-        // TODO:   depending on an enum E.
+        SparseEncodedValue enc = gh.getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+        if (enc == null) {
+            throw new IllegalStateException("Dynamic data '" + key + "' is not available for the profile: " + localProfileName);
+        }
+
         switch (key) {
             case LogieBorders.KEY:
-                HashMapSparseEncodedValue<LogieBorders> bordersEnc = gh.getEncodingManager().getEncodedValue(LogieBorders.KEY, HashMapSparseEncodedValue.class);
-                if (bordersEnc == null) {
-                    throw new IllegalStateException("Dynamic data '" + LogieBorders.KEY + "' is not available for the profile: " + localProfileName);
-                }
-                for (int i = 0; i < matchedEdgesList.size(); i++) {
-                    Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
-                    for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
-                        int edgeID = edge.getValue().getEdge();
-                        try {
-                            LogieBorders borderState = LogieBorders.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
-                            bordersEnc.set(edgeID, borderState);
-                        } catch (IllegalArgumentException | NullPointerException e) {
-                            // do nothing
-                        }
-                    }
-                }
+                updateEdges(matchedEdgesList, edgePropertiesList, enc,s -> LogieBorders.valueOf(s));
                 break;
             case LogieBridges.KEY:
-                HashMapSparseEncodedValue<LogieBridges> bridgesEnc = gh.getEncodingManager().getEncodedValue(LogieBridges.KEY, HashMapSparseEncodedValue.class);
-                if (bridgesEnc == null) {
-                    throw new IllegalStateException("Dynamic data '" + LogieBridges.KEY + "' is not available for the profile: " + localProfileName);
-                }
-                for (int i = 0; i < matchedEdgesList.size(); i++) {
-                    Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
-                    for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
-                        int edgeId = edge.getValue().getEdge();
-                        try {
-                            LogieBridges bridgesState = LogieBridges.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
-                            bridgesEnc.set(edgeId, bridgesState);
-                        } catch (IllegalArgumentException | NullPointerException e) {
-                            // do nothing
-                        }
-                    }
-                }
+                updateEdges(matchedEdgesList, edgePropertiesList, enc,s -> LogieBridges.valueOf(s));
                 break;
             case LogieRoads.KEY:
-                HashMapSparseEncodedValue<LogieRoads> roadsEnc = gh.getEncodingManager().getEncodedValue(LogieRoads.KEY, HashMapSparseEncodedValue.class);
-                if (roadsEnc == null) {
-                    throw new IllegalStateException("Dynamic data '" + LogieRoads.KEY + "' is not available for the profile: " + localProfileName);
-                }
-                for (int i = 0; i < matchedEdgesList.size(); i++) {
-                    Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
-                    for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
-                        int edgeId = edge.getValue().getEdge();
-                        try {
-                            LogieRoads roadsState = LogieRoads.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
-                            roadsEnc.set(edgeId, roadsState);
-                        } catch (IllegalArgumentException | NullPointerException e) {
-                            // do nothing
-                        }
-                    }
-                }
+                updateEdges(matchedEdgesList, edgePropertiesList, enc,s -> LogieRoads.valueOf(s));
                 break;
             default:
                 // do nothing
@@ -221,5 +179,21 @@ public class MatchingRequest extends ServiceRequest {
         }
         String graphDate = ghStorage.getProperties().get("datareader.import.date");
         return new MatchingResult(graphDate, matchedEdgesList.stream().map(Map::size).toList());
+    }
+
+    private static void updateEdges(List<Map<Integer, EdgeIteratorState>> matchedEdgesList, List<Map<Integer, Map<String, String>>> edgePropertiesList, SparseEncodedValue<?> encodedValue, Function<String,Object> stateFromString) {
+        for (int i = 0; i < matchedEdgesList.size(); i++) {
+            Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
+            for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
+                int edgeID = edge.getValue().getEdge();
+                try {
+                    String stateAsString = edgePropertiesList.get(i).get(edge.getKey()).get("value");
+                    Object state = stateFromString.apply(stateAsString);
+                    encodedValue.set(edgeID, state);
+                } catch (IllegalArgumentException | NullPointerException e) {
+                    // do nothing
+                }
+            }
+        }
     }
 }
