@@ -166,18 +166,17 @@ public class MatchingRequest extends ServiceRequest {
                 }
                 break;
             case LogieBridges.KEY:
-                EnumEncodedValue<LogieBridges> bridgesEnc = gh.getEncodingManager().getEnumEncodedValue(LogieBridges.KEY, LogieBridges.class);
+                HashMapSparseEncodedValue<LogieBridges> bridgesEnc = gh.getEncodingManager().getEncodedValue(LogieBridges.KEY, HashMapSparseEncodedValue.class);
                 if (bridgesEnc == null) {
-                    throw new IllegalStateException("Dynamic data '" + LogieBorders.KEY + "' is not available for the profile: " + localProfileName);
+                    throw new IllegalStateException("Dynamic data '" + LogieBridges.KEY + "' is not available for the profile: " + localProfileName);
                 }
                 for (int i = 0; i < matchedEdgesList.size(); i++) {
                     Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
                     for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
-                        IntsRef edgeFlags = edge.getValue().getFlags();
+                        int edgeId = edge.getValue().getEdge();
                         try {
                             LogieBridges bridgesState = LogieBridges.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
-                            bridgesEnc.setEnum(false, edgeFlags, bridgesState);
-                            edge.getValue().setFlags(edgeFlags);
+                            bridgesEnc.set(edgeId, bridgesState);
                         } catch (IllegalArgumentException | NullPointerException e) {
                             // do nothing
                         }
@@ -185,18 +184,17 @@ public class MatchingRequest extends ServiceRequest {
                 }
                 break;
             case LogieRoads.KEY:
-                EnumEncodedValue<LogieRoads> roadsEnc = gh.getEncodingManager().getEnumEncodedValue(LogieRoads.KEY, LogieRoads.class);
+                HashMapSparseEncodedValue<LogieRoads> roadsEnc = gh.getEncodingManager().getEncodedValue(LogieRoads.KEY, HashMapSparseEncodedValue.class);
                 if (roadsEnc == null) {
-                    throw new IllegalStateException("Dynamic data '" + LogieBorders.KEY + "' is not available for the profile: " + localProfileName);
+                    throw new IllegalStateException("Dynamic data '" + LogieRoads.KEY + "' is not available for the profile: " + localProfileName);
                 }
                 for (int i = 0; i < matchedEdgesList.size(); i++) {
                     Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
                     for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
-                        IntsRef edgeFlags = edge.getValue().getFlags();
+                        int edgeId = edge.getValue().getEdge();
                         try {
                             LogieRoads roadsState = LogieRoads.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
-                            roadsEnc.setEnum(false, edgeFlags, roadsState);
-                            edge.getValue().setFlags(edgeFlags);
+                            roadsEnc.set(edgeId, roadsState);
                         } catch (IllegalArgumentException | NullPointerException e) {
                             // do nothing
                         }

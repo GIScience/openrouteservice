@@ -25,6 +25,8 @@ import com.graphhopper.routing.WeightingFactory;
 import com.graphhopper.routing.ch.CHPreparationHandler;
 import com.graphhopper.routing.ev.HashMapSparseEncodedValue;
 import com.graphhopper.routing.ev.LogieBorders;
+import com.graphhopper.routing.ev.LogieBridges;
+import com.graphhopper.routing.ev.LogieRoads;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LMPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkStorage;
@@ -463,6 +465,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
 
     protected void loadORS() {
         addSparseEncodedValue(LogieBorders.KEY);
+        addSparseEncodedValue(LogieBridges.KEY);
+        addSparseEncodedValue(LogieRoads.KEY);
 
         List<CHConfig> chConfigs;
         if (corePreparationHandler.isEnabled()) {
