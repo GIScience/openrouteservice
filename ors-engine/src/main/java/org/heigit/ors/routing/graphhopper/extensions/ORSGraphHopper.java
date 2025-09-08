@@ -23,6 +23,8 @@ import com.graphhopper.routing.Router;
 import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
 import com.graphhopper.routing.ch.CHPreparationHandler;
+import com.graphhopper.routing.ev.HashMapSparseEncodedValue;
+import com.graphhopper.routing.ev.LogieBorders;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LMPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkStorage;
@@ -460,6 +462,8 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     protected void loadORS() {
+        addSparseEncodedValue(LogieBorders.KEY);
+
         List<CHConfig> chConfigs;
         if (corePreparationHandler.isEnabled()) {
             initCorePreparationHandler();
@@ -472,6 +476,11 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             ((ORSGraphHopperStorage) getGraphHopperStorage()).addCoreGraphs(chConfigs);
         else
             throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
+    }
+
+    private void addSparseEncodedValue(String key) {
+        HashMapSparseEncodedValue<?> newEV = new HashMapSparseEncodedValue<>(key);
+        getEncodingManager().addEncodedValue(newEV, false);
     }
 
     private void initCorePreparationHandler() {

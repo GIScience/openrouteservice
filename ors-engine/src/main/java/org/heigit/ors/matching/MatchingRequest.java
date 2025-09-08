@@ -148,18 +148,17 @@ public class MatchingRequest extends ServiceRequest {
         // TODO:   depending on an enum E.
         switch (key) {
             case LogieBorders.KEY:
-                EnumEncodedValue<LogieBorders> bordersEnc = gh.getEncodingManager().getEnumEncodedValue(LogieBorders.KEY, LogieBorders.class);
+                HashMapSparseEncodedValue<LogieBorders> bordersEnc = gh.getEncodingManager().getEncodedValue(LogieBorders.KEY, HashMapSparseEncodedValue.class);
                 if (bordersEnc == null) {
                     throw new IllegalStateException("Dynamic data '" + LogieBorders.KEY + "' is not available for the profile: " + localProfileName);
                 }
                 for (int i = 0; i < matchedEdgesList.size(); i++) {
                     Map<Integer, EdgeIteratorState> matchedEdges = matchedEdgesList.get(i);
                     for (Map.Entry<Integer,EdgeIteratorState> edge : matchedEdges.entrySet()) {
-                        IntsRef edgeFlags = edge.getValue().getFlags();
+                        int edgeID = edge.getValue().getEdge();
                         try {
                             LogieBorders borderState = LogieBorders.valueOf(edgePropertiesList.get(i).get(edge.getKey()).get("value"));
-                            bordersEnc.setEnum(false, edgeFlags, borderState);
-                            edge.getValue().setFlags(edgeFlags);
+                            bordersEnc.set(edgeID, borderState);
                         } catch (IllegalArgumentException | NullPointerException e) {
                             // do nothing
                         }
