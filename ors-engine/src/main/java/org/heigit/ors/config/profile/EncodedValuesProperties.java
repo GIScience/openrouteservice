@@ -21,12 +21,6 @@ public class EncodedValuesProperties {
     private Boolean waySurface;
     @JsonProperty("way_type")
     private Boolean wayType;
-    @JsonProperty("logie_borders")
-    private Boolean logieBorders;
-    @JsonProperty("logie_bridges")
-    private Boolean logieBridges;
-    @JsonProperty("logie_roads")
-    private Boolean logieRoads;
 
     public EncodedValuesProperties() {
     }
@@ -37,7 +31,7 @@ public class EncodedValuesProperties {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return waySurface == null && wayType == null && logieBorders == null && logieBridges;
+        return waySurface == null && wayType == null;
     }
 
     @JsonIgnore
@@ -49,32 +43,12 @@ public class EncodedValuesProperties {
         if (Boolean.TRUE.equals(wayType)) {
             out.add(WayType.KEY);
         }
-        if (Boolean.TRUE.equals(logieBorders)) {
-            out.add(LogieBorders.KEY);
-        }
-        if (Boolean.TRUE.equals(logieBridges)) {
-            out.add(LogieBridges.KEY);
-        }
-        if (Boolean.TRUE.equals(logieRoads)) {
-            out.add(LogieRoads.KEY);
-        }
         return String.join(",", out);
     }
 
     public void merge(EncodedValuesProperties other) {
         waySurface = ofNullable(this.waySurface).orElse(other.waySurface);
         wayType = ofNullable(this.wayType).orElse(other.wayType);
-    }
-
-    public List<String> getEnabledDynamicDatasets() {
-        List<String> res = new ArrayList<>();
-        if (Boolean.TRUE.equals(logieBorders))
-            res.add(LogieBorders.KEY);
-        if (Boolean.TRUE.equals(logieBridges))
-            res.add(LogieBridges.KEY);
-        if (Boolean.TRUE.equals(logieRoads))
-            res.add(LogieRoads.KEY);
-        return res;
     }
 }
 

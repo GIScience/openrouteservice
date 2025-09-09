@@ -26,6 +26,9 @@ ors:
     dynamic_data:
       enabled: true
       update_schedule: '0 0 0 31 2 *'
+      store_url:
+      store_user:
+      store_pass:
     elevation:
       cache_path: ./src/test/files/elevation
     profile_default:

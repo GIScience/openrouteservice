@@ -1,9 +1,7 @@
 package org.heigit.ors.api.services;
 
-import com.graphhopper.routing.ev.LogieBorders;
 import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
-import org.heigit.ors.config.profile.EncodedValuesProperties;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
@@ -13,23 +11,27 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
 
 @Service
 public class DynamicDataService {
     private static final Logger LOGGER = Logger.getLogger(DynamicDataService.class.getName());
 
-    private final EngineProperties engineProperties;
+    private final String storeURL;
+    private final String storeUser;
+    private final String storePassword;
     private final Boolean enabled;
     private final List<RoutingProfile> enabledProfiles = new ArrayList<>();
 
     @Autowired
-    public DynamicDataService(EngineProperties engineProperties, @Value("${ors.engine.dynamic_data.enabled:false}") Boolean enabled) {
-        this.engineProperties = engineProperties;
+    public DynamicDataService(EngineProperties engineProperties, @Value("${ors.engine.dynamic_data.enabled:false}") Boolean enabled, @Value("${ors.engine.dynamic_data.store_url:}") String storeURL, @Value("${ors.engine.dynamic_data.store_user:}") String storeUser, @Value("${ors.engine.dynamic_data.store_pass:}") String storePassword) {
         this.enabled = enabled;
+        this.storeURL = storeURL;
+        this.storeUser = storeUser;
+        this.storePassword = storePassword;
         if (!enabled) {
             LOGGER.debug("Dynamic data service is disabled in configuration.");
             return;
@@ -52,11 +54,11 @@ public class DynamicDataService {
             LOGGER.warn("Dynamic data module activated but no profile has custom models enabled.");
         } else {
             enabledProfiles.forEach(profile -> {
-                List<String> enabledDynamicDatasets = profile.getProfileConfiguration().getBuild().getEncodedValues().getEnabledDynamicDatasets();
-                enabledDynamicDatasets.forEach(datasetName -> {
+                profile.getProfileConfiguration().getService().getDynamicData().getEnabledDynamicDatasets().forEach(datasetName -> {
                     LOGGER.info("Adding dynamic data support for dataset '" + datasetName + "' to profile '" + profile.name() + "'.");
-                    profile.getGraphhopper().addSparseEncodedValue(datasetName);
+                    profile.addDynamicData(datasetName);
                 });
+                fetchDynamicData(profile);
             });
             LOGGER.info("Dynamic data service initialized for profiles: " + enabledProfiles.stream().map(RoutingProfile::name).toList());
         }
@@ -69,11 +71,44 @@ public class DynamicDataService {
             LOGGER.debug("Dynamic data updates are disabled, skipping scheduled update.");
             return;
         }
-        try {
-            // Placeholder for dynamic data update logic
-            LOGGER.info("Dynamic data update completed successfully.");
-        } catch (Exception e) {
-            LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
+        enabledProfiles.forEach(this::fetchDynamicData);
+        LOGGER.info("Dynamic data update completed successfully.");
+    }
+
+    private void fetchDynamicData(RoutingProfile profile) {
+        String graphDate = profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.data.date");
+        try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
+            if (con == null) {
+                LOGGER.error("Database connection is null, cannot fetch dynamic data.");
+                return;
+            }
+            profile.getDynamicDatasets().forEach(key -> {
+                LOGGER.info("Fetching dynamic data for profile '" + profile.name() + "', dataset '" + key + "', graph date '" + graphDate + "'.");
+                try {
+                con.createStatement().execute("""
+                CREATE VIEW feature_map AS
+                SELECT f.feature_id, f.geometry, a.key, a.value
+                FROM features f
+                JOIN mappings m ON f.feature_id = a.feature_id
+                """);
+                con.createStatement().executeQuery("""
+                SELECT *
+                FROM feature_map
+                WHERE dataset_key = '%s'
+                  AND profile = '%s'
+                  AND graph_date = '%s'
+                """.formatted(profile.name(), key, graphDate));
+                    con.close();
+                } catch (SQLException e) {
+                    LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
+                    throw new RuntimeException(e);
+                }
+            });
+
+
+        } catch (SQLException e) {
+            LOGGER.error("Error connecting to the database: " + e.getMessage(), e);
+            return;
         }
     }
 }

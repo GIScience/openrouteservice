@@ -18,9 +18,6 @@ public class OrsTagParserFactory implements TagParserFactory {
             return switch (name) {
                 case WaySurface.KEY -> new WaySurfaceParser();
                 case WayType.KEY -> new WayTypeParser();
-                case LogieBorders.KEY -> new LogieBordersParser();
-                case LogieBridges.KEY -> new LogieBridgesParser();
-                case LogieRoads.KEY -> new LogieRoadsParser();
                 default -> throw e;
             };
         }

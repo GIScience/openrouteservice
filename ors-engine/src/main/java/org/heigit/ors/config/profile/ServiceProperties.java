@@ -1,6 +1,7 @@
 package org.heigit.ors.config.profile;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,8 @@ public class ServiceProperties {
     private Boolean forceTurnCosts;
     private Boolean allowCustomModels;
     private ExecutionProperties execution = new ExecutionProperties();
+    @JsonProperty("dynamic_data")
+    private DynamicDataProperties dynamicData = new DynamicDataProperties();
 
     public ServiceProperties() {
     }
@@ -40,5 +43,6 @@ public class ServiceProperties {
         forceTurnCosts = ofNullable(forceTurnCosts).orElse(other.forceTurnCosts);
         allowCustomModels = ofNullable(allowCustomModels).orElse(other.allowCustomModels);
         execution.merge(other.execution);
+        dynamicData.merge(other.dynamicData);
     }
 }

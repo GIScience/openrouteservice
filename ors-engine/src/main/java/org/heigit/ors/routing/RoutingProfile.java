@@ -57,6 +57,8 @@ public class RoutingProfile {
     private String astarApproximation;
     private Double astarEpsilon;
 
+    private final List<String> dynamicDatasets = new ArrayList<>();
+
     public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
 
         this.profileName = profileName;
@@ -192,5 +194,14 @@ public class RoutingProfile {
 
     public ProfileProperties getProfileProperties() {
         return this.profileProperties;
+    }
+
+    public void addDynamicData(String datasetName) {
+        getGraphhopper().addSparseEncodedValue(datasetName);
+        dynamicDatasets.add(datasetName);
+    }
+
+    public List<String> getDynamicDatasets() {
+        return dynamicDatasets;
     }
 }
