@@ -65,6 +65,17 @@ public class EncodedValuesProperties {
         waySurface = ofNullable(this.waySurface).orElse(other.waySurface);
         wayType = ofNullable(this.wayType).orElse(other.wayType);
     }
+
+    public List<String> getEnabledDynamicDatasets() {
+        List<String> res = new ArrayList<>();
+        if (Boolean.TRUE.equals(logieBorders))
+            res.add(LogieBorders.KEY);
+        if (Boolean.TRUE.equals(logieBridges))
+            res.add(LogieBridges.KEY);
+        if (Boolean.TRUE.equals(logieRoads))
+            res.add(LogieRoads.KEY);
+        return res;
+    }
 }
 
 

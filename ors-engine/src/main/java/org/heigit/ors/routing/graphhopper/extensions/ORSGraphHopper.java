@@ -464,10 +464,6 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     protected void loadORS() {
-        addSparseEncodedValue(LogieBorders.KEY);
-        addSparseEncodedValue(LogieBridges.KEY);
-        addSparseEncodedValue(LogieRoads.KEY);
-
         List<CHConfig> chConfigs;
         if (corePreparationHandler.isEnabled()) {
             initCorePreparationHandler();
@@ -482,7 +478,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             throw new IllegalStateException("Expected an instance of ORSGraphHopperStorage");
     }
 
-    private void addSparseEncodedValue(String key) {
+    public void addSparseEncodedValue(String key) {
         HashMapSparseEncodedValue<?> newEV = new HashMapSparseEncodedValue<>(key);
         getEncodingManager().addEncodedValue(newEV, false);
     }
