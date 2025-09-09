@@ -210,7 +210,7 @@ class ResultTest extends ServiceTest {
                     CREATE TABLE features (
                     feature_id SERIAL PRIMARY KEY,
                     dataset_key VARCHAR(255) NOT NULL,
-                    value VARCHAR(20),
+                    value VARCHAR(20)
                     );
                     """
             );
@@ -220,25 +220,25 @@ class ResultTest extends ServiceTest {
                     feature_id INTEGER,
                     graph_time_stamp TIMESTAMP,
                     profile VARCHAR(20),
-                    edge_id INTEGER,
+                    edge_id INTEGER
                     );
                     """
             );
             connection.createStatement().execute(
                     """
                        INSERT INTO features VALUES
-                       (1, "logie_borders","CLOSED"),
-                       (2, "logie_bridges","RESTRICTED"),
-                       (3, "logie_roads","RESTRICTED");
+                       (1, 'logie_borders','CLOSED'),
+                       (2, 'logie_bridges','RESTRICTED'),
+                       (3, 'logie_roads','RESTRICTED');
                        """
             );
             connection.createStatement().execute(
                     """
                        INSERT INTO mappings VALUES
-                       (1, 2024-09-08T20:21:00Z, "driving-car", 3239),
-                       (2, 2024-09-08T20:21:00Z, "driving-car", 3239),
-                       (3, 2024-09-08T20:21:00Z, "driving-car", 3239);
-                       (3, 2024-09-08T20:21:00Z, "driving-car", 14409);
+                       (1, '2024-09-08T20:21:00Z', 'driving-car', 3239),
+                       (2, '2024-09-08T20:21:00Z', 'driving-car', 3239),
+                       (3, '2024-09-08T20:21:00Z', 'driving-car', 3239),
+                       (3, '2024-09-08T20:21:00Z', 'driving-car', 14409);
                        """
             );
         } catch (SQLException e) {
