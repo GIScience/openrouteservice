@@ -26,9 +26,6 @@ ors:
     dynamic_data:
       enabled: true
       update_schedule: '0 0 0 31 2 *'
-      store_url:
-      store_user:
-      store_pass:
     elevation:
       cache_path: ./src/test/files/elevation
     profile_default:
@@ -46,6 +43,11 @@ ors:
               threads: 12
               weightings: recommended
               maxcellnodes: 5000
+      service:
+        dynamic_data:
+          logie_borders: true
+          logie_bridges: true
+          logie_roads: true
     profiles:
       driving-car:
         enabled: true
@@ -97,10 +99,6 @@ ors:
               radius: 150
               output_log: false
               log_location: ors/traffic_log
-          encoded_values:
-            logie_borders: true
-            logie_bridges: true
-            logie_roads: true
         service:
           execution:
             methods:

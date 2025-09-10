@@ -5,6 +5,7 @@ import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -14,7 +15,8 @@ import org.springframework.stereotype.Service;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class DynamicDataService {
@@ -77,38 +79,29 @@ public class DynamicDataService {
 
     private void fetchDynamicData(RoutingProfile profile) {
         String graphDate = profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.data.date");
-        try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
-            if (con == null) {
-                LOGGER.error("Database connection is null, cannot fetch dynamic data.");
-                return;
-            }
-            profile.getDynamicDatasets().forEach(key -> {
-                LOGGER.info("Fetching dynamic data for profile '" + profile.name() + "', dataset '" + key + "', graph date '" + graphDate + "'.");
-                try {
-                con.createStatement().execute("""
-                CREATE VIEW feature_map AS
-                SELECT f.feature_id, f.geometry, a.key, a.value
-                FROM features f
-                JOIN mappings m ON f.feature_id = a.feature_id
-                """);
-                con.createStatement().executeQuery("""
-                SELECT *
-                FROM feature_map
-                WHERE dataset_key = '%s'
-                  AND profile = '%s'
-                  AND graph_date = '%s'
-                """.formatted(profile.name(), key, graphDate));
-                    con.close();
-                } catch (SQLException e) {
-                    LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
-                    throw new RuntimeException(e);
+        profile.getDynamicDatasets().forEach(key -> {
+            LOGGER.debug("Fetching dynamic data for profile '" + profile.name() + "', dataset '" + key + "', graph date '" + graphDate + "'.");
+            try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
+                if (con == null) {
+                    LOGGER.error("Database connection is null, cannot fetch dynamic data.");
+                    return;
                 }
-            });
-
-
-        } catch (SQLException e) {
-            LOGGER.error("Error connecting to the database: " + e.getMessage(), e);
-            return;
-        }
+                var result = con.createStatement().executeQuery("""
+                        SELECT *
+                        FROM feature_map
+                        WHERE dataset_key = '%s'
+                          AND profile = '%s'
+                          AND graph_timestamp = '%s'
+                        """.formatted(key, profile.name(), graphDate));
+                while (result.next()) {
+                    int edgeID = result.getInt("edge_id");
+                    String value = result.getString("value");
+                    LOGGER.debug("Update dynamic data in dataset '" + key + "' for profile '" + profile.name() + "': edge ID " + edgeID + " -> value '" + value + "'");
+                    profile.updateDynamicData(key, edgeID, value);
+                }
+            } catch (SQLException e) {
+                LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
+            }
+        });
     }
 }
