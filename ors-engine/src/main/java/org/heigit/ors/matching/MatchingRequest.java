@@ -143,41 +143,8 @@ public class MatchingRequest extends ServiceRequest {
             edgePropertiesList.add(edgeProperties);
             matchedEdgesList.add(matchedEdges);
         }
-
-        SparseEncodedValue enc = gh.getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
-        if (enc == null) {
-            throw new IllegalStateException("Dynamic data '" + key + "' is not available for the profile: " + localProfileName);
-        }
-
-        switch (key) {
-            case LogieBorders.KEY:
-                updateEdges(matchedEdgesList, edgePropertiesList, enc,s -> LogieBorders.valueOf(s));
-                break;
-            case LogieBridges.KEY:
-                updateEdges(matchedEdgesList, edgePropertiesList, enc,s -> LogieBridges.valueOf(s));
-                break;
-            case LogieRoads.KEY:
-                updateEdges(matchedEdgesList, edgePropertiesList, enc,s -> LogieRoads.valueOf(s));
-                break;
-            default:
-                // do nothing
-                break;
-        }
-        { // TODO: remove this code block when not needed as reference any more
-            BooleanEncodedValue dynamicData = gh.getEncodingManager().getBooleanEncodedValue(EncodingManager.getKey(encoderName, DynamicData.KEY));
-            if (dynamicData == null) {
-                throw new IllegalStateException("Dynamic data is not available for the profile: " + localProfileName);
-            }
-            for (Map<Integer, EdgeIteratorState> matchedEdges : matchedEdgesList) {
-                for (EdgeIteratorState edge : matchedEdges.values()) {
-                    IntsRef edgeFlags = edge.getFlags();
-                    dynamicData.setBool(false, edgeFlags, true);
-                    edge.setFlags(edgeFlags);
-                }
-
-            }
-        }
-        String graphDate = ghStorage.getProperties().get("datareader.import.date");
+        String graphDate = ghStorage.getProperties().get("datareader.data.date");
+        // TODO improve responses to be used by featurestore
         return new MatchingResult(graphDate, matchedEdgesList.stream().map(Map::size).toList());
     }
 

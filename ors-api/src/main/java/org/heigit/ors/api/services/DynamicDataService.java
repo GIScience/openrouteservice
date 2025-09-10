@@ -99,6 +99,7 @@ public class DynamicDataService {
                     LOGGER.debug("Update dynamic data in dataset '" + key + "' for profile '" + profile.name() + "': edge ID " + edgeID + " -> value '" + value + "'");
                     profile.updateDynamicData(key, edgeID, value);
                 }
+                // TODO implement more sophicticaed update strategy, e.g. only update changed values, inform feature store about new graph date, etc.
             } catch (SQLException e) {
                 LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
             }
