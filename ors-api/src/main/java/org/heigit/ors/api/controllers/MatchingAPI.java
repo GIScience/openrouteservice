@@ -83,7 +83,9 @@ public class MatchingAPI {
     @PostMapping(value = "/{profile}")
     @Operation(
             description = """
-                   Lorem ipsum
+                   Matches point, linestring and polygon geometries to edge IDs of the graph.
+                   Note that matchings are invalidated when rebuiling the graph because the edge 
+                   IDs may change.
                     """,
             summary = "Matching Service"
     )
@@ -115,6 +117,7 @@ public class MatchingAPI {
     public ResponseEntity<Object> handleException(final StatusCodeException e) {
         return errorHandler.handleStatusCodeException(e);
     }
+
     private APIEnums.Profile getProfileEnum(String profile) throws ParameterValueException {
         EncoderNameEnum encoderForProfile = matchingService.getEncoderForProfile(profile);
         return APIEnums.Profile.forValue(encoderForProfile.getEncoderName());

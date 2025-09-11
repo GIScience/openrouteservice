@@ -5,7 +5,6 @@ import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
-import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -99,7 +98,7 @@ public class DynamicDataService {
                     LOGGER.debug("Update dynamic data in dataset '" + key + "' for profile '" + profile.name() + "': edge ID " + edgeID + " -> value '" + value + "'");
                     profile.updateDynamicData(key, edgeID, value);
                 }
-                // TODO implement more sophicticaed update strategy, e.g. only update changed values, inform feature store about new graph date, etc.
+                // TODO implement more sophisticated update strategy, e.g. only update changed values, inform feature store about new graph date, etc.
             } catch (SQLException e) {
                 LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
             }
