@@ -37,6 +37,9 @@ public class RoutingProfileManager {
         if (instance == null) {
             instance = this;
             initialize(config, graphVersion);
+            if (RoutingProfileManagerStatus.isShutdown()) {
+                System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
+            }
         }
     }
 
@@ -98,14 +101,10 @@ public class RoutingProfileManager {
             LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
             LOGGER.info("========================================================================");
             RoutingProfileManagerStatus.setReady(true);
-        } catch (ExecutionException ex) {
-            fail("ExecutionException while initializing RoutingProfileManager: " + ex.getMessage());
+        } catch (Exception ex) {
+            fail("Exception at RoutingProfileManager initialization: " + ex.getClass() + ": " + ex.getMessage());
             Thread.currentThread().interrupt();
             return;
-        } catch (Exception ex) {
-            fail("Unhandled exception at RoutingProfileManager initialization: " + ex.getMessage());
-            Thread.currentThread().interrupt();
-            System.exit(1);
         }
         RuntimeUtility.clearMemory(LOGGER);
         if (LOGGER.isInfoEnabled())
