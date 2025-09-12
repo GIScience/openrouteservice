@@ -21,10 +21,12 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
     private static final String GRAPHS_FOLDER = "graphs-apitests";
     private static final String GRAPHS_FOLDER_DELETED = "graphs-folder-deleted";
 
+    static {
+        deleteGraphsFolderOncePerTestRun();
+    }
+
     @Override
     public void beforeAll(ExtensionContext extensionContext) {
-        ExtensionContext.Store store = rootStore(extensionContext);
-        deleteGraphsFolderOncePerTestRun(store);
         SpringExtension.getApplicationContext(extensionContext);
         while (!RoutingProfileManagerStatus.isReady()) {
             try {
@@ -35,8 +37,8 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
         }
     }
 
-    private static synchronized void deleteGraphsFolderOncePerTestRun(ExtensionContext.Store store) {
-        boolean graphsFolderAlreadyDeleted = store.getOrDefault(GRAPHS_FOLDER_DELETED, Boolean.class, Boolean.FALSE);
+    private static synchronized void deleteGraphsFolderOncePerTestRun() {
+        boolean graphsFolderAlreadyDeleted = System.getProperty(GRAPHS_FOLDER_DELETED) != null;
         boolean ciPropertySet = System.getProperty("CI") != null && System.getProperty("CI").equalsIgnoreCase("true");
         boolean deleteGraphsFolder = !graphsFolderAlreadyDeleted && ciPropertySet;
 
@@ -51,7 +53,7 @@ public class InitializeGraphsOnce implements BeforeAllCallback {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            store.put(GRAPHS_FOLDER_DELETED, true);
+            System.setProperty(GRAPHS_FOLDER_DELETED, "true");
         }
     }
 
