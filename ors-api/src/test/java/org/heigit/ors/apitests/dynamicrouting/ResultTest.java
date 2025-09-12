@@ -22,6 +22,7 @@ import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.CommonHeaders;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -105,6 +106,11 @@ abstract class AbstractContainerBaseTest extends ServiceTest {
     }
 }
 
+// Test order is needed to ensure that this test runs first because the
+// database from which the dynamic data is fetched must be available before
+// ORS is started. If other tests run first they may start ORS too early.
+// (see also test/resources/junit-platform.properties)
+@Order(0)
 @EndPointAnnotation(name = "directions")
 @VersionAnnotation(version = "v2")
 @ExtendWith(TestcontainersExtension.class)

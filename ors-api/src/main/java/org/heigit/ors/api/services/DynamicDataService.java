@@ -37,13 +37,16 @@ public class DynamicDataService {
             LOGGER.debug("Dynamic data service is disabled in configuration.");
             return;
         }
-        while (!RoutingProfileManagerStatus.isReady()) {
+        while (!RoutingProfileManagerStatus.isReady() && !RoutingProfileManagerStatus.isShutdown() && !RoutingProfileManagerStatus.hasFailed()) {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 LOGGER.error("Thread interrupted while waiting for RoutingProfileManager to be ready: " + e.getMessage(), e);
             }
+        }
+        if (RoutingProfileManagerStatus.isShutdown() || RoutingProfileManagerStatus.hasFailed()) {
+            return;
         }
         LOGGER.info("Initializing dynamic data service.");
         RoutingProfileManager.getInstance().getUniqueProfiles().forEach(profile -> {
