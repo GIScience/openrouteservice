@@ -20,6 +20,7 @@ import java.util.List;
 @Service
 public class DynamicDataService {
     private static final Logger LOGGER = Logger.getLogger(DynamicDataService.class.getName());
+    private static DynamicDataService instance = null;
 
     private final String storeURL;
     private final String storeUser;
@@ -33,6 +34,19 @@ public class DynamicDataService {
         this.storeURL = storeURL;
         this.storeUser = storeUser;
         this.storePassword = storePassword;
+        if (!enabled) {
+            LOGGER.debug("Dynamic data service is disabled in configuration.");
+            return;
+        }
+        instance = this;
+        this.initialize();
+    }
+
+    public static DynamicDataService getInstance() {
+        return instance;
+    }
+
+    private void initialize() {
         if (!enabled) {
             LOGGER.debug("Dynamic data service is disabled in configuration.");
             return;
@@ -66,6 +80,11 @@ public class DynamicDataService {
             });
             LOGGER.info("Dynamic data service initialized for profiles: " + enabledProfiles.stream().map(RoutingProfile::name).toList());
         }
+    }
+
+    public void reinitialize() {
+        enabledProfiles.clear();
+        this.initialize();
     }
 
     @Async

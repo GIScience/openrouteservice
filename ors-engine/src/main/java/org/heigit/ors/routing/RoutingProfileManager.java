@@ -53,6 +53,7 @@ public class RoutingProfileManager {
     public void initialize(EngineProperties config, String graphVersion) {
         RuntimeUtility.printRAMInfo("", LOGGER);
         long startTime = System.currentTimeMillis();
+        RoutingProfileManagerStatus.setReady(false);
         routingProfiles = new LinkedHashMap<>();
         try {
             Map<String, ProfileProperties> profiles = config.getInitializedActiveProfiles();
