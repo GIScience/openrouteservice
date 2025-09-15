@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import org.heigit.ors.api.APIEnums;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.config.SystemMessageProperties;
@@ -75,7 +74,7 @@ public class MatchingAPI {
     // Matches any response type that has not been defined
     @PostMapping(value = "/{profile}/*")
     @Operation(hidden = true)
-    public void getInvalidResponseType() throws StatusCodeException {
+    public void getInvalidResponseType(@PathVariable String profile) throws StatusCodeException {
         throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, MatchingErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
     }
 
@@ -84,7 +83,7 @@ public class MatchingAPI {
     @Operation(
             description = """
                    Matches point, linestring and polygon geometries to edge IDs of the graph.
-                   Note that matchings are invalidated when rebuiling the graph because the edge 
+                   Note that matchings are invalidated when rebuilding the graph because the edge 
                    IDs may change.
                     """,
             summary = "Matching Service"

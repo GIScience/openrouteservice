@@ -230,6 +230,7 @@ public class RoutingProfile {
         SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
             LOGGER.error("SparseEncodedValue for key '" + key + "' not found, cannot update dynamic data.");
+            return;
         }
         sev.set(edgeID, stateFromString.apply(value));
     }
