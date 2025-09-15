@@ -14,6 +14,7 @@
 package org.heigit.ors.routing;
 
 import com.graphhopper.config.CHProfile;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.StorableProperties;
 import org.apache.log4j.Logger;
@@ -33,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
@@ -56,6 +58,8 @@ public class RoutingProfile {
     private final ORSGraphHopper mGraphHopper;
     private String astarApproximation;
     private Double astarEpsilon;
+
+    private final List<String> dynamicDatasets = new ArrayList<>();
 
     public RoutingProfile(String profileName, ProfileProperties profile, EngineProperties engine, String graphVersion, RoutingProfileLoadContext loadCntx) throws Exception {
 
@@ -192,5 +196,42 @@ public class RoutingProfile {
 
     public ProfileProperties getProfileProperties() {
         return this.profileProperties;
+    }
+
+    public void addDynamicData(String datasetName) {
+        getGraphhopper().addSparseEncodedValue(datasetName);
+        dynamicDatasets.add(datasetName);
+    }
+
+    public List<String> getDynamicDatasets() {
+        return dynamicDatasets;
+    }
+
+    public void updateDynamicData(String key, int edgeID, String value) {
+        Function<String,Object> stateFromString = null;
+        switch (key) {
+            case LogieBorders.KEY:
+                stateFromString = s -> LogieBorders.valueOf(s);
+                break;
+            case LogieBridges.KEY:
+                stateFromString = s -> LogieBridges.valueOf(s);
+                break;
+            case LogieRoads.KEY:
+                stateFromString = s -> LogieRoads.valueOf(s);
+                break;
+            default:
+                // do nothing
+                break;
+        }
+        if (stateFromString == null) {
+            LOGGER.error("No stateFromString function defined for key '" + key + "', cannot update dynamic data.");
+            return;
+        }
+        SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+        if (sev == null) {
+            LOGGER.error("SparseEncodedValue for key '" + key + "' not found, cannot update dynamic data.");
+            return;
+        }
+        sev.set(edgeID, stateFromString.apply(value));
     }
 }

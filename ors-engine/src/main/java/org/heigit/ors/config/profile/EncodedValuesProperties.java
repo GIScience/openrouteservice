@@ -4,8 +4,7 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.graphhopper.routing.ev.WaySurface;
-import com.graphhopper.routing.ev.WayType;
+import com.graphhopper.routing.ev.*;
 import lombok.Getter;
 import lombok.Setter;
 

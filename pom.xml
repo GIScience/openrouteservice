@@ -45,8 +45,8 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
 
         <!-- switch graphhopper versions to enable debugging -->
-        <graphhopper.version>v4.9.8</graphhopper.version>
-<!--        <graphhopper.version>4.9-SNAPSHOT</graphhopper.version>-->
+        <graphhopper.version>v4.10.0</graphhopper.version>
+<!--        <graphhopper.version>4.10-SNAPSHOT</graphhopper.version>-->
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.22.1</log4j.version>
@@ -61,7 +61,7 @@
         <commons-compress.version>1.27.1</commons-compress.version>
         <commons-compiler.version>3.1.12</commons-compiler.version>
         <typesafe-config.version>1.4.1</typesafe-config.version>
-        <jts.version>1.19.0</jts.version>
+        <jts.version>1.20.0</jts.version>
         <org-json.version>20240303</org-json.version>
         <postgresql.version>42.7.3</postgresql.version>
         <progressbar.version>0.10.0</progressbar.version>
@@ -403,6 +403,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.locationtech.jts.io</groupId>
+                <artifactId>jts-io-common</artifactId>
+                <version>${jts.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.geotools</groupId>
                 <artifactId>gt-main</artifactId>
                 <version>${geotools.version}</version>
@@ -540,6 +546,11 @@
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>minio</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
                 <version>${testcontainers.version}</version>
             </dependency>
             <dependency>

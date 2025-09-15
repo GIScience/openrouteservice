@@ -1,13 +1,11 @@
 package org.heigit.ors.routing.graphhopper.extensions;
 
-import com.graphhopper.routing.ev.WaySurface;
-import com.graphhopper.routing.ev.WayType;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.parsers.DefaultTagParserFactory;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.routing.util.parsers.TagParserFactory;
 import com.graphhopper.util.PMap;
-import org.heigit.ors.routing.graphhopper.extensions.util.parsers.WaySurfaceParser;
-import org.heigit.ors.routing.graphhopper.extensions.util.parsers.WayTypeParser;
+import org.heigit.ors.routing.graphhopper.extensions.util.parsers.*;
 
 public class OrsTagParserFactory implements TagParserFactory {
     DefaultTagParserFactory defaultTagParserFactory = new DefaultTagParserFactory();

@@ -23,6 +23,9 @@ ors:
       max_backups: 0
       download_schedule: '0 0 0 31 2 *'
       activation_schedule: '0 0 0 31 2 *'
+    dynamic_data:
+      enabled: true
+      update_schedule: '0 0 0 31 2 *'
     elevation:
       cache_path: ./src/test/files/elevation
     profile_default:
@@ -40,6 +43,11 @@ ors:
               threads: 12
               weightings: recommended
               maxcellnodes: 5000
+      service:
+        dynamic_data:
+          logie_borders: true
+          logie_bridges: true
+          logie_roads: true
     profiles:
       driving-car:
         enabled: true
