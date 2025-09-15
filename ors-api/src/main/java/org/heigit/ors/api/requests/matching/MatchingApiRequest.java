@@ -19,11 +19,6 @@ public class MatchingApiRequest extends APIRequest {
     public static final String PARAM_KEY = "key";
     public static final String PARAM_FEATURES = "features";
 
-    @Schema(name = PARAM_PROFILE, hidden = true)
-    @Getter
-    @Setter
-    private APIEnums.Profile profile;
-
     @Schema(name = PARAM_KEY)
     @Getter
     @Setter
