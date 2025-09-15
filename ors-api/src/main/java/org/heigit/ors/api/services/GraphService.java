@@ -210,6 +210,7 @@ public class GraphService {
                     addGraphManagerInstance(orsGraphManager);
                 }
             }
+            DynamicDataService.getInstance().reinitialize();
         } catch (Exception e) {
             LOGGER.warn("Unable to activate graphs due to an unexpected exception: " + e);
         } finally {

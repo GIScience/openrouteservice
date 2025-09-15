@@ -35,9 +35,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = Application.class)
-@ExtendWith(InitializeGraphsOnce.class)
 @ActiveProfiles("test")
-public abstract class ServiceTest {
+public abstract class ServiceTest extends InitializeGraphsOnce {
     private final Map<String, Object> dictUrlParams;
     private String endPointName;
     private String version;
