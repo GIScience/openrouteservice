@@ -49,6 +49,9 @@ public class PluginManager<T extends Plugin> {
         List<T> result = new ArrayList<>(parameters.size());
         if (!parameters.isEmpty()) {
             for (Map.Entry<String, ExtendedStorageProperties> storageEntry : parameters.entrySet()) {
+                if ("WaySurfaceType".equalsIgnoreCase(storageEntry.getKey()))
+                    continue;
+
                 T instance = createInstance(storageEntry.getKey(), storageEntry.getValue());
 
                 if (instance != null) {
