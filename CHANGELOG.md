@@ -31,6 +31,7 @@ Releasing is documented in RELEASE.md
 - full support for encoded values ([#2108](https://github.com/GIScience/openrouteservice/issues/2108))
 - enable encoded value for way surface ([#2110](https://github.com/GIScience/openrouteservice/issues/2110))
 - enable encoded value for way type ([#2115](https://github.com/GIScience/openrouteservice/issues/2115))
+- enable encoded value for OSM way-ID
 - Experimental: dynamic data service and matching endpoint  ([#2125](https://github.com/GIScience/openrouteservice/issues/2125))
 
 ### Changed
