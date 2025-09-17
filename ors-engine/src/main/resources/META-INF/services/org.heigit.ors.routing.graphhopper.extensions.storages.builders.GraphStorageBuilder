@@ -9,7 +9,6 @@ org.heigit.ors.routing.graphhopper.extensions.storages.builders.CsvGraphStorageB
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.TollwaysGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.TrailDifficultyScaleGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder
-org.heigit.ors.routing.graphhopper.extensions.storages.builders.OsmIdGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.RoadAccessRestrictionsGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.SpeedGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.ShadowIndexGraphStorageBuilder
