@@ -13,6 +13,8 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
+import com.graphhopper.routing.ev.IntEncodedValue;
+import com.graphhopper.routing.ev.OsmWayId;
 import com.graphhopper.routing.ev.WaySurface;
 import com.graphhopper.routing.ev.WayType;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
@@ -52,7 +54,6 @@ public class ExtraInfoProcessor implements PathProcessor {
     private TollwaysGraphStorage extTollways;
     private TrailDifficultyScaleGraphStorage extTrailDifficulty;
     private HillIndexGraphStorage extHillIndex;
-    private OsmIdGraphStorage extOsmId;
     private RoadAccessRestrictionsGraphStorage extRoadAccessRestrictions;
     private BordersGraphStorage extCountryTraversalInfo;
     private CsvGraphStorage extCsvData;
@@ -235,12 +236,15 @@ public class ExtraInfoProcessor implements PathProcessor {
                 }
             }
 
+            // TODO: there are too many things identifying this information:
+            //       RouteExtraInfoFlag.OSM_ID, OsmWayId.KEY and plain strings
+            //       like "osmId", "osmid", "osm_id"
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.OSM_ID)) {
-                extOsmId = GraphStorageUtils.getGraphExtension(graphHopperStorage, OsmIdGraphStorage.class);
-                if (extOsmId != null) {
+                try {
+                    IntEncodedValue osmWayIdEnc = encoder.getIntEncodedValue(OsmWayId.KEY);
                     osmIdInfo = new RouteExtraInfo("osmId");
                     osmIdInfoBuilder = new AppendableRouteExtraInfoBuilder(osmIdInfo);
-                } else {
+                } catch (IllegalArgumentException e) {
                     skippedExtras.add("osmid");
                 }
             }
@@ -512,8 +516,7 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (osmIdInfoBuilder != null) {
-            long osmId = extOsmId.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
-
+            long osmId = encoder.getIntEncodedValue(OsmWayId.KEY).getInt(false,edge.getFlags());
             osmIdInfoBuilder.addSegment((double) osmId, osmId, geom, dist);
         }
 

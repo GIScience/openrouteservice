@@ -1,6 +1,8 @@
 package org.heigit.ors.export;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.ev.IntEncodedValue;
+import com.graphhopper.routing.ev.OsmWayId;
 import com.graphhopper.routing.util.AccessFilter;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.Graph;
@@ -18,7 +20,6 @@ import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.WheelchairAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.WheelchairAttributesGraphStorage;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
@@ -47,7 +48,7 @@ public class ExportRequest extends ServiceRequest {
     private boolean useRealGeometry;
 
     private static final int NO_TIME = -1;
-    private OsmIdGraphStorage osmIdGraphStorage;
+    private IntEncodedValue osmWayIdEnc;
     private WheelchairAttributesGraphStorage wheelchairAttributesGraphStorage;
     private Weighting weighting;
 
@@ -82,7 +83,12 @@ public class ExportRequest extends ServiceRequest {
         PMap hintsMap = new PMap();
         ProfileTools.setWeightingMethod(hintsMap, WeightingMethod.FASTEST, profileType, false);
         weighting = gh.createWeighting(gh.getProfile(ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting_method", ""), false)), hintsMap);
-        osmIdGraphStorage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), OsmIdGraphStorage.class);
+        try {
+            osmWayIdEnc = gh.getEncodingManager().getIntEncodedValue(OsmWayId.KEY);
+        } catch (IllegalArgumentException e) {
+            // Ignore osm_way_id if not available
+            osmWayIdEnc = null;
+        }
         wheelchairAttributesGraphStorage = GraphStorageUtils.getGraphExtension(gh.getGraphHopperStorage(), WheelchairAttributesGraphStorage.class);
 
         // filter graph for nodes in Bounding Box
@@ -110,7 +116,7 @@ public class ExportRequest extends ServiceRequest {
                         geo = geometryFactory.createLineString(new Coordinate[]{fromCoords, toCoords});
                     }
 
-                    if (topoJson && osmIdGraphStorage != null) {
+                    if (topoJson && osmWayIdEnc != null) {
                         addEdgeToTopoGeometries(res, iter, geo);
                     } else {
                         addEdgeToResultObject(res, iter, geo, from, to);
@@ -140,7 +146,7 @@ public class ExportRequest extends ServiceRequest {
 
     private void addEdgeToTopoGeometries(ExportResult res, EdgeIterator iter, LineString geo) {
         boolean reverse = iter.getEdgeKey() % 2 == 1;
-        TopoGeometry topoGeometry = res.getTopoGeometries().computeIfAbsent(osmIdGraphStorage.getEdgeValue(iter.getEdge()), x ->
+        TopoGeometry topoGeometry = res.getTopoGeometries().computeIfAbsent((long) osmWayIdEnc.getInt(false, iter.getFlags()), x ->
                 new TopoGeometry(weighting.getSpeedCalculator().getSpeed(iter, reverse, NO_TIME),
                         weighting.getSpeedCalculator().getSpeed(iter, !reverse, NO_TIME))
         );
@@ -161,8 +167,8 @@ public class ExportRequest extends ServiceRequest {
         res.getEdgeGeometries().put(p, geo);
         if (additionalEdgeInfo) {
             Map<String, Object> extra = new HashMap<>();
-            if (osmIdGraphStorage != null) {
-                extra.put("osm_id", osmIdGraphStorage.getEdgeValue(iter.getEdge()));
+            if (osmWayIdEnc != null) {
+                extra.put("osm_id", osmWayIdEnc.getInt(false, iter.getFlags()));
             }
             extra.put("ors_id", iter.getEdge());
             if (wheelchairAttributesGraphStorage != null) {
