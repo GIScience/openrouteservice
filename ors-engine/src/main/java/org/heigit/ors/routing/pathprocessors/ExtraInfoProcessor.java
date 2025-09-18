@@ -13,7 +13,6 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
-import com.graphhopper.routing.ev.IntEncodedValue;
 import com.graphhopper.routing.ev.OsmWayId;
 import com.graphhopper.routing.ev.WaySurface;
 import com.graphhopper.routing.ev.WayType;
