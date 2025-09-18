@@ -32,6 +32,7 @@ Releasing is documented in RELEASE.md
 - enable encoded value for way surface ([#2110](https://github.com/GIScience/openrouteservice/issues/2110))
 - enable encoded value for way type ([#2115](https://github.com/GIScience/openrouteservice/issues/2115))
 - Experimental: dynamic data service and matching endpoint  ([#2125](https://github.com/GIScience/openrouteservice/issues/2125))
+- Instructions translations for Latvian (lv-LV) and Lithuanian (lt-LT)
 
 ### Changed
 - transition from extended storage to encoded values for storing way type and surface ([#2113](https://github.com/GIScience/openrouteservice/pull/2113), [#2115](https://github.com/GIScience/openrouteservice/pull/2115))
