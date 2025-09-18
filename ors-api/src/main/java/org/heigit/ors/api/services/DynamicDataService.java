@@ -5,6 +5,7 @@ import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.util.StringUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -99,6 +100,8 @@ public class DynamicDataService {
     }
 
     private void fetchDynamicData(RoutingProfile profile) {
+        if (StringUtility.isNullOrEmpty(storeURL))
+            return;
         String graphDate = profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.data.date");
         profile.getDynamicDatasets().forEach(key -> {
             LOGGER.debug("Fetching dynamic data for profile '" + profile.name() + "', dataset '" + key + "', graph date '" + graphDate + "'.");
