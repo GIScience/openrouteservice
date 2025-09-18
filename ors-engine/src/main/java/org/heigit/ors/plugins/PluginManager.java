@@ -26,9 +26,9 @@ public class PluginManager<T extends Plugin> {
     private final ServiceLoader<T> loader;
     private final Object lockObj;
     private static final Map<String, Object> pluginMgrCache = new HashMap<>();
-    private static final Stream<String> storagesTransferredToEncodedValue = Arrays.asList(
+    private static final List<String> storagesTransferredToEncodedValue = Arrays.asList(
             "OsmId", "WaySurfaceType"
-    ).stream();
+    );
 
     @SuppressWarnings("unchecked")
     public static synchronized <T extends Plugin> PluginManager<T> getPluginManager(Class<?> cls) throws Exception {
@@ -68,7 +68,8 @@ public class PluginManager<T extends Plugin> {
         return result;
     }
     private boolean storageAlreadyTransferred(String storageName) {
-        return storagesTransferredToEncodedValue.anyMatch(s -> s.equalsIgnoreCase(storageName));
+        return storagesTransferredToEncodedValue.stream()
+                .anyMatch(s -> s.equalsIgnoreCase(storageName));
     }
 
     @SuppressWarnings("unchecked")
