@@ -240,11 +240,10 @@ public class ExtraInfoProcessor implements PathProcessor {
             //       RouteExtraInfoFlag.OSM_ID, OsmWayId.KEY and plain strings
             //       like "osmId", "osmid", "osm_id"
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.OSM_ID)) {
-                try {
-                    IntEncodedValue osmWayIdEnc = encoder.getIntEncodedValue(OsmWayId.KEY);
+                if (encoder.hasEncodedValue(OsmWayId.KEY)) {
                     osmIdInfo = new RouteExtraInfo("osmId");
                     osmIdInfoBuilder = new AppendableRouteExtraInfoBuilder(osmIdInfo);
-                } catch (IllegalArgumentException e) {
+                } else {
                     skippedExtras.add("osmid");
                 }
             }
