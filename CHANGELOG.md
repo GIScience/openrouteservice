@@ -35,6 +35,7 @@ Releasing is documented in RELEASE.md
 
 ### Changed
 - transition from extended storage to encoded values for storing way type and surface ([#2113](https://github.com/GIScience/openrouteservice/pull/2113), [#2115](https://github.com/GIScience/openrouteservice/pull/2115))
+- add unit information about duration parameter for matrix requests to documentation ([#2130](https://github.com/GIScience/openrouteservice/pull/2130))
 
 ### Deprecated
 
