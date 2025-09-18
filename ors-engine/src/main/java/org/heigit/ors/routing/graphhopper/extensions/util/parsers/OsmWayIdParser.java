@@ -28,12 +28,11 @@ public class OsmWayIdParser implements TagParser {
 
     @Override
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, boolean b, IntsRef relationFlags) {
-// TODO: this code does not work for some reason (getMaxInt returns 0)
         if (way.getId() > osmWayIdEnc.getMaxInt())
             throw new IllegalArgumentException("OSM way-ID is too large: "
                     + way.getId() + " > " + osmWayIdEnc.getMaxInt() + ".");
         int wayId = Math.toIntExact(way.getId());
         osmWayIdEnc.setInt(false, edgeFlags, wayId);
-return null;
+        return edgeFlags;
     }
 }

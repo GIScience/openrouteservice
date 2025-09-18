@@ -18,6 +18,7 @@ import org.heigit.ors.config.profile.ExtendedStorageProperties;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class PluginManager<T extends Plugin> {
     private static final Logger LOGGER = Logger.getLogger(PluginManager.class.getName());
@@ -25,6 +26,9 @@ public class PluginManager<T extends Plugin> {
     private final ServiceLoader<T> loader;
     private final Object lockObj;
     private static final Map<String, Object> pluginMgrCache = new HashMap<>();
+    private static final Stream<String> storagesTransferredToEncodedValue = Arrays.asList(
+            "OsmId", "WaySurfaceType"
+    ).stream();
 
     @SuppressWarnings("unchecked")
     public static synchronized <T extends Plugin> PluginManager<T> getPluginManager(Class<?> cls) throws Exception {
@@ -49,20 +53,22 @@ public class PluginManager<T extends Plugin> {
         List<T> result = new ArrayList<>(parameters.size());
         if (!parameters.isEmpty()) {
             for (Map.Entry<String, ExtendedStorageProperties> storageEntry : parameters.entrySet()) {
-                if ("OsmId".equalsIgnoreCase(storageEntry.getKey()))
-                    continue;
-                if ("WaySurfaceType".equalsIgnoreCase(storageEntry.getKey()))
+                String storageName = storageEntry.getKey();
+                if (storageAlreadyTransferred(storageName))
                     continue;
 
-                T instance = createInstance(storageEntry.getKey(), storageEntry.getValue());
+                T instance = createInstance(storageName, storageEntry.getValue());
 
                 if (instance != null) {
                     result.add(instance);
                 } else
-                    LOGGER.warn("'%s' was not found.".formatted(storageEntry.getKey()));
+                    LOGGER.warn("'%s' was not found.".formatted(storageName));
             }
         }
         return result;
+    }
+    private boolean storageAlreadyTransferred(String storageName) {
+        return storagesTransferredToEncodedValue.anyMatch(s -> s.equalsIgnoreCase(storageName));
     }
 
     @SuppressWarnings("unchecked")
