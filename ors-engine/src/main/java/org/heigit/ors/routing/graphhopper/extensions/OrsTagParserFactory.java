@@ -16,6 +16,7 @@ public class OrsTagParserFactory implements TagParserFactory {
             return defaultTagParserFactory.create(name, configuration);
         } catch (IllegalArgumentException e) {
             return switch (name) {
+                case OsmWayId.KEY -> new OsmWayIdParser();
                 case WaySurface.KEY -> new WaySurfaceParser();
                 case WayType.KEY -> new WayTypeParser();
                 default -> throw e;

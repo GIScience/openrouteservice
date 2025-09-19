@@ -52,7 +52,6 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.*;
-import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
