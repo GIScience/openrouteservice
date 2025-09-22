@@ -17,6 +17,8 @@ import static java.util.Optional.ofNullable;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EncodedValuesProperties {
+    @JsonProperty("osm_way_id")
+    private Boolean osmWayId;
     @JsonProperty("way_surface")
     private Boolean waySurface;
     @JsonProperty("way_type")
@@ -37,6 +39,9 @@ public class EncodedValuesProperties {
     @JsonIgnore
     public String toString() {
         List<String> out = new ArrayList<>();
+        if (Boolean.TRUE.equals(osmWayId)) {
+            out.add(OsmWayId.KEY);
+        }
         if (Boolean.TRUE.equals(waySurface)) {
             out.add(WaySurface.KEY);
         }
