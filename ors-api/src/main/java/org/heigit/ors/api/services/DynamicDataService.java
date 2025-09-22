@@ -119,7 +119,7 @@ public class DynamicDataService {
                     while (result.next()) {
                         int edgeID = result.getInt("edge_id");
                         String value = result.getString("value");
-                        LOGGER.info("Update dynamic data in dataset '" + key + "' for profile '" + profile.name() + "': edge ID " + edgeID + " -> value '" + value + "'");
+                        LOGGER.trace("Update dynamic data in dataset '" + key + "' for profile '" + profile.name() + "': edge ID " + edgeID + " -> value '" + value + "'");
                         profile.updateDynamicData(key, edgeID, value);
                     }
                 }
