@@ -42,6 +42,7 @@ Releasing is documented in RELEASE.md
 
 ### Removed
 - replace `WaySurfaceType` external storage by corresponding encoded values ([#2116](https://github.com/GIScience/openrouteservice/pull/2116))
+- remove unused `Speed` extended storage ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
 
 ### Fixed
 - remove spurious entry for an unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))
