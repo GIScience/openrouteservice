@@ -13,6 +13,7 @@ public class MatchingErrorCodes {
 
     public static final int UNSUPPORTED_EXPORT_FORMAT = 9007;
 
+    public static final int LINE_NOT_MATCHED = 9009;
     public static final int POINT_NOT_FOUND = 9010;
     public static final int UNKNOWN_PARAMETER = 9011;
 
