@@ -1,0 +1,107 @@
+{
+    "instructions": {
+        "numerals": {
+            "1": "1-as",
+            "2": "2-as",
+            "3": "3-ias",
+            "4": "4-as",
+            "5": "5-as",
+            "6": "6-as",
+            "7": "7-as",
+            "8": "8-as",
+            "9": "9-as",
+            "10": "10-asis"
+        },
+        "directions": {
+            "north": "šiaurė",
+            "northeast": "šiaurės rytai",
+            "east": "rytai",
+            "southeast": "pietryčiai",
+            "south": "pietūs",
+            "southwest": "pietvakariai",
+            "west": "vakarai",
+            "northwest": "šiaurės vakarai"
+        },
+        "turn_maneuvers": {
+            "left": "kairė",
+            "right": "dešinė",
+            "sharp_left": "staigus posūkis į kairę",
+            "sharp_right": "staigus posūkis į dešinę",
+            "slight_left": "lengvas posūkis į kairę",
+            "slight_right": "lengvas posūkis į dešinę",
+            "straight": "tiesiai",
+            "uturn": "apsisukti"
+        },
+        "actions": {
+            "arrive": {
+                "default": {
+                    "default": "Pasiekite savo tikslą",
+                    "name": "Pasiekite {way_name}"
+                },
+                "left": {
+                    "default": "Jūsų tikslas kairėje",
+                    "name": "Pasiekite {way_name}, kairėje"
+                },
+                "right": {
+                    "default": "Jūsų tikslas dešinėje",
+                    "name": "Pasiekite {way_name}, dešinėje"
+                },
+                "straight": {
+                    "default": "Jūsų tikslas tiesiai",
+                    "name": "Pasiekite {way_name}, tiesiai"
+                }
+            },
+            "depart": {
+                "default": {
+                    "default": "Sukite {direction}",
+                    "name": "Sukite {direction} į {way_name}"
+                }
+            },
+            "roundabout": {
+                "default": {
+                    "exit": {
+                        "default": "Įvažiuokite į žiedinę sankryžą ir išvažiuokite į {exit_number} išvažiavimą",
+                        "name": "Įvažiuokite į žiedinę sankryžą ir išvažiuokite į {exit_number} išvažiavimą į {way_name}"
+                    },
+                    "default": {
+                        "default": "Įvažiuokite į žiedinę sankryžą",
+                        "name": "Įvažiuokite į žiedinę sankryžą ir išvažiuokite į {way_name}"
+                    }
+                }
+            },
+            "turn": {
+                "default": {
+                    "default": "Sukite {turn_maneuver}",
+                    "name": "Sukite {turn_maneuver} į {way_name}"
+                }
+            },
+            "continue": {
+                "default": {
+                    "default": "Tęskite {turn_maneuver}",
+                    "name": "Tęskite {turn_maneuver} į {way_name}"
+                },
+                "uturn": {
+                    "default": "Pasukite į U formos posūkį",
+                    "name": "Pasukite į U formos posūkį į {way_name}"
+                }
+            },
+            "keep": {
+                "default": {
+                    "default": "Laikykites {turn_maneuver}",
+                    "name": "Laikykites {turn_maneuver} į {way_name}"
+                }
+            },
+            "pt": {
+                "start": {
+                    "default": "Įvažiuokite į {name}",
+                    "headsign": "Įvažiuokite į {name} su kryptimi {headsign}"
+                },
+                "transfer": {
+                    "default": "Pereikite į {name}",
+                    "headsign": "Pereikite į {name} su kryptimi {headsign}"
+                },
+                "end": "Išvažiuokite į {name}"
+            }
+        }
+    }
+}
