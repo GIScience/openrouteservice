@@ -13,9 +13,7 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
-import com.graphhopper.routing.ev.OsmWayId;
-import com.graphhopper.routing.ev.WaySurface;
-import com.graphhopper.routing.ev.WayType;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
@@ -26,6 +24,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteExtraInfo;
 import org.heigit.ors.routing.RouteExtraInfoFlag;
 import org.heigit.ors.routing.RoutingProfileType;
@@ -446,8 +445,26 @@ public class ExtraInfoProcessor implements PathProcessor {
             wayTypeInfoBuilder.addSegment(wayType.value(), wayType.value(), geom, dist);
         }
 
+        // Note: This reproduces the old style extra info of the way-category storage.
+        // With the transition to encoded values, this style of reporting is not very
+        // flexible and should be reworked when a new API-version is developed.
         if (wayCategoryInfoBuilder != null) {
-            int value = extWayCategory.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
+            int value = 0;
+            if (encoder.hasEncodedValue(Highway.KEY) && edge.get(encoder.getBooleanEncodedValue(Highway.KEY)))
+                value |= AvoidFeatureFlags.HIGHWAYS;
+            if (encoder.hasEncodedValue(Ford.KEY) && edge.get(encoder.getBooleanEncodedValue(Ford.KEY)))
+                value |= AvoidFeatureFlags.FORDS;
+            if (encoder.hasEncodedValue(WayType.KEY)) {
+                switch (edge.get(encoder.getEnumEncodedValue(WayType.KEY, WayType.class))) {
+                    case STEPS -> value |= AvoidFeatureFlags.STEPS;
+                    case FERRY -> value |= AvoidFeatureFlags.FERRIES;
+                    default -> { /* do nothing */ }
+                }
+            }
+            // This is redundant with tollway-extra-info
+            if (tollwayExtractor != null && tollwayExtractor.isProfileSpecificTollway(EdgeIteratorStateHelper.getOriginalEdge(edge))) {
+                value |= AvoidFeatureFlags.TOLLWAYS;
+            }
             wayCategoryInfoBuilder.addSegment(value, value, geom, dist);
         }
 
@@ -474,7 +491,7 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (tollwaysInfoBuilder != null) {
-            int value = tollwayExtractor.getValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
+            int value = tollwayExtractor.isProfileSpecificTollway(EdgeIteratorStateHelper.getOriginalEdge(edge))?1:0;
             tollwaysInfoBuilder.addSegment(value, value, geom, dist);
         }
 

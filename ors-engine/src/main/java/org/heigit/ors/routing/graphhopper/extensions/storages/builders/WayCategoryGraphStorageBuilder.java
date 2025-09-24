@@ -61,14 +61,8 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 String key = pairs.getKey();
                 String value = pairs.getValue().toString();
 
-                if (key.equals("highway")) {
-                    if (value.equals("steps")) {
-                        wayType |= AvoidFeatureFlags.STEPS;
-                    }
-                } else if (value.equals("yes") && key.startsWith("toll")) {
+                if (value.equals("yes") && key.startsWith("toll")) {
                     wayType |= AvoidFeatureFlags.TOLLWAYS;
-                } else if (key.equals("route") && isFerryRoute) {
-                    wayType |= AvoidFeatureFlags.FERRIES;
                 }
             }
         }

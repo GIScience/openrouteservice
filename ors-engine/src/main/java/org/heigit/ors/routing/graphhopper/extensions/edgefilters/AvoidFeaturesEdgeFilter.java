@@ -13,9 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.Ford;
-import com.graphhopper.routing.ev.Highway;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
@@ -24,46 +22,33 @@ import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
-import org.heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
 import org.heigit.ors.routing.pathprocessors.TollwayExtractor;
 
 public class AvoidFeaturesEdgeFilter implements EdgeFilter {
-    private final byte[] buffer;
-    private final WayCategoryGraphStorage storage;
     private TollwayExtractor tollwayExtractor;
     private final int avoidFeatureType;
-    BooleanEncodedValue highwayEnc = null;
-    BooleanEncodedValue fordEnc = null;
+    private BooleanEncodedValue highwayEnc = null;
+    private BooleanEncodedValue fordEnc = null;
+    private EnumEncodedValue<WayType> wayTypeEnc;
 
-    private static final int NOT_TOLLWAYS = ~AvoidFeatureFlags.TOLLWAYS;
 
-    public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphHopperStorage graphStorage) throws Exception {
-        this.buffer = new byte[10];
+    public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphHopperStorage graphStorage) {
         handleEncodedValues(graphStorage);
 
         int profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
         this.avoidFeatureType = searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.getProfileFlags(profileCategory);
-
-        storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
-        if (storage == null)
-            throw new Exception("ExtendedGraphStorage for avoid features was not found.");
 
         TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
         if (extTollways != null)
             tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
     }
 
-    public AvoidFeaturesEdgeFilter(int avoidFeatureType, GraphHopperStorage graphStorage) throws Exception {
+    public AvoidFeaturesEdgeFilter(int avoidFeatureType, GraphHopperStorage graphStorage) {
         if (avoidFeatureType == AvoidFeatureFlags.TOLLWAYS)
             throw new IllegalArgumentException("Invalid constructor for use with feature type: " + AvoidFeatureFlags.TOLLWAYS);
-        this.buffer = new byte[10];
         handleEncodedValues(graphStorage);
 
         this.avoidFeatureType = avoidFeatureType;
-
-        storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
-        if (storage == null)
-            throw new IllegalStateException("ExtendedGraphStorage for avoid features was not found.");
     }
 
     private void handleEncodedValues(GraphHopperStorage graphStorage) {
@@ -72,42 +57,48 @@ public class AvoidFeaturesEdgeFilter implements EdgeFilter {
             highwayEnc = encodingManager.getBooleanEncodedValue(Highway.KEY);
         if (encodingManager.hasEncodedValue(Ford.KEY))
             fordEnc = encodingManager.getBooleanEncodedValue(Ford.KEY);
+        if (encodingManager.hasEncodedValue(WayType.KEY))
+            wayTypeEnc = encodingManager.getEnumEncodedValue(WayType.KEY, WayType.class);
     }
 
     @Override
     public final boolean accept(EdgeIteratorState iter) {
-        if (avoidFeatureType != 0) {
-            return acceptHighways(iter) && acceptFords(iter) && acceptOthers(iter);
-        }
-        return true;
+        return avoidFeatureType == 0
+            || (acceptHighways(iter)
+                    && acceptFords(iter)
+                    && acceptSteps(iter)
+                    && acceptFerries(iter)
+                    && acceptTollways(iter)
+                );
     }
 
-    private boolean acceptOthers(EdgeIteratorState iter) {
-        int edge = iter.getEdge();
-        int edgeFeatType = storage.getEdgeValue(edge, buffer);
-        int avoidEdgeFeatureType = avoidFeatureType & edgeFeatType;
-        if (avoidEdgeFeatureType != 0) {
-            boolean restrictionsOtherThanTollwaysPresent = (avoidEdgeFeatureType & NOT_TOLLWAYS) != 0;
-            if (restrictionsOtherThanTollwaysPresent) {
-                return false;
-            } else if (tollwayExtractor != null) {
-                // false when there is a toll for the given profile
-                return tollwayExtractor.getValue(edge) == 0;
-            }
-        }
-        return true;
+    private boolean acceptFerries(EdgeIteratorState iter) {
+        return wayTypeEnc == null
+                || (avoidFeatureType & AvoidFeatureFlags.FERRIES) == 0
+                || iter.get(wayTypeEnc) != WayType.FERRY;
+    }
+
+    private boolean acceptSteps(EdgeIteratorState iter) {
+        return wayTypeEnc == null
+                || (avoidFeatureType & AvoidFeatureFlags.STEPS) == 0
+                || iter.get(wayTypeEnc) != WayType.STEPS;
     }
 
     private boolean acceptFords(EdgeIteratorState iter) {
         return fordEnc == null
-            || (avoidFeatureType & AvoidFeatureFlags.FORDS) == 0
-            || !iter.get(fordEnc);
+                || (avoidFeatureType & AvoidFeatureFlags.FORDS) == 0
+                || !iter.get(fordEnc);
     }
 
     private boolean acceptHighways(EdgeIteratorState iter) {
         return highwayEnc == null
-            || (avoidFeatureType & AvoidFeatureFlags.HIGHWAYS) == 0
-            ||  !iter.get(highwayEnc);
+                || (avoidFeatureType & AvoidFeatureFlags.HIGHWAYS) == 0
+                || !iter.get(highwayEnc);
     }
 
+    private boolean acceptTollways(EdgeIteratorState iter) {
+        return tollwayExtractor == null
+                || (avoidFeatureType & AvoidFeatureFlags.TOLLWAYS) == 0
+                || !tollwayExtractor.isProfileSpecificTollway(iter.getEdge());
+    }
 }
