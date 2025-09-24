@@ -18,6 +18,7 @@ import org.heigit.ors.config.profile.ExtendedStorageProperties;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import static java.util.stream.Stream.of;
 
 public class PluginManager<T extends Plugin> {
     private static final Logger LOGGER = Logger.getLogger(PluginManager.class.getName());
@@ -25,9 +26,6 @@ public class PluginManager<T extends Plugin> {
     private final ServiceLoader<T> loader;
     private final Object lockObj;
     private static final Map<String, Object> pluginMgrCache = new HashMap<>();
-    private static final List<String> storagesTransferredToEncodedValue = Arrays.asList(
-            "OsmId", "WaySurfaceType"
-    );
 
     @SuppressWarnings("unchecked")
     public static synchronized <T extends Plugin> PluginManager<T> getPluginManager(Class<?> cls) throws Exception {
@@ -53,7 +51,7 @@ public class PluginManager<T extends Plugin> {
         if (!parameters.isEmpty()) {
             for (Map.Entry<String, ExtendedStorageProperties> storageEntry : parameters.entrySet()) {
                 String storageName = storageEntry.getKey();
-                if (storageAlreadyTransferred(storageName))
+                if (storageTransferredToEncodedValues(storageName))
                     continue;
 
                 T instance = createInstance(storageName, storageEntry.getValue());
@@ -66,8 +64,8 @@ public class PluginManager<T extends Plugin> {
         }
         return result;
     }
-    private boolean storageAlreadyTransferred(String storageName) {
-        return storagesTransferredToEncodedValue.stream()
+    private boolean storageTransferredToEncodedValues(String storageName) {
+        return of("OsmId", "WaySurfaceType") // TODO: add WayCategory
                 .anyMatch(s -> s.equalsIgnoreCase(storageName));
     }
 
