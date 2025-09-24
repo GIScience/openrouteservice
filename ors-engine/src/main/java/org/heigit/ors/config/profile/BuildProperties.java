@@ -99,6 +99,12 @@ public class BuildProperties {
                             encodedValues.setOsmWayId(true);
                         }
                         break;
+                    case WAY_CATEGORY:
+                        handleWayCategory();
+                        // TODO: remove storage after transfer to EV
+                        storage.initialize(extendedStorageName);
+                        this.extStorages.put(key, storage);
+                        break;
                     case WAY_SURFACE_TYPE:
                         handleWaySurfaceType();
                         break;
@@ -108,6 +114,15 @@ public class BuildProperties {
                         break;
                 }
             }
+        }
+    }
+
+    private void handleWayCategory() {
+        if (encodedValues.getHighway() == null) {
+            encodedValues.setHighway(true);
+        }
+        if (encodedValues.getFord() == null) {
+            encodedValues.setFord(true);
         }
     }
 

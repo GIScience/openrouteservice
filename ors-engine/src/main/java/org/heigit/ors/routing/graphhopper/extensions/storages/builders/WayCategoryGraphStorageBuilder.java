@@ -62,17 +62,13 @@ public class WayCategoryGraphStorageBuilder extends AbstractGraphStorageBuilder 
                 String value = pairs.getValue().toString();
 
                 if (key.equals("highway")) {
-                    if (value.equals("motorway") || value.equals("motorway_link")) {
-                        wayType |= AvoidFeatureFlags.HIGHWAYS;
-                    } else if (value.equals("steps")) {
+                    if (value.equals("steps")) {
                         wayType |= AvoidFeatureFlags.STEPS;
                     }
                 } else if (value.equals("yes") && key.startsWith("toll")) {
                     wayType |= AvoidFeatureFlags.TOLLWAYS;
                 } else if (key.equals("route") && isFerryRoute) {
                     wayType |= AvoidFeatureFlags.FERRIES;
-                } else if (("ford".equals(key) && value.equals("yes"))) {
-                    wayType |= AvoidFeatureFlags.FORDS;
                 }
             }
         }
