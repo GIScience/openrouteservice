@@ -11,6 +11,9 @@ jobs:
   label:
     name: Add PR title conventional type to PR labels
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull_requests: write
     steps:
       - name: Add conventional release labels
         uses: bcoe/conventional-release-labels@v1
