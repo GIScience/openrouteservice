@@ -4,6 +4,6 @@ public class Ford {
     public static final String KEY = "ford";
 
     public static BooleanEncodedValue create() {
-        return new SimpleBooleanEncodedValue(KEY, false);
+        return new SimpleBooleanEncodedValue(KEY, true);
     }
 }

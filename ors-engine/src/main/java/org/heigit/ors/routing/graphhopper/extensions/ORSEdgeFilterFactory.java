@@ -21,6 +21,7 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.PMap;
 import org.apache.log4j.Logger;
 import org.heigit.ors.routing.RouteSearchParameters;
+import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.*;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 import org.heigit.ors.routing.parameters.WheelchairParameters;
@@ -64,7 +65,8 @@ public class ORSEdgeFilterFactory implements EdgeFilterFactory {
 
             /* Avoid features */
             if (opts.has("avoid_features") && opts.has("routing_profile_type")) {
-                edgeFilters.add(new AvoidFeaturesEdgeFilter(opts.getInt("routing_profile_type", 0), opts.getObject("avoid_features", new RouteSearchParameters()), gs));
+                int profileCategory = RoutingProfileCategory.getFromRouteProfile(opts.getInt("routing_profile_type", 0));
+                edgeFilters.add(new AvoidFeaturesEdgeFilter(gs, profileCategory, opts.getObject("avoid_features", new RouteSearchParameters())));
             }
 
             /* Avoid borders */

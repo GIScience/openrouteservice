@@ -14,10 +14,7 @@
 package org.heigit.ors.routing.graphhopper.extensions.util.parsers;
 
 import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.BooleanEncodedValue;
-import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.ev.EncodedValueLookup;
-import com.graphhopper.routing.ev.Highway;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.storage.IntsRef;
 
@@ -27,7 +24,7 @@ public class FordParser implements TagParser {
     private BooleanEncodedValue fordEnc;
 
     public FordParser() {
-        this(Highway.create());
+        this(Ford.create());
     }
 
     public FordParser(BooleanEncodedValue fordEnc) {

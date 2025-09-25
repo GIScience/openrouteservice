@@ -46,10 +46,8 @@ import java.util.List;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class ExtraInfoProcessor implements PathProcessor {
-    private WayCategoryGraphStorage extWayCategory;
     private GreenIndexGraphStorage extGreenIndex;
     private NoiseIndexGraphStorage extNoiseIndex;
-    private TollwaysGraphStorage extTollways;
     private TrailDifficultyScaleGraphStorage extTrailDifficulty;
     private HillIndexGraphStorage extHillIndex;
     private RoadAccessRestrictionsGraphStorage extRoadAccessRestrictions;
@@ -116,12 +114,12 @@ public class ExtraInfoProcessor implements PathProcessor {
 
     private CountryBordersReader countryBordersReader;
 
-    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) throws Exception {
+    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) {
         this(opts, graphHopperStorage, enc);
         this.countryBordersReader = cbReader;
     }
 
-    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) throws Exception {
+    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) {
         encoder = enc;
         encoderWithPriority = encoder.supports(PriorityWeighting.class);
         List<String> skippedExtras = new ArrayList<>();
@@ -144,16 +142,6 @@ public class ExtraInfoProcessor implements PathProcessor {
 
             if (!suppressWarnings)
                 applyWarningExtensions(graphHopperStorage);
-
-            if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_CATEGORY)) {
-                extWayCategory = GraphStorageUtils.getGraphExtension(graphHopperStorage, WayCategoryGraphStorage.class);
-                if (extWayCategory != null) {
-                    wayCategoryInfo = new RouteExtraInfo("waycategory");
-                    wayCategoryInfoBuilder = new AppendableRouteExtraInfoBuilder(wayCategoryInfo);
-                } else {
-                    skippedExtras.add("waycategory");
-                }
-            }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
                 surfaceInfo = new RouteExtraInfo("surface");
@@ -186,7 +174,7 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TOLLWAYS)) {
-                extTollways = GraphStorageUtils.getGraphExtension(graphHopperStorage, TollwaysGraphStorage.class);
+                TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphHopperStorage, TollwaysGraphStorage.class);
                 if (extTollways != null) {
                     tollwaysInfo = new RouteExtraInfo("tollways", extTollways);
                     tollwaysInfoBuilder = new AppendableRouteExtraInfoBuilder(tollwaysInfo);
@@ -195,6 +183,21 @@ public class ExtraInfoProcessor implements PathProcessor {
                     skippedExtras.add("tollways");
                 }
             }
+
+            // Caution: this must happen after tollways!
+            if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_CATEGORY)) {
+                boolean addWayCategoryExtraInfo = encoder.hasEncodedValue(WayType.KEY)
+                        || encoder.hasEncodedValue(Ford.KEY)
+                        || encoder.hasEncodedValue(Highway.KEY)
+                        || tollwayExtractor != null;
+                if (addWayCategoryExtraInfo) {
+                    wayCategoryInfo = new RouteExtraInfo("waycategory");
+                    wayCategoryInfoBuilder = new AppendableRouteExtraInfoBuilder(wayCategoryInfo);
+                } else {
+                    skippedExtras.add("waycategory");
+                }
+            }
+
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TRAIL_DIFFICULTY)) {
                 extTrailDifficulty = GraphStorageUtils.getGraphExtension(graphHopperStorage, TrailDifficultyScaleGraphStorage.class);

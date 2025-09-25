@@ -101,9 +101,6 @@ public class BuildProperties {
                         break;
                     case WAY_CATEGORY:
                         handleWayCategory();
-                        // TODO: remove storage after transfer to EV
-                        storage.initialize(extendedStorageName);
-                        this.extStorages.put(key, storage);
                         break;
                     case WAY_SURFACE_TYPE:
                         handleWaySurfaceType();
@@ -123,6 +120,10 @@ public class BuildProperties {
         }
         if (encodedValues.getFord() == null) {
             encodedValues.setFord(true);
+        }
+        // Used for ferries and steps
+        if (encodedValues.getWayType() == null) {
+            encodedValues.setWayType(true);
         }
     }
 

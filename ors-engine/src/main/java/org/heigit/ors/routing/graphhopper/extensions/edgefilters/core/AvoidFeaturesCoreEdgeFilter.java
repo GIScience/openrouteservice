@@ -18,31 +18,42 @@ import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.RoutingCHEdgeIterator;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.AvoidFeatureFlags;
+import org.heigit.ors.routing.graphhopper.extensions.TollwayType;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.FormerWayCategory;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.WayCategoryGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
 
 public class AvoidFeaturesCoreEdgeFilter implements EdgeFilter {
-    private final byte[] buffer;
-    private final WayCategoryGraphStorage storage;
     private int avoidFeatures;
     private static final String TYPE = "avoid_features";
+    private final FormerWayCategory formerWayCategory;
+    private final TollwaysGraphStorage tollwaysStorage;
+
 
     public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory) {
-        buffer = new byte[10];
         avoidFeatures = AvoidFeatureFlags.getProfileFlags(profileCategory);
-        storage = GraphStorageUtils.getGraphExtension(graphStorage, WayCategoryGraphStorage.class);
+        formerWayCategory = new FormerWayCategory(graphStorage, avoidFeatures);
+        tollwaysStorage = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
     }
 
     public AvoidFeaturesCoreEdgeFilter(GraphHopperStorage graphStorage, int profileCategory, int overrideClass) {
-        this(graphStorage, profileCategory);
         avoidFeatures = overrideClass;
+        formerWayCategory = new FormerWayCategory(graphStorage, avoidFeatures);
+        tollwaysStorage = null;
     }
 
     @Override
     public final boolean accept(EdgeIteratorState iter) {
         if (iter instanceof RoutingCHEdgeIterator iterator && iterator.isShortcut())
             return true;
-        return (storage.getEdgeValue(iter.getEdge(), buffer) & avoidFeatures) == 0;
+        return formerWayCategory.accept(iter)
+            && acceptGenericTollways(iter);
+    }
+
+    private boolean acceptGenericTollways(EdgeIteratorState iter) {
+        return tollwaysStorage == null
+                || (avoidFeatures & AvoidFeatureFlags.TOLLWAYS) == 0
+                || tollwaysStorage.getEdgeValue(iter.getEdge()) == TollwayType.NONE;
     }
 
     public String getType() {

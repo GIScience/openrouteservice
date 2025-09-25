@@ -65,7 +65,7 @@ public class PluginManager<T extends Plugin> {
         return result;
     }
     private boolean storageTransferredToEncodedValues(String storageName) {
-        return of("OsmId", "WaySurfaceType") // TODO: add WayCategory
+        return of("OsmId", "WayCategory", "WaySurfaceType")
                 .anyMatch(s -> s.equalsIgnoreCase(storageName));
     }
 

@@ -62,6 +62,9 @@ public class EncodedValuesProperties {
     }
 
     public void merge(EncodedValuesProperties other) {
+        ford = ofNullable(this.ford).orElse(other.ford);
+        highway = ofNullable(this.highway).orElse(other.highway);
+        osmWayId = ofNullable(this.osmWayId).orElse(other.osmWayId);
         waySurface = ofNullable(this.waySurface).orElse(other.waySurface);
         wayType = ofNullable(this.wayType).orElse(other.wayType);
     }
