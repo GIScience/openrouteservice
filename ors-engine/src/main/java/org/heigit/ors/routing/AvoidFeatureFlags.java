@@ -17,6 +17,7 @@ public class AvoidFeatureFlags {
 
     //Keep in sync with documentation: waycategory.md
 
+    public static final int NONE = 0;
     public static final int HIGHWAYS = 1;
     public static final int TOLLWAYS = 2;
     public static final int STEPS = 4;
@@ -48,7 +49,7 @@ public class AvoidFeatureFlags {
             case RoutingProfileCategory.CYCLING -> CYCLING_FEATURES;
             case RoutingProfileCategory.WALKING -> WALKING_FEATURES;
             case RoutingProfileCategory.WHEELCHAIR -> WHEELCHAIR_FEATURES;
-            default -> RoutingProfileCategory.UNKNOWN;
+            default -> NONE;
         };
     }
 

@@ -24,9 +24,6 @@ import com.graphhopper.routing.RouterConfig;
 import com.graphhopper.routing.WeightingFactory;
 import com.graphhopper.routing.ch.CHPreparationHandler;
 import com.graphhopper.routing.ev.HashMapSparseEncodedValue;
-import com.graphhopper.routing.ev.LogieBorders;
-import com.graphhopper.routing.ev.LogieBridges;
-import com.graphhopper.routing.ev.LogieRoads;
 import com.graphhopper.routing.lm.LMConfig;
 import com.graphhopper.routing.lm.LMPreparationHandler;
 import com.graphhopper.routing.lm.LandmarkStorage;
@@ -368,7 +365,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
         if (fastIsochroneFactory.isEnabled()) {
             EdgeFilterSequence partitioningEdgeFilter = new EdgeFilterSequence();
             try {
-                partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, getGraphHopperStorage()));
+                partitioningEdgeFilter.add(new AvoidFeaturesEdgeFilter(getGraphHopperStorage(), AvoidFeatureFlags.FERRIES));
             } catch (Exception e) {
                 LOGGER.debug(e.getLocalizedMessage());
             }
@@ -418,7 +415,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
     }
 
     private boolean hasLMProfile(String profileName) {
-        List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map(LMConfig::getName).collect(Collectors.toList());
+        List<String> profiles = getLMPreparationHandler().getLMConfigs().stream().map(LMConfig::getName).toList();
         return contains(profiles, profileName);
     }
 
