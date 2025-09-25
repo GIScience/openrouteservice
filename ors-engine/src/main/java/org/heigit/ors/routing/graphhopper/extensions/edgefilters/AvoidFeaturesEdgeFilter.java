@@ -13,90 +13,45 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteSearchParameters;
-import org.heigit.ors.routing.RoutingProfileCategory;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TollwaysGraphStorage;
 import org.heigit.ors.routing.pathprocessors.TollwayExtractor;
 
 public class AvoidFeaturesEdgeFilter implements EdgeFilter {
-    private TollwayExtractor tollwayExtractor;
     private final int avoidFeatureType;
-    private BooleanEncodedValue highwayEnc = null;
-    private BooleanEncodedValue fordEnc = null;
-    private EnumEncodedValue<WayType> wayTypeEnc;
+    private TollwayExtractor tollwayExtractor = null;
+    private final FormerWayCategory formerWayCategory;
 
-
-    public AvoidFeaturesEdgeFilter(int profileType, RouteSearchParameters searchParams, GraphHopperStorage graphStorage) {
-        handleEncodedValues(graphStorage);
-
-        int profileCategory = RoutingProfileCategory.getFromRouteProfile(profileType);
+    public AvoidFeaturesEdgeFilter(GraphHopperStorage graphStorage, int profileCategory, RouteSearchParameters searchParams) {
         this.avoidFeatureType = searchParams.getAvoidFeatureTypes() & AvoidFeatureFlags.getProfileFlags(profileCategory);
+
+        formerWayCategory = new FormerWayCategory(graphStorage, avoidFeatureType);
 
         TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphStorage, TollwaysGraphStorage.class);
         if (extTollways != null)
             tollwayExtractor = new TollwayExtractor(extTollways, searchParams.getProfileType(), searchParams.getProfileParameters());
     }
 
-    public AvoidFeaturesEdgeFilter(int avoidFeatureType, GraphHopperStorage graphStorage) {
+    public AvoidFeaturesEdgeFilter(GraphHopperStorage graphStorage, int avoidFeatureType) {
         if (avoidFeatureType == AvoidFeatureFlags.TOLLWAYS)
             throw new IllegalArgumentException("Invalid constructor for use with feature type: " + AvoidFeatureFlags.TOLLWAYS);
-        handleEncodedValues(graphStorage);
+        formerWayCategory = new FormerWayCategory(graphStorage, avoidFeatureType);
 
         this.avoidFeatureType = avoidFeatureType;
     }
 
-    private void handleEncodedValues(GraphHopperStorage graphStorage) {
-        var encodingManager = graphStorage.getEncodingManager();
-        if (encodingManager.hasEncodedValue(Highway.KEY))
-            highwayEnc = encodingManager.getBooleanEncodedValue(Highway.KEY);
-        if (encodingManager.hasEncodedValue(Ford.KEY))
-            fordEnc = encodingManager.getBooleanEncodedValue(Ford.KEY);
-        if (encodingManager.hasEncodedValue(WayType.KEY))
-            wayTypeEnc = encodingManager.getEnumEncodedValue(WayType.KEY, WayType.class);
-    }
-
     @Override
     public final boolean accept(EdgeIteratorState iter) {
-        return avoidFeatureType == 0
-            || (acceptHighways(iter)
-                    && acceptFords(iter)
-                    && acceptSteps(iter)
-                    && acceptFerries(iter)
-                    && acceptTollways(iter)
-                );
+        return formerWayCategory.accept(iter)
+            && acceptProfileSpecificTollways(iter);
     }
 
-    private boolean acceptFerries(EdgeIteratorState iter) {
-        return wayTypeEnc == null
-                || (avoidFeatureType & AvoidFeatureFlags.FERRIES) == 0
-                || iter.get(wayTypeEnc) != WayType.FERRY;
-    }
-
-    private boolean acceptSteps(EdgeIteratorState iter) {
-        return wayTypeEnc == null
-                || (avoidFeatureType & AvoidFeatureFlags.STEPS) == 0
-                || iter.get(wayTypeEnc) != WayType.STEPS;
-    }
-
-    private boolean acceptFords(EdgeIteratorState iter) {
-        return fordEnc == null
-                || (avoidFeatureType & AvoidFeatureFlags.FORDS) == 0
-                || !iter.get(fordEnc);
-    }
-
-    private boolean acceptHighways(EdgeIteratorState iter) {
-        return highwayEnc == null
-                || (avoidFeatureType & AvoidFeatureFlags.HIGHWAYS) == 0
-                || !iter.get(highwayEnc);
-    }
-
-    private boolean acceptTollways(EdgeIteratorState iter) {
+    private boolean acceptProfileSpecificTollways(EdgeIteratorState iter) {
         return tollwayExtractor == null
                 || (avoidFeatureType & AvoidFeatureFlags.TOLLWAYS) == 0
                 || !tollwayExtractor.isProfileSpecificTollway(iter.getEdge());

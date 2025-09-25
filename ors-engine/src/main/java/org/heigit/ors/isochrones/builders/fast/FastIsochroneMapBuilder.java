@@ -233,7 +233,7 @@ public class FastIsochroneMapBuilder extends AbstractIsochroneMapBuilder {
         EdgeFilterSequence edgeFilterSequence = new EdgeFilterSequence();
         EdgeFilter edgeFilter = edgeFilterFactory.createEdgeFilter(searchContext.getProperties(), searchContext.getEncoder(), searchContext.getGraphHopper().getGraphHopperStorage(), prependFilter);
         edgeFilterSequence.add(edgeFilter);
-        edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(AvoidFeatureFlags.FERRIES, searchContext.getGraphHopper().getGraphHopperStorage()));
+        edgeFilterSequence.add(new AvoidFeaturesEdgeFilter(searchContext.getGraphHopper().getGraphHopperStorage(), AvoidFeatureFlags.FERRIES));
         return edgeFilterSequence;
     }
 
