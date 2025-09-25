@@ -26,6 +26,7 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.util.Properties;
 
+
 public class AppInfo {
     private static final Logger LOGGER = Logger.getLogger(AppInfo.class.getName());
     /**
