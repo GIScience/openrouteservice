@@ -4,7 +4,7 @@
 name: Conventional commit checks
 
 on:
-  pull_request:
+  pull_request_target:
     types: [ edited, opened, ready_for_review, review_requested, reopened, closed, synchronize ]
 
 jobs:
