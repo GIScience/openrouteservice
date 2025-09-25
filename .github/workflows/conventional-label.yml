@@ -4,11 +4,11 @@
 name: Conventional PR label
 
 on:
-  pull_request:
-    types: [ opened, edited, ready_for_review, review_requested, reopened ]
+  pull_request_target:
+    types: [ opened, edited ]
 
 jobs:
-  add_conventional_release_labels:
+  label:
     name: Add PR title conventional type to PR labels
     runs-on: ubuntu-latest
     steps:
@@ -18,5 +18,3 @@ jobs:
           type_labels: '{"feat": "feature", "fix": "fix", "docs": "documentation", "style": "style", "refactor": "refactor", "test": "test", "build": "build", "perf": "performance", "ci": "ci", "chore": "chore", "revert": "revert", "merge": "merge", "wip": "wip"}'
           ignored_types: '["chore"]'
           ignore_label: 'ignore-for-release'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
