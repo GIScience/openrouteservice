@@ -62,3 +62,4 @@ Though there are no concrete rules for code that is contributed, we have a few g
 - **Unit tests!!**
 - **API test** when adding API functionality in the corresponding `apitests` package
 - Keep **methods modular**: rather short and singular functionality than 100s line of code
+
