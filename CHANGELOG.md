@@ -45,6 +45,7 @@ Releasing is documented in RELEASE.md
 
 ### Fixed
 - remove spurious entry for an unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))
+- make github workflows work for external PRs ([#2136](https://github.com/GIScience/openrouteservice/pull/2136))
 
 ### Security
 - update spring-boot-starter to 3.4.9 fixes 
