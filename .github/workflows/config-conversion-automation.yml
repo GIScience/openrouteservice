@@ -2,7 +2,7 @@ name: Automatic synchronization of application.yml to ors-config.yml and ors-con
 on:
   pull_request:
     branches:
-      - main
+      - ci/fix_external_pr_checks_test
       - releases/**
     types: [ opened, ready_for_review, reopened, synchronize ]
     paths:

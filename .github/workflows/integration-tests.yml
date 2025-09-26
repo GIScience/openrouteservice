@@ -5,7 +5,7 @@ name: Integration test suite
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "ci/fix_external_pr_checks_test" ]
     paths-ignore:
       - 'docs/**'
       - 'ors-api/src/test/java/**'
@@ -14,7 +14,7 @@ on:
       - 'ors-report-aggregation/**'
       - '.rpm-packaging/**'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "ci/fix_external_pr_checks_test" ]
     types:
       - opened
       - reopened

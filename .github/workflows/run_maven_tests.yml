@@ -5,7 +5,7 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "ci/fix_external_pr_checks_test" ]
   pull_request_target:
     branches: [ "**" ]
 

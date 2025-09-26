@@ -13,7 +13,7 @@ on:
       branch:
         description: 'GitHub branch to create image off.'
         required: true
-        default: 'main'
+        default: 'ci/fix_external_pr_checks_test'
       tag:
         description: 'Name of the docker tag to create.'
         required: true
@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
-          ref: ${{ inputs.branch || 'main' }}
+          ref: ${{ inputs.branch || 'ci/fix_external_pr_checks_test' }}
 
       - name: Check for new commits since 24 h ago
         id: check
@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
-          ref: ${{ inputs.branch || 'main' }}
+          ref: ${{ inputs.branch || 'ci/fix_external_pr_checks_test' }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3.0.0

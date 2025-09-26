@@ -3,7 +3,7 @@ on:
   pull_request:
     types: [ opened, synchronize, ready_for_review ]
   push:
-    branches: [ "main" ]
+    branches: [ "ci/fix_external_pr_checks_test" ]
   workflow_dispatch:
 
 env:
