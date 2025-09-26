@@ -7,7 +7,7 @@ import org.heigit.ors.routing.AvoidFeatureFlags;
 
 // keep in sync with waycategory.md
 //
-// This is a transitional class only. Once alle extended
+// This is a transitional class only. Once all extended
 // storages are transformed into encoded values and the
 // AvoidFeatures are replaced by custom profiles, this
 // class can be removed.
@@ -29,10 +29,10 @@ public class FormerWayCategory {
     }
 
     public final int oldStyleEdgeValue(EdgeIteratorState iter) {
-        return (acceptHighways(iter)?0:AvoidFeatureFlags.HIGHWAYS)
-            | (acceptFords(iter)?0:AvoidFeatureFlags.FORDS)
-            | (acceptSteps(iter)?0:AvoidFeatureFlags.STEPS)
-            | (acceptFerries(iter)?0:AvoidFeatureFlags.FERRIES);
+        return (acceptHighways(iter) ? 0 : AvoidFeatureFlags.HIGHWAYS)
+            | (acceptFords(iter) ? 0 : AvoidFeatureFlags.FORDS)
+            | (acceptSteps(iter) ? 0 : AvoidFeatureFlags.STEPS)
+            | (acceptFerries(iter) ? 0 : AvoidFeatureFlags.FERRIES);
     }
 
     public final boolean accept(EdgeIteratorState iter) {
