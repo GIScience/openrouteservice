@@ -34,6 +34,5 @@ class ORSStartupTest extends ServiceTest {
         assertFalse(profileProperties.getBuild().getPreparation().isEmpty(), "Preparation settings should be set in the graph_build_info");
         assertTrue(profileProperties.getBuild().getPreparation().getMethods().getCore().getEnabled(), "Preparation settings should contain enabled core method");
         assertFalse(profileProperties.getBuild().getExtStorages().isEmpty(), "ExtStorages settings should be set in the graph_build_info");
-        assertTrue(profileProperties.getBuild().getExtStorages().get("WayCategory").getEnabled(), "ExtStorages settings should contain enabled WayCategory storage");
     }
 }

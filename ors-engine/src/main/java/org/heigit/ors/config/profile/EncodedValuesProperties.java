@@ -17,6 +17,10 @@ import static java.util.Optional.ofNullable;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EncodedValuesProperties {
+    @JsonProperty("ford")
+    private Boolean ford;
+    @JsonProperty("highway")
+    private Boolean highway;
     @JsonProperty("osm_way_id")
     private Boolean osmWayId;
     @JsonProperty("way_surface")
@@ -33,12 +37,18 @@ public class EncodedValuesProperties {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return waySurface == null && wayType == null;
+        return osmWayId == null && ford == null && highway == null && waySurface == null && wayType == null;
     }
 
     @JsonIgnore
     public String toString() {
         List<String> out = new ArrayList<>();
+        if (Boolean.TRUE.equals(ford)) {
+            out.add(Ford.KEY);
+        }
+        if (Boolean.TRUE.equals(highway)) {
+            out.add(Highway.KEY);
+        }
         if (Boolean.TRUE.equals(osmWayId)) {
             out.add(OsmWayId.KEY);
         }
@@ -52,6 +62,9 @@ public class EncodedValuesProperties {
     }
 
     public void merge(EncodedValuesProperties other) {
+        ford = ofNullable(this.ford).orElse(other.ford);
+        highway = ofNullable(this.highway).orElse(other.highway);
+        osmWayId = ofNullable(this.osmWayId).orElse(other.osmWayId);
         waySurface = ofNullable(this.waySurface).orElse(other.waySurface);
         wayType = ofNullable(this.wayType).orElse(other.wayType);
     }

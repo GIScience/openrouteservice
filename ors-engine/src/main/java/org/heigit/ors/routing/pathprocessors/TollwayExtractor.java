@@ -33,42 +33,40 @@ public class TollwayExtractor {
     }
 
     /**
-     * return if a way is a tollway for the configured vehicle.
+     * return whether a way is a tollway for the configured vehicle.
      *
      * @param edgeId The edgeId for which toll should be checked
      * @see HeavyVehicleAttributes
      */
-    public int getValue(int edgeId) {
+    public boolean isProfileSpecificTollway(int edgeId) {
         int value = storage.getEdgeValue(edgeId);
 
         switch (value) {
             // toll=no
             case TollwayType.NONE:
-                return 0;
+                return false;
             // toll=yes
             case TollwayType.GENERAL:
-                return 1;
+                return true;
             default:
                 switch (profileType) {
                     // toll:motorcar
                     case RoutingProfileType.DRIVING_CAR:
-                        return TollwayType.isSet(TollwayType.MOTORCAR, value) ? 1 : 0;
+                        return TollwayType.isSet(TollwayType.MOTORCAR, value);
 
                     case RoutingProfileType.DRIVING_HGV:
                         // toll:hgv
                         if (TollwayType.isSet(TollwayType.HGV, value))
-                            return 1;
+                            return true;
 
                         // check for weight specific toll tags even when weight is unset
                         double weight = vehicleParams == null ? 0 : vehicleParams.getWeight();
-                        if ((weight == 0 && TollwayType.isNType(value))
+                        return ((weight == 0 && TollwayType.isNType(value))
                                 || (weight < 3.5 && TollwayType.isSet(TollwayType.N1, value))
                                 || (weight >= 3.5 && weight < 12 && TollwayType.isSet(TollwayType.N2, value))
-                                || (weight >= 12 && TollwayType.isSet(TollwayType.N3, value)))
-                            return 1;
-                        return 0;
+                                || (weight >= 12 && TollwayType.isSet(TollwayType.N3, value)));
                     default:
-                        return 0;
+                        return false;
                 }
         }
 

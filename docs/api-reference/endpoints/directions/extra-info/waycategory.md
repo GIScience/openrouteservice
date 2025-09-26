@@ -17,4 +17,4 @@ The exponential assignment of the values is used for [bit fields](http://eddmann
 |   8   |    Ferry    |     `route=shuttle_train`, `route=ferry`    |
 |   16  |     Ford    |                  `ford=yes`                 |
 
-[//]: # (keep in sync with org.heigit.ors.routing.graphhopper.extensions.storages.builders.WayCategoryGraphStorageBuilder)
+[//]: # (keep in sync with org.heigit.ors.routing.FormerWayCategory.java)
