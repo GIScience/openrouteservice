@@ -99,9 +99,6 @@ ors:
               radius: 150
               output_log: false
               log_location: ors/traffic_log
-          encoded_values:
-            highway: true
-            ford: true
         service:
           execution:
             methods:
@@ -159,9 +156,6 @@ ors:
               radius: 150
               output_log: false
               log_location: ors/traffic_log
-          encoded_values:
-            highway: true
-            ford: true
         service:
           execution:
             methods:

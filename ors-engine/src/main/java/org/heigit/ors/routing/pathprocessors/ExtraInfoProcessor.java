@@ -494,7 +494,7 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (tollwaysInfoBuilder != null) {
-            int value = tollwayExtractor.isProfileSpecificTollway(EdgeIteratorStateHelper.getOriginalEdge(edge))?1:0;
+            int value = tollwayExtractor.isProfileSpecificTollway(EdgeIteratorStateHelper.getOriginalEdge(edge)) ? 1 : 0;
             tollwaysInfoBuilder.addSegment(value, value, geom, dist);
         }
 
