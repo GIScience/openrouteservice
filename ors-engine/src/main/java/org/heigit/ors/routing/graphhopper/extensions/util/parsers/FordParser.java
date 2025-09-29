@@ -21,7 +21,7 @@ import com.graphhopper.storage.IntsRef;
 import java.util.List;
 
 public class FordParser implements TagParser {
-    private BooleanEncodedValue fordEnc;
+    private final BooleanEncodedValue fordEnc;
 
     public FordParser() {
         this(Ford.create());
@@ -40,7 +40,7 @@ public class FordParser implements TagParser {
     public IntsRef handleWayTags(IntsRef edgeFlags, ReaderWay way, boolean b, IntsRef intsRef1) {
         //Keep in sync with documentation: waycategory.md
 
-        boolean isFord = way.getTag("ford", "").equals("yes");
+        boolean isFord = way.hasTag("ford", "yes");
         fordEnc.setBool(isFord, edgeFlags, false);
         return edgeFlags;
     }
