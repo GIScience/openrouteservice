@@ -6,7 +6,7 @@ name: Java CI with Maven
 on:
   push:
     branches: [ "main" ]
-  pull_request_target:
+  pull_request:
     branches: [ "**" ]
 
 jobs:
@@ -35,18 +35,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Download maven dependencies
-        run: ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+        run: ./mvnw install -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
       - name: run unit tests
         run: ./mvnw -B verify -Papitests -T $(nproc) -DCI=true
       - name: Run the unit tests a second time with jacoco
         run: |
           # Ensure test stability across graph reloads.
           ./mvnw -B verify -Papitests -T $(nproc) jacoco:report
-      - name: Scan results with Sonar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar
+      - name: 'Prepare Sonar analysis'
+        uses: evaristegalois11/sonar-fork-analysis@v1
       - name: Rocket.Chat Notification
         uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@1.1.1
         env:

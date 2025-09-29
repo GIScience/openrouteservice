@@ -1,0 +1,22 @@
+name: 'Sonar'
+on:
+  workflow_run:
+    workflows: [ 'Java CI with Maven' ]
+    types:
+      - completed
+jobs:
+  sonar:
+    name: 'SonarCube Analysis'
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      actions: read # Required to download artifacts
+    steps:
+      - name: 'Sonar analysis'
+        uses: evaristegalois11/sonar-fork-analysis@v1
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          project-key: 'GIScience_openrouteservice'
