@@ -1,13 +1,14 @@
 package org.heigit.ors.api.services;
 
 import org.apache.log4j.Logger;
-import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
+import org.heigit.ors.util.AppInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -32,10 +33,13 @@ public class GraphService {
     private final AtomicBoolean graphActivationAttemptWasBlocked = new AtomicBoolean(false);
     private final AtomicBoolean isActivatingGraphs = new AtomicBoolean(true);
 
+    private ApplicationContext applicationContext;
+
     @Autowired
-    public GraphService(EngineProperties engineProperties, @Value("${ors.engine.graph_management.enabled:false}") Boolean enabled) {
+    public GraphService(EngineProperties engineProperties, @Value("${ors.engine.graph_management.enabled:false}") Boolean enabled, ApplicationContext applicationContext) {
         this.engineProperties = engineProperties;
         this.enabled = enabled;
+        this.applicationContext = applicationContext;
     }
 
     public void addGraphManagerInstance(ORSGraphManager orsGraphManager) {
@@ -210,7 +214,7 @@ public class GraphService {
                     addGraphManagerInstance(orsGraphManager);
                 }
             }
-            DynamicDataService.getInstance().reinitialize();
+            applicationContext.getBean(DynamicDataService.class).reinitialize();
         } catch (Exception e) {
             LOGGER.warn("Unable to activate graphs due to an unexpected exception: " + e);
         } finally {

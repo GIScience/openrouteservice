@@ -211,13 +211,13 @@ public class RoutingProfile {
         Function<String,Object> stateFromString = null;
         switch (key) {
             case LogieBorders.KEY:
-                stateFromString = s -> LogieBorders.valueOf(s);
+                stateFromString = s -> LogieBorders.valueOf(s.replace(" ", "_").toUpperCase());
                 break;
             case LogieBridges.KEY:
-                stateFromString = s -> LogieBridges.valueOf(s);
+                stateFromString = s -> LogieBridges.valueOf(s.replace(" ", "_").toUpperCase());
                 break;
             case LogieRoads.KEY:
-                stateFromString = s -> LogieRoads.valueOf(s);
+                stateFromString = s -> LogieRoads.valueOf(s.replace(" ", "_").toUpperCase());
                 break;
             default:
                 // do nothing

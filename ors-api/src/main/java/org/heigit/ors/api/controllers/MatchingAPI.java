@@ -23,8 +23,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.heigit.ors.api.APIEnums;
-import org.heigit.ors.api.config.EndpointsProperties;
-import org.heigit.ors.api.config.SystemMessageProperties;
 import org.heigit.ors.api.errors.CommonResponseEntityExceptionHandler;
 import org.heigit.ors.api.requests.matching.MatchingApiRequest;
 import org.heigit.ors.api.responses.matching.MatchingResponse;
@@ -34,7 +32,7 @@ import org.heigit.ors.exceptions.MissingParameterException;
 import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.matching.MatchingErrorCodes;
-import org.heigit.ors.matching.MatchingResult;
+import org.heigit.ors.matching.MatchingRequest;
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,13 +46,9 @@ import org.springframework.web.bind.annotation.*;
 public class MatchingAPI {
     static final CommonResponseEntityExceptionHandler errorHandler = new CommonResponseEntityExceptionHandler(MatchingErrorCodes.BASE);
 
-    private final EndpointsProperties endpointsProperties;
-    private final SystemMessageProperties systemMessageProperties;
     private final MatchingService matchingService;
 
-    public MatchingAPI(EndpointsProperties endpointsProperties, SystemMessageProperties systemMessageProperties, MatchingService matchingService) {
-        this.endpointsProperties = endpointsProperties;
-        this.systemMessageProperties = systemMessageProperties;
+    public MatchingAPI(MatchingService matchingService) {
         this.matchingService = matchingService;
     }
 
@@ -75,16 +69,41 @@ public class MatchingAPI {
     @PostMapping(value = "/{profile}/*")
     @Operation(hidden = true)
     public void getInvalidResponseType(@PathVariable String profile) throws StatusCodeException {
-        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, MatchingErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "This response format is not supported");
+        throw new StatusCodeException(HttpServletResponse.SC_NOT_ACCEPTABLE, MatchingErrorCodes.UNSUPPORTED_EXPORT_FORMAT, "Response format is not supported");
     }
 
     // Functional request methods
+    @GetMapping(value = "/{profile}")
+    @Operation(
+            method = "GET",
+            description = "Provide information about the graph used for matching.",
+            summary = "Matching Service information"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Standard response for successfully processed requests. Returns JSON.",
+            content = {@Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = MatchingResponse.class)
+            )
+            })
+    public ResponseEntity<String> getMatching(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile) throws StatusCodeException {
+        MatchingService.MatchingInfo result = matchingService.generateMatchingInformation(profile);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        JSONObject jsonResponse = new JSONObject();
+        jsonResponse.put("graph_timestamp", result.graphTimestamp());
+
+        return new ResponseEntity<>(jsonResponse.toJSONString(), headers, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/{profile}")
     @Operation(
             description = """
-                   Matches point, linestring and polygon geometries to edge IDs of the graph.
-                   Note that matchings are invalidated when rebuilding the graph because the edge 
-                   IDs may change.
+                    Matches point, linestring and polygon geometries to edge IDs of the graph.
+                    Note that matchings are invalidated when rebuilding the graph because the edge 
+                    IDs may change.
                     """,
             summary = "Matching Service"
     )
@@ -96,18 +115,18 @@ public class MatchingAPI {
                     schema = @Schema(implementation = MatchingResponse.class)
             )
             })
-    public ResponseEntity<?> getMatching(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
-                                           @Parameter(description = "The request payload", required = true) @RequestBody MatchingApiRequest request) throws StatusCodeException {
+    public ResponseEntity<String> postMatching(@Parameter(description = "Specifies the route profile.", required = true, example = "driving-car") @PathVariable String profile,
+                                               @Parameter(description = "The request payload", required = true) @RequestBody MatchingApiRequest request) throws StatusCodeException {
         request.setProfile(getProfileEnum(profile));
         request.setProfileName(profile);
 
-        MatchingResult result = matchingService.generateMatchingFromRequest(request);
+        MatchingRequest.MatchingResult result = matchingService.generateMatchingFromRequest(request);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         JSONObject jsonResponse = new JSONObject();
-        jsonResponse.put("graph_date", result.getGraphDate());
-        jsonResponse.put("matched", result.getMatched());
+        jsonResponse.put("graph_timestamp", result.graphTimestamp());
+        jsonResponse.put("edge_ids", result.matched());
 
         return new ResponseEntity<>(jsonResponse.toJSONString(), headers, HttpStatus.OK);
     }

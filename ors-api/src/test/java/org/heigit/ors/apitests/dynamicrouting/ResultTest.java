@@ -23,9 +23,11 @@ import org.heigit.ors.apitests.utils.CommonHeaders;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -35,13 +37,12 @@ import org.testcontainers.utility.DockerImageName;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
-import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
-
 
 abstract class AbstractContainerBaseTest extends ServiceTest {
 
@@ -68,17 +69,19 @@ abstract class AbstractContainerBaseTest extends ServiceTest {
 
             connection.createStatement().execute("""
                     CREATE TABLE features (
-                    feature_id SERIAL PRIMARY KEY,
-                    dataset_key VARCHAR(255) NOT NULL,
-                    value VARCHAR(20)
+                        feature_id INTEGER NOT NULL,
+                        dataset_key VARCHAR(255) NOT NULL,
+                        value VARCHAR(20) NOT NULL,
+                        PRIMARY KEY (feature_id, dataset_key)
                     );
                     """);
             connection.createStatement().execute("""
                     CREATE TABLE mappings (
-                    feature_id INTEGER,
-                    graph_timestamp TIMESTAMP,
-                    profile VARCHAR(20),
-                    edge_id INTEGER
+                        feature_id INTEGER NOT NULL,
+                        graph_timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                        profile VARCHAR(20) NOT NULL,
+                        edge_id INTEGER NOT NULL,
+                        PRIMARY KEY (feature_id, graph_timestamp, profile, edge_id)
                     );
                     """);
             connection.createStatement().execute("""
@@ -125,50 +128,17 @@ class ResultTest extends AbstractContainerBaseTest {
         addParameter("carProfile", "driving-car");
     }
 
-    @Test
-    void testCustomProfileDynamicBorder() {
-        JSONObject body = new JSONObject();
-        JSONArray coordinates = new JSONArray();
-        JSONArray coord1 = new JSONArray();
-
-        coord1.put(8.692134);
-        coord1.put(49.414866);
-        coordinates.put(coord1);
-        JSONArray coord2 = new JSONArray();
-
-        coord2.put(8.688996);
-        coord2.put(49.414351);
-        coordinates.put(coord2);
-
-        body.put("coordinates", coordinates);
-
-        body.put("preference", getParameter("preference"));
-        body.put("instructions", true);
-        body.put("elevation", true);
-
-        JSONObject customModel = new JSONObject();
-        JSONObject priority = new JSONObject();
-        priority.put("if", "logie_borders == CLOSED");
-        priority.put("multiply_by", 0);
-        customModel.put("priority", new JSONArray().put(priority));
-        body.put("custom_model", customModel);
-
-        given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(CommonHeaders.jsonContent)
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}")
-                .then().log().ifValidationFails()
-                .assertThat()
-                .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(661f, 6f))) // 248m without blocking surface
-                .statusCode(200);
+    public static Stream<Arguments> dynamicDataTestProvider() {
+        return Stream.of(
+                Arguments.of("logie_borders == CLOSED"),
+                Arguments.of("logie_bridges == RESTRICTED"),
+                Arguments.of("logie_roads == RESTRICTED")
+        );
     }
 
-    @Test
-    void testCustomProfileDynamicBridge() {
+    @ParameterizedTest
+    @MethodSource("dynamicDataTestProvider")
+    void testCustomProfileDynamicData(String condition) {
         JSONObject body = new JSONObject();
         JSONArray coordinates = new JSONArray();
         JSONArray coord1 = new JSONArray();
@@ -190,49 +160,7 @@ class ResultTest extends AbstractContainerBaseTest {
 
         JSONObject customModel = new JSONObject();
         JSONObject priority = new JSONObject();
-        priority.put("if", "logie_bridges == RESTRICTED");
-        priority.put("multiply_by", 0);
-        customModel.put("priority", new JSONArray().put(priority));
-        body.put("custom_model", customModel);
-
-        given()
-                .config(JSON_CONFIG_DOUBLE_NUMBERS)
-                .headers(CommonHeaders.jsonContent)
-                .pathParam("profile", getParameter("carProfile"))
-                .body(body.toString())
-                .when()
-                .post(getEndPointPath() + "/{profile}")
-                .then().log().ifValidationFails()
-                .assertThat()
-                .body("any { it.key == 'routes' }", is(true))
-                .body("routes[0].summary.distance", is(closeTo(661f, 6f))) // 248m without blocking surface
-                .statusCode(200);
-    }
-
-    @Test
-    void testCustomProfileDynamicRoad() {
-        JSONObject body = new JSONObject();
-        JSONArray coordinates = new JSONArray();
-        JSONArray coord1 = new JSONArray();
-
-        coord1.put(8.692134);
-        coord1.put(49.414866);
-        coordinates.put(coord1);
-        JSONArray coord2 = new JSONArray();
-
-        coord2.put(8.688996);
-        coord2.put(49.414351);
-        coordinates.put(coord2);
-
-        body.put("coordinates", coordinates);
-
-        body.put("preference", getParameter("preference"));
-        body.put("instructions", true);
-        body.put("elevation", true);
-
-        JSONObject customModel = new JSONObject();
-        JSONObject priority = new JSONObject();
-        priority.put("if", "logie_bridges == RESTRICTED");
+        priority.put("if", condition);
         priority.put("multiply_by", 0);
         customModel.put("priority", new JSONArray().put(priority));
         body.put("custom_model", customModel);
