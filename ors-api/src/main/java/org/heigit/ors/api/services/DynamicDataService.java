@@ -68,10 +68,10 @@ public class DynamicDataService {
             LOGGER.warn("Dynamic data module activated but no profile has custom models enabled.");
         } else {
             for (RoutingProfile profile : enabledProfiles) {
-                profile.getProfileConfiguration().getService().getDynamicData().getEnabledDynamicDatasets().forEach(datasetName -> {
+                for (String datasetName : profile.getProfileConfiguration().getService().getDynamicData().getEnabledDynamicDatasets()) {
                     LOGGER.info("Adding dynamic data support for dataset '" + datasetName + "' to profile '" + profile.name() + "'.");
                     profile.addDynamicData(datasetName);
-                });
+                }
                 fetchDynamicData(profile);
             }
             LOGGER.info("Dynamic data service initialized for profiles: " + enabledProfiles.stream().map(RoutingProfile::name).toList());
