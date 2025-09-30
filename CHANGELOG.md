@@ -28,37 +28,50 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
-- full support for encoded values ([#2108](https://github.com/GIScience/openrouteservice/issues/2108))
-- enable encoded value for way surface ([#2110](https://github.com/GIScience/openrouteservice/issues/2110))
-- enable encoded value for way type ([#2115](https://github.com/GIScience/openrouteservice/issues/2115))
-- enable encoded value for OSM way-ID ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
-- Experimental: dynamic data service and matching endpoint  ([#2125](https://github.com/GIScience/openrouteservice/issues/2125))
-- Instructions translations for Latvian (lv-LV) and Lithuanian (lt-LT) ([#2131](https://github.com/GIScience/openrouteservice/pull/2131))
 
 ### Changed
-- transition from extended storage to encoded values for storing way type and surface ([#2113](https://github.com/GIScience/openrouteservice/pull/2113), [#2115](https://github.com/GIScience/openrouteservice/pull/2115))
-- add unit information about duration parameter for matrix requests to documentation ([#2130](https://github.com/GIScience/openrouteservice/pull/2130))
-- replace `WayCategoryStorage` by encoded values ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
 
 ### Deprecated
 
 ### Removed
-- replace `WaySurfaceType` external storage by corresponding encoded values ([#2116](https://github.com/GIScience/openrouteservice/pull/2116))
-- remove unused `Speed` extended storage ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
 
 ### Fixed
-- remove spurious entry for an unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))
-- make github workflows work for external PRs ([#2136](https://github.com/GIScience/openrouteservice/pull/2136))
 
 ### Security
-- update spring-boot-starter to 3.4.9 fixes 
+
+
+## [9.4.0] - 2025-09-30
+
+### Added
+- full support for encoded values ([#2108](https://github.com/GIScience/openrouteservice/issues/2108))
+- enable encoded value for way surface ([#2110](https://github.com/GIScience/openrouteservice/issues/2110))
+- enable encoded value for way type ([#2115](https://github.com/GIScience/openrouteservice/issues/2115))
+- enable encoded value for OSM way-ID ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
+- document the units of the `duration` parameter to matrix queries ([#2130](https://github.com/GIScience/openrouteservice/pull/2130))
+- translation of instructions for Latvian (lv-LV) and Lithuanian (lt-LT) ([#2131](https://github.com/GIScience/openrouteservice/pull/2131))
+- EXPERIMENTAL: dynamic data service and matching endpoint ([#2125](https://github.com/GIScience/openrouteservice/issues/2125), [#2142](https://github.com/GIScience/openrouteservice/pull/2142))
+
+### Changed
+- transition from extended storage to encoded values for storing way type and surface ([#2113](https://github.com/GIScience/openrouteservice/pull/2113), [#2115](https://github.com/GIScience/openrouteservice/pull/2115))
+- replace `WayCategoryStorage` with encoded values ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
+- replace `WaySurfaceType` extended storage with corresponding encoded values ([#2116](https://github.com/GIScience/openrouteservice/pull/2116))
+
+### Removed
+- unused `Speed` extended storage ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
+
+### Fixed
+- remove an erroneous entry for the unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))
+- make GitHub actions work with external PRs ([#2136](https://github.com/GIScience/openrouteservice/pull/2136))
+
+### Security
+- update spring-boot-starter to 3.4.10 fixes 
   [CVE-2025-48989](https://www.cve.org/CVERecord?id=CVE-2025-48989),
   [CVE-2025-41242](https://www.cve.org/CVERecord?id=CVE-2025-41242),
   [CVE-2025-48988](https://www.cve.org/CVERecord?id=CVE-2025-48988),
   [CVE-2025-53506](https://www.cve.org/CVERecord?id=CVE-2025-53506),
   [CVE-2025-52520](https://www.cve.org/CVERecord?id=CVE-2025-52520) and more
 - update apache commons-lang3 to 3.18.0 fixes 
-  [CVE-2025-48924](https://www.cve.org/CVERecord?id=CVE-2025-48924),
+  [CVE-2025-48924](https://www.cve.org/CVERecord?id=CVE-2025-48924)
 
 ## [9.3.1] - 2025-07-28
 
@@ -947,7 +960,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.3.1...HEAD
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.4.0...HEAD
+[9.4.0]: https://github.com/GIScience/openrouteservice/compare/v9.3.1...v9.4.0
 [9.3.1]: https://github.com/GIScience/openrouteservice/compare/v9.3.0...v9.3.1
 [9.3.0]: https://github.com/GIScience/openrouteservice/compare/v9.2.0...v9.3.0
 [9.2.0]: https://github.com/GIScience/openrouteservice/compare/v9.1.2...v9.2.0
