@@ -18,6 +18,7 @@ import org.heigit.ors.config.profile.ExtendedStorageProperties;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import static java.util.stream.Stream.of;
 
 public class PluginManager<T extends Plugin> {
     private static final Logger LOGGER = Logger.getLogger(PluginManager.class.getName());
@@ -49,18 +50,23 @@ public class PluginManager<T extends Plugin> {
         List<T> result = new ArrayList<>(parameters.size());
         if (!parameters.isEmpty()) {
             for (Map.Entry<String, ExtendedStorageProperties> storageEntry : parameters.entrySet()) {
-                if ("WaySurfaceType".equalsIgnoreCase(storageEntry.getKey()))
+                String storageName = storageEntry.getKey();
+                if (storageTransferredToEncodedValues(storageName))
                     continue;
 
-                T instance = createInstance(storageEntry.getKey(), storageEntry.getValue());
+                T instance = createInstance(storageName, storageEntry.getValue());
 
                 if (instance != null) {
                     result.add(instance);
                 } else
-                    LOGGER.warn("'%s' was not found.".formatted(storageEntry.getKey()));
+                    LOGGER.warn("'%s' was not found.".formatted(storageName));
             }
         }
         return result;
+    }
+    private boolean storageTransferredToEncodedValues(String storageName) {
+        return of("OsmId", "WayCategory", "WaySurfaceType")
+                .anyMatch(s -> s.equalsIgnoreCase(storageName));
     }
 
     @SuppressWarnings("unchecked")

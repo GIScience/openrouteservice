@@ -1,0 +1,107 @@
+{
+    "instructions": {
+        "numerals": {
+            "1": "1.",
+            "2": "2.",
+            "3": "3.",
+            "4": "4.",
+            "5": "5.",
+            "6": "6.",
+            "7": "7.",
+            "8": "8.",
+            "9": "9.",
+            "10": "10."
+        },
+        "directions": {
+            "north": "ziemeļiem",
+            "northeast": "ziemeļaustrumiem",
+            "east": "austrumiem",
+            "southeast": "dienvidaustrumiem",
+            "south": "dienvidiem",
+            "southwest": "dienvidrietumiem",
+            "west": "rietumiem",
+            "northwest": "ziemeļrietumiem"
+        },
+        "turn_maneuvers": {
+            "left": "pa kreisi",
+            "right": "pa labi",
+            "sharp_left": "asi pa kreisi",
+            "sharp_right": "asi pa labi",
+            "slight_left": "nedaudz pa kreisi",
+            "slight_right": "nedaudz pa labi",
+            "straight": "taisni",
+            "uturn": "U-pagrieziens"
+        },
+        "actions": {
+            "arrive": {
+                "default": {
+                    "default": "Ierodaties galamērķī",
+                    "name": "Ierodaties {way_name}"
+                },
+                "left": {
+                    "default": " Ierodaties galamērķi pa kreisi",
+                    "name": "Ierodaties {way_name}, pa kreisi"
+                },
+                "right": {
+                    "default": "Ierodaties galamērķī pa labi",
+                    "name": "Ierodaties {way_name}, pa labi"
+                },
+                "straight": {
+                    "default": "Ierodaties galamērķi tieši priekšā",
+                    "name": "Ierodaties {way_name}, tieši priekšā"
+                }
+            },
+            "depart": {
+                "default": {
+                    "default": "Dodies uz {direction}",
+                    "name": "Dodies uz {direction} pa {way_name}"
+                }
+            },
+            "roundabout": {
+                "default": {
+                    "exit": {
+                        "default": "Iebrauc aplī un izbrauc {exit_number} izejā",
+                        "name": "Iebrauc aplī un izbrauc {exit_number} izejā uz {way_name}"
+                    },
+                    "default": {
+                        "default": "Iebrauc aplī",
+                        "name": " Iebrauc aplī un izbrauc uz {way_name}"
+                    }
+                }
+            },
+            "turn": {
+                "default": {
+                    "default": "Pagriezies {turn_maneuver}",
+                    "name": "Pagriezies {turn_maneuver} uz {way_name}"
+                }
+            },
+            "continue": {
+                "default": {
+                    "default": "Turpini {turn_maneuver}",
+                    "name": "Turpini {turn_maneuver} uz {way_name}"
+                },
+                "uturn": {
+                    "default": "Izdari U-pagriezienu",
+                    "name": "Izdari U-pagriezienu uz {way_name}"
+                }
+            },
+            "keep": {
+                "default": {
+                    "default": "Turies {turn_maneuver}",
+                    "name": "Turies {turn_maneuver} uz {way_name}"
+                }
+            },
+            "pt": {
+                "start": {
+                    "default": "Iekāp {name}",
+                    "headsign": "Iekāp {name} dodies uz {headsign}"
+                },
+                "transfer": {
+                    "default": "Parsēdies uz {name}",
+                    "headsign": "Pārsēdies uz {name} dodoties uz {headsign}"
+                },
+                "end": "Izkāp {name}"
+            }
+        }
+    }
+}

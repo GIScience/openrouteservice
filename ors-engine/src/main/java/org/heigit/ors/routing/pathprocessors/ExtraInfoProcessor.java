@@ -13,8 +13,7 @@
  */
 package org.heigit.ors.routing.pathprocessors;
 
-import com.graphhopper.routing.ev.WaySurface;
-import com.graphhopper.routing.ev.WayType;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.routing.util.PathProcessor;
@@ -25,6 +24,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.PointList;
 import org.apache.log4j.Logger;
+import org.heigit.ors.routing.AvoidFeatureFlags;
 import org.heigit.ors.routing.RouteExtraInfo;
 import org.heigit.ors.routing.RouteExtraInfoFlag;
 import org.heigit.ors.routing.RoutingProfileType;
@@ -46,13 +46,10 @@ import java.util.List;
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
 public class ExtraInfoProcessor implements PathProcessor {
-    private WayCategoryGraphStorage extWayCategory;
     private GreenIndexGraphStorage extGreenIndex;
     private NoiseIndexGraphStorage extNoiseIndex;
-    private TollwaysGraphStorage extTollways;
     private TrailDifficultyScaleGraphStorage extTrailDifficulty;
     private HillIndexGraphStorage extHillIndex;
-    private OsmIdGraphStorage extOsmId;
     private RoadAccessRestrictionsGraphStorage extRoadAccessRestrictions;
     private BordersGraphStorage extCountryTraversalInfo;
     private CsvGraphStorage extCsvData;
@@ -117,12 +114,12 @@ public class ExtraInfoProcessor implements PathProcessor {
 
     private CountryBordersReader countryBordersReader;
 
-    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) throws Exception {
+    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc, CountryBordersReader cbReader) {
         this(opts, graphHopperStorage, enc);
         this.countryBordersReader = cbReader;
     }
 
-    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) throws Exception {
+    ExtraInfoProcessor(PMap opts, GraphHopperStorage graphHopperStorage, FlagEncoder enc) {
         encoder = enc;
         encoderWithPriority = encoder.supports(PriorityWeighting.class);
         List<String> skippedExtras = new ArrayList<>();
@@ -145,16 +142,6 @@ public class ExtraInfoProcessor implements PathProcessor {
 
             if (!suppressWarnings)
                 applyWarningExtensions(graphHopperStorage);
-
-            if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_CATEGORY)) {
-                extWayCategory = GraphStorageUtils.getGraphExtension(graphHopperStorage, WayCategoryGraphStorage.class);
-                if (extWayCategory != null) {
-                    wayCategoryInfo = new RouteExtraInfo("waycategory");
-                    wayCategoryInfoBuilder = new AppendableRouteExtraInfoBuilder(wayCategoryInfo);
-                } else {
-                    skippedExtras.add("waycategory");
-                }
-            }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SURFACE)) {
                 surfaceInfo = new RouteExtraInfo("surface");
@@ -187,7 +174,7 @@ public class ExtraInfoProcessor implements PathProcessor {
             }
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TOLLWAYS)) {
-                extTollways = GraphStorageUtils.getGraphExtension(graphHopperStorage, TollwaysGraphStorage.class);
+                TollwaysGraphStorage extTollways = GraphStorageUtils.getGraphExtension(graphHopperStorage, TollwaysGraphStorage.class);
                 if (extTollways != null) {
                     tollwaysInfo = new RouteExtraInfo("tollways", extTollways);
                     tollwaysInfoBuilder = new AppendableRouteExtraInfoBuilder(tollwaysInfo);
@@ -196,6 +183,21 @@ public class ExtraInfoProcessor implements PathProcessor {
                     skippedExtras.add("tollways");
                 }
             }
+
+            // Caution: this must happen after tollways!
+            if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.WAY_CATEGORY)) {
+                boolean addWayCategoryExtraInfo = encoder.hasEncodedValue(WayType.KEY)
+                        || encoder.hasEncodedValue(Ford.KEY)
+                        || encoder.hasEncodedValue(Highway.KEY)
+                        || tollwayExtractor != null;
+                if (addWayCategoryExtraInfo) {
+                    wayCategoryInfo = new RouteExtraInfo("waycategory");
+                    wayCategoryInfoBuilder = new AppendableRouteExtraInfoBuilder(wayCategoryInfo);
+                } else {
+                    skippedExtras.add("waycategory");
+                }
+            }
+
 
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.TRAIL_DIFFICULTY)) {
                 extTrailDifficulty = GraphStorageUtils.getGraphExtension(graphHopperStorage, TrailDifficultyScaleGraphStorage.class);
@@ -235,9 +237,11 @@ public class ExtraInfoProcessor implements PathProcessor {
                 }
             }
 
+            // TODO: there are too many things identifying this information:
+            //       RouteExtraInfoFlag.OSM_ID, OsmWayId.KEY and plain strings
+            //       like "osmId", "osmid", "osm_id"
             if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.OSM_ID)) {
-                extOsmId = GraphStorageUtils.getGraphExtension(graphHopperStorage, OsmIdGraphStorage.class);
-                if (extOsmId != null) {
+                if (encoder.hasEncodedValue(OsmWayId.KEY)) {
                     osmIdInfo = new RouteExtraInfo("osmId");
                     osmIdInfoBuilder = new AppendableRouteExtraInfoBuilder(osmIdInfo);
                 } else {
@@ -444,8 +448,26 @@ public class ExtraInfoProcessor implements PathProcessor {
             wayTypeInfoBuilder.addSegment(wayType.value(), wayType.value(), geom, dist);
         }
 
+        // Note: This reproduces the old style extra info of the way-category storage.
+        // With the transition to encoded values, this style of reporting is not very
+        // flexible and should be reworked when a new API-version is developed.
         if (wayCategoryInfoBuilder != null) {
-            int value = extWayCategory.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
+            int value = 0;
+            if (encoder.hasEncodedValue(Highway.KEY) && edge.get(encoder.getBooleanEncodedValue(Highway.KEY)))
+                value |= AvoidFeatureFlags.HIGHWAYS;
+            if (encoder.hasEncodedValue(Ford.KEY) && edge.get(encoder.getBooleanEncodedValue(Ford.KEY)))
+                value |= AvoidFeatureFlags.FORDS;
+            if (encoder.hasEncodedValue(WayType.KEY)) {
+                switch (edge.get(encoder.getEnumEncodedValue(WayType.KEY, WayType.class))) {
+                    case STEPS -> value |= AvoidFeatureFlags.STEPS;
+                    case FERRY -> value |= AvoidFeatureFlags.FERRIES;
+                    default -> { /* do nothing */ }
+                }
+            }
+            // This is redundant with tollway-extra-info
+            if (tollwayExtractor != null && tollwayExtractor.isProfileSpecificTollway(EdgeIteratorStateHelper.getOriginalEdge(edge))) {
+                value |= AvoidFeatureFlags.TOLLWAYS;
+            }
             wayCategoryInfoBuilder.addSegment(value, value, geom, dist);
         }
 
@@ -472,7 +494,7 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (tollwaysInfoBuilder != null) {
-            int value = tollwayExtractor.getValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
+            int value = tollwayExtractor.isProfileSpecificTollway(EdgeIteratorStateHelper.getOriginalEdge(edge)) ? 1 : 0;
             tollwaysInfoBuilder.addSegment(value, value, geom, dist);
         }
 
@@ -512,8 +534,7 @@ public class ExtraInfoProcessor implements PathProcessor {
         }
 
         if (osmIdInfoBuilder != null) {
-            long osmId = extOsmId.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge));
-
+            long osmId = encoder.getIntEncodedValue(OsmWayId.KEY).getInt(false,edge.getFlags());
             osmIdInfoBuilder.addSegment((double) osmId, osmId, geom, dist);
         }
 

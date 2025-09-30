@@ -93,13 +93,37 @@ public class BuildProperties {
             ExtendedStorageProperties storage = entry.getValue();
             if (storage != null) {
                 ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
-                if (extendedStorageName == ExtendedStorageName.WAY_SURFACE_TYPE) {
-                    handleWaySurfaceType();
-                } else {
-                    storage.initialize(extendedStorageName);
-                    this.extStorages.put(key, storage);
+                switch (extendedStorageName) {
+                    case OSM_ID:
+                        if (encodedValues.getOsmWayId() == null) {
+                            encodedValues.setOsmWayId(true);
+                        }
+                        break;
+                    case WAY_CATEGORY:
+                        handleWayCategory();
+                        break;
+                    case WAY_SURFACE_TYPE:
+                        handleWaySurfaceType();
+                        break;
+                    default:
+                        storage.initialize(extendedStorageName);
+                        this.extStorages.put(key, storage);
+                        break;
                 }
             }
+        }
+    }
+
+    private void handleWayCategory() {
+        if (encodedValues.getHighway() == null) {
+            encodedValues.setHighway(true);
+        }
+        if (encodedValues.getFord() == null) {
+            encodedValues.setFord(true);
+        }
+        // Used for ferries and steps
+        if (encodedValues.getWayType() == null) {
+            encodedValues.setWayType(true);
         }
     }
 

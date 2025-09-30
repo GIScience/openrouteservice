@@ -31,18 +31,24 @@ Releasing is documented in RELEASE.md
 - full support for encoded values ([#2108](https://github.com/GIScience/openrouteservice/issues/2108))
 - enable encoded value for way surface ([#2110](https://github.com/GIScience/openrouteservice/issues/2110))
 - enable encoded value for way type ([#2115](https://github.com/GIScience/openrouteservice/issues/2115))
+- enable encoded value for OSM way-ID ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
 - Experimental: dynamic data service and matching endpoint  ([#2125](https://github.com/GIScience/openrouteservice/issues/2125))
+- Instructions translations for Latvian (lv-LV) and Lithuanian (lt-LT) ([#2131](https://github.com/GIScience/openrouteservice/pull/2131))
 
 ### Changed
 - transition from extended storage to encoded values for storing way type and surface ([#2113](https://github.com/GIScience/openrouteservice/pull/2113), [#2115](https://github.com/GIScience/openrouteservice/pull/2115))
+- add unit information about duration parameter for matrix requests to documentation ([#2130](https://github.com/GIScience/openrouteservice/pull/2130))
+- replace `WayCategoryStorage` by encoded values ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
 
 ### Deprecated
 
 ### Removed
 - replace `WaySurfaceType` external storage by corresponding encoded values ([#2116](https://github.com/GIScience/openrouteservice/pull/2116))
+- remove unused `Speed` extended storage ([#2107](https://github.com/GIScience/openrouteservice/issues/2107))
 
 ### Fixed
 - remove spurious entry for an unassigned country ID value 137 from the documentation ([#2103](https://github.com/GIScience/openrouteservice/pull/2103))
+- make github workflows work for external PRs ([#2136](https://github.com/GIScience/openrouteservice/pull/2136))
 
 ### Security
 - update spring-boot-starter to 3.4.9 fixes 
