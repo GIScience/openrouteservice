@@ -99,6 +99,9 @@ public class BuildProperties {
                             encodedValues.setOsmWayId(true);
                         }
                         break;
+                    case WAY_CATEGORY:
+                        handleWayCategory();
+                        break;
                     case WAY_SURFACE_TYPE:
                         handleWaySurfaceType();
                         break;
@@ -108,6 +111,19 @@ public class BuildProperties {
                         break;
                 }
             }
+        }
+    }
+
+    private void handleWayCategory() {
+        if (encodedValues.getHighway() == null) {
+            encodedValues.setHighway(true);
+        }
+        if (encodedValues.getFord() == null) {
+            encodedValues.setFord(true);
+        }
+        // Used for ferries and steps
+        if (encodedValues.getWayType() == null) {
+            encodedValues.setWayType(true);
         }
     }
 
