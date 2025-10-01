@@ -29,6 +29,18 @@ public class EncodedValuesProperties {
     private Boolean wayType;
     @JsonProperty("road_environment")
     private Boolean roadEnvironment;
+    @JsonProperty("agricultural_access")
+    private Boolean agriculturalAccess;
+    @JsonProperty("bus_access")
+    private Boolean busAccess;
+    @JsonProperty("delivery_access")
+    private Boolean deliveryAccess;
+    @JsonProperty("forestry_access")
+    private Boolean forestryAccess;
+    @JsonProperty("goods_access")
+    private Boolean goodsAccess;
+    @JsonProperty("hgv_access")
+    private Boolean hgvAccess;
 
     public EncodedValuesProperties() {
     }
@@ -39,7 +51,11 @@ public class EncodedValuesProperties {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return osmWayId == null && ford == null && highway == null && waySurface == null && wayType == null && roadEnvironment == null;
+        return osmWayId == null &&
+                ford == null && highway == null &&
+                waySurface == null && wayType == null &&
+                roadEnvironment == null &&
+                agriculturalAccess == null && busAccess == null && deliveryAccess == null && forestryAccess == null && goodsAccess == null && hgvAccess == null;
     }
 
     @JsonIgnore
@@ -63,6 +79,24 @@ public class EncodedValuesProperties {
         if (Boolean.TRUE.equals(roadEnvironment)) {
             out.add(RoadEnvironment.KEY);
         }
+        if (Boolean.TRUE.equals(agriculturalAccess)) {
+            out.add(AgriculturalAccess.KEY);
+        }
+        if (Boolean.TRUE.equals(busAccess)) {
+            out.add(BusAccess.KEY);
+        }
+        if (Boolean.TRUE.equals(deliveryAccess)) {
+            out.add(DeliveryAccess.KEY);
+        }
+        if (Boolean.TRUE.equals(forestryAccess)) {
+            out.add(ForestryAccess.KEY);
+        }
+        if (Boolean.TRUE.equals(goodsAccess)) {
+            out.add(GoodsAccess.KEY);
+        }
+        if (Boolean.TRUE.equals(hgvAccess)) {
+            out.add(HgvAccess.KEY);
+        }
         return String.join(",", out);
     }
 
@@ -73,6 +107,12 @@ public class EncodedValuesProperties {
         waySurface = ofNullable(this.waySurface).orElse(other.waySurface);
         wayType = ofNullable(this.wayType).orElse(other.wayType);
         roadEnvironment = ofNullable(this.roadEnvironment).orElse(other.roadEnvironment);
+        agriculturalAccess = ofNullable(this.agriculturalAccess).orElse(other.agriculturalAccess);
+        busAccess = ofNullable(this.busAccess).orElse(other.busAccess);
+        deliveryAccess = ofNullable(this.deliveryAccess).orElse(other.deliveryAccess);
+        forestryAccess = ofNullable(this.forestryAccess).orElse(other.forestryAccess);
+        goodsAccess = ofNullable(this.goodsAccess).orElse(other.goodsAccess);
+        hgvAccess = ofNullable(this.hgvAccess).orElse(other.hgvAccess);
     }
 }
 

@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -36,8 +37,28 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
     private final Integer[] indexLocs;
     private final int restCount;
 
+    private BooleanEncodedValue agriculturalAccessEnc = null;
+    private BooleanEncodedValue busAccessEnc = null;
+    private BooleanEncodedValue deliveryAccessEnc = null;
+    private BooleanEncodedValue forestryAccessEnc = null;
+    private BooleanEncodedValue goodsAccessEnc = null;
+    private BooleanEncodedValue hgvAccessEnc = null;
+
     public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphHopperStorage graphStorage) {
         this(vehicleType, vehicleParams, GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class));
+        var encodingManager = graphStorage.getEncodingManager();
+        if (encodingManager.hasEncodedValue(AgriculturalAccess.KEY))
+            agriculturalAccessEnc = encodingManager.getBooleanEncodedValue(AgriculturalAccess.KEY);
+        if (encodingManager.hasEncodedValue(BusAccess.KEY))
+            busAccessEnc = encodingManager.getBooleanEncodedValue(BusAccess.KEY);
+        if (encodingManager.hasEncodedValue(DeliveryAccess.KEY))
+            deliveryAccessEnc = encodingManager.getBooleanEncodedValue(DeliveryAccess.KEY);
+        if (encodingManager.hasEncodedValue(ForestryAccess.KEY))
+            forestryAccessEnc = encodingManager.getBooleanEncodedValue(ForestryAccess.KEY);
+        if (encodingManager.hasEncodedValue(GoodsAccess.KEY))
+            goodsAccessEnc = encodingManager.getBooleanEncodedValue(GoodsAccess.KEY);
+        if (encodingManager.hasEncodedValue(HgvAccess.KEY))
+            hgvAccessEnc = encodingManager.getBooleanEncodedValue(HgvAccess.KEY);
     }
 
     public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, HeavyVehicleAttributesGraphStorage hgvStorage) {
@@ -80,16 +101,13 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
 
     @Override
     public boolean accept(EdgeIteratorState iter) {
+        // test access restrictions for the given vehicle type
+        if (!acceptVehicleType(iter))
+            return false;
+
         int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
 
-        int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId);
-
-        // access restriction for to the given vehicle type
-        if (vt != HeavyVehicleAttributes.UNKNOWN && isVehicleType(vt, vehicleType)) {
-                    return false;
-        }
-
-        if (hasHazmat && isVehicleType(vt, HeavyVehicleAttributes.HAZMAT)) {
+        if (hasHazmat && isVehicleType(gsHeavyVehicles.getEdgeVehicleType(edgeId), HeavyVehicleAttributes.HAZMAT)) {
             return false;
         }
 
@@ -109,6 +127,18 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
             }
         }
         return true;
+    }
+
+    private boolean acceptVehicleType(EdgeIteratorState edge) {
+        return switch (vehicleType) {
+            case HeavyVehicleAttributes.AGRICULTURE -> agriculturalAccessEnc == null || edge.get(agriculturalAccessEnc);
+            case HeavyVehicleAttributes.BUS -> busAccessEnc == null || edge.get(busAccessEnc);
+            case HeavyVehicleAttributes.DELIVERY -> deliveryAccessEnc == null || edge.get(deliveryAccessEnc);
+            case HeavyVehicleAttributes.FORESTRY -> forestryAccessEnc == null || edge.get(forestryAccessEnc);
+            case HeavyVehicleAttributes.GOODS -> goodsAccessEnc == null || edge.get(goodsAccessEnc);
+            case HeavyVehicleAttributes.HGV -> hgvAccessEnc == null || edge.get(hgvAccessEnc);
+            default -> true;
+        };
     }
 
     private boolean isVehicleType(int vt, int vehicleType) {

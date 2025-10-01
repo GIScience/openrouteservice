@@ -94,6 +94,9 @@ public class BuildProperties {
             if (storage != null) {
                 ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
                 switch (extendedStorageName) {
+                    case HEAVY_VEHICLE:
+                        handleHeavyVehicle(storage);
+                        break;
                     case OSM_ID:
                         if (encodedValues.getOsmWayId() == null) {
                             encodedValues.setOsmWayId(true);
@@ -114,6 +117,29 @@ public class BuildProperties {
         }
     }
 
+    private void handleHeavyVehicle(ExtendedStorageProperties storage) {
+        if (storage.getRestrictions() != null && storage.getRestrictions()) {
+            //TODO: set encoded values for heavy vehicle restrictions
+        }
+        if (encodedValues.getAgriculturalAccess() == null) {
+            encodedValues.setAgriculturalAccess(true);
+        }
+        if (encodedValues.getBusAccess() == null) {
+            encodedValues.setBusAccess(true);
+        }
+        if (encodedValues.getDeliveryAccess() == null) {
+            encodedValues.setDeliveryAccess(true);
+        }
+        if (encodedValues.getForestryAccess() == null) {
+            encodedValues.setForestryAccess(true);
+        }
+        if (encodedValues.getGoodsAccess() == null) {
+            encodedValues.setGoodsAccess(true);
+        }
+        if (encodedValues.getHgvAccess() == null) {
+            encodedValues.setHgvAccess(true);
+        }
+    }
     private void handleWayCategory() {
         if (encodedValues.getHighway() == null) {
             encodedValues.setHighway(true);
