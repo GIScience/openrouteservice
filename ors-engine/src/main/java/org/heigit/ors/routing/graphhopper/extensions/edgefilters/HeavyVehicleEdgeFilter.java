@@ -43,6 +43,8 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
     private BooleanEncodedValue forestryAccessEnc = null;
     private BooleanEncodedValue goodsAccessEnc = null;
     private BooleanEncodedValue hgvAccessEnc = null;
+    private BooleanEncodedValue hazmatAccessEnc = null;
+
 
     public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphHopperStorage graphStorage) {
         this(vehicleType, vehicleParams, GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class));
@@ -59,6 +61,8 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
             goodsAccessEnc = encodingManager.getBooleanEncodedValue(GoodsAccess.KEY);
         if (encodingManager.hasEncodedValue(HgvAccess.KEY))
             hgvAccessEnc = encodingManager.getBooleanEncodedValue(HgvAccess.KEY);
+        if (encodingManager.hasEncodedValue(HazmatAccess.KEY))
+            hazmatAccessEnc = encodingManager.getBooleanEncodedValue(HazmatAccess.KEY);
     }
 
     public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, HeavyVehicleAttributesGraphStorage hgvStorage) {
@@ -105,12 +109,11 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
         if (!acceptVehicleType(iter))
             return false;
 
-        int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
-
-        if (hasHazmat && isVehicleType(gsHeavyVehicles.getEdgeVehicleType(edgeId), HeavyVehicleAttributes.HAZMAT)) {
+        if (hasHazmat && !(hazmatAccessEnc == null || iter.get(hazmatAccessEnc)) ) {
             return false;
         }
 
+        int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
         if (restCount != 0) {
             if (restCount == 1) {
                 double value = gsHeavyVehicles.getEdgeRestrictionValue(edgeId, indexValues[0]);
@@ -139,9 +142,5 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
             case HeavyVehicleAttributes.HGV -> hgvAccessEnc == null || edge.get(hgvAccessEnc);
             default -> true;
         };
-    }
-
-    private boolean isVehicleType(int vt, int vehicleType) {
-        return (vt & vehicleType) == vehicleType;
     }
 }

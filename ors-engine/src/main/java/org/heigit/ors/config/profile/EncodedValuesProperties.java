@@ -39,6 +39,8 @@ public class EncodedValuesProperties {
     private Boolean goodsAccess;
     @JsonProperty("hgv_access")
     private Boolean hgvAccess;
+    @JsonProperty("hazmat_access")
+    private Boolean hazmatAccess;
 
     public EncodedValuesProperties() {
     }
@@ -52,7 +54,8 @@ public class EncodedValuesProperties {
         return osmWayId == null &&
                 ford == null && highway == null &&
                 waySurface == null && wayType == null &&
-                agriculturalAccess == null && busAccess == null && deliveryAccess == null && forestryAccess == null && goodsAccess == null && hgvAccess == null;
+                agriculturalAccess == null && busAccess == null && deliveryAccess == null && forestryAccess == null && goodsAccess == null && hgvAccess == null &&
+                hazmatAccess == null;
     }
 
     @JsonIgnore
@@ -91,6 +94,9 @@ public class EncodedValuesProperties {
         if (Boolean.TRUE.equals(hgvAccess)) {
             out.add(HgvAccess.KEY);
         }
+        if (Boolean.TRUE.equals(hazmatAccess)) {
+            out.add(HazmatAccess.KEY);
+        }
         return String.join(",", out);
     }
 
@@ -106,6 +112,7 @@ public class EncodedValuesProperties {
         forestryAccess = ofNullable(this.forestryAccess).orElse(other.forestryAccess);
         goodsAccess = ofNullable(this.goodsAccess).orElse(other.goodsAccess);
         hgvAccess = ofNullable(this.hgvAccess).orElse(other.hgvAccess);
+        hazmatAccess = ofNullable(this.hazmatAccess).orElse(other.hazmatAccess);
     }
 }
 

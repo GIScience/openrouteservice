@@ -139,6 +139,9 @@ public class BuildProperties {
         if (encodedValues.getHgvAccess() == null) {
             encodedValues.setHgvAccess(true);
         }
+        if (encodedValues.getHazmatAccess() == null) {
+            encodedValues.setHazmatAccess(true);
+        }
     }
     private void handleWayCategory() {
         if (encodedValues.getHighway() == null) {
