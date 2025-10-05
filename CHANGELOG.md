@@ -36,6 +36,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- correct setting of encoded values for highways and fords ([#2148](https://github.com/GIScience/openrouteservice/pull/2148))
 
 ### Security
 
