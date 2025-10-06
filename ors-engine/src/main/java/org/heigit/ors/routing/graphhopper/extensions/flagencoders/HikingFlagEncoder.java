@@ -40,6 +40,7 @@ public class HikingFlagEncoder extends FootFlagEncoder {
         routeMap.put(LOCAL, VERY_NICE.getValue());
 
         suitableSacScales.addAll(Arrays.asList(
+                "strolling",
                 "hiking",
                 "mountain_hiking",
                 "demanding_mountain_hiking",
