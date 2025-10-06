@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- accept [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale)
 
 ### Changed
 
