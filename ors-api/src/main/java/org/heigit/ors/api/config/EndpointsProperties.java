@@ -21,6 +21,7 @@ public class EndpointsProperties {
     private EndpointMatrixProperties matrix;
     private EndpointIsochronesProperties isochrones;
     private EndpointSnapProperties snap;
+    private EndpointExportProperties export;
     private EndpointMatchProperties match;
     private String swaggerDocumentationUrl;
 
@@ -143,6 +144,13 @@ public class EndpointsProperties {
     @Getter
     @Setter(AccessLevel.PACKAGE)
     public static class EndpointMatchProperties {
+        private boolean enabled;
+        private String attribution;
+    }
+
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    public static class EndpointExportProperties {
         private boolean enabled;
         private String attribution;
     }

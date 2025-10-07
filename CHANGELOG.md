@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- show export endpoint in status ([#2105](https://github.com/GIScience/openrouteservice/issue/2105))
 
 ### Changed
 
