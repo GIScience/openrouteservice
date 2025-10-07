@@ -109,8 +109,8 @@ ors:
       enabled: true
       attribution: openrouteservice.org, OpenStreetMap contributors
     export:
-        enabled: true
-        attribution: openrouteservice.org, OpenStreetMap contributors
+      enabled: true
+      attribution: openrouteservice.org, OpenStreetMap contributors
 
   ##### ORS engine settings #####
   engine:
