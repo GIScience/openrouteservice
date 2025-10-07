@@ -29,6 +29,18 @@ Data relating to the avoid borders features is derived from administrative bound
 Configuration parameters: [
 `ors.engine.profiles.<PROFILE-NAME>.ext_storages.Borders`](configuration/engine/profiles/build.md#borders)
 
+To ensure `avoid_borders` functions correctly, the following are required:
+
+- **CSV headers & column order:** The loader skips the first row (header). Columns are positional (header text is not used to map fields).
+  - `ids_iso.csv` (3 columns): `id`, `name`, `name:en`.
+  - `open_borders.csv` (2 columns): `name:en` (country A), `name:en` (country B).
+- Formatting & encoding: Comma-separated, double-quote fields when needed (e.g. names with commas). Use UTF-8 and trim whitespace; names are compared by exact string equality (case-sensitive).
+- Rebuild: Any change to border files requires a full graph rebuild.
+
+- **Performance considerations:**  
+  Large or highly detailed polygons can make graph creation slow or stall.  
+  For extensive regions, borders should be simplified or subdivided into smaller polygons.
+
 ### GTFS
 The public transport profile integrates [GTFS](https://developers.google.com/transit/gtfs) data for the public transit part. GTFS feeds can be obtained e.g. from sites like https://gtfs.de/ (for Germany), or from local public transport operators.
 
@@ -62,6 +74,3 @@ which can be configured with the property [`ors.engine.elevation.cache_path`](co
 
 Log output is written to auto-rotated log files.
 See chapter [logging](configuration/logging.md) for details on configuring the location of log files.
-
-
-
