@@ -41,7 +41,7 @@ public class FordParser implements TagParser {
         //Keep in sync with documentation: waycategory.md
 
         boolean isFord = way.hasTag("ford", "yes");
-        fordEnc.setBool(isFord, edgeFlags, false);
+        fordEnc.setBool(false, edgeFlags, isFord);
         return edgeFlags;
     }
 }

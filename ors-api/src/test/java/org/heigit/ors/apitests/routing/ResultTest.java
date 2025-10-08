@@ -4686,7 +4686,41 @@ class ResultTest extends ServiceTest {
                 .body("routes[0].extras.containsKey('surface')", is(true))
                 .body("routes[0].extras.surface.summary[0].value", is(14.0))
                 .body("routes[0].extras.surface.summary[0].amount", is(100.0))
+                .statusCode(200);
+    }
 
+    @Test
+    void testAvoidHighways() {
+        JSONObject body = new JSONObject()
+                .put("coordinates", HelperFunctions.constructCoords("8.653206,49.375279|8.642027,49.412473"))
+                .put("preference", getParameter("preference"));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(7996.0, 1)))
+                .statusCode(200);
+
+        body.put("options", new JSONObject().put("avoid_features", new JSONArray().put("highways")));
+
+        given()
+                .config(JSON_CONFIG_DOUBLE_NUMBERS)
+                .headers(CommonHeaders.jsonContent)
+                .pathParam("profile", getParameter("carProfile"))
+                .body(body.toString())
+                .when()
+                .post(getEndPointPath() + "/{profile}")
+                .then()
+                .assertThat()
+                .body("any { it.key == 'routes' }", is(true))
+                .body("routes[0].summary.distance", is(closeTo(6482.3, 1)))
                 .statusCode(200);
     }
 

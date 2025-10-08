@@ -28,7 +28,8 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
-- accept [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale)
+- accept [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale) ([#2149](https://github.com/GIScience/openrouteservice/pull/2149))
+- show export endpoint in status ([#2105](https://github.com/GIScience/openrouteservice/issue/2105))
 
 ### Changed
 
@@ -37,6 +38,7 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- correct setting of encoded values for highways and fords ([#2148](https://github.com/GIScience/openrouteservice/pull/2148))
 
 ### Security
 
