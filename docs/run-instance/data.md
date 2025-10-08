@@ -29,6 +29,21 @@ Data relating to the avoid borders features is derived from administrative bound
 Configuration parameters: [
 `ors.engine.profiles.<PROFILE-NAME>.ext_storages.Borders`](configuration/engine/profiles/build.md#borders)
 
+To ensure `avoid_borders` functions correctly, the following are required:
+
+- **Field names and encoding:**  
+  `borders.geojson` must include a `name` property.  
+  In `ids.csv`, the `name` column must use consistent Latin/ASCII names.  
+  Names must match across `borders.geojson`, `ids.csv`, and `openborders.csv`.
+
+- **Graph rebuild:**  
+  Any changes to border files require a complete graph rebuild.  
+  Verify in `graphs/<profile>/graph_build_info.yml` that borders were applied.
+
+- **Performance considerations:**  
+  Large or highly detailed polygons can make graph creation slow or stall.  
+  For extensive regions, borders should be simplified or subdivided into smaller polygons.
+
 ### GTFS
 The public transport profile integrates [GTFS](https://developers.google.com/transit/gtfs) data for the public transit part. GTFS feeds can be obtained e.g. from sites like https://gtfs.de/ (for Germany), or from local public transport operators.
 
