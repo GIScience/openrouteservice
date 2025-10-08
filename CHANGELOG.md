@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- accept [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale) ([#2149](https://github.com/GIScience/openrouteservice/pull/2149))
 - show export endpoint in status ([#2105](https://github.com/GIScience/openrouteservice/issue/2105))
 
 ### Changed
