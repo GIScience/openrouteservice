@@ -32,7 +32,7 @@ public class MatchingService extends ApiService {
         if (rp == null) {
             throw new InternalServerException(MatchingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         }
-        String graphTimestamp = rp.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.data.date");
+        String graphTimestamp = rp.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
         return new MatchingInfo(graphTimestamp);
     }
 
