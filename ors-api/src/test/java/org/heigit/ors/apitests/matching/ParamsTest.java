@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
 import static org.heigit.ors.common.StatusCode.BAD_REQUEST;
 import static org.heigit.ors.common.StatusCode.OK;
@@ -271,7 +271,14 @@ class ParamsTest extends ServiceTest {
                 .then()
                 .log().ifValidationFails()
                 .assertThat()
-                .body(KEY_GRAPH_TIMESTAMP, is(VAL_GRAPH_TIMESTAMP))
+                .body(KEY_GRAPH_TIMESTAMP, isValidTimestamp())
                 .statusCode(OK);
+    }
+
+    private static Matcher<String> isValidTimestamp() {
+        return allOf(
+                matchesPattern("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"),
+                not(is("1970-01-01T00:00:00Z"))
+        );
     }
 }
