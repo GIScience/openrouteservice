@@ -64,8 +64,8 @@ public class GeoJSONRouteResponse extends RouteResponse {
     }
 
     @JsonProperty("features")
-    public List getRoutes() {
-        return routeResults;
+    public GeoJSONIndividualRouteResponse[] getRoutes() {
+        return routeResults.toArray(new GeoJSONIndividualRouteResponse[0]);
     }
 
     @JsonProperty("metadata")
