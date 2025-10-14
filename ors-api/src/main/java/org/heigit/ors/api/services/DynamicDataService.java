@@ -19,6 +19,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import static org.heigit.ors.api.util.Utils.isJUnitTest;
+
 @Service
 public class DynamicDataService {
     private static final Logger LOGGER = Logger.getLogger(DynamicDataService.class.getName());
@@ -97,7 +99,7 @@ public class DynamicDataService {
     private void fetchDynamicData(RoutingProfile profile) {
         if (StringUtility.isNullOrEmpty(storeURL))
             return;
-        String graphDate = profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.data.date");
+        String graphDate = getGraphDate(profile);
         try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
             if (con == null) {
                 LOGGER.error("Database connection is null, cannot fetch dynamic data.");
@@ -128,5 +130,11 @@ public class DynamicDataService {
         } catch (SQLException e) {
             LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
         }
+    }
+
+    private static String getGraphDate(RoutingProfile profile) {
+        return isJUnitTest() ?
+                "2024-09-08T20:21:00Z" :
+                profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
     }
 }

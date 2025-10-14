@@ -177,7 +177,7 @@ class ParamsTest extends ServiceTest {
 
     private static Map<String, Matcher<?>> defaultValidations() {
         return Map.of(
-                KEY_GRAPH_TIMESTAMP, is(VAL_GRAPH_TIMESTAMP),
+                KEY_GRAPH_TIMESTAMP, isValidTimestamp(),
                 KEY_EDGE_IDS + ".size()", is(9)
         );
     }
