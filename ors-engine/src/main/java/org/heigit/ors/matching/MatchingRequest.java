@@ -86,7 +86,7 @@ public class MatchingRequest extends ServiceRequest {
                     throw new IllegalArgumentException("Unsupported geometry type: " + geom.getGeometryType());
             }
         }
-        return new MatchingResult(ghStorage.getProperties().get("datareader.data.date"), matchedEdgeIDs.stream().toList());
+        return new MatchingResult(ghStorage.getProperties().get("datareader.import.date"), matchedEdgeIDs.stream().toList());
     }
 
     private static void matchPoint(Geometry geom, LocationIndex locIndex, EdgeFilter snapFilter, Set<Integer> matchedEdgeIDs, int maxDistance) {
