@@ -1,10 +1,12 @@
 package org.heigit.ors.matching;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.routing.ev.RoadEnvironment;
 import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
+import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
@@ -23,11 +25,11 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,7 +62,8 @@ public class MatchingRequest extends ServiceRequest {
         String localProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
         Weighting weighting = new ORSWeightingFactory(ghStorage, gh.getEncodingManager()).createWeighting(gh.getProfile(localProfileName), hintsMap, false);
         LocationIndex locIndex = gh.getLocationIndex();
-        EdgeFilter snapFilter = new DefaultSnapFilter(weighting, ghStorage.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
+        EncodingManager encodingManager = ghStorage.getEncodingManager();
+        EdgeFilter snapFilter = new DefaultSnapFilter(weighting, encodingManager.getBooleanEncodedValue(Subnetwork.key(localProfileName)));
         var mapMatcher = new GhMapMatcher(gh, localProfileName);
 
         int maxDistance = 500; // TODO: make configurable
@@ -74,7 +77,7 @@ public class MatchingRequest extends ServiceRequest {
             }
             switch (geom.getGeometryType()) {
                 case "Point", "MultiPoint":
-                    matchPoint(geom, locIndex, snapFilter, matchedEdgeIDs, maxDistance);
+                    matchPoint(geom, locIndex, encodingManager, snapFilter, matchedEdgeIDs, maxDistance);
                     break;
                 case "LineString", "MultiLineString":
                     matchLine(mapMatcher, geom, ghStorage, matchedEdgeIDs);
@@ -89,12 +92,24 @@ public class MatchingRequest extends ServiceRequest {
         return new MatchingResult(ghStorage.getProperties().get("datareader.import.date"), matchedEdgeIDs.stream().toList());
     }
 
-    private static void matchPoint(Geometry geom, LocationIndex locIndex, EdgeFilter snapFilter, Set<Integer> matchedEdgeIDs, int maxDistance) {
+    private static void matchPoint(Geometry geom, LocationIndex locIndex, EncodingManager encodingManager, EdgeFilter snapFilter, Set<Integer> matchedEdgeIDs, int maxDistance) {
         for (int j = 0; j < geom.getNumGeometries(); j++) {
             Geometry point = geom.getGeometryN(j);
             Coordinate p = point.getCoordinate();
             // TODO: improve snapping to consider the type of the point (border, bridge, etc.)
-            Snap snappedPoint = locIndex.findClosest(p.y, p.x, snapFilter);
+            EdgeFilterSequence edgeFilter = new EdgeFilterSequence();
+            edgeFilter.add(snapFilter);
+            var properties = geom.getUserData();
+            if (properties != null && properties instanceof java.util.Map<?, ?> propertiesMap) {
+                var featureType = propertiesMap.get("type");
+                if (featureType != null && featureType.equals("bridge")) {
+                    edgeFilter.add(edgeState -> {
+                        var roadEnvironmentEnc = encodingManager.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class);
+                        return roadEnvironmentEnc != null && edgeState.get(roadEnvironmentEnc) == RoadEnvironment.BRIDGE;
+                    });
+                }
+            }
+            Snap snappedPoint = locIndex.findClosest(p.y, p.x, edgeFilter);
             if (snappedPoint.isValid() && snappedPoint.getQueryDistance() < maxDistance) {
                 var edge = snappedPoint.getClosestEdge();
                 var edgeId = edge.getEdge();
