@@ -13,10 +13,16 @@ import org.heigit.ors.matching.MatchingRequest;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class MatchingService extends ApiService {
@@ -79,16 +85,18 @@ public class MatchingService extends ApiService {
 
         GeoJsonReader reader = new GeoJsonReader();
         try {
-            Geometry geometry = reader.read(features.toJSONString());
-            if (geometry == null) {
-                throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry is null");
-            } else if (geometry.isEmpty()) {
-                throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry is empty");
+            List<Geometry> geometries = new ArrayList<>();
+            for (Map<String, Object> feature : (List<Map<String, Object>>) features.get("features")) {
+                Geometry geometry = reader.read(JSONValue.toJSONString(feature));
+                if (geometry == null) {
+                    throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry is null");
+                } else if (geometry.isEmpty()) {
+                    throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry is empty");
+                }
+                geometry.setUserData(feature.get("properties"));
+                geometries.add(geometry);
             }
-            if (geometry.getGeometryType().equals("GeometryCollection") && geometry.getNumGeometries() == 1) {
-                geometry = geometry.getGeometryN(0);
-            }
-            matchingRequest.setGeometry(geometry);
+            matchingRequest.setGeometry(new GeometryFactory().createGeometryCollection(geometries.toArray(new Geometry[0])));
         } catch (Exception e) {
             throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "invalid GeoJSON format: %s".formatted(e.getMessage()));
         }
