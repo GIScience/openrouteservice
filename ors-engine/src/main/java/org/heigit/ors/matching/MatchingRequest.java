@@ -6,7 +6,6 @@ import com.graphhopper.routing.ev.Subnetwork;
 import com.graphhopper.routing.querygraph.VirtualEdgeIteratorState;
 import com.graphhopper.routing.util.DefaultSnapFilter;
 import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.storage.index.LocationIndex;
@@ -21,11 +20,16 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.common.ServiceRequest;
 import org.heigit.ors.mapmatching.GhMapMatcher;
 import org.heigit.ors.mapmatching.RouteSegmentInfo;
+import org.heigit.ors.routing.RouteSearchParameters;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileType;
 import org.heigit.ors.routing.WeightingMethod;
 import org.heigit.ors.routing.graphhopper.extensions.ORSWeightingFactory;
+import org.heigit.ors.routing.graphhopper.extensions.edgefilters.AvoidBordersEdgeFilter;
 import org.heigit.ors.routing.graphhopper.extensions.edgefilters.EdgeFilterSequence;
+import org.heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+import org.heigit.ors.routing.pathprocessors.BordersExtractor;
 import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -62,8 +66,7 @@ public class MatchingRequest extends ServiceRequest {
         String localProfileName = ProfileTools.makeProfileName(encoderName, hintsMap.getString("weighting", ""), false);
         Weighting weighting = new ORSWeightingFactory(ghStorage, gh.getEncodingManager()).createWeighting(gh.getProfile(localProfileName), hintsMap, false);
         LocationIndex locIndex = gh.getLocationIndex();
-        EncodingManager encodingManager = ghStorage.getEncodingManager();
-        EdgeFilter snapFilter = new DefaultSnapFilter(weighting, encodingManager.getBooleanEncodedValue(Subnetwork.key(localProfileName)));
+        EdgeFilter snapFilter = new DefaultSnapFilter(weighting, ghStorage.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
         var mapMatcher = new GhMapMatcher(gh, localProfileName);
 
         int maxDistance = 500; // TODO: make configurable
@@ -77,7 +80,7 @@ public class MatchingRequest extends ServiceRequest {
             }
             switch (geom.getGeometryType()) {
                 case "Point", "MultiPoint":
-                    matchPoint(geom, locIndex, encodingManager, snapFilter, matchedEdgeIDs, maxDistance);
+                    matchPoint(geom, locIndex, ghStorage, snapFilter, matchedEdgeIDs, maxDistance);
                     break;
                 case "LineString", "MultiLineString":
                     matchLine(mapMatcher, geom, ghStorage, matchedEdgeIDs);
@@ -92,21 +95,40 @@ public class MatchingRequest extends ServiceRequest {
         return new MatchingResult(ghStorage.getProperties().get("datareader.import.date"), matchedEdgeIDs.stream().toList());
     }
 
-    private static void matchPoint(Geometry geom, LocationIndex locIndex, EncodingManager encodingManager, EdgeFilter snapFilter, Set<Integer> matchedEdgeIDs, int maxDistance) {
+    private static void matchPoint(Geometry geom, LocationIndex locIndex, GraphHopperStorage ghStorage, EdgeFilter snapFilter, Set<Integer> matchedEdgeIDs, int maxDistance) {
         for (int j = 0; j < geom.getNumGeometries(); j++) {
             Geometry point = geom.getGeometryN(j);
             Coordinate p = point.getCoordinate();
-            // TODO: improve snapping to consider the type of the point (border, bridge, etc.)
             EdgeFilterSequence edgeFilter = new EdgeFilterSequence();
             edgeFilter.add(snapFilter);
             var properties = geom.getUserData();
             if (properties != null && properties instanceof java.util.Map<?, ?> propertiesMap) {
                 var featureType = propertiesMap.get("type");
-                if (featureType != null && featureType.equals("bridge")) {
-                    edgeFilter.add(edgeState -> {
-                        var roadEnvironmentEnc = encodingManager.getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class);
-                        return roadEnvironmentEnc != null && edgeState.get(roadEnvironmentEnc) == RoadEnvironment.BRIDGE;
-                    });
+                switch (String.valueOf(featureType)) {
+                    case "bridge":
+                        var roadEnvironmentEnc = ghStorage.getEncodingManager().getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class);
+                        if (roadEnvironmentEnc != null) {
+                            edgeFilter.add(edgeState -> edgeState.get(roadEnvironmentEnc) == RoadEnvironment.BRIDGE);
+                            LOGGER.trace("Applying bridge filter for snapping.");
+                        } else {
+                            LOGGER.trace("road_environment encoded value not found, cannot apply bridge filter for snapping.");
+                        }
+                        break;
+                    case "border":
+                        BordersGraphStorage extBorders = GraphStorageUtils.getGraphExtension(ghStorage, BordersGraphStorage.class);
+                        if (extBorders != null) {
+                            RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+                            routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.ALL);
+                            EdgeFilter borderFilter = new AvoidBordersEdgeFilter(routeSearchParameters, extBorders);
+                            edgeFilter.add(edgeState -> !borderFilter.accept(edgeState));
+                            LOGGER.trace("Applying border filter for snapping.");
+                        } else {
+                            LOGGER.trace("BordersGraphStorage not found, cannot apply border filter for snapping.");
+                        }
+                        break;
+                    default:
+                        LOGGER.trace("Missing or unknown feature type, no special filter applied for snapping.");
+                        break;
                 }
             }
             Snap snappedPoint = locIndex.findClosest(p.y, p.x, edgeFilter);
