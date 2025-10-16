@@ -95,53 +95,63 @@ public class MatchingRequest extends ServiceRequest {
         return new MatchingResult(ghStorage.getProperties().get("datareader.import.date"), matchedEdgeIDs.stream().toList());
     }
 
-    private static void matchPoint(Geometry geom, LocationIndex locIndex, GraphHopperStorage ghStorage, EdgeFilter snapFilter, Set<Integer> matchedEdgeIDs, int maxDistance) {
-        for (int j = 0; j < geom.getNumGeometries(); j++) {
-            Geometry point = geom.getGeometryN(j);
-            Coordinate p = point.getCoordinate();
-            EdgeFilterSequence edgeFilter = new EdgeFilterSequence();
-            edgeFilter.add(snapFilter);
-            var properties = geom.getUserData();
-            if (properties != null && properties instanceof java.util.Map<?, ?> propertiesMap) {
-                var featureType = propertiesMap.get("type");
-                switch (String.valueOf(featureType)) {
-                    case "bridge":
-                        var roadEnvironmentEnc = ghStorage.getEncodingManager().getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class);
-                        if (roadEnvironmentEnc != null) {
-                            edgeFilter.add(edgeState -> edgeState.get(roadEnvironmentEnc) == RoadEnvironment.BRIDGE);
-                            LOGGER.trace("Applying bridge filter for snapping.");
-                        } else {
-                            LOGGER.trace("road_environment encoded value not found, cannot apply bridge filter for snapping.");
-                        }
-                        break;
-                    case "border":
-                        BordersGraphStorage extBorders = GraphStorageUtils.getGraphExtension(ghStorage, BordersGraphStorage.class);
-                        if (extBorders != null) {
-                            RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-                            routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.ALL);
-                            EdgeFilter borderFilter = new AvoidBordersEdgeFilter(routeSearchParameters, extBorders);
-                            edgeFilter.add(edgeState -> !borderFilter.accept(edgeState));
-                            LOGGER.trace("Applying border filter for snapping.");
-                        } else {
-                            LOGGER.trace("BordersGraphStorage not found, cannot apply border filter for snapping.");
-                        }
-                        break;
-                    default:
-                        LOGGER.trace("Missing or unknown feature type, no special filter applied for snapping.");
-                        break;
-                }
-            }
-            Snap snappedPoint = locIndex.findClosest(p.y, p.x, edgeFilter);
-            if (snappedPoint.isValid() && snappedPoint.getQueryDistance() < maxDistance) {
-                var edge = snappedPoint.getClosestEdge();
-                var edgeId = edge.getEdge();
-                matchedEdgeIDs.add(edgeId);
-                LOGGER.trace("Snap: " + edgeId);
-            } else {
-                LOGGER.trace("No valid snap found for point: " + p);
-            }
-        }
-    }
+   private static void matchPoint(Geometry geom, LocationIndex locIndex, GraphHopperStorage ghStorage, EdgeFilter snapFilter, Set<Integer> matchedEdgeIDs, int maxDistance) {
+       for (int j = 0; j < geom.getNumGeometries(); j++) {
+           Geometry point = geom.getGeometryN(j);
+           Coordinate p = point.getCoordinate();
+           EdgeFilter edgeFilter = createEdgeFilter(geom, ghStorage, snapFilter);
+           snapPointToEdge(p, locIndex, edgeFilter, matchedEdgeIDs, maxDistance);
+       }
+   }
+
+   private static EdgeFilter createEdgeFilter(Geometry geom, GraphHopperStorage ghStorage, EdgeFilter snapFilter) {
+       EdgeFilterSequence edgeFilter = new EdgeFilterSequence().add(snapFilter);
+       var properties = geom.getUserData();
+       if (properties instanceof java.util.Map<?, ?> propertiesMap) {
+           String featureType = String.valueOf(propertiesMap.get("type"));
+           switch (featureType) {
+               case "bridge" -> addBridgeFilter(edgeFilter, ghStorage);
+               case "border" -> addBorderFilter(edgeFilter, ghStorage);
+               default -> LOGGER.trace("Missing or unknown feature type, no special filter applied for snapping.");
+           }
+       }
+       return edgeFilter;
+   }
+
+   private static void addBridgeFilter(EdgeFilterSequence edgeFilter, GraphHopperStorage ghStorage) {
+       var roadEnvironmentEnc = ghStorage.getEncodingManager().getEnumEncodedValue(RoadEnvironment.KEY, RoadEnvironment.class);
+       if (roadEnvironmentEnc != null) {
+           edgeFilter.add(edgeState -> edgeState.get(roadEnvironmentEnc) == RoadEnvironment.BRIDGE);
+           LOGGER.trace("Applying bridge filter for snapping.");
+       } else {
+           LOGGER.trace("road_environment encoded value not found, cannot apply bridge filter for snapping.");
+       }
+   }
+
+   private static void addBorderFilter(EdgeFilterSequence edgeFilter, GraphHopperStorage ghStorage) {
+       BordersGraphStorage extBorders = GraphStorageUtils.getGraphExtension(ghStorage, BordersGraphStorage.class);
+       if (extBorders != null) {
+           RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+           routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.ALL);
+           EdgeFilter borderFilter = new AvoidBordersEdgeFilter(routeSearchParameters, extBorders);
+           edgeFilter.add(edgeState -> !borderFilter.accept(edgeState));
+           LOGGER.trace("Applying border filter for snapping.");
+       } else {
+           LOGGER.trace("BordersGraphStorage not found, cannot apply border filter for snapping.");
+       }
+   }
+
+   private static void snapPointToEdge(Coordinate p, LocationIndex locIndex, EdgeFilter edgeFilter, Set<Integer> matchedEdgeIDs, int maxDistance) {
+       Snap snappedPoint = locIndex.findClosest(p.y, p.x, edgeFilter);
+       if (snappedPoint.isValid() && snappedPoint.getQueryDistance() < maxDistance) {
+           var edge = snappedPoint.getClosestEdge();
+           var edgeId = edge.getEdge();
+           matchedEdgeIDs.add(edgeId);
+           LOGGER.trace("Snap: " + edgeId);
+       } else {
+           LOGGER.trace("No valid snap found for point: " + p);
+       }
+   }
 
     private static void matchLine(GhMapMatcher mapMatcher, Geometry geom, GraphHopperStorage ghStorage, Set<Integer> matchedEdgeIDs) {
         for (int j = 0; j < geom.getNumGeometries(); j++) {
