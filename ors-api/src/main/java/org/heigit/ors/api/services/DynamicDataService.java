@@ -125,7 +125,11 @@ public class DynamicDataService {
                         String value = result.getString("value");
                         Instant ts = result.getTimestamp("timestamp", Calendar.getInstance(TimeZone.getTimeZone("UTC"))).toInstant();
                         LOGGER.trace("Update dynamic data in dataset '" + key + "' for profile '" + profile.name() + "': edge ID " + edgeID + " -> value '" + value + "'");
-                        profile.updateDynamicData(key, edgeID, value);
+                        if (result.getBoolean("deleted")) {
+                            profile.unsetDynamicData(key, edgeID);
+                        } else {
+                            profile.updateDynamicData(key, edgeID, value);
+                        }
                         fetchedCount++;
                         if (lastUpdateTimestamp.isBefore(ts)) {
                             lastUpdateTimestamp = ts;
