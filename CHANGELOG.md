@@ -30,7 +30,7 @@ Releasing is documented in RELEASE.md
 ### Added
 - accept [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale) ([#2149](https://github.com/GIScience/openrouteservice/pull/2149))
 - show export endpoint in status ([#2105](https://github.com/GIScience/openrouteservice/issue/2105))
-- Documentation on the fields of Json and Geojson responses of the directions endpoint ([#2084](https://github.com/GIScience/openrouteservice/issue/2084)
+- documentation on the fields of JSON and GeoJSON responses of the directions endpoint ([#2084](https://github.com/GIScience/openrouteservice/issue/2084))
 
 ### Changed
 

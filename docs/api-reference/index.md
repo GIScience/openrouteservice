@@ -21,7 +21,7 @@ Use the form "API Server" on the top left to select and edit "Development Server
 ![Development server usage](/playground-select-server.png "Development server usage"){ style="display: block; margin: 0 auto"}
 
 The responses of your sample requests are visualized on a small map on the bottom right,
-but can also be shown as json, table or downloaded as file:
+but can also be shown as JSON, table or downloaded as file:
 ![Example request visualization](/playground-map.png "Example request visualization"){ style="display: block; margin: 0 auto"}
 
 ::: warning Hint

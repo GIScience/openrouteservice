@@ -76,7 +76,7 @@ Endpoints.
 |    4000    | Invalid JSON object in request.                     |
 |    4001    | Category or category group ids missing.             |
 |    4002    | Geometry is missing.                                |
-|    4003    | Bounding box and or geojson not present in request. |
+|    4003    | Bounding box and or GeoJSON not present in request. |
 |    4004    | Buffer is missing.                                  |
 |    4005    | Geometry length does not meet the restrictions.     |
 |    4006    | Unsupported HTTP method.                            |
