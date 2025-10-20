@@ -318,42 +318,35 @@ class ParamsTest extends ServiceTest {
                 .statusCode(OK);
     }
 
-    @Test
-    void testMatchingToBorders() {
-        var reference = given()
-                .headers(jsonContent)
-                .pathParam(KEY_PROFILE, PROFILE_CAR)
-                .body(validBody(GEO_JSON_POINT_ON_BORDER).toString())
-                .when()
-                .log().ifValidationFails()
-                .post(getEndPointPath() + PATH_VAR_PROFILE)
-                .then()
-                .log().ifValidationFails()
-                .assertThat()
-                .body(KEY_EDGE_IDS + ".size()", is(1))
-                .statusCode(OK)
-                .extract().path(KEY_EDGE_IDS);
-
-        given()
-                .headers(jsonContent)
-                .pathParam(KEY_PROFILE, PROFILE_CAR)
-                .body(addFeatureType(validBody(GEO_JSON_POINT_ON_BRIDGE), FEATURE_BORDER).toString())
-                .when()
-                .log().ifValidationFails()
-                .post(getEndPointPath() + PATH_VAR_PROFILE)
-                .then()
-                .log().ifValidationFails()
-                .assertThat()
-                .body(KEY_EDGE_IDS, is(reference))
-                .statusCode(OK);
+    /**
+     * Provides a stream of test arguments for testing successful scenarios of matching to specific feature types.
+     * <p>
+     * Each test case is represented as an instance of the Arguments class, containing the following parameters:
+     * - feature-specific request body (JSONObject)
+     * - reference request body (JSONObject)
+     *
+     * @return A stream of Arguments instances.
+     */
+    public static Stream<Arguments> matchingFeaturesTestProvider() {
+        return Stream.of(
+                Arguments.of(addFeatureType(validBody(GEO_JSON_POINT_ON_BORDER), FEATURE_BRIDGE), validBody(GEO_JSON_POINT_ON_BRIDGE)),
+                Arguments.of(addFeatureType(validBody(GEO_JSON_POINT_ON_BRIDGE), FEATURE_BORDER), validBody(GEO_JSON_POINT_ON_BORDER))
+        );
     }
 
-    @Test
-    void testMatchingToBridges() {
-        var reference = given()
+    /**
+     * Parameterized test method for testing of matching to specific features.
+     *
+     * @param featureRequest  feature-specific request body (JSONObject)
+     * @param referenceRequest  reference request body (JSONObject)
+     */
+    @ParameterizedTest
+    @MethodSource("matchingFeaturesTestProvider")
+    void testMatchingFeatures(JSONObject featureRequest, JSONObject referenceRequest) {
+        var refValue = given()
                 .headers(jsonContent)
                 .pathParam(KEY_PROFILE, PROFILE_CAR)
-                .body(validBody(GEO_JSON_POINT_ON_BRIDGE).toString())
+                .body(referenceRequest.toString())
                 .when()
                 .log().ifValidationFails()
                 .post(getEndPointPath() + PATH_VAR_PROFILE)
@@ -367,14 +360,14 @@ class ParamsTest extends ServiceTest {
         given()
                 .headers(jsonContent)
                 .pathParam(KEY_PROFILE, PROFILE_CAR)
-                .body(addFeatureType(validBody(GEO_JSON_POINT_ON_BORDER), FEATURE_BRIDGE).toString())
+                .body(featureRequest.toString())
                 .when()
                 .log().ifValidationFails()
                 .post(getEndPointPath() + PATH_VAR_PROFILE)
                 .then()
                 .log().ifValidationFails()
                 .assertThat()
-                .body(KEY_EDGE_IDS, is(reference))
+                .body(KEY_EDGE_IDS, is(refValue))
                 .statusCode(OK);
     }
 
