@@ -23,7 +23,7 @@ import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 
 import java.util.List;
 
-public class RouteResponse {
+public abstract class RouteResponse {
     @JsonIgnore
     protected RouteResponseInfo responseInformation;
 
@@ -43,9 +43,5 @@ public class RouteResponse {
 
     public BoundingBox getBbox() {
         return bbox;
-    }
-
-    public List<IndividualRouteResponse> getRouteResults() {
-        return routeResults;
     }
 }

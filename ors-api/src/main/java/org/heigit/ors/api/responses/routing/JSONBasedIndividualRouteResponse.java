@@ -13,12 +13,14 @@
  * if not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.heigit.ors.api.responses.routing.json;
+package org.heigit.ors.api.responses.routing;
 
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBox;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
-import org.heigit.ors.api.responses.routing.IndividualRouteResponse;
+import org.heigit.ors.api.responses.routing.json.JSONExtra;
+import org.heigit.ors.api.responses.routing.json.JSONLeg;
+import org.heigit.ors.api.responses.routing.json.JSONSegment;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteExtraInfo;
@@ -32,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
+public abstract class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
     protected BoundingBox bbox;
 
     public JSONBasedIndividualRouteResponse(RouteResult result, RouteRequest request) throws StatusCodeException {

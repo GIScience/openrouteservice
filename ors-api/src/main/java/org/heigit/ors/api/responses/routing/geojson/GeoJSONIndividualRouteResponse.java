@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.responses.routing.json.JSONBasedIndividualRouteResponse;
+import org.heigit.ors.api.responses.routing.JSONBasedIndividualRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONSegment;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.geojson.GeometryJSON;
