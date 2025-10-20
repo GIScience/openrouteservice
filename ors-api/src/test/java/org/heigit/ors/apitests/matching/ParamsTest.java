@@ -34,7 +34,6 @@ class ParamsTest extends ServiceTest {
     private static final String KEY_ERROR_CODE = "error.code";
     private static final String KEY_EDGE_IDS = "edge_ids";
     private static final String KEY_GRAPH_TIMESTAMP = "graph_timestamp";
-    private static final String VAL_GRAPH_TIMESTAMP = "2024-09-08T20:21:00Z";
     private static final String PATH_VAR_PROFILE = "/{profile}";
     private static final String GEO_JSON = """
             {
@@ -170,9 +169,53 @@ class ParamsTest extends ServiceTest {
                     ],
                     "type": "LineString"
                 }""";
+    private static final String GEO_JSON_POINT_ON_BORDER = """
+            {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "geometry": {
+                    "coordinates": [
+                      8.68109049010145,
+                      49.400998811981474
+                    ],
+                    "type": "Point"
+                  }
+                }
+              ]
+            }
+            """;
 
-    private static JSONObject validBody() {
-        return new JSONObject().put(KEY_FEATURES, new JSONObject(GEO_JSON));
+    private static final String GEO_JSON_POINT_ON_BRIDGE = """
+            {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "geometry": {
+                    "coordinates": [
+                      8.680940263471234,
+                      49.40091328353546
+                    ],
+                    "type": "Point"
+                  }
+                }
+              ]
+            }
+            """;
+    private static final String FEATURE_BORDER = "border";
+    private static final String FEATURE_BRIDGE = "bridge";
+
+
+    private static JSONObject validBody(String geoJson) {
+        return new JSONObject().put(KEY_FEATURES, new JSONObject(geoJson));
+    }
+
+    private static JSONObject addFeatureType(JSONObject body, String featureType) {
+        JSONObject feature = body.getJSONObject(KEY_FEATURES).getJSONArray("features").getJSONObject(0);
+        feature.put("properties", Map.of("type", featureType));
+        return body;
     }
 
     private static Map<String, Matcher<?>> defaultValidations() {
@@ -195,8 +238,8 @@ class ParamsTest extends ServiceTest {
      */
     public static Stream<Arguments> matchingEndpointTestProvider() {
         return Stream.of(
-                Arguments.of(OK, PROFILE_CAR, validBody(), defaultValidations()),
-                Arguments.of(OK, PROFILE_HGV, validBody(), defaultValidations()),
+                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON), defaultValidations()),
+                Arguments.of(OK, PROFILE_HGV, validBody(GEO_JSON), defaultValidations()),
                 Arguments.of(BAD_REQUEST, PROFILE_HGV, new JSONObject(), Map.of(
                         KEY_ERROR_CODE, is(MISSING_PARAMETER)
                 )), // Missing 'features' parameter
@@ -249,7 +292,7 @@ class ParamsTest extends ServiceTest {
     void testMissingPathParameterProfile() {
         given()
                 .headers(jsonContent)
-                .body(validBody().toString())
+                .body(validBody(GEO_JSON).toString())
                 .when()
                 .log().ifValidationFails()
                 .post(getEndPointPath())
@@ -272,6 +315,66 @@ class ParamsTest extends ServiceTest {
                 .log().ifValidationFails()
                 .assertThat()
                 .body(KEY_GRAPH_TIMESTAMP, isValidTimestamp())
+                .statusCode(OK);
+    }
+
+    @Test
+    void testMatchingToBorders() {
+        var reference = given()
+                .headers(jsonContent)
+                .pathParam(KEY_PROFILE, PROFILE_CAR)
+                .body(validBody(GEO_JSON_POINT_ON_BORDER).toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath() + PATH_VAR_PROFILE)
+                .then()
+                .log().ifValidationFails()
+                .assertThat()
+                .body(KEY_EDGE_IDS + ".size()", is(1))
+                .statusCode(OK)
+                .extract().path(KEY_EDGE_IDS);
+
+        given()
+                .headers(jsonContent)
+                .pathParam(KEY_PROFILE, PROFILE_CAR)
+                .body(addFeatureType(validBody(GEO_JSON_POINT_ON_BRIDGE), FEATURE_BORDER).toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath() + PATH_VAR_PROFILE)
+                .then()
+                .log().ifValidationFails()
+                .assertThat()
+                .body(KEY_EDGE_IDS, is(reference))
+                .statusCode(OK);
+    }
+
+    @Test
+    void testMatchingToBridges() {
+        var reference = given()
+                .headers(jsonContent)
+                .pathParam(KEY_PROFILE, PROFILE_CAR)
+                .body(validBody(GEO_JSON_POINT_ON_BRIDGE).toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath() + PATH_VAR_PROFILE)
+                .then()
+                .log().ifValidationFails()
+                .assertThat()
+                .body(KEY_EDGE_IDS + ".size()", is(1))
+                .statusCode(OK)
+                .extract().path(KEY_EDGE_IDS);
+
+        given()
+                .headers(jsonContent)
+                .pathParam(KEY_PROFILE, PROFILE_CAR)
+                .body(addFeatureType(validBody(GEO_JSON_POINT_ON_BORDER), FEATURE_BRIDGE).toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath() + PATH_VAR_PROFILE)
+                .then()
+                .log().ifValidationFails()
+                .assertThat()
+                .body(KEY_EDGE_IDS, is(reference))
                 .statusCode(OK);
     }
 
