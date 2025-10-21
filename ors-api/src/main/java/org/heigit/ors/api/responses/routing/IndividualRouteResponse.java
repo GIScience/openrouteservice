@@ -25,7 +25,7 @@ public abstract class IndividualRouteResponse {
     protected boolean isPtRequest = false;
 
 
-    public IndividualRouteResponse(RouteResult result, RouteRequest request) {
+    protected IndividualRouteResponse(RouteResult result, RouteRequest request) {
         if (result.getGeometry() != null)
             this.routeCoordinates = result.getGeometry();
 

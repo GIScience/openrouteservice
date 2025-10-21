@@ -33,7 +33,7 @@ public abstract class RouteResponse {
     @JsonIgnore
     protected List<IndividualRouteResponse> routeResults;
 
-    public RouteResponse(RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) {
+    protected RouteResponse(RouteRequest request, SystemMessageProperties systemMessageProperties, EndpointsProperties endpointsProperties) {
         responseInformation = new RouteResponseInfo(request, systemMessageProperties, endpointsProperties);
     }
 

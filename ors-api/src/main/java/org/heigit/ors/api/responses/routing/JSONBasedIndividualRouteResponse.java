@@ -37,7 +37,7 @@ import java.util.Map;
 public abstract class JSONBasedIndividualRouteResponse extends IndividualRouteResponse {
     protected BoundingBox bbox;
 
-    public JSONBasedIndividualRouteResponse(RouteResult result, RouteRequest request) throws StatusCodeException {
+    protected JSONBasedIndividualRouteResponse(RouteResult result, RouteRequest request) throws StatusCodeException {
         super(result, request);
         if (request.hasUseElevation() && request.getUseElevation())
             includeElevation = true;
@@ -46,7 +46,7 @@ public abstract class JSONBasedIndividualRouteResponse extends IndividualRouteRe
     }
 
     protected List<JSONSegment> constructSegments(RouteResult routeResult, RouteRequest request) {
-        List segments = new ArrayList<>();
+        List<JSONSegment> segments = new ArrayList<>();
         for (RouteSegment routeSegment : routeResult.getSegments()) {
             segments.add(new JSONSegment(routeSegment, request, routeResult.getSummary().getDistance()));
         }
