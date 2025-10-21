@@ -39,7 +39,7 @@ To ensure `avoid_borders` functions correctly, the following are required:
 
 - **Performance considerations:**  
   Large or highly detailed polygons can make graph creation slow or stall.  
-  For extensive regions, borders should be simplified or subdivided into smaller polygons.
+  For extensive regions, borders should be simplified or subdivided into smaller polygons. See [this tutorial](example-setups/countries_grid.md) for guidance.
 
 ### GTFS
 The public transport profile integrates [GTFS](https://developers.google.com/transit/gtfs) data for the public transit part. GTFS feeds can be obtained e.g. from sites like https://gtfs.de/ (for Germany), or from local public transport operators.
