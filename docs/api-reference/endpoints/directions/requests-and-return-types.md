@@ -33,25 +33,18 @@ Both the **JSON** and **GeoJSON** outputs contain the same routing information, 
 
 | Field            | Description                                                                                                                                                                                    |
 | ---------------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **`summary`**    | Total `distance` (m) and `duration` (s) for the route.                                                                                                                                         |
-| **`segments`**   | List of route parts between waypoints, each with `distance`, `duration`, and `steps`.                                                                                                          |
+| **`summary`**    | Total `distance` (m) and `duration` (s) of the route.                                                                                                                                          |
+| **`segments`**   | List of route sections between waypoints, each with `distance`, `duration`, and `steps`.                                                                                                       |
 | **`steps`**      | Turn-by-turn navigation instructions with `instruction`, `name`, `distance` (m), `duration` (s), and `way_points`.                                                                             |
 | **`way_points`** | Indices marking the start and end positions of each segment along the geometry.                                                                                                                |
 | **`bbox`**       | Bounding box `[minLon, minLat, maxLon, maxLat]` of the route.                                                                                                                                  |
 | **`geometry`**   | The path of the route. In JSON it is [encoded](https://developers.google.com/maps/documentation/utilities/polylinealgorithm), while in GeoJSON it is a `LineString` with explicit coordinates. |
 | **`metadata`**   | Contains additional details about the request and routing engine, including `attribution`, `service`, `timestamp`, `query`, and `engine` info.                                                 |
 
-In the **GeoJSON** format, the route data is organized as a standard **FeatureCollection**:
-
-* **`type`**: `"FeatureCollection"`
-* **`features`**: array of route features
-
-    * each **feature** includes
-
-        * **`geometry`**: route path as a `LineString`
-        * **`properties`**: contains the same information as in the JSON format (`summary`, `segments`, `steps`, etc.)
+In the **GeoJSON** format, the route data is organized as a standard **FeatureCollection** consisting of an array of route `features`.
+Each **Feature** includes a `geometry` as a `LineString` and `properties` that contain the same information as in the JSON format (`summary`, `segments`, `steps`, etc.).
 
 ### GPX
 
-The **GPX** return type is an XML dialect from openrouteservice based on the [GPS Exchange Format](https://www.topografix.com/gpx.asp) with an own [XML Schema](https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd).
-It is a very old standard for lightweight interchange of GPS data and thus being used by hundreds of software programs and Web services.
+The **GPX** return type is an XML dialect from openrouteservice based on the [GPS Exchange Format](https://www.topografix.com/gpx.asp) with its own [XML Schema](https://raw.githubusercontent.com/GIScience/openrouteservice-schema/main/gpx/v2/ors-gpx.xsd).
+It is a very old standard for lightweight interchange of GPS data and thus being used by a wide range of software applications and Web services.
