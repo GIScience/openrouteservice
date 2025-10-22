@@ -14,7 +14,6 @@
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
 import com.graphhopper.routing.ev.*;
-import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
@@ -26,15 +25,13 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttrib
 import org.heigit.ors.routing.parameters.VehicleParameters;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HeavyVehicleEdgeFilter implements EdgeFilter {
     private final int vehicleType;
     private final boolean hasHazmat;
-    private final HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
     private final float[] restrictionValues;
-    private final double[] retValues;
     private final Integer[] indexValues;
-    private final Integer[] indexLocs;
     private final int restCount;
 
     private BooleanEncodedValue agriculturalAccessEnc = null;
@@ -44,6 +41,11 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
     private BooleanEncodedValue goodsAccessEnc = null;
     private BooleanEncodedValue hgvAccessEnc = null;
     private BooleanEncodedValue hazmatAccessEnc = null;
+    private DecimalEncodedValue maxAxleLoadEnc = null;
+    private DecimalEncodedValue maxHeightEnc = null;
+    private DecimalEncodedValue maxLengthEnc = null;
+    private DecimalEncodedValue maxWeightEnc = null;
+    private DecimalEncodedValue maxWidthEnc = null;
 
 
     public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphHopperStorage graphStorage) {
@@ -63,6 +65,16 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
             hgvAccessEnc = encodingManager.getBooleanEncodedValue(HgvAccess.KEY);
         if (encodingManager.hasEncodedValue(HazmatAccess.KEY))
             hazmatAccessEnc = encodingManager.getBooleanEncodedValue(HazmatAccess.KEY);
+        if (encodingManager.hasEncodedValue(MaxAxleLoad.KEY))
+            maxAxleLoadEnc = encodingManager.getDecimalEncodedValue(MaxAxleLoad.KEY);
+        if (encodingManager.hasEncodedValue(MaxHeight.KEY))
+            maxHeightEnc = encodingManager.getDecimalEncodedValue(MaxHeight.KEY);
+        if (encodingManager.hasEncodedValue(MaxLength.KEY))
+            maxLengthEnc = encodingManager.getDecimalEncodedValue(MaxLength.KEY);
+        if (encodingManager.hasEncodedValue(MaxWeight.KEY))
+            maxWeightEnc = encodingManager.getDecimalEncodedValue(MaxWeight.KEY);
+        if (encodingManager.hasEncodedValue(MaxWidth.KEY))
+            maxWidthEnc = encodingManager.getDecimalEncodedValue(MaxWidth.KEY);
     }
 
     public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, HeavyVehicleAttributesGraphStorage hgvStorage) {
@@ -80,27 +92,19 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
             this.hasHazmat = false;
         }
 
-        ArrayList<Integer> idx = new ArrayList<>();
-        ArrayList<Integer> idxl = new ArrayList<>();
-
+        List<Integer> idx = new ArrayList<>();
         for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++) {
             float value = vehicleAttrs[i];
             if (value > 0) {
                 idx.add(i);
-                idxl.add(i);
             }
         }
 
-        retValues = new double[5];
-
         this.restrictionValues = vehicleAttrs;
         this.indexValues = idx.toArray(new Integer[0]);
-        this.indexLocs = idxl.toArray(new Integer[0]);
         this.restCount = indexValues.length;
 
         this.vehicleType = vehicleType;
-
-        this.gsHeavyVehicles = hgvStorage;
     }
 
     @Override
@@ -109,38 +113,45 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
         if (!acceptVehicleType(iter))
             return false;
 
-        if (hasHazmat && !(hazmatAccessEnc == null || iter.get(hazmatAccessEnc)) ) {
+        if (hasHazmat && !(hazmatAccessEnc == null || iter.get(hazmatAccessEnc))) {
             return false;
         }
 
-        int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
-        if (restCount != 0) {
-            if (restCount == 1) {
-                double value = gsHeavyVehicles.getEdgeRestrictionValue(edgeId, indexValues[0]);
-                return value <= 0 || value >= restrictionValues[indexLocs[0]];
-            } else {
-                if (gsHeavyVehicles.getEdgeRestrictionValues(edgeId, retValues)) {
-                    for (int i = 0; i < restCount; i++) {
-                        double value = retValues[indexLocs[i]];
-                        if (value > 0.0f && value < restrictionValues[indexLocs[i]]) {
-                            return false;
-                        }
-                    }
-                }
+        for (int i = 0; i < restCount; i++) {
+            double value = getEdgeRestrictionValue(iter, indexValues[i]);
+            if (value > 0.0f && value < restrictionValues[indexValues[i]]) {
+                return false;
             }
         }
+
         return true;
     }
 
-    private boolean acceptVehicleType(EdgeIteratorState edge) {
-        return switch (vehicleType) {
-            case HeavyVehicleAttributes.AGRICULTURE -> agriculturalAccessEnc == null || edge.get(agriculturalAccessEnc);
-            case HeavyVehicleAttributes.BUS -> busAccessEnc == null || edge.get(busAccessEnc);
-            case HeavyVehicleAttributes.DELIVERY -> deliveryAccessEnc == null || edge.get(deliveryAccessEnc);
-            case HeavyVehicleAttributes.FORESTRY -> forestryAccessEnc == null || edge.get(forestryAccessEnc);
-            case HeavyVehicleAttributes.GOODS -> goodsAccessEnc == null || edge.get(goodsAccessEnc);
-            case HeavyVehicleAttributes.HGV -> hgvAccessEnc == null || edge.get(hgvAccessEnc);
-            default -> true;
+    private double getEdgeRestrictionValue(EdgeIteratorState iter, int valueIndex) {
+        DecimalEncodedValue decimalEncodedValue = switch (valueIndex) {
+            case VehicleDimensionRestrictions.MAX_AXLE_LOAD -> maxAxleLoadEnc;
+            case VehicleDimensionRestrictions.MAX_HEIGHT -> maxHeightEnc;
+            case VehicleDimensionRestrictions.MAX_LENGTH -> maxLengthEnc;
+            case VehicleDimensionRestrictions.MAX_WEIGHT -> maxWeightEnc;
+            case VehicleDimensionRestrictions.MAX_WIDTH -> maxWidthEnc;
+            default -> null;
         };
+        if (decimalEncodedValue == null) {
+            throw new IllegalStateException("Encoded value for vehicle restriction not found.");
+        }
+        return iter.get(decimalEncodedValue);
+    }
+
+    private boolean acceptVehicleType(EdgeIteratorState edge) {
+        BooleanEncodedValue vehicleTypeAccessEnc = switch (vehicleType) {
+            case HeavyVehicleAttributes.AGRICULTURE -> agriculturalAccessEnc;
+            case HeavyVehicleAttributes.BUS -> busAccessEnc;
+            case HeavyVehicleAttributes.DELIVERY -> deliveryAccessEnc;
+            case HeavyVehicleAttributes.FORESTRY -> forestryAccessEnc;
+            case HeavyVehicleAttributes.GOODS -> goodsAccessEnc;
+            case HeavyVehicleAttributes.HGV -> hgvAccessEnc;
+            default -> null;
+        };
+        return vehicleTypeAccessEnc == null || edge.get(vehicleTypeAccessEnc);
     }
 }

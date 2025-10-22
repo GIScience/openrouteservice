@@ -119,7 +119,21 @@ public class BuildProperties {
 
     private void handleHeavyVehicle(ExtendedStorageProperties storage) {
         if (storage.getRestrictions() != null && storage.getRestrictions()) {
-            //TODO: set encoded values for heavy vehicle restrictions
+            if (encodedValues.getMaxAxleLoad() == null) {
+                encodedValues.setMaxAxleLoad(true);
+            }
+            if (encodedValues.getMaxHeight() == null) {
+                encodedValues.setMaxHeight(true);
+            }
+            if (encodedValues.getMaxLength() == null) {
+                encodedValues.setMaxLength(true);
+            }
+            if (encodedValues.getMaxWeight() == null) {
+                encodedValues.setMaxWeight(true);
+            }
+            if (encodedValues.getMaxWidth() == null) {
+                encodedValues.setMaxWidth(true);
+            }
         }
         if (encodedValues.getAgriculturalAccess() == null) {
             encodedValues.setAgriculturalAccess(true);
