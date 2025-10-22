@@ -43,6 +43,16 @@ public class EncodedValuesProperties {
     private Boolean hgvAccess;
     @JsonProperty("hazmat_access")
     private Boolean hazmatAccess;
+    @JsonProperty("max_axle_load")
+    private Boolean maxAxleLoad;
+    @JsonProperty("max_height")
+    private Boolean maxHeight;
+    @JsonProperty("max_length")
+    private Boolean maxLength;
+    @JsonProperty("max_weight")
+    private Boolean maxWeight;
+    @JsonProperty("max_width")
+    private Boolean maxWidth;
 
     public EncodedValuesProperties() {
     }
@@ -58,7 +68,8 @@ public class EncodedValuesProperties {
                 waySurface == null && wayType == null &&
                 roadEnvironment == null &&
                 agriculturalAccess == null && busAccess == null && deliveryAccess == null && forestryAccess == null && goodsAccess == null && hgvAccess == null &&
-                hazmatAccess == null;
+                hazmatAccess == null &&
+                maxAxleLoad == null && maxHeight == null && maxLength == null && maxWeight == null && maxWidth == null;
     }
 
     @JsonIgnore
@@ -103,6 +114,21 @@ public class EncodedValuesProperties {
         if (Boolean.TRUE.equals(hazmatAccess)) {
             out.add(HazmatAccess.KEY);
         }
+        if (Boolean.TRUE.equals(maxAxleLoad)) {
+            out.add(MaxAxleLoad.KEY);
+        }
+        if (Boolean.TRUE.equals(maxHeight)) {
+            out.add(MaxHeight.KEY);
+        }
+        if (Boolean.TRUE.equals(maxLength)) {
+            out.add(MaxLength.KEY);
+        }
+        if (Boolean.TRUE.equals(maxWeight)) {
+            out.add(MaxWeight.KEY);
+        }
+        if (Boolean.TRUE.equals(maxWidth)) {
+            out.add(MaxWidth.KEY);
+        }
         return String.join(",", out);
     }
 
@@ -120,6 +146,11 @@ public class EncodedValuesProperties {
         goodsAccess = ofNullable(this.goodsAccess).orElse(other.goodsAccess);
         hgvAccess = ofNullable(this.hgvAccess).orElse(other.hgvAccess);
         hazmatAccess = ofNullable(this.hazmatAccess).orElse(other.hazmatAccess);
+        maxAxleLoad = ofNullable(this.maxAxleLoad).orElse(other.maxAxleLoad);
+        maxHeight = ofNullable(this.maxHeight).orElse(other.maxHeight);
+        maxLength = ofNullable(this.maxLength).orElse(other.maxLength);
+        maxWeight = ofNullable(this.maxWeight).orElse(other.maxWeight);
+        maxWidth = ofNullable(this.maxWidth).orElse(other.maxWidth);
     }
 }
 
