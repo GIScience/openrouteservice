@@ -13,68 +13,49 @@
  */
 package org.heigit.ors.routing.parameters;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 
 import java.util.List;
 
+@Setter
+@Getter
 public class VehicleParameters extends ProfileParameters {
-    private double length = 0.0;
-    private double height = 0.0;
-    private double width = 0.0;
-    private double weight = 0.0;
-    private double axleload = 0.0;
-    private int characteristics = VehicleLoadCharacteristicsFlags.NONE;
+    public static final double UNSET_VALUE = 0.0;
+    private double length = UNSET_VALUE;
+    private double height = UNSET_VALUE;
+    private double width = UNSET_VALUE;
+    private double weight = UNSET_VALUE;
+    private double axleload = UNSET_VALUE;
+    private int loadCharacteristics = VehicleLoadCharacteristicsFlags.NONE;
 
-    public double getLength() {
-        return length;
+    public boolean hasLength() {
+        return length > UNSET_VALUE;
     }
 
-    public void setLength(double length) {
-        this.length = length;
+    public boolean hasHeight() {
+        return height > UNSET_VALUE;
     }
 
-    public double getHeight() {
-        return height;
+    public boolean hasWidth() {
+        return width > UNSET_VALUE;
     }
 
-    public void setHeight(double height) {
-        this.height = height;
+    public boolean hasWeight() {
+        return weight > UNSET_VALUE;
     }
 
-    public double getWidth() {
-        return width;
+    public boolean hasAxleload() {
+        return axleload > UNSET_VALUE;
     }
 
-    public void setWidth(double width) {
-        this.width = width;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    public double getAxleload() {
-        return axleload;
-    }
-
-    public void setAxleload(double axleload) {
-        this.axleload = axleload;
-    }
-
-    public int getLoadCharacteristics() {
-        return characteristics;
-    }
-
-    public void setLoadCharacteristics(int characteristics) {
-        this.characteristics = characteristics;
+    public boolean hasLoadCharacteristics() {
+        return loadCharacteristics != VehicleLoadCharacteristicsFlags.NONE;
     }
 
     public boolean hasAttributes() {
-        return height > 0.0 || length > 0.0 || width > 0.0 || weight > 0.0 || axleload > 0.0 || characteristics != 0;
+        return hasLength() || hasHeight() || hasWidth() || hasWeight() || hasAxleload() || hasLoadCharacteristics();
     }
 
     @Override
