@@ -95,7 +95,10 @@ public class BuildProperties {
                 ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
                 switch (extendedStorageName) {
                     case HEAVY_VEHICLE:
-                        handleHeavyVehicle(storage);
+                        handleVehicleAccess();
+                        if (Boolean.TRUE.equals(storage.getRestrictions())) {
+                            handleVehicleRestrictions();
+                        }
                         break;
                     case OSM_ID:
                         if (encodedValues.getOsmWayId() == null) {
@@ -117,24 +120,7 @@ public class BuildProperties {
         }
     }
 
-    private void handleHeavyVehicle(ExtendedStorageProperties storage) {
-        if (storage.getRestrictions() != null && storage.getRestrictions()) {
-            if (encodedValues.getMaxAxleLoad() == null) {
-                encodedValues.setMaxAxleLoad(true);
-            }
-            if (encodedValues.getMaxHeight() == null) {
-                encodedValues.setMaxHeight(true);
-            }
-            if (encodedValues.getMaxLength() == null) {
-                encodedValues.setMaxLength(true);
-            }
-            if (encodedValues.getMaxWeight() == null) {
-                encodedValues.setMaxWeight(true);
-            }
-            if (encodedValues.getMaxWidth() == null) {
-                encodedValues.setMaxWidth(true);
-            }
-        }
+    private void handleVehicleAccess() {
         if (encodedValues.getAgriculturalAccess() == null) {
             encodedValues.setAgriculturalAccess(true);
         }
@@ -157,6 +143,25 @@ public class BuildProperties {
             encodedValues.setHazmatAccess(true);
         }
     }
+
+    private void handleVehicleRestrictions() {
+        if (encodedValues.getMaxAxleLoad() == null) {
+            encodedValues.setMaxAxleLoad(true);
+        }
+        if (encodedValues.getMaxHeight() == null) {
+            encodedValues.setMaxHeight(true);
+        }
+        if (encodedValues.getMaxLength() == null) {
+            encodedValues.setMaxLength(true);
+        }
+        if (encodedValues.getMaxWeight() == null) {
+            encodedValues.setMaxWeight(true);
+        }
+        if (encodedValues.getMaxWidth() == null) {
+            encodedValues.setMaxWidth(true);
+        }
+    }
+
     private void handleWayCategory() {
         if (encodedValues.getHighway() == null) {
             encodedValues.setHighway(true);
