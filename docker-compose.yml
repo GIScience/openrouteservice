@@ -12,7 +12,7 @@ services:
     ports:
       - "8080:8082"  # Expose the ORS API on port 8080
       - "9001:9001"  # Expose additional port for monitoring (optional)
-    image: local/openrouteservice:latest
+    image: openrouteservice/openrouteservice:latest
     # Advanced option! If you different ids to 0:0 and 1000:1000, you have to rebuild the container with the build args UID,GID.
     # The user command is useful if you want easier bind mount access or better security.
     #user: "1000:1000" # Run "mkdir -p ors-docker/config ors-docker/elevation_cache ors-docker/files ors-docker/graphs ors-docker/logs && sudo chown -R 1000:1000 ors" before starting the container!
