@@ -73,7 +73,6 @@
         <hppc.version>0.8.2</hppc.version>
 
         <gson-fire-version>1.8.5</gson-fire-version>
-        <okhttp-version>4.10.0</okhttp-version>
         <gson-version>2.9.1</gson-version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <jackson-databind-nullable-version>0.2.6</jackson-databind-nullable-version>
