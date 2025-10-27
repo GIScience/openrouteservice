@@ -28,6 +28,7 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
+- documentation on how to create country border files for avoid borders feature ([#2133](https://github.com/GIScience/openrouteservice/issues/2133)
 
 ### Changed
 - enable ALT routing for custom models ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
