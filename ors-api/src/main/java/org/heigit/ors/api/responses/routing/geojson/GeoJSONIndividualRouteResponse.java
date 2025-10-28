@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResponse {
+    @Schema(description = "A single route returned from the request in GeoJSON format")
     @JsonProperty("type")
     public final String type = "Feature";
 
