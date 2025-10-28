@@ -87,6 +87,7 @@ public class GeoJSONSummary extends JSONSummary {
         return wayPoints;
     }
 
+    @Schema(description = "Map of extra information items requested for the route, keyed by their type.")
     @JsonProperty("extras")
     public Map<String, JSONExtra> getExtras() {
         return extras;
