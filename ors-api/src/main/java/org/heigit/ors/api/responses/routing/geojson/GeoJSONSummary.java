@@ -82,6 +82,7 @@ public class GeoJSONSummary extends JSONSummary {
         return legs;
     }
 
+    @Schema(description = "List containing the indices of way points corresponding to the *geometry*.", example = "[0,23]")
     @JsonProperty("way_points")
     public List<Integer> getWaypoints() {
         return wayPoints;
