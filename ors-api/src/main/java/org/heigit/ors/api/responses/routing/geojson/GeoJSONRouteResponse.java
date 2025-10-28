@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GeoJSONRouteResponse extends RouteResponse {
+    @Schema(description = "A GeoJSON FeatureCollection representing the routes returned from the request")
     @JsonProperty("type")
     public final String type = "FeatureCollection";
 
