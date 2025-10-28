@@ -39,6 +39,7 @@ Releasing is documented in RELEASE.md
 
 ### Fixed
 - correct setting of encoded values for highways and fords ([#2148](https://github.com/GIScience/openrouteservice/pull/2148))
+- update speed limits in UK ([#2164](https://github.com/GIScience/openrouteservice/pull/2164))
 
 ### Security
 
