@@ -209,6 +209,8 @@ ors:
             WaySurfaceType:
             RoadAccessRestrictions:
               use_for_warnings: true
+          encoded_values:
+            road_environment: true
         service:
           execution:
             methods:

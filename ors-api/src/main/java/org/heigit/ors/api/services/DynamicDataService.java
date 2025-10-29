@@ -14,10 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
+
+import static org.heigit.ors.api.util.Utils.isJUnitTest;
 
 @Service
 public class DynamicDataService {
@@ -28,6 +27,7 @@ public class DynamicDataService {
     private final String storePassword;
     private final Boolean enabled;
     private final List<RoutingProfile> enabledProfiles = new ArrayList<>();
+    private final Map<String, Instant> lastUpdateTimestamps = new HashMap<>();
 
     @Autowired
     public DynamicDataService(EngineProperties engineProperties, @Value("${ors.engine.dynamic_data.enabled:false}") Boolean enabled, @Value("${ors.engine.dynamic_data.store_url:}") String storeURL, @Value("${ors.engine.dynamic_data.store_user:}") String storeUser, @Value("${ors.engine.dynamic_data.store_pass:}") String storePassword) {
@@ -66,20 +66,20 @@ public class DynamicDataService {
         });
         if (enabledProfiles.isEmpty()) {
             LOGGER.warn("Dynamic data module activated but no profile has custom models enabled.");
-        } else {
-            for (RoutingProfile profile : enabledProfiles) {
-                for (String datasetName : profile.getProfileConfiguration().getService().getDynamicData().getEnabledDynamicDatasets()) {
-                    LOGGER.info("Adding dynamic data support for dataset '" + datasetName + "' to profile '" + profile.name() + "'.");
-                    profile.addDynamicData(datasetName);
-                }
-                fetchDynamicData(profile);
-            }
-            LOGGER.info("Dynamic data service initialized for profiles: " + enabledProfiles.stream().map(RoutingProfile::name).toList());
         }
+        for (RoutingProfile profile : enabledProfiles) {
+            for (String datasetName : profile.getProfileConfiguration().getService().getDynamicData().getEnabledDynamicDatasets()) {
+                LOGGER.info("Adding dynamic data support for dataset '" + datasetName + "' to profile '" + profile.name() + "'.");
+                profile.addDynamicData(datasetName);
+            }
+            fetchDynamicData(profile);
+        }
+        LOGGER.info("Dynamic data service initialized for profiles: " + enabledProfiles.stream().map(RoutingProfile::name).toList());
     }
 
     public void reinitialize() {
         enabledProfiles.clear();
+        lastUpdateTimestamps.clear();
         this.initialize();
     }
 
@@ -97,7 +97,7 @@ public class DynamicDataService {
     private void fetchDynamicData(RoutingProfile profile) {
         if (StringUtility.isNullOrEmpty(storeURL))
             return;
-        String graphDate = profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.data.date");
+        String graphDate = getGraphDate(profile);
         try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
             if (con == null) {
                 LOGGER.error("Database connection is null, cannot fetch dynamic data.");
@@ -109,24 +109,44 @@ public class DynamicDataService {
                         WHERE dataset_key = ?
                         AND profile = ?
                         AND graph_timestamp = ?
+                        AND timestamp > ?
                     """)) {
                 stmt.setTimestamp(3, Timestamp.from(Instant.parse(graphDate)), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
                 for (String key : profile.getDynamicDatasets()) {
-                    LOGGER.debug("Fetching dynamic data for profile '" + profile.name() + "', dataset '" + key + "', graph date '" + graphDate + "'.");
+                    String lastUpdateKey = profile.name() + "." + key;
+                    Instant lastUpdateTimestamp = lastUpdateTimestamps.getOrDefault(lastUpdateKey, Instant.EPOCH);
+                    int fetchedCount = 0;
                     stmt.setString(1, key);
                     stmt.setString(2, profile.name());
+                    stmt.setTimestamp(4, Timestamp.from(lastUpdateTimestamp), Calendar.getInstance(TimeZone.getTimeZone("UTC")));
                     ResultSet result = stmt.executeQuery();
                     while (result.next()) {
                         int edgeID = result.getInt("edge_id");
                         String value = result.getString("value");
+                        Instant ts = result.getTimestamp("timestamp", Calendar.getInstance(TimeZone.getTimeZone("UTC"))).toInstant();
                         LOGGER.trace("Update dynamic data in dataset '" + key + "' for profile '" + profile.name() + "': edge ID " + edgeID + " -> value '" + value + "'");
-                        profile.updateDynamicData(key, edgeID, value);
+                        if (result.getBoolean("deleted")) {
+                            profile.unsetDynamicData(key, edgeID);
+                        } else {
+                            profile.updateDynamicData(key, edgeID, value);
+                        }
+                        fetchedCount++;
+                        if (lastUpdateTimestamp.isBefore(ts)) {
+                            lastUpdateTimestamp = ts;
+                            lastUpdateTimestamps.put(lastUpdateKey, ts);
+                        }
                     }
+                    LOGGER.debug("Fetched " + fetchedCount + " rows for profile '" + profile.name() + "', dataset '" + key + "', graph date '" + graphDate + "', lastUpdateTimestamp '" + lastUpdateTimestamp + "'.");
                 }
             }
-            // TODO implement more sophisticated update strategy, e.g. only update changed values, inform feature store about new graph date, etc.
         } catch (SQLException e) {
             LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
         }
+    }
+
+    private static String getGraphDate(RoutingProfile profile) {
+        return isJUnitTest() ?
+                "2024-09-08T20:21:00Z" :
+                profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
     }
 }

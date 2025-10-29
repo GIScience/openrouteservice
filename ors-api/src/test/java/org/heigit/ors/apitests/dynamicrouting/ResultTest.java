@@ -72,29 +72,35 @@ abstract class AbstractContainerBaseTest extends ServiceTest {
                         feature_id INTEGER NOT NULL,
                         dataset_key VARCHAR(255) NOT NULL,
                         value VARCHAR(20) NOT NULL,
+                        geom GEOMETRY(Geometry, 4326) NOT NULL,
+                        geojson JSONB,
+                        timestamp TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                        deleted BOOLEAN DEFAULT FALSE,
                         PRIMARY KEY (feature_id, dataset_key)
                     );
                     """);
             connection.createStatement().execute("""
                     CREATE TABLE mappings (
                         feature_id INTEGER NOT NULL,
-                        graph_timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                        graph_timestamp TIMESTAMP NOT NULL,
                         profile VARCHAR(20) NOT NULL,
                         edge_id INTEGER NOT NULL,
+                        timestamp TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                        deleted BOOLEAN DEFAULT FALSE,
                         PRIMARY KEY (feature_id, graph_timestamp, profile, edge_id)
                     );
                     """);
             connection.createStatement().execute("""
-                    CREATE VIEW feature_map AS
-                    SELECT f.feature_id, f.dataset_key, m.graph_timestamp, m.profile, m.edge_id, f.value
-                    FROM features f
-                    JOIN mappings m ON f.feature_id = m.feature_id
+                        CREATE VIEW feature_map AS
+                        SELECT f.feature_id, f.dataset_key, m.graph_timestamp, m.profile, m.edge_id, f.value, m.deleted, m.timestamp
+                        FROM features f
+                        JOIN mappings m ON f.feature_id = m.feature_id
                     """);
             connection.createStatement().execute("""
                     INSERT INTO features VALUES
-                    (1, 'logie_borders','CLOSED'),
-                    (2, 'logie_bridges','RESTRICTED'),
-                    (3, 'logie_roads','RESTRICTED');
+                    (1, 'logie_borders','CLOSED', 'POINT(0 0)'),
+                    (2, 'logie_bridges','RESTRICTED', 'POINT(0 0)'),
+                    (3, 'logie_roads','RESTRICTED', 'POINT(0 0)');
                     """);
             connection.createStatement().execute("""
                     INSERT INTO mappings VALUES
