@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.responses.routing.json.JSONBasedIndividualRouteResponse;
+import org.heigit.ors.api.responses.routing.JSONBasedIndividualRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONSegment;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.geojson.GeometryJSON;
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResponse {
+    @Schema(description = "A single route returned from the request in GeoJSON format")
     @JsonProperty("type")
     public final String type = "Feature";
 
@@ -45,7 +46,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
         properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation, this.isPtRequest, constructLegs(routeResult));
     }
 
-    @Schema(implementation = JSONObject.class, description = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
+    @Schema(name = "GeoJSONGeometry", implementation = JSONObject.class, description = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
     @JsonProperty("geometry")
     public JSONObject getGeometry() {
         JSONObject geoJson = new JSONObject();
@@ -60,6 +61,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
     }
 
     @JsonProperty("bbox")
+    @Schema(description = "Bounding box that covers all returned routes", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public double[] getBBox() {
         return bbox.getAsArray();

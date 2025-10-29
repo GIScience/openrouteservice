@@ -19,13 +19,13 @@ import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.routing.RouteResult;
 import org.locationtech.jts.geom.Coordinate;
 
-public class IndividualRouteResponse {
+public abstract class IndividualRouteResponse {
     protected Coordinate[] routeCoordinates;
     protected boolean includeElevation = false;
     protected boolean isPtRequest = false;
 
 
-    public IndividualRouteResponse(RouteResult result, RouteRequest request) {
+    protected IndividualRouteResponse(RouteResult result, RouteRequest request) {
         if (result.getGeometry() != null)
             this.routeCoordinates = result.getGeometry();
 

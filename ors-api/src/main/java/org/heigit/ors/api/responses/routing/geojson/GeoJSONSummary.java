@@ -82,11 +82,13 @@ public class GeoJSONSummary extends JSONSummary {
         return legs;
     }
 
+    @Schema(description = "List containing the indices of way points corresponding to the *geometry*.", example = "[0,23]")
     @JsonProperty("way_points")
     public List<Integer> getWaypoints() {
         return wayPoints;
     }
 
+    @Schema(description = "Map of extra information items requested for the route, keyed by their type.")
     @JsonProperty("extras")
     public Map<String, JSONExtra> getExtras() {
         return extras;
@@ -97,6 +99,8 @@ public class GeoJSONSummary extends JSONSummary {
         return new JSONSummary(this.distance, this.duration);
     }
 
+    @Schema(description = "List of warnings that have been generated for the route. Each warning object contains the following keys: \"code\" (integer) - numeric warning code, and \"message\" (string) - human-readable message.",
+            example = "[{\"code\": 1, \"message\": \"There may be restrictions on some roads\"}]")
     @JsonProperty("warnings")
     public List<Map<String, Object>> getWarnings() {
         List<Map<String, Object>> warningsMap = new ArrayList<>();
