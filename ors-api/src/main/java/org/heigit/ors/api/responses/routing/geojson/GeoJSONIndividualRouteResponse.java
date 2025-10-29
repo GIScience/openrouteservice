@@ -61,6 +61,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
     }
 
     @JsonProperty("bbox")
+    @Schema(description = "Bounding box that covers all returned routes", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public double[] getBBox() {
         return bbox.getAsArray();
