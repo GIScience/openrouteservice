@@ -58,7 +58,7 @@ public class JSONRouteResponse extends RouteResponse {
     @JsonProperty("bbox")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @Schema(description = "Bounding box that covers all returned routes", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
-    public double[] getBBoxsArray() {
+    public double[] getBBoxsAsArray() {
         return bbox.getAsArray();
     }
 
