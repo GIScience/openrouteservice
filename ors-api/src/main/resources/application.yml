@@ -159,6 +159,7 @@ ors:
         graph_extent: planet
       service:
         maximum_distance: 100000
+        maximum_distance_preprocessed_weights: 100000
         maximum_distance_dynamic_weights: 100000
         maximum_distance_avoid_areas: 100000
         maximum_waypoints: 50
