@@ -94,6 +94,8 @@ public class StatusAPI {
                     JSONObject jProfileLimits = new JSONObject();
                     if (profile.getService().getMaximumDistance() != null)
                         jProfileLimits.put("maximum_distance", profile.getService().getMaximumDistance());
+                    if (profile.getService().getMaximumDistancePreprocessedWeights() != null)
+                        jProfileLimits.put("maximum_distance_preprocessed_weights", profile.getService().getMaximumDistancePreprocessedWeights());
                     if (profile.getService().getMaximumDistanceDynamicWeights() != null)
                         jProfileLimits.put("maximum_distance_dynamic_weights", profile.getService().getMaximumDistanceDynamicWeights());
                     if (profile.getService().getMaximumDistanceAvoidAreas() != null)

@@ -35,10 +35,10 @@ public class TemporaryUtilShelter {
      * @return flexibility as int
      */
     public static int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType) {
-        if (searchParams.requiresDynamicPreprocessedWeights() || profileType == RoutingProfileType.WHEELCHAIR)
+        if (searchParams.requiresPreprocessedWeights() || profileType == RoutingProfileType.WHEELCHAIR)
             flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
 
-        if (searchParams.requiresFullyDynamicWeights())
+        if (searchParams.requiresDynamicWeights())
             flexibleMode = ProfileTools.KEY_FLEX_FULLY;
         //If we have special weightings, we have to fall back to ALT with Beeline
         ProfileParameters profileParams = searchParams.getProfileParameters();

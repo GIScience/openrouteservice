@@ -312,9 +312,8 @@ public class RouteSearchParameters {
         return isProfileTypeHeavyVehicle() && getVehicleType() != DEFAULT_HGV_VEHICLE_TYPE;
     }
 
-    public boolean requiresDynamicPreprocessedWeights() {
-        return hasAvoidAreas()
-                || hasAvoidFeatures()
+    public boolean requiresPreprocessedWeights() {
+        return hasAvoidFeatures()
                 || hasAvoidBorders()
                 || hasAvoidCountries()
                 || getConsiderTurnRestrictions()
@@ -327,13 +326,17 @@ public class RouteSearchParameters {
     /**
      * Check if the request is compatible with preprocessed graphs
      */
-    public boolean requiresFullyDynamicWeights() {
+    public boolean requiresDynamicWeights() {
         return hasAvoidAreas()
                 || hasBearings()
                 || hasContinueStraight()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings())
                 || getAlternativeRoutesCount() > 0
-                || customModel != null;
+                || hasCustomModel();
+    }
+
+    private boolean hasCustomModel() {
+        return this.customModel != null;
     }
 
     // time-dependent stuff

@@ -36,8 +36,8 @@ public class RoutingService extends ApiService {
         RouteSearchParameters searchParams = req.getSearchParameters();
         String profileName = searchParams.getProfileName();
 
-        boolean fallbackAlgorithm = searchParams.requiresFullyDynamicWeights();
-        boolean dynamicWeights = searchParams.requiresDynamicPreprocessedWeights();
+        boolean preprocessedWeights = searchParams.requiresPreprocessedWeights();
+        boolean dynamicWeights = searchParams.requiresDynamicWeights();
         boolean useAlternativeRoutes = searchParams.getAlternativeRoutesCount() > 1;
 
         RoutingProfile rp = req.profile();
@@ -48,9 +48,10 @@ public class RoutingService extends ApiService {
         ProfileProperties profileProperties = rp.getProfileConfiguration();
 
         if (profileProperties.getService().getMaximumDistance() != null
+                || preprocessedWeights && profileProperties.getService().getMaximumDistancePreprocessedWeights() != null
                 || dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null
                 || profileProperties.getService().getMaximumWayPoints() != null
-                || fallbackAlgorithm && profileProperties.getService().getMaximumDistanceAvoidAreas() != null
+                || searchParams.hasAvoidAreas() && profileProperties.getService().getMaximumDistanceAvoidAreas() != null
         ) {
             Coordinate[] coords = req.getCoordinates();
             int nCoords = coords.length;
@@ -59,8 +60,9 @@ public class RoutingService extends ApiService {
             }
 
             if (profileProperties.getService().getMaximumDistance() != null
+                    || preprocessedWeights && profileProperties.getService().getMaximumDistancePreprocessedWeights() != null
                     || dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null
-                    || fallbackAlgorithm && profileProperties.getService().getMaximumDistanceAvoidAreas() != null
+                    || searchParams.hasAvoidAreas() && profileProperties.getService().getMaximumDistanceAvoidAreas() != null
             ) {
                 DistanceCalc distCalc = DistanceCalcEarth.DIST_EARTH;
 
@@ -87,9 +89,11 @@ public class RoutingService extends ApiService {
                 if (profileProperties.getService().getMaximumDistance() != null && totalDist > profileProperties.getService().getMaximumDistance())
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistance()));
                 if (dynamicWeights && profileProperties.getService().getMaximumDistanceDynamicWeights() != null && totalDist > profileProperties.getService().getMaximumDistanceDynamicWeights())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceDynamicWeights()));
-                if (fallbackAlgorithm && profileProperties.getService().getMaximumDistanceAvoidAreas() != null && totalDist > profileProperties.getService().getMaximumDistanceAvoidAreas())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With these options, the approximated route distance must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceAvoidAreas()));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceDynamicWeights()));
+                if (preprocessedWeights && profileProperties.getService().getMaximumDistancePreprocessedWeights() != null && totalDist > profileProperties.getService().getMaximumDistancePreprocessedWeights())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With these options, the approximated distance of a route segment must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistancePreprocessedWeights()));
+                if (searchParams.hasAvoidAreas() && profileProperties.getService().getMaximumDistanceAvoidAreas() != null && totalDist > profileProperties.getService().getMaximumDistanceAvoidAreas())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "With avoid areas, the approximated route distance must not be greater than %s meters.".formatted(profileProperties.getService().getMaximumDistanceAvoidAreas()));
                 if (useAlternativeRoutes && profileProperties.getService().getMaximumDistanceAlternativeRoutes() != null && totalDist > profileProperties.getService().getMaximumDistanceAlternativeRoutes())
                     throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, "The approximated route distance must not be greater than %s meters for use with the alternative Routes algorithm.".formatted(profileProperties.getService().getMaximumDistanceAlternativeRoutes()));
             }

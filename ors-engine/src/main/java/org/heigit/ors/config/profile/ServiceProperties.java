@@ -11,6 +11,7 @@ import static java.util.Optional.ofNullable;
 @Setter
 public class ServiceProperties {
     private Double maximumDistance;
+    private Double maximumDistancePreprocessedWeights;
     private Double maximumDistanceDynamicWeights;
     private Double maximumDistanceAvoidAreas;
     private Double maximumDistanceAlternativeRoutes;
@@ -33,6 +34,7 @@ public class ServiceProperties {
 
     public void merge(ServiceProperties other) {
         maximumDistance = ofNullable(this.maximumDistance).orElse(other.maximumDistance);
+        maximumDistancePreprocessedWeights = ofNullable(this.maximumDistancePreprocessedWeights).orElse(other.maximumDistancePreprocessedWeights);
         maximumDistanceDynamicWeights = ofNullable(this.maximumDistanceDynamicWeights).orElse(other.maximumDistanceDynamicWeights);
         maximumDistanceAvoidAreas = ofNullable(this.maximumDistanceAvoidAreas).orElse(other.maximumDistanceAvoidAreas);
         maximumDistanceAlternativeRoutes = ofNullable(this.maximumDistanceAlternativeRoutes).orElse(other.maximumDistanceAlternativeRoutes);
