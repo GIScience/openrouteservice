@@ -197,46 +197,52 @@ class RouteSearchParametersTest {
     }
 
     @Test
-    void requiresDynamicPreprocessedWeights() throws Exception {
+    void requiresPreprocessedWeights() throws Exception {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        assertFalse(routeSearchParameters.requiresDynamicPreprocessedWeights());
-
-        routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setAvoidAreas(new Polygon[1]);
-        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "avoid areas");
+        assertFalse(routeSearchParameters.requiresPreprocessedWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidFeatureTypes(1);
-        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "avoid features");
+        assertTrue(routeSearchParameters.requiresPreprocessedWeights(), "avoid features");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidBorders(BordersExtractor.Avoid.CONTROLLED);
-        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "avoid borders");
+        assertTrue(routeSearchParameters.requiresPreprocessedWeights(), "avoid borders");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidCountries(new int[1]);
-        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "avoid countries");
+        assertTrue(routeSearchParameters.requiresPreprocessedWeights(), "avoid countries");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setConsiderTurnRestrictions(true);
-        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "turn restrictions");
+        assertTrue(routeSearchParameters.requiresPreprocessedWeights(), "turn restrictions");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
-        assertFalse(routeSearchParameters.requiresDynamicPreprocessedWeights(), "default vehicle type");
+        assertFalse(routeSearchParameters.requiresPreprocessedWeights(), "default vehicle type");
         routeSearchParameters.setVehicleType(HeavyVehicleAttributes.BUS);
-        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "non-default vehicle type");
+        assertTrue(routeSearchParameters.requiresPreprocessedWeights(), "non-default vehicle type");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
         routeSearchParameters.setProfileParams(new VehicleParameters());
-        assertFalse(routeSearchParameters.requiresDynamicPreprocessedWeights(), "profile param");
+        assertFalse(routeSearchParameters.requiresPreprocessedWeights(), "profile param");
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setProfileType(RoutingProfileType.DRIVING_HGV);
         VehicleParameters vehicleParams = new VehicleParameters();
         vehicleParams.setLoadCharacteristics(VehicleLoadCharacteristicsFlags.HAZMAT);
         routeSearchParameters.setProfileParams(vehicleParams);
-        assertTrue(routeSearchParameters.requiresDynamicPreprocessedWeights(), "profile param");
+        assertTrue(routeSearchParameters.requiresPreprocessedWeights(), "profile param");
+    }
+
+    @Test
+    void requiresDynamicWeights() {
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        assertFalse(routeSearchParameters.requiresDynamicWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setAvoidAreas(new Polygon[1]);
+        assertTrue(routeSearchParameters.requiresDynamicWeights(), "avoid areas");
     }
 }
