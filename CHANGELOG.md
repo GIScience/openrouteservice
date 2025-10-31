@@ -25,23 +25,20 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
-## [unreleased]
+## [9.5.0] - 2025-10-31
 
 ### Added
 - accept [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale) ([#2149](https://github.com/GIScience/openrouteservice/pull/2149))
-- show export endpoint in status ([#2105](https://github.com/GIScience/openrouteservice/issue/2105))
+- show export endpoint in status ([#2150](https://github.com/GIScience/openrouteservice/pull/2150))
 
 ### Changed
-
-### Deprecated
-
-### Removed
+- update speed limits in the UK ([#2164](https://github.com/GIScience/openrouteservice/pull/2164))
 
 ### Fixed
 - correct setting of encoded values for highways and fords ([#2148](https://github.com/GIScience/openrouteservice/pull/2148))
-- update speed limits in UK ([#2164](https://github.com/GIScience/openrouteservice/pull/2164))
 
 ### Security
+- update io.minio:minio to 8.6.0 for upstream fix of [CVE-2025-48924](https://www.cve.org/CVERecord?id=CVE-2025-48924)
 
 
 ## [9.4.0] - 2025-09-30
@@ -964,7 +961,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.4.0...HEAD
+[9.5.0]: https://github.com/GIScience/openrouteservice/compare/v9.4.0...v9.5.0
 [9.4.0]: https://github.com/GIScience/openrouteservice/compare/v9.3.1...v9.4.0
 [9.3.1]: https://github.com/GIScience/openrouteservice/compare/v9.3.0...v9.3.1
 [9.3.0]: https://github.com/GIScience/openrouteservice/compare/v9.2.0...v9.3.0
