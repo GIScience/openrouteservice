@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.heigit.ors.util.ProfileTools.Flexibility.*;
+
 public class RoutingRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(RoutingRequest.class);
     public static final String ATTR_DETOURFACTOR = "detourfactor";
@@ -440,7 +442,8 @@ public class RoutingRequest extends ServiceRequest {
             int weightingMethod = searchParams.getWeightingMethod();
             RouteSearchContext searchCntx = TemporaryUtilShelter.createSearchContext(searchParams, routingProfile);
 
-            int flexibleMode = searchParams.hasFlexibleMode() || Boolean.TRUE.equals(routingProfile.getProfileConfiguration().getService().getForceTurnCosts()) ? ProfileTools.KEY_FLEX_PREPROCESSED : ProfileTools.KEY_FLEX_STATIC;
+
+            ProfileTools.Flexibility flexibility = searchParams.hasFlexibleMode() || Boolean.TRUE.equals(routingProfile.getProfileConfiguration().getService().getForceTurnCosts()) ? PREPROCESSED_WEIGHTS : STATIC_WEIGHTS;
             boolean optimized = searchParams.getOptimized();
 
             GHRequest req;
@@ -472,23 +475,26 @@ public class RoutingRequest extends ServiceRequest {
             if (TemporaryUtilShelter.supportWeightingMethod(profileType)) {
                 ProfileTools.setWeightingMethod(req.getHints(), weightingMethod, profileType, TemporaryUtilShelter.hasTimeDependentSpeed(searchParams, searchCntx));
                 if (requiresTimeDependentAlgorithm(searchCntx))
-                    flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
-                flexibleMode = TemporaryUtilShelter.getFlexibilityMode(flexibleMode, searchParams, profileType);
+                    flexibility = PREPROCESSED_WEIGHTS;
+                flexibility = TemporaryUtilShelter.getFlexibilityMode(flexibility, searchParams, profileType);
             } else
                 throw new IllegalArgumentException("Unsupported weighting " + weightingMethod + " for profile + " + profileType);
 
-            if (flexibleMode == ProfileTools.KEY_FLEX_STATIC)
-                //Speedup order: useCH, useCore, useALT
-                // TODO Future improvement: profileNameCH is an ugly hack and is required because of the hard-coded turnCost=false for CH
-                setSpeedups(req, true, true, true, searchCntx.profileNameCH());
-
-            if (flexibleMode == ProfileTools.KEY_FLEX_PREPROCESSED) {
-                setSpeedups(req, false, optimized, true, searchCntx.profileNameCH());
+            switch(flexibility) {
+                case STATIC_WEIGHTS:
+                    setSpeedups(req, true, true, true, searchCntx.profileNameCH());
+                    break;
+                case PREPROCESSED_WEIGHTS:
+                    setSpeedups(req, false, optimized, true, searchCntx.profileNameCH());
+                    break;
+                case NON_DECREASING_WEIGHTS:
+                    setSpeedups(req, false, false, true, searchCntx.profileNameCH());
+                    break;
+                case DYNAMIC_WEIGHTS:
+                default:
+                    setSpeedups(req, false, false, false, searchCntx.profileNameCH());
+                    break;
             }
-
-            //cannot use CH or CoreALT with requests where the weighting of non-predefined edges might change
-            if (flexibleMode == ProfileTools.KEY_FLEX_FULLY)
-                setSpeedups(req, false, false, true, searchCntx.profileNameCH());
 
             if (searchParams.isTimeDependent()) {
                 String key;

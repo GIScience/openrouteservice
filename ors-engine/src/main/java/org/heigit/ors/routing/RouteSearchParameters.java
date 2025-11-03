@@ -326,14 +326,18 @@ public class RouteSearchParameters {
     /**
      * Check if the request is compatible with preprocessed graphs
      */
-    public boolean requiresDynamicWeights() {
+    public boolean requiresNonDecreasingWeights() {
         return hasAvoidAreas()
                 || hasBearings()
                 || hasContinueStraight()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings())
-                || getAlternativeRoutesCount() > 0
-                || hasCustomModel();
+                || getAlternativeRoutesCount() > 0;
     }
+
+    public boolean requiresDynamicWeights() {
+        return hasCustomModel();
+    }
+
 
     private boolean hasCustomModel() {
         return this.customModel != null;

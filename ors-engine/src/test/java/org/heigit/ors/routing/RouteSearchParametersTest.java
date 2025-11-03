@@ -1,5 +1,6 @@
 package org.heigit.ors.routing;
 
+import com.graphhopper.util.CustomModel;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
 import org.heigit.ors.routing.parameters.VehicleParameters;
@@ -237,12 +238,22 @@ class RouteSearchParametersTest {
     }
 
     @Test
-    void requiresDynamicWeights() {
+    void requiresNonDecreasingWeights() {
+        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
+        assertFalse(routeSearchParameters.requiresNonDecreasingWeights());
+
+        routeSearchParameters = new RouteSearchParameters();
+        routeSearchParameters.setAvoidAreas(new Polygon[1]);
+        assertTrue(routeSearchParameters.requiresNonDecreasingWeights(), "avoid areas");
+    }
+
+    @Test
+                void requiresDynamicWeights() {
         RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
         assertFalse(routeSearchParameters.requiresDynamicWeights());
 
         routeSearchParameters = new RouteSearchParameters();
-        routeSearchParameters.setAvoidAreas(new Polygon[1]);
-        assertTrue(routeSearchParameters.requiresDynamicWeights(), "avoid areas");
+        routeSearchParameters.setCustomModel(new CustomModel());
+        assertTrue(routeSearchParameters.requiresDynamicWeights(), "custom models");
     }
 }
