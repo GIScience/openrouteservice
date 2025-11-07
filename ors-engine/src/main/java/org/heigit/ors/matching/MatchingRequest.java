@@ -40,6 +40,7 @@ import java.util.Set;
 
 public class MatchingRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(MatchingRequest.class);
+    private final int maximumSearchRadius;
 
     @Setter
     @Getter
@@ -55,8 +56,9 @@ public class MatchingRequest extends ServiceRequest {
     GraphHopperStorage ghStorage;
     private Set<Integer> matchedEdgeIDs;
 
-    public MatchingRequest(int profileType) {
+    public MatchingRequest(int profileType, int maximumSearchRadius) {
         this.profileType = profileType;
+        this.maximumSearchRadius = maximumSearchRadius;
     }
 
     public MatchingResult computeResult(RoutingProfile rp) throws Exception {
@@ -71,8 +73,6 @@ public class MatchingRequest extends ServiceRequest {
         LocationIndex locIndex = gh.getLocationIndex();
         EdgeFilter snapFilter = new DefaultSnapFilter(weighting, ghStorage.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
 
-        int maxDistance = 500; // TODO: make configurable
-
         matchedEdgeIDs = new HashSet<>();
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
             Geometry geom = geometry.getGeometryN(i);
@@ -82,7 +82,7 @@ public class MatchingRequest extends ServiceRequest {
             }
             switch (geom.getGeometryType()) {
                 case "Point", "MultiPoint":
-                    matchPoint(geom, locIndex, snapFilter, maxDistance);
+                    matchPoint(geom, locIndex, snapFilter, maximumSearchRadius);
                     break;
                 case "LineString", "MultiLineString":
                     matchLine(geom, new GhMapMatcher(gh, localProfileName));
@@ -145,7 +145,7 @@ public class MatchingRequest extends ServiceRequest {
 
     private void snapPointToEdge(Coordinate p, LocationIndex locIndex, EdgeFilter edgeFilter, int maxDistance) {
         Snap snappedPoint = locIndex.findClosest(p.y, p.x, edgeFilter);
-        if (!snappedPoint.isValid() || snappedPoint.getQueryDistance() >= maxDistance) {
+        if (!snappedPoint.isValid() || snappedPoint.getQueryDistance() > maxDistance) {
             LOGGER.trace("No valid edge found for point: " + p);
             return;
         }
