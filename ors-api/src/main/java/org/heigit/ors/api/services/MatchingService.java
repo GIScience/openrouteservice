@@ -69,7 +69,7 @@ public class MatchingService extends ApiService {
             throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_PROFILE);
         }
 
-        MatchingRequest matchingRequest = new MatchingRequest(profileType);
+        MatchingRequest matchingRequest = new MatchingRequest(profileType, endpointsProperties.getMatch().getMaximumSearchRadius());
         if (matchingApiRequest.getProfileName() == null || matchingApiRequest.getProfileName().isEmpty()) {
             throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_PROFILE);
         }
