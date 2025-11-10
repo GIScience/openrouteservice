@@ -4,12 +4,8 @@ package org.heigit.ors.config.profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.graphhopper.routing.ev.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static java.util.Optional.ofNullable;
 
@@ -17,12 +13,14 @@ import static java.util.Optional.ofNullable;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DynamicDataProperties {
-    @JsonProperty("logie_borders")
-    private Boolean logieBorders;
-    @JsonProperty("logie_bridges")
-    private Boolean logieBridges;
-    @JsonProperty("logie_roads")
-    private Boolean logieRoads;
+    private Boolean enabled;
+
+    @JsonProperty("store_url")
+    private String storeUrl = "jdbc:postgresql://localhost:5432/featurestore";
+    @JsonProperty("store_user")
+    private String storeUser;
+    @JsonProperty("store_pass")
+    private String storePass;
 
     public DynamicDataProperties() {
     }
@@ -33,24 +31,14 @@ public class DynamicDataProperties {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return logieBorders == null && logieBridges == null && logieRoads == null;
+        return enabled == null && storeUrl == null && storeUser == null && storePass == null;
     }
 
     public void merge(DynamicDataProperties other) {
-        logieBorders = ofNullable(this.logieBorders).orElse(other.logieBorders);
-        logieBridges = ofNullable(this.logieBridges).orElse(other.logieBridges);
-        logieRoads = ofNullable(this.logieRoads).orElse(other.logieRoads);
-    }
-
-    public List<String> getEnabledDynamicDatasets() {
-        List<String> res = new ArrayList<>();
-        if (Boolean.TRUE.equals(logieBorders))
-            res.add(LogieBorders.KEY);
-        if (Boolean.TRUE.equals(logieBridges))
-            res.add(LogieBridges.KEY);
-        if (Boolean.TRUE.equals(logieRoads))
-            res.add(LogieRoads.KEY);
-        return res;
+        enabled = ofNullable(this.enabled).orElse(other.enabled);
+        storeUrl = ofNullable(this.storeUrl).orElse(other.storeUrl);
+        storeUser = ofNullable(this.storeUser).orElse(other.storeUser);
+        storePass = ofNullable(this.storePass).orElse(other.storePass);
     }
 }
 

@@ -27,6 +27,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGr
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.TimeUtility;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -203,6 +204,10 @@ public class RoutingProfile {
         dynamicDatasets.add(datasetName);
     }
 
+    public boolean hasDynamicData() {
+        return !dynamicDatasets.isEmpty();
+    }
+
     public List<String> getDynamicDatasets() {
         return dynamicDatasets;
     }
@@ -244,4 +249,15 @@ public class RoutingProfile {
         sev.set(edgeID, null);
     }
 
+    public JSONObject getDynamicDataStats() {
+        JSONObject result = new JSONObject();
+        for (String key : dynamicDatasets) {
+            HashMapSparseEncodedValue<String> ev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+            JSONObject stats = new JSONObject();
+            stats.put("mapped_edges", ev.getCount());
+            stats.put("last_updated", ev.getLastUpdated().toString());
+            result.put(key, stats);
+        }
+        return result;
+    }
 }
