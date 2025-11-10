@@ -915,7 +915,7 @@ public class RoutingRequest extends ServiceRequest {
 
     /**
      * Set the speedup techniques used for calculating the route.
-     * Reults in usage of CH, Core or ALT/AStar, if they are enabled.
+     * Results in usage of CH, Core or ALT/AStar, if they are enabled.
      *
      * @param req           Request whose hints will be set
      * @param useCH         Should CH be enabled

@@ -4,7 +4,6 @@ import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.routing.util.FlagEncoder;
 import com.graphhopper.storage.ConditionalEdges;
 import com.graphhopper.util.PMap;
-import org.geotools.referencing.wkt.Preprocessor;
 import org.heigit.ors.exceptions.InternalServerException;
 import org.heigit.ors.routing.*;
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
@@ -31,7 +30,7 @@ public class TemporaryUtilShelter {
 
     /**
      * Get the flexibility mode necessary for the searchParams.
-     * Reults in usage of CH, Core or ALT/AStar
+     * Results in usage of CH, Core or ALT/AStar
      *
      * @param flexibleMode initial flexibleMode
      * @param searchParams RouteSearchParameters

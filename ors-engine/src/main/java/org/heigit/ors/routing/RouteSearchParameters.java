@@ -323,9 +323,6 @@ public class RouteSearchParameters {
                 || hasFlexibleMode();
     }
 
-    /**
-     * Check if the request is compatible with preprocessed graphs
-     */
     public boolean requiresNonDecreasingWeights() {
         return hasAvoidAreas()
                 || hasBearings()
@@ -336,7 +333,7 @@ public class RouteSearchParameters {
     }
 
     public boolean requiresDynamicWeights() {
-        return false;// there is currently no scenario which would be incompatible with ALTreat
+        return false; // there is currently no scenario which would be incompatible with ALT
     }
 
 
