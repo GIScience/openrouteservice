@@ -49,7 +49,6 @@ public class RoutingProfile {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfile.class);
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
-    private final Integer[] mRoutePrefs;
 
     private String profileName;
     private ProfileProperties profileProperties;
@@ -69,7 +68,6 @@ public class RoutingProfile {
         this.engineProperties = engine;
         this.graphVersion = graphVersion;
 
-        mRoutePrefs = profile.getProfilesTypes();
         mGraphHopper = initGraphHopper(loadCntx);
         ExecutionProperties execution = profile.getService().getExecution();
 
