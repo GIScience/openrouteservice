@@ -21,6 +21,11 @@
 package org.heigit.ors.api.util;
 
 public class Utils {
+
+    private Utils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static boolean isJUnitTest() {
         for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
             if (element.getClassName().startsWith("org.junit.")) {
