@@ -21,12 +21,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.services.DynamicDataService;
 import org.heigit.ors.api.services.MatchingService;
-import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.localization.LocalizationManager;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.util.AppInfo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpHeaders;
@@ -38,9 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -59,7 +57,7 @@ public class StatusAPI {
     }
 
     @GetMapping
-    public ResponseEntity getStatus(HttpServletRequest request) throws Exception {
+    public ResponseEntity<String> getStatus(HttpServletRequest request) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -115,9 +113,9 @@ public class StatusAPI {
                     if (profile.getBuild().getExtStorages() != null && !profile.getBuild().getExtStorages().isEmpty())
                         jProfileProps.put("storages", profile.getBuild().getExtStorages());
 
-                    var profile_evs = rp.getGraphhopper().getEncodingManager().getEncodedValues();
-                    if (profile_evs != null && !profile_evs.isEmpty()) {
-                        JSONArray jEVs = new JSONArray(profile_evs.stream().map(EncodedValue::getName).toArray());
+                    var profileEVs = rp.getGraphhopper().getEncodingManager().getEncodedValues();
+                    if (profileEVs != null && !profileEVs.isEmpty()) {
+                        JSONArray jEVs = new JSONArray(profileEVs.stream().map(EncodedValue::getName).toArray());
                         jProfileProps.put("encoded_values",jEVs);
                     }
 
@@ -164,10 +162,6 @@ public class StatusAPI {
                 return json.toString();
             }
         }
-    }
-
-    private String formatDateTime(Date date) {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(date);
     }
 
     protected boolean getBooleanParam(HttpServletRequest req, String string, boolean defaultValue) {
