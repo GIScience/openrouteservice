@@ -245,15 +245,9 @@ class RouteSearchParametersTest {
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setAvoidAreas(new Polygon[1]);
         assertTrue(routeSearchParameters.requiresNonDecreasingWeights(), "avoid areas");
-    }
-
-    @Test
-                void requiresDynamicWeights() {
-        RouteSearchParameters routeSearchParameters = new RouteSearchParameters();
-        assertFalse(routeSearchParameters.requiresDynamicWeights());
 
         routeSearchParameters = new RouteSearchParameters();
         routeSearchParameters.setCustomModel(new CustomModel());
-        assertTrue(routeSearchParameters.requiresDynamicWeights(), "custom models");
+        assertTrue(routeSearchParameters.requiresNonDecreasingWeights(), "custom models");
     }
 }

@@ -331,11 +331,12 @@ public class RouteSearchParameters {
                 || hasBearings()
                 || hasContinueStraight()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings())
-                || getAlternativeRoutesCount() > 0;
+                || getAlternativeRoutesCount() > 0
+                || hasCustomModel();
     }
 
     public boolean requiresDynamicWeights() {
-        return hasCustomModel();
+        return false;// there is currently no scenario which would be incompatible with ALTreat
     }
 
 
