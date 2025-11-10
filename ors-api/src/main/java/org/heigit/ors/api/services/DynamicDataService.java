@@ -6,16 +6,18 @@ import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.StringUtility;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.*;
 
+import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 import static org.heigit.ors.api.util.Utils.isJUnitTest;
 
 @Service
@@ -30,11 +32,11 @@ public class DynamicDataService {
     private final Map<String, Instant> lastUpdateTimestamps = new HashMap<>();
 
     @Autowired
-    public DynamicDataService(EngineProperties engineProperties, @Value("${ors.engine.dynamic_data.enabled:false}") Boolean enabled, @Value("${ors.engine.dynamic_data.store_url:}") String storeURL, @Value("${ors.engine.dynamic_data.store_user:}") String storeUser, @Value("${ors.engine.dynamic_data.store_pass:}") String storePassword) {
-        this.enabled = enabled;
-        this.storeURL = storeURL;
-        this.storeUser = storeUser;
-        this.storePassword = storePassword;
+    public DynamicDataService(EngineProperties engineProperties) {
+        enabled = engineProperties.getDynamicData().getEnabled();
+        storeURL = engineProperties.getDynamicData().getStoreUrl();
+        storeUser = engineProperties.getDynamicData().getStoreUser();
+        storePassword = engineProperties.getDynamicData().getStorePass();
         if (Boolean.FALSE.equals(enabled)) {
             LOGGER.debug("Dynamic data service is disabled in configuration.");
             return;
@@ -43,10 +45,7 @@ public class DynamicDataService {
     }
 
     private void initialize() {
-        if (Boolean.FALSE.equals(enabled)) {
-            LOGGER.debug("Dynamic data service is disabled in configuration.");
-            return;
-        }
+        LOGGER.info("Initializing Dynamic data service.");
         while (!RoutingProfileManagerStatus.isReady() && !RoutingProfileManagerStatus.isShutdown() && !RoutingProfileManagerStatus.hasFailed()) {
             try {
                 Thread.sleep(2000);
@@ -87,7 +86,7 @@ public class DynamicDataService {
     @Scheduled(cron = "${ors.engine.dynamic_data.update_schedule:0 * * * * *}") //Default is every minute
     public void update() {
         if (Boolean.FALSE.equals(enabled)) {
-            LOGGER.debug("Dynamic data updates are disabled, skipping scheduled update.");
+            LOGGER.trace("Dynamic data updates are disabled, skipping scheduled update.");
             return;
         }
         enabledProfiles.forEach(this::fetchDynamicData);
@@ -95,14 +94,9 @@ public class DynamicDataService {
     }
 
     private void fetchDynamicData(RoutingProfile profile) {
-        if (StringUtility.isNullOrEmpty(storeURL))
-            return;
+        if (StringUtility.isNullOrEmpty(storeURL)) return;
         String graphDate = getGraphDate(profile);
         try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
-            if (con == null) {
-                LOGGER.error("Database connection is null, cannot fetch dynamic data.");
-                return;
-            }
             try (PreparedStatement stmt = con.prepareStatement("""
                     SELECT *
                         FROM feature_map
@@ -145,8 +139,46 @@ public class DynamicDataService {
     }
 
     private static String getGraphDate(RoutingProfile profile) {
-        return isJUnitTest() ?
-                "2024-09-08T20:21:00Z" :
-                profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
+        return isJUnitTest() ? "2024-09-08T20:21:00Z" : profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
+    }
+
+    public JSONObject getFeatureStoreStats(String profileName) {
+        Map<String, JSONObject> stats = new HashMap<>();
+        try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
+            try (ResultSet rs = con.createStatement().executeQuery("SELECT dataset_key, last_import, next_import, count_imported, count_features, count_unmatched FROM stats_import")) {
+                while (rs.next()) {
+                    JSONObject ts = new JSONObject();
+                    ts.put("last_import", dbTimestampToString(rs.getTimestamp("last_import")));
+                    ts.put("next_import", dbTimestampToString(rs.getTimestamp("next_import")));
+                    ts.put("count_imported", rs.getInt("count_imported"));
+                    ts.put("count_features", rs.getInt("count_features"));
+                    ts.put("count_unmatched", rs.getInt("count_unmatched"));
+                    stats.put(rs.getString("dataset_key"), ts);
+                }
+            }
+            try (PreparedStatement statement = con.prepareStatement("SELECT dataset_key, profile, last_match, next_match FROM stats_match WHERE profile = ?")) {
+                statement.setString(1, profileName);
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        String key = rs.getString("dataset_key");
+                        if (stats.containsKey(key)) {
+                            stats.get(key).put("last_match", dbTimestampToString(rs.getTimestamp("last_match")));
+                            stats.get(key).put("next_match", dbTimestampToString(rs.getTimestamp("next_match")));
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
+        }
+        return new JSONObject(stats);
+    }
+
+    private String dbTimestampToString(Timestamp timestamp) {
+        return ISO_INSTANT.format(timestamp.toLocalDateTime().toInstant(ZoneOffset.UTC));
+    }
+
+    public boolean isEnabled() {
+        return Boolean.TRUE.equals(enabled);
     }
 }

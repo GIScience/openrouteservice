@@ -19,6 +19,8 @@ import com.graphhopper.routing.ev.EncodedValue;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.heigit.ors.api.config.EndpointsProperties;
+import org.heigit.ors.api.services.DynamicDataService;
+import org.heigit.ors.api.services.MatchingService;
 import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.config.profile.ProfileProperties;
 import org.heigit.ors.localization.LocalizationManager;
@@ -47,9 +49,13 @@ import java.util.List;
 public class StatusAPI {
 
     private final EndpointsProperties endpointsProperties;
+    MatchingService matchingService;
+    DynamicDataService dynamicDataService;
 
-    public StatusAPI(EndpointsProperties endpointsProperties) {
+    public StatusAPI(EndpointsProperties endpointsProperties, MatchingService matchingService, DynamicDataService dynamicDataService) {
         this.endpointsProperties = endpointsProperties;
+        this.matchingService = matchingService;
+        this.dynamicDataService = dynamicDataService;
     }
 
     @GetMapping
@@ -60,6 +66,8 @@ public class StatusAPI {
         JSONObject jInfo = new JSONObject(true);
 
         jInfo.put("engine", AppInfo.getEngineInfo());
+
+        String profileWithDynamicData = null;
 
         if (RoutingProfileManagerStatus.isReady()) {
             RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
@@ -110,7 +118,17 @@ public class StatusAPI {
                         JSONArray jEVs = new JSONArray(profile_evs.stream().map(EncodedValue::getName).toArray());
                         jProfileProps.put("encoded_values",jEVs);
                     }
+
+                    if (rp.hasDynamicData()) {
+                        jProfileProps.put("dynamic_data", rp.getDynamicDataStats());
+                        profileWithDynamicData = profile.getProfileName();
+                    }
+
                     jProfiles.put(profile.getProfileName(), jProfileProps);
+                }
+
+                if (dynamicDataService.isEnabled() && profileWithDynamicData != null) {
+                    jInfo.put("dynamic_data_service", dynamicDataService.getFeatureStoreStats(profileWithDynamicData));
                 }
 
                 jInfo.put("profiles", jProfiles);

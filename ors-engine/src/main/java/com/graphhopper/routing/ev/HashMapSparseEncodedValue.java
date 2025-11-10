@@ -1,11 +1,13 @@
 package com.graphhopper.routing.ev;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HashMapSparseEncodedValue<E> implements SparseEncodedValue<E> {
     private final String name;
     private final Map<Integer, E> edgeValues = new HashMap<>();
+    private Instant lastUpdated = Instant.now();
 
     public HashMapSparseEncodedValue(String name) {
         this.name = name;
@@ -23,6 +25,7 @@ public class HashMapSparseEncodedValue<E> implements SparseEncodedValue<E> {
         } else {
             edgeValues.remove(edgeID);
         }
+        lastUpdated = Instant.now();
     }
 
     @Override
@@ -48,5 +51,13 @@ public class HashMapSparseEncodedValue<E> implements SparseEncodedValue<E> {
 
     public String toString() {
         return name;
+    }
+
+    public int getCount() {
+        return edgeValues.size();
+    }
+
+    public Instant getLastUpdated() {
+        return lastUpdated;
     }
 }
