@@ -37,7 +37,7 @@ public class DynamicDataService {
         storeURL = engineProperties.getDynamicData().getStoreUrl();
         storeUser = engineProperties.getDynamicData().getStoreUser();
         storePassword = engineProperties.getDynamicData().getStorePass();
-        if (Boolean.FALSE.equals(enabled)) {
+        if (!Boolean.TRUE.equals(enabled)) {
             LOGGER.debug("Dynamic data service is disabled in configuration.");
             return;
         }

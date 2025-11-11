@@ -47,12 +47,10 @@ import java.util.List;
 public class StatusAPI {
 
     private final EndpointsProperties endpointsProperties;
-    MatchingService matchingService;
     DynamicDataService dynamicDataService;
 
-    public StatusAPI(EndpointsProperties endpointsProperties, MatchingService matchingService, DynamicDataService dynamicDataService) {
+    public StatusAPI(EndpointsProperties endpointsProperties, DynamicDataService dynamicDataService) {
         this.endpointsProperties = endpointsProperties;
-        this.matchingService = matchingService;
         this.dynamicDataService = dynamicDataService;
     }
 
