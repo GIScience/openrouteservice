@@ -312,9 +312,8 @@ public class RouteSearchParameters {
         return isProfileTypeHeavyVehicle() && getVehicleType() != DEFAULT_HGV_VEHICLE_TYPE;
     }
 
-    public boolean requiresDynamicPreprocessedWeights() {
-        return hasAvoidAreas()
-                || hasAvoidFeatures()
+    public boolean requiresPreprocessedWeights() {
+        return hasAvoidFeatures()
                 || hasAvoidBorders()
                 || hasAvoidCountries()
                 || getConsiderTurnRestrictions()
@@ -324,16 +323,22 @@ public class RouteSearchParameters {
                 || hasFlexibleMode();
     }
 
-    /**
-     * Check if the request is compatible with preprocessed graphs
-     */
-    public boolean requiresFullyDynamicWeights() {
+    public boolean requiresNonDecreasingWeights() {
         return hasAvoidAreas()
                 || hasBearings()
                 || hasContinueStraight()
                 || (getProfileParameters() != null && getProfileParameters().hasWeightings())
                 || getAlternativeRoutesCount() > 0
-                || customModel != null;
+                || hasCustomModel();
+    }
+
+    public boolean requiresDynamicWeights() {
+        return false; // there is currently no scenario which would be incompatible with ALT
+    }
+
+
+    private boolean hasCustomModel() {
+        return this.customModel != null;
     }
 
     // time-dependent stuff

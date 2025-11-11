@@ -30,12 +30,15 @@ Releasing is documented in RELEASE.md
 ### Added
 
 ### Changed
+- enable ALT routing for custom models ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
+- the configuration parameter `maximum_distance_dynamic_weights` now only applies to scenarios that allow altering of edge weights across the entire routing graph and does not cover cases anymore where only a fixed subset of edges is dynamically weighted ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+- config parameter `maximum_distance_avoid_areas` is only applied to requests that involve avoid polygons ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
 
 ### Security
 
