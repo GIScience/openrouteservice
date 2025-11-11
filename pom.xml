@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.10</version>
+        <version>3.5.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -46,7 +46,7 @@
 
         <!-- switch graphhopper versions to enable debugging -->
         <graphhopper.version>v4.10.0</graphhopper.version>
-<!--        <graphhopper.version>4.10-SNAPSHOT</graphhopper.version>-->
+        <!--        <graphhopper.version>4.10-SNAPSHOT</graphhopper.version>-->
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.22.1</log4j.version>
