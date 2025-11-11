@@ -60,82 +60,87 @@ public class StatusAPI {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         JSONObject jInfo = new JSONObject(true);
-
         jInfo.put("engine", AppInfo.getEngineInfo());
-
-        String profileWithDynamicData = null;
 
         if (RoutingProfileManagerStatus.isReady()) {
             RoutingProfileManager profileManager = RoutingProfileManager.getInstance();
 
             if (!profileManager.getUniqueProfiles().isEmpty()) {
-
-                List<String> list = new ArrayList<>(6);
-                if (endpointsProperties.getRouting().isEnabled())
-                    list.add("routing");
-                if (endpointsProperties.getIsochrones().isEnabled())
-                    list.add("isochrones");
-                if (endpointsProperties.getMatrix().isEnabled())
-                    list.add("matrix");
-                if (endpointsProperties.getSnap().isEnabled())
-                    list.add("snap");
-                if (endpointsProperties.getExport().isEnabled())
-                    list.add("export");
-                if (endpointsProperties.getMatch().isEnabled())
-                    list.add("match");
-                jInfo.put("services", list);
-                jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
-
-                JSONObject jProfiles = new JSONObject(true);
-                for (RoutingProfile rp : profileManager.getUniqueProfiles()) {
-                    ProfileProperties profile = rp.getProfileConfiguration();
-                    JSONObject jProfileProps = new JSONObject(true);
-
-                    jProfileProps.put("encoder_name", profile.getEncoderName().getEncoderName());
-                    jProfileProps.put("graph_build_date", rp.getGraphProperties().get("datareader.import.date"));
-                    jProfileProps.put("osm_date", rp.getGraphProperties().get("datareader.data.date"));
-
-                    JSONObject jProfileLimits = new JSONObject();
-                    if (profile.getService().getMaximumDistance() != null)
-                        jProfileLimits.put("maximum_distance", profile.getService().getMaximumDistance());
-                    if (profile.getService().getMaximumDistanceDynamicWeights() != null)
-                        jProfileLimits.put("maximum_distance_dynamic_weights", profile.getService().getMaximumDistanceDynamicWeights());
-                    if (profile.getService().getMaximumDistanceAvoidAreas() != null)
-                        jProfileLimits.put("maximum_distance_avoid_areas", profile.getService().getMaximumDistanceAvoidAreas());
-                    if (profile.getService().getMaximumWayPoints() != null)
-                        jProfileLimits.put("maximum_waypoints", profile.getService().getMaximumWayPoints());
-
-                    if (!jProfileLimits.isEmpty())
-                        jProfileProps.put("limits", jProfileLimits);
-
-                    if (profile.getBuild().getExtStorages() != null && !profile.getBuild().getExtStorages().isEmpty())
-                        jProfileProps.put("storages", profile.getBuild().getExtStorages());
-
-                    var profileEVs = rp.getGraphhopper().getEncodingManager().getEncodedValues();
-                    if (profileEVs != null && !profileEVs.isEmpty()) {
-                        JSONArray jEVs = new JSONArray(profileEVs.stream().map(EncodedValue::getName).toArray());
-                        jProfileProps.put("encoded_values",jEVs);
-                    }
-
-                    if (rp.hasDynamicData()) {
-                        jProfileProps.put("dynamic_data", rp.getDynamicDataStats());
-                        profileWithDynamicData = profile.getProfileName();
-                    }
-
-                    jProfiles.put(profile.getProfileName(), jProfileProps);
-                }
-
-                if (dynamicDataService.isEnabled() && profileWithDynamicData != null) {
-                    jInfo.put("dynamic_data_service", dynamicDataService.getFeatureStoreStats(profileWithDynamicData));
-                }
-
-                jInfo.put("profiles", jProfiles);
+                addServicesInfo(jInfo);
+                addLanguagesInfo(jInfo);
+                addProfilesInfo(jInfo, profileManager);
             }
         }
 
         String jsonResponse = constructResponse(request, jInfo);
-
         return new ResponseEntity<>(jsonResponse, headers, HttpStatus.OK);
+    }
+
+    private void addServicesInfo(JSONObject jInfo) {
+        List<String> services = new ArrayList<>(6);
+        if (endpointsProperties.getRouting().isEnabled()) services.add("routing");
+        if (endpointsProperties.getIsochrones().isEnabled()) services.add("isochrones");
+        if (endpointsProperties.getMatrix().isEnabled()) services.add("matrix");
+        if (endpointsProperties.getSnap().isEnabled()) services.add("snap");
+        if (endpointsProperties.getExport().isEnabled()) services.add("export");
+        if (endpointsProperties.getMatch().isEnabled()) services.add("match");
+        jInfo.put("services", services);
+    }
+
+    private void addLanguagesInfo(JSONObject jInfo) throws Exception {
+        jInfo.put("languages", LocalizationManager.getInstance().getLanguages());
+    }
+
+    private void addProfilesInfo(JSONObject jInfo, RoutingProfileManager profileManager) {
+        JSONObject jProfiles = new JSONObject(true);
+        String profileWithDynamicData = null;
+
+        for (RoutingProfile rp : profileManager.getUniqueProfiles()) {
+            JSONObject jProfileProps = createProfileProperties(rp);
+            if (rp.hasDynamicData()) {
+                jProfileProps.put("dynamic_data", rp.getDynamicDataStats());
+                profileWithDynamicData = rp.getProfileConfiguration().getProfileName();
+            }
+            jProfiles.put(rp.getProfileConfiguration().getProfileName(), jProfileProps);
+        }
+
+        if (dynamicDataService.isEnabled() && profileWithDynamicData != null) {
+            jInfo.put("dynamic_data_service", dynamicDataService.getFeatureStoreStats(profileWithDynamicData));
+        }
+
+        jInfo.put("profiles", jProfiles);
+    }
+
+    private JSONObject createProfileProperties(RoutingProfile rp) {
+        ProfileProperties profile = rp.getProfileConfiguration();
+        JSONObject jProfileProps = new JSONObject(true);
+
+        jProfileProps.put("encoder_name", profile.getEncoderName().getEncoderName());
+        jProfileProps.put("graph_build_date", rp.getGraphProperties().get("datareader.import.date"));
+        jProfileProps.put("osm_date", rp.getGraphProperties().get("datareader.data.date"));
+
+        JSONObject jProfileLimits = new JSONObject();
+        if (profile.getService().getMaximumDistance() != null)
+            jProfileLimits.put("maximum_distance", profile.getService().getMaximumDistance());
+        if (profile.getService().getMaximumDistanceDynamicWeights() != null)
+            jProfileLimits.put("maximum_distance_dynamic_weights", profile.getService().getMaximumDistanceDynamicWeights());
+        if (profile.getService().getMaximumDistanceAvoidAreas() != null)
+            jProfileLimits.put("maximum_distance_avoid_areas", profile.getService().getMaximumDistanceAvoidAreas());
+        if (profile.getService().getMaximumWayPoints() != null)
+            jProfileLimits.put("maximum_waypoints", profile.getService().getMaximumWayPoints());
+
+        if (!jProfileLimits.isEmpty())
+            jProfileProps.put("limits", jProfileLimits);
+        if (profile.getBuild().getExtStorages() != null && !profile.getBuild().getExtStorages().isEmpty()) {
+            jProfileProps.put("storages", profile.getBuild().getExtStorages());
+        }
+        var profileEVs = rp.getGraphhopper().getEncodingManager().getEncodedValues();
+        if (profileEVs != null && !profileEVs.isEmpty()) {
+            JSONArray jEVs = new JSONArray(profileEVs.stream().map(EncodedValue::getName).toArray());
+            jProfileProps.put("encoded_values", jEVs);
+        }
+
+        return jProfileProps;
     }
 
     private String constructResponse(HttpServletRequest req, JSONObject json) {
