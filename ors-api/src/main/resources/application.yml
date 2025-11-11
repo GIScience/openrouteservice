@@ -109,6 +109,9 @@ ors:
       enabled: true
       maximum_search_radius: 500
       attribution: openrouteservice.org, OpenStreetMap contributors
+    export:
+      enabled: true
+      attribution: openrouteservice.org, OpenStreetMap contributors
 
   ##### ORS engine settings #####
   engine:

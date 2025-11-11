@@ -72,7 +72,7 @@ public class StatusAPI {
 
             if (!profileManager.getUniqueProfiles().isEmpty()) {
 
-                List<String> list = new ArrayList<>(4);
+                List<String> list = new ArrayList<>(6);
                 if (endpointsProperties.getRouting().isEnabled())
                     list.add("routing");
                 if (endpointsProperties.getIsochrones().isEnabled())
@@ -81,6 +81,8 @@ public class StatusAPI {
                     list.add("matrix");
                 if (endpointsProperties.getSnap().isEnabled())
                     list.add("snap");
+                if (endpointsProperties.getExport().isEnabled())
+                    list.add("export");
                 if (endpointsProperties.getMatch().isEnabled())
                     list.add("match");
                 jInfo.put("services", list);

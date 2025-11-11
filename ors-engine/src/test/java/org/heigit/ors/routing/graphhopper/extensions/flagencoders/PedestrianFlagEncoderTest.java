@@ -77,6 +77,13 @@ class PedestrianFlagEncoderTest {
     }
 
     @Test
+    void acceptSimpleSacScale() {
+        way = generatePedestrianWay();
+        way.setTag("sac_scale", "strolling");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+    }
+
+    @Test
     void testRejectWay() {
         assertTrue(flagEncoder.getAccess(way).canSkip());
     }

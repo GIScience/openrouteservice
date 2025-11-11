@@ -27,12 +27,11 @@ public class ProfileTools {
     public static final String KEY_ACTIVE_LANDMARKS = "active_landmarks";
     public static final String KEY_TOTAL_POP = "total_pop";
     public static final String KEY_TOTAL_AREA_KM = "total_area_km";
-    public static final int KEY_FLEX_STATIC = 0;
-    public static final int KEY_FLEX_PREPROCESSED = 1;
-    public static final int KEY_FLEX_FULLY = 2;
     public static final String KEY_CUSTOM_WEIGHTINGS = "custom_weightings";
     public static final String VAL_SHORTEST = "shortest";
     public static final String VAL_FASTEST = "fastest";
+
+    public enum Flexibility {STATIC_WEIGHTS, PREPROCESSED_WEIGHTS, NON_DECREASING_WEIGHTS, DYNAMIC_WEIGHTS}
 
     public static String makeProfileName(String vehicleName, String weightingName, boolean hasTurnCosts) {
         String profileName = vehicleName + "_" + weightingName;

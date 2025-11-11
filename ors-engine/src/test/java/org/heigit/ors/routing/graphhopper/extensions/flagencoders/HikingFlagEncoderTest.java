@@ -61,6 +61,13 @@ class HikingFlagEncoderTest {
     }
 
     @Test
+    void acceptSimpleSacScale() {
+        way = generateHikeWay();
+        way.setTag("sac_scale", "strolling");
+        assertTrue(flagEncoder.getAccess(way).isWay());
+    }
+
+    @Test
     void testAddPriorityFromRelation() {
         way = generateHikeWay();
         assertEquals(PriorityCode.AVOID_AT_ALL_COSTS.getValue(), flagEncoder.handlePriority(way, 1));

@@ -90,7 +90,7 @@ _intendedValues_ = `[yes, designated, permissive, official]`
 
 | Tag combination                                                                                                                                                                                                         |       Reject       | Accept |    Conditional     |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------:|:------:|:------------------:|
-| `sac_scale != hiking`                                                                                                                                                                                                   | :heavy_check_mark: |        |                    |
+| `sac_scale != [hiking,strolling]`                                                                                                                                                                                       | :heavy_check_mark: |        |                    |
 | `foot = ` _intendedValues_                                                                                                                                                                                              |                    |        | :heavy_check_mark: |
 | _restrictions_ = _restrictedValues_                                                                                                                                                                                     |                    |        | :heavy_check_mark: |
 | `sidewalk = [yes, both, left, right]`                                                                                                                                                                                   |                    |        | :heavy_check_mark: |
@@ -116,9 +116,9 @@ The following are applicable only when no highway tag has been provided for the 
 
 Same as [Foot](#foot) except for different `sac_scale` check with existing `highway` tag.
 
-| Tag combination                                                                    |       Reject       | Accept | Conditional |
-|------------------------------------------------------------------------------------|:------------------:|:------:|:-----------:|
-| `sac_scale != [hiking, mountain_hiking, demanding_mountain_hiking, alpine_hiking]` | :heavy_check_mark: |        |             |
+| Tag combination                                                                               |       Reject       | Accept | Conditional |
+|-----------------------------------------------------------------------------------------------|:------------------:|:------:|:-----------:|
+| `sac_scale != [strolling, hiking, mountain_hiking, demanding_mountain_hiking, alpine_hiking]` | :heavy_check_mark: |        |             |
 
 
 ## Wheelchair

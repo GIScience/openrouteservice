@@ -28,6 +28,7 @@ public class PedestrianFlagEncoder extends FootFlagEncoder {
     private PedestrianFlagEncoder(int speedBits, double speedFactor) {
         super(speedBits, speedFactor);
 
+        suitableSacScales.add("strolling");
         suitableSacScales.add("hiking");
     }
 

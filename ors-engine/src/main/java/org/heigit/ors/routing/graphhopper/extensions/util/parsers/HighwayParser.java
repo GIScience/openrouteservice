@@ -44,7 +44,7 @@ public class HighwayParser implements TagParser {
         //Keep in sync with documentation: waycategory.md
 
         boolean isHighway = way.hasTag("highway", "motorway", "motorway_link");
-        highwayEnc.setBool(isHighway, edgeFlags, false);
+        highwayEnc.setBool(false, edgeFlags, isHighway);
         return edgeFlags;
     }
 }
