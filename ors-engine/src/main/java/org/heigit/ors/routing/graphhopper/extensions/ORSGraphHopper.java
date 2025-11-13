@@ -56,7 +56,6 @@ import org.heigit.ors.routing.graphhopper.extensions.edgefilters.core.LMEdgeFilt
 import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.TrafficGraphStorage;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder;
@@ -447,8 +446,7 @@ public class ORSGraphHopper extends GraphHopperGtfs {
             Weighting weighting = createWeighting(profile, new PMap());
 
             if (profile.getVehicle().equals(FlagEncoderNames.HEAVYVEHICLE)) {
-                HeavyVehicleAttributesGraphStorage hgvStorage = GraphStorageUtils.getGraphExtension(getGraphHopperStorage(), HeavyVehicleAttributesGraphStorage.class);
-                EdgeFilter hgvEdgeFilter = new HeavyVehicleEdgeFilter(HeavyVehicleAttributes.HGV, null, hgvStorage);
+                EdgeFilter hgvEdgeFilter = new HeavyVehicleEdgeFilter(HeavyVehicleAttributes.HGV, null, getGraphHopperStorage());
                 weighting = new HgvAccessWeighting(weighting, hgvEdgeFilter);
             }
 

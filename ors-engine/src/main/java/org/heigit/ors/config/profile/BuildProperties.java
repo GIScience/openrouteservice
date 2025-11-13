@@ -94,6 +94,12 @@ public class BuildProperties {
             if (storage != null) {
                 ExtendedStorageName extendedStorageName = ExtendedStorageName.getEnum(key);
                 switch (extendedStorageName) {
+                    case HEAVY_VEHICLE:
+                        handleVehicleAccess();
+                        if (Boolean.TRUE.equals(storage.getRestrictions())) {
+                            handleVehicleRestrictions();
+                        }
+                        break;
                     case OSM_ID:
                         if (encodedValues.getOsmWayId() == null) {
                             encodedValues.setOsmWayId(true);
@@ -111,6 +117,48 @@ public class BuildProperties {
                         break;
                 }
             }
+        }
+    }
+
+    private void handleVehicleAccess() {
+        if (encodedValues.getAgriculturalAccess() == null) {
+            encodedValues.setAgriculturalAccess(true);
+        }
+        if (encodedValues.getBusAccess() == null) {
+            encodedValues.setBusAccess(true);
+        }
+        if (encodedValues.getDeliveryAccess() == null) {
+            encodedValues.setDeliveryAccess(true);
+        }
+        if (encodedValues.getForestryAccess() == null) {
+            encodedValues.setForestryAccess(true);
+        }
+        if (encodedValues.getGoodsAccess() == null) {
+            encodedValues.setGoodsAccess(true);
+        }
+        if (encodedValues.getHgvAccess() == null) {
+            encodedValues.setHgvAccess(true);
+        }
+        if (encodedValues.getHazmatAccess() == null) {
+            encodedValues.setHazmatAccess(true);
+        }
+    }
+
+    private void handleVehicleRestrictions() {
+        if (encodedValues.getMaxAxleLoad() == null) {
+            encodedValues.setMaxAxleLoad(true);
+        }
+        if (encodedValues.getMaxHeight() == null) {
+            encodedValues.setMaxHeight(true);
+        }
+        if (encodedValues.getMaxLength() == null) {
+            encodedValues.setMaxLength(true);
+        }
+        if (encodedValues.getMaxWeight() == null) {
+            encodedValues.setMaxWeight(true);
+        }
+        if (encodedValues.getMaxWidth() == null) {
+            encodedValues.setMaxWidth(true);
         }
     }
 
