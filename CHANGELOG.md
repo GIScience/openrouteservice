@@ -40,6 +40,7 @@ Releasing is documented in RELEASE.md
 
 ### Fixed
 - config parameter `maximum_distance_avoid_areas` is only applied to requests that involve avoid polygons ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
+- use separate instructions for roundabout and following road segment ([#2174](https://github.com/GIScience/openrouteservice/pull/2174))
 
 ### Security
 - reduce Container Image and Spring Boot vulnerabilities to almost 0 by updating dependencies ([#2170](https://github.com/GIScience/openrouteservice/pull/2170))
