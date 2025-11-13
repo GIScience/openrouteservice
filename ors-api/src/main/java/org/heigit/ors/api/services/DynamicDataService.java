@@ -85,7 +85,7 @@ public class DynamicDataService {
     @Async
     @Scheduled(cron = "${ors.engine.dynamic_data.update_schedule:0 * * * * *}") //Default is every minute
     public void update() {
-        if (Boolean.FALSE.equals(enabled)) {
+        if (!Boolean.TRUE.equals(enabled)) {
             LOGGER.trace("Dynamic data updates are disabled, skipping scheduled update.");
             return;
         }
