@@ -32,6 +32,7 @@ Releasing is documented in RELEASE.md
 ### Changed
 - enable ALT routing for custom models ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
 - the configuration parameter `maximum_distance_dynamic_weights` now only applies to scenarios that allow altering of edge weights across the entire routing graph and does not cover cases anymore where only a fixed subset of edges is dynamically weighted ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
+- allow minio repo client to run without authentication ([#2172](https://github.com/GIScience/openrouteservice/pull/2172))
 
 ### Deprecated
 
