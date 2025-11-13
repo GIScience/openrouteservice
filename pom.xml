@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.10</version>
+        <version>3.5.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -46,7 +46,7 @@
 
         <!-- switch graphhopper versions to enable debugging -->
         <graphhopper.version>v4.10.0</graphhopper.version>
-<!--        <graphhopper.version>4.10-SNAPSHOT</graphhopper.version>-->
+        <!--        <graphhopper.version>4.10-SNAPSHOT</graphhopper.version>-->
         <lombok.version>1.18.34</lombok.version>
         <slf4j.version>2.0.13</slf4j.version>
         <log4j.version>2.22.1</log4j.version>
@@ -79,7 +79,7 @@
         <javax-annotation-api.version>1.3.2</javax-annotation-api.version>
         <jakarta-annotation-version>1.3.5</jakarta-annotation-version>
 
-        <jupiter.version>5.11.4</jupiter.version>
+        <jupiter.version>5.12.2</jupiter.version>
         <mockito.version>5.12.0</mockito.version>
         <rest-assured.version>5.5.1</rest-assured.version>
         <testcontainers.version>1.21.0</testcontainers.version>
@@ -481,15 +481,11 @@
             </dependency>
 
             <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${jupiter.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-params</artifactId>
-                <version>${jupiter.version}</version>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.12.2</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <dependency>

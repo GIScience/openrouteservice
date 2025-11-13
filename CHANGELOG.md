@@ -32,6 +32,7 @@ Releasing is documented in RELEASE.md
 ### Changed
 - enable ALT routing for custom models ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
 - the configuration parameter `maximum_distance_dynamic_weights` now only applies to scenarios that allow altering of edge weights across the entire routing graph and does not cover cases anymore where only a fixed subset of edges is dynamically weighted ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
+- allow minio repo client to run without authentication ([#2172](https://github.com/GIScience/openrouteservice/pull/2172))
 
 ### Deprecated
 
@@ -41,6 +42,7 @@ Releasing is documented in RELEASE.md
 - config parameter `maximum_distance_avoid_areas` is only applied to requests that involve avoid polygons ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
 
 ### Security
+- reduce Container Image and Spring Boot vulnerabilities to almost 0 by updating dependencies ([#2170](https://github.com/GIScience/openrouteservice/pull/2170))
 
 
 ## [9.5.0] - 2025-10-31

@@ -1,5 +1,5 @@
 # Image is reused in the workflow builds for master and the latest version
-FROM docker.io/maven:3.9.10-amazoncorretto-21-alpine AS build
+FROM docker.io/maven:3.9.11-amazoncorretto-21-alpine AS build
 ARG DEBIAN_FRONTEND=noninteractive
 
 # hadolint ignore=DL3002
@@ -26,12 +26,12 @@ COPY ors-engine /tmp/ors/ors-engine
 RUN ./mvnw -pl 'ors-api,ors-engine' \
     -q clean package -DskipTests -Dmaven.test.skip=true
 
-FROM docker.io/golang:1.24.2-alpine3.21 AS build-go
+FROM docker.io/golang:1.25.4-alpine3.22 AS build-go
 # Setup the target system with the right user and folders.
-RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.45.1
+RUN GO111MODULE=on go install github.com/mikefarah/yq/v4@v4.48.1
 
 # build final image, just copying stuff inside
-FROM docker.io/amazoncorretto:21.0.8-alpine3.21 AS publish
+FROM docker.io/amazoncorretto:21.0.9-alpine3.22 AS publish
 
 # Build ARGS
 ARG UID=1000
