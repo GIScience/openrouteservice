@@ -25,7 +25,7 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
-## [unreleased]
+## [9.5.1] - 2025-11-14
 
 ### Added
 - documentation on how to prepare country data files for the avoid borders feature ([#2133](https://github.com/GIScience/openrouteservice/issues/2133))
@@ -34,10 +34,6 @@ Releasing is documented in RELEASE.md
 - enable ALT routing for custom models ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
 - the configuration parameter `maximum_distance_dynamic_weights` now only applies to scenarios that allow altering of edge weights across the entire routing graph and does not cover cases anymore where only a fixed subset of edges is dynamically weighted ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
 - allow minio repo client to run without authentication ([#2172](https://github.com/GIScience/openrouteservice/pull/2172))
-
-### Deprecated
-
-### Removed
 
 ### Fixed
 - config parameter `maximum_distance_avoid_areas` is only applied to requests that involve avoid polygons ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
@@ -983,7 +979,7 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.5.0...HEAD
+[9.5.1]: https://github.com/GIScience/openrouteservice/compare/v9.5.0...v9.5.1
 [9.5.0]: https://github.com/GIScience/openrouteservice/compare/v9.4.0...v9.5.0
 [9.4.0]: https://github.com/GIScience/openrouteservice/compare/v9.3.1...v9.4.0
 [9.3.1]: https://github.com/GIScience/openrouteservice/compare/v9.3.0...v9.3.1
