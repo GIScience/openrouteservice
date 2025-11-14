@@ -14,14 +14,22 @@ public abstract class AbstractContainerBaseTest extends ServiceTest {
     static final PostgreSQLContainer POSTGIS;
 
     static {
-        POSTGIS = new PostgreSQLContainer<>(DockerImageName.parse("postgis/postgis:17-3.6-alpine").asCompatibleSubstituteFor("postgres")).withDatabaseName("featurestore").withUsername("ors").withPassword("hello-postgres").waitingFor(Wait.defaultWaitStrategy());
+        POSTGIS = new PostgreSQLContainer<>(DockerImageName.parse("postgis/postgis:17-3.6-alpine")
+                .asCompatibleSubstituteFor("postgres"))
+                .withDatabaseName("featurestore")
+                .withUsername("ors")
+                .withPassword("hello-postgres")
+                .waitingFor(Wait.defaultWaitStrategy()
+                );
         POSTGIS.start();
 
-        try (Connection connection = DriverManager.getConnection(POSTGIS.getJdbcUrl(), POSTGIS.getUsername(), POSTGIS.getPassword())) {
-            System.setProperty("ors.engine.dynamic_data.store_url", POSTGIS.getJdbcUrl());
-            System.setProperty("ors.engine.dynamic_data.store_user", POSTGIS.getUsername());
-            System.setProperty("ors.engine.dynamic_data.store_pass", POSTGIS.getPassword());
+        System.setProperty("ors.engine.dynamic_data.store_url", POSTGIS.getJdbcUrl());
+        System.setProperty("ors.engine.dynamic_data.store_user", POSTGIS.getUsername());
+        System.setProperty("ors.engine.dynamic_data.store_pass", POSTGIS.getPassword());
+        // We also need the DynamicDataService's static method getGraphDate to return a fixed date for testing
+        System.setProperty("GRAPH_DATE_OVERRIDE", "2024-09-08T20:21:00Z");
 
+        try (Connection connection = DriverManager.getConnection(POSTGIS.getJdbcUrl(), POSTGIS.getUsername(), POSTGIS.getPassword())) {
             try (Statement stmt = connection.createStatement()) {
                 stmt.executeUpdate("""                      
                         CREATE TABLE features (

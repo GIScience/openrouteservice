@@ -16,7 +16,7 @@ public class DynamicDataProperties {
     private Boolean enabled;
 
     @JsonProperty("store_url")
-    private String storeUrl = "jdbc:postgresql://localhost:5432/featurestore";
+    private String storeUrl;
     @JsonProperty("store_user")
     private String storeUser;
     @JsonProperty("store_pass")
