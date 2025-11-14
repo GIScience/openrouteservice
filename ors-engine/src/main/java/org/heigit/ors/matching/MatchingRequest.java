@@ -53,7 +53,7 @@ public class MatchingRequest extends ServiceRequest {
     @Setter
     private Geometry geometry;
 
-    GraphHopperStorage ghStorage;
+    private GraphHopperStorage ghStorage;
     private Set<Integer> matchedEdgeIDs;
 
     public MatchingRequest(int profileType, int maximumSearchRadius) {
