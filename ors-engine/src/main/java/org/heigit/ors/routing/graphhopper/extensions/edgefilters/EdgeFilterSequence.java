@@ -44,8 +44,9 @@ public class EdgeFilterSequence implements EdgeFilter {
         return name;
     }
 
-    public void add(EdgeFilter o) {
+    public EdgeFilterSequence add(EdgeFilter o) {
         filters.add(o);
+        return this;
     }
 
     @Override

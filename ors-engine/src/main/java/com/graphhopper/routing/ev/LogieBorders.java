@@ -5,7 +5,8 @@ public enum LogieBorders {
     OPEN(1),
     RESTRICTED(2),
     CLOSED(3),
-    UNSPECIFIED(4);
+    UNSPECIFIED(4),
+    UNCLEAR(5);
 
 
     public static final String KEY = "logie_borders";

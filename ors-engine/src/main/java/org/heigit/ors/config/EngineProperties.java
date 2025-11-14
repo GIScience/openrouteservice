@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.heigit.ors.common.DataAccessEnum;
+import org.heigit.ors.config.profile.DynamicDataProperties;
 import org.heigit.ors.config.profile.ProfileProperties;
 
 import java.util.LinkedHashMap;
@@ -20,6 +21,7 @@ public class EngineProperties {
     private ElevationProperties elevation = new ElevationProperties();
     private GraphManagementProperties graphManagement = new GraphManagementProperties();
     private ProfileProperties profileDefault = new ProfileProperties();
+    private DynamicDataProperties dynamicData = new DynamicDataProperties();
     private Map<String, ProfileProperties> profiles = new LinkedHashMap<>();
 
     @JsonIgnore

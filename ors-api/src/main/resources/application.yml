@@ -107,6 +107,7 @@ ors:
       maximum_locations: 5000
     match:
       enabled: true
+      maximum_search_radius: 500
       attribution: openrouteservice.org, OpenStreetMap contributors
     export:
       enabled: true
@@ -209,6 +210,8 @@ ors:
             WaySurfaceType:
             RoadAccessRestrictions:
               use_for_warnings: true
+          encoded_values:
+            road_environment: true
         service:
           execution:
             methods:

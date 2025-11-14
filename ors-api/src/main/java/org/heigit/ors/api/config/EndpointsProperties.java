@@ -145,6 +145,7 @@ public class EndpointsProperties {
     @Setter(AccessLevel.PACKAGE)
     public static class EndpointMatchProperties {
         private boolean enabled;
+        private int maximumSearchRadius;
         private String attribution;
     }
 

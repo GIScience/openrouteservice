@@ -22,7 +22,7 @@ public class ServiceProperties {
     private Boolean allowCustomModels;
     private ExecutionProperties execution = new ExecutionProperties();
     @JsonProperty("dynamic_data")
-    private DynamicDataProperties dynamicData = new DynamicDataProperties();
+    private DynamicDataProfileProperties dynamicData = new DynamicDataProfileProperties();
 
     public ServiceProperties() {
     }
