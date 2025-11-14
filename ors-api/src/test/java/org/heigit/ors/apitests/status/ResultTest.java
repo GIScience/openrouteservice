@@ -16,6 +16,7 @@ package org.heigit.ors.apitests.status;
 import org.heigit.ors.apitests.common.AbstractContainerBaseTest;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.VersionAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -24,6 +25,11 @@ import org.testcontainers.junit.jupiter.TestcontainersExtension;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
+// Test order is needed to ensure that this test runs first because the
+// database from which the dynamic data is fetched must be available before
+// ORS is started. If other tests run first they may start ORS too early.
+// (see also test/resources/junit-platform.properties)
+@Order(0)
 @EndPointAnnotation(name = "status")
 @VersionAnnotation(version = "v2")
 @ExtendWith(TestcontainersExtension.class)

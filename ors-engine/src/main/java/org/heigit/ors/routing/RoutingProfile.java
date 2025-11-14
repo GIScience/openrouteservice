@@ -232,7 +232,7 @@ public class RoutingProfile {
         }
         SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
-            LOGGER.error("SparseEncodedValue for key '" + key + "' not found, cannot update dynamic data.");
+            LOGGER.error("SparseEncodedValue for key %s not found, cannot update dynamic data.".formatted(key));
             return;
         }
         sev.set(edgeID, stateFromString.apply(value));
@@ -241,7 +241,7 @@ public class RoutingProfile {
     public void unsetDynamicData(String key, int edgeID) {
         SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
-            LOGGER.error("SparseEncodedValue for key '" + key + "' not found, cannot update dynamic data.");
+            LOGGER.error("SparseEncodedValue for key %s not found, cannot unset dynamic data.".formatted(key));
             return;
         }
         sev.set(edgeID, null);
@@ -251,6 +251,10 @@ public class RoutingProfile {
         JSONObject result = new JSONObject();
         for (String key : dynamicDatasets) {
             HashMapSparseEncodedValue<String> ev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+            if (ev == null) {
+                LOGGER.warn("SparseEncodedValue for key %s not found, this should not happen.".formatted(key));
+                continue;
+            }
             JSONObject stats = new JSONObject();
             stats.put("mapped_edges", ev.getCount());
             stats.put("last_updated", ev.getLastUpdated().toString());

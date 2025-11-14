@@ -16,9 +16,9 @@ import java.sql.*;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
-import static org.heigit.ors.api.util.Utils.isJUnitTest;
 
 @Service
 public class DynamicDataService {
@@ -27,9 +27,9 @@ public class DynamicDataService {
     private final String storeURL;
     private final String storeUser;
     private final String storePassword;
-    private final Boolean enabled;
+    private Boolean enabled;
     private final List<RoutingProfile> enabledProfiles = new ArrayList<>();
-    private final Map<String, Instant> lastUpdateTimestamps = new HashMap<>();
+    private final Map<String, Instant> lastUpdateTimestamps = new ConcurrentHashMap<>();
 
     @Autowired
     public DynamicDataService(EngineProperties engineProperties) {
@@ -58,6 +58,13 @@ public class DynamicDataService {
             return;
         }
         LOGGER.info("Initializing dynamic data service.");
+        try {
+            testDatabaseConnection();
+        } catch (SQLException e) {
+            LOGGER.error("Dynamic data service initialization failed due to FeatureStore database connection error. " + e.getMessage());
+            enabled = false;
+            return;
+        }
         RoutingProfileManager.getInstance().getUniqueProfiles().forEach(profile -> {
             LOGGER.debug("Checking profile: " + profile.name());
             if (Boolean.TRUE.equals(profile.getProfileConfiguration().getBuild().getEncoderOptions().getEnableCustomModels()))
@@ -74,6 +81,12 @@ public class DynamicDataService {
             fetchDynamicData(profile);
         }
         LOGGER.info("Dynamic data service initialized for profiles: " + enabledProfiles.stream().map(RoutingProfile::name).toList());
+    }
+
+    private void testDatabaseConnection() throws SQLException {
+        try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
+            LOGGER.info("Successfully connected to dynamic data store database.");
+        }
     }
 
     public void reinitialize() {
@@ -134,18 +147,18 @@ public class DynamicDataService {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
+            LOGGER.error("Error during dynamic data update: " + e.getMessage());
         }
     }
 
     private static String getGraphDate(RoutingProfile profile) {
-        return isJUnitTest() ? "2024-09-08T20:21:00Z" : profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
+        return System.getProperty("GRAPH_DATE_OVERRIDE", profile.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date"));
     }
 
     public JSONObject getFeatureStoreStats(String profileName) {
         Map<String, JSONObject> stats = new HashMap<>();
         try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
-            try (ResultSet rs = con.createStatement().executeQuery("SELECT dataset_key, last_import, next_import, count_imported, count_features, count_unmatched FROM stats_import")) {
+            try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery("SELECT dataset_key, last_import, next_import, count_imported, count_features, count_unmatched FROM stats_import")) {
                 while (rs.next()) {
                     JSONObject ts = new JSONObject();
                     ts.put("last_import", dbTimestampToString(rs.getTimestamp("last_import")));
@@ -169,7 +182,9 @@ public class DynamicDataService {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.error("Error during dynamic data update: " + e.getMessage(), e);
+            JSONObject error = new JSONObject();
+            error.put("message", "Error FeatureStore stats retrieval: " + e.getMessage());
+            stats.put("error", error);
         }
         return new JSONObject(stats);
     }
