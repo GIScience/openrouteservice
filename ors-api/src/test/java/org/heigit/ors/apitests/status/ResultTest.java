@@ -17,12 +17,17 @@ import org.heigit.ors.apitests.common.AbstractContainerBaseTest;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.junit.jupiter.TestcontainersExtension;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
 @EndPointAnnotation(name = "status")
 @VersionAnnotation(version = "v2")
+@ExtendWith(TestcontainersExtension.class)
+@Testcontainers(disabledWithoutDocker = true)
 class ResultTest extends AbstractContainerBaseTest {
 
     @Test
