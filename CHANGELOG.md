@@ -25,6 +25,21 @@ RELEASING:
 Releasing is documented in RELEASE.md
 -->
 
+## [unreleased]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+- fix: remove outdated graph build workflow ([#2176](https://github.com/GIScience/openrouteservice/pull/2176))
+
+### Security
+
 ## [9.5.1] - 2025-11-14
 
 ### Added
