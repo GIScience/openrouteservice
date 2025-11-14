@@ -40,6 +40,7 @@ Releasing is documented in RELEASE.md
 
 ### Security
 
+
 ## [9.5.1] - 2025-11-14
 
 ### Added
@@ -107,6 +108,7 @@ Releasing is documented in RELEASE.md
 - update apache commons-lang3 to 3.18.0 fixes 
   [CVE-2025-48924](https://www.cve.org/CVERecord?id=CVE-2025-48924)
 
+
 ## [9.3.1] - 2025-07-28
 
 ### Fixed
@@ -171,6 +173,7 @@ Releasing is documented in RELEASE.md
 
 ### Security
 - upgraded spring-boot-starter-parent to 3.4.4 due to [tomcat CVE](https://github.com/advisories/GHSA-83qj-6fr2-vhqg)
+
 
 ## [9.1.1] - 2025-03-13
 
@@ -994,6 +997,8 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
+
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.5.1...HEAD
 [9.5.1]: https://github.com/GIScience/openrouteservice/compare/v9.5.0...v9.5.1
 [9.5.0]: https://github.com/GIScience/openrouteservice/compare/v9.4.0...v9.5.0
 [9.4.0]: https://github.com/GIScience/openrouteservice/compare/v9.3.1...v9.4.0
