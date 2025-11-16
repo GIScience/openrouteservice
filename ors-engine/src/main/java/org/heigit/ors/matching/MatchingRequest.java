@@ -110,11 +110,16 @@ public class MatchingRequest extends ServiceRequest {
        EdgeFilterSequence edgeFilter = new EdgeFilterSequence().add(snapFilter);
        var properties = geom.getUserData();
        if (properties instanceof java.util.Map<?, ?> propertiesMap) {
-           String featureType = String.valueOf(propertiesMap.get("type"));
-           switch (featureType) {
-               case "bridge" -> addBridgeFilter(edgeFilter, ghStorage);
-               case "border" -> addBorderFilter(edgeFilter, ghStorage);
-               default -> LOGGER.trace("Missing or unknown feature type, no special filter applied for snapping.");
+           Object typeObj = propertiesMap.get("type");
+           if (typeObj == null) {
+               LOGGER.trace("Missing feature type, no special filter applied for snapping.");
+           } else {
+               String featureType = typeObj.toString();
+               switch (featureType) {
+                   case "bridge" -> addBridgeFilter(edgeFilter, ghStorage);
+                   case "border" -> addBorderFilter(edgeFilter, ghStorage);
+                   default -> LOGGER.trace("Unknown feature type '" + featureType + "', no special filter applied for snapping.");
+               }
            }
        }
        return edgeFilter;
