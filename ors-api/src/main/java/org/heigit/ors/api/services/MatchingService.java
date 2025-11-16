@@ -85,8 +85,16 @@ public class MatchingService extends ApiService {
 
         GeoJsonReader reader = new GeoJsonReader();
         try {
+            if (!(features.get("features") instanceof List<?> featuresList)) {
+                throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_FORMAT, "invalid GeoJSON format: 'features' is not a list");
+            }
             List<Geometry> geometries = new ArrayList<>();
-            for (Map<String, Object> feature : (List<Map<String, Object>>) features.get("features")) {
+            for (Object featureObj : featuresList) {
+                if (!(featureObj instanceof Map<?, ?> featureMap)) {
+                    throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_FORMAT, "invalid GeoJSON format: 'feature' is not a map");
+                }
+                @SuppressWarnings("unchecked")
+                Map<String, Object> feature = (Map<String, Object>) featureMap;
                 Geometry geometry = reader.read(JSONValue.toJSONString(feature));
                 if (geometry == null) {
                     throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry is null");
