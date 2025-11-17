@@ -135,7 +135,7 @@ The remaining daily quota can also be checked programmatically, compare the `x-r
 ## My API key looks like a JWT token - how does this work?
 
 Since we migrated our user management to [account.heigit.org](https://account.heigit.org) in the beginning of 2025, newly issued keys look like JSON Web Tokens (JWT).
-However, even though they start with the `eyJ`-sequence, they are **not** JWTs, but regular HeiGIT API keys.
+However, even though they start with the `eyJ`-sequence, those are regular HeiGIT API keys and can be used as such.
 
 Please check our [interactive API documentation](https://openrouteservice.org/dev/#/api-docs) for examples on how to use them.
 
