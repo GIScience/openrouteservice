@@ -2,6 +2,7 @@ package org.heigit.ors.apitests.matching;
 
 import io.restassured.response.ValidatableResponse;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
 import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
@@ -16,12 +17,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
 import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
-import static org.heigit.ors.common.StatusCode.BAD_REQUEST;
-import static org.heigit.ors.common.StatusCode.OK;
-import static org.heigit.ors.matching.MatchingErrorCodes.INVALID_PARAMETER_VALUE;
-import static org.heigit.ors.matching.MatchingErrorCodes.MISSING_PARAMETER;
+import static org.heigit.ors.common.StatusCode.*;
+import static org.heigit.ors.matching.MatchingErrorCodes.*;
 
 @EndPointAnnotation(name = "match")
 @VersionAnnotation(version = "v2")
@@ -186,7 +186,6 @@ class ParamsTest extends ServiceTest {
               ]
             }
             """;
-
     private static final String GEO_JSON_POINT_ON_BRIDGE = """
             {
               "type": "FeatureCollection",
@@ -204,6 +203,86 @@ class ParamsTest extends ServiceTest {
               ]
             }
             """;
+    private static final String GEO_JSON_INVALID_POINT = """
+            {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "geometry": {
+                    "coordinates": [
+                      0.0,
+                      0.0
+                    ],
+                    "type": "Point"
+                  }
+                }
+              ]
+            }
+            """;
+    private static final String GEO_JSON_VALID_AND_INVALID_POINT = """
+            {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "geometry": {
+                    "coordinates": [
+                      8.685990499833764,
+                      49.40267842626105
+                    ],
+                    "type": "Point"
+                  }
+                },
+                {
+                  "type": "Feature",
+                  "geometry": {
+                    "coordinates": [
+                      0.0,
+                      0.0
+                    ],
+                    "type": "Point"
+                  }
+                }
+              ]
+            }
+            """;
+    private static final String GEO_JSON_INVALID_LINE = """
+            {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "geometry": {
+                    "coordinates": [
+                      [
+                        1.0,
+                        2.0
+                      ],
+                      [
+                        3.0,
+                        4.0
+                      ]
+                    ],
+                    "type": "LineString"
+                  }
+                }
+              ]
+            }
+            """;
+    private static final String GEO_JSON_EMPTY_GEOMETRY = """
+            {
+              "type": "FeatureCollection",
+              "features": [
+                {
+                  "type": "Feature",
+                  "geometry": {
+                  }
+                }
+              ]
+            }
+            """;
+
     private static final String FEATURE_BORDER = "border";
     private static final String FEATURE_BRIDGE = "bridge";
 
@@ -218,10 +297,10 @@ class ParamsTest extends ServiceTest {
         return body;
     }
 
-    private static Map<String, Matcher<?>> defaultValidations() {
+    private static Map<String, Matcher<?>> expectedEdgeIdsSize(int size) {
         return Map.of(
                 KEY_GRAPH_TIMESTAMP, isValidTimestamp(),
-                KEY_EDGE_IDS + ".size()", is(9)
+                KEY_EDGE_IDS + ".size()", is(size)
         );
     }
 
@@ -238,8 +317,8 @@ class ParamsTest extends ServiceTest {
      */
     public static Stream<Arguments> matchingEndpointTestProvider() {
         return Stream.of(
-                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON), defaultValidations()),
-                Arguments.of(OK, PROFILE_HGV, validBody(GEO_JSON), defaultValidations()),
+                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON), expectedEdgeIdsSize(9)),
+                Arguments.of(OK, PROFILE_HGV, validBody(GEO_JSON), expectedEdgeIdsSize(9)),
                 Arguments.of(BAD_REQUEST, PROFILE_HGV, new JSONObject(), Map.of(
                         KEY_ERROR_CODE, is(MISSING_PARAMETER)
                 )), // Missing 'features' parameter
@@ -247,19 +326,62 @@ class ParamsTest extends ServiceTest {
                         KEY_ERROR_CODE, is(MISSING_PARAMETER)
                 )), // Empty 'features' parameter
                 Arguments.of(BAD_REQUEST, PROFILE_HGV, new JSONObject().put(KEY_FEATURES, new JSONObject().put("type", "not geoJSON")), Map.of(
-                        KEY_ERROR_CODE, is(INVALID_PARAMETER_VALUE)
+                        KEY_ERROR_CODE, is(INVALID_PARAMETER_FORMAT)
                 )), // Invalid 'features' parameter
                 Arguments.of(BAD_REQUEST, PROFILE_CAR, new JSONObject().put(KEY_FEATURES, new JSONObject(GEO_JSON_SINGLE_FEATURE)), Map.of(
-                        KEY_ERROR_CODE, is(INVALID_PARAMETER_VALUE)
+                        KEY_ERROR_CODE, is(INVALID_PARAMETER_FORMAT)
                 )), // Single Feature GeoJSON
                 Arguments.of(BAD_REQUEST, PROFILE_CAR, new JSONObject().put(KEY_FEATURES, new JSONObject(GEO_JSON_SINGLE_GEOMETRY)), Map.of(
+                        KEY_ERROR_CODE, is(INVALID_PARAMETER_FORMAT)
+                )), // Single Geometry GeoJSON
+                Arguments.of(BAD_REQUEST, PROFILE_CAR, new JSONObject().put(KEY_FEATURES, new JSONObject(GEO_JSON_EMPTY_GEOMETRY)), Map.of(
+                        KEY_ERROR_CODE, is(INVALID_PARAMETER_FORMAT)
+                )), // Empty geometry
+                Arguments.of(BAD_REQUEST, "foo-bar", validBody(GEO_JSON), Map.of(
                         KEY_ERROR_CODE, is(INVALID_PARAMETER_VALUE)
-                )) // Single Geometry GeoJSON
+                )), // Invalid profile
+                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON_INVALID_POINT), expectedEdgeIdsSize(0)), // Invalid point
+                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON_VALID_AND_INVALID_POINT), expectedEdgeIdsSize(1)), // One valid and one invalid point
+                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON_INVALID_LINE), expectedEdgeIdsSize(0)), // Invalid line
+                Arguments.of(BAD_REQUEST, PROFILE_CAR, validBody(GEO_JSON).put("foo", "bar"), Map.of(
+                        KEY_ERROR_CODE, is(UNKNOWN_PARAMETER)
+                )) // Unknown parameter
+        );
+    }
+
+    private static void validateJsonResponse(ValidatableResponse result, Map<String, Matcher<?>> validations) {
+        for (Map.Entry<String, Matcher<?>> entry : validations.entrySet()) {
+            String query = entry.getKey();
+            Matcher<?> matcher = entry.getValue();
+            result.body(query, matcher);
+        }
+    }
+
+    /**
+     * Provides a stream of test arguments for testing successful scenarios of matching to specific feature types.
+     * <p>
+     * Each test case is represented as an instance of the Arguments class, containing the following parameters:
+     * - feature-specific request body (JSONObject)
+     * - reference request body (JSONObject)
+     *
+     * @return A stream of Arguments instances.
+     */
+    public static Stream<Arguments> matchingFeaturesTestProvider() {
+        return Stream.of(
+                Arguments.of(addFeatureType(validBody(GEO_JSON_POINT_ON_BORDER), FEATURE_BRIDGE), validBody(GEO_JSON_POINT_ON_BRIDGE)),
+                Arguments.of(addFeatureType(validBody(GEO_JSON_POINT_ON_BRIDGE), FEATURE_BORDER), validBody(GEO_JSON_POINT_ON_BORDER))
+        );
+    }
+
+    private static Matcher<String> isValidTimestamp() {
+        return allOf(
+                matchesPattern("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"),
+                not(is("1970-01-01T00:00:00Z"))
         );
     }
 
     /**
-     * Parameterized test method for testing various scenarios in the Snapping Endpoint.
+     * Parameterized test method for testing various scenarios in the matching endpoint.
      *
      * @param body    The request body (JSONObject).
      * @param profile The routing profile type (String).
@@ -278,14 +400,6 @@ class ParamsTest extends ServiceTest {
                 .log().ifValidationFails()
                 .statusCode(statusCode);
         validateJsonResponse(result, validations);
-    }
-
-    private static void validateJsonResponse(ValidatableResponse result, Map<String, Matcher<?>> validations) {
-        for (Map.Entry<String, Matcher<?>> entry : validations.entrySet()) {
-            String query = entry.getKey();
-            Matcher<?> matcher = entry.getValue();
-            result.body(query, matcher);
-        }
     }
 
     @Test
@@ -318,27 +432,26 @@ class ParamsTest extends ServiceTest {
                 .statusCode(OK);
     }
 
-    /**
-     * Provides a stream of test arguments for testing successful scenarios of matching to specific feature types.
-     * <p>
-     * Each test case is represented as an instance of the Arguments class, containing the following parameters:
-     * - feature-specific request body (JSONObject)
-     * - reference request body (JSONObject)
-     *
-     * @return A stream of Arguments instances.
-     */
-    public static Stream<Arguments> matchingFeaturesTestProvider() {
-        return Stream.of(
-                Arguments.of(addFeatureType(validBody(GEO_JSON_POINT_ON_BORDER), FEATURE_BRIDGE), validBody(GEO_JSON_POINT_ON_BRIDGE)),
-                Arguments.of(addFeatureType(validBody(GEO_JSON_POINT_ON_BRIDGE), FEATURE_BORDER), validBody(GEO_JSON_POINT_ON_BORDER))
-        );
+    @Test
+    void testBadExportFormat() {
+        given()
+                .headers(jsonContent)
+                .body(validBody(GEO_JSON).toString())
+                .when()
+                .log().ifValidationFails()
+                .post(getEndPointPath() + "/driving-car/xml")
+                .then()
+                .log().ifValidationFails()
+                .assertThat()
+                .body("error.code", Matchers.is(UNSUPPORTED_EXPORT_FORMAT))
+                .statusCode(SC_NOT_ACCEPTABLE);
     }
 
     /**
      * Parameterized test method for testing of matching to specific features.
      *
-     * @param featureRequest  feature-specific request body (JSONObject)
-     * @param referenceRequest  reference request body (JSONObject)
+     * @param featureRequest   feature-specific request body (JSONObject)
+     * @param referenceRequest reference request body (JSONObject)
      */
     @ParameterizedTest
     @MethodSource("matchingFeaturesTestProvider")
@@ -369,12 +482,5 @@ class ParamsTest extends ServiceTest {
                 .assertThat()
                 .body(KEY_EDGE_IDS, is(refValue))
                 .statusCode(OK);
-    }
-
-    private static Matcher<String> isValidTimestamp() {
-        return allOf(
-                matchesPattern("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z"),
-                not(is("1970-01-01T00:00:00Z"))
-        );
     }
 }
