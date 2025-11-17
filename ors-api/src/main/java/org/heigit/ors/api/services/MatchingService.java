@@ -80,7 +80,7 @@ public class MatchingService extends ApiService {
             throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_FEATURES);
         }
         if (features.get("type") == null || !features.get("type").equals("FeatureCollection")) {
-            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "invalid GeoJSON type");
+            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_FORMAT, "invalid GeoJSON type");
         }
 
         GeoJsonReader reader = new GeoJsonReader();
@@ -106,7 +106,7 @@ public class MatchingService extends ApiService {
             }
             matchingRequest.setGeometry(new GeometryFactory().createGeometryCollection(geometries.toArray(new Geometry[0])));
         } catch (Exception e) {
-            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "invalid GeoJSON format: %s".formatted(e.getMessage()));
+            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_FORMAT, "invalid GeoJSON format: %s".formatted(e.getMessage()));
         }
         return matchingRequest;
     }

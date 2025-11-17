@@ -15,6 +15,10 @@
 
 package org.heigit.ors.api.controllers;
 
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,16 +32,17 @@ import org.heigit.ors.api.requests.matching.MatchingApiRequest;
 import org.heigit.ors.api.responses.matching.MatchingResponse;
 import org.heigit.ors.api.services.MatchingService;
 import org.heigit.ors.common.EncoderNameEnum;
-import org.heigit.ors.exceptions.MissingParameterException;
-import org.heigit.ors.exceptions.ParameterValueException;
-import org.heigit.ors.exceptions.StatusCodeException;
+import org.heigit.ors.exceptions.*;
 import org.heigit.ors.matching.MatchingErrorCodes;
 import org.heigit.ors.matching.MatchingRequest;
 import org.json.simple.JSONObject;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -129,6 +134,28 @@ public class MatchingAPI {
         jsonResponse.put("edge_ids", result.matched());
 
         return new ResponseEntity<>(jsonResponse.toJSONString(), headers, HttpStatus.OK);
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, HttpMessageConversionException.class, Exception.class})
+    public ResponseEntity<Object> handleReadingBodyException(final Exception e) {
+        final Throwable cause = e.getCause();
+        if (cause instanceof UnrecognizedPropertyException exception) {
+            return errorHandler.handleUnknownParameterException(new UnknownParameterException(MatchingErrorCodes.UNKNOWN_PARAMETER, exception.getPropertyName()));
+        } else if (cause instanceof InvalidFormatException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_FORMAT, exception.getValue().toString()));
+        } else if (cause instanceof InvalidDefinitionException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, exception.getPath().get(0).getFieldName()));
+        } else if (cause instanceof MismatchedInputException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_FORMAT, exception.getPath().get(0).getFieldName()));
+        } else if (cause instanceof ConversionFailedException exception) {
+            return errorHandler.handleStatusCodeException(new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, (String) exception.getValue()));
+        } else {
+            // Check if we are missing the body as a whole
+            if (e.getLocalizedMessage() != null && e.getLocalizedMessage().startsWith("Required request body is missing")) {
+                return errorHandler.handleStatusCodeException(new EmptyElementException(MatchingErrorCodes.MISSING_PARAMETER, "Request body could not be read"));
+            }
+            return errorHandler.handleGenericException(e);
+        }
     }
 
     @ExceptionHandler(StatusCodeException.class)

@@ -20,7 +20,8 @@ import static io.restassured.RestAssured.given;
 import static jakarta.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
 import static org.hamcrest.Matchers.*;
 import static org.heigit.ors.apitests.utils.CommonHeaders.jsonContent;
-import static org.heigit.ors.common.StatusCode.*;
+import static org.heigit.ors.common.StatusCode.BAD_REQUEST;
+import static org.heigit.ors.common.StatusCode.OK;
 import static org.heigit.ors.matching.MatchingErrorCodes.*;
 
 @EndPointAnnotation(name = "match")
