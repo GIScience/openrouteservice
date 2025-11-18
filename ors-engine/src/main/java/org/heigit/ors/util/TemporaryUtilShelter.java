@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
+import static org.heigit.ors.util.ProfileTools.*;
+import static org.heigit.ors.util.ProfileTools.Flexibility.*;
+
 /**
  * This class is only a temporary shelter for helper methods that lack appropriate places
  * during refactoring.
@@ -27,23 +30,28 @@ public class TemporaryUtilShelter {
 
     /**
      * Get the flexibility mode necessary for the searchParams.
-     * Reults in usage of CH, Core or ALT/AStar
+     * Results in usage of CH, Core or ALT/AStar
      *
      * @param flexibleMode initial flexibleMode
      * @param searchParams RouteSearchParameters
      * @param profileType  Necessary for HGV
      * @return flexibility as int
      */
-    public static int getFlexibilityMode(int flexibleMode, RouteSearchParameters searchParams, int profileType) {
-        if (searchParams.requiresDynamicPreprocessedWeights() || profileType == RoutingProfileType.WHEELCHAIR)
-            flexibleMode = ProfileTools.KEY_FLEX_PREPROCESSED;
+    public static Flexibility getFlexibilityMode(Flexibility flexibleMode, RouteSearchParameters searchParams, int profileType) {
 
-        if (searchParams.requiresFullyDynamicWeights())
-            flexibleMode = ProfileTools.KEY_FLEX_FULLY;
+        if (searchParams.requiresDynamicWeights())
+            return DYNAMIC_WEIGHTS;
+
+        if (searchParams.requiresNonDecreasingWeights())
+            return NON_DECREASING_WEIGHTS;
+
+        if (searchParams.requiresPreprocessedWeights() || profileType == RoutingProfileType.WHEELCHAIR)
+            return PREPROCESSED_WEIGHTS;
+
         //If we have special weightings, we have to fall back to ALT with Beeline
         ProfileParameters profileParams = searchParams.getProfileParameters();
         if (profileParams != null && profileParams.hasWeightings())
-            flexibleMode = ProfileTools.KEY_FLEX_FULLY;
+            flexibleMode = DYNAMIC_WEIGHTS;
 
         return flexibleMode;
     }
@@ -113,7 +121,7 @@ public class TemporaryUtilShelter {
         }
 
         if (profileParams != null && profileParams.hasWeightings()) {
-            props.putObject(ProfileTools.KEY_CUSTOM_WEIGHTINGS, true);
+            props.putObject(KEY_CUSTOM_WEIGHTINGS, true);
             Iterator<ProfileWeighting> iterator = profileParams.getWeightings().getIterator();
             while (iterator.hasNext()) {
                 ProfileWeighting weighting = iterator.next();
@@ -126,9 +134,9 @@ public class TemporaryUtilShelter {
         }
 
         String effectiveWeightingMethod = searchParams.getCustomModel() != null ? WeightingMethod.getName(WeightingMethod.CUSTOM) : WeightingMethod.getName(searchParams.getWeightingMethod());
-        String localProfileName = ProfileTools.makeProfileName(encoderName, effectiveWeightingMethod,
+        String localProfileName = makeProfileName(encoderName, effectiveWeightingMethod,
                 Boolean.TRUE.equals(routingProfile.getProfileProperties().getBuild().getEncoderOptions().getTurnCosts()));
-        String profileNameCH = ProfileTools.makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
+        String profileNameCH = makeProfileName(encoderName, WeightingMethod.getName(searchParams.getWeightingMethod()), false);
         RouteSearchContext searchCntx = new RouteSearchContext(routingProfile.getGraphhopper(), flagEncoder, localProfileName, profileNameCH);
         searchCntx.setProperties(props);
 

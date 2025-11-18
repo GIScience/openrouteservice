@@ -28,9 +28,8 @@ Releasing is documented in RELEASE.md
 ## [unreleased]
 
 ### Added
-- accept [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale) ([#2149](https://github.com/GIScience/openrouteservice/pull/2149))
-- show export endpoint in status ([#2105](https://github.com/GIScience/openrouteservice/issue/2105))
 - documentation on the fields of JSON and GeoJSON responses of the directions endpoint ([#2084](https://github.com/GIScience/openrouteservice/issue/2084))
+- docs: comment on API key usage ([#2179](https://github.com/GIScience/openrouteservice/pull/2179))
 
 ### Changed
 
@@ -39,9 +38,43 @@ Releasing is documented in RELEASE.md
 ### Removed
 
 ### Fixed
+- fix: remove outdated graph build workflow ([#2176](https://github.com/GIScience/openrouteservice/pull/2176))
+
+### Security
+
+
+## [9.5.1] - 2025-11-14
+
+### Added
+- documentation on how to prepare country data files for the avoid borders feature ([#2133](https://github.com/GIScience/openrouteservice/issues/2133))
+
+### Changed
+- enable ALT routing for custom models ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
+- the configuration parameter `maximum_distance_dynamic_weights` now only applies to scenarios that allow altering of edge weights across the entire routing graph and does not cover cases anymore where only a fixed subset of edges is dynamically weighted ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
+- allow minio repo client to run without authentication ([#2172](https://github.com/GIScience/openrouteservice/pull/2172))
+
+### Fixed
+- config parameter `maximum_distance_avoid_areas` is only applied to requests that involve avoid polygons ([#2165](https://github.com/GIScience/openrouteservice/pull/2165))
+- use separate instructions for roundabout and following road segment ([#2174](https://github.com/GIScience/openrouteservice/pull/2174))
+
+### Security
+- reduce Container Image and Spring Boot vulnerabilities to almost 0 by updating dependencies ([#2170](https://github.com/GIScience/openrouteservice/pull/2170))
+
+
+## [9.5.0] - 2025-10-31
+
+### Added
+- accept [`sac_scale=strolling`](https://wiki.openstreetmap.org/wiki/Key:sac_scale) ([#2149](https://github.com/GIScience/openrouteservice/pull/2149))
+- show export endpoint in status ([#2150](https://github.com/GIScience/openrouteservice/pull/2150))
+
+### Changed
+- update speed limits in the UK ([#2164](https://github.com/GIScience/openrouteservice/pull/2164))
+
+### Fixed
 - correct setting of encoded values for highways and fords ([#2148](https://github.com/GIScience/openrouteservice/pull/2148))
 
 ### Security
+- update io.minio:minio to 8.6.0 for upstream fix of [CVE-2025-48924](https://www.cve.org/CVERecord?id=CVE-2025-48924)
 
 
 ## [9.4.0] - 2025-09-30
@@ -76,6 +109,7 @@ Releasing is documented in RELEASE.md
   [CVE-2025-52520](https://www.cve.org/CVERecord?id=CVE-2025-52520) and more
 - update apache commons-lang3 to 3.18.0 fixes 
   [CVE-2025-48924](https://www.cve.org/CVERecord?id=CVE-2025-48924)
+
 
 ## [9.3.1] - 2025-07-28
 
@@ -141,6 +175,7 @@ Releasing is documented in RELEASE.md
 
 ### Security
 - upgraded spring-boot-starter-parent to 3.4.4 due to [tomcat CVE](https://github.com/advisories/GHSA-83qj-6fr2-vhqg)
+
 
 ## [9.1.1] - 2025-03-13
 
@@ -964,7 +999,10 @@ are attached to roads. ([Issue #162](https://github.com/GIScience/openrouteservi
 - Fix bug in RPHAST when location lies on a oneway road.
 - Consider turn restrictions if optimized=false is passed.
 
-[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.4.0...HEAD
+
+[unreleased]: https://github.com/GIScience/openrouteservice/compare/v9.5.1...HEAD
+[9.5.1]: https://github.com/GIScience/openrouteservice/compare/v9.5.0...v9.5.1
+[9.5.0]: https://github.com/GIScience/openrouteservice/compare/v9.4.0...v9.5.0
 [9.4.0]: https://github.com/GIScience/openrouteservice/compare/v9.3.1...v9.4.0
 [9.3.1]: https://github.com/GIScience/openrouteservice/compare/v9.3.0...v9.3.1
 [9.3.0]: https://github.com/GIScience/openrouteservice/compare/v9.2.0...v9.3.0

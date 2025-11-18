@@ -113,7 +113,7 @@ algorithm, which is way slower and responsible for the slow response.
 When you check our [plans](https://openrouteservice.org/plans/), you'll see
 that our endpoints have a daily and a minutely request limit.
 
-All remaining quota is shown in your [developer dashboard](https://openrouteservice.org/dev/#/home).
+All remaining quota is shown in your [developer dashboard](https://account.heigit.org).
 
 The daily limit is reset after 24h, starting from the first time you request
 anything. Thus, your 24h-window might shift over the days.
@@ -131,3 +131,27 @@ consecutive period of 60 seconds may only contain 40 directions requests.
 If you run into the daily limit, you will receive a `403 - Forbidden` HTTP error.
 If you run into the minutely limit, you will receive a `429 - Too many requests` HTTP error.
 The remaining daily quota can also be checked programmatically, compare the `x-ratelimit-remaining` and the `x-ratelimit-reset` header.
+
+## My API key looks like a JWT token - how does this work?
+
+Since we migrated our user management to [account.heigit.org](https://account.heigit.org) in the beginning of 2025, newly issued keys look like JSON Web Tokens (JWT).
+However, even though they start with the `eyJ`-sequence, those are regular HeiGIT API keys and can be used as such.
+
+Please check our [interactive API documentation](https://openrouteservice.org/dev/#/api-docs) for examples on how to use them.
+
+## I want to use the HeiGIT API in my application. How do I do that?
+
+As the [Terms of Service](https://account.heigit.org/info/tos) state, every HeiGIT API key belongs to one person.
+Thus, an API key must not be used client-side in an application:
+Inspecting the requests sent by the application would "leak" the API key.
+
+There are two best practices on how to go about this:
+1. Send any request to the HeiGIT API server-side.
+   The client side of the application sends a request without the API key to the server.
+   The server then connects to the HeiGIT API using the API key, and returns the result to the application.
+2. Any user of the application enters their own API key for use of the HeiGIT API.
+   That way, users of the application all use different API keys that they have control over.
+
+Note that when choosing option 2, API key generation must **not** be
+incorporated in your application, but every user must be pointed at the HeiGIT
+accounts page, sign up themselves and then provide their API key.
