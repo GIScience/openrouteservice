@@ -13,6 +13,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -298,11 +300,13 @@ class ParamsTest extends ServiceTest {
         return body;
     }
 
-    private static Map<String, Matcher<?>> expectedEdgeIdsSize(int size) {
-        return Map.of(
-                KEY_GRAPH_TIMESTAMP, isValidTimestamp(),
-                KEY_EDGE_IDS + ".size()", is(size)
-        );
+    private static Map<String, Matcher<?>> expectedEdgeIdsSize(List<Integer> sizes) {
+        Map<String, Matcher<?>> ret = new HashMap<>();
+        for (Integer size : sizes) {
+            ret.put(KEY_EDGE_IDS + "[" + ret.size() + "].size()", is(size));
+        }
+        ret.put(KEY_GRAPH_TIMESTAMP, isValidTimestamp());
+        return ret;
     }
 
     /**
@@ -318,8 +322,8 @@ class ParamsTest extends ServiceTest {
      */
     public static Stream<Arguments> matchingEndpointTestProvider() {
         return Stream.of(
-                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON), expectedEdgeIdsSize(9)),
-                Arguments.of(OK, PROFILE_HGV, validBody(GEO_JSON), expectedEdgeIdsSize(9)),
+                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON), expectedEdgeIdsSize(List.of(4, 1, 4))),
+                Arguments.of(OK, PROFILE_HGV, validBody(GEO_JSON), expectedEdgeIdsSize(List.of(4, 1, 4))),
                 Arguments.of(BAD_REQUEST, PROFILE_HGV, new JSONObject(), Map.of(
                         KEY_ERROR_CODE, is(MISSING_PARAMETER)
                 )), // Missing 'features' parameter
@@ -341,9 +345,9 @@ class ParamsTest extends ServiceTest {
                 Arguments.of(BAD_REQUEST, "foo-bar", validBody(GEO_JSON), Map.of(
                         KEY_ERROR_CODE, is(INVALID_PARAMETER_VALUE)
                 )), // Invalid profile
-                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON_INVALID_POINT), expectedEdgeIdsSize(0)), // Invalid point
-                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON_VALID_AND_INVALID_POINT), expectedEdgeIdsSize(1)), // One valid and one invalid point
-                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON_INVALID_LINE), expectedEdgeIdsSize(0)), // Invalid line
+                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON_INVALID_POINT), expectedEdgeIdsSize(List.of(0))), // Invalid point
+                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON_VALID_AND_INVALID_POINT), expectedEdgeIdsSize(List.of(1, 0))), // One valid and one invalid point
+                Arguments.of(OK, PROFILE_CAR, validBody(GEO_JSON_INVALID_LINE), expectedEdgeIdsSize(List.of(0))), // Invalid line
                 Arguments.of(BAD_REQUEST, PROFILE_CAR, validBody(GEO_JSON).put("foo", "bar"), Map.of(
                         KEY_ERROR_CODE, is(UNKNOWN_PARAMETER)
                 )) // Unknown parameter
@@ -467,7 +471,7 @@ class ParamsTest extends ServiceTest {
                 .then()
                 .log().ifValidationFails()
                 .assertThat()
-                .body(KEY_EDGE_IDS + ".size()", is(1))
+                .body(KEY_EDGE_IDS + "[0].size()", is(1))
                 .statusCode(OK)
                 .extract().path(KEY_EDGE_IDS);
 

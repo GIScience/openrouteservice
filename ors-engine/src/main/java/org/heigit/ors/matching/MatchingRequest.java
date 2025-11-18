@@ -34,9 +34,7 @@ import org.heigit.ors.util.ProfileTools;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MatchingRequest extends ServiceRequest {
     private static final Logger LOGGER = Logger.getLogger(MatchingRequest.class);
@@ -53,8 +51,11 @@ public class MatchingRequest extends ServiceRequest {
     @Setter
     private Geometry geometry;
 
+    @Setter
+    private List<String> identifiers;
+
     private GraphHopperStorage ghStorage;
-    private Set<Integer> matchedEdgeIDs;
+    private List<Set<Integer>> matchedEdgeIDs;
 
     public MatchingRequest(int profileType, int maximumSearchRadius) {
         this.profileType = profileType;
@@ -73,43 +74,48 @@ public class MatchingRequest extends ServiceRequest {
         LocationIndex locIndex = gh.getLocationIndex();
         EdgeFilter snapFilter = new DefaultSnapFilter(weighting, ghStorage.getEncodingManager().getBooleanEncodedValue(Subnetwork.key(localProfileName)));
 
-        matchedEdgeIDs = new HashSet<>();
+        if (geometry == null || geometry.isEmpty()) {
+            throw new IllegalArgumentException("No geometry provided for matching.");
+        }
+        matchedEdgeIDs = new ArrayList<>();
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
             Geometry geom = geometry.getGeometryN(i);
+            matchedEdgeIDs.add(new HashSet<>());
+
             LOGGER.debug("Matching geometry at index " + i + ": " + geom);
             if (geom.isEmpty()) {
                 throw new IllegalArgumentException("Geometry at index " + i + " is empty.");
             }
             switch (geom.getGeometryType()) {
                 case "Point", "MultiPoint":
-                    matchPoint(geom, locIndex, snapFilter, maximumSearchRadius);
+                    matchPoint(geom, locIndex, snapFilter, maximumSearchRadius, matchedEdgeIDs.get(i));
                     break;
                 case "LineString", "MultiLineString":
-                    matchLine(geom, new GhMapMatcher(gh, localProfileName));
+                    matchLine(geom, new GhMapMatcher(gh, localProfileName), matchedEdgeIDs.get(i));
                     break;
                 case "Polygon", "MultiPolygon":
-                    matchArea(geom, locIndex);
+                    matchArea(geom, locIndex, matchedEdgeIDs.get(i));
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported geometry type: " + geom.getGeometryType());
             }
         }
-        return new MatchingResult(ghStorage.getProperties().get("datareader.import.date"), matchedEdgeIDs.stream().toList());
+        return new MatchingResult(ghStorage.getProperties().get("datareader.import.date"), matchedEdgeIDs);
     }
 
-   private void matchPoint(Geometry geom, LocationIndex locIndex, EdgeFilter snapFilter, int maxDistance) {
+   private void matchPoint(Geometry geom, LocationIndex locIndex, EdgeFilter snapFilter, int maxDistance, Set<Integer> matchedIds) {
        for (int j = 0; j < geom.getNumGeometries(); j++) {
            Geometry point = geom.getGeometryN(j);
            Coordinate p = point.getCoordinate();
            EdgeFilter edgeFilter = createEdgeFilter(geom, ghStorage, snapFilter);
-           snapPointToEdge(p, locIndex, edgeFilter, maxDistance);
+           snapPointToEdge(p, locIndex, edgeFilter, maxDistance, matchedIds);
        }
    }
 
    private static EdgeFilter createEdgeFilter(Geometry geom, GraphHopperStorage ghStorage, EdgeFilter snapFilter) {
        EdgeFilterSequence edgeFilter = new EdgeFilterSequence().add(snapFilter);
        var properties = geom.getUserData();
-       if (properties instanceof java.util.Map<?, ?> propertiesMap) {
+       if (properties instanceof Map<?, ?> propertiesMap) {
            Object typeObj = propertiesMap.get("type");
            if (typeObj == null) {
                LOGGER.trace("Missing feature type, no special filter applied for snapping.");
@@ -148,23 +154,23 @@ public class MatchingRequest extends ServiceRequest {
        }
    }
 
-    private void snapPointToEdge(Coordinate p, LocationIndex locIndex, EdgeFilter edgeFilter, int maxDistance) {
+    private void snapPointToEdge(Coordinate p, LocationIndex locIndex, EdgeFilter edgeFilter, int maxDistance, Set<Integer> matchedIds) {
         Snap snappedPoint = locIndex.findClosest(p.y, p.x, edgeFilter);
         if (!snappedPoint.isValid() || snappedPoint.getQueryDistance() > maxDistance) {
             LOGGER.trace("No valid edge found for point: " + p);
             return;
         }
-        addMatchedEdge(snappedPoint.getClosestEdge());
+        addMatchedEdge(snappedPoint.getClosestEdge(), matchedIds);
     }
 
-    private void matchLine(Geometry geom, GhMapMatcher mapMatcher) {
+    private void matchLine(Geometry geom, GhMapMatcher mapMatcher, Set<Integer> matchedIds) {
         for (int j = 0; j < geom.getNumGeometries(); j++) {
             Geometry line = geom.getGeometryN(j);
             try {
                 RouteSegmentInfo[] match = mapMatcher.match(line.getCoordinates(), false);
                 for (RouteSegmentInfo segment : match) {
                     for (EdgeIteratorState edge : segment.getEdgesStates()) {
-                        addMatchedEdge(edge);
+                        addMatchedEdge(edge, matchedIds);
                     }
                 }
             } catch (Exception e) {
@@ -173,7 +179,7 @@ public class MatchingRequest extends ServiceRequest {
         }
     }
 
-    private void addMatchedEdge(EdgeIteratorState edge) {
+    private void addMatchedEdge(EdgeIteratorState edge, Set<Integer> matchedIds) {
         int originalEdgeKey;
         if (edge instanceof VirtualEdgeIteratorState iteratorState) {
             originalEdgeKey = iteratorState.getOriginalEdgeKey();
@@ -183,10 +189,10 @@ public class MatchingRequest extends ServiceRequest {
             LOGGER.trace("Matched edge: " + edge.getEdge() + " with geometry: " + edge.fetchWayGeometry(FetchMode.ALL).toLineString(false));
         }
         var edgeId = edge.getEdge();
-        matchedEdgeIDs.add(edgeId);
+        matchedIds.add(edgeId);
     }
 
-    private void matchArea(Geometry geom, LocationIndex locIndex) {
+    private void matchArea(Geometry geom, LocationIndex locIndex, Set<Integer> matchedIds) {
         var envelope = geom.getEnvelopeInternal();
         var bbox = new BBox(envelope.getMinX(), envelope.getMinY(), envelope.getMaxX(), envelope.getMaxY());
 
@@ -194,11 +200,11 @@ public class MatchingRequest extends ServiceRequest {
             EdgeIteratorState edge = ghStorage.getEdgeIteratorState(edgeId, Integer.MIN_VALUE);
             var lineString = edge.fetchWayGeometry(FetchMode.ALL).toLineString(false);
             if (geom.intersects(lineString)) {
-                matchedEdgeIDs.add(edgeId);
+                matchedIds.add(edgeId);
             }
         });
     }
 
-    public record MatchingResult(String graphTimestamp, List<Integer> matched) {
+    public record MatchingResult(String graphTimestamp, List<Set<Integer>> matched) {
     }
 }
