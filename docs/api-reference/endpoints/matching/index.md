@@ -13,16 +13,17 @@ Polygon geometries are matched by intersecting them with the edges of the routin
 The routing profile has to be specified as path parameter.
 The geometric `features` for matching are provided formatted as a GeoJSON `FeatureCollection` object.
 
-The endpoint returns a JSON containing a list of matched edge ids.
+The endpoint returns a JSON containing an array `edge_ids` consisting of separate arrays of matched edge ids for each of the features in the order they were provided.
+In case no matching edges could be found for a given feature, an empty array is returned for that feature.
 
 :::warning HINT
 The returned edge ids are the internal ids of the routing graph and can be used for further processing, e.g. with the [export endpoint](../export/index.md). They shall not be confused with OpenStreetMap way ids.
 :::
 
 
-## Sample query and result
+## Example queries
 
-Request:
+A request with three valid features: a point, a linestring and a polygon.
 ```shell
 curl -X 'POST' \
   'http://localhost:8082/ors/v2/match/driving-car' \
@@ -108,17 +109,23 @@ Response:
 ```json
 {
   "edge_ids":[
-    7472,
-    11185,
-    2242,
-    5908,
-    741,
-    5913,
-    5914,
-    11548,
-    7471
+    [
+        2242
+    ],
+    [
+        11185,
+        5908,
+        741,
+        7471
+    ],
+    [
+        7472,
+        5913,
+        5914,
+        11548
+    ]
   ],
-  "graph_timestamp":"2025-11-17T14:18:55Z"
+  "graph_timestamp":"2025-11-18T10:59:03Z"
 }
 ```
 
