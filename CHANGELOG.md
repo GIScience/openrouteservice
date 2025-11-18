@@ -29,6 +29,8 @@ Releasing is documented in RELEASE.md
 
 ### Added
 
+- docs: comment on API key usage ([#2179](https://github.com/GIScience/openrouteservice/pull/2179))
+
 ### Changed
 
 ### Deprecated
