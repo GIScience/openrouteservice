@@ -23,6 +23,7 @@ public abstract class AbstractContainerBaseTest extends ServiceTest {
                 );
         POSTGIS.start();
 
+        System.setProperty("ors.engine.dynamic_data.enabled", "true");
         System.setProperty("ors.engine.dynamic_data.store_url", POSTGIS.getJdbcUrl());
         System.setProperty("ors.engine.dynamic_data.store_user", POSTGIS.getUsername());
         System.setProperty("ors.engine.dynamic_data.store_pass", POSTGIS.getPassword());
