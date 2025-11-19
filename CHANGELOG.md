@@ -39,6 +39,7 @@ Releasing is documented in RELEASE.md
 
 ### Fixed
 - fix: remove outdated graph build workflow ([#2176](https://github.com/GIScience/openrouteservice/pull/2176))
+- ci: Remove outdated RocketChat Github Workflow action ([#2181](https://github.com/GIScience/openrouteservice/pull/2181))
 
 ### Security
 
