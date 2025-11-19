@@ -26,7 +26,7 @@ import org.heigit.ors.routing.RouteResult;
 import java.util.Objects;
 
 
-@Schema(description = "Contains total sums of duration, route distance and actual distance of the route.")
+@Schema(description = "Route statistics such as distance and duration.")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JSONSummary {
     @Schema(description = "Total route distance in specified units.", example = "12.6")
