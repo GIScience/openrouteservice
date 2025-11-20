@@ -56,6 +56,8 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
         return geoJson;
     }
 
+    @JsonProperty("properties")
+    @Schema(description = "Contains routing segments with navigation steps, overall route summary, waypoint indices, and related metadata.")
     public GeoJSONSummary getProperties() {
         return properties;
     }
