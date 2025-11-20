@@ -21,16 +21,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.heigit.ors.api.responses.routing.json.JSONExtra;
-import org.heigit.ors.api.responses.routing.json.JSONLeg;
-import org.heigit.ors.api.responses.routing.json.JSONSegment;
-import org.heigit.ors.api.responses.routing.json.JSONSummary;
+import org.heigit.ors.api.responses.routing.json.*;
 import org.heigit.ors.routing.RouteResult;
 import org.heigit.ors.routing.RouteWarning;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -102,13 +98,11 @@ public class GeoJSONSummary extends JSONSummary {
     @Schema(description = "List of warnings that have been generated for the route. Each warning object contains the following keys: \"code\" (integer) - numeric warning code, and \"message\" (string) - human-readable message.",
             example = "[{\"code\": 1, \"message\": \"There may be restrictions on some roads\"}]")
     @JsonProperty("warnings")
-    public List<Map<String, Object>> getWarnings() {
-        List<Map<String, Object>> warningsMap = new ArrayList<>();
-        for (RouteWarning warning : warnings) {
-            Map<String, Object> warningMap = new HashMap<>();
-            warningMap.put("code", warning.getWarningCode());
-            warningMap.put("message", warning.getWarningMessage());
-            warningsMap.add(warningMap);
+    public List<JSONWarning> getWarnings() {
+        List<JSONWarning> warningsMap = new ArrayList<>();
+        for (RouteWarning routeWarning : warnings) {
+            JSONWarning warning = new JSONWarning(routeWarning.getWarningCode(), routeWarning.getWarningMessage());
+            warningsMap.add(warning);
         }
         return warningsMap;
     }
