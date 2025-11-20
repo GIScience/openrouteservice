@@ -46,7 +46,7 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
         properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation, this.isPtRequest, constructLegs(routeResult));
     }
 
-    @Schema(name = "GeoJSONGeometry", implementation = JSONObject.class, description = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
+    @Schema(name = "geometry", implementation = JSONObject.class, description = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
     @JsonProperty("geometry")
     public JSONObject getGeometry() {
         JSONObject geoJson = new JSONObject();
