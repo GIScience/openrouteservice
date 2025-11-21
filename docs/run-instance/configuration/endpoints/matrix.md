@@ -1,4 +1,3 @@
-
 # `ors.endpoints.matrix`
 
 Settings for the matrix endpoint.

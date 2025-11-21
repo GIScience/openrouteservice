@@ -70,4 +70,3 @@ Properties beneath `ors.endpoints.isochrones.statistics_providers.provider_param
 | table_name      | string | Name of the table used in SQL query of                     | "pop_data",         |
 | geometry_column | string | Name of column used in SQL query of                        | "rast",             |
 | postgis_version | string | Postgis Version used for conditional logic in SQL query of | "3"                 |
-

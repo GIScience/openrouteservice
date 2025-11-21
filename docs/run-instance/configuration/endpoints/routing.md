@@ -1,4 +1,3 @@
-
 # `ors.endpoints.routing`
 
 Settings for routing endpoint.
