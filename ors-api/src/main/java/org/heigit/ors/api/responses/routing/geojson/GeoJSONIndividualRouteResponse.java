@@ -24,7 +24,6 @@ import org.heigit.ors.api.responses.routing.json.JSONSegment;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.RouteResult;
-import org.json.simple.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -46,14 +45,10 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
         properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation, this.isPtRequest, constructLegs(routeResult));
     }
 
-    @Schema(name = "geometry", implementation = JSONObject.class, description = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
+    @Schema(description = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
     @JsonProperty("geometry")
-    public JSONObject getGeometry() {
-        JSONObject geoJson = new JSONObject();
-        geoJson.put("type", "LineString");
-        geoJson.put("coordinates", GeometryJSON.toJSON(this.routeCoordinates, includeElevation));
-
-        return geoJson;
+    public GeoJSONGeometry getGeometry() {
+        return new GeoJSONGeometry("LineString", GeometryJSON.toJSON(this.routeCoordinates, includeElevation));
     }
 
     @JsonProperty("properties")
