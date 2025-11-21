@@ -32,6 +32,7 @@ Releasing is documented in RELEASE.md
 - docs: comment on API key usage ([#2179](https://github.com/GIScience/openrouteservice/pull/2179))
 
 ### Changed
+- improve road bike average speeds to be faster on cycleways but slower on bad road surface or certain road types such as footways ([#2076](https://github.com/GIScience/openrouteservice/pull/2076))
 
 ### Deprecated
 
