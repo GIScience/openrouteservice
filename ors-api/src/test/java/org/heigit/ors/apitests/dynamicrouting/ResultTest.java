@@ -16,8 +16,8 @@ package org.heigit.ors.apitests.dynamicrouting;
 import io.restassured.RestAssured;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.path.json.config.JsonPathConfig;
+import org.heigit.ors.apitests.common.AbstractContainerBaseTest;
 import org.heigit.ors.apitests.common.EndPointAnnotation;
-import org.heigit.ors.apitests.common.ServiceTest;
 import org.heigit.ors.apitests.common.VersionAnnotation;
 import org.heigit.ors.apitests.utils.CommonHeaders;
 import org.json.JSONArray;
@@ -28,86 +28,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.junit.jupiter.TestcontainersExtension;
-import org.testcontainers.utility.DockerImageName;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
-
-abstract class AbstractContainerBaseTest extends ServiceTest {
-
-    static final PostgreSQLContainer POSTGIS;
-
-    static {
-        POSTGIS = new PostgreSQLContainer<>(DockerImageName.parse("postgis/postgis:17-3.6-alpine")
-                .asCompatibleSubstituteFor("postgres"))
-                .withDatabaseName("featurestore")
-                .withUsername("ors")
-                .withPassword("hello-postgres")
-                .waitingFor(Wait.defaultWaitStrategy());
-        POSTGIS.start();
-
-        try {
-            Connection connection = DriverManager.getConnection(
-                    POSTGIS.getJdbcUrl(),
-                    POSTGIS.getUsername(),
-                    POSTGIS.getPassword()
-            );
-            System.setProperty("ors.engine.dynamic_data.store_url", POSTGIS.getJdbcUrl());
-            System.setProperty("ors.engine.dynamic_data.store_user", POSTGIS.getUsername());
-            System.setProperty("ors.engine.dynamic_data.store_pass", POSTGIS.getPassword());
-
-            connection.createStatement().execute("""
-                    CREATE TABLE features (
-                        feature_id INTEGER NOT NULL,
-                        dataset_key VARCHAR(255) NOT NULL,
-                        value VARCHAR(20) NOT NULL,
-                        PRIMARY KEY (feature_id, dataset_key)
-                    );
-                    """);
-            connection.createStatement().execute("""
-                    CREATE TABLE mappings (
-                        feature_id INTEGER NOT NULL,
-                        graph_timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-                        profile VARCHAR(20) NOT NULL,
-                        edge_id INTEGER NOT NULL,
-                        PRIMARY KEY (feature_id, graph_timestamp, profile, edge_id)
-                    );
-                    """);
-            connection.createStatement().execute("""
-                    CREATE VIEW feature_map AS
-                    SELECT f.feature_id, f.dataset_key, m.graph_timestamp, m.profile, m.edge_id, f.value
-                    FROM features f
-                    JOIN mappings m ON f.feature_id = m.feature_id
-                    """);
-            connection.createStatement().execute("""
-                    INSERT INTO features VALUES
-                    (1, 'logie_borders','CLOSED'),
-                    (2, 'logie_bridges','RESTRICTED'),
-                    (3, 'logie_roads','RESTRICTED');
-                    """);
-            connection.createStatement().execute("""
-                    INSERT INTO mappings VALUES
-                    (1, '2024-09-08T20:21:00Z', 'driving-car', 3239),
-                    (2, '2024-09-08T20:21:00Z', 'driving-car', 3239),
-                    (3, '2024-09-08T20:21:00Z', 'driving-car', 3239),
-                    (3, '2024-09-08T20:21:00Z', 'driving-car', 14409);
-                    """);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-}
 
 // Test order is needed to ensure that this test runs first because the
 // database from which the dynamic data is fetched must be available before

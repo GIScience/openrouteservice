@@ -13,10 +13,16 @@ import org.heigit.ors.matching.MatchingRequest;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class MatchingService extends ApiService {
@@ -32,7 +38,7 @@ public class MatchingService extends ApiService {
         if (rp == null) {
             throw new InternalServerException(MatchingErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
         }
-        String graphTimestamp = rp.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.data.date");
+        String graphTimestamp = rp.getGraphhopper().getGraphHopperStorage().getProperties().get("datareader.import.date");
         return new MatchingInfo(graphTimestamp);
     }
 
@@ -63,7 +69,7 @@ public class MatchingService extends ApiService {
             throw new ParameterValueException(MatchingErrorCodes.INVALID_PARAMETER_VALUE, MatchingApiRequest.PARAM_PROFILE);
         }
 
-        MatchingRequest matchingRequest = new MatchingRequest(profileType);
+        MatchingRequest matchingRequest = new MatchingRequest(profileType, endpointsProperties.getMatch().getMaximumSearchRadius());
         if (matchingApiRequest.getProfileName() == null || matchingApiRequest.getProfileName().isEmpty()) {
             throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_PROFILE);
         }
@@ -74,23 +80,33 @@ public class MatchingService extends ApiService {
             throw new ParameterValueException(MatchingErrorCodes.MISSING_PARAMETER, MatchingApiRequest.PARAM_FEATURES);
         }
         if (features.get("type") == null || !features.get("type").equals("FeatureCollection")) {
-            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "invalid GeoJSON type");
+            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_FORMAT, "invalid GeoJSON type");
         }
 
         GeoJsonReader reader = new GeoJsonReader();
         try {
-            Geometry geometry = reader.read(features.toJSONString());
-            if (geometry == null) {
-                throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry is null");
-            } else if (geometry.isEmpty()) {
-                throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry is empty");
+            if (!(features.get("features") instanceof List<?> featuresList)) {
+                throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_FORMAT, "invalid GeoJSON format: 'features' is not a list");
             }
-            if (geometry.getGeometryType().equals("GeometryCollection") && geometry.getNumGeometries() == 1) {
-                geometry = geometry.getGeometryN(0);
+            List<Geometry> geometries = new ArrayList<>();
+            for (Object featureObj : featuresList) {
+                if (!(featureObj instanceof Map<?, ?> featureMap)) {
+                    throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_FORMAT, "invalid GeoJSON format: 'feature' is not a map");
+                }
+                @SuppressWarnings("unchecked")
+                Map<String, Object> feature = (Map<String, Object>) featureMap;
+                Geometry geometry = reader.read(JSONValue.toJSONString(feature));
+                if (geometry == null) {
+                    throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry is null");
+                } else if (geometry.isEmpty()) {
+                    throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "geometry is empty");
+                }
+                geometry.setUserData(feature.get("properties"));
+                geometries.add(geometry);
             }
-            matchingRequest.setGeometry(geometry);
+            matchingRequest.setGeometry(new GeometryFactory().createGeometryCollection(geometries.toArray(new Geometry[0])));
         } catch (Exception e) {
-            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_VALUE, "invalid GeoJSON format: %s".formatted(e.getMessage()));
+            throw new StatusCodeException(StatusCode.BAD_REQUEST, MatchingErrorCodes.INVALID_PARAMETER_FORMAT, "invalid GeoJSON format: %s".formatted(e.getMessage()));
         }
         return matchingRequest;
     }

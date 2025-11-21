@@ -30,8 +30,12 @@ Releasing is documented in RELEASE.md
 ### Added
 
 - docs: comment on API key usage ([#2179](https://github.com/GIScience/openrouteservice/pull/2179))
+- type-specific filtering for mapping point features to graph edges ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
+- documentation on the matching endpoint ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
+- PostgreSQL-backed feature store with scheduled synchronization for dynamic routing data updates ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
 
 ### Changed
+- enhanced status endpoint to expose dynamic data statistics and feature store metrics ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
 
 ### Deprecated
 

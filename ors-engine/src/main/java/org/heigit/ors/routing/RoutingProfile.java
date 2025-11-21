@@ -27,6 +27,7 @@ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGr
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
 import org.heigit.ors.util.TimeUtility;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -48,7 +49,6 @@ public class RoutingProfile {
     private static final Logger LOGGER = Logger.getLogger(RoutingProfile.class);
     private static final Object lockObj = new Object();
     private static int profileIdentifier = 0;
-    private final Integer[] mRoutePrefs;
 
     private String profileName;
     private ProfileProperties profileProperties;
@@ -68,7 +68,6 @@ public class RoutingProfile {
         this.engineProperties = engine;
         this.graphVersion = graphVersion;
 
-        mRoutePrefs = profile.getProfilesTypes();
         mGraphHopper = initGraphHopper(loadCntx);
         ExecutionProperties execution = profile.getService().getExecution();
 
@@ -203,6 +202,10 @@ public class RoutingProfile {
         dynamicDatasets.add(datasetName);
     }
 
+    public boolean hasDynamicData() {
+        return !dynamicDatasets.isEmpty();
+    }
+
     public List<String> getDynamicDatasets() {
         return dynamicDatasets;
     }
@@ -229,9 +232,34 @@ public class RoutingProfile {
         }
         SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
         if (sev == null) {
-            LOGGER.error("SparseEncodedValue for key '" + key + "' not found, cannot update dynamic data.");
+            LOGGER.error("SparseEncodedValue for key %s not found, cannot update dynamic data.".formatted(key));
             return;
         }
         sev.set(edgeID, stateFromString.apply(value));
+    }
+
+    public void unsetDynamicData(String key, int edgeID) {
+        SparseEncodedValue<String> sev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+        if (sev == null) {
+            LOGGER.error("SparseEncodedValue for key %s not found, cannot unset dynamic data.".formatted(key));
+            return;
+        }
+        sev.set(edgeID, null);
+    }
+
+    public JSONObject getDynamicDataStats() {
+        JSONObject result = new JSONObject();
+        for (String key : dynamicDatasets) {
+            HashMapSparseEncodedValue<String> ev = getGraphhopper().getEncodingManager().getEncodedValue(key, HashMapSparseEncodedValue.class);
+            if (ev == null) {
+                LOGGER.warn("SparseEncodedValue for key %s not found, this should not happen.".formatted(key));
+                continue;
+            }
+            JSONObject stats = new JSONObject();
+            stats.put("mapped_edges", ev.getCount());
+            stats.put("last_updated", ev.getLastUpdated().toString());
+            result.put(key, stats);
+        }
+        return result;
     }
 }

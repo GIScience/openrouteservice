@@ -5,7 +5,8 @@ public enum LogieRoads {
     PASSABLE,
     RESTRICTED,
     NOT_PASSABLE,
-    ALTERNATIVE;
+    ALTERNATIVE_ROUTE,
+    UNSPECIFIED;
 
     public static final String KEY = "logie_roads";
 
