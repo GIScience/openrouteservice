@@ -16,7 +16,6 @@ The following table describes the supported HTTP status codes.
 | 503              | The server is currently unavailable due to overload or maintenance.                                                                        |
 
 
-
 ## Internal Error Codes
 
 The following sections describes the list of possible internal error codes that might be provided by different openrouteservice
@@ -133,3 +132,17 @@ Endpoints.
 |    8010    | Point not found.                                      |
 |    8011    | Unknown parameter.                                    |
 |    8099    | Unknown internal error.                               |
+
+### Matching API
+
+[//]: # (keep in sync with org.heigit.ors.matching.MatchingErrorCodes)
+
+| Error Code | Description                                           |
+|:----------:|-------------------------------------------------------|
+|    9000    | Unable to parse JSON request.                         |
+|    9001    | Required parameter is missing.                        |
+|    9002    | Invalid parameter format.                             |
+|    9003    | Invalid parameter value.                              |
+|    9007    | Unsupported export format.                            |
+|    9011    | Unknown parameter.                                    |
+|    9099    | Unknown internal error.                               |

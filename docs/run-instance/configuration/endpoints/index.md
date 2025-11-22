@@ -13,4 +13,5 @@ the [ors.engine.profiles.\<profile\>.service](/run-instance/configuration/engine
 | routing    | object | [Parameters for the routing endpoint](routing.md) (also called [Directions Endpoint](/api-reference/endpoints/directions/))    | 
 | isochrones | object | [Parameters for the isochrones endpoint](isochrones.md) (see also [Isochrones Endpoint](/api-reference/endpoints/isochrones/)) | 
 | matrix     | object | [Parameters for the matrix endpoint](matrix.md) (see also [Matrix endpoint](/api-reference/endpoints/matrix/))                 | 
-| snap       | object | [Parameters for the snapping endpoint](snap.md) (see also [Snapping endpoint](/api-reference/endpoints/snapping/))             | 
+| snap       | object | [Parameters for the snapping endpoint](snap.md) (see also [Snapping endpoint](/api-reference/endpoints/snapping/))             |
+| match      | object | [Parameters for the matching endpoint](matching.md) (see also [Matching Endpoint](/api-reference/endpoints/matching/))         |

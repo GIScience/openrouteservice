@@ -27,6 +27,8 @@ public class EncodedValuesProperties {
     private Boolean waySurface;
     @JsonProperty("way_type")
     private Boolean wayType;
+    @JsonProperty("road_environment")
+    private Boolean roadEnvironment;
 
     public EncodedValuesProperties() {
     }
@@ -37,7 +39,7 @@ public class EncodedValuesProperties {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return osmWayId == null && ford == null && highway == null && waySurface == null && wayType == null;
+        return osmWayId == null && ford == null && highway == null && waySurface == null && wayType == null && roadEnvironment == null;
     }
 
     @JsonIgnore
@@ -58,6 +60,9 @@ public class EncodedValuesProperties {
         if (Boolean.TRUE.equals(wayType)) {
             out.add(WayType.KEY);
         }
+        if (Boolean.TRUE.equals(roadEnvironment)) {
+            out.add(RoadEnvironment.KEY);
+        }
         return String.join(",", out);
     }
 
@@ -67,6 +72,7 @@ public class EncodedValuesProperties {
         osmWayId = ofNullable(this.osmWayId).orElse(other.osmWayId);
         waySurface = ofNullable(this.waySurface).orElse(other.waySurface);
         wayType = ofNullable(this.wayType).orElse(other.wayType);
+        roadEnvironment = ofNullable(this.roadEnvironment).orElse(other.roadEnvironment);
     }
 }
 
