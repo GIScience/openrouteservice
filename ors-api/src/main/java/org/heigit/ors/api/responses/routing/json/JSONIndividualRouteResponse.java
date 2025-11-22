@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.api.responses.common.boundingbox.BoundingBoxFactory;
+import org.heigit.ors.api.responses.routing.JSONBasedIndividualRouteResponse;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.routing.RouteExtraInfo;

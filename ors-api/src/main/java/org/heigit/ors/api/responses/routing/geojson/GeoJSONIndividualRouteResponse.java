@@ -19,17 +19,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.heigit.ors.api.requests.routing.RouteRequest;
-import org.heigit.ors.api.responses.routing.json.JSONBasedIndividualRouteResponse;
+import org.heigit.ors.api.responses.routing.JSONBasedIndividualRouteResponse;
 import org.heigit.ors.api.responses.routing.json.JSONSegment;
 import org.heigit.ors.exceptions.StatusCodeException;
 import org.heigit.ors.geojson.GeometryJSON;
 import org.heigit.ors.routing.RouteResult;
-import org.json.simple.JSONObject;
 
 import java.util.List;
 import java.util.Map;
 
 public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResponse {
+    @Schema(description = "A GeoJSON 'Feature' representing a single route returned from the request")
     @JsonProperty("type")
     public final String type = "Feature";
 
@@ -45,21 +45,20 @@ public class GeoJSONIndividualRouteResponse extends JSONBasedIndividualRouteResp
         properties = new GeoJSONSummary(routeResult, segments, extras, this.includeElevation, this.isPtRequest, constructLegs(routeResult));
     }
 
-    @Schema(implementation = JSONObject.class, description = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
+    @Schema(description = "The geometry of the route. For GeoJSON route responses this is a JSON LineString.")
     @JsonProperty("geometry")
-    public JSONObject getGeometry() {
-        JSONObject geoJson = new JSONObject();
-        geoJson.put("type", "LineString");
-        geoJson.put("coordinates", GeometryJSON.toJSON(this.routeCoordinates, includeElevation));
-
-        return geoJson;
+    public GeoJSONGeometry getGeometry() {
+        return new GeoJSONGeometry("LineString", GeometryJSON.toJSON(this.routeCoordinates, includeElevation));
     }
 
+    @JsonProperty("properties")
+    @Schema(description = "Contains routing segments with navigation steps, overall route summary, waypoint indices, and related metadata.")
     public GeoJSONSummary getProperties() {
         return properties;
     }
 
     @JsonProperty("bbox")
+    @Schema(description = "Bounding box that covers all returned routes", example = "[49.414057, 8.680894, 49.420514, 8.690123]")
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public double[] getBBox() {
         return bbox.getAsArray();
