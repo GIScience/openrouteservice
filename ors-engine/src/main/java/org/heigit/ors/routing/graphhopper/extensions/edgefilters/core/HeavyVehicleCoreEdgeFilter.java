@@ -24,8 +24,8 @@ import java.util.List;
 
 
 public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
-    private static final List<BooleanEncodedValue> accessEncodedValues = new ArrayList<>();
-    private static final List<DecimalEncodedValue> paramsEncodedValues = new ArrayList<>();
+    private final List<BooleanEncodedValue> accessEncodedValues = new ArrayList<>();
+    private final List<DecimalEncodedValue> paramsEncodedValues = new ArrayList<>();
 
     public HeavyVehicleCoreEdgeFilter(GraphHopperStorage graphStorage) {
         EncodingManager encodingManager = graphStorage.getEncodingManager();
