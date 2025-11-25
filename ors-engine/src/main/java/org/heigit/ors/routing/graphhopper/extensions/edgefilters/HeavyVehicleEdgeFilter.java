@@ -52,7 +52,7 @@ public class HeavyVehicleEdgeFilter implements EdgeFilter {
         if (encodingManager.hasEncodedValue(HazmatAccess.KEY))
             hazmatAccessEnc = encodingManager.getBooleanEncodedValue(HazmatAccess.KEY);
 
-        if (vehicleParams.hasAxleload() && encodingManager.hasEncodedValue(HazmatAccess.KEY))
+        if (vehicleParams.hasAxleload() && encodingManager.hasEncodedValue(MaxAxleLoad.KEY))
             vehicleRestrictions.put(encodingManager.getDecimalEncodedValue(MaxAxleLoad.KEY), vehicleParams.getAxleload());
         if (vehicleParams.hasHeight() && encodingManager.hasEncodedValue(MaxHeight.KEY))
             vehicleRestrictions.put(encodingManager.getDecimalEncodedValue(MaxHeight.KEY), vehicleParams.getHeight());
