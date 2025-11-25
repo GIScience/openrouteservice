@@ -64,7 +64,7 @@ public class HeavyVehicleCoreEdgeFilter implements EdgeFilter {
 
     private boolean hasEdgeRestriction(EdgeIteratorState iter) {
         for (BooleanEncodedValue encodedValue : accessEncodedValues) {
-            if (iter.get(encodedValue)) {
+            if (!iter.get(encodedValue)) {
                 return true;
             }
         }
