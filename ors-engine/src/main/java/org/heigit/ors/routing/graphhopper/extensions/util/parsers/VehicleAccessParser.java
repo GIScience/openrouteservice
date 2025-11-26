@@ -13,28 +13,15 @@ public class VehicleAccessParser implements TagParser {
     private final BooleanEncodedValue vehicleAccessEnc;
     private final int targetVehicleType;
     private int blockedVehicleTypes = 0;
-    private final List<String> motorVehicleRestrictions = new ArrayList<>(5);
-    private final Set<String> motorVehicleRestrictedValues = new HashSet<>(5);
-    private final Set<String> motorVehicleHgvValues = new HashSet<>(6);
-    private final Set<String> noValues = new HashSet<>(5);
-    private final Set<String> yesValues = new HashSet<>(5);
-
+    private static final List<String> motorVehicleRestrictions = List.of("motorcar", "motor_vehicle", "vehicle", "access");
+    private static final Set<String> motorVehicleRestrictedValues = Set.of("private", "no", "restricted", "military");
+    private static final Set<String> motorVehicleHgvValues = Set.of("hgv", "goods", "bus", "agricultural", "forestry", "delivery");
+    private static final Set<String> noValues = Set.of("no", "private");
+    private static final Set<String> yesValues = Set.of("yes", "designated");
 
     public VehicleAccessParser(BooleanEncodedValue vehicleAccessEnc, int vehicleType) {
         this.vehicleAccessEnc = vehicleAccessEnc;
         this.targetVehicleType = vehicleType;
-
-        motorVehicleRestrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
-
-        motorVehicleRestrictedValues.add("private");
-        motorVehicleRestrictedValues.add("no");
-        motorVehicleRestrictedValues.add("restricted");
-        motorVehicleRestrictedValues.add("military");
-
-        motorVehicleHgvValues.addAll(Arrays.asList("hgv", "goods", "bus", "agricultural", "forestry", "delivery"));
-
-        noValues.addAll(Arrays.asList("no", "private"));
-        yesValues.addAll(Arrays.asList("yes", "designated"));
     }
 
     @Override
