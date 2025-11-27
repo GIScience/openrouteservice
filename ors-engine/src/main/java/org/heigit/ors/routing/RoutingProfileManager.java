@@ -34,6 +34,11 @@ public class RoutingProfileManager {
     private static RoutingProfileManager instance;
 
     public RoutingProfileManager(EngineProperties config, String graphVersion) {
+        if (instance != null) {
+            // TODO: We should really refactor and avoid singleton pattern here
+            LOGGER.warn("Re-initializing RoutingProfileManager, this should only happen during tests!");
+            instance.destroy();
+        }
         instance = this;
         initialize(config, graphVersion);
     }

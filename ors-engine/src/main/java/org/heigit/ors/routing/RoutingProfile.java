@@ -228,6 +228,9 @@ public class RoutingProfile {
     }
 
     public void close() {
+        synchronized (lockObj) {
+            profileIdentifier = 0;
+        }
         mGraphHopper.close();
     }
 
