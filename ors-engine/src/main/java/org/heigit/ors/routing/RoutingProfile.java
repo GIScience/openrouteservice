@@ -164,7 +164,7 @@ public class RoutingProfile {
         LOGGER.info("Running in preparation_mode, preparing graph for upload");
         String graphName = String.join("_",
                 profileProperties.getBuild().getProfileGroup(),
-                profileProperties.getBuild().getCoverage(),
+                profileProperties.getBuild().getGraphExtent(),
                 AppInfo.GRAPH_VERSION,
                 profileProperties.getEncoderName().toString()
         );

@@ -5,7 +5,7 @@ ors:
       graph_path: graphs-apitests
       build:
         source_file: ./src/test/files/heidelberg.test.pbf
-        coverage: heidelberg
+        graph_extent: heidelberg
         profile_group: test
         elevation: false
         preparation:

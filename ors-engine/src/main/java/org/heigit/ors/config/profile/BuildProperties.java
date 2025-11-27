@@ -20,7 +20,7 @@ public class BuildProperties {
     @JsonIgnore
     private String profileGroup;
     @JsonIgnore
-    private String coverage;
+    private String graphExtent;
 
     @JsonProperty("elevation")
     private Boolean elevation;
@@ -62,7 +62,7 @@ public class BuildProperties {
 
     public void merge(BuildProperties other) {
         profileGroup = ofNullable(profileGroup).orElse(other.profileGroup);
-        coverage = ofNullable(coverage).orElse(other.coverage);
+        graphExtent = ofNullable(graphExtent).orElse(other.graphExtent);
         elevation = ofNullable(elevation).orElse(other.elevation);
         elevationSmoothing = ofNullable(elevationSmoothing).orElse(other.elevationSmoothing);
         encoderFlagsSize = ofNullable(encoderFlagsSize).orElse(other.encoderFlagsSize);
