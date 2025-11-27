@@ -36,6 +36,7 @@ Releasing is documented in RELEASE.md
 
 ### Changed
 - enhanced status endpoint to expose dynamic data statistics and feature store metrics ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
+- when running in `preparation_mode`, pack the graph for upload ([#2185](https://github.com/GIScience/openrouteservice/pull/2185))
 
 ### Deprecated
 
