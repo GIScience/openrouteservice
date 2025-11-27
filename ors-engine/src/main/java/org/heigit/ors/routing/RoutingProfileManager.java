@@ -34,13 +34,8 @@ public class RoutingProfileManager {
     private static RoutingProfileManager instance;
 
     public RoutingProfileManager(EngineProperties config, String graphVersion) {
-        if (instance == null) {
-            instance = this;
-            initialize(config, graphVersion);
-            if (RoutingProfileManagerStatus.isShutdown()) {
-                System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
-            }
-        }
+        instance = this;
+        initialize(config, graphVersion);
     }
 
     public static synchronized RoutingProfileManager getInstance() {

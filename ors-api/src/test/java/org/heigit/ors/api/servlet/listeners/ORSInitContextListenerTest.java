@@ -5,6 +5,7 @@ import org.heigit.ors.config.EngineProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -14,9 +15,12 @@ class ORSInitContextListenerTest {
     @Autowired
     private GraphService graphService;
 
+    @Autowired
+    private Environment environment;
+
     @Test
     void testConfigurationOutputTarget() {
-        ORSInitContextListener orsInitContextListener = new ORSInitContextListener(new EngineProperties(), graphService);
+        ORSInitContextListener orsInitContextListener = new ORSInitContextListener(new EngineProperties(), graphService, environment);
         EngineProperties engineProperties = new EngineProperties();
 
         assertNull(orsInitContextListener.configurationOutputTarget(engineProperties), "default should return null");

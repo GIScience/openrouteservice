@@ -14,6 +14,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -40,9 +41,9 @@ public class Application extends SpringBootServletInitializer {
     }
 
     @Bean("orsInitContextListenerBean")
-    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(ApiEngineProperties apiEngineProperties, GraphService graphService) {
+    public ServletListenerRegistrationBean<ServletContextListener> createORSInitContextListenerBean(ApiEngineProperties apiEngineProperties, GraphService graphService, Environment environment) {
         ServletListenerRegistrationBean<ServletContextListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ORSInitContextListener(apiEngineProperties, graphService));
+        bean.setListener(new ORSInitContextListener(apiEngineProperties, graphService, environment));
         return bean;
     }
 }

@@ -26,16 +26,28 @@ import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
 import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
 import org.heigit.ors.routing.pathprocessors.ORSPathProcessorFactory;
+import org.heigit.ors.util.AppInfo;
 import org.heigit.ors.util.TimeUtility;
 import org.json.simple.JSONObject;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * This class generates {@link RoutingProfile} classes and is used by mostly all service classes e.g.
@@ -141,7 +153,53 @@ public class RoutingProfile {
             if (!file2.exists())
                 Files.write(pathTimestamp, Long.toString(file.length()).getBytes());
         }
+
+        if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
+            prepareGeneratedGraphForUpload();
+        }
         return gh;
+    }
+
+    private void prepareGeneratedGraphForUpload() {
+        LOGGER.info("Running in preparation_mode, preparing graph for upload");
+        String graphName = String.join("_",
+                profileProperties.getBuild().getProfileGroup(),
+                profileProperties.getBuild().getCoverage(),
+                AppInfo.GRAPH_VERSION,
+                profileProperties.getEncoderName().toString()
+        );
+        Path graphFilesPath = profileProperties.getGraphPath().resolve(profileProperties.getProfileName());
+        Path graphInfoSrc = graphFilesPath.resolve("graph_build_info.yml");
+        Path graphInfoDst = profileProperties.getGraphPath().resolve(graphName + ".yml");
+        Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphName + ".ghz");
+        try {
+            Files.copy(graphInfoSrc, graphInfoDst, REPLACE_EXISTING);
+            LOGGER.info("Copied graph info from %s to %s".formatted(graphInfoSrc.toString(), graphInfoDst.toString()));
+            // create a zip archive of all files in graphFilesPath with .ghz extension
+            try (FileOutputStream fos = new FileOutputStream(graphArchiveDst.toFile()); ZipOutputStream zos = new ZipOutputStream(fos)) {
+                try (Stream<Path> src = Files.walk(graphFilesPath)) {
+                    src.filter(path -> !Files.isDirectory(path))
+                            .forEach((path -> {
+                                try (FileInputStream fis = new FileInputStream((path).toFile())) {
+                                    ZipEntry zipEntry = new ZipEntry(graphFilesPath.relativize(path).toString());
+                                    zos.putNextEntry(zipEntry);
+                                    byte[] buffer = new byte[1024];
+                                    int len;
+                                    while ((len = fis.read(buffer)) > 0) {
+                                        zos.write(buffer, 0, len);
+                                    }
+                                } catch (IOException e) {
+                                    LOGGER.error("Failed to add file %s to archive: %s".formatted(path.toString(), e.getMessage()));
+                                }
+                            }));
+                }
+            }
+            LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
+            FileSystemUtils.deleteRecursively(graphFilesPath);
+            LOGGER.info("Deleted graph files in %s".formatted(graphFilesPath.toString()));
+        } catch (IOException e) {
+            LOGGER.error("Failed preparing files: %s".formatted(e.getMessage()));
+        }
     }
 
     public boolean hasCHProfile(String profileName) {
@@ -211,7 +269,7 @@ public class RoutingProfile {
     }
 
     public void updateDynamicData(String key, int edgeID, String value) {
-        Function<String,Object> stateFromString = null;
+        Function<String, Object> stateFromString = null;
         switch (key) {
             case LogieBorders.KEY:
                 stateFromString = s -> LogieBorders.valueOf(s.replace(" ", "_").toUpperCase());

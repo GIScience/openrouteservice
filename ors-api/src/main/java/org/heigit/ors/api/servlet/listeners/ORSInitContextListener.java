@@ -35,6 +35,7 @@ import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.StringUtility;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.FileOutputStream;
@@ -46,6 +47,7 @@ public class ORSInitContextListener implements ServletContextListener {
     private static final Logger LOGGER = Logger.getLogger(ORSInitContextListener.class);
     private final EngineProperties engineProperties;
     private final GraphService graphService;
+    private Environment environment;
 
     @Override
     public void contextInitialized(ServletContextEvent contextEvent) {
@@ -59,16 +61,21 @@ public class ORSInitContextListener implements ServletContextListener {
                 LOGGER.info("Initializing ORS...");
                 graphService.setIsActivatingGraphs(true);
                 RoutingProfileManager routingProfileManager = new RoutingProfileManager(engineProperties, AppInfo.GRAPH_VERSION);
+                if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
+                    LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
+                    if (environment.getActiveProfiles().length == 0) { // only exit if no active profile is set (i.e., not in test mode)
+                        RoutingProfileManagerStatus.setShutdown(true);
+                    }
+                }
+                if (RoutingProfileManagerStatus.isShutdown()) {
+                    System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
+                }
                 for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
                     ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
                     if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
                         LOGGER.debug("Adding orsGraphManager for profile %s with encoder %s to GraphService".formatted(profile.getProfileConfiguration().getProfileName(), profile.getProfileConfiguration().getEncoderName()));
                         graphService.addGraphManagerInstance(orsGraphManager);
                     }
-                }
-                if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
-                    LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
-                    System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
                 }
             } catch (Exception e) {
                 LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
@@ -103,10 +110,11 @@ public class ORSInitContextListener implements ServletContextListener {
         try {
             LOGGER.info("Shutting down openrouteservice %s and releasing resources.".formatted(AppInfo.getEngineInfo()));
             FormatUtility.unload();
-            if (RoutingProfileManagerStatus.isReady())
-                RoutingProfileManager.getInstance().destroy();
             StatisticsProviderFactory.releaseProviders();
             LogFactory.release(Thread.currentThread().getContextClassLoader());
+            RoutingProfileManager.getInstance().destroy();
+        } catch (UnsupportedOperationException e) {
+            LOGGER.warn("RoutingProfileManager was not initialized, nothing to destroy.");
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }

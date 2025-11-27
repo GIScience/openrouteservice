@@ -17,6 +17,11 @@ import static java.util.Optional.ofNullable;
 public class BuildProperties {
     @JsonIgnore
     private Path sourceFile;
+    @JsonIgnore
+    private String profileGroup;
+    @JsonIgnore
+    private String coverage;
+
     @JsonProperty("elevation")
     private Boolean elevation;
     @JsonProperty("elevation_smoothing")
@@ -56,6 +61,8 @@ public class BuildProperties {
     }
 
     public void merge(BuildProperties other) {
+        profileGroup = ofNullable(profileGroup).orElse(other.profileGroup);
+        coverage = ofNullable(coverage).orElse(other.coverage);
         elevation = ofNullable(elevation).orElse(other.elevation);
         elevationSmoothing = ofNullable(elevationSmoothing).orElse(other.elevationSmoothing);
         encoderFlagsSize = ofNullable(encoderFlagsSize).orElse(other.encoderFlagsSize);

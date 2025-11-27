@@ -357,7 +357,20 @@ public class ORSGraphFileManager implements ORSGraphFolderStrategy {
         persistedGraphBuildInfo.setGraphVersion(AppInfo.GRAPH_VERSION);
         persistedGraphBuildInfo.setProfileProperties(profileProperties);
 
+        // Add the total size of the graph folder
+        File graphFolder = getActiveGraphDirectory();
+        persistedGraphBuildInfo.setGraphSizeBytes(calculateFolderSizeInBytes(graphFolder));
+
         ORSGraphFileManager.writeOrsGraphBuildInfo(persistedGraphBuildInfo, activeGraphBuildInfoFile);
+    }
+
+    private long calculateFolderSizeInBytes(File graphFolder) {
+        try {
+            return FileUtils.sizeOfDirectory(graphFolder);
+        } catch (Exception e) {
+            LOGGER.error("Could not calculate size of graph folder %s: %s".formatted(graphFolder.getAbsolutePath(), e.getMessage()));
+            return 0;
+        }
     }
 
     Date getDateFromGhProperty(GraphHopper gh, String ghProperty) {
