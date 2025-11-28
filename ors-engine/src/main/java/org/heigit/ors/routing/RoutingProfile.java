@@ -13,6 +13,7 @@
  */
 package org.heigit.ors.routing;
 
+import com.google.common.base.Strings;
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.routing.ev.*;
 import com.graphhopper.storage.GraphHopperStorage;
@@ -42,8 +43,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -155,50 +156,80 @@ public class RoutingProfile {
         }
 
         if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
-            prepareGeneratedGraphForUpload();
+            prepareGeneratedGraphForUpload(profileProperties, AppInfo.GRAPH_VERSION);
         }
         return gh;
     }
 
-    private void prepareGeneratedGraphForUpload() {
+    /**
+     * Prepares the generated graph for upload when running in preparation mode.
+     *
+     * <p>This is a static helper method which expects a fully-initialized {@link ProfileProperties}
+     * instance and prepares the graph files located under {@code profileProperties.getGraphPath()/profileProperties.getProfileName()}.
+     * The method performs the following steps:
+     * <ul>
+     *     <li>Constructs a graph name using the profile group, graph extent, the application graph version and the encoder name, separated by underscores.</li>
+     *     <li>Copies the graph build info file ("graph_build_info.yml") from the profile directory to the graph path, renaming it to "{graphName}.yml".</li>
+     *     <li>Creates a ZIP archive of the graph directory, saving it as "{graphName}.ghz" in the graph path.</li>
+     *     <li>Deletes the original graph directory after archiving.</li>
+     * </ul>
+     *
+     * <p>Important behaviour and error handling:
+     * <ul>
+     *     <li>The method is defensive: IO errors while copying the graph build info or while creating the archive are logged and cause an early return so no further steps are executed.</li>
+     *     <li>Errors while deleting the original graph directory are caught and logged; the method does not rethrow them.</li>
+     *     <li>This method mutates the filesystem (creates files and archives, and attempts to delete directories). Tests that exercise it should use temporary directories.</li>
+     * </ul>
+     *
+     * @param profileProperties profile properties holding graph path and profile name; must not be null and must include a non-null graph path and profile name
+     */
+    public static void prepareGeneratedGraphForUpload(ProfileProperties profileProperties, String graphVersion) {
         LOGGER.info("Running in preparation_mode, preparing graph for upload");
-        String graphName = String.join("_",
-                profileProperties.getBuild().getProfileGroup(),
-                profileProperties.getBuild().getGraphExtent(),
-                AppInfo.GRAPH_VERSION,
-                profileProperties.getEncoderName().toString()
-        );
+        String profileGroup = Strings.isNullOrEmpty(profileProperties.getBuild().getProfileGroup()) ? "unknownGroup" : profileProperties.getBuild().getProfileGroup();
+        String graphExtent = Strings.isNullOrEmpty(profileProperties.getBuild().getGraphExtent()) ? "unknownExtent" : profileProperties.getBuild().getGraphExtent();
+        String encoderName = Strings.isNullOrEmpty(profileProperties.getEncoderName().toString()) ? "unknownEncoder" : profileProperties.getEncoderName().toString();
+        String graphName = String.join("_", profileGroup, graphExtent, graphVersion, encoderName);
         Path graphFilesPath = profileProperties.getGraphPath().resolve(profileProperties.getProfileName());
-        Path graphInfoSrc = graphFilesPath.resolve("graph_build_info.yml");
-        Path graphInfoDst = profileProperties.getGraphPath().resolve(graphName + ".yml");
-        Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphName + ".ghz");
+
+        // copy graph_build_info.yml to {graphName}.yml
         try {
+            Path graphInfoSrc = graphFilesPath.resolve("graph_build_info.yml");
+            Path graphInfoDst = profileProperties.getGraphPath().resolve(graphName + ".yml");
             Files.copy(graphInfoSrc, graphInfoDst, REPLACE_EXISTING);
             LOGGER.info("Copied graph info from %s to %s".formatted(graphInfoSrc.toString(), graphInfoDst.toString()));
-            // create a zip archive of all files in graphFilesPath with .ghz extension
-            try (FileOutputStream fos = new FileOutputStream(graphArchiveDst.toFile()); ZipOutputStream zos = new ZipOutputStream(fos)) {
-                try (Stream<Path> src = Files.walk(graphFilesPath)) {
-                    src.filter(path -> !Files.isDirectory(path))
-                            .forEach((path -> {
-                                try (FileInputStream fis = new FileInputStream((path).toFile())) {
-                                    ZipEntry zipEntry = new ZipEntry(graphFilesPath.relativize(path).toString());
-                                    zos.putNextEntry(zipEntry);
-                                    byte[] buffer = new byte[1024];
-                                    int len;
-                                    while ((len = fis.read(buffer)) > 0) {
-                                        zos.write(buffer, 0, len);
-                                    }
-                                } catch (IOException e) {
-                                    LOGGER.error("Failed to add file %s to archive: %s".formatted(path.toString(), e.getMessage()));
-                                }
-                            }));
+        } catch (IOException e) {
+            LOGGER.error("Failed to copy graph build info: %s".formatted(e.getMessage()));
+            return;
+        }
+
+        // create a zip archive of all files in graphFilesPath with .ghz extension
+        Path graphArchiveDst = profileProperties.getGraphPath().resolve(graphName + ".ghz");
+        try (FileOutputStream fos = new FileOutputStream(graphArchiveDst.toFile()); ZipOutputStream zos = new ZipOutputStream(fos)) {
+            for (File file : Objects.requireNonNull(graphFilesPath.toFile().listFiles())) {
+                if (!Files.isDirectory(file.toPath())) {
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        ZipEntry zipEntry = new ZipEntry(graphFilesPath.relativize(file.toPath()).toString());
+                        zos.putNextEntry(zipEntry);
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = fis.read(buffer)) > 0) {
+                            zos.write(buffer, 0, len);
+                        }
+                    }
                 }
             }
             LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
-            FileSystemUtils.deleteRecursively(graphFilesPath);
-            LOGGER.info("Deleted graph files in %s".formatted(graphFilesPath.toString()));
         } catch (IOException e) {
-            LOGGER.error("Failed preparing files: %s".formatted(e.getMessage()));
+            LOGGER.error("Failed to create archive: %s".formatted(e.getMessage()));
+            return;
+        }
+
+        // delete original graph files
+        try {
+            FileSystemUtils.deleteRecursively(graphFilesPath);
+            LOGGER.info("Deleted original graph files at %s after archiving.".formatted(graphFilesPath.toString()));
+        } catch (IOException e) {
+            LOGGER.error("Failed to delete graph files: %s".formatted(e.getMessage()));
         }
     }
 
