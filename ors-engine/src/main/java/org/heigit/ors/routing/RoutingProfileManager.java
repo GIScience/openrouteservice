@@ -37,8 +37,7 @@ public class RoutingProfileManager {
         synchronized (RoutingProfileManager.class) {
             if (instance != null) {
                 // TODO: We should really refactor and avoid singleton pattern here
-                LOGGER.warn("Re-initializing RoutingProfileManager, this should only happen during tests!");
-                instance.destroy();
+                throw new UnsupportedOperationException("RoutingProfileManager is already initialized.");
             }
             instance = this;
             initialize(config, graphVersion);
