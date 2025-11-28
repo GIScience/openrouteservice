@@ -198,7 +198,7 @@ public class RoutingProfile {
             Files.copy(graphInfoSrc, graphInfoDst, REPLACE_EXISTING);
             LOGGER.info("Copied graph info from %s to %s".formatted(graphInfoSrc.toString(), graphInfoDst.toString()));
         } catch (IOException e) {
-            LOGGER.error("Failed to copy graph build info: %s".formatted(e.getMessage()));
+            LOGGER.error("Failed to copy graph build info: %s".formatted(e.toString()));
             return;
         }
 
@@ -220,7 +220,7 @@ public class RoutingProfile {
             }
             LOGGER.info("Created archive %s".formatted(graphArchiveDst.toString()));
         } catch (IOException e) {
-            LOGGER.error("Failed to create archive: %s".formatted(e.getMessage()));
+            LOGGER.error("Failed to create archive: %s".formatted(e.toString()));
             return;
         }
 
@@ -229,7 +229,7 @@ public class RoutingProfile {
             FileSystemUtils.deleteRecursively(graphFilesPath);
             LOGGER.info("Deleted original graph files at %s after archiving.".formatted(graphFilesPath.toString()));
         } catch (IOException e) {
-            LOGGER.error("Failed to delete graph files: %s".formatted(e.getMessage()));
+            LOGGER.error("Failed to delete graph files: %s".formatted(e.toString()));
         }
     }
 

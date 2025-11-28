@@ -46,10 +46,11 @@ public class RoutingProfileManager {
     }
 
     public static synchronized RoutingProfileManager getInstance() {
-        if (instance == null) {
-            throw new UnsupportedOperationException("RoutingProfileManager has not been initialized!");
-        }
         return instance;
+    }
+
+    public static synchronized boolean isInitialized() {
+        return instance != null;
     }
 
     public void initialize(EngineProperties config, String graphVersion) {

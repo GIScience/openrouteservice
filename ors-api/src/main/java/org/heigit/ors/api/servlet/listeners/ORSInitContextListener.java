@@ -112,11 +112,10 @@ public class ORSInitContextListener implements ServletContextListener {
             FormatUtility.unload();
             StatisticsProviderFactory.releaseProviders();
             LogFactory.release(Thread.currentThread().getContextClassLoader());
-            RoutingProfileManager.getInstance().destroy();
-        } catch (UnsupportedOperationException e) {
-            LOGGER.warn("RoutingProfileManager was not initialized, nothing to destroy.");
+            if (RoutingProfileManager.isInitialized())
+                RoutingProfileManager.getInstance().destroy();
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.toString());
         }
     }
 }
