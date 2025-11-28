@@ -82,7 +82,6 @@
         <surefire.version>3.5.4</surefire.version>
         <jupiter.version>6.0.1</jupiter.version>
         <mockito.version>5.20.0</mockito.version>
-        <bytebuddy.version>1.17.8</bytebuddy.version>
         <rest-assured.version>5.5.1</rest-assured.version>
         <testcontainers.version>1.21.0</testcontainers.version>
         <javax.ws.rs-api-version>2.1.1</javax.ws.rs-api-version>
