@@ -599,7 +599,7 @@
                         <exclude>**/integrationtests/**</exclude>
                     </excludes>
                     <!--suppress UnresolvedMavenProperty -->
-                    <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar -Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
+                    <argLine>-Duser.language=en -Duser.region=US -Dillegal-access=permit ${surefireArgLine}</argLine>
                 </configuration>
             </plugin>
 
