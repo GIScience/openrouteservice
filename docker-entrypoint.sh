@@ -254,7 +254,7 @@ echo "# Container file system preparation #"
 echo "#####################################"
 # Check if uid or gid is different from 1000
 chown -R "$(whoami)" "${ORS_HOME}"; debug "Changed ownership of ${ORS_HOME} to $(whoami)" || warning "Could not change ownership of ${ORS_HOME} to $(whoami)"
-
+chmod -R u+rwX g+rwX "${ORS_HOME}"; debug "Changed permissions of ${ORS_HOME} to user and group read/write/execute" || warning "Could not change permissions of ${ORS_HOME} to user and group read/write/execute"
 
 update_file "${ORS_HOME}/files/example-heidelberg.test.pbf" "/heidelberg.test.pbf"
 

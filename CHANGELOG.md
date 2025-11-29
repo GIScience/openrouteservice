@@ -33,6 +33,7 @@ Releasing is documented in RELEASE.md
 - type-specific filtering for mapping point features to graph edges ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
 - documentation on the matching endpoint ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
 - PostgreSQL-backed feature store with scheduled synchronization for dynamic routing data updates ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
+- Enhance the docker image and docker build workflow for Kubernetes readiness with minimal image support ([#2183](https://github.com/GIScience/openrouteservice/pull/2183))
 
 ### Changed
 - enhanced status endpoint to expose dynamic data statistics and feature store metrics ([#2156](https://github.com/GIScience/openrouteservice/pull/2156))
