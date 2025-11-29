@@ -56,33 +56,35 @@ public class ORSInitContextListener implements ServletContextListener {
             copyDefaultConfigurationToFile(outputTarget);
             return;
         }
-        new Thread(() -> {
-            try {
-                LOGGER.info("Initializing ORS...");
-                graphService.setIsActivatingGraphs(true);
-                RoutingProfileManager routingProfileManager = new RoutingProfileManager(engineProperties, AppInfo.GRAPH_VERSION);
-                if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
-                    LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
-                    if (environment.getActiveProfiles().length == 0) { // only exit if no active profile is set (i.e., not in test mode)
-                        RoutingProfileManagerStatus.setShutdown(true);
-                    }
+        new Thread(this::initializeORS, "ORS-Init").start();
+    }
+
+    private void initializeORS() {
+        try {
+            LOGGER.info("Initializing ORS...");
+            graphService.setIsActivatingGraphs(true);
+            RoutingProfileManager routingProfileManager = new RoutingProfileManager(engineProperties, AppInfo.GRAPH_VERSION);
+            if (Boolean.TRUE.equals(engineProperties.getPreparationMode())) {
+                LOGGER.info("Running in preparation mode, all enabled graphs are built, job is done.");
+                if (environment.getActiveProfiles().length == 0) { // only exit if no active profile is set (i.e., not in test mode)
+                    RoutingProfileManagerStatus.setShutdown(true);
                 }
-                if (RoutingProfileManagerStatus.isShutdown()) {
-                    System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
-                }
-                for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
-                    ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
-                    if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
-                        LOGGER.debug("Adding orsGraphManager for profile %s with encoder %s to GraphService".formatted(profile.getProfileConfiguration().getProfileName(), profile.getProfileConfiguration().getEncoderName()));
-                        graphService.addGraphManagerInstance(orsGraphManager);
-                    }
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
-            } finally {
-                graphService.setIsActivatingGraphs(false);
             }
-        }, "ORS-Init").start();
+            if (RoutingProfileManagerStatus.isShutdown()) {
+                System.exit(RoutingProfileManagerStatus.hasFailed() ? 1 : 0);
+            }
+            for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
+                ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
+                if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {
+                    LOGGER.debug("Adding orsGraphManager for profile %s with encoder %s to GraphService".formatted(profile.getProfileConfiguration().getProfileName(), profile.getProfileConfiguration().getEncoderName()));
+                    graphService.addGraphManagerInstance(orsGraphManager);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Unable to initialize ORS due to an unexpected exception: " + e);
+        } finally {
+            graphService.setIsActivatingGraphs(false);
+        }
     }
 
     public String configurationOutputTarget(EngineProperties engineProperties) {
