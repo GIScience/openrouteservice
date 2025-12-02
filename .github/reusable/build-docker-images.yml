@@ -1,0 +1,202 @@
+name: Build Docker Images (Reusable)
+description: Reusable workflow to build Docker images for multiple platforms and stages
+
+on:
+  workflow_call:
+    inputs:
+      push:
+        description: Whether to push the image to a registry
+        type: boolean
+        default: false
+      tags_publish_amd64:
+        description: Docker tag for publish image on amd64
+        type: string
+        default: 'local/openrouteservice:test'
+      tags_publish_arm64:
+        description: Docker tag for publish image on arm64
+        type: string
+        default: 'local/openrouteservice:test'
+      tags_minimal_amd64:
+        description: Docker tag for minimal image on amd64
+        type: string
+        default: 'local/openrouteservice:test-minimal'
+      tags_minimal_arm64:
+        description: Docker tag for minimal image on arm64
+        type: string
+        default: 'local/openrouteservice:test-minimal'
+      cache_from_type:
+        description: Cache backend type (default gha for GitHub Actions)
+        type: string
+        default: 'gha'
+      java_version:
+        description: Java version to use for Maven builds
+        type: string
+        default: '21'
+      skip_arm64:
+        description: Skip ARM64 builds
+        type: boolean
+        default: false
+    outputs:
+      dockerfile_hash:
+        description: Hash of the Dockerfile
+        value: ${{ jobs.prepare_environment.outputs.dockerfile_hash }}
+
+jobs:
+  prepare_environment:
+    name: Prepare the environment variables
+    runs-on: ubuntu-latest
+    outputs:
+      dockerfile_hash: ${{ steps.dockerfile-hash.outputs.hash }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Generate Dockerfile hash
+        id: dockerfile-hash
+        run: |
+          HASH=$(sha256sum Dockerfile | cut -d' ' -f1 | cut -c1-8)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+
+  prepare_maven_dependencies:
+    name: Prepare Maven dependencies for ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    needs:
+      - prepare_environment
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            name: linux-amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            name: linux-arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Java and Maven
+        uses: ./.github/actions/setup-java-maven
+        with:
+          java_version: ${{ inputs.java_version }}
+
+  build_docker_images:
+    name: Build ${{ matrix.image_stage }} for ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    needs:
+      - prepare_environment
+      - prepare_maven_dependencies
+    strategy:
+      matrix:
+        include:
+          - platform: linux/amd64
+            name: linux-amd64
+            runner: ubuntu-latest
+            image_stage: publish
+            docker_tag_input: tags_publish_amd64
+          - platform: linux/arm64
+            name: linux-arm64
+            runner: ubuntu-24.04-arm
+            image_stage: publish
+            docker_tag_input: tags_publish_arm64
+          - platform: linux/amd64
+            name: linux-amd64
+            runner: ubuntu-latest
+            image_stage: minimal
+            docker_tag_input: tags_minimal_amd64
+          - platform: linux/arm64
+            name: linux-arm64
+            runner: ubuntu-24.04-arm
+            image_stage: minimal
+            docker_tag_input: tags_minimal_arm64
+    steps:
+      - name: Check if should skip (ARM64)
+        id: should_skip
+        run: |
+          SKIP="false"
+          # Skip ARM64 builds if requested
+          if [[ "${{ matrix.name }}" == "linux-arm64" && "${{ inputs.skip_arm64 }}" == "true" ]]; then
+            SKIP="true"
+          fi
+          echo "skip=$SKIP" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        if: steps.should_skip.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get and save the UID
+        if: steps.should_skip.outputs.skip != 'true'
+        run: |
+          echo "UID=$(id -u)" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        if: steps.should_skip.outputs.skip != 'true'
+        uses: docker/setup-buildx-action@v3
+        id: buildx
+
+      - name: Setup Java and Maven
+        if: steps.should_skip.outputs.skip != 'true'
+        uses: ./.github/actions/setup-java-maven
+        with:
+          java_version: ${{ inputs.java_version }}
+
+      - name: Maven cache dance
+        if: steps.should_skip.outputs.skip != 'true'
+        uses: ./.github/actions/maven-cache-dance
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          dockerfile: 'Dockerfile'
+          cache-hit: 'false'
+
+      - name: Resolve Docker tag
+        if: steps.should_skip.outputs.skip != 'true'
+        id: resolve_tag
+        run: |
+          # Map the docker_tag_input to the actual input value
+          TAG_INPUT="${{ matrix.docker_tag_input }}"
+          case "$TAG_INPUT" in
+            tags_publish_amd64) TAG="${{ inputs.tags_publish_amd64 }}" ;;
+            tags_publish_arm64) TAG="${{ inputs.tags_publish_arm64 }}" ;;
+            tags_minimal_amd64) TAG="${{ inputs.tags_minimal_amd64 }}" ;;
+            tags_minimal_arm64) TAG="${{ inputs.tags_minimal_arm64 }}" ;;
+            *) TAG="local/openrouteservice:test" ;;
+          esac
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Determine Docker output
+        if: steps.should_skip.outputs.skip != 'true'
+        id: output
+        run: |
+          if [ "${{ inputs.push }}" == "true" ]; then
+            echo "type=docker" >> $GITHUB_OUTPUT
+          else
+            echo "type=docker,dest=${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build ${{ matrix.image_stage }} image stage for ${{ matrix.name }}
+        if: steps.should_skip.outputs.skip != 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
+          target: ${{ matrix.image_stage }}
+          push: ${{ inputs.push }}
+          load: false
+          tags: ${{ steps.resolve_tag.outputs.tag }}
+          platforms: "${{ matrix.platform }}"
+          cache-from: type=${{ inputs.cache_from_type }}
+          cache-to: type=${{ inputs.cache_from_type }},mode=max
+          outputs: ${{ steps.output.outputs.type }}
+
+      - name: Upload image artifact
+        if: steps.should_skip.outputs.skip != 'true' && inputs.push != true
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ matrix.name }}-${{ matrix.image_stage }}-${{ needs.prepare_environment.outputs.dockerfile_hash }}-artifact
+          path: ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+          overwrite: true
