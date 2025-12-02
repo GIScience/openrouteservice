@@ -43,7 +43,7 @@ jobs:
     name: Build Docker images
     needs:
       - prepare_environment
-    uses: ./.github/workflows/reusable/build-docker-images.yml
+    uses: ./.github/workflows/build-docker-images.yml
     with:
       push: false
       tags_publish_amd64: ${{ needs.prepare_environment.outputs.test_image_name }}
