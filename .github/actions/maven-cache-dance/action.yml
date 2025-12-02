@@ -1,0 +1,39 @@
+name: Maven Cache Dance
+description: Prepares all Dockerfiles for Maven cache mounts and injects cache into Docker build
+inputs:
+  builder:
+    description: The Docker Buildx builder name
+    required: true
+  dockerfile:
+    description: Path to the primary Dockerfile to use for buildkit injection (will still inject cache for all Dockerfiles found)
+    required: false
+    default: 'Dockerfile'
+  skip-extraction:
+    description: Skip cache extraction if cache hit occurred
+    required: false
+    default: 'false'
+  cache-hit:
+    description: Whether Maven cache was hit (used for skip-extraction)
+    required: false
+    default: ''
+outputs: {}
+runs:
+  using: composite
+  steps:
+    - name: Prepare all Dockerfiles for Maven cache mount
+      shell: bash
+      run: |
+        # Find and prepare all Dockerfiles in the repository
+        find . -name "Dockerfile" -o -name "*.Dockerfile" | while read dockerfile; do
+          sed -i "s|RUN \./mvnw |RUN --mount=type=cache,target=/root/.m2 ./mvnw |g" "$dockerfile"
+        done
+    - name: Inject Maven cache into Docker build
+      uses: 'reproducible-containers/buildkit-cache-dance@5b81f4d29dc8397a7d341dba3aeecc7ec54d6361' # v3.3.0
+      with:
+        builder: ${{ inputs.builder }}
+        dockerfile: ${{ inputs.dockerfile }}
+        skip-extraction: ${{ inputs.cache-hit }}
+        cache-map: |
+          {
+            "/home/runner/.m2/repository": "/root/.m2/repository"
+          }
