@@ -7,7 +7,6 @@ import org.heigit.ors.api.requests.common.APIRequest;
 import org.heigit.ors.api.requests.common.RequestOptions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsRestrictions;
 import org.heigit.ors.api.requests.routing.RequestProfileParamsWeightings;
-import org.heigit.ors.api.requests.routing.RouteRequest;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.common.EncoderNameEnum;
 import org.heigit.ors.common.StatusCode;
@@ -35,11 +34,17 @@ import java.util.List;
 import java.util.Locale;
 
 import static java.util.Optional.ofNullable;
+import static org.heigit.ors.api.requests.matrix.MatrixRequest.PARAM_UNITS;
+import static org.heigit.ors.routing.RouteRequestParameterNames.*;
 
 public class ApiService {
-
+    protected final EngineService engineService;
     protected EndpointsProperties endpointsProperties;
     protected ApiEngineProperties apiEngineProperties;
+
+    public ApiService(EngineService engineService) {
+        this.engineService = engineService;
+    }
 
     double getMaximumAvoidPolygonArea() {
         return 0d;
@@ -49,7 +54,7 @@ public class ApiService {
         return 0d;
     }
 
-    public static String[] convertAPIEnumListToStrings(Enum[] valuesIn) {
+    public static String[] convertAPIEnumListToStrings(Enum<?>[] valuesIn) {
         String[] attributes = new String[valuesIn.length];
 
         for (int i = 0; i < valuesIn.length; i++) {
@@ -59,7 +64,7 @@ public class ApiService {
         return attributes;
     }
 
-    protected static String convertAPIEnum(Enum valuesIn) {
+    protected static String convertAPIEnum(Enum<?> valuesIn) {
         return valuesIn.toString();
     }
 
@@ -78,26 +83,23 @@ public class ApiService {
     }
 
     protected static BordersExtractor.Avoid convertAvoidBorders(APIEnums.AvoidBorders avoidBorders) {
-        if (avoidBorders != null) {
-            switch (avoidBorders) {
-                case ALL:
-                    return BordersExtractor.Avoid.ALL;
-                case CONTROLLED:
-                    return BordersExtractor.Avoid.CONTROLLED;
-                default:
-                    return BordersExtractor.Avoid.NONE;
-            }
+        if (avoidBorders == null) {
+            return null;
         }
-        return null;
+        return switch (avoidBorders) {
+            case ALL -> BordersExtractor.Avoid.ALL;
+            case CONTROLLED -> BordersExtractor.Avoid.CONTROLLED;
+            default -> BordersExtractor.Avoid.NONE;
+        };
     }
 
     public static int convertRouteProfileType(APIEnums.Profile profile) {
         return RoutingProfileType.getFromString(profile.toString());
     }
 
-    protected Polygon[] convertAndValidateAvoidAreas(JSONObject geoJson, int profileType) throws StatusCodeException {
+    protected Polygon[] convertAndValidateAvoidAreas(JSONObject geoJson) throws StatusCodeException {
         Polygon[] avoidAreas = convertAvoidAreas(geoJson);
-        validateAreaLimits(avoidAreas, profileType);
+        validateAreaLimits(avoidAreas);
         return avoidAreas;
     }
 
@@ -112,25 +114,25 @@ public class ApiService {
         try {
             convertedGeom = GeometryJSON.parse(complexJson);
         } catch (Exception e) {
-            throw new ParameterValueException(GenericErrorCodes.INVALID_JSON_FORMAT, RequestOptions.PARAM_AVOID_POLYGONS);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_JSON_FORMAT, PARAM_AVOID_POLYGONS);
         }
 
         Polygon[] avoidAreas;
 
-        if (convertedGeom instanceof Polygon) {
-            avoidAreas = new Polygon[]{(Polygon) convertedGeom};
+        if (convertedGeom instanceof Polygon polygon) {
+            avoidAreas = new Polygon[]{polygon};
         } else if (convertedGeom instanceof MultiPolygon multiPoly) {
             avoidAreas = new Polygon[multiPoly.getNumGeometries()];
             for (int i = 0; i < multiPoly.getNumGeometries(); i++)
                 avoidAreas[i] = (Polygon) multiPoly.getGeometryN(i);
         } else {
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS);
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, PARAM_AVOID_POLYGONS);
         }
 
         return avoidAreas;
     }
 
-    protected void validateAreaLimits(Polygon[] avoidAreas, int profileType) throws StatusCodeException {
+    protected void validateAreaLimits(Polygon[] avoidAreas) throws StatusCodeException {
         double areaLimit = getMaximumAvoidPolygonArea();
         double extentLimit = getMaximumAvoidPolygonExtent();
         for (Polygon avoidArea : avoidAreas) {
@@ -148,7 +150,7 @@ public class ApiService {
                     }
                 }
             } catch (InternalServerException e) {
-                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_POLYGONS);
+                throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, PARAM_AVOID_POLYGONS);
             }
         }
     }
@@ -165,7 +167,7 @@ public class ApiService {
                     if (countryId > 0) {
                         avoidCountryIds[i] = countryId;
                     } else {
-                        throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_COUNTRIES, avoidCountries[i]);
+                        throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, PARAM_AVOID_COUNTRIES, avoidCountries[i]);
                     }
                 }
             }
@@ -178,7 +180,7 @@ public class ApiService {
         DistanceUnit units = DistanceUnitUtil.getFromString(unitsIn.toString(), DistanceUnit.UNKNOWN);
 
         if (units == DistanceUnit.UNKNOWN)
-            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_UNITS, unitsIn.toString());
+            throw new ParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, PARAM_UNITS, unitsIn.toString());
 
         return units;
     }
@@ -189,10 +191,10 @@ public class ApiService {
             String avoidFeatureName = avoid.toString();
             int flag = AvoidFeatureFlags.getFromString(avoidFeatureName);
             if (flag == 0)
-                throw new UnknownParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName);
+                throw new UnknownParameterValueException(GenericErrorCodes.INVALID_PARAMETER_VALUE, PARAM_AVOID_FEATURES, avoidFeatureName);
 
             if (!AvoidFeatureFlags.isValid(profileType, flag))
-                throw new IncompatibleParameterException(GenericErrorCodes.INVALID_PARAMETER_VALUE, RequestOptions.PARAM_AVOID_FEATURES, avoidFeatureName, APIRequest.PARAM_PROFILE, RoutingProfileType.getName(profileType));
+                throw new IncompatibleParameterException(GenericErrorCodes.INVALID_PARAMETER_VALUE, PARAM_AVOID_FEATURES, avoidFeatureName, APIRequest.PARAM_PROFILE, RoutingProfileType.getName(profileType));
 
             flags |= flag;
         }
@@ -205,7 +207,7 @@ public class ApiService {
             params.setAvoidBorders(convertAvoidBorders(options.getAvoidBorders()));
 
         if (options.hasAvoidPolygonFeatures())
-            params.setAvoidAreas(convertAndValidateAvoidAreas(options.getAvoidPolygonFeatures(), params.getProfileType()));
+            params.setAvoidAreas(convertAndValidateAvoidAreas(options.getAvoidPolygonFeatures()));
 
         if (options.hasAvoidCountries())
             params.setAvoidCountries(convertAvoidCountries(options.getAvoidCountries()));
@@ -233,12 +235,12 @@ public class ApiService {
             applyWeightings(weightings, params);
         }
 
-        if (params instanceof WheelchairParameters) {
+        if (params instanceof WheelchairParameters wheelchairParameters) {
             if (options.getProfileParams().hasSurfaceQualityKnown()) {
-                ((WheelchairParameters) params).setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());
+                wheelchairParameters.setSurfaceQualityKnown(options.getProfileParams().getSurfaceQualityKnown());
             }
             if (options.getProfileParams().hasAllowUnsuitable()) {
-                ((WheelchairParameters) params).setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
+                wheelchairParameters.setAllowUnsuitable(options.getProfileParams().getAllowUnsuitable());
             }
         }
         return params;
@@ -254,69 +256,17 @@ public class ApiService {
     }
 
     private VehicleParameters convertHeavyVehicleParameters(RequestProfileParamsRestrictions restrictions) {
-
         VehicleParameters params = new VehicleParameters();
-
-        setLengthParam(restrictions, params);
-        setWidthParam(restrictions, params);
-        setHeightParam(restrictions, params);
-        setWeightParam(restrictions, params);
-        setAxleLoadParam(restrictions, params);
-
-        setLoadCharacteristicsParam(restrictions, params);
-
-        return params;
-    }
-
-    private VehicleParameters setLengthParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
-        if (params != null && restrictions != null && restrictions.hasLength()) {
-            params.setLength(restrictions.getLength());
+        if (restrictions == null) {
+            return params;
         }
-
-        return params;
-    }
-
-    private VehicleParameters setWidthParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
-        if (params != null && restrictions != null && restrictions.hasWidth()) {
-            params.setWidth(restrictions.getWidth());
-        }
-
-        return params;
-    }
-
-    private VehicleParameters setHeightParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
-        if (params != null && restrictions != null && restrictions.hasHeight()) {
-            params.setHeight(restrictions.getHeight());
-        }
-
-        return params;
-    }
-
-    private VehicleParameters setWeightParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
-        if (params != null && restrictions != null && restrictions.hasWeight()) {
-            params.setWeight(restrictions.getWeight());
-        }
-
-        return params;
-    }
-
-    private VehicleParameters setAxleLoadParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
-        if (params != null && restrictions != null && restrictions.hasAxleLoad()) {
-            params.setAxleload(restrictions.getAxleLoad());
-        }
-
-        return params;
-    }
-
-    private VehicleParameters setLoadCharacteristicsParam(RequestProfileParamsRestrictions restrictions, VehicleParameters params) {
-        if (params != null && restrictions != null) {
-            int loadCharacteristics = 0;
-            if (restrictions.hasHazardousMaterial() && restrictions.getHazardousMaterial())
-                loadCharacteristics |= VehicleLoadCharacteristicsFlags.HAZMAT;
-
-            if (loadCharacteristics != 0)
-                params.setLoadCharacteristics(loadCharacteristics);
-        }
+        params.setLength(restrictions.hasLength() ? restrictions.getLength() : 0.0);
+        params.setWidth(restrictions.hasWidth() ? restrictions.getWidth() : 0.0);
+        params.setHeight(restrictions.hasHeight() ? restrictions.getHeight() : 0.0);
+        params.setWeight(restrictions.hasWeight() ? restrictions.getWeight() : 0.0);
+        params.setAxleload(restrictions.hasAxleLoad() ? restrictions.getAxleLoad() : 0.0);
+        params.setLoadCharacteristics(restrictions.hasHazardousMaterial() && restrictions.getHazardousMaterial() ?
+                VehicleLoadCharacteristicsFlags.HAZMAT : VehicleLoadCharacteristicsFlags.NONE);
         return params;
     }
 
@@ -373,7 +323,7 @@ public class ApiService {
         }
     }
 
-    private ProfileParameters applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) throws ParameterOutOfRangeException, ParameterValueException {
+    private void applyWeightings(RequestProfileParamsWeightings weightings, ProfileParameters params) throws ParameterOutOfRangeException, ParameterValueException {
         String factorKey = "factor";
         try {
             if (weightings.hasGreenIndex()) {
@@ -418,13 +368,10 @@ public class ApiService {
             throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "weightings");
 
         }
-
-        return params;
     }
 
     public EncoderNameEnum getEncoderForProfile(String profile) {
-        //TODO Change: use RoutingProfileManager
-        return ofNullable(RoutingProfileManager.getInstance().getRoutingProfile(profile))
+        return ofNullable(engineService.waitForActiveRoutingProfileManager().getRoutingProfile(profile))
                 .map(RoutingProfile::getProfileProperties)
                 .map(ProfileProperties::getEncoderName)
                 .orElse(EncoderNameEnum.UNKNOWN);

@@ -16,8 +16,9 @@
 package org.heigit.ors.api.controllers;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.heigit.ors.routing.RoutingProfileManagerStatus;
+import org.heigit.ors.api.services.EngineService;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,14 +31,22 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Health service", description = "Get information on the health of the api")
 @RequestMapping("/v2/health")
 public class HealthAPI {
+    private final EngineService engineService;
+
+    @Autowired
+    public HealthAPI(EngineService engineService) {
+        this.engineService = engineService;
+    }
+
+
     @GetMapping
-    public ResponseEntity<?> fetchHealth() {
+    public ResponseEntity<String> fetchHealth() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         JSONObject jsonResponse = new JSONObject();
         HttpStatus status;
 
-        if (!RoutingProfileManagerStatus.isReady()) {
+        if (!engineService.getRoutingProfileManager().isReady()) {
             jsonResponse.put("status", "not ready");
             status = HttpStatus.SERVICE_UNAVAILABLE;
         } else {

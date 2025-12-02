@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
-import org.heigit.ors.routing.RoutingProfileManagerStatus;
 import org.heigit.ors.util.StringUtility;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,8 @@ import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
 @Service
 public class DynamicDataService {
+    private final EngineService engineService;
+
     private static final Logger LOGGER = Logger.getLogger(DynamicDataService.class.getName());
 
     private final String storeURL;
@@ -32,7 +33,8 @@ public class DynamicDataService {
     private final Map<String, Instant> lastUpdateTimestamps = new ConcurrentHashMap<>();
 
     @Autowired
-    public DynamicDataService(EngineProperties engineProperties) {
+    public DynamicDataService(EngineService engineService, EngineProperties engineProperties) {
+        this.engineService = engineService;
         enabled = engineProperties.getDynamicData().getEnabled();
         storeURL = engineProperties.getDynamicData().getStoreUrl();
         storeUser = engineProperties.getDynamicData().getStoreUser();
@@ -49,15 +51,8 @@ public class DynamicDataService {
 
     private void initialize() {
         LOGGER.info("Initializing Dynamic data service.");
-        while (!RoutingProfileManagerStatus.isReady() && !RoutingProfileManagerStatus.isShutdown() && !RoutingProfileManagerStatus.hasFailed()) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                LOGGER.error("Thread interrupted while waiting for RoutingProfileManager to be ready: " + e.getMessage(), e);
-            }
-        }
-        if (RoutingProfileManagerStatus.isShutdown() || RoutingProfileManagerStatus.hasFailed()) {
+        RoutingProfileManager routingProfileManager = engineService.waitForActiveRoutingProfileManager();
+        if (routingProfileManager.isShutdown() || routingProfileManager.hasFailed()) {
             return;
         }
         LOGGER.info("Initializing dynamic data service.");
@@ -68,7 +63,7 @@ public class DynamicDataService {
             enabled = false;
             return;
         }
-        RoutingProfileManager.getInstance().getUniqueProfiles().forEach(profile -> {
+        routingProfileManager.getUniqueProfiles().forEach(profile -> {
             LOGGER.debug("Checking profile: " + profile.name());
             if (Boolean.TRUE.equals(profile.getProfileConfiguration().getBuild().getEncoderOptions().getEnableCustomModels()))
                 enabledProfiles.add(profile);
@@ -89,6 +84,7 @@ public class DynamicDataService {
     private void testDatabaseConnection() throws SQLException {
         try (Connection con = DriverManager.getConnection(storeURL, storeUser, storePassword)) {
             LOGGER.info("Successfully connected to dynamic data store database.");
+            LOGGER.debug(con.getClientInfo());
         }
     }
 

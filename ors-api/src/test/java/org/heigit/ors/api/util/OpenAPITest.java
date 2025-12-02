@@ -16,16 +16,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles("unittest")
 class OpenAPITest {
-    @Autowired
-    private final EndpointsProperties endpointsProperties = new EndpointsProperties();
+    private final EndpointsProperties endpointsProperties;
 
     @Autowired
+    public OpenAPITest(EndpointsProperties endpointsProperties) {
+        this.endpointsProperties = endpointsProperties;
+    }
+
     private final ServletContext servletContext = new MockServletContext();
 
     @Test
     void testGetOpenAPIDocs() {
-        OpenAPIConfig oas_config = new OpenAPIConfig(endpointsProperties);
-        OpenAPI api = oas_config.customOpenAPI(servletContext);
+        OpenAPIConfig oasConfig = new OpenAPIConfig(endpointsProperties);
+        OpenAPI api = oasConfig.customOpenAPI(servletContext);
         assertEquals(SpecVersion.V30, api.getSpecVersion());
     }
 }

@@ -24,8 +24,8 @@ class APIServiceTest {
     ApiService apiService;
 
     @BeforeEach
-    void setUp() throws Exception {
-        apiService = new ApiService();
+    void setUp() {
+        apiService = new ApiService(null);
     }
 
     @Test
@@ -49,10 +49,8 @@ class APIServiceTest {
     }
 
     @Test
-    void convertVehicleTypeError() throws IncompatibleParameterException {
-        assertThrows(IncompatibleParameterException.class, () -> {
-            ApiService.convertVehicleType(APIEnums.VehicleType.HGV, 1);
-        });
+    void convertVehicleTypeError() {
+        assertThrows(IncompatibleParameterException.class, () -> ApiService.convertVehicleType(APIEnums.VehicleType.HGV, 1));
     }
 
     @Test
@@ -109,7 +107,7 @@ class APIServiceTest {
     }
 
     @Test
-    void convertAvoidAreasInvalidType() throws StatusCodeException {
+    void convertAvoidAreasInvalidType() {
         assertThrows(ParameterValueException.class, () -> {
             JSONObject geomJSON = new JSONObject();
             geomJSON.put("type", "LineString");
@@ -122,7 +120,7 @@ class APIServiceTest {
     }
 
     @Test
-    void convertAvoidAreasInvalidFeature() throws StatusCodeException {
+    void convertAvoidAreasInvalidFeature() {
         assertThrows(ParameterValueException.class, () -> {
             JSONObject geomJSON = new JSONObject();
             geomJSON.put("type", "Polygon");
@@ -153,9 +151,6 @@ class APIServiceTest {
         coord3.add(1, 1.0);
         coords.add(0, coord3);
 
-        JSONArray poly = new JSONArray();
-        poly.add(0, coords);
-
         return coords;
     }
 
@@ -167,7 +162,7 @@ class APIServiceTest {
     }
 
     @Test
-    void convertFeatureTypesIncompatible() throws UnknownParameterValueException, IncompatibleParameterException {
+    void convertFeatureTypesIncompatible() {
         assertThrows(IncompatibleParameterException.class, () -> {
             APIEnums.AvoidFeatures[] avoids = new APIEnums.AvoidFeatures[]{APIEnums.AvoidFeatures.STEPS};
             ApiService.convertFeatureTypes(avoids, 1);
@@ -194,7 +189,7 @@ class APIServiceTest {
         RequestProfileParamsRestrictions restrictions = new RequestProfileParamsRestrictions();
         restrictions.setHeight(10.0f);
         ProfileParameters params = apiService.convertSpecificProfileParameters(2, restrictions);
-        assertTrue(params instanceof VehicleParameters);
+        assertInstanceOf(VehicleParameters.class, params);
         assertEquals(10.0f, ((VehicleParameters) params).getHeight(), 0.0);
     }
 }

@@ -28,8 +28,12 @@ class MatrixRequestTest {
     private Double[][] maximumLocationsArray;
     private Double[][] minimalLocationsArray;
 
+    private final EndpointsProperties endpointsProperties;
+
     @Autowired
-    private EndpointsProperties endpointsProperties = new EndpointsProperties();
+    public  MatrixRequestTest(EndpointsProperties endpointsProperties) {
+        this.endpointsProperties = endpointsProperties;
+    }
 
     @BeforeEach
     void setUp() {

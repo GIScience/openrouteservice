@@ -21,12 +21,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.heigit.ors.api.requests.common.APIRequest.PARAM_PROFILE;
+import static org.heigit.ors.routing.RouteRequestParameterNames.*;
+
 
 @Service
 public class RoutingService extends ApiService {
 
     @Autowired
-    public RoutingService(EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+    public RoutingService(EngineService engineService, EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+        super(engineService);
         this.endpointsProperties = endpointsProperties;
         this.apiEngineProperties = apiEngineProperties;
     }
@@ -229,7 +233,7 @@ public class RoutingService extends ApiService {
         if (routeApiRequest.hasSimplifyGeometry()) {
             routingRequest.setGeometrySimplify(routeApiRequest.getSimplifyGeometry());
             if (routeApiRequest.hasExtraInfo() && routeApiRequest.getSimplifyGeometry()) {
-                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_SIMPLIFY_GEOMETRY, "true", RouteRequest.PARAM_EXTRA_INFO, "*");
+                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, PARAM_SIMPLIFY_GEOMETRY, "true", PARAM_EXTRA_INFO, "*");
             }
         }
 
@@ -244,8 +248,7 @@ public class RoutingService extends ApiService {
             routingRequest.setMaximumSpeed(routeApiRequest.getMaximumSpeed());
         }
 
-        int profileType = -1;
-
+        int profileType;
         int coordinatesLength = routeApiRequest.getCoordinates().size();
 
         RouteSearchParameters params = new RouteSearchParameters();
@@ -264,7 +267,7 @@ public class RoutingService extends ApiService {
             profileType = convertRouteProfileType(routeApiRequest.getProfile());
             params.setProfileType(profileType);
         } catch (Exception e) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PROFILE);
         }
 
         APIEnums.RoutePreference preference = routeApiRequest.hasRoutePreference() ? routeApiRequest.getRoutePreference() : APIEnums.RoutePreference.RECOMMENDED;
@@ -290,13 +293,13 @@ public class RoutingService extends ApiService {
 
         if (routeApiRequest.hasAlternativeRoutes()) {
             if (routeApiRequest.getCoordinates().size() > 2) {
-                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_ALTERNATIVE_ROUTES, "(number of waypoints > 2)");
+                throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, PARAM_ALTERNATIVE_ROUTES, "(number of waypoints > 2)");
             }
             if (routeApiRequest.getAlternativeRoutes().hasTargetCount()) {
                 params.setAlternativeRoutesCount(routeApiRequest.getAlternativeRoutes().getTargetCount());
                 int countLimit = endpointsProperties.getRouting().getMaximumAlternativeRoutes();
                 if (countLimit > 0 && routeApiRequest.getAlternativeRoutes().getTargetCount() > countLimit) {
-                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_ALTERNATIVE_ROUTES, Integer.toString(routeApiRequest.getAlternativeRoutes().getTargetCount()), "The target alternative routes count has to be equal to or less than " + countLimit);
+                    throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_ALTERNATIVE_ROUTES, Integer.toString(routeApiRequest.getAlternativeRoutes().getTargetCount()), "The target alternative routes count has to be equal to or less than " + countLimit);
                 }
             }
             if (routeApiRequest.getAlternativeRoutes().hasWeightFactor())
@@ -306,7 +309,7 @@ public class RoutingService extends ApiService {
         }
 
         if (routeApiRequest.hasDeparture() && routeApiRequest.hasArrival())
-            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, RouteRequest.PARAM_DEPARTURE, RouteRequest.PARAM_ARRIVAL);
+            throw new IncompatibleParameterException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, PARAM_DEPARTURE, PARAM_ARRIVAL);
         else if (routeApiRequest.hasDeparture())
             params.setDeparture(routeApiRequest.getDeparture());
         else if (routeApiRequest.hasArrival())
@@ -348,8 +351,8 @@ public class RoutingService extends ApiService {
         return routingRequest;
     }
 
-    private static RoutingProfile parseRoutingProfile(String profileName) throws InternalServerException {
-        RoutingProfile rp = RoutingProfileManager.getInstance().getRoutingProfile(profileName);
+    private RoutingProfile parseRoutingProfile(String profileName) throws InternalServerException {
+        RoutingProfile rp = engineService.waitForActiveRoutingProfileManager().getRoutingProfile(profileName);
         if (rp == null)
             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "Unable to find routing profile named '" + profileName + "'.");
         return rp;
@@ -357,12 +360,12 @@ public class RoutingService extends ApiService {
 
     private Coordinate[] convertCoordinates(List<List<Double>> coordinates, boolean allowSingleCoordinate) throws ParameterValueException {
         if (!allowSingleCoordinate && coordinates.size() < 2)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_COORDINATES);
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_COORDINATES);
 
         if (allowSingleCoordinate && coordinates.size() > 1)
             throw new ParameterValueException(
                     RoutingErrorCodes.INVALID_PARAMETER_VALUE,
-                    RouteRequest.PARAM_COORDINATES,
+                    PARAM_COORDINATES,
                     "Length = " + coordinates.size(),
                     "Only one coordinate pair is allowed");
 
@@ -372,34 +375,29 @@ public class RoutingService extends ApiService {
             coords.add(convertSingleCoordinate(coord));
         }
 
-        return coords.toArray(new Coordinate[coords.size()]);
+        return coords.toArray(new Coordinate[0]);
     }
 
     private Coordinate convertSingleCoordinate(List<Double> coordinate) throws ParameterValueException {
         if (coordinate.size() != 2)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_COORDINATES);
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_COORDINATES);
 
         return new Coordinate(coordinate.get(0), coordinate.get(1));
     }
 
-    private String convertGeometryFormat(APIEnums.RouteResponseType responseType) throws ParameterValueException {
-        switch (responseType) {
-            case GEOJSON:
-                return "geojson";
-            case JSON:
-                return "encodedpolyline";
-            case GPX:
-                return "gpx";
-            default:
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_FORMAT);
-        }
+    private String convertGeometryFormat(APIEnums.RouteResponseType responseType) {
+        return switch (responseType) {
+            case GEOJSON -> "geojson";
+            case JSON -> "encodedpolyline";
+            case GPX -> "gpx";
+        };
     }
 
     private boolean convertIncludeGeometry(RouteRequest request) throws IncompatibleParameterException {
         if (!request.getIncludeGeometry() && request.getResponseType() != APIEnums.RouteResponseType.JSON) {
             throw new IncompatibleParameterException(RoutingErrorCodes.INVALID_PARAMETER_VALUE,
-                    RouteRequest.PARAM_GEOMETRY, "false",
-                    RouteRequest.PARAM_FORMAT, APIEnums.RouteResponseType.GEOJSON + "/" + APIEnums.RouteResponseType.GPX);
+                    PARAM_GEOMETRY, "false",
+                    PARAM_FORMAT, APIEnums.RouteResponseType.GEOJSON + "/" + APIEnums.RouteResponseType.GPX);
         }
         return request.getIncludeGeometry();
     }
@@ -436,7 +434,7 @@ public class RoutingService extends ApiService {
     private RouteInstructionsFormat convertInstructionsFormat(APIEnums.InstructionsFormat formatIn) throws UnknownParameterValueException {
         RouteInstructionsFormat instrFormat = RouteInstructionsFormat.fromString(formatIn.toString());
         if (instrFormat == RouteInstructionsFormat.UNKNOWN)
-            throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_INSTRUCTIONS_FORMAT, formatIn.toString());
+            throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_INSTRUCTIONS_FORMAT, formatIn.toString());
 
         return instrFormat;
     }
@@ -444,18 +442,18 @@ public class RoutingService extends ApiService {
     private List<Integer> processSkipSegments(RouteRequest request) throws ParameterOutOfRangeException, ParameterValueException, EmptyElementException {
         for (Integer skipSegment : request.getSkipSegments()) {
             if (skipSegment >= request.getCoordinates().size()) {
-                throw new ParameterOutOfRangeException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_SKIP_SEGMENTS, skipSegment.toString(), String.valueOf(request.getCoordinates().size() - 1));
+                throw new ParameterOutOfRangeException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_SKIP_SEGMENTS, skipSegment.toString(), String.valueOf(request.getCoordinates().size() - 1));
             }
             if (skipSegment <= 0) {
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_SKIP_SEGMENTS, request.getSkipSegments().toString(), "The individual skip_segments values have to be greater than 0.");
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_SKIP_SEGMENTS, request.getSkipSegments().toString(), "The individual skip_segments values have to be greater than 0.");
             }
 
         }
         if (request.getSkipSegments().size() > request.getCoordinates().size() - 1) {
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_SKIP_SEGMENTS, request.getSkipSegments().toString(), "The amount of segments to skip shouldn't be more than segments in the coordinates.");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_SKIP_SEGMENTS, request.getSkipSegments().toString(), "The amount of segments to skip shouldn't be more than segments in the coordinates.");
         }
         if (request.getSkipSegments().isEmpty()) {
-            throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, RouteRequest.PARAM_SKIP_SEGMENTS);
+            throw new EmptyElementException(RoutingErrorCodes.EMPTY_ELEMENT, PARAM_SKIP_SEGMENTS);
         }
         return request.getSkipSegments();
     }
@@ -468,7 +466,7 @@ public class RoutingService extends ApiService {
         }
         int weightingMethod = WeightingMethod.getFromString(preferenceIn.toString());
         if (weightingMethod == WeightingMethod.UNKNOWN)
-            throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PREFERENCE, preferenceIn.toString());
+            throw new UnknownParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_PREFERENCE, preferenceIn.toString());
 
         return weightingMethod;
     }
@@ -478,7 +476,7 @@ public class RoutingService extends ApiService {
             return new WayPointBearing[0];
 
         if (bearingsIn.length != coordinatesLength && bearingsIn.length != coordinatesLength - 1)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_BEARINGS, Arrays.toString(bearingsIn), "The number of bearings must be equal to the number of waypoints on the route.");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_BEARINGS, Arrays.toString(bearingsIn), "The number of bearings must be equal to the number of waypoints on the route.");
 
         WayPointBearing[] bearingsList = new WayPointBearing[coordinatesLength];
         for (int i = 0; i < bearingsIn.length; i++) {
@@ -486,10 +484,8 @@ public class RoutingService extends ApiService {
 
             if (singleBearingIn.length == 0) {
                 bearingsList[i] = new WayPointBearing(Double.NaN);
-            } else if (singleBearingIn.length == 1) {
-                bearingsList[i] = new WayPointBearing(singleBearingIn[0]);
             } else {
-                bearingsList[i] = new WayPointBearing(singleBearingIn[0], singleBearingIn[1]);
+                bearingsList[i] = new WayPointBearing(singleBearingIn[0]);
             }
         }
 
@@ -504,7 +500,7 @@ public class RoutingService extends ApiService {
                 return maxRadii;
             }
             if (radiiIn.length != coordinatesLength)
-                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_RADII, Arrays.toString(radiiIn), "The number of specified radiuses must be one or equal to the number of specified waypoints.");
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_RADII, Arrays.toString(radiiIn), "The number of specified radiuses must be one or equal to the number of specified waypoints.");
             return Stream.of(radiiIn).mapToDouble(Double::doubleValue).toArray();
         } else if (profileType == RoutingProfileType.WHEELCHAIR) {
             // As there are generally less ways that can be used as pedestrian ways, we need to restrict search
@@ -520,7 +516,7 @@ public class RoutingService extends ApiService {
 
     private boolean convertSetFlexibleMode(boolean useContractionHierarchies) throws ParameterValueException {
         if (useContractionHierarchies)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, RouteRequest.PARAM_OPTIMIZED);
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_FORMAT, PARAM_OPTIMIZED);
 
         return true;
     }

@@ -16,7 +16,6 @@
 package org.heigit.ors.api.services;
 
 import org.heigit.ors.api.APIEnums;
-import org.heigit.ors.api.config.EndpointsProperties;
 import org.heigit.ors.api.requests.routing.*;
 import org.heigit.ors.common.DistanceUnit;
 import org.heigit.ors.exceptions.*;
@@ -47,24 +46,22 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("unittest")
 class RoutingServiceTest {
 
-    @Autowired
-    RoutingService routingService;
-    @Autowired
-    EndpointsProperties endpointsProperties = new EndpointsProperties();
-    RouteRequest request;
+    private final RoutingService routingService;
+    private final JSONObject geoJsonPolygon;
+    private RouteRequest request;
     private RequestProfileParamsRestrictions vehicleParams;
     private RequestProfileParamsRestrictions wheelchairParams;
 
-    private final JSONObject geoJsonPolygon;
-
-    public RoutingServiceTest() throws Exception {
-        init();
+    @Autowired
+    public RoutingServiceTest(RoutingService routingService) throws Exception {
+        this.routingService = routingService;
         geoJsonPolygon = constructGeoJson();
+        init();
     }
 
     private JSONObject constructGeoJson() {
-        JSONObject geoJsonPolygon = new JSONObject();
-        geoJsonPolygon.put("type", "Polygon");
+        JSONObject polygon = new JSONObject();
+        polygon.put("type", "Polygon");
         JSONArray coordsArray = new JSONArray();
         coordsArray.add(new Double[]{49.0, 8.0});
         coordsArray.add(new Double[]{49.005, 8.01});
@@ -73,31 +70,13 @@ class RoutingServiceTest {
         JSONArray coordinates = new JSONArray();
 
         coordinates.add(coordsArray);
-        geoJsonPolygon.put("coordinates", coordinates);
+        polygon.put("coordinates", coordinates);
 
-        return geoJsonPolygon;
+        return polygon;
     }
 
     @BeforeEach
     void init() throws Exception {
-
-        /*List<Double[]> coords = new ArrayList<>();
-        coords.add(new Double[] {24.5,39.2});
-        coords.add(new Double[] {27.4,38.6});
-        coords.add(new Double[] {26.5,37.2});
-        List<Double> coord1 = new ArrayList<>();
-        coord1.add(24.5);
-        coord1.add(39.2);
-        coords.add(coord1);
-        List<Double> coord2 = new ArrayList<>();
-        coord2.add(27.4);
-        coord2.add(38.6);
-        coords.add(coord2);
-        List<Double> coord3 = new ArrayList<>();
-        coord3.add(26.5);
-        coord3.add(37.2);
-        coords.add(coord3);*/
-
         Double[][] coords = new Double[3][2];
         coords[0] = new Double[]{24.5, 39.2};
         coords[1] = new Double[]{27.4, 38.6};
@@ -265,7 +244,7 @@ class RoutingServiceTest {
     }
 
     @Test
-    void invalidBearingLength() throws Exception {
+    void invalidBearingLength() {
         assertThrows(ParameterValueException.class, () -> {
             request.setBearings(new Double[][]{{123.0, 123.0}});
             routingService.convertRouteRequest(request);
@@ -281,7 +260,7 @@ class RoutingServiceTest {
     }
 
     @Test
-    void invalidRadiusLength() throws Exception {
+    void invalidRadiusLength() {
         assertThrows(ParameterValueException.class, () -> {
             request.setMaximumSearchRadii(new Double[]{10.0, 20.0});
             routingService.convertRouteRequest(request);
@@ -297,7 +276,7 @@ class RoutingServiceTest {
     }
 
     @Test
-    void onlySetOptimizationToFalse() throws Exception {
+    void onlySetOptimizationToFalse() {
         assertThrows(ParameterValueException.class, () -> {
             request.setUseContractionHierarchies(true);
             routingService.convertRouteRequest(request);
@@ -316,7 +295,7 @@ class RoutingServiceTest {
                 try {
                     routingService.convertRouteRequest(request);
                 } catch (Exception e) {
-                    assertTrue(e instanceof IncompatibleParameterException);
+                    assertInstanceOf(IncompatibleParameterException.class, e);
                 }
             } else {
                 routingService.convertRouteRequest(request);
@@ -341,42 +320,42 @@ class RoutingServiceTest {
     }
 
     @Test
-    void invalidSkipSegmentsLength() throws StatusCodeException {
+    void invalidSkipSegmentsLength() {
         assertThrows(ParameterValueException.class, () -> {
-            List<Integer> skip_segments = new ArrayList<>();
-            skip_segments.add(0, 1);
-            skip_segments.add(0, 2);
-            skip_segments.add(0, 2);
-            request.setSkipSegments(skip_segments);
+            List<Integer> skipSegments = new ArrayList<>();
+            skipSegments.add(0, 1);
+            skipSegments.add(0, 2);
+            skipSegments.add(0, 2);
+            request.setSkipSegments(skipSegments);
             routingService.convertRouteRequest(request);
         });
     }
 
     @Test
-    void emptySkipSegments() throws StatusCodeException {
+    void emptySkipSegments() {
         assertThrows(EmptyElementException.class, () -> {
-            List<Integer> skip_segments = new ArrayList<>();
-            request.setSkipSegments(skip_segments);
+            List<Integer> skipSegments = new ArrayList<>();
+            request.setSkipSegments(skipSegments);
             routingService.convertRouteRequest(request);
         });
     }
 
     @Test
-    void skipSegmentsValueTooBig() throws StatusCodeException {
+    void skipSegmentsValueTooBig() {
         assertThrows(ParameterOutOfRangeException.class, () -> {
-            List<Integer> skip_segments = new ArrayList<>();
-            skip_segments.add(0, 99);
-            request.setSkipSegments(skip_segments);
+            List<Integer> skipSegments = new ArrayList<>();
+            skipSegments.add(0, 99);
+            request.setSkipSegments(skipSegments);
             routingService.convertRouteRequest(request);
         });
     }
 
     @Test
-    void skipSegmentsValueTooSmall() throws StatusCodeException {
+    void skipSegmentsValueTooSmall() {
         assertThrows(ParameterValueException.class, () -> {
-            List<Integer> skip_segments = new ArrayList<>();
-            skip_segments.add(0, -99);
-            request.setSkipSegments(skip_segments);
+            List<Integer> skipSegments = new ArrayList<>();
+            skipSegments.add(0, -99);
+            request.setSkipSegments(skipSegments);
             routingService.convertRouteRequest(request);
         });
     }
@@ -402,7 +381,7 @@ class RoutingServiceTest {
     }
 
     @Test
-    void testRoundTripNeedsLength() throws StatusCodeException {
+    void testRoundTripNeedsLength() {
         assertThrows(MissingParameterException.class, () -> {
             List<List<Double>> coordinates = new ArrayList<>();
             coordinates.add(new ArrayList<>(Arrays.asList(12.1234, 34.3456)));
@@ -419,7 +398,7 @@ class RoutingServiceTest {
     }
 
     @Test
-    void testSingleCoordinateNotValidForNonRoundTrip() throws StatusCodeException {
+    void testSingleCoordinateNotValidForNonRoundTrip() {
         assertThrows(ParameterValueException.class, () -> {
             List<List<Double>> coordinates = new ArrayList<>();
             coordinates.add(new ArrayList<>(Arrays.asList(12.1234, 34.3456)));

@@ -1,11 +1,9 @@
 package org.heigit.ors.api.services;
 
 import org.apache.log4j.Logger;
-import org.heigit.ors.config.EngineProperties;
 import org.heigit.ors.routing.RoutingProfile;
 import org.heigit.ors.routing.RoutingProfileManager;
 import org.heigit.ors.routing.graphhopper.extensions.manage.ORSGraphManager;
-import org.heigit.ors.util.AppInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -20,24 +18,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class GraphService {
+    private static final Logger LOGGER = Logger.getLogger(GraphService.class.getName());
 
     // get this value from ors.engine.graph_management.enabled
     private final Boolean enabled;
-
-    private final EngineProperties engineProperties;
-
-    private static final Logger LOGGER = Logger.getLogger(GraphService.class.getName());
 
     private final List<ORSGraphManager> graphManagers = new ArrayList<>();
 
     private final AtomicBoolean graphActivationAttemptWasBlocked = new AtomicBoolean(false);
     private final AtomicBoolean isActivatingGraphs = new AtomicBoolean(true);
 
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
     @Autowired
-    public GraphService(EngineProperties engineProperties, @Value("${ors.engine.graph_management.enabled:false}") Boolean enabled, ApplicationContext applicationContext) {
-        this.engineProperties = engineProperties;
+    public GraphService(@Value("${ors.engine.graph_management.enabled:false}") Boolean enabled, ApplicationContext applicationContext) {
         this.enabled = enabled;
         this.applicationContext = applicationContext;
     }
@@ -202,8 +196,8 @@ public class GraphService {
         try {
             isActivatingGraphs.set(true);
             graphManagers.clear();
-            RoutingProfileManager routingProfileManager = RoutingProfileManager.getInstance();
-            routingProfileManager.initialize(engineProperties, AppInfo.GRAPH_VERSION);
+            RoutingProfileManager routingProfileManager = applicationContext.getBean(EngineService.class).waitForActiveRoutingProfileManager();
+            routingProfileManager.initialize();
             for (RoutingProfile profile : routingProfileManager.getUniqueProfiles()) {
                 ORSGraphManager orsGraphManager = profile.getGraphhopper().getOrsGraphManager();
                 if (orsGraphManager != null && orsGraphManager.useGraphRepository()) {

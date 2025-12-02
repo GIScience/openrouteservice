@@ -124,6 +124,8 @@ ors:
       download_schedule: '0 0 0 31 2 *'
       activation_schedule: '0 0 0 31 2 *'
       max_backups: 0
+    dynamic_data:
+      enabled: false
     elevation:
       preprocessed: false
       data_access: MMAP

@@ -41,7 +41,8 @@ import static org.heigit.ors.common.TravelRangeType.DISTANCE;
 public class IsochronesService extends ApiService {
 
     @Autowired
-    public IsochronesService(EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+    public IsochronesService(EngineService engineService, EndpointsProperties endpointsProperties, ApiEngineProperties apiEngineProperties) {
+        super(engineService);
         this.endpointsProperties = endpointsProperties;
         this.apiEngineProperties = apiEngineProperties;
     }
@@ -56,7 +57,7 @@ public class IsochronesService extends ApiService {
         validateAgainstConfig(isochroneRequest);
 
         if (!travellers.isEmpty()) {
-            IsochroneMapCollection isoMaps = isochroneRequest.computeIsochrones(RoutingProfileManager.getInstance());
+            IsochroneMapCollection isoMaps = isochroneRequest.computeIsochrones(engineService.waitForActiveRoutingProfileManager());
             // TODO: is this necessary? It seems unusual to transport the response through the request object
             isochronesRequest.setIsoMaps(isoMaps);
         }
@@ -71,39 +72,11 @@ public class IsochronesService extends ApiService {
         return f;
     }
 
-    String convertLocationType(IsochronesRequestEnums.LocationType locationType) throws ParameterValueException {
-        IsochronesRequestEnums.LocationType value;
-
-        switch (locationType) {
-            case DESTINATION:
-                value = IsochronesRequestEnums.LocationType.DESTINATION;
-                break;
-            case START:
-                value = IsochronesRequestEnums.LocationType.START;
-                break;
-            default:
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_LOCATION_TYPE, locationType.toString());
-        }
-
-        return value.toString();
-    }
-
-    TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) throws ParameterValueException {
-        TravelRangeType travelRangeType;
-
-        switch (rangeType) {
-            case DISTANCE:
-                travelRangeType = TravelRangeType.DISTANCE;
-                break;
-            case TIME:
-                travelRangeType = TravelRangeType.TIME;
-                break;
-            default:
-                throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, IsochronesRequest.PARAM_RANGE_TYPE, rangeType.toString());
-        }
-
-        return travelRangeType;
-
+    TravelRangeType convertRangeType(IsochronesRequestEnums.RangeType rangeType) {
+        return switch (rangeType) {
+            case DISTANCE -> TravelRangeType.DISTANCE;
+            case TIME -> TravelRangeType.TIME;
+        };
     }
 
     String convertAreaUnit(APIEnums.Units unitsIn) throws ParameterValueException {
@@ -188,11 +161,10 @@ public class IsochronesService extends ApiService {
         if (isochronesRequest.hasIntersections())
             convertedIsochroneRequest.setIncludeIntersections(isochronesRequest.getIntersections());
         if (isochronesRequest.hasOptions())
-            convertedIsochroneRequest.setCalcMethod(convertCalcMethod(CONCAVE_BALLS));
+            convertedIsochroneRequest.setCalcMethod(CONCAVE_BALLS.getValue());
         else
-            convertedIsochroneRequest.setCalcMethod(convertCalcMethod(FASTISOCHRONE));
+            convertedIsochroneRequest.setCalcMethod(FASTISOCHRONE.getValue());
         return convertedIsochroneRequest;
-
     }
 
     Map<String, StatisticsProviderConfiguration> constructStatisticsProvidersConfiguration(Map<String, EndpointsProperties.EndpointIsochronesProperties.StatisticsProviderProperties> statsProperties) {
@@ -238,7 +210,7 @@ public class IsochronesService extends ApiService {
         if (isochronesRequest.hasRangeType())
             travellerInfo.setRangeType(convertRangeType(isochronesRequest.getRangeType()));
         if (isochronesRequest.hasLocationType())
-            travellerInfo.setLocationType(convertLocationType(isochronesRequest.getLocationType()));
+            travellerInfo.setLocationType(isochronesRequest.getLocationType().toString());
         travellerInfo.setLocation(convertSingleCoordinate(coordinate));
         travellerInfo.getRanges();
         //range + interval
@@ -306,13 +278,13 @@ public class IsochronesService extends ApiService {
 
     }
 
-    private static int getMaximumRange(TravellerInfo traveller, IsochroneRequest isochroneRequest) {
+    private int getMaximumRange(TravellerInfo traveller, IsochroneRequest isochroneRequest) {
         int profileType = traveller.getRouteSearchParameters().getProfileType();
         TravelRangeType range = traveller.getRangeType();
         String calcMethod = isochroneRequest.getCalcMethod();
         Integer res;
 
-        RoutingProfileManager rpm = RoutingProfileManager.getInstance();
+        RoutingProfileManager rpm = engineService.waitForActiveRoutingProfileManager();
         FastIsochroneFactory fastIsochroneFactory = rpm.getRoutingProfile(traveller.getRouteSearchParameters().getProfileName()).getGraphhopper().getFastIsochroneFactory();
         if (fastIsochroneFactory.isEnabled() && calcMethod.equalsIgnoreCase("fastisochrone"))
             return getMaximumRangeFastIsochrone(traveller, isochroneRequest);
@@ -378,22 +350,4 @@ public class IsochronesService extends ApiService {
             travellerInfo.setRanges(rangeValue, intervalValue);
         }
     }
-
-    String convertCalcMethod(IsochronesRequestEnums.CalculationMethod bareCalcMethod) throws ParameterValueException {
-        try {
-            switch (bareCalcMethod) {
-                case CONCAVE_BALLS:
-                    return "concaveballs";
-                case GRID:
-                    return "grid";
-                case FASTISOCHRONE:
-                    return "fastisochrone";
-                default:
-                    return "none";
-            }
-        } catch (Exception ex) {
-            throw new ParameterValueException(IsochronesErrorCodes.INVALID_PARAMETER_VALUE, "calc_method");
-        }
-    }
-
 }
