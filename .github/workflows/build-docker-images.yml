@@ -170,9 +170,9 @@ jobs:
         id: output
         run: |
           if [ "${{ inputs.push }}" == "true" ]; then
-            echo "type=image,push=true" >> $GITHUB_OUTPUT
+            echo "output=type=image,push=true" >> $GITHUB_OUTPUT
           else
-            echo "type=oci,dest=${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar" >> $GITHUB_OUTPUT
+            echo "output=type=oci,dest=${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar" >> $GITHUB_OUTPUT
           fi
 
       - name: Build ${{ matrix.image_stage }} image stage for ${{ matrix.name }}
@@ -188,7 +188,7 @@ jobs:
           platforms: "${{ matrix.platform }}"
           cache-from: type=${{ inputs.cache_from_type }}
           cache-to: type=${{ inputs.cache_from_type }},mode=max
-          outputs: ${{ steps.output.outputs.type }}
+          outputs: ${{ steps.output.outputs.output }}
 
       - name: Upload image artifact
         if: steps.should_skip.outputs.skip != 'true' && inputs.push != true
