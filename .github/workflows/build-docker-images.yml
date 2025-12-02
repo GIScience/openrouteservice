@@ -112,10 +112,13 @@ jobs:
     steps:
       - name: Check if should skip (ARM64)
         id: should_skip
+        env:
+          MATRIX_NAME: ${{ matrix.name }}
+          SKIP_ARM64: ${{ inputs.skip_arm64 }}
         run: |
           SKIP="false"
           # Skip ARM64 builds if requested
-          if [[ "${{ matrix.name }}" == "linux-arm64" && "${{ inputs.skip_arm64 }}" == "true" ]]; then
+          if [[ "$MATRIX_NAME" == "linux-arm64" && "$SKIP_ARM64" == "true" ]]; then
             SKIP="true"
           fi
           echo "skip=$SKIP" >> $GITHUB_OUTPUT
@@ -151,35 +154,38 @@ jobs:
           dockerfile: 'Dockerfile'
           cache-hit: '${{ steps.setup-java.outputs.cache-hit }}'
 
-      - name: Resolve Docker tag (publish amd64)
-        if: steps.should_skip.outputs.skip != 'true' && matrix.docker_tag_input == 'tags_publish_amd64'
-        id: resolve_tag_1
+      - name: Resolve Docker tag
+        if: steps.should_skip.outputs.skip != 'true'
+        id: resolve_tag
+        env:
+          TAG_INPUT: ${{ matrix.docker_tag_input }}
+          TAGS_PUBLISH_AMD64: ${{ inputs.tags_publish_amd64 }}
+          TAGS_PUBLISH_ARM64: ${{ inputs.tags_publish_arm64 }}
+          TAGS_MINIMAL_AMD64: ${{ inputs.tags_minimal_amd64 }}
+          TAGS_MINIMAL_ARM64: ${{ inputs.tags_minimal_arm64 }}
         run: |
-          echo "tag=${{ inputs.tags_publish_amd64 }}" >> $GITHUB_OUTPUT
-      - name: Resolve Docker tag (publish arm64)
-        if: steps.should_skip.outputs.skip != 'true' && matrix.docker_tag_input == 'tags_publish_arm64'
-        id: resolve_tag_2
-        run: |
-          echo "tag=${{ inputs.tags_publish_arm64 }}" >> $GITHUB_OUTPUT
-      - name: Resolve Docker tag (minimal amd64)
-        if: steps.should_skip.outputs.skip != 'true' && matrix.docker_tag_input == 'tags_minimal_amd64'
-        id: resolve_tag_3
-        run: |
-          echo "tag=${{ inputs.tags_minimal_amd64 }}" >> $GITHUB_OUTPUT
-      - name: Resolve Docker tag (minimal arm64)
-        if: steps.should_skip.outputs.skip != 'true' && matrix.docker_tag_input == 'tags_minimal_arm64'
-        id: resolve_tag_4
-        run: |
-          echo "tag=${{ inputs.tags_minimal_arm64 }}" >> $GITHUB_OUTPUT
+          case "$TAG_INPUT" in
+            tags_publish_amd64) TAG="$TAGS_PUBLISH_AMD64" ;;
+            tags_publish_arm64) TAG="$TAGS_PUBLISH_ARM64" ;;
+            tags_minimal_amd64) TAG="$TAGS_MINIMAL_AMD64" ;;
+            tags_minimal_arm64) TAG="$TAGS_MINIMAL_ARM64" ;;
+            *) TAG="local/openrouteservice:test" ;;
+          esac
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Determine Docker output
         if: steps.should_skip.outputs.skip != 'true'
         id: output
+        env:
+          PUSH: ${{ inputs.push }}
+          RUNNER_TEMP: ${{ runner.temp }}
+          MATRIX_NAME: ${{ matrix.name }}
+          MATRIX_STAGE: ${{ matrix.image_stage }}
         run: |
-          if [ "${{ inputs.push }}" == "true" ]; then
+          if [ "$PUSH" == "true" ]; then
             echo "output=type=image,push=true" >> $GITHUB_OUTPUT
           else
-            echo "output=type=docker,dest=${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar" >> $GITHUB_OUTPUT
+            echo "output=type=docker,dest=$RUNNER_TEMP/image-$MATRIX_NAME-$MATRIX_STAGE.tar" >> $GITHUB_OUTPUT
           fi
 
       - name: Build ${{ matrix.image_stage }} image stage for ${{ matrix.name }}
@@ -191,7 +197,7 @@ jobs:
           target: ${{ matrix.image_stage }}
           push: ${{ inputs.push }}
           load: false
-          tags: ${{ steps.resolve_tag_1.outputs.tag || steps.resolve_tag_2.outputs.tag || steps.resolve_tag_3.outputs.tag || steps.resolve_tag_4.outputs.tag || 'local/openrouteservice:test' }}
+          tags: ${{ steps.resolve_tag.outputs.tag }}
           platforms: "${{ matrix.platform }}"
           cache-from: type=${{ inputs.cache_from_type }}
           cache-to: type=${{ inputs.cache_from_type }},mode=max
