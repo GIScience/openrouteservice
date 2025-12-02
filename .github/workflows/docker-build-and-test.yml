@@ -88,7 +88,7 @@ jobs:
       - name: Load image
         if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
         run: |
-          docker buildx build --load --tag ${{ needs.prepare_environment.outputs.test_image_name }} oci-archive://${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
+          docker buildx build --load --tag ${{ needs.prepare_environment.outputs.test_image_name }} oci-archive://${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.oci
       - name: Get and save the UID
         run: |
           echo "UID=$(id -u)" >> $GITHUB_ENV
@@ -164,7 +164,7 @@ jobs:
       - name: Load image
         if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
         run: |
-          docker load --input ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
+          docker load --input ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.oci
       - name: Get and save the UID
         if: matrix.name == 'linux-amd64' || needs.prepare_environment.outputs.should_skip_arm64 == 'false'
         run: |

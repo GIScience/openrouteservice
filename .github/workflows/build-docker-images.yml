@@ -173,7 +173,7 @@ jobs:
           if [ "${{ inputs.push }}" == "true" ]; then
             echo "output=type=image,push=true" >> $GITHUB_OUTPUT
           else
-            echo "output=type=oci,dest=${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar" >> $GITHUB_OUTPUT
+            echo "output=type=oci,dest=${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.oci" >> $GITHUB_OUTPUT
           fi
 
       - name: Build ${{ matrix.image_stage }} image stage for ${{ matrix.name }}
@@ -196,7 +196,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: image-${{ matrix.name }}-${{ matrix.image_stage }}-${{ needs.prepare_environment.outputs.dockerfile_hash }}-artifact
-          path: ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar
+          path: ${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.oci
           retention-days: 1
           if-no-files-found: error
           compression-level: 0
