@@ -137,6 +137,7 @@ jobs:
         id: buildx
 
       - name: Setup Java and Maven
+        id: setup-java
         if: steps.should_skip.outputs.skip != 'true'
         uses: ./.github/actions/setup-java-maven
         with:
@@ -148,7 +149,7 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           dockerfile: 'Dockerfile'
-          cache-hit: 'false'
+          cache-hit: '${{ steps.setup-java.outputs.cache-hit }}'
 
       - name: Resolve Docker tag
         if: steps.should_skip.outputs.skip != 'true'
