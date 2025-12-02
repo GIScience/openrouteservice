@@ -5,7 +5,7 @@ name: Integration test suite
 
 on:
   push:
-    branches: [ "none" ]
+    branches: [ "main" ]
     paths-ignore:
       - 'docs/**'
       - 'ors-api/src/test/java/**'
@@ -14,7 +14,7 @@ on:
       - 'ors-report-aggregation/**'
       - '.rpm-packaging/**'
   pull_request:
-    branches: [ "none" ]
+    branches: [ "main" ]
     types:
       - opened
       - reopened
@@ -39,40 +39,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up JDK 17
-        id: setup-java
-        uses: actions/setup-java@v4
+
+      - name: Set up build environment
+        uses: ./.github/actions/setup-build-environment
         with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
-      - name: Prepare the maven cache dependencies
-        run: |
-          echo "Sync the maven dependencies"
-          ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
-          # Replace all RUN ./mvnw with RUN --mount=type=cache,target=/root/.m2 ./mvnw
-          sed -i 's/RUN \.\/mvnw /RUN --mount=type=cache,target=\/root\/.m2 \.\/mvnw /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
-      - name: inject maven-build-cache into docker
-        uses: reproducible-containers/buildkit-cache-dance@v3.1.2
-        with:
-          cache-map: |
-            {
-              "/home/runner/.m2": "/root/.m2"
-            }
+          java_version: '17'
+          dockerfile: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+
       - name: Build ors-test-scenarios-builder
         id: docker_build
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           push: false
           load: false
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
@@ -92,6 +71,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           push: false
           load: false
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
@@ -104,6 +84,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           load: true
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
           tags: ors-test-scenarios-jar-builder:latest
@@ -139,33 +120,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+
+      - name: Set up build environment
+        uses: ./.github/actions/setup-build-environment
         with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Cache local Maven repository
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: latest
-      - name: inject maven-build-cache into docker
-        uses: reproducible-containers/buildkit-cache-dance@v3.1.2
-        with:
-          cache-map: |
-            {
-              "/home/runner/.m2": "/root/.m2"
-            }
-      - name: Prepare the maven cache dependencies
-        run: |
-          # Replace all RUN ./mvnw with RUN --mount=type=cache,target=/root/.m2 ./mvnw
-          sed -i 's/RUN \.\/mvnw /RUN --mount=type=cache,target=\/root\/.m2 \.\/mvnw /g' ors-test-scenarios/src/test/resources/Builder.Dockerfile
+          java_version: '17'
+          dockerfile: 'ors-test-scenarios/src/test/resources/Builder.Dockerfile'
+
       - name: Restore cached graph
         id: restore-cached-image
         uses: actions/cache/restore@v4
@@ -177,6 +138,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           load: true
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
           tags: ors-test-scenarios-builder:latest
@@ -187,6 +149,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           load: true
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
           tags: ors-test-scenarios-${{ matrix.test-scenario }}-builder:latest
