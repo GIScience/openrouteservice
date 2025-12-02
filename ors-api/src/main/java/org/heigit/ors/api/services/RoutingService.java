@@ -476,7 +476,7 @@ public class RoutingService extends ApiService {
             return new WayPointBearing[0];
 
         if (bearingsIn.length != coordinatesLength && bearingsIn.length != coordinatesLength - 1)
-            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_BEARINGS, Arrays.toString(bearingsIn), "The number of bearings must be equal to the number of waypoints on the route.");
+            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, PARAM_BEARINGS, Arrays.deepToString(bearingsIn), "The number of bearings must be equal to the number of waypoints on the route.");
 
         WayPointBearing[] bearingsList = new WayPointBearing[coordinatesLength];
         for (int i = 0; i < bearingsIn.length; i++) {
