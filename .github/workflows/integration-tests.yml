@@ -5,7 +5,7 @@ name: Integration test suite
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "none" ]
     paths-ignore:
       - 'docs/**'
       - 'ors-api/src/test/java/**'
@@ -14,7 +14,7 @@ on:
       - 'ors-report-aggregation/**'
       - '.rpm-packaging/**'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "none" ]
     types:
       - opened
       - reopened
