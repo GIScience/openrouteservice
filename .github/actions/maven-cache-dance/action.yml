@@ -25,7 +25,7 @@ runs:
       run: |
         # Find and prepare all Dockerfiles in the repository
         find . -name "Dockerfile" -o -name "*.Dockerfile" | while read dockerfile; do
-          sed -i "s|RUN \./mvnw |RUN --mount=type=cache,target=/root/.m2 ./mvnw |g" "$dockerfile"
+          sed -i "s|RUN \./mvnw |RUN --mount=type=cache,target=/root/.m2/repository ./mvnw |g" "$dockerfile"
         done
     - name: Inject Maven cache into Docker build
       uses: 'reproducible-containers/buildkit-cache-dance@5b81f4d29dc8397a7d341dba3aeecc7ec54d6361' # v3.3.0
