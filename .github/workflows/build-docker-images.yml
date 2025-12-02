@@ -152,7 +152,7 @@ jobs:
         with:
           builder: ${{ steps.buildx.outputs.name }}
           dockerfile: 'Dockerfile'
-          cache-hit: '${{ steps.setup-java.outputs.cache-hit }}'
+          cache-hit: ${{ steps.setup-java.outputs.cache-hit }}
 
       - name: Resolve Docker tag
         if: steps.should_skip.outputs.skip != 'true'

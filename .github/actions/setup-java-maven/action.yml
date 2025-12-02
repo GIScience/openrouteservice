@@ -26,3 +26,8 @@ runs:
       run: |
         ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
         ./mvnw clean -q
+
+    - name: Output cache hit status
+      shell: bash
+      run: |
+        echo "cache-hit=${{ steps.setup-java.outputs.cache-hit }}" >> $GITHUB_OUTPUT
