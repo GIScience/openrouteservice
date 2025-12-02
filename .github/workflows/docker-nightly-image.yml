@@ -29,10 +29,25 @@ on:
         default: 'schedule'
 
 jobs:
-  check-commits:
+  prepare_environment:
+    name: Prepare the environment variables
     runs-on: ubuntu-latest
     outputs:
-      new_commits: ${{ steps.check.outputs.NEW_COMMITS }}
+      docker_tag: ${{ steps.resolve-tag.outputs.tag }}
+    steps:
+      - name: Resolve Docker tag
+        id: resolve-tag
+        env:
+          TAG_INPUT: ${{ inputs.tag || 'nightly' }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          echo "tag=${DOCKER_USERNAME}/openrouteservice:${TAG_INPUT}" >> $GITHUB_OUTPUT
+
+  check_commits:
+    name: Check for new commits
+    runs-on: ubuntu-latest
+    outputs:
+      new_commits: ${{ steps.check.outputs.new_commits }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,22 +55,25 @@ jobs:
           repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
           ref: ${{ inputs.branch || 'main' }}
 
-      - name: Check for new commits since 24 h ago
+      - name: Check for new commits since 24 hours ago
         id: check
         run: |
-          export LOG_LINES=$(git log --oneline --since '24 hours ago')
-          export NUM_LINES=$(echo "$LOG_LINES" | grep -c .)
+          LOG_LINES=$(git log --oneline --since '24 hours ago')
+          NUM_LINES=$(echo "$LOG_LINES" | grep -c .)
           if [ "$NUM_LINES" -eq "0" ]; then
-            export NEW_COMMITS="false"
+            NEW_COMMITS="false"
           else
-            export NEW_COMMITS="true"
+            NEW_COMMITS="true"
           fi
-          echo "NEW_COMMITS=$NEW_COMMITS" >> "$GITHUB_OUTPUT"
+          echo "new_commits=$NEW_COMMITS" >> "$GITHUB_OUTPUT"
 
-  build:
-    needs: check-commits
+  build_and_push:
+    name: Build and push nightly image
+    needs:
+      - prepare_environment
+      - check_commits
     runs-on: ubuntu-latest
-    if: inputs.ignore-24h-commit-check || needs.check-commits.outputs.new_commits == 'true'
+    if: inputs.ignore-24h-commit-check || needs.check_commits.outputs.new_commits == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,25 +81,25 @@ jobs:
           repository: ${{ inputs.repository || 'GIScience/openrouteservice' }}
           ref: ${{ inputs.branch || 'main' }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.0.0
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3.0.0
+      - name: Set up build environment
+        uses: ./.github/actions/setup-build-environment
+        with:
+          dockerfile: 'Dockerfile'
 
       - name: Login to DockerHub
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v5.1.0
+      - name: Build and push image
+        uses: docker/build-push-action@v6
         with:
           context: .
+          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           platforms: linux/amd64,linux/arm64/v8
           provenance: false
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: ${{ secrets.DOCKER_USERNAME }}/openrouteservice:${{ inputs.tag || 'nightly' }}
+          tags: ${{ needs.prepare_environment.outputs.docker_tag }}

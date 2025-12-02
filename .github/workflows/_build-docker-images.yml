@@ -75,10 +75,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup Java and Maven
-        uses: ./.github/actions/setup-java-maven
-        with:
-          java_version: ${{ inputs.java_version }}
 
   build_docker_images:
     name: Build ${{ matrix.image_stage }} for ${{ matrix.name }}
@@ -134,25 +130,12 @@ jobs:
         run: |
           echo "UID=$(id -u)" >> $GITHUB_ENV
 
-      - name: Set up Docker Buildx
+      - name: Set up build environment
         if: steps.should_skip.outputs.skip != 'true'
-        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 #v3.11.1
-        id: buildx
-
-      - name: Setup Java and Maven
-        id: setup-java
-        if: steps.should_skip.outputs.skip != 'true'
-        uses: ./.github/actions/setup-java-maven
+        uses: ./.github/actions/setup-build-environment
         with:
           java_version: ${{ inputs.java_version }}
-
-      - name: Maven cache dance
-        if: steps.should_skip.outputs.skip != 'true'
-        uses: ./.github/actions/maven-cache-dance
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
           dockerfile: 'Dockerfile'
-          cache-hit: ${{ steps.setup-java.outputs.cache-hit }}
 
       - name: Resolve Docker tag
         if: steps.should_skip.outputs.skip != 'true'
