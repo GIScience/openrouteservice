@@ -5,7 +5,7 @@ inputs:
   java_version:
     description: 'Java version to install'
     required: false
-    default: '17'
+    default: '21'
 outputs:
   cache-hit:
     description: 'Whether the Maven cache was hit'
@@ -23,4 +23,6 @@ runs:
     - name: Download maven dependencies
       if: steps.setup-java.outputs.cache-hit != 'true'
       shell: bash
-      run: ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+      run: |
+        ./mvnw package -Dmaven.test.skip=true -B dependency:go-offline dependency:resolve-plugins dependency:resolve -q
+        ./mvnw clean -q
