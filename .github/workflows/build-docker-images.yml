@@ -170,9 +170,9 @@ jobs:
         id: output
         run: |
           if [ "${{ inputs.push }}" == "true" ]; then
-            echo "type=docker" >> $GITHUB_OUTPUT
+            echo "type=image,push=true" >> $GITHUB_OUTPUT
           else
-            echo "type=docker,dest=${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar" >> $GITHUB_OUTPUT
+            echo "type=oci,dest=${{ runner.temp }}/image-${{ matrix.name }}-${{ matrix.image_stage }}.tar" >> $GITHUB_OUTPUT
           fi
 
       - name: Build ${{ matrix.image_stage }} image stage for ${{ matrix.name }}
