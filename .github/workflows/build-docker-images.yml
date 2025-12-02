@@ -151,20 +151,26 @@ jobs:
           dockerfile: 'Dockerfile'
           cache-hit: '${{ steps.setup-java.outputs.cache-hit }}'
 
-      - name: Resolve Docker tag
-        if: steps.should_skip.outputs.skip != 'true'
-        id: resolve_tag
+      - name: Resolve Docker tag (publish amd64)
+        if: steps.should_skip.outputs.skip != 'true' && matrix.docker_tag_input == 'tags_publish_amd64'
+        id: resolve_tag_1
         run: |
-          # Map the docker_tag_input to the actual input value
-          TAG_INPUT="${{ matrix.docker_tag_input }}"
-          case "$TAG_INPUT" in
-            tags_publish_amd64) TAG="${{ inputs.tags_publish_amd64 }}" ;;
-            tags_publish_arm64) TAG="${{ inputs.tags_publish_arm64 }}" ;;
-            tags_minimal_amd64) TAG="${{ inputs.tags_minimal_amd64 }}" ;;
-            tags_minimal_arm64) TAG="${{ inputs.tags_minimal_arm64 }}" ;;
-            *) TAG="local/openrouteservice:test" ;;
-          esac
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "tag=${{ inputs.tags_publish_amd64 }}" >> $GITHUB_OUTPUT
+      - name: Resolve Docker tag (publish arm64)
+        if: steps.should_skip.outputs.skip != 'true' && matrix.docker_tag_input == 'tags_publish_arm64'
+        id: resolve_tag_2
+        run: |
+          echo "tag=${{ inputs.tags_publish_arm64 }}" >> $GITHUB_OUTPUT
+      - name: Resolve Docker tag (minimal amd64)
+        if: steps.should_skip.outputs.skip != 'true' && matrix.docker_tag_input == 'tags_minimal_amd64'
+        id: resolve_tag_3
+        run: |
+          echo "tag=${{ inputs.tags_minimal_amd64 }}" >> $GITHUB_OUTPUT
+      - name: Resolve Docker tag (minimal arm64)
+        if: steps.should_skip.outputs.skip != 'true' && matrix.docker_tag_input == 'tags_minimal_arm64'
+        id: resolve_tag_4
+        run: |
+          echo "tag=${{ inputs.tags_minimal_arm64 }}" >> $GITHUB_OUTPUT
 
       - name: Determine Docker output
         if: steps.should_skip.outputs.skip != 'true'
@@ -185,7 +191,7 @@ jobs:
           target: ${{ matrix.image_stage }}
           push: ${{ inputs.push }}
           load: false
-          tags: ${{ steps.resolve_tag.outputs.tag }}
+          tags: ${{ steps.resolve_tag_1.outputs.tag || steps.resolve_tag_2.outputs.tag || steps.resolve_tag_3.outputs.tag || steps.resolve_tag_4.outputs.tag || 'local/openrouteservice:test' }}
           platforms: "${{ matrix.platform }}"
           cache-from: type=${{ inputs.cache_from_type }}
           cache-to: type=${{ inputs.cache_from_type }},mode=max
