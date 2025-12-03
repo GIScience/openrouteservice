@@ -29,20 +29,11 @@ jobs:
           key: ${{ runner.os }}-sonar-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-sonar
       - name: run unit tests
-        run: ./mvnw -B verify -Papitests -T $(nproc) -DCI=true
+        run: ./mvnw -B install -Papitests -T $(nproc) -DCI=true
       - name: Run the unit tests a second time with jacoco
         run: |
           # Ensure test stability across graph reloads.
           ./mvnw -B verify -Papitests -T $(nproc) jacoco:report
-      - name: 'Prepare Maven repository artifact for Sonar fork analysis'
-        if: github.event_name != 'workflow_run'
-        shell: bash
-        run: |
-          # Create a placeholder repository.tar file for the sonar-fork-analysis action.
-          # The action expects this file in ~/.m2/repository/ and moves it to the current directory
-          # for artifact upload. The Maven repository cache is handled separately by
-          # actions/setup-java@v4 with cache: 'maven', so we only need a placeholder file.
-          touch ~/.m2/repository/repository.tar
       - name: 'Prepare Sonar analysis'
         uses: evaristegalois11/sonar-fork-analysis@v1
         with:
