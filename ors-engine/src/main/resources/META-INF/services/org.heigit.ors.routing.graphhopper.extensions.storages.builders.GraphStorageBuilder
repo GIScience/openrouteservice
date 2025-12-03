@@ -1,4 +1,3 @@
-org.heigit.ors.routing.graphhopper.extensions.storages.builders.HeavyVehicleGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.HereTrafficGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.HillIndexGraphStorageBuilder
 org.heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder

@@ -13,105 +13,77 @@
  */
 package org.heigit.ors.routing.graphhopper.extensions.edgefilters;
 
-import com.graphhopper.routing.querygraph.EdgeIteratorStateHelper;
+import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.EdgeFilter;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import org.heigit.ors.routing.graphhopper.extensions.HeavyVehicleAttributes;
-import org.heigit.ors.routing.graphhopper.extensions.VehicleDimensionRestrictions;
 import org.heigit.ors.routing.graphhopper.extensions.VehicleLoadCharacteristicsFlags;
-import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.HeavyVehicleAttributesGraphStorage;
 import org.heigit.ors.routing.parameters.VehicleParameters;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HeavyVehicleEdgeFilter implements EdgeFilter {
-    private final int vehicleType;
-    private final boolean hasHazmat;
-    private final HeavyVehicleAttributesGraphStorage gsHeavyVehicles;
-    private final float[] restrictionValues;
-    private final double[] retValues;
-    private final Integer[] indexValues;
-    private final Integer[] indexLocs;
-    private final int restCount;
+    Map<DecimalEncodedValue, Double> vehicleRestrictions = new HashMap<>();
+    private BooleanEncodedValue vehicleAccessEnc = null;
+    private BooleanEncodedValue hazmatAccessEnc = null;
+    private boolean hasHazmat = false;
 
     public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, GraphHopperStorage graphStorage) {
-        this(vehicleType, vehicleParams, GraphStorageUtils.getGraphExtension(graphStorage, HeavyVehicleAttributesGraphStorage.class));
-    }
+        var encodingManager = graphStorage.getEncodingManager();
 
-    public HeavyVehicleEdgeFilter(int vehicleType, VehicleParameters vehicleParams, HeavyVehicleAttributesGraphStorage hgvStorage) {
-        float[] vehicleAttrs = new float[VehicleDimensionRestrictions.COUNT];
+        String vehicleAccessKey = switch (vehicleType) {
+            case HeavyVehicleAttributes.AGRICULTURE -> AgriculturalAccess.KEY;
+            case HeavyVehicleAttributes.BUS -> BusAccess.KEY;
+            case HeavyVehicleAttributes.DELIVERY -> DeliveryAccess.KEY;
+            case HeavyVehicleAttributes.FORESTRY -> ForestryAccess.KEY;
+            case HeavyVehicleAttributes.GOODS -> GoodsAccess.KEY;
+            case HeavyVehicleAttributes.HGV -> HgvAccess.KEY;
+            default -> throw new IllegalArgumentException("Unsupported vehicle type for HeavyVehicleEdgeFilter.");
+        };
+        if (encodingManager.hasEncodedValue(vehicleAccessKey))
+            vehicleAccessEnc = encodingManager.getBooleanEncodedValue(vehicleAccessKey);
 
-        if (vehicleParams != null) {
-            this.hasHazmat = VehicleLoadCharacteristicsFlags.isSet(vehicleParams.getLoadCharacteristics(), VehicleLoadCharacteristicsFlags.HAZMAT);
+        if (vehicleParams == null || !vehicleParams.hasAttributes())
+            return;
 
-            vehicleAttrs[VehicleDimensionRestrictions.MAX_HEIGHT] = (float) vehicleParams.getHeight();
-            vehicleAttrs[VehicleDimensionRestrictions.MAX_WIDTH] = (float) vehicleParams.getWidth();
-            vehicleAttrs[VehicleDimensionRestrictions.MAX_WEIGHT] = (float) vehicleParams.getWeight();
-            vehicleAttrs[VehicleDimensionRestrictions.MAX_LENGTH] = (float) vehicleParams.getLength();
-            vehicleAttrs[VehicleDimensionRestrictions.MAX_AXLE_LOAD] = (float) vehicleParams.getAxleload();
-        } else {
-            this.hasHazmat = false;
-        }
+        hasHazmat = VehicleLoadCharacteristicsFlags.isSet(vehicleParams.getLoadCharacteristics(), VehicleLoadCharacteristicsFlags.HAZMAT);
+        if (encodingManager.hasEncodedValue(HazmatAccess.KEY))
+            hazmatAccessEnc = encodingManager.getBooleanEncodedValue(HazmatAccess.KEY);
 
-        ArrayList<Integer> idx = new ArrayList<>();
-        ArrayList<Integer> idxl = new ArrayList<>();
-
-        for (int i = 0; i < VehicleDimensionRestrictions.COUNT; i++) {
-            float value = vehicleAttrs[i];
-            if (value > 0) {
-                idx.add(i);
-                idxl.add(i);
-            }
-        }
-
-        retValues = new double[5];
-
-        this.restrictionValues = vehicleAttrs;
-        this.indexValues = idx.toArray(new Integer[0]);
-        this.indexLocs = idxl.toArray(new Integer[0]);
-        this.restCount = indexValues.length;
-
-        this.vehicleType = vehicleType;
-
-        this.gsHeavyVehicles = hgvStorage;
+        if (vehicleParams.hasAxleload() && encodingManager.hasEncodedValue(MaxAxleLoad.KEY))
+            vehicleRestrictions.put(encodingManager.getDecimalEncodedValue(MaxAxleLoad.KEY), vehicleParams.getAxleload());
+        if (vehicleParams.hasHeight() && encodingManager.hasEncodedValue(MaxHeight.KEY))
+            vehicleRestrictions.put(encodingManager.getDecimalEncodedValue(MaxHeight.KEY), vehicleParams.getHeight());
+        if (vehicleParams.hasLength() && encodingManager.hasEncodedValue(MaxLength.KEY))
+            vehicleRestrictions.put(encodingManager.getDecimalEncodedValue(MaxLength.KEY), vehicleParams.getLength());
+        if (vehicleParams.hasWeight() && encodingManager.hasEncodedValue(MaxWeight.KEY))
+            vehicleRestrictions.put(encodingManager.getDecimalEncodedValue(MaxWeight.KEY), vehicleParams.getWeight());
+        if (vehicleParams.hasWidth() && encodingManager.hasEncodedValue(MaxWidth.KEY))
+            vehicleRestrictions.put(encodingManager.getDecimalEncodedValue(MaxWidth.KEY), vehicleParams.getWidth());
     }
 
     @Override
     public boolean accept(EdgeIteratorState iter) {
-        int edgeId = EdgeIteratorStateHelper.getOriginalEdge(iter);
-
-        int vt = gsHeavyVehicles.getEdgeVehicleType(edgeId);
-
-        // access restriction for to the given vehicle type
-        if (vt != HeavyVehicleAttributes.UNKNOWN && isVehicleType(vt, vehicleType)) {
-                    return false;
-        }
-
-        if (hasHazmat && isVehicleType(vt, HeavyVehicleAttributes.HAZMAT)) {
+        // test access restrictions for the given vehicle type
+        if (!acceptVehicleType(iter))
+            return false;
+        // test hazmat restriction
+        if (hasHazmat && hazmatAccessEnc != null && !iter.get(hazmatAccessEnc)) {
             return false;
         }
-
-        if (restCount != 0) {
-            if (restCount == 1) {
-                double value = gsHeavyVehicles.getEdgeRestrictionValue(edgeId, indexValues[0]);
-                return value <= 0 || value >= restrictionValues[indexLocs[0]];
-            } else {
-                if (gsHeavyVehicles.getEdgeRestrictionValues(edgeId, retValues)) {
-                    for (int i = 0; i < restCount; i++) {
-                        double value = retValues[indexLocs[i]];
-                        if (value > 0.0f && value < restrictionValues[indexLocs[i]]) {
-                            return false;
-                        }
-                    }
-                }
+        // test dimension restrictions
+        for (Map.Entry<DecimalEncodedValue, Double> entry : vehicleRestrictions.entrySet()) {
+            double value = iter.get(entry.getKey());
+            if (value > 0.0 && value < entry.getValue()) {
+                return false;
             }
         }
         return true;
     }
 
-    private boolean isVehicleType(int vt, int vehicleType) {
-        return (vt & vehicleType) == vehicleType;
+    private boolean acceptVehicleType(EdgeIteratorState edge) {
+        return vehicleAccessEnc == null || edge.get(vehicleAccessEnc);
     }
 }
