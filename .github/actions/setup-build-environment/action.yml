@@ -27,13 +27,6 @@ outputs:
 runs:
   using: composite
   steps:
-
-    - name: Checkout
-      if: steps.check_build.outputs.skip == 'false'
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
     - name: Set up JDK ${{ inputs.java_version }}
       id: setup-java
       uses: actions/setup-java@v4
