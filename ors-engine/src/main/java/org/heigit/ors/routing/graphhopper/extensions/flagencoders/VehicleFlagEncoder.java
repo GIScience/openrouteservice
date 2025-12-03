@@ -26,7 +26,7 @@ import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.BitUtil;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
-import org.heigit.ors.routing.graphhopper.extensions.ev.DynamicData;
+import com.graphhopper.routing.ev.DynamicData;
 
 import java.util.Arrays;
 import java.util.HashMap;

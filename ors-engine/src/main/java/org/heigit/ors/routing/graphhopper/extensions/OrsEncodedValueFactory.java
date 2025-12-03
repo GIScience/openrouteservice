@@ -5,7 +5,7 @@ import com.graphhopper.routing.ev.EncodedValue;
 import com.graphhopper.routing.ev.EncodedValueFactory;
 import com.graphhopper.routing.ev.PointData;
 import com.graphhopper.util.Helper;
-import org.heigit.ors.routing.graphhopper.extensions.ev.DynamicData;
+import com.graphhopper.routing.ev.DynamicData;
 
 public class OrsEncodedValueFactory implements EncodedValueFactory {
     DefaultEncodedValueFactory defaultEncodedValueFactory = new DefaultEncodedValueFactory();
