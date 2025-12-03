@@ -51,7 +51,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           push: false
           load: false
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
@@ -71,7 +70,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           push: false
           load: false
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
@@ -84,7 +82,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           load: true
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
           tags: ors-test-scenarios-jar-builder:latest
@@ -138,7 +135,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           load: true
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
           tags: ors-test-scenarios-builder:latest
@@ -149,7 +145,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: MAVEN_OPTS=-Dmaven.repo.local=/root/.m2/repository
           load: true
           file: ./ors-test-scenarios/src/test/resources/Builder.Dockerfile
           tags: ors-test-scenarios-${{ matrix.test-scenario }}-builder:latest
